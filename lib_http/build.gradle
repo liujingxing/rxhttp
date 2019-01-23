@@ -1,0 +1,130 @@
+apply plugin: 'com.android.library'
+apply plugin: 'maven'
+
+// 需要添加以下两个插件，用来编译下面的代码，这点很重要
+apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: 'com.jfrog.bintray'
+
+android {
+    compileSdkVersion 28
+
+    defaultConfig {
+        minSdkVersion 15
+        targetSdkVersion 28
+        versionCode 1
+        versionName "1.0"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    api 'com.squareup.okhttp3:okhttp:3.10.0'
+    api 'com.google.code.gson:gson:2.8.2'
+    api 'io.reactivex.rxjava2:rxjava:2.2.0'
+    api 'io.reactivex.rxjava2:rxandroid:2.1.0'
+}
+
+
+// 项目的主页，项目有提交到github 就可以把 这项写上去，没有的话也可以不用，不过下
+//面有引用到的 “siteUrl ” 也要对应的去掉
+def siteUrl = rootProject.ext.siteUrl
+// Git仓库的url，项目有提交到github 就可以把 这项写上去，没有的话也可以不用，不过下面有引用到的 “siteUrl ” 也要对应的去掉
+def gitUrl = rootProject.ext.gitUrl
+
+// Maven Group ID for the artifact，一般填你唯一的包名
+//比如 compile 'com.android.support:support-v4:24.0.0' 中的
+//com.android.support 部分
+group = rootProject.ext.group
+
+// 这个version是区分library版本的，因此当我们需要更新library时记得修改这个version
+version = rootProject.ext.version
+
+//生成源文件
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier = 'sources'
+}
+
+//生成文档
+task javadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+    options.encoding = "UTF-8" //添加编码方式，才不会报编码错误
+}
+
+//文档打包成jar
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+//上传到jcenter所需要的源码文件
+artifacts {
+    archives javadocJar
+    archives sourcesJar
+}
+
+// 配置maven库，生成POM.xml文件
+install {
+    repositories.mavenInstaller {
+        // This generates POM.xml with proper parameters
+        pom {
+            project {
+                packaging rootProject.ext.packaging
+                // Add your description here
+                name 'materialDialog'     //项目描述
+                url siteUrl
+                // Set your license
+                licenses {
+                    license {
+                        name 'The Apache Software License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {//填写的一些基本信息
+                        id rootProject.ext.id
+                        name rootProject.ext.name
+                        email rootProject.ext.email
+                    }
+                }
+                scm {
+                    connection gitUrl
+                    developerConnection gitUrl
+                    url siteUrl
+                }
+            }
+        }
+    }
+}
+
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+bintray {
+    user = properties.getProperty("bintray.user")
+    key = properties.getProperty("bintray.apikey")
+    configurations = ['archives']
+    pkg {
+        repo = "maven"
+        name = rootProject.ext.projectName    //发布到JCenter上的项目名字
+        websiteUrl = siteUrl
+        vcsUrl = gitUrl
+        licenses = ["Apache-2.0"]
+        publish = true
+    }
+}
+//更新version 版本信息，然后在项目目录下（不是在模块目录下）执行 ./gradlew bintrayUpload  语句，即可更新到jcenter库上
+
+

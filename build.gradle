@@ -1,0 +1,44 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+
+buildscript {
+    repositories {
+        google()
+        jcenter()
+        
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.3.0'
+        //自动化maven打包插件
+        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.5'
+        //自动上传至Bintray平台插件
+        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7"
+        
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        jcenter()
+        
+    }
+}
+
+ext {
+    version = "1.0.0"
+    group = "com.android.design"
+    projectName = "MaterialDialog"
+    id = 'liujinxging'
+    name = 'liujinxging'
+    email = '327744707@qq.com'
+    packaging = 'aar'
+    siteUrl = 'https://github.com/liujingxing/MaterialDialogApplication'
+    gitUrl = 'https://github.com/liujingxing/MaterialDialogApplication.git'
+
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}
