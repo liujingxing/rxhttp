@@ -18,6 +18,11 @@ buildscript {
     }
 }
 
+//最好加上全局编码设置
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
 allprojects {
     repositories {
         google()
@@ -28,14 +33,14 @@ allprojects {
 
 ext {
     version = "1.0.0"
-    group = "com.android.design"
-    projectName = "MaterialDialog"
-    id = 'liujinxging'
-    name = 'liujinxging'
+    group = "com.http.wrapper"
+    projectName = "httpsender"
+    id = 'liujingxing'
+    name = 'liujingxing'
     email = '327744707@qq.com'
     packaging = 'aar'
-    siteUrl = 'https://github.com/liujingxing/MaterialDialogApplication'
-    gitUrl = 'https://github.com/liujingxing/MaterialDialogApplication.git'
+    siteUrl = 'https://github.com/liujingxing/HttpSender'
+    gitUrl = 'https://github.com/liujingxing/HttpSender.git'
 
 }
 
