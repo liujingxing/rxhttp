@@ -61,7 +61,11 @@ task sourcesJar(type: Jar) {
 task javadoc(type: Javadoc) {
     source = android.sourceSets.main.java.srcDirs
     classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
-    options.encoding = "UTF-8" //添加编码方式，才不会报编码错误
+    options.encoding "UTF-8"
+    options.charSet 'UTF-8'
+    options.author true
+    options.version true
+    failOnError false
 }
 
 //文档打包成jar
@@ -84,7 +88,7 @@ install {
             project {
                 packaging rootProject.ext.packaging
                 // Add your description here
-                name 'materialDialog'     //项目描述
+                name rootProject.ext.projectName     //项目描述
                 url siteUrl
                 // Set your license
                 licenses {
