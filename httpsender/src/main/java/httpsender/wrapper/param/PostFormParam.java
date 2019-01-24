@@ -42,6 +42,7 @@ public class PostFormParam extends AbstractPostParam implements ProgressParam {
                 : BuildUtil.buildFormRequestBody(this);
         final ProgressCallback callback = mCallback;
         if (callback != null) {
+            //设置了进度回调，则对RequestBody进行装饰
             return new ProgressRequestBody(requestBody, callback);
         }
         return requestBody;

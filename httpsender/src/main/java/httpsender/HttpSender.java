@@ -40,8 +40,8 @@ public class HttpSender extends Sender {
     }
 
     /**
-     * 同步发一个请求
-     * <p>支持Get、Post等方式请求
+     * 同步发送一个请求
+     * <p>支持任意请求方式，如：Get、Head、Post、Put等
      *
      * @param param 请求参数
      * @return Response
@@ -52,8 +52,8 @@ public class HttpSender extends Sender {
     }
 
     /**
-     * 同步发一个请求
-     * <p>支持Get、Post等方式请求
+     * 同步发送一个请求
+     * <p>支持任意请求方式，如：Get、Head、Post、Put等
      * <p>亦支持文件上传/下载(无进度回调)
      * {@link DownloadParser} 文件下载(无进度回调)
      * {@link PostFormParam} 文件上传(无进度回调)
@@ -69,7 +69,7 @@ public class HttpSender extends Sender {
     }
 
     /**
-     * <P>异步发送一个请求
+     * <P>异步发送一个请求，在{@link Schedulers#io()} 执行
      * <P>仅支持Get请求
      * <P>不支持文件上传/下载
      *
@@ -81,20 +81,19 @@ public class HttpSender extends Sender {
     }
 
     /**
-     * <P>异步发送一个请求
-     * <P>支持Get、Post等方式请求
+     * <P>异步发送一个请求，在{@link Schedulers#io()} 执行
+     * <p>支持任意请求方式，如：Get、Head、Post、Put等
      * <P>不支持文件上传/下载
      *
      * @param param 请求参数
      * @return Observable<String>
      */
     public static Observable<String> from(@NonNull Param param) {
-        return Observable.fromCallable(() -> execute(param, StringParser.get()))
-                .subscribeOn(Schedulers.io());
+        return from(param, StringParser.get());
     }
 
     /**
-     * <P>异步发送一个请求
+     * <P>异步发送一个请求，在{@link Schedulers#io()} 执行
      * <P>仅支持Get请求及文件下载(无进度回调)
      * {@link DownloadParser} 文件下载(无进度回调)
      *
@@ -109,8 +108,8 @@ public class HttpSender extends Sender {
     }
 
     /**
-     * <P>异步发送一个请求，
-     * <p>支持Get、Post等方式请求
+     * <P>异步发送一个请求，在{@link Schedulers#io()} 执行
+     * <p>支持任意请求方式，如：Get、Head、Post、Put等
      * <p>亦支持文件上传/下载(无进度回调)
      * {@link DownloadParser} 文件下载(无进度回调)
      * {@link PostFormParam} 文件上传(无进度回调)
@@ -123,12 +122,29 @@ public class HttpSender extends Sender {
      * @see #upload(Param, Parser) 上传带进度回调
      */
     public static <T> Observable<T> from(@NonNull Param param, @NonNull Parser<T> parser) {
-        return Observable.fromCallable(() -> execute(param, parser))
-                .subscribeOn(Schedulers.io());
+        return syncFrom(param,parser).subscribeOn(Schedulers.io());
     }
 
     /**
-     * 仅支持文件下载，带进度回调
+     * <P>同步发送一个请求
+     * <p>支持任意请求方式，如：Get、Head、Post、Put等
+     * <p>亦支持文件上传/下载(无进度回调)
+     * {@link DownloadParser} 文件下载(无进度回调)
+     * {@link PostFormParam} 文件上传(无进度回调)
+     *
+     * @param param  请求参数
+     * @param parser 数据解析器
+     * @param <T>    要转换的目标数据类型
+     * @return Observable<T>
+     * @see #download(Param, String) 下载带进度回调
+     * @see #upload(Param, Parser) 上传带进度回调
+     */
+    public static <T> Observable<T> syncFrom(@NonNull Param param, @NonNull Parser<T> parser) {
+        return Observable.fromCallable(() -> execute(param, parser));
+    }
+
+    /**
+     * 异步文件下载，带进度回调
      *
      * @param param    请求参数
      * @param destPath 目标路径
