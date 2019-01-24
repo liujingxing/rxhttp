@@ -1,1 +1,1 @@
-include ':app', ':lib_http'
+include ':app', ':httpsender'

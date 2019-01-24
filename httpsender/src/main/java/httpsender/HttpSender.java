@@ -3,7 +3,6 @@ package httpsender;
 import java.io.IOException;
 
 import httpsender.wrapper.entity.Progress;
-import httpsender.wrapper.param.GetParam;
 import httpsender.wrapper.param.Param;
 import httpsender.wrapper.param.PostFormParam;
 import httpsender.wrapper.param.ProgressParam;

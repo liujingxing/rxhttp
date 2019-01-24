@@ -24,8 +24,9 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation project(":lib_http")
+    implementation project(":httpsender")
     implementation 'androidx.appcompat:appcompat:1.1.0-alpha01'
+//    implementation 'com.http.wrapper:httpsender:1.0.0'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.1.1'

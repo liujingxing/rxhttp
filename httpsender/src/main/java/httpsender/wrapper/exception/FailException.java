@@ -1,7 +1,7 @@
 package httpsender.wrapper.exception;
 
 /**
- * 失败异常    Response.getCode != 100
+ * 失败异常
  * User: ljx
  * Date: 2018/11/21
  * Time: 10:12

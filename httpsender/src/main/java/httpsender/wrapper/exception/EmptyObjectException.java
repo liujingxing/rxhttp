@@ -1,7 +1,7 @@
 package httpsender.wrapper.exception;
 
 /**
- * 空对象异常    Response.getCode()==100 && Response.getData()==null
+ * 空对象异常
  * User: ljx
  * Date: 2018/11/21
  * Time: 09:42
