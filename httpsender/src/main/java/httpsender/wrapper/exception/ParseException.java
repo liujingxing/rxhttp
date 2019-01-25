@@ -28,18 +28,7 @@ public class ParseException extends IOException {
 
     @Nullable
     @Override
-    public String getMessage() {
-        return super.getMessage() + filterErrorCode(mErrorCode);
-    }
-
-    @Nullable
-    @Override
     public String getLocalizedMessage() {
         return mErrorCode;
-    }
-
-    private String filterErrorCode(String errorCode) {
-        if (errorCode == null) return "";
-        return "_" + errorCode;
     }
 }

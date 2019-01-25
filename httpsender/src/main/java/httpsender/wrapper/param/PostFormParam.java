@@ -30,6 +30,11 @@ public class PostFormParam extends AbstractPostParam implements ProgressParam {
         return new PostFormParam(url);
     }
 
+    /**
+     * 设置上传进度监听器
+     * @param callback 进度回调对象
+     * @return PostFormParam
+     */
     @Override
     public final PostFormParam setProgressCallback(ProgressCallback callback) {
         mCallback = callback;
@@ -42,7 +47,7 @@ public class PostFormParam extends AbstractPostParam implements ProgressParam {
                 : BuildUtil.buildFormRequestBody(this);
         final ProgressCallback callback = mCallback;
         if (callback != null) {
-            //设置了进度回调，则对RequestBody进行装饰
+            //如果设置了进度回调，则对RequestBody进行装饰
             return new ProgressRequestBody(requestBody, callback);
         }
         return requestBody;

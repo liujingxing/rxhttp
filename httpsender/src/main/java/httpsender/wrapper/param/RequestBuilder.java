@@ -9,5 +9,8 @@ import okhttp3.Request;
  */
 public interface RequestBuilder {
 
+    /**
+     * @return 构建一个请求
+     */
     Request buildRequest();
 }
