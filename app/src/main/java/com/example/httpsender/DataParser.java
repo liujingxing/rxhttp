@@ -1,12 +1,11 @@
 package com.example.httpsender;
 
 
-import httpsender.wrapper.exception.*;
-import httpsender.wrapper.parse.*;
-
 import java.io.IOException;
 import java.lang.reflect.Type;
 
+import httpsender.wrapper.exception.ParseException;
+import httpsender.wrapper.parse.AbstractParser;
 import httpsender.wrapper.utils.GsonUtil;
 
 /**
@@ -21,25 +20,27 @@ public class DataParser<T> extends AbstractParser<T> {
         super();
     }
 
-    @SuppressWarnings("unchecked")
+    /**
+     * @param response Http执行结果
+     * @return 开发者传入的泛型类型
+     * @throws IOException 网络异常、数据异常等，RxJava的观察者会捕获此异常
+     */
     @Override
     public T onParse(okhttp3.Response response) throws IOException {
-        String content = getResult(response);
-        final Type type = getActualTypeParameter();
-        Response<T> hr = GsonUtil.getObject(content, ResponseType.get(type));
-        throwIfFatal(hr);
-        T t = hr.getData();
-        if (t == null) {
-            if (type == String.class) return (T) hr.getMsg();
-            throw new EmptyObjectException(String.valueOf(hr.getCode()), hr.getMsg());
+        String content = getResult(response); //从Response中取出Http执行结果
+        final Type type = getActualTypeParameter(); //获取泛型类型
+        //通过Gson自动解析成Data<T>对象
+        Data<T> data = GsonUtil.getObject(content, DataType.get(type));
+        if (data == null) //为空 ，表明数据不正确
+            throw new ParseException("data parse error");
+        //跟服务端协议好，code等于100，才代表数据正确,否则，抛出异常
+        if (data.getCode() != 100) {
+            throw new ParseException(String.valueOf(data.getCode()), data.getMsg());
+        }
+        T t = data.getData(); //获取data字段
+        if (t == null) {  //为空，有可能是参数错误或者其他原因，导致服务器不能正确给我们data字段数据
+            throw new ParseException(String.valueOf(data.getCode()), data.getMsg());
         }
         return t;
-    }
-
-    private void throwIfFatal(Response response) throws IOException {
-        if (response == null)
-            throw new ParseException("data parse error");
-        if (!response.isSuccess())
-            throw new FailException(String.valueOf(response.getCode()), response.getMsg());
     }
 }

@@ -1,7 +1,6 @@
 package com.example.httpsender;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 
 import java.io.File;
@@ -10,199 +9,159 @@ import androidx.appcompat.app.AppCompatActivity;
 import httpsender.HttpSender;
 import httpsender.wrapper.entity.Progress;
 import httpsender.wrapper.param.Param;
-import httpsender.wrapper.parse.DownloadParser;
 import httpsender.wrapper.parse.SimpleParser;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Function;
-import io.reactivex.functions.Predicate;
 import io.reactivex.plugins.RxJavaPlugins;
 
+
 public class MainActivity extends AppCompatActivity {
-    public static final String url  = "http://update.9158.com/miaolive/Miaolive.apk";
-    public static final String url1 = "http://update.9158.com/miaolive/Miaolive.apk?";
-    public static final String url2 = "http://update.9158.com/miaolive/Miaolive.apk?version=100";
-    Disposable subscribe;
+
+    //管理HttpSender请求的生命周期，也是RxJava观察者的生命周期
+    private CompositeDisposable mCompositeDisposable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        String url = "http://www.baidu.com";
-        Param param = Param.postForm(url)  //FormParam 表明发送表单形式的Post请求,后续会继续介绍
-                .add("versionCode", 100)
-                .add("versionName", "1.0.0")
-                .addHeader("deviceType", "android")
-                .add("file", new File("xxx/1.png"))//new 一个File对象并传入文件路径即可上传文件
-                .add("file1", new File("xxx/2.png"));
-        Disposable disposable = HttpSender
-                .from(param, new SimpleParser<Update>() {}) //注意:这里使用from操作符
-                .observeOn(AndroidSchedulers.mainThread())  //主线程回调
-                .subscribe(new Consumer<Update>() {
-                    @Override
-                    public void accept(Update update) throws Exception {
-                        //这里拿到Http执行结果，默认为String类
-                    }
-                }, new Consumer<Throwable>() {
-                    @Override
-                    public void accept(Throwable throwable) throws Exception {
-                        //出现错误
-                    }
-                });
-
-    }
-
-    //HttpSender初始化
-    private void HttpSenderInit() {
-//        HttpSender.init(new OkHttpClient());//自定义OkHttpClient对象
-        RxJavaPlugins.setErrorHandler(throwable -> {
-        });
-        HttpSender.setOnParamAssembly(p -> {
-            //这里添加公共参数
-            return p;
-        });
     }
 
     public void onClick(View view) {
         sendGet();
     }
 
-    private void sendGet() {
-        String url = "http://ip.taobao.com/service/getIpInfo.php";
-        Param param = Param.postForm(url)
-                .add("ip", "63.223.108.42")
-                .addHeader("accept", "*/*")
-                .addHeader("connection", "Keep-Alive")
-                .addHeader("user-agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1;SV1)");
-        Disposable subscribe = HttpSender.from(param, new SimpleParser<Response<String>>() {})
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(s -> {
-                    Log.e("LJX", "accept s=" + s.getData());
-                }, throwable -> {
-                    Log.e("LJX", "accept throwable=" + throwable.getMessage());
-                });
+    //HttpSender初始化
+    private void httpSenderInit() {
+        //HttpSender初始化，自定义OkHttpClient对象,非必须
+//        HttpSender.init(new OkHttpClient());
+
+        //设置RxJava 全局异常处理
+        RxJavaPlugins.setErrorHandler(throwable -> {
+            /**
+             * RxJava2的一个重要的设计理念是：不吃掉任何一个异常,即抛出的异常无人处理，便会导致程序崩溃
+             * 这就会导致一个问题，当RxJava2“downStream”取消订阅后，“upStream”仍有可能抛出异常，
+             * 这时由于已经取消订阅，“downStream”无法处理异常，此时的异常无人处理，便会导致程序崩溃
+             */
+        });
+        HttpSender.setOnParamAssembly(p -> {
+            //这里添加公共参数,这里在子线程执行
+            return p.add("versionName", "1.0.0")
+                    .addHeader("deviceType", "android");
+        });
     }
 
-    //下载文件，不带进度
-    private void download() {
-        String url = "http://update.9158.com/miaolive/Miaolive.apk";
-        Param param = Param.get(url); //这里可添加参数及请求头信息
-        //文件存储路径
-        String destPath = getExternalCacheDir() + "/" + System.currentTimeMillis() + ".apk";
+    //发送Get请求
+    private void sendGet() {
+        String url = "http://ip.taobao.com/service/getIpInfo.php";
+        Param param = Param.get(url) //这里get,代表Get请求
+                .add("ip", "63.223.108.42")//添加参数
+                .addHeader("accept", "*/*") //添加请求头
+                .addHeader("connection", "Keep-Alive")
+                .addHeader("user-agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1;SV1)");
         Disposable disposable = HttpSender
-                .from(param, new DownloadParser(destPath)) //注意这里使用DownloadParser解析器，并传入本地路径
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(s -> {
-                    //下载成功，处理相关逻辑
+                .from(param, new DataParser<Address>() {}) //from操作符，是异步操作
+                .observeOn(AndroidSchedulers.mainThread()) //主线程回调
+                .subscribe(address -> {
+                    //accept方法参数类型由上面DataParser传入的泛型类型决定
+                    //走到这里说明Http请求成功，并且数据正确
                 }, throwable -> {
-                    //下载失败，处理相关逻辑
+                    //Http请求出现异常，有可能是网络异常，数据异常等
                 });
+        addDisposable(disposable);//处理RxJava生命周期
+    }
+
+    //发送Post请求
+    private void sendPost() {
+        String url = "http://ip.taobao.com/service/getIpInfo.php";
+        Param param = Param.postForm(url) //这里get,代表Get请求
+                .add("ip", "63.223.108.42")//添加参数
+                .addHeader("accept", "*/*") //添加请求头
+                .addHeader("connection", "Keep-Alive")
+                .addHeader("user-agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1;SV1)");
+        Disposable disposable = HttpSender
+                .from(param, new DataParser<Address>() {}) //from操作符，是异步操作
+                .observeOn(AndroidSchedulers.mainThread()) //主线程回调
+                .subscribe(address -> {
+                    //accept方法参数类型由上面DataParser传入的泛型类型决定
+                    //走到这里说明Http请求成功，并且数据正确
+                }, throwable -> {
+                    //Http请求出现异常，有可能是网络异常，数据异常等
+                });
+        addDisposable(disposable);//处理RxJava生命周期
     }
 
     //下载文件，带进度
-    private void downloadAndProgress() {
+    private void download() {
         String url = "http://update.9158.com/miaolive/Miaolive.apk";
-        //文件存储路径
         String destPath = getExternalCacheDir() + "/" + System.currentTimeMillis() + ".apk";
-        Param param = Param.get(url); //这里可添加参数及请求头信息
+        Param param = Param.get(url); //这里get,代表Get请求
         Disposable disposable = HttpSender
-                .download(param, destPath) //注意这里使用download操作符
-                .observeOn(AndroidSchedulers.mainThread())
+                .download(param, destPath) //这里泛型只需要传入Data类的泛型即可，不需要传Data<Book>
+                .observeOn(AndroidSchedulers.mainThread()) //主线程回调
                 .doOnNext(progress -> {
-                    //下载进度更新,0-100，仅在进度有更新时才会回调
+                    //下载进度回调,0-100，仅在进度有更新时才会回调
                     int currentProgress = progress.getProgress(); //当前进度 0-100
                     long currentSize = progress.getCurrentSize(); //当前已下载的字节大小
                     long totalSize = progress.getTotalSize();     //要下载的总字节大小
                 })
-                .filter(Progress::isCompleted)//下载完成，才继续往下走
-                .map(Progress::getResult) //到这，说明下载完成，返回下载目标路径
-                .subscribe(s -> {
-                    //下载完成，处理相关逻辑
+                .filter(Progress::isCompleted)//过滤事件，下载完成，才继续往下走
+                .map(Progress::getResult) //到这，说明下载完成，拿到Http返回结果并继续往下走
+                .subscribe(s -> { //s为String类型
+                    //下载成功，处理相关逻辑
                 }, throwable -> {
                     //下载失败，处理相关逻辑
                 });
+        addDisposable(disposable);//处理RxJava生命周期
     }
 
     //上传文件，带进度
-    private void uploadAndProgress() {
-        String url = "http://www.baidu.com";
-        Param param = Param.postForm(url)  //FormParam 表明发送表单形式的Post请求,后续会继续介绍
-                .add("versionCode", 100)
-                .add("versionName", "1.0.0")
-                .addHeader("deviceType", "android")
-                .add("file", new File("xxx/1.png"))//new 一个File对象并传入文件路径即可上传文件
-                .add("file1", new File("xxx/2.png"));
+    private void upload() {
+        String url = "http://www.......";
+        Param param = Param.postForm(url) //发送Form表单形式的Post请求
+                .add("file1", new File("xxx/1.png"))
+                .add("file2", new File("xxx/2.png"))
+                .add("key1", "value1")//添加参数，非必须
+                .add("key2", "value2")//添加参数，非必须
+                .addHeader("versionCode", "100"); //添加请求头,非必须
         Disposable disposable = HttpSender
-                //注意这里使用upload操作符
-                .upload(param, new SimpleParser<Update>() {})
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnNext(new Consumer<Progress<Update>>() {
-                    @Override
-                    public void accept(Progress<Update> progress) throws Exception {
-                        //上传进度更新,0-100，仅在进度有更新时才会回调
-                        int currentProgress = progress.getProgress(); //当前进度 0-100
-                        long currentSize = progress.getCurrentSize(); //当前已上传的字节大小
-                        long totalSize = progress.getTotalSize();     //要上传的总字节大小
-                    }
-                })
-                .filter(new Predicate<Progress<Update>>() {
-                    @Override
-                    public boolean test(Progress<Update> progress) throws Exception {
-                        //过滤事件，上传完成，才继续往下走
-                        return progress.isCompleted();
-                    }
-                })
-                .map(new Function<Progress<Update>, Update>() {
-                    @Override
-                    public Update apply(Progress<Update> progress) throws Exception {
-                        //返回Http执行结果
-                        return progress.getResult();
-                    }
-                })
-                .subscribe(new Consumer<Update>() {
-                    @Override
-                    public void accept(Update update) throws Exception {
-                        //上传成功
-                    }
-                }, new Consumer<Throwable>() {
-                    @Override
-                    public void accept(Throwable throwable) throws Exception {
-                        //上传失败
-                    }
-                });
-    }
-
-
-    //上传文件，带进度
-    private void uploadAndProgress1() {
-        String url = "http://www.baidu.com";
-        Param param = Param.postForm(url)  //FormParam 表明发送表单形式的Post请求,后续会继续介绍
-                .add("versionCode", 100)
-                .add("versionName", "1.0.0")
-                .addHeader("deviceType", "android")
-                .add("file", new File("xxx/1.png"))//new 一个File对象并传入文件路径即可上传文件
-                .add("file1", new File("xxx/2.png"));
-        //过滤事件，上传完成，才继续往下走
-        //返回Http执行结果
-        Disposable disposable = HttpSender
-                //注意这里使用upload操作符
-                .upload(param, new SimpleParser<Update>() {})
-                .observeOn(AndroidSchedulers.mainThread())
+                .upload(param, new SimpleParser<String>() {}) //注:如果需要监听上传进度，使用upload操作符
+                .observeOn(AndroidSchedulers.mainThread()) //主线程回调
                 .doOnNext(progress -> {
-                    //上传进度更新,0-100，仅在进度有更新时才会回调
+                    //上传进度回调,0-100，仅在进度有更新时才会回调
                     int currentProgress = progress.getProgress(); //当前进度 0-100
                     long currentSize = progress.getCurrentSize(); //当前已上传的字节大小
                     long totalSize = progress.getTotalSize();     //要上传的总字节大小
                 })
-                .filter(Progress::isCompleted) //过滤事件，上传完成，才继续往下走
-                .map(Progress::getResult)  //返回Http执行结果
-                .subscribe(update -> {
-                    //上传成功
+                .filter(Progress::isCompleted)//过滤事件，上传完成，才继续往下走
+                .map(Progress::getResult) //到这，说明下载完成，拿到Http返回结果并继续往下走
+                .subscribe(s -> { //s为String类型，由SimpleParser类里面的泛型决定的
+                    //上传成功，处理相关逻辑
                 }, throwable -> {
-                    //上传失败
+                    //上传失败，处理相关逻辑
                 });
+        addDisposable(disposable); //处理RxJava生命周期
     }
 
+
+    //处理RxJava生命周期
+    private void addDisposable(@NonNull Disposable d) {
+        if (mCompositeDisposable == null) {
+            mCompositeDisposable = new CompositeDisposable();
+        }
+        mCompositeDisposable.add(d);
+    }
+
+    private void clearDisposable() {
+        if (mCompositeDisposable != null) {
+            mCompositeDisposable.clear();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        clearDisposable();
+    }
 }
