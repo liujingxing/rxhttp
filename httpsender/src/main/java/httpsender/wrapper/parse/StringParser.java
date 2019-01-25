@@ -18,6 +18,7 @@ public class StringParser extends AbstractParser<String> {
 
     @Override
     public String onParse(Response response) throws IOException {
+        //调用AbstractParser的getResult方法将Response对象转换为String对象
         return getResult(response);
     }
 }

@@ -27,7 +27,7 @@ public class DownloadParser implements Parser<String> {
     /**
      * @param response Http请求执行结果
      * @return 下载成功后的文件路径
-     * @throws IOException 网络异常等
+     * @throws IOException 网络异常等,RxJava的观察者会捕获此异常
      */
     @Override
     public String onParse(Response response) throws IOException {
@@ -36,7 +36,7 @@ public class DownloadParser implements Parser<String> {
         ResponseBody body = response.body();
         if (body == null)
             throw new IOException("ResponseBody is null");
-        boolean isSuccess = IOUtil.write(body.byteStream(), mDestPath);
+        boolean isSuccess = IOUtil.write(body.byteStream(), mDestPath);//将输入流写出到文件
         if (!isSuccess)
             throw new IOException("Download failure");
         return mDestPath;

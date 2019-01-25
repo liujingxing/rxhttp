@@ -22,11 +22,11 @@ public class SimpleParser<T> extends AbstractParser<T> {
     @SuppressWarnings("unchecked")
     @Override
     public T onParse(Response response) throws IOException {
-        String content = getResult(response);
-        Type type = getActualTypeParameter();
-        if (type == String.class) return (T) content;
-        T t = GsonUtil.getObject(content, type);
-        if (t == null)
+        String content = getResult(response);//Response转String
+        Type type = getActualTypeParameter(); //拿到泛型类型
+        if (type == String.class) return (T) content; //泛型是String类型，直接返回
+        T t = GsonUtil.getObject(content, type); //将content自动解析成调用者传入的泛型对象
+        if (t == null)//为空，说明数据不正确，直接抛出异常，RxJava的观察者会捕获此异常
             throw new ParseException("data parse error");
         return t;
     }
