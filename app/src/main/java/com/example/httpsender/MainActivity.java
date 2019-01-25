@@ -6,14 +6,16 @@ import android.view.View;
 import java.io.File;
 
 import androidx.appcompat.app.AppCompatActivity;
+import httpsender.Function;
 import httpsender.HttpSender;
 import httpsender.wrapper.entity.Progress;
-import httpsender.wrapper.param.Param;
+import httpsender.wrapper.param.*;
 import httpsender.wrapper.parse.SimpleParser;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
 import io.reactivex.plugins.RxJavaPlugins;
 
 
@@ -26,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        httpSenderInit();
     }
 
     public void onClick(View view) {
@@ -45,10 +48,33 @@ public class MainActivity extends AppCompatActivity {
              * 这时由于已经取消订阅，“downStream”无法处理异常，此时的异常无人处理，便会导致程序崩溃
              */
         });
-        HttpSender.setOnParamAssembly(p -> {
-            //这里添加公共参数,这里在子线程执行
-            return p.add("versionName", "1.0.0")
-                    .addHeader("deviceType", "android");
+
+        HttpSender.setOnParamAssembly(new Function() {
+            /**
+             * <p>在这里可以为所有请求添加公共参数，也可以为url统一添加前缀或者后缀
+             * <p>子线程执行，每次发送请求前都会被回调
+             *
+             * @param p Param
+             * @return 修改后的Param对象
+             */
+            @Override
+            public Param apply(Param p) {
+
+                //根据不同请求添加不同参数
+                if (p instanceof GetRequest) {
+
+                } else if (p instanceof PostRequest) {
+
+                } else if (p instanceof PutRequest) {
+
+                } else if (p instanceof DeleteRequest) {
+
+                }
+                //为url 添加前缀或者后缀  并重新设置url
+                //p.setUrl("");
+                return p.add("versionName", "1.0.0")//添加公共参数
+                        .addHeader("deviceType", "android"); //添加公共请求头
+            }
         });
     }
 
