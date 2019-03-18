@@ -2,10 +2,10 @@ package httpsender;
 
 import java.io.IOException;
 
+import httpsender.wrapper.callback.ProgressCallback;
 import httpsender.wrapper.entity.Progress;
 import httpsender.wrapper.param.Param;
 import httpsender.wrapper.param.PostFormParam;
-import httpsender.wrapper.param.ProgressParam;
 import httpsender.wrapper.parse.DownloadParser;
 import httpsender.wrapper.parse.Parser;
 import httpsender.wrapper.parse.StringParser;
@@ -168,14 +168,12 @@ public class HttpSender extends Sender {
      * 异步发送一个请求,信息上传(支持文件上传,带进度回调)
      * 支持实现了{@link Param}接口的请求
      *
-     * @param param  请求参数，需要实现{@link ProgressParam}接口
+     * @param param  请求参数，必须要重写{@link Param#setProgressCallback(ProgressCallback)}方法
      * @param parser 数据解析器
      * @param <T>    要转换的目标数据类型
      * @return Observable<Progress>
      */
     public static <T> Observable<Progress<T>> upload(@NonNull Param param, @NonNull Parser<T> parser) {
-        if (!(param instanceof ProgressParam))
-            throw new IllegalArgumentException("param must implement the ProgressParam interface");
         return Observable.create((ObservableOnSubscribe<Progress<T>>) emitter -> {
             param.setProgressCallback((progress, currentSize, totalSize) -> {
                 if (emitter.isDisposed()) return;

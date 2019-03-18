@@ -94,6 +94,7 @@ public abstract class AbstractParam extends LinkedHashMap<String, String> implem
 
     @Override
     public final Param add(String key, String value) {
+        if (value == null) value = "";
         super.put(key, value);
         return this;
     }

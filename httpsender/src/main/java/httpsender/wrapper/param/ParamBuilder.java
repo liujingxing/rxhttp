@@ -16,23 +16,6 @@ public interface ParamBuilder {
 
     Param add(String key, String value);
 
-    /**
-     * 设置上传进度监听器
-     *
-     * @param callback 进度回调对象
-     * @return Param
-     */
-    Param setProgressCallback(ProgressCallback callback);
-
-    /**
-     * 添加文件对象
-     *
-     * @param key  键
-     * @param file 文件对象
-     * @return Param
-     */
-    Param add(String key, File file);
-
     default Param add(String key, int value) {
         return add(key, String.valueOf(value));
     }
@@ -58,6 +41,30 @@ public interface ParamBuilder {
     }
 
     default Param add(String key, char[] value) {
+        if (value == null) value = new char[0];
         return add(key, String.valueOf(value));
+    }
+
+    /**
+     * <p>添加文件对象
+     * <P>默认不支持，如有需要,自行扩展,参考{@link PostFormParam}
+     *
+     * @param key  键
+     * @param file 文件对象
+     * @return Param
+     */
+    default Param add(String key, File file) {
+        throw new UnsupportedOperationException("Please override if you need");
+    }
+
+    /**
+     * <p>设置上传进度监听器
+     * <p>默认不支持,如有需要，自行扩展，参考{@link PostFormParam}
+     *
+     * @param callback 进度回调对象
+     * @return Param
+     */
+    default Param setProgressCallback(ProgressCallback callback) {
+        throw new UnsupportedOperationException("Please override if you need");
     }
 }

@@ -17,7 +17,7 @@ import okhttp3.RequestBody;
  * Date: 2019/1/19
  * Time: 11:36
  */
-public class PostFormParam extends AbstractPostParam implements ProgressParam {
+public class PostFormParam extends AbstractPostParam {
 
     private ProgressCallback            mCallback; //上传进度回调
     private LinkedHashMap<String, File> mFileMap;  //附件集合
@@ -32,6 +32,7 @@ public class PostFormParam extends AbstractPostParam implements ProgressParam {
 
     /**
      * 设置上传进度监听器
+     *
      * @param callback 进度回调对象
      * @return PostFormParam
      */

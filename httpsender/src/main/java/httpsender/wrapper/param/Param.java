@@ -1,8 +1,5 @@
 package httpsender.wrapper.param;
 
-import java.io.File;
-
-import httpsender.wrapper.callback.ProgressCallback;
 import io.reactivex.annotations.NonNull;
 
 /**
@@ -87,28 +84,5 @@ public interface Param extends ParamBuilder, HeadersBuilder, NoBodyRequest, Requ
 
     static Param deleteJson(@NonNull String url) {
         return with(url, DELETE_JSON);
-    }
-
-    /**
-     * <p>添加文件对象
-     * <P>默认空实现，如有需要,自行扩展,参考{@link PostFormParam}
-     *
-     * @param key  键
-     * @param file 文件对象
-     * @return Param
-     */
-    default Param add(String key, File file) {
-        return this;
-    }
-
-    /**
-     * <p>设置上传进度监听器
-     * <p>默认空实现,如有需要，自行扩展，参考{@link PostFormParam}
-     *
-     * @param callback 进度回调对象
-     * @return Param
-     */
-    default Param setProgressCallback(ProgressCallback callback) {
-        return this;
     }
 }
