@@ -30,7 +30,7 @@ Get请求
 Post请求
 
         String url = "http://ip.taobao.com/service/getIpInfo.php";
-        Param param = Param.postForm(url) //这里get,代表Get请求
+        Param param = Param.postForm(url) //发送Form表单形式的Post请求
                 .add("ip", "63.223.108.42")//添加参数
                 .addHeader("accept", "*/*") //添加请求头
                 .addHeader("connection", "Keep-Alive")
