@@ -14,7 +14,7 @@ import okhttp3.Headers.Builder;
  * Date: 2019/1/19
  * Time: 14:35
  */
-public abstract class AbstractParam extends LinkedHashMap<String, String> implements Param {
+public abstract class AbstractParam extends LinkedHashMap<String, Object> implements Param {
 
     private String  mUrl;    //链接地址
     private Builder mHBuilder; //请求头构造器
@@ -93,7 +93,7 @@ public abstract class AbstractParam extends LinkedHashMap<String, String> implem
     }
 
     @Override
-    public final Param add(String key, String value) {
+    public final Param add(String key, Object value) {
         if (value == null) value = "";
         super.put(key, value);
         return this;

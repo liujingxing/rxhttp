@@ -2,13 +2,12 @@ package httpsender.wrapper.utils;
 
 import android.net.Uri;
 
-import com.google.gson.JsonObject;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import httpsender.wrapper.entity.UpFile;
 import httpsender.wrapper.param.*;
@@ -23,7 +22,7 @@ import okhttp3.Request.Builder;
  */
 public class BuildUtil {
 
-    private static final MediaType MEDIA_TYPE_ATTACH = MediaType.parse("application/octet-stream");
+    private static final MediaType MEDIA_TYPE_ATTACH = MediaType.parse("application/octet-stream;charset=utf-8");
     private static final MediaType MEDIA_TYPE_JSON   = MediaType.parse("application/json;charset=utf-8");
 
 
@@ -125,14 +124,13 @@ public class BuildUtil {
     /**
      * 构建一个表单 (不带文件)
      *
-     * @param params map参数集合
+     * @param map map参数集合
      * @return RequestBody
      */
-    public static RequestBody buildFormRequestBody(@NonNull Map<String, String> params) {
+    public static <K, V> RequestBody buildFormRequestBody(@NonNull Map<K, V> map) {
         FormBody.Builder builder = new FormBody.Builder();
-        Set<Entry<String, String>> sets = params.entrySet();
-        for (Entry<String, String> entry : sets) {
-            builder.add(entry.getKey(), entry.getValue());
+        for (Entry<K, V> entry : map.entrySet()) {
+            builder.add(entry.getKey().toString(), entry.getValue().toString());
         }
         return builder.build();
     }
@@ -140,22 +138,20 @@ public class BuildUtil {
     /**
      * 构建一个表单(带文件)
      *
-     * @param params  map参数集合
+     * @param map  map参数集合
      * @param fileMap map文件集合
      * @return RequestBody
      */
-    public static RequestBody buildFormRequestBody(@NonNull Map<String, String> params,
-                                                   @NonNull Map<String, File> fileMap) {
+    public static <K, V> RequestBody buildFormRequestBody(@NonNull Map<K, V> map,
+                                                          @NonNull Map<String, File> fileMap) {
         MultipartBody.Builder builder = new MultipartBody.Builder();
         builder.setType(MultipartBody.FORM);
         //遍历参数
-        Set<Entry<String, String>> sets = params.entrySet();
-        for (Entry<String, String> entry : sets) {
-            builder.addFormDataPart(entry.getKey(), entry.getValue());
+        for (Entry<K, V> entry : map.entrySet()) {
+            builder.addFormDataPart(entry.getKey().toString(), entry.getValue().toString());
         }
         //遍历文件
-        Set<Entry<String, File>> fileSets = fileMap.entrySet();
-        for (Entry<String, File> entry : fileSets) {
+        for (Entry<String, File> entry : fileMap.entrySet()) {
             File file = entry.getValue();
             if (!file.exists() || !file.isFile()) continue;
             String value = file instanceof UpFile ? ((UpFile) file).getValue() : file.getName();
@@ -165,28 +161,13 @@ public class BuildUtil {
     }
 
     /**
-     * map转JsonObject
-     *
-     * @param map map集合
-     * @return JsonObject
-     */
-    public static <K, V> JsonObject mapToJson(@NonNull Map<K, V> map) {
-        JsonObject json = new JsonObject();
-        Set<Entry<K, V>> entries = map.entrySet();
-        for (Map.Entry<K, V> entry : entries) {
-            json.addProperty(entry.getKey().toString(), entry.getValue().toString());
-        }
-        return json;
-    }
-
-    /**
      * 构建一个json形式的RequestBody
      *
      * @param map map集合
      * @return RequestBody
      */
     public static <K, V> RequestBody buildJsonRequestBody(@NonNull Map<K, V> map) {
-        return buildJsonRequestBody(mapToJson(map).toString());
+        return buildJsonRequestBody(new JSONObject(map).toString());
     }
 
     /**

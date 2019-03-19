@@ -14,36 +14,7 @@ public interface ParamBuilder {
 
     Param setUrl(@NonNull String url);
 
-    Param add(String key, String value);
-
-    default Param add(String key, int value) {
-        return add(key, String.valueOf(value));
-    }
-
-    default Param add(String key, long value) {
-        return add(key, String.valueOf(value));
-    }
-
-    default Param add(String key, double value) {
-        return add(key, String.valueOf(value));
-    }
-
-    default Param add(String key, float value) {
-        return add(key, String.valueOf(value));
-    }
-
-    default Param add(String key, boolean value) {
-        return add(key, String.valueOf(value));
-    }
-
-    default Param add(String key, char value) {
-        return add(key, String.valueOf(value));
-    }
-
-    default Param add(String key, char[] value) {
-        if (value == null) value = new char[0];
-        return add(key, String.valueOf(value));
-    }
+    Param add(String key, Object value);
 
     /**
      * <p>添加文件对象
