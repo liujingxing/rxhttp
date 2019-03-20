@@ -85,4 +85,16 @@ public interface Param extends ParamBuilder, HeadersBuilder, NoBodyRequest, Requ
     static Param deleteJson(@NonNull String url) {
         return with(url, DELETE_JSON);
     }
+
+    /**
+     * @return 判断是否对参数添加装饰，即是否添加公共参数
+     */
+    boolean isAssemblyEnabled();
+
+    /**
+     * 设置是否对参数添加装饰，即是否添加公共参数
+     * @param enabled true 是
+     * @return Param
+     */
+    Param setAssemblyEnabled(boolean enabled);
 }

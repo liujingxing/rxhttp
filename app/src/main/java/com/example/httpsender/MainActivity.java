@@ -6,7 +6,6 @@ import android.view.View;
 import java.io.File;
 
 import androidx.appcompat.app.AppCompatActivity;
-import httpsender.Function;
 import httpsender.HttpSender;
 import httpsender.wrapper.entity.Progress;
 import httpsender.wrapper.param.*;
@@ -15,6 +14,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Function;
 import io.reactivex.plugins.RxJavaPlugins;
 
 
@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
              */
         });
 
-        HttpSender.setOnParamAssembly(new Function() {
+        HttpSender.setOnParamAssembly(new Function<Param, Param>() {
             /**
              * <p>在这里可以为所有请求添加公共参数，也可以为url统一添加前缀或者后缀
              * <p>子线程执行，每次发送请求前都会被回调
@@ -81,6 +81,7 @@ public class MainActivity extends AppCompatActivity {
     private void sendGet() {
         String url = "http://ip.taobao.com/service/getIpInfo.php";
         Param param = Param.get(url) //这里get,代表Get请求
+                .setAssemblyEnabled(false) //设置是否添加公共参数，默认为true
                 .add("ip", "63.223.108.42")//添加参数
                 .addHeader("accept", "*/*") //添加请求头
                 .addHeader("connection", "Keep-Alive")

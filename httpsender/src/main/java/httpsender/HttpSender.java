@@ -12,6 +12,7 @@ import httpsender.wrapper.parse.StringParser;
 import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.annotations.NonNull;
+import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.OkHttpClient;
 import okhttp3.Response;
@@ -25,7 +26,7 @@ import okhttp3.Response;
  */
 public class HttpSender extends Sender {
 
-    private static Function mOnParamAssembly;
+    private static Function<Param, Param> mOnParamAssembly;
 
     public static void init(OkHttpClient okHttpClient) {
         Sender.init(okHttpClient);
@@ -35,7 +36,7 @@ public class HttpSender extends Sender {
         return Sender.getOkHttpClient();
     }
 
-    public static void setOnParamAssembly(Function onParamAssembly) {
+    public static void setOnParamAssembly(Function<Param, Param> onParamAssembly) {
         mOnParamAssembly = onParamAssembly;
     }
 
@@ -122,7 +123,7 @@ public class HttpSender extends Sender {
      * @see #upload(Param, Parser) 上传带进度回调
      */
     public static <T> Observable<T> from(@NonNull Param param, @NonNull Parser<T> parser) {
-        return syncFrom(param,parser).subscribeOn(Schedulers.io());
+        return syncFrom(param, parser).subscribeOn(Schedulers.io());
     }
 
     /**
@@ -195,9 +196,14 @@ public class HttpSender extends Sender {
      * @param p 参数
      * @return 装饰后的参数
      */
-    private static Param onAssembly(Param p) {
-        Function f = mOnParamAssembly;
+    private static Param onAssembly(Param p) throws IOException {
+        Function<Param, Param> f = mOnParamAssembly;
         if (f == null) return p;
-        return f.apply(p);
+        if (p == null || !p.isAssemblyEnabled()) return p;
+        try {
+            return f.apply(p);
+        } catch (Exception e) {
+            throw new IOException(e);
+        }
     }
 }

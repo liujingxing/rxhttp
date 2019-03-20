@@ -1,9 +1,8 @@
 package com.example.httpsender;
 
-import com.google.gson.JsonObject;
+import org.json.JSONObject;
 
 import httpsender.wrapper.param.AbstractPostParam;
-import httpsender.wrapper.utils.BuildUtil;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 
@@ -27,8 +26,7 @@ public class PostEncryptJsonParam extends AbstractPostParam {
     public RequestBody getRequestBody() {
         //我们要发送Post请求，参数以加密后的json形式发出
         //第一步，将参数转换为Json字符串
-        JsonObject jsonObject = BuildUtil.mapToJson(this);
-        String json = jsonObject.toString();
+        String json = new JSONObject(this).toString();
         //第二步，加密
         byte[] encryptByte = encrypt(json, "HttpSender");
         //第三部，创建RequestBody并返回

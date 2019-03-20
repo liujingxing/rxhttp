@@ -10,6 +10,7 @@ import okhttp3.Headers;
 import okhttp3.Headers.Builder;
 
 /**
+ * 此类是唯一直接实现Param接口的类
  * User: ljx
  * Date: 2019/1/19
  * Time: 14:35
@@ -18,6 +19,8 @@ public abstract class AbstractParam extends LinkedHashMap<String, Object> implem
 
     private String  mUrl;    //链接地址
     private Builder mHBuilder; //请求头构造器
+
+    private boolean mIsAssemblyEnabled = true;
 
     public AbstractParam(@NonNull String url) {
         this.mUrl = url;
@@ -107,6 +110,17 @@ public abstract class AbstractParam extends LinkedHashMap<String, Object> implem
     @Override
     public Object getTag() {
         return null;
+    }
+
+    @Override
+    public final Param setAssemblyEnabled(boolean enabled) {
+        mIsAssemblyEnabled = enabled;
+        return this;
+    }
+
+    @Override
+    public final boolean isAssemblyEnabled() {
+        return mIsAssemblyEnabled;
     }
 
     /**
