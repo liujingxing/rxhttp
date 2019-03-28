@@ -1,5 +1,9 @@
 package com.example.httpsender;
 
+
+
+import httpsender.wrapper.annotation.Param;
+
 import org.json.JSONObject;
 
 import httpsender.wrapper.param.AbstractPostParam;
@@ -11,6 +15,7 @@ import okhttp3.RequestBody;
  * Date: 2019/1/25
  * Time: 19:32
  */
+@Param(methodName = "postEncryptJson")
 public class PostEncryptJsonParam extends AbstractPostParam {
 
     private static final MediaType MEDIA_TYPE_JSON = MediaType.parse("application/json;charset=utf-8");

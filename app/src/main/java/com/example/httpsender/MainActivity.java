@@ -98,6 +98,47 @@ public class MainActivity extends AppCompatActivity {
         addDisposable(disposable);//处理RxJava生命周期
     }
 
+    //使用注解处理器生成的Params类,发送Get请求
+    private void sendGetByParams() {
+        String url = "service/getIpInfo.php";
+        Disposable disposable = Params.get(url) //这里get,代表Get请求
+                .taobaoIfAbsent()
+                .setAssemblyEnabled(false) //设置是否添加公共参数，默认为true
+                .add("ip", "63.223.108.42")//添加参数
+                .addHeader("accept", "*/*") //添加请求头
+                .addHeader("connection", "Keep-Alive")
+                .addHeader("user-agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1;SV1)")
+                .fromDataParser(Address.class) //from操作符，是异步操作
+                .observeOn(AndroidSchedulers.mainThread()) //主线程回调
+                .subscribe(address -> {
+                    //accept方法参数类型由上面DataParser传入的泛型类型决定
+                    //走到这里说明Http请求成功，并且数据正确
+                }, throwable -> {
+                    //Http请求出现异常，有可能是网络异常，数据异常等
+                });
+        addDisposable(disposable);//处理RxJava生命周期
+    }
+
+    //使用注解处理器生成的Params类,发送Post请求
+    private void sendPostByParams() {
+        String url = "/service/getIpInfo.php";
+        Disposable disposable = Params.postForm(url) //这里get,代表Get请求
+                .taobaoIfAbsent()
+                .add("ip", "63.223.108.42")//添加参数
+                .addHeader("accept", "*/*") //添加请求头
+                .addHeader("connection", "Keep-Alive")
+                .addHeader("user-agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1;SV1)")
+                .fromDataParser(Address.class) //from操作符，是异步操作
+                .observeOn(AndroidSchedulers.mainThread()) //主线程回调
+                .subscribe(address -> {
+                    //accept方法参数类型由上面DataParser传入的泛型类型决定
+                    //走到这里说明Http请求成功，并且数据正确
+                }, throwable -> {
+                    //Http请求出现异常，有可能是网络异常，数据异常等
+                });
+        addDisposable(disposable);//处理RxJava生命周期
+    }
+
     //发送Post请求
     private void sendPost() {
         String url = "http://ip.taobao.com/service/getIpInfo.php";

@@ -2,6 +2,7 @@ package httpsender.wrapper.parse;
 
 import android.util.Log;
 
+import com.google.gson.internal.$Gson$Preconditions;
 import com.google.gson.internal.$Gson$Types;
 import com.network.http.BuildConfig;
 
@@ -22,6 +23,16 @@ import okhttp3.ResponseBody;
  */
 public abstract class AbstractParser<T> implements Parser<T> {
 
+    protected Type mType;
+
+    public AbstractParser() {
+        mType = getActualTypeParameter();
+    }
+
+    public AbstractParser(Type type) {
+        mType = $Gson$Types.canonicalize($Gson$Preconditions.checkNotNull(type));
+    }
+
     /**
      * @param response Http响应
      * @return 根据Response获取最终结果
@@ -40,7 +51,7 @@ public abstract class AbstractParser<T> implements Parser<T> {
     /**
      * @return 当前类超类的第一个泛型参数类型
      */
-    protected final Type getActualTypeParameter() {
+    private final Type getActualTypeParameter() {
         Type superclass = getClass().getGenericSuperclass();
         if (!(superclass instanceof ParameterizedType)) {
             throw new RuntimeException("Missing type parameter.");

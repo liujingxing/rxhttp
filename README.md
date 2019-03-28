@@ -6,7 +6,8 @@ OkHttp+RxJava 超好用的Http请求框架，支持任意Http请求方式，如�
 Gradle引用方法
 
     dependencies {
-       implementation 'com.http.wrapper:httpsender:1.0.5'
+       implementation 'com.http.wrapper:httpsender:1.0.6'
+       annotationProcessor 'com.http.wrapper.httpsender:compiler:1.0.1'
     }
 
 Get请求
