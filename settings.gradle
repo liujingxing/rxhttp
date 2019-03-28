@@ -1,1 +1,1 @@
-include ':app', ':httpsender'
+include ':app', ':httpsender', ':compiler', ':annotation'
