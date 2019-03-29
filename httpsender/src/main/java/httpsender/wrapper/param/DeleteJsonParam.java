@@ -6,7 +6,7 @@ import io.reactivex.annotations.NonNull;
 import okhttp3.RequestBody;
 
 /**
- * 发送Patch请求，参数以Json数据的形式提交
+ * 发送Delete请求，参数以Json数据的形式提交
  * User: ljx
  * Date: 2019/1/19
  * Time: 11:36

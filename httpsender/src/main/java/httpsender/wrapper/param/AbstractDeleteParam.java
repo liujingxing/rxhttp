@@ -6,7 +6,7 @@ import io.reactivex.annotations.NonNull;
 import okhttp3.Request;
 
 /**
- * Put请求继承本类
+ * Delete请求继承本类
  * User: ljx
  * Date: 2019/1/19
  * Time: 11:36
