@@ -10,6 +10,8 @@ Gradle引用方法
        annotationProcessor 'com.http.wrapper.httpsender:compiler:1.0.2'
     }
 
+注解使用请查看：https://blog.csdn.net/liujingxing93/article/details/88894126
+
 Get请求
   
         String url = "http://ip.taobao.com/service/getIpInfo.php";
