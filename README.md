@@ -181,7 +181,7 @@ Generated API 下载文件
 
         String url = "http://update.9158.com/miaolive/Miaolive.apk";
         String destPath = getExternalCacheDir() + "/" + System.currentTimeMillis() + ".apk";
-        Disposable disposable = Params.get(url); //这里get,代表Get请求
+        Disposable disposable = Params.get(url) //这里get,代表Get请求
                 .from(new DownloadParser(destPath) {}) //这里使用DownloadParser解析器
                 .observeOn(AndroidSchedulers.mainThread()) //主线程回调
                 .subscribe(s -> { //s为String类型
@@ -216,7 +216,7 @@ Generated API 下载文件进度监听
 
         String url = "http://update.9158.com/miaolive/Miaolive.apk";
         String destPath = getExternalCacheDir() + "/" + System.currentTimeMillis() + ".apk";
-        Disposable disposable = Params.get(url); //这里get,代表Get请求
+        Disposable disposable = Params.get(url) //这里get,代表Get请求
                 .download(destPath) //下载进度监听，使用download操作符
                 .observeOn(AndroidSchedulers.mainThread()) //主线程回调
                 .doOnNext(progress -> {
