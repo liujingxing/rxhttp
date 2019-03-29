@@ -102,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
     private void sendGetByParams() {
         String url = "service/getIpInfo.php";
         Disposable disposable = Params.get(url) //这里get,代表Get请求
-                .taobaoIfAbsent()
+                .setDomainTotaobaoIfAbsent()
                 .setAssemblyEnabled(false) //设置是否添加公共参数，默认为true
                 .add("ip", "63.223.108.42")//添加参数
                 .addHeader("accept", "*/*") //添加请求头
@@ -123,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
     private void sendPostByParams() {
         String url = "/service/getIpInfo.php";
         Disposable disposable = Params.postForm(url) //这里get,代表Get请求
-                .taobaoIfAbsent()
+                .setDomainTotaobaoIfAbsent()
                 .add("ip", "63.223.108.42")//添加参数
                 .addHeader("accept", "*/*") //添加请求头
                 .addHeader("connection", "Keep-Alive")

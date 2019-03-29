@@ -7,7 +7,7 @@ Gradle引用方法
 
     dependencies {
        implementation 'com.http.wrapper:httpsender:1.0.6'
-       annotationProcessor 'com.http.wrapper.httpsender:compiler:1.0.1'
+       annotationProcessor 'com.http.wrapper.httpsender:compiler:1.0.2'
     }
 
 Get请求

@@ -36,7 +36,7 @@ public class DomainAnnotatedClass {
         List<MethodSpec> methodList = new ArrayList<>();
         MethodSpec.Builder method;
         for (Entry<String, VariableElement> item : mElementMap.entrySet()) {
-            method = MethodSpec.methodBuilder(item.getKey() + "IfAbsent")
+            method = MethodSpec.methodBuilder("setDomainTo"+item.getKey() + "IfAbsent")
                     .addModifiers(Modifier.PUBLIC)
                     .addStatement("String newUrl = addDomainIfAbsent(param.getSimpleUrl(), $T.$L)",
                             ClassName.get(item.getValue().getEnclosingElement().asType()),
