@@ -36,7 +36,7 @@ public class ParameterizedTypeImpl implements ParameterizedType {
     public static ParameterizedTypeImpl get(Type... types) {
         final int length = types.length;
         if (length > 2) {
-            Type parameterizedType = new ParameterizedTypeImpl(types[length - 1], types[length - 2]);
+            Type parameterizedType = new ParameterizedTypeImpl(types[length - 2], types[length - 1]);
             Type[] newTypes = Arrays.copyOf(types, length - 1);
             newTypes[newTypes.length - 1] = parameterizedType;
             return get(newTypes);
