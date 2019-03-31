@@ -1,7 +1,6 @@
 package com.http.compiler;
 
 
-import httpsender.wrapper.annotation.Parser;
 import com.squareup.javapoet.*;
 
 import java.io.IOException;
@@ -11,8 +10,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.TypeMirror;
+
+import httpsender.wrapper.annotation.Parser;
 
 public class ParserAnnotatedClass {
 
@@ -93,12 +97,27 @@ public class ParserAnnotatedClass {
         methodList.add(method.build());
 
         for (Entry<String, TypeElement> item : mElementMap.entrySet()) {
+            TypeMirror returnType = null; //获取onParse方法的返回类型
+            TypeElement typeElement = item.getValue();
+            for (Element element : typeElement.getEnclosedElements()) {
+                if (!(element instanceof ExecutableElement)) continue;
+                if (!element.getModifiers().contains(Modifier.PUBLIC)
+                        || element.getModifiers().contains(Modifier.STATIC)) continue;
+                ExecutableElement executableElement = (ExecutableElement) element;
+                if (executableElement.getSimpleName().toString().equals("onParse")
+                        && executableElement.getParameters().size() == 1
+                        && executableElement.getParameters().get(0).asType().toString().equals("okhttp3.Response")) {
+                    returnType = executableElement.getReturnType();
+                    break;
+                }
+            }
+            if (returnType == null) continue;
             method = MethodSpec.methodBuilder("from" + item.getKey())
                     .addModifiers(Modifier.PUBLIC)
                     .addTypeVariable(t)
                     .addParameter(classTName, "type")
                     .addStatement("return $T.from(param,$T.get(type))", httpSenderName, ClassName.get(item.getValue()))
-                    .returns(observableTName);
+                    .returns(ParameterizedTypeName.get(observableName, TypeName.get(returnType)));
             methodList.add(method.build());
         }
 

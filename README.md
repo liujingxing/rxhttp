@@ -7,7 +7,7 @@ Gradle引用方法
 
     dependencies {
        implementation 'com.http.wrapper:httpsender:1.0.8'
-       annotationProcessor 'com.http.wrapper.httpsender:compiler:1.0.2'
+       annotationProcessor 'com.http.wrapper.httpsender:compiler:1.0.3'
     }
 
 注解使用请查看：https://blog.csdn.net/liujingxing93/article/details/88894126
