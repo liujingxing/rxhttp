@@ -202,10 +202,26 @@ public class ParamsAnnotatedClass {
                 .returns(requestName);
         methodList.add(method.build());
 
+        method = MethodSpec.methodBuilder("tag")
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(Object.class,"tag")
+                .addStatement("param.tag(tag)")
+                .addStatement("return this")
+                .returns(paramsName);
+        methodList.add(method.build());
+
         method = MethodSpec.methodBuilder("getTag")
                 .addModifiers(Modifier.PUBLIC)
                 .addStatement("return param.getTag()")
                 .returns(Object.class);
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("cacheControl")
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(cacheControlName,"cacheControl")
+                .addStatement("param.cacheControl(cacheControl)")
+                .addStatement("return this")
+                .returns(paramsName);
         methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("getCacheControl")
