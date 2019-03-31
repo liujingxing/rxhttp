@@ -1,8 +1,9 @@
 package httpsender.wrapper.observer;
 
-import androidx.annotation.NonNull;
-import androidx.lifecycle.DefaultLifecycleObserver;
-import androidx.lifecycle.LifecycleOwner;
+import android.arch.lifecycle.DefaultLifecycleObserver;
+import android.arch.lifecycle.LifecycleOwner;
+import android.support.annotation.NonNull;
+
 import io.reactivex.ObservableOperator;
 import io.reactivex.ObservableTransformer;
 import io.reactivex.Observer;
