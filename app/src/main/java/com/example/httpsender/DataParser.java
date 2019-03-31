@@ -1,11 +1,11 @@
 package com.example.httpsender;
 
 
-import httpsender.wrapper.annotation.Parser;
-
 import java.io.IOException;
 import java.lang.reflect.Type;
 
+import httpsender.wrapper.annotation.Parser;
+import httpsender.wrapper.entity.ParameterizedTypeImpl;
 import httpsender.wrapper.exception.ParseException;
 import httpsender.wrapper.parse.AbstractParser;
 import httpsender.wrapper.utils.GsonUtil;
@@ -39,9 +39,9 @@ public class DataParser<T> extends AbstractParser<T> {
     @Override
     public T onParse(okhttp3.Response response) throws IOException {
         String content = getResult(response); //从Response中取出Http执行结果
-        final Type type = mType; //获取泛型类型
+        final Type type = ParameterizedTypeImpl.get(Data.class, mType); //获取泛型类型
         //通过Gson自动解析成Data<T>对象
-        Data<T> data = GsonUtil.getObject(content, DataType.get(type));
+        Data<T> data = GsonUtil.getObject(content, type);
         if (data == null) //为空 ，表明数据不正确
             throw new ParseException("data parse error");
         //跟服务端协议好，code等于100，才代表数据正确,否则，抛出异常

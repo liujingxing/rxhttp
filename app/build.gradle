@@ -24,7 +24,7 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.http.wrapper:httpsender:1.0.6'
+    implementation 'com.http.wrapper:httpsender:1.0.7'
     annotationProcessor 'com.http.wrapper.httpsender:compiler:1.0.2'
 //    implementation project(":httpsender")
 //    annotationProcessor project(":compiler")

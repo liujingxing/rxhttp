@@ -26,6 +26,7 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     api 'com.http.wrapper.httpsender:annotation:1.0.0'
+    api 'android.arch.lifecycle:common-java8:1.1.1'
     api 'com.squareup.okhttp3:okhttp:3.10.0'
     api 'com.google.code.gson:gson:2.8.2'
     api 'io.reactivex.rxjava2:rxjava:2.2.0'
