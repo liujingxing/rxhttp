@@ -1,11 +1,11 @@
 package com.example.httpsender;
 
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
 import java.io.File;
 
-import androidx.appcompat.app.AppCompatActivity;
 import httpsender.HttpSender;
 import httpsender.wrapper.entity.Progress;
 import httpsender.wrapper.observer.LifecycleObserver;
@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
         Disposable disposable = HttpSender
                 .from(param, new DataParser<Address>() {}) //from操作符，是异步操作
                 .observeOn(AndroidSchedulers.mainThread()) //主线程回调
-                .compose(LifecycleObserver.get(this)) //加入感知生命周期的观察者
+                .compose(LifecycleObserver.apply(this)) //加入感知生命周期的观察者
                 .subscribe(address -> {
                     //accept方法参数类型由上面DataParser传入的泛型类型决定
                     //走到这里说明Http请求成功，并且数据正确
@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
                 .addHeader("user-agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1;SV1)")
                 .fromDataParser(Address.class) //from操作符，是异步操作
                 .observeOn(AndroidSchedulers.mainThread()) //主线程回调
-                .compose(LifecycleObserver.get(this)) //加入感知生命周期的观察者
+                .compose(LifecycleObserver.apply(this)) //加入感知生命周期的观察者
                 .subscribe(address -> {
                     //accept方法参数类型由上面DataParser传入的泛型类型决定
                     //走到这里说明Http请求成功，并且数据正确
@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
                 .addHeader("user-agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1;SV1)")
                 .fromDataParser(Address.class) //from操作符，是异步操作
                 .observeOn(AndroidSchedulers.mainThread()) //主线程回调
-                .compose(LifecycleObserver.get(this)) //加入感知生命周期的观察者
+                .compose(LifecycleObserver.apply(this)) //加入感知生命周期的观察者
                 .subscribe(address -> {
                     //accept方法参数类型由上面DataParser传入的泛型类型决定
                     //走到这里说明Http请求成功，并且数据正确
@@ -101,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
         Disposable disposable = HttpSender
                 .from(param, new DataParser<Address>() {}) //from操作符，是异步操作
                 .observeOn(AndroidSchedulers.mainThread()) //主线程回调
-                .compose(LifecycleObserver.get(this)) //加入感知生命周期的观察者
+                .compose(LifecycleObserver.apply(this)) //加入感知生命周期的观察者
                 .subscribe(address -> {
                     //accept方法参数类型由上面DataParser传入的泛型类型决定
                     //走到这里说明Http请求成功，并且数据正确
@@ -126,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
                 })
                 .filter(Progress::isCompleted)//过滤事件，下载完成，才继续往下走
                 .map(Progress::getResult) //到这，说明下载完成，拿到Http返回结果并继续往下走
-                .compose(LifecycleObserver.get(this)) //加入感知生命周期的观察者
+                .compose(LifecycleObserver.apply(this)) //加入感知生命周期的观察者
                 .subscribe(s -> { //s为String类型
                     //下载成功，处理相关逻辑
                 }, throwable -> {
@@ -154,7 +154,7 @@ public class MainActivity extends AppCompatActivity {
                 })
                 .filter(Progress::isCompleted)//过滤事件，上传完成，才继续往下走
                 .map(Progress::getResult) //到这，说明下载完成，拿到Http返回结果并继续往下走
-                .compose(LifecycleObserver.get(this)) //加入感知生命周期的观察者
+                .compose(LifecycleObserver.apply(this)) //加入感知生命周期的观察者
                 .subscribe(s -> { //s为String类型，由SimpleParser类里面的泛型决定的
                     //上传成功，处理相关逻辑
                 }, throwable -> {
