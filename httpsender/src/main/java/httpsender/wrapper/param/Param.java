@@ -1,6 +1,7 @@
 package httpsender.wrapper.param;
 
 import io.reactivex.annotations.NonNull;
+import okhttp3.CacheControl;
 
 /**
  * User: ljx
@@ -97,4 +98,9 @@ public interface Param extends ParamBuilder, HeadersBuilder, NoBodyRequest, Requ
      * @return Param
      */
     Param setAssemblyEnabled(boolean enabled);
+
+
+    Param tag(Object tag);
+
+    Param cacheControl(CacheControl cacheControl);
 }

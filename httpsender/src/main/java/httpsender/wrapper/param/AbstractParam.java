@@ -22,6 +22,9 @@ public abstract class AbstractParam extends LinkedHashMap<String, Object> implem
 
     private boolean mIsAssemblyEnabled = true;
 
+    private Object       mTag;
+    private CacheControl mCacheControl;
+
     public AbstractParam(@NonNull String url) {
         this.mUrl = url;
     }
@@ -104,12 +107,24 @@ public abstract class AbstractParam extends LinkedHashMap<String, Object> implem
 
     @Override
     public CacheControl getCacheControl() {
-        return null;
+        return mCacheControl;
+    }
+
+    @Override
+    public Param cacheControl(CacheControl cacheControl) {
+        mCacheControl = cacheControl;
+        return this;
+    }
+
+    @Override
+    public Param tag(Object tag) {
+        mTag = tag;
+        return this;
     }
 
     @Override
     public Object getTag() {
-        return null;
+        return mTag;
     }
 
     @Override
