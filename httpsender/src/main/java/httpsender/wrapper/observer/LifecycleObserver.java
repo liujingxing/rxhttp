@@ -25,7 +25,7 @@ public final class LifecycleObserver<T> implements Observer<T>, DefaultLifecycle
         this.mObserver = observer;
     }
 
-    public static <T> ObservableTransformer<T, T> get(LifecycleOwner owner) {
+    public static <T> ObservableTransformer<T, T> apply(LifecycleOwner owner) {
         return observable -> observable
                 .onTerminateDetach()
                 .lift((ObservableOperator<T, T>) observer -> {
@@ -33,7 +33,7 @@ public final class LifecycleObserver<T> implements Observer<T>, DefaultLifecycle
                 });
     }
 
-    public static <T> ObservableTransformer<T, T> getAndObserveOnMain(LifecycleOwner owner) {
+    public static <T> ObservableTransformer<T, T> applyOnMainThread(LifecycleOwner owner) {
         return observable -> observable
                 .observeOn(AndroidSchedulers.mainThread())
                 .onTerminateDetach()
