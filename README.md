@@ -6,7 +6,7 @@ OkHttp+RxJava 超好用的Http请求框架，支持任意Http请求方式，如�
 Gradle引用方法
 
     dependencies {
-       implementation 'com.http.wrapper:httpsender:1.1.0'
+       implementation 'com.http.wrapper:httpsender:1.1.1'
        annotationProcessor 'com.http.wrapper.httpsender:compiler:1.0.4'
     }
 
@@ -246,3 +246,51 @@ Generated API 下载文件进度监听
                 }, throwable -> {
                     //下载失败，处理相关逻辑
                 });
+
+
+
+更新日志
+
+HttpSender
+
+1.1.1
+   1. Add log print switch
+
+1.1.0
+   1. Remove androidx
+
+1.0.9
+   1. Tag and CacheControl can be set for a single request
+
+1.0.0
+   1. Support Http requests such as get, Post, Put, Delete, etc
+   2. Support file upload, download and progress callback
+   3. Combined with RxJava, chain call
+   4. more wonderful, waiting for you to find
+
+HttpSender compiler
+
+1.0.4
+   1. Tag and CacheControl can be set for a single request
+   2.need to combine HttpSender with version 1.0.9 or above
+
+1.0.3
+   1. Fixed an error reported by the @parser generated method
+
+1.0.2
+   1. Add the prefix ‘setDomain' to the @domain name
+
+1.0.0
+   1. add @Param @Parser @Domain  annotation
+
+
+
+
+
+
+
+
+
+
+
+
