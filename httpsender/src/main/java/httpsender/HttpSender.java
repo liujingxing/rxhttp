@@ -29,6 +29,11 @@ public class HttpSender extends Sender {
     private static Function<Param, Param> mOnParamAssembly;
 
     public static void init(OkHttpClient okHttpClient) {
+        init(okHttpClient, false);
+    }
+
+    public static void init(OkHttpClient okHttpClient, boolean debug) {
+        setDebug(debug);
         Sender.init(okHttpClient);
     }
 

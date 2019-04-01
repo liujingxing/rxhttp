@@ -9,6 +9,7 @@ import javax.net.ssl.X509TrustManager;
 import httpsender.wrapper.callback.ProgressCallback;
 import httpsender.wrapper.param.RequestBuilder;
 import httpsender.wrapper.progress.ProgressInterceptor;
+import httpsender.wrapper.utils.LogUtil;
 import io.reactivex.annotations.NonNull;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -33,6 +34,10 @@ class Sender {
         if (mOkHttpClient == null)
             mOkHttpClient = getDefaultOkHttpClient();
         return mOkHttpClient;
+    }
+
+    public static void setDebug(boolean debug) {
+        LogUtil.setDebug(debug);
     }
 
     /**
