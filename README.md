@@ -6,7 +6,11 @@ OkHttp+RxJava 超好用的Http请求框架，支持任意Http请求方式，如�
 Gradle引用方法
 
     dependencies {
-       implementation 'com.http.wrapper:httpsender:1.1.1'
+       //HttpSender
+       implementation 'com.http.wrapper:httpsender:1.1.2'
+       //RxLife 管理RxJava生命周期
+       implementation 'com.rxjava.rxlife:rxlife:1.0.2'
+       //注解处理器
        annotationProcessor 'com.http.wrapper.httpsender:compiler:1.0.4'
     }
 
@@ -23,7 +27,7 @@ Get请求
         Disposable disposable = HttpSender
                 .from(param, new DataParser<Address>() {}) //from操作符，是异步操作
                 .observeOn(AndroidSchedulers.mainThread()) //主线程回调
-                .compose(LifecycleObserver.apply(this)) //加入感知生命周期的观察者
+                .lift(RxLife.lift(this)) //加入感知生命周期的观察者
                 .subscribe(address -> {
                     //accept方法参数类型由上面DataParser传入的泛型类型决定
                     //走到这里说明Http请求成功，并且数据正确
@@ -40,7 +44,7 @@ Generated API  Get请求
                 .addHeader("user-agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1;SV1)");
                 .fromDataParser(Address.class) //from操作符，是异步操作
                 .observeOn(AndroidSchedulers.mainThread()) //主线程回调
-                .compose(LifecycleObserver.apply(this)) //加入感知生命周期的观察者
+                .lift(RxLife.lift(this)) //加入感知生命周期的观察者
                 .subscribe(address -> {
                     //accept方法参数类型由上面DataParser传入的泛型类型决定
                     //走到这里说明Http请求成功，并且数据正确
@@ -59,7 +63,7 @@ Post请求
         Disposable disposable = HttpSender
                 .from(param, new DataParser<Address>() {}) //from操作符，是异步操作
                 .observeOn(AndroidSchedulers.mainThread()) //主线程回调
-                .compose(LifecycleObserver.apply(this)) //加入感知生命周期的观察者
+                .lift(RxLife.lift(this)) //加入感知生命周期的观察者
                 .subscribe(address -> {
                     //accept方法参数类型由上面DataParser传入的泛型类型决定
                     //走到这里说明Http请求成功，并且数据正确
@@ -77,7 +81,7 @@ Generated API Post请求
                 .addHeader("user-agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1;SV1)");
                 .fromDataParser(Address.class) //from操作符，是异步操作
                 .observeOn(AndroidSchedulers.mainThread()) //主线程回调
-                .compose(LifecycleObserver.apply(this)) //加入感知生命周期的观察者
+                .lift(RxLife.lift(this)) //加入感知生命周期的观察者
                 .subscribe(address -> {
                     //accept方法参数类型由上面DataParser传入的泛型类型决定
                     //走到这里说明Http请求成功，并且数据正确
@@ -97,7 +101,7 @@ Generated API Post请求
                 .addHeader("versionCode", "100"); //添加请求头,非必须
         Disposable disposable = HttpSender
                 .from(param, new SimpleParser<String>() {}) //注:如果需要监听上传进度，使用upload操作符
-                .compose(LifecycleObserver.apply(this)) //加入感知生命周期的观察者
+                .lift(RxLife.lift(this)) //加入感知生命周期的观察者
                 .subscribe(s -> { //s为String类型，由SimpleParser类里面的泛型决定的
                     //上传成功，处理相关逻辑
                 }, throwable -> {
@@ -114,7 +118,7 @@ Generated API 上传文件
                 .add("key2", "value2")//添加参数，非必须
                 .addHeader("versionCode", "100"); //添加请求头,非必须
                 .fromSimpleParser(String.class) //注:如果需要监听上传进度，使用upload操作符
-                .compose(LifecycleObserver.apply(this)) //加入感知生命周期的观察者
+                .lift(RxLife.lift(this)) //加入感知生命周期的观察者
                 .subscribe(s -> { //s为String类型，由SimpleParser类里面的泛型决定的
                     //上传成功，处理相关逻辑
                 }, throwable -> {
@@ -141,7 +145,7 @@ Generated API 上传文件
                 })
                 .filter(Progress::isCompleted)//过滤事件，上传完成，才继续往下走
                 .map(Progress::getResult) //到这，说明下载完成，拿到Http返回结果并继续往下走
-                .compose(LifecycleObserver.apply(this)) //加入感知生命周期的观察者
+                .lift(RxLife.lift(this)) //加入感知生命周期的观察者
                 .subscribe(s -> { //s为String类型，由SimpleParser类里面的泛型决定的
                     //上传成功，处理相关逻辑
                 }, throwable -> {
@@ -167,7 +171,7 @@ Generated API 上传文件进度监听
                 })
                 .filter(Progress::isCompleted)//过滤事件，上传完成，才继续往下走
                 .map(Progress::getResult) //到这，说明下载完成，拿到Http返回结果并继续往下走
-                .compose(LifecycleObserver.apply(this)) //加入感知生命周期的观察者
+                .lift(RxLife.lift(this)) //加入感知生命周期的观察者
                 .subscribe(s -> { //s为String类型，由SimpleParser类里面的泛型决定的
                     //上传成功，处理相关逻辑
                 }, throwable -> {
@@ -181,7 +185,7 @@ Generated API 上传文件进度监听
         Disposable disposable = HttpSender
                 .from(param, new DownloadParser(destPath) {}) //这里使用DownloadParser解析器
                 .observeOn(AndroidSchedulers.mainThread()) //主线程回调
-                .compose(LifecycleObserver.apply(this)) //加入感知生命周期的观察者
+                .lift(RxLife.lift(this)) //加入感知生命周期的观察者
                 .subscribe(s -> { //s为String类型
                     //下载成功，处理相关逻辑
                 }, throwable -> {
@@ -195,7 +199,7 @@ Generated API 下载文件
         Disposable disposable = Params.get(url) //这里get,代表Get请求
                 .from(new DownloadParser(destPath) {}) //这里使用DownloadParser解析器
                 .observeOn(AndroidSchedulers.mainThread()) //主线程回调
-                .compose(LifecycleObserver.apply(this)) //加入感知生命周期的观察者
+                .lift(RxLife.lift(this)) //加入感知生命周期的观察者
                 .subscribe(s -> { //s为String类型
                     //下载成功，处理相关逻辑
                 }, throwable -> {
@@ -218,7 +222,7 @@ Generated API 下载文件
                 })
                 .filter(Progress::isCompleted)//过滤事件，下载完成，才继续往下走
                 .map(Progress::getResult) //到这，说明下载完成，拿到Http返回结果并继续往下走
-                .compose(LifecycleObserver.apply(this)) //加入感知生命周期的观察者
+                .lift(RxLife.lift(this)) //加入感知生命周期的观察者
                 .subscribe(s -> { //s为String类型
                     //下载成功，处理相关逻辑
                 }, throwable -> {
@@ -240,7 +244,7 @@ Generated API 下载文件进度监听
                 })
                 .filter(Progress::isCompleted)//过滤事件，下载完成，才继续往下走
                 .map(Progress::getResult) //到这，说明下载完成，拿到Http返回结果并继续往下走
-                .compose(LifecycleObserver.apply(this)) //加入感知生命周期的观察者
+                .lift(RxLife.lift(this)) //加入感知生命周期的观察者
                 .subscribe(s -> { //s为String类型
                     //下载成功，处理相关逻辑
                 }, throwable -> {
@@ -252,6 +256,9 @@ Generated API 下载文件进度监听
 更新日志
 
 HttpSender
+
+1.1.2
+   1.remove LifecycleObserver
 
 1.1.1
    1. Add log print switch
