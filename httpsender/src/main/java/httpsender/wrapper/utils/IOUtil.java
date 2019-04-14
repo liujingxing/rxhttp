@@ -83,7 +83,16 @@ public class IOUtil {
     }
 
     public static boolean write(InputStream is, String path) {
-        return !TextUtils.isEmpty(path) && write(is, new File(path));
+        return write(is, path, false);
+    }
+
+    public static boolean write(InputStream is, String path, boolean append) {
+        return !TextUtils.isEmpty(path) && write(is, new File(path), append);
+    }
+
+
+    public static boolean write(InputStream is, File dstFile) {
+        return write(is, dstFile, false);
     }
 
     /**
@@ -91,14 +100,15 @@ public class IOUtil {
      *
      * @param is      要读取的流
      * @param dstFile 保存的目标文件对象
+     * @param append  是否追加
      */
-    public static boolean write(InputStream is, File dstFile) {
+    public static boolean write(InputStream is, File dstFile, boolean append) {
         if (dstFile == null) return false;
         File parentFile = dstFile.getParentFile();
         if (!parentFile.exists() && !parentFile.mkdirs()) return false;
         FileOutputStream fos = null;
         try {
-            fos = new FileOutputStream(dstFile);
+            fos = new FileOutputStream(dstFile, append);
             return write(is, fos);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
