@@ -8,7 +8,7 @@ import httpsender.wrapper.param.Param;
 import httpsender.wrapper.param.PostFormParam;
 import httpsender.wrapper.parse.DownloadParser;
 import httpsender.wrapper.parse.Parser;
-import httpsender.wrapper.parse.StringParser;
+import httpsender.wrapper.parse.SimpleParser;
 import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.annotations.NonNull;
@@ -95,7 +95,7 @@ public class HttpSender extends Sender {
      * @return Observable<String>
      */
     public static Observable<String> from(@NonNull Param param) {
-        return from(param, StringParser.get());
+        return from(param, SimpleParser.get(String.class));
     }
 
     /**
