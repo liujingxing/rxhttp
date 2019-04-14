@@ -1,8 +1,6 @@
 package com.http.compiler;
 
 
-import httpsender.wrapper.annotation.Param;
-import httpsender.wrapper.annotation.Parser;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.MethodSpec;
 
@@ -15,6 +13,9 @@ import java.util.Map.Entry;
 
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
+
+import httpsender.wrapper.annotation.Param;
+import httpsender.wrapper.annotation.Parser;
 
 import static com.http.compiler.ParamsGenerator.CLASSNAME;
 
@@ -95,6 +96,18 @@ public class ParamsAnnotatedClass {
         method = MethodSpec.methodBuilder("add")
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(String.class, "key")
+                .addParameter(Object.class, "value")
+                .addParameter(boolean.class, "isAdd")
+                .beginControlFlow("if(isAdd)")
+                .addStatement("param.add(key,value)")
+                .endControlFlow()
+                .addStatement("return this")
+                .returns(paramsName);
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("add")
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(String.class, "key")
                 .addParameter(File.class, "file")
                 .addStatement("param.add(key,file)")
                 .addStatement("return this")
@@ -111,9 +124,32 @@ public class ParamsAnnotatedClass {
 
         method = MethodSpec.methodBuilder("addHeader")
                 .addModifiers(Modifier.PUBLIC)
+                .addParameter(String.class, "line")
+                .addParameter(boolean.class, "isAdd")
+                .beginControlFlow("if(isAdd)")
+                .addStatement("param.addHeader(line)")
+                .endControlFlow()
+                .addStatement("return this")
+                .returns(paramsName);
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("addHeader")
+                .addModifiers(Modifier.PUBLIC)
                 .addParameter(String.class, "key")
                 .addParameter(String.class, "value")
                 .addStatement("param.addHeader(key,value)")
+                .addStatement("return this")
+                .returns(paramsName);
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("addHeader")
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(String.class, "key")
+                .addParameter(String.class, "value")
+                .addParameter(boolean.class, "isAdd")
+                .beginControlFlow("if(isAdd)")
+                .addStatement("param.addHeader(key,value)")
+                .endControlFlow()
                 .addStatement("return this")
                 .returns(paramsName);
         methodList.add(method.build());
