@@ -45,13 +45,23 @@ public class ParserAnnotatedClass {
         ClassName parserName = ClassName.get("httpsender.wrapper.parse", "Parser");
         ClassName progressName = ClassName.get("httpsender.wrapper.entity", "Progress");
         ClassName simpleParserName = ClassName.get("httpsender.wrapper.parse", "SimpleParser");
+        ClassName listParserName = ClassName.get("httpsender.wrapper.parse", "ListParser");
 
         TypeName typeName = TypeName.get(String.class);
         TypeName classTName = ParameterizedTypeName.get(ClassName.get(Class.class), t);
+        TypeName listTName = ParameterizedTypeName.get(ClassName.get(List.class), t);
         TypeName progressTName = ParameterizedTypeName.get(progressName, t);
         TypeName progressStringName = ParameterizedTypeName.get(progressName, typeName);
         TypeName observableTName = ParameterizedTypeName.get(observableName, t);
+        TypeName observableListTName = ParameterizedTypeName.get(observableName, listTName);
         TypeName observableStringName = ParameterizedTypeName.get(observableName, typeName);
+        TypeName observableBooleanName = ParameterizedTypeName.get(observableName, TypeName.get(Boolean.class));
+        TypeName observableByteName = ParameterizedTypeName.get(observableName, TypeName.get(Byte.class));
+        TypeName observableShortName = ParameterizedTypeName.get(observableName, TypeName.get(Short.class));
+        TypeName observableIntegerName = ParameterizedTypeName.get(observableName, TypeName.get(Integer.class));
+        TypeName observableLongName = ParameterizedTypeName.get(observableName, TypeName.get(Long.class));
+        TypeName observableFloatName = ParameterizedTypeName.get(observableName, TypeName.get(Float.class));
+        TypeName observableDoubleName = ParameterizedTypeName.get(observableName, TypeName.get(Double.class));
         TypeName observableProgressTName = ParameterizedTypeName.get(observableName, progressTName);
         TypeName observableProgressStringName = ParameterizedTypeName.get(observableName, progressStringName);
         TypeName parserTName = ParameterizedTypeName.get(parserName, t);
@@ -88,12 +98,62 @@ public class ParserAnnotatedClass {
                 .returns(observableTName);
         methodList.add(method.build());
 
+        method = MethodSpec.methodBuilder("fromBoolean")
+                .addModifiers(Modifier.PUBLIC)
+                .addStatement("return $T.from(param,SimpleParser.get(Boolean.class))", httpSenderName)
+                .returns(observableBooleanName);
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("fromByte")
+                .addModifiers(Modifier.PUBLIC)
+                .addStatement("return $T.from(param,SimpleParser.get(Byte.class))", httpSenderName)
+                .returns(observableByteName);
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("fromShort")
+                .addModifiers(Modifier.PUBLIC)
+                .addStatement("return $T.from(param,SimpleParser.get(Short.class))", httpSenderName)
+                .returns(observableShortName);
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("fromInteger")
+                .addModifiers(Modifier.PUBLIC)
+                .addStatement("return $T.from(param,SimpleParser.get(Integer.class))", httpSenderName)
+                .returns(observableIntegerName);
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("fromLong")
+                .addModifiers(Modifier.PUBLIC)
+                .addStatement("return $T.from(param,SimpleParser.get(Long.class))", httpSenderName)
+                .returns(observableLongName);
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("fromFloat")
+                .addModifiers(Modifier.PUBLIC)
+                .addStatement("return $T.from(param,SimpleParser.get(Float.class))", httpSenderName)
+                .returns(observableFloatName);
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("fromDouble")
+                .addModifiers(Modifier.PUBLIC)
+                .addStatement("return $T.from(param,SimpleParser.get(Double.class))", httpSenderName)
+                .returns(observableDoubleName);
+        methodList.add(method.build());
+
         method = MethodSpec.methodBuilder("fromSimpleParser")
                 .addModifiers(Modifier.PUBLIC)
                 .addTypeVariable(t)
                 .addParameter(classTName, "type")
                 .addStatement("return $T.from(param,$T.get(type))", httpSenderName, simpleParserName)
                 .returns(observableTName);
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("fromListParser")
+                .addModifiers(Modifier.PUBLIC)
+                .addTypeVariable(t)
+                .addParameter(classTName, "type")
+                .addStatement("return $T.from(param,$T.get(type))", httpSenderName, listParserName)
+                .returns(observableListTName);
         methodList.add(method.build());
 
         for (Entry<String, TypeElement> item : mElementMap.entrySet()) {
