@@ -257,6 +257,10 @@ Generated API 下载文件进度监听
 
 HttpSender
 
+1.1.4
+   1.add ListParser class
+   2.delete StringParser class
+
 1.1.2
    1.remove LifecycleObserver
 
@@ -276,6 +280,10 @@ HttpSender
    4. more wonderful, waiting for you to find
 
 HttpSender compiler
+
+1.0.5
+   1.add fromXXX methods in Params
+   2.add addXXX methods in Params
 
 1.0.4
    1. Tag and CacheControl can be set for a single request
