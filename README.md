@@ -7,7 +7,7 @@ Gradle引用方法
 
     dependencies {
        //HttpSender
-       implementation 'com.http.wrapper:httpsender:1.1.4'
+       implementation 'com.http.wrapper:httpsender:1.1.5'
        //RxLife 管理RxJava生命周期
        implementation 'com.rxjava.rxlife:rxlife:1.0.3'
        //注解处理器
@@ -256,6 +256,8 @@ Generated API 下载文件进度监听
 更新日志
 
 HttpSender
+1.1.5
+   1.File download supports breakpoint continuation
 
 1.1.4
    1.add ListParser class
