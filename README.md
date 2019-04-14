@@ -7,11 +7,11 @@ Gradle引用方法
 
     dependencies {
        //HttpSender
-       implementation 'com.http.wrapper:httpsender:1.1.3'
+       implementation 'com.http.wrapper:httpsender:1.1.4'
        //RxLife 管理RxJava生命周期
        implementation 'com.rxjava.rxlife:rxlife:1.0.3'
        //注解处理器
-       annotationProcessor 'com.http.wrapper.httpsender:compiler:1.0.4'
+       annotationProcessor 'com.http.wrapper.httpsender:compiler:1.0.5'
     }
 
 注解使用请查看：https://blog.csdn.net/liujingxing93/article/details/88894126
