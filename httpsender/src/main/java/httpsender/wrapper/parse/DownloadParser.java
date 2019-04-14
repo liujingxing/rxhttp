@@ -36,7 +36,8 @@ public class DownloadParser implements Parser<String> {
         ResponseBody body = response.body();
         if (body == null)
             throw new IOException("ResponseBody is null");
-        boolean isSuccess = IOUtil.write(body.byteStream(), mDestPath);//将输入流写出到文件
+        boolean append = response.header("Content-Range") != null;
+        boolean isSuccess = IOUtil.write(body.byteStream(), mDestPath, append);//将输入流写出到文件
         if (!isSuccess)
             throw new IOException("Download failure");
         return mDestPath;
