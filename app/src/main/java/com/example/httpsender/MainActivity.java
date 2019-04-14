@@ -24,8 +24,14 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
     }
 
-    public void onClick(View view) {
+
+    public void sendGet(View view) {
         sendGet();
+    }
+
+    //断点续传下载文件
+    public void download(View view) {
+        download();
     }
 
     //发送Get请求
@@ -110,13 +116,24 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
-    //下载文件，带进度
+    //断点续传，下载文件，带进度
     private void download() {
         String url = "http://update.9158.com/miaolive/Miaolive.apk";
-        String destPath = getExternalCacheDir() + "/" + System.currentTimeMillis() + ".apk";
-        Param param = Param.get(url); //这里get,代表Get请求
-        Disposable disposable = HttpSender
-                .download(param, destPath) //这里泛型只需要传入Data类的泛型即可，不需要传Data<Book>
+        String destPath = getExternalCacheDir() + "/" + "Miaobo.apk";
+        File file = new File(destPath);
+        long length = file.length();
+        Disposable disposable = Params.get(url)
+                //如果文件存在,则添加 RANGE 头信息 ，以支持断点下载
+                .addHeader("RANGE", "bytes=" + length + "-", length > 0)
+                .download(destPath)
+                .map(progress -> {
+                    if (length > 0) {//增加上次已经下载好的字节数
+                        progress.addCurrentSize(length);
+                        progress.addTotalSize(length);
+                        progress.updateProgress();
+                    }
+                    return progress;
+                })
                 .observeOn(AndroidSchedulers.mainThread()) //主线程回调
                 .doOnNext(progress -> {
                     //下载进度回调,0-100，仅在进度有更新时才会回调

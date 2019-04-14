@@ -4,6 +4,8 @@ package httpsender.wrapper.entity;
  * User: ljx
  * Date: 2019/1/20
  * Time: 18:15
+ *
+ * It is NOT thread safe.
  */
 public class Progress<T> {
 
@@ -50,6 +52,26 @@ public class Progress<T> {
 
     public T getResult() {
         return mResult;
+    }
+
+    public void updateProgress() {
+        this.progress = (int) (currentSize * 100 / totalSize);
+    }
+
+    public void setCurrentSize(long currentSize) {
+        this.currentSize = currentSize;
+    }
+
+    public void setTotalSize(long totalSize) {
+        this.totalSize = totalSize;
+    }
+
+    public void addTotalSize(long addSize) {
+        totalSize += addSize;
+    }
+
+    public void addCurrentSize(long addSize) {
+        currentSize += addSize;
     }
 
     @Override
