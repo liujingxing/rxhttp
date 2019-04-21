@@ -1,1 +1,1 @@
-include ':app', ':httpsender', ':compiler', ':annotation'
+include ':app', ':rxhttp', ':rxhttp-compiler', ':rxhttp-annotation'
