@@ -8,13 +8,15 @@ import com.rxjava.rxlife.RxLife;
 
 import java.io.File;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import okhttp3.Response;
 import rxhttp.HttpSender;
 import rxhttp.wrapper.entity.Progress;
 import rxhttp.wrapper.param.Param;
 import rxhttp.wrapper.param.RxHttp;
+import rxhttp.wrapper.parse.DownloadParser;
 import rxhttp.wrapper.parse.SimpleParser;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -24,103 +26,81 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
     }
 
-
-    public void sendGet(View view) {
-        sendGet();
-    }
-
-    //断点续传下载文件
-    public void download(View view) {
-        download();
-    }
-
     //发送Get请求
-    private void sendGet() {
-        String url = "http://ip.taobao.com/service/getIpInfo.php";
-        Param param = Param.get(url) //这里get,代表Get请求
-                .setAssemblyEnabled(false) //设置是否添加公共参数，默认为true
-                .add("ip", "63.223.108.42")//添加参数
-                .addHeader("accept", "*/*") //添加请求头
-                .addHeader("connection", "Keep-Alive")
-                .addHeader("user-agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1;SV1)");
-        Disposable disposable = HttpSender
-                .from(param, new DataParser<Address>() {}) //from操作符，是异步操作
-                .observeOn(AndroidSchedulers.mainThread()) //主线程回调
-                .as(RxLife.as(this)) //加入感知生命周期的观察者
-                .subscribe(address -> {
-                    //accept方法参数类型由上面DataParser传入的泛型类型决定
-                    //走到这里说明Http请求成功，并且数据正确
-                }, throwable -> {
-                    //Http请求出现异常，有可能是网络异常，数据异常等
-                });
-    }
-
-    //使用注解处理器生成的Params类,发送Get请求
-    private void sendGetByParams() {
-        String url = "service/getIpInfo.php";
-        Disposable disposable = RxHttp.get(url) //这里get,代表Get请求
-                .setDomainTotaobaoIfAbsent()
-                .setAssemblyEnabled(false) //设置是否添加公共参数，默认为true
+    public void sendGet(View view) {
+        RxHttp.get("http://ip.taobao.com/service/getIpInfo.php") //Get请求
                 .add("ip", "63.223.108.42")//添加参数
                 .addHeader("accept", "*/*") //添加请求头
                 .addHeader("connection", "Keep-Alive")
                 .addHeader("user-agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1;SV1)")
-                .fromDataParser(Address.class) //from操作符，是异步操作
-                .as(RxLife.asOnMain(this)) //加入感知生命周期的观察者
-                .subscribe(address -> {
-                    //accept方法参数类型由上面DataParser传入的泛型类型决定
-                    //走到这里说明Http请求成功，并且数据正确
+                .fromSimpleParser(String.class)  //这里返回Observable<Response> 对象
+                .as(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
+                .subscribe(s -> {
+                    //成功回调
                 }, throwable -> {
-                    //Http请求出现异常，有可能是网络异常，数据异常等
-                });
-    }
-
-    //使用注解处理器生成的Params类,发送Post请求
-    private void sendPostByParams() {
-        String url = "/service/getIpInfo.php";
-        Disposable disposable = RxHttp.postForm(url) //这里get,代表Get请求
-                .setDomainTotaobaoIfAbsent()
-                .add("ip", "63.223.108.42")//添加参数
-                .addHeader("accept", "*/*") //添加请求头
-                .addHeader("connection", "Keep-Alive")
-                .addHeader("user-agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1;SV1)")
-                .fromDataParser(Address.class) //from操作符，是异步操作
-                .as(RxLife.asOnMain(this)) //加入感知生命周期的观察者
-                .subscribe(address -> {
-                    //accept方法参数类型由上面DataParser传入的泛型类型决定
-                    //走到这里说明Http请求成功，并且数据正确
-                }, throwable -> {
-                    //Http请求出现异常，有可能是网络异常，数据异常等
+                    //失败回调
                 });
     }
 
     //发送Post请求
     private void sendPost() {
-        String url = "http://ip.taobao.com/service/getIpInfo.php";
-        Param param = Param.postForm(url) //这里get,代表Get请求
+        RxHttp.postForm("http://ip.taobao.com/service/getIpInfo.php")
                 .add("ip", "63.223.108.42")//添加参数
                 .addHeader("accept", "*/*") //添加请求头
                 .addHeader("connection", "Keep-Alive")
-                .addHeader("user-agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1;SV1)");
-        Disposable disposable = HttpSender
-                .from(param, new DataParser<Address>() {}) //from操作符，是异步操作
-                .observeOn(AndroidSchedulers.mainThread()) //主线程回调
-                .as(RxLife.as(this)) //加入感知生命周期的观察者
-                .subscribe(address -> {
-                    //accept方法参数类型由上面DataParser传入的泛型类型决定
-                    //走到这里说明Http请求成功，并且数据正确
+                .addHeader("user-agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1;SV1)")
+                .fromSimpleParser(Response.class)  //这里返回Observable<Response>对象
+                .as(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
+                .subscribe(response -> {
+                    //成功回调
                 }, throwable -> {
-                    //Http请求出现异常，有可能是网络异常，数据异常等
+                    //失败回调
                 });
     }
 
-    //断点续传，下载文件，带进度
-    private void download() {
-        String url = "http://update.9158.com/miaolive/Miaolive.apk";
+    //文件下载，不带进度
+    public void download(View view) {
+        String destPath = getExternalCacheDir() + "/" + System.currentTimeMillis() + ".apk";
+        RxHttp.get("http://update.9158.com/miaolive/Miaolive.apk")
+                .from(new DownloadParser(destPath)) //注意这里使用DownloadParser解析器，并传入本地路径
+                .as(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
+                .subscribe(s -> {
+                    //下载成功,回调文件下载路径
+                }, throwable -> {
+                    //下载失败
+                });
+    }
+
+    //文件下载，带进度
+    public void downloadAndProgress() {
+        //文件存储路径
+        String destPath = getExternalCacheDir() + "/" + System.currentTimeMillis() + ".apk";
+        RxHttp.get("http://update.9158.com/miaolive/Miaolive.apk")
+                .download(destPath) //注:如果需要监听下载进度，使用download操作符
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnNext(progress -> {
+                    //下载进度回调,0-100，仅在进度有更新时才会回调，最多回调101次，最后一次回调文件存储路径
+                    int currentProgress = progress.getProgress(); //当前进度 0-100
+                    long currentSize = progress.getCurrentSize(); //当前已下载的字节大小
+                    long totalSize = progress.getTotalSize();     //要下载的总字节大小
+                    String filePath = progress.getResult(); //文件存储路径，最后一次回调才有内容
+                })
+                .filter(Progress::isCompleted)//下载完成，才继续往下走
+                .map(Progress::getResult) //到这，说明下载完成，返回下载目标路径
+                .as(RxLife.as(this)) //感知生命周期
+                .subscribe(s -> {//s为String类型，这里为文件存储路径
+                    //下载完成，处理相关逻辑
+                }, throwable -> {
+                    //下载失败，处理相关逻辑
+                });
+    }
+
+    //断点下载，带进度
+    public void breakpointDownloadAndProgress() {
         String destPath = getExternalCacheDir() + "/" + "Miaobo.apk";
         File file = new File(destPath);
         long length = file.length();
-        Disposable disposable = RxHttp.get(url)
+        RxHttp.get("http://update.9158.com/miaolive/Miaolive.apk")
                 //如果文件存在,则添加 RANGE 头信息 ，以支持断点下载
                 .addHeader("RANGE", "bytes=" + length + "-", length > 0)
                 .download(destPath)
@@ -149,8 +129,23 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
-    //上传文件，带进度
+
+    //文件上传，不带进度
     private void upload() {
+        RxHttp.postForm("http://...") //发送Form表单形式的Post请求
+                .add("file1", new File("xxx/1.png"))
+                .add("file2", new File("xxx/2.png"))
+                .fromSimpleParser(String.class) //from操作符，是异步操作
+                .as(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
+                .subscribe(s -> {
+                    //成功回调
+                }, throwable -> {
+                    //失败回调
+                });
+    }
+
+    //上传文件，带进度
+    private void uploadAndProgress() {
         String url = "http://www.......";
         Param param = Param.postForm(url) //发送Form表单形式的Post请求
                 .add("file1", new File("xxx/1.png"))
