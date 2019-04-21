@@ -1,4 +1,4 @@
-# HttpSender
+# RxHttp
 OkHttp+RxJava 超好用的Http请求框架，支持任意Http请求方式，如：Get、Post、Head、Put等；也支持任意数据解析方法，如：Json、DOM解析等；并且可以很优雅的实现上传/下载进度的监听
 
 博客地址：https://blog.csdn.net/liujingxing93/article/details/86600477

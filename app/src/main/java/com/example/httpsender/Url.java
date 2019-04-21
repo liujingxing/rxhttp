@@ -1,6 +1,7 @@
 package com.example.httpsender;
 
-import httpsender.wrapper.annotation.Domain;
+
+import rxhttp.wrapper.annotation.Domain;
 
 /**
  * User: ljx

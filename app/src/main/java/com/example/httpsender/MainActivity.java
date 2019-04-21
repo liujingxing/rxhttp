@@ -1,6 +1,5 @@
 package com.example.httpsender;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -9,11 +8,11 @@ import com.rxjava.rxlife.RxLife;
 
 import java.io.File;
 
-import httpsender.HttpSender;
-import httpsender.wrapper.entity.Progress;
-import httpsender.wrapper.param.Param;
-import httpsender.wrapper.param.Params;
-import httpsender.wrapper.parse.SimpleParser;
+import rxhttp.HttpSender;
+import rxhttp.wrapper.entity.Progress;
+import rxhttp.wrapper.param.Param;
+import rxhttp.wrapper.param.RxHttp;
+import rxhttp.wrapper.parse.SimpleParser;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 
@@ -59,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
     //使用注解处理器生成的Params类,发送Get请求
     private void sendGetByParams() {
         String url = "service/getIpInfo.php";
-        Disposable disposable = Params.get(url) //这里get,代表Get请求
+        Disposable disposable = RxHttp.get(url) //这里get,代表Get请求
                 .setDomainTotaobaoIfAbsent()
                 .setAssemblyEnabled(false) //设置是否添加公共参数，默认为true
                 .add("ip", "63.223.108.42")//添加参数
@@ -79,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
     //使用注解处理器生成的Params类,发送Post请求
     private void sendPostByParams() {
         String url = "/service/getIpInfo.php";
-        Disposable disposable = Params.postForm(url) //这里get,代表Get请求
+        Disposable disposable = RxHttp.postForm(url) //这里get,代表Get请求
                 .setDomainTotaobaoIfAbsent()
                 .add("ip", "63.223.108.42")//添加参数
                 .addHeader("accept", "*/*") //添加请求头
@@ -121,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
         String destPath = getExternalCacheDir() + "/" + "Miaobo.apk";
         File file = new File(destPath);
         long length = file.length();
-        Disposable disposable = Params.get(url)
+        Disposable disposable = RxHttp.get(url)
                 //如果文件存在,则添加 RANGE 头信息 ，以支持断点下载
                 .addHeader("RANGE", "bytes=" + length + "-", length > 0)
                 .download(destPath)
