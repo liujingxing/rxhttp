@@ -4,11 +4,11 @@ package com.example.httpsender;
 import java.io.IOException;
 import java.lang.reflect.Type;
 
-import httpsender.wrapper.annotation.Parser;
-import httpsender.wrapper.entity.ParameterizedTypeImpl;
-import httpsender.wrapper.exception.ParseException;
-import httpsender.wrapper.parse.AbstractParser;
-import httpsender.wrapper.utils.GsonUtil;
+import rxhttp.wrapper.annotation.Parser;
+import rxhttp.wrapper.entity.ParameterizedTypeImpl;
+import rxhttp.wrapper.exception.ParseException;
+import rxhttp.wrapper.parse.AbstractParser;
+import rxhttp.wrapper.utils.GsonUtil;
 
 /**
  * Data<T> 数据解析器 ,解析完成对Data对象做判断,如果ok,返回数据 T
