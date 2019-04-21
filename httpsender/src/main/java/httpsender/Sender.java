@@ -64,7 +64,9 @@ class Sender {
 
 
     static Call newCall(OkHttpClient client, Param param) throws IOException {
-        return client.newCall(onAssembly(param).buildRequest());
+        param = onAssembly(param);
+        LogUtil.log(param);
+        return client.newCall(param.buildRequest());
     }
 
     /**

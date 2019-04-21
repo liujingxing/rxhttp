@@ -2,6 +2,7 @@ package httpsender.wrapper.utils;
 
 import android.util.Log;
 
+import httpsender.wrapper.param.Param;
 import io.reactivex.annotations.NonNull;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -28,5 +29,10 @@ public class LogUtil {
                 "\nUrl=" + request.url() +
                 "\nResult=" + result;
         Log.d("HttpSender", builder);
+    }
+
+    public static void log(@NonNull Param param) {
+        if (!isDebug) return;
+        Log.d("HttpSender", param.toString());
     }
 }
