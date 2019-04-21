@@ -7,12 +7,13 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.X509TrustManager;
 
 import httpsender.wrapper.callback.ProgressCallback;
-import httpsender.wrapper.param.RequestBuilder;
+import httpsender.wrapper.param.Param;
 import httpsender.wrapper.progress.ProgressInterceptor;
 import httpsender.wrapper.utils.LogUtil;
 import io.reactivex.annotations.NonNull;
+import io.reactivex.functions.Function;
+import okhttp3.Call;
 import okhttp3.OkHttpClient;
-import okhttp3.Request;
 import okhttp3.Response;
 
 /**
@@ -21,6 +22,8 @@ import okhttp3.Response;
  * Time: 18:36
  */
 class Sender {
+
+    private static Function<Param, Param> mOnParamAssembly;
 
     private static OkHttpClient mOkHttpClient; //只能初始化一次,第二次将抛出异常
 
@@ -36,46 +39,32 @@ class Sender {
         return mOkHttpClient;
     }
 
-    public static void setDebug(boolean debug) {
+    static void setDebug(boolean debug) {
         LogUtil.setDebug(debug);
     }
 
-    /**
-     * 同步执行请求
-     *
-     * @param builder Request构造器
-     * @return Http响应结果
-     * @throws IOException 超时、网络异常
-     */
-    static Response execute(@NonNull RequestBuilder builder) throws IOException {
-        Request request = builder.buildRequest();
-        return execute(getOkHttpClient(), request);
-    }
-
-    /**
-     * 同步下载文件，带进度回调
-     *
-     * @param builder  Request构造器
-     * @param callback 进度回调接口
-     * @return Http响应结果
-     * @throws IOException 超时、网络异常
-     */
-    static Response download(@NonNull RequestBuilder builder, @NonNull ProgressCallback callback) throws IOException {
-        OkHttpClient okHttpClient = clone(callback);
-        Request request = builder.buildRequest();
-        return execute(okHttpClient, request);
+    static void setOnParamAssembly(Function<Param, Param> onParamAssembly) {
+        mOnParamAssembly = onParamAssembly;
     }
 
     /**
      * 同步执行请求
      *
-     * @param okHttpClient OkHttpClient对象
-     * @param request      Request请求对象
+     * @param param 请求参数
      * @return Http响应结果
      * @throws IOException 超时、网络异常
      */
-    private static Response execute(@NonNull OkHttpClient okHttpClient, @NonNull Request request) throws IOException {
-        return okHttpClient.newCall(request).execute();
+    static Response execute(@NonNull Param param) throws IOException {
+        return newCall(param).execute();
+    }
+
+    static Call newCall(Param param) throws IOException {
+        return newCall(getOkHttpClient(), param);
+    }
+
+
+    static Call newCall(OkHttpClient client, Param param) throws IOException {
+        return client.newCall(onAssembly(param).buildRequest());
     }
 
     /**
@@ -84,7 +73,7 @@ class Sender {
      * @param progressCallback 进度回调
      * @return 克隆的OkHttpClient对象
      */
-    private static OkHttpClient clone(@NonNull final ProgressCallback progressCallback) {
+    static OkHttpClient clone(@NonNull final ProgressCallback progressCallback) {
         //克隆一个OkHttpClient后,增加拦截器,拦截下载进度
         return getOkHttpClient().newBuilder()
                 .addNetworkInterceptor(new ProgressInterceptor(progressCallback))
@@ -107,5 +96,24 @@ class Sender {
                 .sslSocketFactory(sslSocketFactory, trustAllCert) //添加信任证书
                 .hostnameVerifier((hostname, session) -> true) //忽略host验证
                 .build();
+    }
+
+
+    /**
+     * <P>对Param参数添加一层装饰,可以在该层做一些与业务相关工作，
+     * <P>例如：添加公共参数/请求头信息
+     *
+     * @param p 参数
+     * @return 装饰后的参数
+     */
+    private static Param onAssembly(Param p) throws IOException {
+        Function<Param, Param> f = mOnParamAssembly;
+        if (f == null) return p;
+        if (p == null || !p.isAssemblyEnabled()) return p;
+        try {
+            return f.apply(p);
+        } catch (Exception e) {
+            throw new IOException(e);
+        }
     }
 }
