@@ -3,10 +3,10 @@ package com.example.httpsender;
 import android.app.Application;
 import android.util.Log;
 
-import httpsender.HttpSender;
-import httpsender.wrapper.param.*;
+import rxhttp.HttpSender;
 import io.reactivex.functions.Function;
 import io.reactivex.plugins.RxJavaPlugins;
+import rxhttp.wrapper.param.*;
 
 /**
  * User: ljx

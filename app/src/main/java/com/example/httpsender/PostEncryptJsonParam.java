@@ -2,11 +2,11 @@ package com.example.httpsender;
 
 
 
-import httpsender.wrapper.annotation.Param;
 
 import org.json.JSONObject;
 
-import httpsender.wrapper.param.AbstractPostParam;
+import rxhttp.wrapper.annotation.Param;
+import rxhttp.wrapper.param.AbstractPostParam;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 
