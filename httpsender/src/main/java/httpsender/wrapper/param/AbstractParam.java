@@ -138,11 +138,15 @@ public abstract class AbstractParam extends LinkedHashMap<String, Object> implem
         return mIsAssemblyEnabled;
     }
 
-    /**
-     * @return 所有参数(不包括url及请求头)以 key=value 格式拼接(用 & 拼接)在一起
-     */
     @Override
-    public final String toString() {
-        return BuildUtil.toKeyValue(this);
+    public String toString() {
+        return this.getClass().getSimpleName() + " {" +
+                "  \nurl = " + mUrl + '\'' +
+                ", \nparam = { " + BuildUtil.toKeyValue(this) + " }" +
+                ", \nheaders = { " + mHBuilder.build().toString().replace("\n", ",") + " }" +
+                ", \nisAssemblyEnabled = " + mIsAssemblyEnabled +
+                ", \ntag = " + mTag +
+                ", \ncacheControl = " + mCacheControl +
+                " }";
     }
 }

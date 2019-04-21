@@ -3,7 +3,6 @@ package com.example.httpsender;
 import android.app.Application;
 import android.util.Log;
 
-
 import httpsender.HttpSender;
 import httpsender.wrapper.param.*;
 import io.reactivex.functions.Function;
@@ -36,7 +35,7 @@ public class AppHolder extends Application {
              * 这时由于已经取消订阅，“downStream”无法处理异常，此时的异常无人处理，便会导致程序崩溃
              */
         });
-
+        HttpSender.setDebug(BuildConfig.DEBUG);
         HttpSender.setOnParamAssembly(new Function<Param, Param>() {
             /**
              * <p>在这里可以为所有请求添加公共参数，也可以为url统一添加前缀或者后缀
