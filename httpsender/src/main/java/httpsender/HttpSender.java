@@ -10,7 +10,6 @@ import httpsender.wrapper.parse.DownloadParser;
 import httpsender.wrapper.parse.Parser;
 import httpsender.wrapper.parse.SimpleParser;
 import io.reactivex.Observable;
-import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
@@ -24,16 +23,14 @@ import okhttp3.Response;
  * Date: 2017/12/2
  * Time: 11:13
  */
-public class HttpSender extends Sender {
-
-    private static Function<Param, Param> mOnParamAssembly;
+public class HttpSender {
 
     public static void init(OkHttpClient okHttpClient) {
         init(okHttpClient, false);
     }
 
     public static void init(OkHttpClient okHttpClient, boolean debug) {
-        setDebug(debug);
+        Sender.setDebug(debug);
         Sender.init(okHttpClient);
     }
 
@@ -41,8 +38,12 @@ public class HttpSender extends Sender {
         return Sender.getOkHttpClient();
     }
 
+    public static void setDebug(boolean debug) {
+        Sender.setDebug(debug);
+    }
+
     public static void setOnParamAssembly(Function<Param, Param> onParamAssembly) {
-        mOnParamAssembly = onParamAssembly;
+        Sender.setOnParamAssembly(onParamAssembly);
     }
 
     /**
@@ -54,7 +55,7 @@ public class HttpSender extends Sender {
      * @throws IOException 数据解析异常、网络异常等
      */
     public static Response execute(@NonNull Param param) throws IOException {
-        return Sender.execute(onAssembly(param));
+        return Sender.execute(param);
     }
 
     /**
@@ -146,7 +147,7 @@ public class HttpSender extends Sender {
      * @see #upload(Param, Parser) 上传带进度回调
      */
     public static <T> Observable<T> syncFrom(@NonNull Param param, @NonNull Parser<T> parser) {
-        return Observable.fromCallable(() -> execute(param, parser));
+        return new ObservableHttp<>(param, parser);
     }
 
     /**
@@ -157,17 +158,7 @@ public class HttpSender extends Sender {
      * @return Observable<Progress>
      */
     public static Observable<Progress<String>> download(@NonNull Param param, final String destPath) {
-        return Observable.create((ObservableOnSubscribe<Progress<String>>) emitter -> {
-            Response response = Sender.download(onAssembly(param), (progress, currentSize, totalSize) -> {
-                if (emitter.isDisposed()) return;
-                //这里最多回调100次,仅在进度有更新时,才会回调
-                emitter.onNext(new Progress<>(progress, currentSize, totalSize));
-            });
-            String filePath = new DownloadParser(destPath).onParse(response);
-            if (emitter.isDisposed()) return;
-            emitter.onNext(new Progress<>(filePath)); //最后一次回调文件下载路径
-            emitter.onComplete();
-        }).subscribeOn(Schedulers.io());
+        return new ObservableDownload(param, destPath).subscribeOn(Schedulers.io());
     }
 
     /**
@@ -180,35 +171,6 @@ public class HttpSender extends Sender {
      * @return Observable<Progress>
      */
     public static <T> Observable<Progress<T>> upload(@NonNull Param param, @NonNull Parser<T> parser) {
-        return Observable.create((ObservableOnSubscribe<Progress<T>>) emitter -> {
-            param.setProgressCallback((progress, currentSize, totalSize) -> {
-                if (emitter.isDisposed()) return;
-                //这里最多回调100次,仅在进度有更新时,才会回调
-                emitter.onNext(new Progress<>(progress, currentSize, totalSize));
-            });
-            Response response = execute(param);
-            T t = parser.onParse(response);
-            if (emitter.isDisposed()) return;
-            emitter.onNext(new Progress<>(t)); //最后一次回调Http执行结果
-            emitter.onComplete();
-        }).subscribeOn(Schedulers.io());
-    }
-
-    /**
-     * <P>对Param参数添加一层装饰,可以在该层做一些与业务相关工作，
-     * <P>例如：添加公共参数/请求头信息
-     *
-     * @param p 参数
-     * @return 装饰后的参数
-     */
-    private static Param onAssembly(Param p) throws IOException {
-        Function<Param, Param> f = mOnParamAssembly;
-        if (f == null) return p;
-        if (p == null || !p.isAssemblyEnabled()) return p;
-        try {
-            return f.apply(p);
-        } catch (Exception e) {
-            throw new IOException(e);
-        }
+        return new ObservableUpload<>(param, parser).subscribeOn(Schedulers.io());
     }
 }
