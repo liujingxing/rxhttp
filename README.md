@@ -15,9 +15,9 @@ RxHttp是基于OkHttp的二次封装，并于RxJava做到无缝衔接，一条�
 Gradle引用方法
 
     dependencies {
-       implementation 'com.rxjava.rxhttp:rxhttp:1.0.0'
+       implementation 'com.rxjava.rxhttp:rxhttp:1.0.1'
        //注解处理器，生成RxHttp类，即可一条链发送请求
-       annotationProcessor 'com.rxjava.rxhttp:rxhttp-compiler:1.0.0'
+       annotationProcessor 'com.rxjava.rxhttp:rxhttp-compiler:1.0.1'
        //管理RxJava及生命周期，Activity/Fragment 销毁，自动关闭未完成的请求
        implementation 'com.rxjava.rxlife:rxlife:1.0.4'
     }
@@ -104,7 +104,7 @@ RxHttp.postForm("http://...") //发送Form表单形式的Post请求
 //文件存储路径
 String destPath = getExternalCacheDir() + "/" + System.currentTimeMillis() + ".apk";
 RxHttp.get("http://update.9158.com/miaolive/Miaolive.apk")
-        .from(new DownloadParser(destPath)) //注意这里使用DownloadParser解析器，并传入本地路径
+        .download(destPath) //传入本地路径
         .as(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
         .subscribe(s -> {
             //下载成功,回调文件下载路径
@@ -118,7 +118,7 @@ RxHttp.get("http://update.9158.com/miaolive/Miaolive.apk")
 //文件存储路径
 String destPath = getExternalCacheDir() + "/" + System.currentTimeMillis() + ".apk";
 RxHttp.get("http://update.9158.com/miaolive/Miaolive.apk")
-        .download(destPath) //注:如果需要监听下载进度，使用download操作符
+        .downloadProgress(destPath) //注:如果需要监听下载进度，使用downloadProgress操作符
         .observeOn(AndroidSchedulers.mainThread())
         .doOnNext(progress -> {
             //下载进度回调,0-100，仅在进度有更新时才会回调，最多回调101次，最后一次回调文件存储路径
@@ -144,7 +144,7 @@ RxHttp.postForm("http://www.......") //发送Form表单形式的Post请求
         .add("key1", "value1")//添加参数，非必须
         .add("key2", "value2")//添加参数，非必须
         .addHeader("versionCode", "100") //添加请求头,非必须
-        .upload(SimpleParser.get(String.class)) //注:如果需要监听上传进度，使用upload操作符
+        .uploadProgress() //注:如果需要监听上传进度，使用uploadProgress操作符
         .observeOn(AndroidSchedulers.mainThread()) //主线程回调
         .doOnNext(progress -> {
             //上传进度回调,0-100，仅在进度有更新时才会回调,最多回调101次，最后一次回调Http执行结果
