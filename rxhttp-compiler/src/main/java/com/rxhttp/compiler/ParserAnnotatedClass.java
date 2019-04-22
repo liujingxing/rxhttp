@@ -193,16 +193,31 @@ public class ParserAnnotatedClass {
 
         method = MethodSpec.methodBuilder("download")
                 .addModifiers(Modifier.PUBLIC)
+                .addTypeVariable(t)
                 .addParameter(String.class, "destPath")
                 .addStatement("return $T.download(param,destPath)", httpSenderName)
+                .returns(observableStringName);
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("downloadProgress")
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(String.class, "destPath")
+                .addStatement("return $T.downloadProgress(param,destPath)", httpSenderName)
                 .returns(observableProgressStringName);
         methodList.add(method.build());
 
-        method = MethodSpec.methodBuilder("upload")
+        method = MethodSpec.methodBuilder("uploadProgress")
+                .addModifiers(Modifier.PUBLIC)
+                .addTypeVariable(t)
+                .addStatement("return $T.uploadProgress(param)", httpSenderName)
+                .returns(observableProgressStringName);
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("uploadProgress")
                 .addModifiers(Modifier.PUBLIC)
                 .addTypeVariable(t)
                 .addParameter(parserTName, "parser")
-                .addStatement("return $T.upload(param,parser)", httpSenderName)
+                .addStatement("return $T.uploadProgress(param,parser)", httpSenderName)
                 .returns(observableProgressTName);
         methodList.add(method.build());
 
