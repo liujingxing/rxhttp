@@ -64,10 +64,6 @@ fastlane/screenshots
 fastlane/test_output
 fastlane/readme.md
 
-gradle/wrapper/gradle-wrapper.jar
-
-*.properties
-
 .idea/codeStyles/Project.xml
 
 .idea/misc.xml
