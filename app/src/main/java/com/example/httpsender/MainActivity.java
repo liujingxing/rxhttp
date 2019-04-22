@@ -9,14 +9,9 @@ import com.rxjava.rxlife.RxLife;
 import java.io.File;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
 import okhttp3.Response;
-import rxhttp.HttpSender;
 import rxhttp.wrapper.entity.Progress;
-import rxhttp.wrapper.param.Param;
 import rxhttp.wrapper.param.RxHttp;
-import rxhttp.wrapper.parse.DownloadParser;
-import rxhttp.wrapper.parse.SimpleParser;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -62,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
     public void download(View view) {
         String destPath = getExternalCacheDir() + "/" + System.currentTimeMillis() + ".apk";
         RxHttp.get("http://update.9158.com/miaolive/Miaolive.apk")
-                .from(new DownloadParser(destPath)) //注意这里使用DownloadParser解析器，并传入本地路径
+                .download(destPath) //注意这里使用DownloadParser解析器，并传入本地路径
                 .as(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
                 .subscribe(s -> {
                     //下载成功,回调文件下载路径
@@ -76,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
         //文件存储路径
         String destPath = getExternalCacheDir() + "/" + System.currentTimeMillis() + ".apk";
         RxHttp.get("http://update.9158.com/miaolive/Miaolive.apk")
-                .download(destPath) //注:如果需要监听下载进度，使用download操作符
+                .downloadProgress(destPath) //注:如果需要监听下载进度，使用downloadProgress操作符
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnNext(progress -> {
                     //下载进度回调,0-100，仅在进度有更新时才会回调，最多回调101次，最后一次回调文件存储路径
@@ -103,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
         RxHttp.get("http://update.9158.com/miaolive/Miaolive.apk")
                 //如果文件存在,则添加 RANGE 头信息 ，以支持断点下载
                 .addHeader("RANGE", "bytes=" + length + "-", length > 0)
-                .download(destPath)
+                .downloadProgress(destPath)
                 .map(progress -> {
                     if (length > 0) {//增加上次已经下载好的字节数
                         progress.addCurrentSize(length);
@@ -147,14 +142,13 @@ public class MainActivity extends AppCompatActivity {
     //上传文件，带进度
     private void uploadAndProgress() {
         String url = "http://www.......";
-        Param param = Param.postForm(url) //发送Form表单形式的Post请求
+        RxHttp.postForm(url) //发送Form表单形式的Post请求
                 .add("file1", new File("xxx/1.png"))
                 .add("file2", new File("xxx/2.png"))
                 .add("key1", "value1")//添加参数，非必须
                 .add("key2", "value2")//添加参数，非必须
-                .addHeader("versionCode", "100"); //添加请求头,非必须
-        Disposable disposable = HttpSender
-                .upload(param, new SimpleParser<String>() {}) //注:如果需要监听上传进度，使用upload操作符
+                .addHeader("versionCode", "100")//添加请求头,非必须
+                .uploadProgress() //注:如果需要监听上传进度，使用upload操作符
                 .observeOn(AndroidSchedulers.mainThread()) //主线程回调
                 .doOnNext(progress -> {
                     //上传进度回调,0-100，仅在进度有更新时才会回调
