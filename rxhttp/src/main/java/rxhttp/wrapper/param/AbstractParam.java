@@ -1,13 +1,14 @@
 package rxhttp.wrapper.param;
 
 import java.util.LinkedHashMap;
+import java.util.Map;
 
-import rxhttp.wrapper.utils.BuildUtil;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.annotations.Nullable;
 import okhttp3.CacheControl;
 import okhttp3.Headers;
 import okhttp3.Headers.Builder;
+import rxhttp.wrapper.utils.BuildUtil;
 
 /**
  * 此类是唯一直接实现Param接口的类
@@ -102,6 +103,17 @@ public abstract class AbstractParam extends LinkedHashMap<String, Object> implem
     public final Param add(String key, Object value) {
         if (value == null) value = "";
         super.put(key, value);
+        return this;
+    }
+
+    @Override
+    public Param add(Map<? extends String, ?> map) {
+        putAll(map);
+        return this;
+    }
+
+    @Override
+    public final Map<String, Object> getParams() {
         return this;
     }
 
