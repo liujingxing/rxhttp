@@ -87,57 +87,49 @@ public class ParserAnnotatedClass {
 
         method = MethodSpec.methodBuilder("from")
                 .addModifiers(Modifier.PUBLIC)
-                .addStatement("return $T.from(param)", httpSenderName)
+                .addStatement("return fromSimpleParser(String.class)")
                 .returns(observableStringName);
-        methodList.add(method.build());
-
-        method = MethodSpec.methodBuilder("from")
-                .addModifiers(Modifier.PUBLIC)
-                .addTypeVariable(t)
-                .addParameter(parserTName, "parser")
-                .addStatement("return $T.from(param,parser)", httpSenderName)
-                .returns(observableTName);
         methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("fromBoolean")
                 .addModifiers(Modifier.PUBLIC)
-                .addStatement("return $T.from(param,SimpleParser.get(Boolean.class))", httpSenderName)
+                .addStatement("return fromSimpleParser(Boolean.class)")
                 .returns(observableBooleanName);
         methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("fromByte")
                 .addModifiers(Modifier.PUBLIC)
-                .addStatement("return $T.from(param,SimpleParser.get(Byte.class))", httpSenderName)
+                .addStatement("return fromSimpleParser(Byte.class)")
                 .returns(observableByteName);
         methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("fromShort")
                 .addModifiers(Modifier.PUBLIC)
-                .addStatement("return $T.from(param,SimpleParser.get(Short.class))", httpSenderName)
+                .addStatement("return fromSimpleParser(Short.class)")
                 .returns(observableShortName);
         methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("fromInteger")
                 .addModifiers(Modifier.PUBLIC)
-                .addStatement("return $T.from(param,SimpleParser.get(Integer.class))", httpSenderName)
+                .addStatement("return fromSimpleParser(Integer.class)")
                 .returns(observableIntegerName);
         methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("fromLong")
                 .addModifiers(Modifier.PUBLIC)
-                .addStatement("return $T.from(param,SimpleParser.get(Long.class))", httpSenderName)
+                .addStatement("return fromSimpleParser(Long.class)")
                 .returns(observableLongName);
         methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("fromFloat")
                 .addModifiers(Modifier.PUBLIC)
-                .addStatement("return $T.from(param,SimpleParser.get(Float.class))", httpSenderName)
+                .addStatement("return fromSimpleParser(Float.class)")
                 .returns(observableFloatName);
         methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("fromDouble")
                 .addModifiers(Modifier.PUBLIC)
-                .addStatement("return $T.from(param,SimpleParser.get(Double.class))", httpSenderName)
+                .addStatement("return fromSimpleParser(Double.class)")
                 .returns(observableDoubleName);
         methodList.add(method.build());
 
@@ -145,7 +137,7 @@ public class ParserAnnotatedClass {
                 .addModifiers(Modifier.PUBLIC)
                 .addTypeVariable(t)
                 .addParameter(classTName, "type")
-                .addStatement("return $T.from(param,$T.get(type))", httpSenderName, simpleParserName)
+                .addStatement("return from($T.get(type))", simpleParserName)
                 .returns(observableTName);
         methodList.add(method.build());
 
@@ -153,7 +145,7 @@ public class ParserAnnotatedClass {
                 .addModifiers(Modifier.PUBLIC)
                 .addTypeVariable(t)
                 .addParameter(classTName, "type")
-                .addStatement("return $T.from(param,$T.get(type))", httpSenderName, listParserName)
+                .addStatement("return from($T.get(type))", listParserName)
                 .returns(observableListTName);
         methodList.add(method.build());
 
@@ -177,10 +169,18 @@ public class ParserAnnotatedClass {
                     .addModifiers(Modifier.PUBLIC)
                     .addTypeVariable(t)
                     .addParameter(classTName, "type")
-                    .addStatement("return $T.from(param,$T.get(type))", httpSenderName, ClassName.get(item.getValue()))
+                    .addStatement("return from($T.get(type))", ClassName.get(item.getValue()))
                     .returns(ParameterizedTypeName.get(observableName, TypeName.get(returnType)));
             methodList.add(method.build());
         }
+
+        method = MethodSpec.methodBuilder("from")
+                .addModifiers(Modifier.PUBLIC)
+                .addTypeVariable(t)
+                .addParameter(parserTName, "parser")
+                .addStatement("return $T.from(param,parser)", httpSenderName)
+                .returns(observableTName);
+        methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("syncFrom")
                 .addModifiers(Modifier.PUBLIC)
