@@ -5,6 +5,7 @@ import com.squareup.javapoet.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.processing.Filer;
 import javax.lang.model.element.Modifier;
@@ -49,6 +50,33 @@ public class RxHttpGenerator {
                 .addModifiers(Modifier.PUBLIC)
                 .addStatement("return param")
                 .returns(TypeName.get(superClassName.asType()));
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("setParam")
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(TypeName.get(superClassName.asType()), "param")
+                .addStatement("this.param = param")
+                .addStatement("return this")
+                .returns(RxHttpGenerator.RXHTTP);
+        methodList.add(method.build());
+
+        WildcardTypeName subString = WildcardTypeName.subtypeOf(TypeName.get(String.class));
+        WildcardTypeName subObject = WildcardTypeName.subtypeOf(TypeName.get(Object.class));
+        TypeName mapName = ParameterizedTypeName.get(ClassName.get(Map.class), subString, subObject);
+
+        method = MethodSpec.methodBuilder("add")
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(mapName, "map")
+                .addStatement("param.add(map)")
+                .addStatement("return this")
+                .returns(RxHttpGenerator.RXHTTP);
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("with")
+                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                .addParameter(TypeName.get(superClassName.asType()), "param")
+                .addStatement("return new $L(param)", CLASSNAME)
+                .returns(RxHttpGenerator.RXHTTP);
         methodList.add(method.build());
 
         methodList.addAll(mParamsAnnotatedClass.getMethodList());
