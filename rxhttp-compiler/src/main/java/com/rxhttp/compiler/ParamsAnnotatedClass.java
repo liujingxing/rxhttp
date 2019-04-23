@@ -14,10 +14,7 @@ import java.util.Map.Entry;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 
-
 import rxhttp.wrapper.annotation.Param;
-
-import static com.rxhttp.compiler.RxHttpGenerator.CLASSNAME;
 
 public class ParamsAnnotatedClass {
 
@@ -62,7 +59,7 @@ public class ParamsAnnotatedClass {
             method = MethodSpec.methodBuilder(map.getKey())
                     .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                     .addParameter(String.class, "url")
-                    .addStatement("return new $L($L.with(url))", CLASSNAME, map.getValue())
+                    .addStatement("return with($L.with(url))", map.getValue())
                     .returns(rxHttp);
             methodList.add(method.build());
         }
@@ -71,7 +68,7 @@ public class ParamsAnnotatedClass {
             method = MethodSpec.methodBuilder(item.getKey())
                     .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                     .addParameter(String.class, "url")
-                    .addStatement("return new $L(new $T(url))", CLASSNAME, ClassName.get(item.getValue()))
+                    .addStatement("return with(new $T(url))", ClassName.get(item.getValue()))
                     .returns(rxHttp);
             methodList.add(method.build());
         }

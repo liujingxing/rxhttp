@@ -49,7 +49,7 @@ public class DomainAnnotatedClass {
 
         //对url添加域名方法
         method = MethodSpec.methodBuilder("addDomainIfAbsent")
-                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                .addModifiers(Modifier.PRIVATE, Modifier.STATIC)
                 .addParameter(String.class, "url")
                 .addParameter(String.class, "domain")
                 .addCode("if (url.startsWith(\"http\")) return url;\n" +
