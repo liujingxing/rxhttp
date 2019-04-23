@@ -1,9 +1,10 @@
 package rxhttp.wrapper.param;
 
 import java.io.File;
+import java.util.Map;
 
-import rxhttp.wrapper.callback.ProgressCallback;
 import io.reactivex.annotations.NonNull;
+import rxhttp.wrapper.callback.ProgressCallback;
 
 /**
  * User: ljx
@@ -15,6 +16,10 @@ public interface ParamBuilder {
     Param setUrl(@NonNull String url);
 
     Param add(String key, Object value);
+
+    Param add(Map<? extends String, ?> map);
+
+    Map<String, Object> getParams();
 
     /**
      * <p>添加文件对象
