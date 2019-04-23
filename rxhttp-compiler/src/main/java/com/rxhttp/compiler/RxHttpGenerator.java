@@ -10,6 +10,7 @@ import java.util.Map;
 import javax.annotation.processing.Filer;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.VariableElement;
 import javax.lang.model.util.Elements;
 
 public class RxHttpGenerator {
@@ -22,17 +23,22 @@ public class RxHttpGenerator {
     private ParamsAnnotatedClass mParamsAnnotatedClass;
     private ParserAnnotatedClass mParserAnnotatedClass;
     private DomainAnnotatedClass mDomainAnnotatedClass;
+    private VariableElement      defaultDomain;
 
-    public void setParamsAnnotatedClass(ParamsAnnotatedClass paramsAnnotatedClass) {
-        mParamsAnnotatedClass = paramsAnnotatedClass;
+    public void setAnnotatedClass(ParamsAnnotatedClass annotatedClass) {
+        mParamsAnnotatedClass = annotatedClass;
     }
 
-    public void setDomainAnnotatedClass(DomainAnnotatedClass domainAnnotatedClass) {
-        mDomainAnnotatedClass = domainAnnotatedClass;
+    public void setAnnotatedClass(DomainAnnotatedClass annotatedClass) {
+        mDomainAnnotatedClass = annotatedClass;
     }
 
-    public void setParserAnnotatedClass(ParserAnnotatedClass parserAnnotatedClass) {
-        mParserAnnotatedClass = parserAnnotatedClass;
+    public void setAnnotatedClass(ParserAnnotatedClass annotatedClass) {
+        mParserAnnotatedClass = annotatedClass;
+    }
+
+    public void setAnnotatedClass(VariableElement defaultDomain) {
+        this.defaultDomain = defaultDomain;
     }
 
     public void generateCode(Elements elementUtils, Filer filer) throws IOException {
@@ -82,6 +88,21 @@ public class RxHttpGenerator {
         methodList.addAll(mParamsAnnotatedClass.getMethodList());
         methodList.addAll(mDomainAnnotatedClass.getMethodList());
         methodList.addAll(mParserAnnotatedClass.getMethodList());
+
+
+        method = MethodSpec.methodBuilder("addDefaultDomainIfAbsent")
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(TypeName.get(superClassName.asType()), "param");
+        if (defaultDomain != null) {
+            method.addStatement("String newUrl = addDomainIfAbsent(param.getSimpleUrl(), $T.$L)",
+                    ClassName.get(defaultDomain.getEnclosingElement().asType()),
+                    defaultDomain.getSimpleName().toString())
+                    .addStatement("param.setUrl(newUrl)");
+        }
+        method.addStatement("return param")
+                .returns(TypeName.get(superClassName.asType()));
+        methodList.add(method.build());
+
 
         TypeSpec typeSpec = TypeSpec
                 .classBuilder(CLASSNAME)
