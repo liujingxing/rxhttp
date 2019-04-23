@@ -72,7 +72,7 @@ public class ParserAnnotatedClass {
         method = MethodSpec.methodBuilder("execute")
                 .addModifiers(Modifier.PUBLIC)
                 .addException(IOException.class)
-                .addStatement("return $T.execute(param)", httpSenderName)
+                .addStatement("return $T.execute(addDefaultDomainIfAbsent(param))", httpSenderName)
                 .returns(responseName);
         methodList.add(method.build());
 
@@ -81,7 +81,7 @@ public class ParserAnnotatedClass {
                 .addTypeVariable(t)
                 .addException(IOException.class)
                 .addParameter(parserTName, "parser")
-                .addStatement("return $T.execute(param,parser)", httpSenderName)
+                .addStatement("return $T.execute(addDefaultDomainIfAbsent(param),parser)", httpSenderName)
                 .returns(t);
         methodList.add(method.build());
 
@@ -178,7 +178,7 @@ public class ParserAnnotatedClass {
                 .addModifiers(Modifier.PUBLIC)
                 .addTypeVariable(t)
                 .addParameter(parserTName, "parser")
-                .addStatement("return $T.from(param,parser)", httpSenderName)
+                .addStatement("return $T.from(addDefaultDomainIfAbsent(param),parser)", httpSenderName)
                 .returns(observableTName);
         methodList.add(method.build());
 
@@ -186,7 +186,7 @@ public class ParserAnnotatedClass {
                 .addModifiers(Modifier.PUBLIC)
                 .addTypeVariable(t)
                 .addParameter(parserTName, "parser")
-                .addStatement("return $T.syncFrom(param,parser)", httpSenderName)
+                .addStatement("return $T.syncFrom(addDefaultDomainIfAbsent(param),parser)", httpSenderName)
                 .returns(observableTName);
         methodList.add(method.build());
 
@@ -195,21 +195,21 @@ public class ParserAnnotatedClass {
                 .addModifiers(Modifier.PUBLIC)
                 .addTypeVariable(t)
                 .addParameter(String.class, "destPath")
-                .addStatement("return $T.download(param,destPath)", httpSenderName)
+                .addStatement("return $T.download(addDefaultDomainIfAbsent(param),destPath)", httpSenderName)
                 .returns(observableStringName);
         methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("downloadProgress")
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(String.class, "destPath")
-                .addStatement("return $T.downloadProgress(param,destPath)", httpSenderName)
+                .addStatement("return $T.downloadProgress(addDefaultDomainIfAbsent(param),destPath)", httpSenderName)
                 .returns(observableProgressStringName);
         methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("uploadProgress")
                 .addModifiers(Modifier.PUBLIC)
                 .addTypeVariable(t)
-                .addStatement("return $T.uploadProgress(param)", httpSenderName)
+                .addStatement("return $T.uploadProgress(addDefaultDomainIfAbsent(param))", httpSenderName)
                 .returns(observableProgressStringName);
         methodList.add(method.build());
 
@@ -217,7 +217,7 @@ public class ParserAnnotatedClass {
                 .addModifiers(Modifier.PUBLIC)
                 .addTypeVariable(t)
                 .addParameter(parserTName, "parser")
-                .addStatement("return $T.uploadProgress(param,parser)", httpSenderName)
+                .addStatement("return $T.uploadProgress(addDefaultDomainIfAbsent(param),parser)", httpSenderName)
                 .returns(observableProgressTName);
         methodList.add(method.build());
 

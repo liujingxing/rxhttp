@@ -18,6 +18,7 @@ import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
 
+import rxhttp.wrapper.annotation.DefaultDomain;
 import rxhttp.wrapper.annotation.Domain;
 import rxhttp.wrapper.annotation.Param;
 import rxhttp.wrapper.annotation.Parser;
@@ -50,6 +51,7 @@ public class AnnotationProcessor extends AbstractProcessor {
         annotations.add(Param.class.getCanonicalName());
         annotations.add(Parser.class.getCanonicalName());
         annotations.add(Domain.class.getCanonicalName());
+        annotations.add(DefaultDomain.class.getCanonicalName());
         return annotations;
     }
 
@@ -84,9 +86,19 @@ public class AnnotationProcessor extends AbstractProcessor {
                 checkVariableValidClass(variableElement);
                 domainAnnotatedClass.add(variableElement);
             }
-            paramsGenerator.setParamsAnnotatedClass(paramsAnnotatedClass);
-            paramsGenerator.setParserAnnotatedClass(parserAnnotatedClass);
-            paramsGenerator.setDomainAnnotatedClass(domainAnnotatedClass);
+
+            Set<? extends Element> elementSet = roundEnv.getElementsAnnotatedWith(DefaultDomain.class);
+            if (elementSet.size() > 1)
+                throw new ProcessingException(elementSet.iterator().next(), "@DefaultDomain annotations can only be used once");
+            else if (elementSet.iterator().hasNext()) {
+                VariableElement variableElement = (VariableElement) elementSet.iterator().next();
+                checkVariableValidClass(variableElement);
+                paramsGenerator.setAnnotatedClass(variableElement);
+            }
+            paramsGenerator.setAnnotatedClass(paramsAnnotatedClass);
+            paramsGenerator.setAnnotatedClass(parserAnnotatedClass);
+            paramsGenerator.setAnnotatedClass(domainAnnotatedClass);
+
             // Generate code
             paramsGenerator.generateCode(elementUtils, filer);
         } catch (ProcessingException e) {
