@@ -23,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
 
     //发送Get请求
     public void sendGet(View view) {
-        RxHttp.get("http://ip.taobao.com/service/getIpInfo.php") //Get请求
+        RxHttp.get("/service/getIpInfo.php") //Get请求
                 .add("ip", "63.223.108.42")//添加参数
                 .addHeader("accept", "*/*") //添加请求头
                 .addHeader("connection", "Keep-Alive")
@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
 
     //发送Post请求
     private void sendPost() {
-        RxHttp.postForm("http://ip.taobao.com/service/getIpInfo.php")
+        RxHttp.postForm("/service/getIpInfo.php")
                 .add("ip", "63.223.108.42")//添加参数
                 .addHeader("accept", "*/*") //添加请求头
                 .addHeader("connection", "Keep-Alive")
@@ -56,7 +56,8 @@ public class MainActivity extends AppCompatActivity {
     //文件下载，不带进度
     public void download(View view) {
         String destPath = getExternalCacheDir() + "/" + System.currentTimeMillis() + ".apk";
-        RxHttp.get("http://update.9158.com/miaolive/Miaolive.apk")
+        RxHttp.get("/miaolive/Miaolive.apk")
+                .setDomainToUpdateIfAbsent() //使用指定的域名
                 .download(destPath) //注意这里使用DownloadParser解析器，并传入本地路径
                 .as(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
                 .subscribe(s -> {
@@ -70,7 +71,8 @@ public class MainActivity extends AppCompatActivity {
     public void downloadAndProgress() {
         //文件存储路径
         String destPath = getExternalCacheDir() + "/" + System.currentTimeMillis() + ".apk";
-        RxHttp.get("http://update.9158.com/miaolive/Miaolive.apk")
+        RxHttp.get("/miaolive/Miaolive.apk")
+                .setDomainToUpdateIfAbsent()//使用指定的域名
                 .downloadProgress(destPath) //注:如果需要监听下载进度，使用downloadProgress操作符
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnNext(progress -> {
@@ -95,7 +97,8 @@ public class MainActivity extends AppCompatActivity {
         String destPath = getExternalCacheDir() + "/" + "Miaobo.apk";
         File file = new File(destPath);
         long length = file.length();
-        RxHttp.get("http://update.9158.com/miaolive/Miaolive.apk")
+        RxHttp.get("/miaolive/Miaolive.apk")
+                .setDomainToUpdateIfAbsent()//使用指定的域名
                 //如果文件存在,则添加 RANGE 头信息 ，以支持断点下载
                 .addHeader("RANGE", "bytes=" + length + "-", length > 0)
                 .downloadProgress(destPath)
