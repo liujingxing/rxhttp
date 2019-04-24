@@ -27,8 +27,18 @@ Gradle引用方法
 
 Usage
 
+首先，我们需要通过注解生成RxHttp类
+
 ```java
-RxHttp.get("http://...")                //第一步，确定请求方式
+public class Url {
+    @DefaultDomain() //设置为默认域名
+    public static String baseUrl = "http://ip.taobao.com/";
+}
+```
+此时rebuild一下项目，就能看到RxHttp类了
+
+```java
+  RxHttp.get("http://...")                //第一步，确定请求方式
         .fromSimpleParser(String.class) //  第二步，确定解析器
         .subscribe(s -> {               //第三部  订阅观察者
             //成功回调
@@ -37,7 +47,7 @@ RxHttp.get("http://...")                //第一步，确定请求方式
         });
 ```
 ```java
-RxHttp.postForm("http://...") //传入url,确定请求方式  这里postForm代表发送表单形式的Post请求
+  RxHttp.postForm("http://...") //传入url,确定请求方式  这里postForm代表发送表单形式的Post请求
         .setUrl("http://")    //重新设置url
         .setAssemblyEnabled(false)  //设置是否添加公共参数，默认为true
         .add("key", "value")  //添加请求参数,可添加n个
@@ -59,7 +69,7 @@ RxHttp.postForm("http://...") //传入url,确定请求方式  这里postForm代�
 
 ### Get请求
 ```java
-RxHttp.get("http://ip.taobao.com/service/getIpInfo.php") //Get请求
+  RxHttp.get("http://ip.taobao.com/service/getIpInfo.php") //Get请求
         .add("ip", "63.223.108.42")//添加参数
         .addHeader("accept", "*/*") //添加请求头
         .addHeader("connection", "Keep-Alive")
@@ -74,7 +84,7 @@ RxHttp.get("http://ip.taobao.com/service/getIpInfo.php") //Get请求
 ```
 ### Post请求
 ```java
-RxHttp.postForm("http://ip.taobao.com/service/getIpInfo.php")
+  RxHttp.postForm("http://ip.taobao.com/service/getIpInfo.php")
         .add("ip", "63.223.108.42")//添加参数
         .addHeader("accept", "*/*") //添加请求头
         .addHeader("connection", "Keep-Alive")
@@ -91,7 +101,7 @@ RxHttp.postForm("http://ip.taobao.com/service/getIpInfo.php")
 可以发现，在这里Get跟Post请求代码几乎一样，只有第一行代码不同。
 ### 文件上传
 ```java
-RxHttp.postForm("http://...") //发送Form表单形式的Post请求
+  RxHttp.postForm("http://...") //发送Form表单形式的Post请求
         .add("file1", new File("xxx/1.png"))
         .add("file2", new File("xxx/2.png"))
         .fromSimpleParser(String.class) //from操作符，是异步操作
@@ -104,9 +114,9 @@ RxHttp.postForm("http://...") //发送Form表单形式的Post请求
 ```
 ### 文件下载
 ```java
-//文件存储路径
-String destPath = getExternalCacheDir() + "/" + System.currentTimeMillis() + ".apk";
-RxHttp.get("http://update.9158.com/miaolive/Miaolive.apk")
+  //文件存储路径
+  String destPath = getExternalCacheDir() + "/" + System.currentTimeMillis() + ".apk";
+  RxHttp.get("http://update.9158.com/miaolive/Miaolive.apk")
         .download(destPath) //传入本地路径
         .as(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
         .subscribe(s -> {
@@ -118,9 +128,9 @@ RxHttp.get("http://update.9158.com/miaolive/Miaolive.apk")
 
 ### 文件下载进度监听
 ```java
-//文件存储路径
-String destPath = getExternalCacheDir() + "/" + System.currentTimeMillis() + ".apk";
-RxHttp.get("http://update.9158.com/miaolive/Miaolive.apk")
+  //文件存储路径
+  String destPath = getExternalCacheDir() + "/" + System.currentTimeMillis() + ".apk";
+  RxHttp.get("http://update.9158.com/miaolive/Miaolive.apk")
         .downloadProgress(destPath) //注:如果需要监听下载进度，使用downloadProgress操作符
         .observeOn(AndroidSchedulers.mainThread())
         .doOnNext(progress -> {
@@ -141,7 +151,7 @@ RxHttp.get("http://update.9158.com/miaolive/Miaolive.apk")
 ```
 ###  文件上传进度监听
 ```java
-RxHttp.postForm("http://www.......") //发送Form表单形式的Post请求
+  RxHttp.postForm("http://www.......") //发送Form表单形式的Post请求
         .add("file1", new File("xxx/1.png"))
         .add("file2", new File("xxx/2.png"))
         .add("key1", "value1")//添加参数，非必须
