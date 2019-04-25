@@ -37,6 +37,26 @@ public class Url {
 ```
 此时rebuild一下项目，就能看到RxHttp类了
 
+### 添加公共参数/头部及重新设置url
+
+```java
+//建议在Application里设置
+HttpSender.setOnParamAssembly(new Function() {
+    @Override
+    public Param apply(Param p) {
+        if (p instanceof GetRequest) {//根据不同请求添加不同参数
+        } else if (p instanceof PostRequest) {
+        } else if (p instanceof PutRequest) {
+        } else if (p instanceof DeleteRequest) {
+        }
+        //可以通过 p.getSimpleUrl() 拿到url更改后，重新设置
+        //p.setUrl("");
+        return p.add("versionName", "1.0.0")//添加公共参数
+                .addHeader("deviceType", "android"); //添加公共请求头
+    }
+});
+```
+### 请求三部曲
 ```java
   RxHttp.get("http://...")                //第一步，确定请求方式
         .fromSimpleParser(String.class) //  第二步，确定解析器
@@ -46,21 +66,29 @@ public class Url {
             //失败回调
         });
 ```
+
+### api介绍
 ```java
-  RxHttp.postForm("http://...") //传入url,确定请求方式  这里postForm代表发送表单形式的Post请求
-        .setUrl("http://")    //重新设置url
+  RxHttp.get("/service/getIpInfo.php")       //Get请求
+        .setDomainToUpdate9158IfAbsent()  //手动设置域名，此方法是通过@Domain注解生成的
+        .tag("RxHttp.get")          //为单个请求设置tag
+        .setUrl("http://...")       //重新设置url
         .setAssemblyEnabled(false)  //设置是否添加公共参数，默认为true
-        .add("key", "value")  //添加请求参数,可添加n个
-        .add("key1", "value1") 
-        .add("file1", new File("xxx/1.png")) //添加文件，可添加n个
-        .add("file2", new File("xxx/2.png"))
-        .addHeader("headerKey", "HeaderValue") //添加头部信息，可添加n个
-        .addHeader("headerKey1", "HeaderValue1")
-        //使用SimpleParser解析器，将数据解析成指定对象，这里解析成Integer对象
-        .fromSimpleParser(Integer.class)   
-        //感知Activity/Fragment 生命周期，页面销毁时，自动关闭请求
-        .as(RxLife.asOnMain(this)) 
-        .subscribe(i -> {  //订阅观察者，开始发送请求  这里i为Integer类型
+        .cacheControl(CacheControl.FORCE_NETWORK)  //缓存控制
+        .setParam(Param.postForm("http://..."))    //重新设置一个Param对象
+        .add(new HashMap<>())   //通过Map添加参数
+        .add("int", 1)          //添加int类型参数
+        .add("float", 1.28838F) //添加float类型参数
+        .add("double", 1.28838) //添加double类型参数
+        .add("key1", "value1")  //添加String类型参数
+        .add("key2", "value2", false) //根据最后的boolean字段判断是否添加参数
+        .add("file1", new File("xxx/1.png"))            //添加文件对象
+        .addHeader("headerKey1", "headerValue1")        //添加头部信息
+        .addHeader("headerKey2", "headerValue2", false)//根据最后的boolean字段判断是否添加头部信息
+        .fromSimpleParser(String.class)  //这里返回Observable<T> 对象  fromXXX都是异步操作符
+        //感知生命周期，并在主线程回调，当Activity/Fragment销毁时，自动关闭未完成的请求
+        .as(RxLife.asOnMain(this))
+        .subscribe(s -> {    //订阅观察者
             //成功回调
         }, throwable -> {
             //失败回调
@@ -176,7 +204,44 @@ public class Url {
         });
 ```
 
+### 断点下载、带进度回调
+```java
+//断点下载，带进度
+public void breakpointDownloadAndProgress() {
+    String destPath = getExternalCacheDir() + "/" + "Miaobo.apk";
+    File file = new File(destPath);
+    long length = file.length();
+    RxHttp.get("http://update.9158.com/miaolive/Miaolive.apk")
+            //如果文件存在,则添加 RANGE 头信息 ，以支持断点下载
+            .addHeader("RANGE", "bytes=" + length + "-", length > 0)
+            .downloadProgress(destPath)
+            .map(progress -> {
+                if (length > 0) {//增加上次已经下载好的字节数
+                    progress.addCurrentSize(length);
+                    progress.addTotalSize(length);
+                    progress.updateProgress();
+                }
+                return progress;
+            })
+            .observeOn(AndroidSchedulers.mainThread()) //主线程回调
+            .doOnNext(progress -> {
+                //下载进度回调,0-100，仅在进度有更新时才会回调
+                int currentProgress = progress.getProgress(); //当前进度 0-100
+                long currentSize = progress.getCurrentSize(); //当前已下载的字节大小
+                long totalSize = progress.getTotalSize();     //要下载的总字节大小
+            })
+            .filter(Progress::isCompleted)//过滤事件，下载完成，才继续往下走
+            .map(Progress::getResult) //到这，说明下载完成，拿到Http返回结果并继续往下走
+            .as(RxLife.asOnMain(this)) //加入感知生命周期的观察者
+            .subscribe(s -> { //s为String类型
+                //下载成功，处理相关逻辑
+            }, throwable -> {
+                //下载失败，处理相关逻辑
+            });
+}
+```
 
+### 更新日志
 
 1.0.2
 
