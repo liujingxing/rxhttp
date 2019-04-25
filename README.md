@@ -70,7 +70,7 @@ HttpSender.setOnParamAssembly(new Function() {
 ### api介绍
 ```java
   RxHttp.get("/service/getIpInfo.php")       //Get请求
-        .setDomainToUpdate9158IfAbsent()  //手动设置域名，此方法是通过@Domain注解生成的
+        .setDomainToUpdate9158IfAbsent()  //手动设置域名，不设置会添加默认域名，此方法是通过@Domain注解生成的
         .tag("RxHttp.get")          //为单个请求设置tag
         .setUrl("http://...")       //重新设置url
         .setAssemblyEnabled(false)  //设置是否添加公共参数，默认为true
