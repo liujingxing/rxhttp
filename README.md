@@ -17,6 +17,7 @@ RxHttp是基于OkHttp的二次封装，并于RxJava做到无缝衔接，一条�
 
 Gradle引用方法
 
+```java
     dependencies {
        implementation 'com.rxjava.rxhttp:rxhttp:1.0.2'
        //注解处理器，生成RxHttp类，即可一条链发送请求
@@ -24,6 +25,7 @@ Gradle引用方法
        //管理RxJava及生命周期，Activity/Fragment 销毁，自动关闭未完成的请求
        implementation 'com.rxjava.rxlife:rxlife:1.0.4'
     }
+```
 
 Usage
 
