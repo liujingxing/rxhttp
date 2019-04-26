@@ -155,7 +155,7 @@ public abstract class AbstractParam extends LinkedHashMap<String, Object> implem
         return this.getClass().getSimpleName() + " {" +
                 "  \nurl = " + mUrl + '\'' +
                 ", \nparam = { " + BuildUtil.toKeyValue(this) + " }" +
-                ", \nheaders = { " + mHBuilder.build().toString().replace("\n", ",") + " }" +
+                ", \nheaders = { " + (mHBuilder == null ? "" : mHBuilder.build().toString().replace("\n", ",")) + " }" +
                 ", \nisAssemblyEnabled = " + mIsAssemblyEnabled +
                 ", \ntag = " + mTag +
                 ", \ncacheControl = " + mCacheControl +
