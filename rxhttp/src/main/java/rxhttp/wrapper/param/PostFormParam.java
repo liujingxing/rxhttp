@@ -22,7 +22,7 @@ public class PostFormParam extends AbstractPostParam {
     private ProgressCallback            mCallback; //上传进度回调
     private LinkedHashMap<String, File> mFileMap;  //附件集合
 
-    private PostFormParam(@NonNull String url) {
+    protected PostFormParam(@NonNull String url) {
         super(url);
     }
 
