@@ -1,9 +1,11 @@
 package rxhttp.wrapper.param;
 
 
-import rxhttp.wrapper.utils.BuildUtil;
+import android.text.TextUtils;
+
 import io.reactivex.annotations.NonNull;
 import okhttp3.RequestBody;
+import rxhttp.wrapper.utils.BuildUtil;
 
 /**
  * 发送Delete请求，参数以Json数据的形式提交
@@ -12,6 +14,8 @@ import okhttp3.RequestBody;
  * Time: 11:36
  */
 public class DeleteJsonParam extends AbstractDeleteParam {
+
+    private String jsonParams; //Json 字符串参数
 
     protected DeleteJsonParam(@NonNull String url) {
         super(url);
@@ -23,6 +27,16 @@ public class DeleteJsonParam extends AbstractDeleteParam {
 
     @Override
     public RequestBody getRequestBody() {
-        return BuildUtil.buildJsonRequestBody(this);
+        String json = jsonParams;
+        if (TextUtils.isEmpty(json)) {
+            json = BuildUtil.mapToJson(this);
+        }
+        return BuildUtil.buildJsonRequestBody(json);
+    }
+
+    @Override
+    public Param setJsonParams(String jsonParams) {
+        this.jsonParams = jsonParams;
+        return this;
     }
 }
