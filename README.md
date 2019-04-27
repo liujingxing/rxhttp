@@ -19,9 +19,9 @@ Gradle引用方法
 
 ```java
     dependencies {
-       implementation 'com.rxjava.rxhttp:rxhttp:1.0.2'
+       implementation 'com.rxjava.rxhttp:rxhttp:1.0.3'
        //注解处理器，生成RxHttp类，即可一条链发送请求
-       annotationProcessor 'com.rxjava.rxhttp:rxhttp-compiler:1.0.2'
+       annotationProcessor 'com.rxjava.rxhttp:rxhttp-compiler:1.0.3'
        //管理RxJava及生命周期，Activity/Fragment 销毁，自动关闭未完成的请求
        implementation 'com.rxjava.rxlife:rxlife:1.0.4'
     }
@@ -75,6 +75,7 @@ HttpSender.setOnParamAssembly(new Function() {
         .setDomainToUpdate9158IfAbsent()  //手动设置域名，不设置会添加默认域名，此方法是通过@Domain注解生成的
         .tag("RxHttp.get")          //为单个请求设置tag
         .setUrl("http://...")       //重新设置url
+        .setJsonParams("{"versionName":"1.0.0"}") //设置Json字符串参数，非Json形式的请求调用此方法没有任何效果
         .setAssemblyEnabled(false)  //设置是否添加公共参数，默认为true
         .cacheControl(CacheControl.FORCE_NETWORK)  //缓存控制
         .setParam(Param.postForm("http://..."))    //重新设置一个Param对象
@@ -244,6 +245,10 @@ public void breakpointDownloadAndProgress() {
 ```
 
 ### 更新日志
+
+1.0.3
+
+ - RxHttp增加 steJsonParams(String) 方法，Json形式的请求直接调用此方法传入Json字符串参数
 
 1.0.2
 
