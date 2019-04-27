@@ -1,6 +1,8 @@
 package rxhttp.wrapper.param;
 
 
+import android.text.TextUtils;
+
 import rxhttp.wrapper.utils.BuildUtil;
 import io.reactivex.annotations.NonNull;
 import okhttp3.RequestBody;
@@ -13,6 +15,8 @@ import okhttp3.RequestBody;
  */
 public class PatchJsonParam extends AbstractPatchParam {
 
+    private String jsonParams; //Json 字符串参数
+
     protected PatchJsonParam(@NonNull String url) {
         super(url);
     }
@@ -23,6 +27,16 @@ public class PatchJsonParam extends AbstractPatchParam {
 
     @Override
     public RequestBody getRequestBody() {
-        return BuildUtil.buildJsonRequestBody(this);
+        String json = jsonParams;
+        if (TextUtils.isEmpty(json)) {
+            json = BuildUtil.mapToJson(this);
+        }
+        return BuildUtil.buildJsonRequestBody(json);
+    }
+
+    @Override
+    public Param setJsonParams(String jsonParams) {
+        this.jsonParams = jsonParams;
+        return this;
     }
 }

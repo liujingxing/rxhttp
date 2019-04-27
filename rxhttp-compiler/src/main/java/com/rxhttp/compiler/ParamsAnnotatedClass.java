@@ -81,6 +81,14 @@ public class ParamsAnnotatedClass {
                 .returns(rxHttp);
         methodList.add(method.build());
 
+        method = MethodSpec.methodBuilder("setJsonParams")
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(String.class, "jsonParams")
+                .addStatement("param.setJsonParams(jsonParams)")
+                .addStatement("return this")
+                .returns(rxHttp);
+        methodList.add(method.build());
+
         method = MethodSpec.methodBuilder("add")
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(String.class, "key")
