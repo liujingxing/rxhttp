@@ -76,4 +76,9 @@ public interface Param extends ParamBuilder, HeadersBuilder, NoBodyRequest, Requ
     Param tag(Object tag);
 
     Param cacheControl(CacheControl cacheControl);
+
+    @Override
+    default Param setJsonParams(String jsonParams) {
+        return this;
+    }
 }

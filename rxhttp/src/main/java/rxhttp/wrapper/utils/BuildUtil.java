@@ -161,6 +161,16 @@ public class BuildUtil {
     }
 
     /**
+     * map对象转Json字符串
+     *
+     * @param map map对象
+     * @return Json 字符串
+     */
+    public static <K, V> String mapToJson(@NonNull Map<K, V> map) {
+        return new JSONObject(map).toString();
+    }
+
+    /**
      * 构建一个json形式的RequestBody
      *
      * @param map map集合
