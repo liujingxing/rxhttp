@@ -248,7 +248,7 @@ public void breakpointDownloadAndProgress() {
 
 1.0.3
 
- - RxHttp增加 steJsonParams(String) 方法，Json形式的请求直接调用此方法传入Json字符串参数
+ - RxHttp增加 setJsonParams(String) 方法，Json形式的请求直接调用此方法传入Json字符串参数
 
 1.0.2
 
