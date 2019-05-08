@@ -235,6 +235,36 @@ public void breakpointDownloadAndProgress() {
 }
 ```
 
+### 多任务下载
+```java
+List<Observable<String>> downList = new ArrayList<>();
+for (int i = 0; i < 3; i++) {
+    String destPath = getExternalCacheDir() + "/" + i + ".apk";
+    String url = "http://update.9158.com/miaolive/Miaolive.apk"
+    Observable<String> down = RxHttp.get(url)
+            .downloadProgress(destPath)//注意这里使用DownloadParser解析器，并传入本地路径
+            .observeOn(AndroidSchedulers.mainThread())
+            .doOnNext(progress -> {
+                //单个下载任务进度回调
+            })
+            .filter(Progress::isCompleted)//过滤事件，下载完成，才继续往下走
+            .map(Progress::getResult);//到这，说明下载完成，拿到Http返回结果并继续往下走
+    downList.add(down);
+}
+
+//开始多任务下载
+Observable.merge(downList)
+        .as(RxLife.as(this))
+        .subscribe(s -> {
+            //单个任务下载完成
+        }, throwable -> {
+            //下载出错
+        }, () -> {
+            //所有任务下载完成
+        });
+
+```
+
 ### 更新日志
 
 1.0.4
