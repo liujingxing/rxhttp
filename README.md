@@ -246,7 +246,7 @@ public void breakpointDownloadAndProgress() {
 
 ### 更新日志
 
-1.0.3
+1.0.4
 
  - RxHttp类增加setRangeHeader、downloadProgress(String,Long)，以更好的支持断点下载
 
