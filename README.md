@@ -226,7 +226,7 @@ public void breakpointDownloadAndProgress() {
             })
             .filter(Progress::isCompleted)//过滤事件，下载完成，才继续往下走
             .map(Progress::getResult) //到这，说明下载完成，拿到Http返回结果并继续往下走
-            .as(RxLife.asOnMain(this)) //加入感知生命周期的观察者
+            .as(RxLife.as(this)) //加入感知生命周期的观察者
             .subscribe(s -> { //s为String类型
                 //下载成功，处理相关逻辑
             }, throwable -> {
