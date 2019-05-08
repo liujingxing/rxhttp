@@ -68,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //文件下载，带进度
-    public void downloadAndProgress() {
+    public void downloadAndProgress(View view) {
         //文件存储路径
         String destPath = getExternalCacheDir() + "/" + System.currentTimeMillis() + ".apk";
         RxHttp.get("/miaolive/Miaolive.apk")
@@ -93,23 +93,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //断点下载，带进度
-    public void breakpointDownloadAndProgress() {
+    public void breakpointDownloadAndProgress(View view) {
         String destPath = getExternalCacheDir() + "/" + "Miaobo.apk";
-        File file = new File(destPath);
-        long length = file.length();
+        long length = new File(destPath).length();
         RxHttp.get("/miaolive/Miaolive.apk")
                 .setDomainToUpdateIfAbsent()//使用指定的域名
-                //如果文件存在,则添加 RANGE 头信息 ，以支持断点下载
-                .addHeader("RANGE", "bytes=" + length + "-", length > 0)
-                .downloadProgress(destPath)
-                .map(progress -> {
-                    if (length > 0) {//增加上次已经下载好的字节数
-                        progress.addCurrentSize(length);
-                        progress.addTotalSize(length);
-                        progress.updateProgress();
-                    }
-                    return progress;
-                })
+                .setRangeHeader(-1,1000000)
+                .downloadProgress(destPath, length)
                 .observeOn(AndroidSchedulers.mainThread()) //主线程回调
                 .doOnNext(progress -> {
                     //下载进度回调,0-100，仅在进度有更新时才会回调

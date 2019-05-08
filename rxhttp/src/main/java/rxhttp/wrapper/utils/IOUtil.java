@@ -82,16 +82,16 @@ public class IOUtil {
         return null;
     }
 
-    public static boolean write(InputStream is, String path) {
+    public static boolean write(InputStream is, String path) throws IOException {
         return write(is, path, false);
     }
 
-    public static boolean write(InputStream is, String path, boolean append) {
+    public static boolean write(InputStream is, String path, boolean append) throws IOException {
         return !TextUtils.isEmpty(path) && write(is, new File(path), append);
     }
 
 
-    public static boolean write(InputStream is, File dstFile) {
+    public static boolean write(InputStream is, File dstFile) throws IOException {
         return write(is, dstFile, false);
     }
 
@@ -102,7 +102,7 @@ public class IOUtil {
      * @param dstFile 保存的目标文件对象
      * @param append  是否追加
      */
-    public static boolean write(InputStream is, File dstFile, boolean append) {
+    public static boolean write(InputStream is, File dstFile, boolean append) throws IOException {
         if (dstFile == null) return false;
         File parentFile = dstFile.getParentFile();
         if (!parentFile.exists() && !parentFile.mkdirs()) return false;
@@ -110,16 +110,13 @@ public class IOUtil {
         try {
             fos = new FileOutputStream(dstFile, append);
             return write(is, fos);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } finally {
             close(is, fos);
         }
-        return false;
     }
 
 
-    public static boolean write(InputStream is, OutputStream os) {
+    public static boolean write(InputStream is, OutputStream os) throws IOException {
         if (is == null || os == null) return false;
         try {
             byte[] bytes = new byte[LENGTH_BYTE];
@@ -128,13 +125,9 @@ public class IOUtil {
                 os.write(bytes, 0, readLength);
             }
             return true;
-        } catch (IOException e) {
-            e.printStackTrace();
         } finally {
             close(is, os);
         }
-        return false;
-
     }
 
 
