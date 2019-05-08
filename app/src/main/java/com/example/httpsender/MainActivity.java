@@ -92,6 +92,22 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
+    //断点下载
+    public void breakpointDownload(View view) {
+        String destPath = getExternalCacheDir() + "/" + "Miaobo.apk";
+        long length = new File(destPath).length();
+        RxHttp.get("/miaolive/Miaolive.apk")
+                .setDomainToUpdateIfAbsent() //使用指定的域名
+                .setRangeHeader(length)  //设置开始下载位置，结束位置默认为文件末尾
+                .download(destPath) //注意这里使用DownloadParser解析器，并传入本地路径
+                .as(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
+                .subscribe(s -> {
+                    //下载成功,回调文件下载路径
+                }, throwable -> {
+                    //下载失败
+                });
+    }
+
     //断点下载，带进度
     public void breakpointDownloadAndProgress(View view) {
         String destPath = getExternalCacheDir() + "/" + "Miaobo.apk";
@@ -158,4 +174,6 @@ public class MainActivity extends AppCompatActivity {
                     //上传失败，处理相关逻辑
                 });
     }
+
+
 }

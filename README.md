@@ -19,9 +19,9 @@ Gradle引用方法
 
 ```java
     dependencies {
-       implementation 'com.rxjava.rxhttp:rxhttp:1.0.3'
+       implementation 'com.rxjava.rxhttp:rxhttp:1.0.4'
        //注解处理器，生成RxHttp类，即可一条链发送请求
-       annotationProcessor 'com.rxjava.rxhttp:rxhttp-compiler:1.0.3'
+       annotationProcessor 'com.rxjava.rxhttp:rxhttp-compiler:1.0.4'
        //管理RxJava及生命周期，Activity/Fragment 销毁，自动关闭未完成的请求
        implementation 'com.rxjava.rxlife:rxlife:1.0.4'
     }
@@ -75,6 +75,8 @@ HttpSender.setOnParamAssembly(new Function() {
         .setDomainToUpdate9158IfAbsent()  //手动设置域名，不设置会添加默认域名，此方法是通过@Domain注解生成的
         .tag("RxHttp.get")          //为单个请求设置tag
         .setUrl("http://...")       //重新设置url
+        .setRangeHeader(1000000)  //设置开始下载位置，结束位置默认为文件末尾
+        .setRangeHeader(1000000, 2000000) //设置下载开始及结束位置
         .setJsonParams("{"versionName":"1.0.0"}") //设置Json字符串参数，非Json形式的请求调用此方法没有任何效果
         .setAssemblyEnabled(false)  //设置是否添加公共参数，默认为true
         .cacheControl(CacheControl.FORCE_NETWORK)  //缓存控制
@@ -212,20 +214,11 @@ HttpSender.setOnParamAssembly(new Function() {
 //断点下载，带进度
 public void breakpointDownloadAndProgress() {
     String destPath = getExternalCacheDir() + "/" + "Miaobo.apk";
-    File file = new File(destPath);
-    long length = file.length();
+    long length = new File(destPath).length();
     RxHttp.get("http://update.9158.com/miaolive/Miaolive.apk")
-            //如果文件存在,则添加 RANGE 头信息 ，以支持断点下载
-            .addHeader("RANGE", "bytes=" + length + "-", length > 0)
-            .downloadProgress(destPath)
-            .map(progress -> {
-                if (length > 0) {//增加上次已经下载好的字节数
-                    progress.addCurrentSize(length);
-                    progress.addTotalSize(length);
-                    progress.updateProgress();
-                }
-                return progress;
-            })
+            .setRangeHeader(length)  //设置开始下载位置，结束位置默认为文件末尾
+            //.setRangeHeader(1000000, 2000000) //设置下载开始及结束位置
+            .downloadProgress(destPath, length)  //如果需要衔接上次的下载进度，则需要传入上次已下载的字节数
             .observeOn(AndroidSchedulers.mainThread()) //主线程回调
             .doOnNext(progress -> {
                 //下载进度回调,0-100，仅在进度有更新时才会回调
@@ -245,6 +238,10 @@ public void breakpointDownloadAndProgress() {
 ```
 
 ### 更新日志
+
+1.0.3
+
+ - RxHttp类增加setRangeHeader、downloadProgress(String,Long)，以更好的支持断点下载
 
 1.0.3
 
