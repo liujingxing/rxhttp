@@ -215,17 +215,8 @@ public void breakpointDownloadAndProgress() {
     File file = new File(destPath);
     long length = file.length();
     RxHttp.get("http://update.9158.com/miaolive/Miaolive.apk")
-            //如果文件存在,则添加 RANGE 头信息 ，以支持断点下载
-            .addHeader("RANGE", "bytes=" + length + "-", length > 0)
-            .downloadProgress(destPath)
-            .map(progress -> {
-                if (length > 0) {//增加上次已经下载好的字节数
-                    progress.addCurrentSize(length);
-                    progress.addTotalSize(length);
-                    progress.updateProgress();
-                }
-                return progress;
-            })
+            .setRangeHeader(length)  //设置开始下载位置，结束位置默认为文件末尾
+            .downloadProgress(destPath, length)  //如果需要衔接上次的下载进度，则需要传入上次已下载的字节数
             .observeOn(AndroidSchedulers.mainThread()) //主线程回调
             .doOnNext(progress -> {
                 //下载进度回调,0-100，仅在进度有更新时才会回调
