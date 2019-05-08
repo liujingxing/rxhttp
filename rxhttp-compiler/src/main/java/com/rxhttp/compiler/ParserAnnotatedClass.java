@@ -202,7 +202,15 @@ public class ParserAnnotatedClass {
         method = MethodSpec.methodBuilder("downloadProgress")
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(String.class, "destPath")
-                .addStatement("return $T.downloadProgress(addDefaultDomainIfAbsent(param),destPath)", httpSenderName)
+                .addStatement("return downloadProgress(destPath,0)")
+                .returns(observableProgressStringName);
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("downloadProgress")
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(String.class, "destPath")
+                .addParameter(long.class, "offsetSize")
+                .addStatement("return $T.downloadProgress(addDefaultDomainIfAbsent(param),destPath,offsetSize)", httpSenderName)
                 .returns(observableProgressStringName);
         methodList.add(method.build());
 

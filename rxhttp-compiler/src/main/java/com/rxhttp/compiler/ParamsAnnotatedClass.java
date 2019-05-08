@@ -168,6 +168,23 @@ public class ParamsAnnotatedClass {
                 .returns(rxHttp);
         methodList.add(method.build());
 
+        method = MethodSpec.methodBuilder("setRangeHeader")
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(long.class, "startIndex")
+                .addStatement("param.setRangeHeader(startIndex)")
+                .addStatement("return this")
+                .returns(rxHttp);
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("setRangeHeader")
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(long.class, "startIndex")
+                .addParameter(long.class, "endIndex")
+                .addStatement("param.setRangeHeader(startIndex,endIndex)")
+                .addStatement("return this")
+                .returns(rxHttp);
+        methodList.add(method.build());
+
         method = MethodSpec.methodBuilder("removeAllHeader")
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(String.class, "key")
