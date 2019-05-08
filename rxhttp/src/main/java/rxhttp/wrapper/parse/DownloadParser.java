@@ -3,10 +3,10 @@ package rxhttp.wrapper.parse;
 
 import java.io.IOException;
 
-import rxhttp.wrapper.utils.IOUtil;
 import io.reactivex.annotations.NonNull;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
+import rxhttp.wrapper.utils.IOUtil;
 
 /**
  * 文件下载解析器
@@ -32,14 +32,12 @@ public class DownloadParser implements Parser<String> {
     @Override
     public String onParse(Response response) throws IOException {
         if (!response.isSuccessful())
-            throw new IOException(String.valueOf(response.code()));
+            throw new IOException(response.code() + " " + response.message());
         ResponseBody body = response.body();
         if (body == null)
             throw new IOException("ResponseBody is null");
         boolean append = response.header("Content-Range") != null;
-        boolean isSuccess = IOUtil.write(body.byteStream(), mDestPath, append);//将输入流写出到文件
-        if (!isSuccess)
-            throw new IOException("Download failure");
+        IOUtil.write(body.byteStream(), mDestPath, append);//将输入流写出到文件
         return mDestPath;
     }
 }
