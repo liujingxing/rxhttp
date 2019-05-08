@@ -16,10 +16,6 @@ package rxhttp;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-import rxhttp.wrapper.callback.ProgressCallback;
-import rxhttp.wrapper.entity.Progress;
-import rxhttp.wrapper.param.Param;
-import rxhttp.wrapper.parse.DownloadParser;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.Observer;
@@ -35,16 +31,27 @@ import io.reactivex.internal.util.AtomicThrowable;
 import io.reactivex.plugins.RxJavaPlugins;
 import okhttp3.Call;
 import okhttp3.Response;
+import rxhttp.wrapper.callback.ProgressCallback;
+import rxhttp.wrapper.entity.Progress;
+import rxhttp.wrapper.param.Param;
+import rxhttp.wrapper.parse.DownloadParser;
 
 public final class ObservableDownload extends Observable<Progress<String>> {
     private final Param  param;
     private final String destPath;
+    private final long   offsetSize;
 
-    private Call mCall;
+    private Call    mCall;
+    private boolean isBreakpointDown;//是否断点下载
 
     ObservableDownload(Param param, final String destPath) {
+        this(param, destPath, 0);
+    }
+
+    public ObservableDownload(Param param, String destPath, long offsetSize) {
         this.param = param;
         this.destPath = destPath;
+        this.offsetSize = offsetSize;
     }
 
     @Override
@@ -61,8 +68,15 @@ public final class ObservableDownload extends Observable<Progress<String>> {
         try {
             Response response = execute(param, (progress, currentSize, totalSize) -> {
                 //这里最多回调100次,仅在进度有更新时,才会回调
-                emitter.onNext(new Progress<>(progress, currentSize, totalSize));
+                Progress<String> p = new Progress<>(progress, currentSize, totalSize);
+                if (offsetSize > 0 && isBreakpointDown) {
+                    p.addCurrentSize(offsetSize);
+                    p.addTotalSize(offsetSize);
+                    p.updateProgress();
+                }
+                emitter.onNext(p);
             });
+            isBreakpointDown = response.header("Content-Range") != null;
             String filePath = new DownloadParser(destPath).onParse(response);
             emitter.onNext(new Progress<>(filePath)); //最后一次回调文件下载路径
             emitter.onComplete();

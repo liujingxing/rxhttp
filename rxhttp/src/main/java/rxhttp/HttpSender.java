@@ -169,7 +169,19 @@ public class HttpSender {
      * @return Observable<Progress>
      */
     public static Observable<Progress<String>> downloadProgress(@NonNull Param param, final String destPath) {
-        return new ObservableDownload(param, destPath).subscribeOn(Schedulers.io());
+        return downloadProgress(param, destPath, 0);
+    }
+
+    /**
+     * 异步文件下载，带进度回调
+     *
+     * @param param    请求参数
+     * @param destPath 目标路径
+     * @param offsetSize 断点下载时,进度偏移量,仅断点下载时有效
+     * @return Observable<Progress>
+     */
+    public static Observable<Progress<String>> downloadProgress(@NonNull Param param, final String destPath, long offsetSize) {
+        return new ObservableDownload(param, destPath, offsetSize).subscribeOn(Schedulers.io());
     }
 
     /**
