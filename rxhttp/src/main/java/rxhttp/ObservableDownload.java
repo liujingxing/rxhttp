@@ -44,11 +44,12 @@ public final class ObservableDownload extends Observable<Progress<String>> {
     private Call    mCall;
     private boolean isBreakpointDown;//是否断点下载
 
+    private int lastProgress; //上次下载进度
     ObservableDownload(Param param, final String destPath) {
         this(param, destPath, 0);
     }
 
-    public ObservableDownload(Param param, String destPath, long offsetSize) {
+    ObservableDownload(Param param, String destPath, long offsetSize) {
         this.param = param;
         this.destPath = destPath;
         this.offsetSize = offsetSize;
@@ -73,6 +74,9 @@ public final class ObservableDownload extends Observable<Progress<String>> {
                     p.addCurrentSize(offsetSize);
                     p.addTotalSize(offsetSize);
                     p.updateProgress();
+                    int currentProgress = p.getProgress();
+                    if (currentProgress <= lastProgress) return;
+                    lastProgress = currentProgress;
                 }
                 emitter.onNext(p);
             });
