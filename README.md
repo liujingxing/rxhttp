@@ -265,6 +265,8 @@ Observable.merge(downList)
 
 ```
 
+RxHttp&RxLife 交流群：378530627
+
 ### 更新日志
 
 1.0.4
