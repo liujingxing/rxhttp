@@ -111,7 +111,7 @@ public interface Param extends ParamBuilder, FileBuilder, HeadersBuilder, NoBody
      */
     @Override
     default Param addFile(UpFile upFile) {
-        throw new UnsupportedOperationException("Please override if you need");
+        throw new UnsupportedOperationException("Please override addFile method if you need");
     }
 
     /**
@@ -122,6 +122,6 @@ public interface Param extends ParamBuilder, FileBuilder, HeadersBuilder, NoBody
      */
     @Override
     default Param removeFile(String key) {
-        throw new UnsupportedOperationException("Please override if you need");
+        throw new UnsupportedOperationException("Please override addFile method if you need");
     }
 }
