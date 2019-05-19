@@ -1,14 +1,18 @@
 package rxhttp.wrapper.param;
 
+import java.io.File;
+import java.util.List;
+
 import io.reactivex.annotations.NonNull;
 import okhttp3.CacheControl;
+import rxhttp.wrapper.entity.UpFile;
 
 /**
  * User: ljx
  * Date: 2019/1/19
  * Time: 10:25
  */
-public interface Param extends ParamBuilder, HeadersBuilder, NoBodyRequest, RequestBuilder {
+public interface Param extends ParamBuilder, FileBuilder, HeadersBuilder, NoBodyRequest, RequestBuilder {
 
     //Get请求
     static Param get(@NonNull String url) {
@@ -80,5 +84,44 @@ public interface Param extends ParamBuilder, HeadersBuilder, NoBodyRequest, Requ
     @Override
     default Param setJsonParams(String jsonParams) {
         return this;
+    }
+
+    @Override
+    default Param addFile(String key, List<File> fileList) {
+        for (File file : fileList) {
+            addFile(new UpFile(key, file.getAbsolutePath()));
+        }
+        return this;
+    }
+
+    @Override
+    default Param addFile(List<UpFile> fileList) {
+        for (UpFile upFile : fileList) {
+            addFile(upFile);
+        }
+        return this;
+    }
+
+    /**
+     * <p>添加文件对象
+     * <P>默认不支持，如有需要,自行扩展,参考{@link PostFormParam}
+     *
+     * @param upFile UpFile
+     * @return Param
+     */
+    @Override
+    default Param addFile(UpFile upFile) {
+        throw new UnsupportedOperationException("Please override if you need");
+    }
+
+    /**
+     * 根据key 移除已添加的文件
+     * 默认不支持，如有需要,自行扩展,参考{@link PostFormParam}
+     * @param key String
+     * @return Param
+     */
+    @Override
+    default Param removeFile(String key) {
+        throw new UnsupportedOperationException("Please override if you need");
     }
 }
