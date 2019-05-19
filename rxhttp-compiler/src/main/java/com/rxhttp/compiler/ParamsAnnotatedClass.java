@@ -3,6 +3,8 @@ package com.rxhttp.compiler;
 
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.ParameterizedTypeName;
+import com.squareup.javapoet.TypeName;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -41,6 +43,9 @@ public class ParamsAnnotatedClass {
         ClassName requestName = ClassName.get("okhttp3", "Request");
         ClassName cacheControlName = ClassName.get("okhttp3", "CacheControl");
         ClassName progressCallbackName = ClassName.get("rxhttp.wrapper.callback", "ProgressCallback");
+        ClassName upFileName = ClassName.get("rxhttp.wrapper.entity", "UpFile");
+        TypeName listUpFileName = ParameterizedTypeName.get(ClassName.get(List.class), upFileName);
+        TypeName listFileName = ParameterizedTypeName.get(ClassName.get(List.class), ClassName.get(File.class));
         List<MethodSpec> methodList = new ArrayList<>();
         Map<String, String> methodMap = new LinkedHashMap<>();
         methodMap.put("get", "GetParam");
@@ -115,6 +120,77 @@ public class ParamsAnnotatedClass {
                 .addParameter(String.class, "key")
                 .addParameter(File.class, "file")
                 .addStatement("param.add(key,file)")
+                .addStatement("return this")
+                .returns(rxHttp);
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("addFile")
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(String.class, "key")
+                .addParameter(File.class, "file")
+                .addStatement("param.addFile(key,file)")
+                .addStatement("return this")
+                .returns(rxHttp);
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("addFile")
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(String.class, "key")
+                .addParameter(String.class, "filePath")
+                .addStatement("param.addFile(key,filePath)")
+                .addStatement("return this")
+                .returns(rxHttp);
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("addFile")
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(String.class, "key")
+                .addParameter(String.class, "value")
+                .addParameter(String.class, "filePath")
+                .addStatement("param.addFile(key,value,filePath)")
+                .addStatement("return this")
+                .returns(rxHttp);
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("addFile")
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(String.class, "key")
+                .addParameter(String.class, "value")
+                .addParameter(File.class, "file")
+                .addStatement("param.addFile(key,value,file)")
+                .addStatement("return this")
+                .returns(rxHttp);
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("addFile")
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(upFileName, "file")
+                .addStatement("param.addFile(file)")
+                .addStatement("return this")
+                .returns(rxHttp);
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("addFile")
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(String.class, "key")
+                .addParameter(listFileName, "fileList")
+                .addStatement("param.addFile(key,fileList)")
+                .addStatement("return this")
+                .returns(rxHttp);
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("addFile")
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(listUpFileName, "fileList")
+                .addStatement("param.addFile(fileList)")
+                .addStatement("return this")
+                .returns(rxHttp);
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("removeFile")
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(String.class, "key")
+                .addStatement("param.removeFile(key)")
                 .addStatement("return this")
                 .returns(rxHttp);
         methodList.add(method.build());
