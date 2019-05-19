@@ -6,15 +6,16 @@ import java.util.concurrent.TimeUnit;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.X509TrustManager;
 
-import rxhttp.wrapper.callback.ProgressCallback;
-import rxhttp.wrapper.param.Param;
-import rxhttp.wrapper.progress.ProgressInterceptor;
-import rxhttp.wrapper.utils.LogUtil;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Function;
 import okhttp3.Call;
 import okhttp3.OkHttpClient;
 import okhttp3.Response;
+import rxhttp.wrapper.callback.ProgressCallback;
+import rxhttp.wrapper.param.IUploadLengthLimit;
+import rxhttp.wrapper.param.Param;
+import rxhttp.wrapper.progress.ProgressInterceptor;
+import rxhttp.wrapper.utils.LogUtil;
 
 /**
  * User: ljx
@@ -63,9 +64,13 @@ class Sender {
     }
 
 
+    //所有的请求，最终都会调此方法拿到Call对象，然后执行请求
     static Call newCall(OkHttpClient client, Param param) throws IOException {
         param = onAssembly(param);
         LogUtil.log(param);
+        if (param instanceof IUploadLengthLimit) {
+            ((IUploadLengthLimit) param).checkLength();
+        }
         return client.newCall(param.buildRequest());
     }
 

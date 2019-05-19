@@ -44,6 +44,10 @@ public interface FileBuilder {
 
     Param removeFile(String key);
 
+    default Param setUploadMaxLength(long maxLength) {
+        throw new UnsupportedOperationException("Please override setUploadMaxLength method if you need");
+    }
+
     /**
      * <p>设置上传进度监听器
      * <p>默认不支持,如有需要，自行扩展，参考{@link PostFormParam}
@@ -52,7 +56,7 @@ public interface FileBuilder {
      * @return Param
      */
     default Param setProgressCallback(ProgressCallback callback) {
-        throw new UnsupportedOperationException("Please override if you need");
+        throw new UnsupportedOperationException("Please override setProgressCallback method if you need");
     }
 
 }
