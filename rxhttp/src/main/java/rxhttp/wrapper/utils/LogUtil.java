@@ -2,10 +2,10 @@ package rxhttp.wrapper.utils;
 
 import android.util.Log;
 
-import rxhttp.wrapper.param.Param;
 import io.reactivex.annotations.NonNull;
 import okhttp3.Request;
 import okhttp3.Response;
+import rxhttp.wrapper.param.Param;
 
 /**
  * User: ljx
@@ -13,6 +13,8 @@ import okhttp3.Response;
  * Time: 17:21
  */
 public class LogUtil {
+
+    private static final String TAG = "RxHttp";
 
     private static boolean isDebug = false;
 
@@ -28,11 +30,11 @@ public class LogUtil {
                 request.method() + " Code=" + response.code() + "-------------------" +
                 "\nUrl=" + request.url() +
                 "\nResult=" + result;
-        Log.d("HttpSender", builder);
+        Log.d(TAG, builder);
     }
 
     public static void log(@NonNull Param param) {
         if (!isDebug) return;
-        Log.d("HttpSender", param.toString());
+        Log.d(TAG, param.toString());
     }
 }
