@@ -1,15 +1,16 @@
 package rxhttp.wrapper.param;
 
 
-import java.io.File;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
-import rxhttp.wrapper.callback.ProgressCallback;
-import rxhttp.wrapper.progress.ProgressRequestBody;
-import rxhttp.wrapper.utils.BuildUtil;
 import io.reactivex.annotations.NonNull;
 import okhttp3.RequestBody;
+import rxhttp.wrapper.callback.ProgressCallback;
+import rxhttp.wrapper.entity.UpFile;
+import rxhttp.wrapper.progress.ProgressRequestBody;
+import rxhttp.wrapper.utils.BuildUtil;
 
 /**
  * 发送Post请求，参数以form表单键值对的形式提交
@@ -19,8 +20,8 @@ import okhttp3.RequestBody;
  */
 public class PostFormParam extends AbstractPostParam {
 
-    private ProgressCallback            mCallback; //上传进度回调
-    private LinkedHashMap<String, File> mFileMap;  //附件集合
+    private ProgressCallback mCallback; //上传进度回调
+    private List<UpFile>     mFileList;  //附件集合
 
     protected PostFormParam(@NonNull String url) {
         super(url);
@@ -44,7 +45,7 @@ public class PostFormParam extends AbstractPostParam {
 
     @Override
     public RequestBody getRequestBody() {
-        RequestBody requestBody = hasFile() ? BuildUtil.buildFormRequestBody(this, mFileMap)
+        RequestBody requestBody = hasFile() ? BuildUtil.buildFormRequestBody(this, mFileList)
                 : BuildUtil.buildFormRequestBody(this);
         final ProgressCallback callback = mCallback;
         if (callback != null) {
@@ -55,16 +56,30 @@ public class PostFormParam extends AbstractPostParam {
     }
 
     @Override
-    public final PostFormParam add(String key, File file) {
-        Map<String, File> fileMap = mFileMap;
-        if (fileMap == null)
-            fileMap = mFileMap = new LinkedHashMap<>();
-        fileMap.put(key, file);
+    public Param addFile(@NonNull UpFile upFile) {
+        List<UpFile> fileList = mFileList;
+        if (fileList == null)
+            fileList = mFileList = new ArrayList<>();
+        fileList.add(upFile);
+        return this;
+    }
+
+    @Override
+    public Param removeFile(String key) {
+        final List<UpFile> fileList = mFileList;
+        if (fileList == null || key == null) return this;
+        Iterator<UpFile> it = fileList.iterator();
+        while (it.hasNext()) {
+            UpFile upFile = it.next();
+            if (key.equals(upFile.getKey())) {
+                it.remove();
+            }
+        }
         return this;
     }
 
     private boolean hasFile() {
-        final Map fileMap = mFileMap;
-        return fileMap != null && fileMap.size() > 0;
+        final List list = mFileList;
+        return list != null && list.size() > 0;
     }
 }
