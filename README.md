@@ -269,6 +269,12 @@ RxHttp&RxLife 交流群：378530627
 
 ### 更新日志
 
+1.0.5
+
+ - 增加一系列'addFile'方法，支持同一个key添加多个文件
+
+ - PostFormParam增加setUploadMaxLength方法，以限制文件上传最大长度
+
 1.0.4
 
  - RxHttp类增加setRangeHeader、downloadProgress(String,Long)方法，以更好的支持断点下载
