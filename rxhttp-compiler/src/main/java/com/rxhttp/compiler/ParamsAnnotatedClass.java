@@ -115,6 +115,14 @@ public class ParamsAnnotatedClass {
                 .returns(rxHttp);
         methodList.add(method.build());
 
+        method = MethodSpec.methodBuilder("setUploadMaxLength")
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(long.class, "maxLength")
+                .addStatement("param.setUploadMaxLength(maxLength)")
+                .addStatement("return this")
+                .returns(rxHttp);
+        methodList.add(method.build());
+
         method = MethodSpec.methodBuilder("add")
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(String.class, "key")

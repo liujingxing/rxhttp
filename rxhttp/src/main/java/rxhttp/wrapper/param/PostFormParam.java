@@ -1,6 +1,7 @@
 package rxhttp.wrapper.param;
 
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -18,10 +19,12 @@ import rxhttp.wrapper.utils.BuildUtil;
  * Date: 2019/1/19
  * Time: 11:36
  */
-public class PostFormParam extends AbstractPostParam {
+public class PostFormParam extends AbstractPostParam implements IUploadLengthLimit {
 
     private ProgressCallback mCallback; //上传进度回调
     private List<UpFile>     mFileList;  //附件集合
+
+    private long uploadMaxLength = Integer.MAX_VALUE;//文件上传最大长度
 
     protected PostFormParam(@NonNull String url) {
         super(url);
@@ -81,5 +84,29 @@ public class PostFormParam extends AbstractPostParam {
     private boolean hasFile() {
         final List list = mFileList;
         return list != null && list.size() > 0;
+    }
+
+    private long getTotalFileLength() {
+        if (mFileList == null) return 0;
+        long totalLength = 0;
+        for (UpFile upFile : mFileList) {
+            if (upFile == null) continue;
+            totalLength += upFile.length();
+        }
+        return totalLength;
+    }
+
+    @Override
+    public Param setUploadMaxLength(long maxLength) {
+        uploadMaxLength = maxLength;
+        return this;
+    }
+
+    @Override
+    public void checkLength() throws IOException {
+        long totalFileLength = getTotalFileLength();
+        if (totalFileLength > uploadMaxLength)
+            throw new IOException("The current total file length is " + totalFileLength + " byte, " +
+                    "this length cannot be greater than " + uploadMaxLength + " byte");
     }
 }
