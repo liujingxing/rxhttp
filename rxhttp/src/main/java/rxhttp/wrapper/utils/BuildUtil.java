@@ -4,15 +4,15 @@ import android.net.Uri;
 
 import org.json.JSONObject;
 
-import java.io.File;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import rxhttp.wrapper.entity.UpFile;
 import io.reactivex.annotations.NonNull;
 import okhttp3.*;
 import okhttp3.Request.Builder;
+import rxhttp.wrapper.entity.UpFile;
 import rxhttp.wrapper.param.*;
 
 /**
@@ -139,11 +139,11 @@ public class BuildUtil {
      * 构建一个表单(带文件)
      *
      * @param map  map参数集合
-     * @param fileMap map文件集合
+     * @param fileList 文件列表
      * @return RequestBody
      */
     public static <K, V> RequestBody buildFormRequestBody(@NonNull Map<K, V> map,
-                                                          @NonNull Map<String, File> fileMap) {
+                                                          @NonNull List<UpFile> fileList) {
         MultipartBody.Builder builder = new MultipartBody.Builder();
         builder.setType(MultipartBody.FORM);
         //遍历参数
@@ -151,11 +151,9 @@ public class BuildUtil {
             builder.addFormDataPart(entry.getKey().toString(), entry.getValue().toString());
         }
         //遍历文件
-        for (Entry<String, File> entry : fileMap.entrySet()) {
-            File file = entry.getValue();
+        for (UpFile file : fileList) {
             if (!file.exists() || !file.isFile()) continue;
-            String value = file instanceof UpFile ? ((UpFile) file).getValue() : file.getName();
-            builder.addFormDataPart(entry.getKey(), value, RequestBody.create(MEDIA_TYPE_ATTACH, file));
+            builder.addFormDataPart(file.getKey(), file.getValue(), RequestBody.create(MEDIA_TYPE_ATTACH, file));
         }
         return builder.build();
     }
