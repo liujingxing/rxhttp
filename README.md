@@ -27,6 +27,17 @@ Gradle引用方法
     }
 ```
 
+注：
+
+RxHttp 要求项目使用Java 8，请在 app 的 build.gradle 添加一下代码
+
+```java
+    compileOptions {
+            sourceCompatibility JavaVersion.VERSION_1_8
+            targetCompatibility JavaVersion.VERSION_1_8
+    }
+```
+
 Usage
 
 首先，我们需要通过注解生成RxHttp类
