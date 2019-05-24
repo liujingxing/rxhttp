@@ -27,9 +27,7 @@ Gradle引用方法
     }
 ```
 
-注：
-
-RxHttp 要求项目使用Java 8，请在 app 的 build.gradle 添加一下代码
+注：RxHttp 要求项目使用Java 8，请在 app 的 build.gradle 添加以下代码
 
 ```java
     compileOptions {
