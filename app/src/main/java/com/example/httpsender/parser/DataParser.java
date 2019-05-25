@@ -1,5 +1,7 @@
-package com.example.httpsender;
+package com.example.httpsender.parser;
 
+
+import com.example.httpsender.entity.Data;
 
 import java.io.IOException;
 import java.lang.reflect.Type;

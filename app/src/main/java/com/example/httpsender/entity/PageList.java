@@ -1,4 +1,4 @@
-package com.example.httpsender;
+package com.example.httpsender.entity;
 
 
 import java.util.List;
