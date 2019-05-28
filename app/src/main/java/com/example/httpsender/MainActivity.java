@@ -1,5 +1,6 @@
 package com.example.httpsender;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -35,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
               .as(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
               .subscribe(s -> {
                   //成功回调
-              }, throwable -> {
+              }, (OnError) throwable -> {
                   //失败回调
               });
     }
@@ -51,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
               .as(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
               .subscribe(response -> {
                   //成功回调
-              }, throwable -> {
+              }, (OnError) throwable -> {
                   //失败回调
               });
     }
@@ -65,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
               .as(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
               .subscribe(s -> {
                   //下载成功,回调文件下载路径
-              }, throwable -> {
+              }, (OnError) throwable -> {
                   //下载失败
               });
     }
@@ -90,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
               .as(RxLife.as(this)) //感知生命周期
               .subscribe(s -> {//s为String类型，这里为文件存储路径
                   //下载完成，处理相关逻辑
-              }, throwable -> {
+              }, (OnError) throwable -> {
                   //下载失败，处理相关逻辑
               });
     }
@@ -106,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
               .as(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
               .subscribe(s -> {
                   //下载成功,回调文件下载路径
-              }, throwable -> {
+              }, (OnError) throwable -> {
                   //下载失败
               });
     }
@@ -131,7 +132,7 @@ public class MainActivity extends AppCompatActivity {
               .as(RxLife.as(this)) //加入感知生命周期的观察者
               .subscribe(s -> { //s为String类型
                   //下载成功，处理相关逻辑
-              }, throwable -> {
+              }, (OnError) throwable -> {
                   //下载失败，处理相关逻辑
               });
     }
@@ -146,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
               .as(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
               .subscribe(s -> {
                   //成功回调
-              }, throwable -> {
+              }, (OnError) throwable -> {
                   //失败回调
               });
     }
@@ -173,7 +174,7 @@ public class MainActivity extends AppCompatActivity {
               .as(RxLife.as(this)) //加入感知生命周期的观察者
               .subscribe(s -> { //s为String类型，由SimpleParser类里面的泛型决定的
                   //上传成功，处理相关逻辑
-              }, throwable -> {
+              }, (OnError) throwable -> {
                   //上传失败，处理相关逻辑
               });
     }
