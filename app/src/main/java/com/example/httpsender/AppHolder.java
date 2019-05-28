@@ -3,9 +3,9 @@ package com.example.httpsender;
 import android.app.Application;
 import android.util.Log;
 
-import rxhttp.HttpSender;
 import io.reactivex.functions.Function;
 import io.reactivex.plugins.RxJavaPlugins;
+import rxhttp.HttpSender;
 import rxhttp.wrapper.param.*;
 
 /**
@@ -15,9 +15,16 @@ import rxhttp.wrapper.param.*;
  */
 public class AppHolder extends Application {
 
+    private static AppHolder instance;
+
+    public static AppHolder getInstance() {
+        return instance;
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
+        instance = this;
         httpSenderInit();
     }
 
