@@ -27,7 +27,8 @@ Gradle引用方法
     }
 ```
 
-注：
+#### 注：
+
 1、kotlin用户，需要使用kapt代替annotationProcessor，如下：
 
 ```java
