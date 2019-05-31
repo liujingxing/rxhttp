@@ -27,7 +27,20 @@ Gradle引用方法
     }
 ```
 
-注：RxHttp 要求项目使用Java 8，请在 app 的 build.gradle 添加以下代码
+注：
+1、kotlin用户，需要使用kapt代替annotationProcessor，如下：
+
+```java
+    dependencies {
+       implementation 'com.rxjava.rxhttp:rxhttp:1.0.5'
+       //注解处理器，生成RxHttp类，即可一条链发送请求
+       kapt 'com.rxjava.rxhttp:rxhttp-compiler:1.0.5'
+       //管理RxJava及生命周期，Activity/Fragment 销毁，自动关闭未完成的请求
+       implementation 'com.rxjava.rxlife:rxlife:1.0.5'
+    }
+```
+
+2、RxHttp 要求项目使用Java 8，请在 app 的 build.gradle 添加以下代码
 
 ```java
     compileOptions {
