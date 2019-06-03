@@ -28,7 +28,7 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     //管理RxJava及生命周期，Activity/Fragment 销毁，自动关闭未完成的请求
-    implementation 'com.rxjava.rxlife:rxlife:1.0.5'
+    implementation 'com.rxjava.rxlife:rxlife:1.0.6'
 
 //    implementation project(":rxhttp")
 //    annotationProcessor project(':rxhttp-compiler')
