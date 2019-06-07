@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">HttpSender</string>
+    <string name="app_name">RxHttp</string>
 
     <string name="network_error">当前无网络，请检查你的网络设置</string>
     <string name="notify_no_network">网络连接不可用，请稍后重试！</string>
