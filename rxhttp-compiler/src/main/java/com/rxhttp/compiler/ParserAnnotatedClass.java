@@ -32,8 +32,8 @@ public class ParserAnnotatedClass {
         String name = annotation.name();
         if (name.length() == 0) {
             throw new IllegalArgumentException(
-                    String.format("methodName() in @%s for class %s is null or empty! that's not allowed",
-                            Parser.class.getSimpleName(), typeElement.getQualifiedName().toString()));
+                String.format("methodName() in @%s for class %s is null or empty! that's not allowed",
+                    Parser.class.getSimpleName(), typeElement.getQualifiedName().toString()));
         }
         mElementMap.put(name, typeElement);
     }
@@ -42,11 +42,13 @@ public class ParserAnnotatedClass {
         TypeVariableName t = TypeVariableName.get("T");
         ClassName responseName = ClassName.get("okhttp3", "Response");
         ClassName httpSenderName = ClassName.get("rxhttp", "HttpSender");
+        ClassName schedulerName = ClassName.get("io.reactivex", "Scheduler");
         ClassName observableName = ClassName.get("io.reactivex", "Observable");
         ClassName parserName = ClassName.get("rxhttp.wrapper.parse", "Parser");
         ClassName progressName = ClassName.get("rxhttp.wrapper.entity", "Progress");
         ClassName simpleParserName = ClassName.get("rxhttp.wrapper.parse", "SimpleParser");
         ClassName listParserName = ClassName.get("rxhttp.wrapper.parse", "ListParser");
+        ClassName downloadParserName = ClassName.get("rxhttp.wrapper.parse", "DownloadParser");
 
         TypeName typeName = TypeName.get(String.class);
         TypeName classTName = ParameterizedTypeName.get(ClassName.get(Class.class), t);
@@ -70,83 +72,146 @@ public class ParserAnnotatedClass {
         List<MethodSpec> methodList = new ArrayList<>();
         MethodSpec.Builder method;
         method = MethodSpec.methodBuilder("execute")
-                .addModifiers(Modifier.PUBLIC)
-                .addException(IOException.class)
-                .addStatement("return $T.execute(addDefaultDomainIfAbsent(param))", httpSenderName)
-                .returns(responseName);
+            .addModifiers(Modifier.PUBLIC)
+            .addException(IOException.class)
+            .addStatement("return $T.execute(addDefaultDomainIfAbsent(param))", httpSenderName)
+            .returns(responseName);
         methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("execute")
-                .addModifiers(Modifier.PUBLIC)
-                .addTypeVariable(t)
-                .addException(IOException.class)
-                .addParameter(parserTName, "parser")
-                .addStatement("return $T.execute(addDefaultDomainIfAbsent(param),parser)", httpSenderName)
-                .returns(t);
+            .addModifiers(Modifier.PUBLIC)
+            .addTypeVariable(t)
+            .addException(IOException.class)
+            .addParameter(parserTName, "parser")
+            .addStatement("return $T.execute(addDefaultDomainIfAbsent(param),parser)", httpSenderName)
+            .returns(t);
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("subscribeOn")
+            .addModifiers(Modifier.PUBLIC)
+            .addJavadoc("subscribeOnXX 系列方法需要在fromXXX方法前调用，否则无效")
+            .addParameter(schedulerName, "scheduler")
+            .addStatement("this.scheduler=scheduler")
+            .addStatement("return this")
+            .returns(RxHttpGenerator.RXHTTP);
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("subscribeOnCurrent")
+            .addModifiers(Modifier.PUBLIC)
+            .addStatement("this.scheduler=null")
+            .addStatement("return this")
+            .returns(RxHttpGenerator.RXHTTP);
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("subscribeOnIo")
+            .addModifiers(Modifier.PUBLIC)
+            .addStatement("this.scheduler=Schedulers.io()")
+            .addStatement("return this")
+            .returns(RxHttpGenerator.RXHTTP);
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("subscribeOnComputation")
+            .addModifiers(Modifier.PUBLIC)
+            .addStatement("this.scheduler=Schedulers.computation()")
+            .addStatement("return this")
+            .returns(RxHttpGenerator.RXHTTP);
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("subscribeOnNewThread")
+            .addModifiers(Modifier.PUBLIC)
+            .addStatement("this.scheduler=Schedulers.newThread()")
+            .addStatement("return this")
+            .returns(RxHttpGenerator.RXHTTP);
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("subscribeOnSingle")
+            .addModifiers(Modifier.PUBLIC)
+            .addStatement("this.scheduler=Schedulers.single()")
+            .addStatement("return this")
+            .returns(RxHttpGenerator.RXHTTP);
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("subscribeOnTrampoline")
+            .addModifiers(Modifier.PUBLIC)
+            .addStatement("this.scheduler=Schedulers.trampoline()")
+            .addStatement("return this")
+            .returns(RxHttpGenerator.RXHTTP);
         methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("from")
-                .addModifiers(Modifier.PUBLIC)
-                .addStatement("return fromSimpleParser(String.class)")
-                .returns(observableStringName);
+            .addModifiers(Modifier.PUBLIC)
+            .addTypeVariable(t)
+            .addParameter(parserTName, "parser")
+            .addStatement("Observable<T> observable=$T.syncFrom(addDefaultDomainIfAbsent(param),parser)", httpSenderName)
+            .beginControlFlow("if(scheduler!=null)")
+            .addStatement("observable=observable.subscribeOn(scheduler)")
+            .endControlFlow()
+            .addStatement("return observable")
+            .returns(observableTName);
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("from")
+            .addModifiers(Modifier.PUBLIC)
+            .addStatement("return fromSimpleParser(String.class)")
+            .returns(observableStringName);
         methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("fromBoolean")
-                .addModifiers(Modifier.PUBLIC)
-                .addStatement("return fromSimpleParser(Boolean.class)")
-                .returns(observableBooleanName);
+            .addModifiers(Modifier.PUBLIC)
+            .addStatement("return fromSimpleParser(Boolean.class)")
+            .returns(observableBooleanName);
         methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("fromByte")
-                .addModifiers(Modifier.PUBLIC)
-                .addStatement("return fromSimpleParser(Byte.class)")
-                .returns(observableByteName);
+            .addModifiers(Modifier.PUBLIC)
+            .addStatement("return fromSimpleParser(Byte.class)")
+            .returns(observableByteName);
         methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("fromShort")
-                .addModifiers(Modifier.PUBLIC)
-                .addStatement("return fromSimpleParser(Short.class)")
-                .returns(observableShortName);
+            .addModifiers(Modifier.PUBLIC)
+            .addStatement("return fromSimpleParser(Short.class)")
+            .returns(observableShortName);
         methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("fromInteger")
-                .addModifiers(Modifier.PUBLIC)
-                .addStatement("return fromSimpleParser(Integer.class)")
-                .returns(observableIntegerName);
+            .addModifiers(Modifier.PUBLIC)
+            .addStatement("return fromSimpleParser(Integer.class)")
+            .returns(observableIntegerName);
         methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("fromLong")
-                .addModifiers(Modifier.PUBLIC)
-                .addStatement("return fromSimpleParser(Long.class)")
-                .returns(observableLongName);
+            .addModifiers(Modifier.PUBLIC)
+            .addStatement("return fromSimpleParser(Long.class)")
+            .returns(observableLongName);
         methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("fromFloat")
-                .addModifiers(Modifier.PUBLIC)
-                .addStatement("return fromSimpleParser(Float.class)")
-                .returns(observableFloatName);
+            .addModifiers(Modifier.PUBLIC)
+            .addStatement("return fromSimpleParser(Float.class)")
+            .returns(observableFloatName);
         methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("fromDouble")
-                .addModifiers(Modifier.PUBLIC)
-                .addStatement("return fromSimpleParser(Double.class)")
-                .returns(observableDoubleName);
+            .addModifiers(Modifier.PUBLIC)
+            .addStatement("return fromSimpleParser(Double.class)")
+            .returns(observableDoubleName);
         methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("fromSimpleParser")
-                .addModifiers(Modifier.PUBLIC)
-                .addTypeVariable(t)
-                .addParameter(classTName, "type")
-                .addStatement("return from($T.get(type))", simpleParserName)
-                .returns(observableTName);
+            .addModifiers(Modifier.PUBLIC)
+            .addTypeVariable(t)
+            .addParameter(classTName, "type")
+            .addStatement("return from($T.get(type))", simpleParserName)
+            .returns(observableTName);
         methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("fromListParser")
-                .addModifiers(Modifier.PUBLIC)
-                .addTypeVariable(t)
-                .addParameter(classTName, "type")
-                .addStatement("return from($T.get(type))", listParserName)
-                .returns(observableListTName);
+            .addModifiers(Modifier.PUBLIC)
+            .addTypeVariable(t)
+            .addParameter(classTName, "type")
+            .addStatement("return from($T.get(type))", listParserName)
+            .returns(observableListTName);
         methodList.add(method.build());
 
         for (Entry<String, TypeElement> item : mElementMap.entrySet()) {
@@ -155,78 +220,69 @@ public class ParserAnnotatedClass {
             for (Element element : typeElement.getEnclosedElements()) {
                 if (!(element instanceof ExecutableElement)) continue;
                 if (!element.getModifiers().contains(Modifier.PUBLIC)
-                        || element.getModifiers().contains(Modifier.STATIC)) continue;
+                    || element.getModifiers().contains(Modifier.STATIC)) continue;
                 ExecutableElement executableElement = (ExecutableElement) element;
                 if (executableElement.getSimpleName().toString().equals("onParse")
-                        && executableElement.getParameters().size() == 1
-                        && executableElement.getParameters().get(0).asType().toString().equals("okhttp3.Response")) {
+                    && executableElement.getParameters().size() == 1
+                    && executableElement.getParameters().get(0).asType().toString().equals("okhttp3.Response")) {
                     returnType = executableElement.getReturnType();
                     break;
                 }
             }
             if (returnType == null) continue;
             method = MethodSpec.methodBuilder("from" + item.getKey())
-                    .addModifiers(Modifier.PUBLIC)
-                    .addTypeVariable(t)
-                    .addParameter(classTName, "type")
-                    .addStatement("return from($T.get(type))", ClassName.get(item.getValue()))
-                    .returns(ParameterizedTypeName.get(observableName, TypeName.get(returnType)));
+                .addModifiers(Modifier.PUBLIC)
+                .addTypeVariable(t)
+                .addParameter(classTName, "type")
+                .addStatement("return from($T.get(type))", ClassName.get(item.getValue()))
+                .returns(ParameterizedTypeName.get(observableName, TypeName.get(returnType)));
             methodList.add(method.build());
         }
 
-        method = MethodSpec.methodBuilder("from")
-                .addModifiers(Modifier.PUBLIC)
-                .addTypeVariable(t)
-                .addParameter(parserTName, "parser")
-                .addStatement("return $T.from(addDefaultDomainIfAbsent(param),parser)", httpSenderName)
-                .returns(observableTName);
-        methodList.add(method.build());
-
         method = MethodSpec.methodBuilder("syncFrom")
-                .addModifiers(Modifier.PUBLIC)
-                .addTypeVariable(t)
-                .addParameter(parserTName, "parser")
-                .addStatement("return $T.syncFrom(addDefaultDomainIfAbsent(param),parser)", httpSenderName)
-                .returns(observableTName);
+            .addModifiers(Modifier.PUBLIC)
+            .addTypeVariable(t)
+            .addParameter(parserTName, "parser")
+            .addStatement("return $T.syncFrom(addDefaultDomainIfAbsent(param),parser)", httpSenderName)
+            .returns(observableTName);
         methodList.add(method.build());
-
 
         method = MethodSpec.methodBuilder("download")
-                .addModifiers(Modifier.PUBLIC)
-                .addTypeVariable(t)
-                .addParameter(String.class, "destPath")
-                .addStatement("return $T.download(addDefaultDomainIfAbsent(param),destPath)", httpSenderName)
-                .returns(observableStringName);
+            .addModifiers(Modifier.PUBLIC)
+            .addTypeVariable(t)
+            .addParameter(String.class, "destPath")
+            .addStatement("return from(new $T(destPath))", downloadParserName)
+            .returns(observableStringName);
         methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("downloadProgress")
-                .addModifiers(Modifier.PUBLIC)
-                .addParameter(String.class, "destPath")
-                .addStatement("return downloadProgress(destPath,0)")
-                .returns(observableProgressStringName);
+            .addModifiers(Modifier.PUBLIC)
+            .addParameter(String.class, "destPath")
+            .addStatement("return downloadProgress(destPath,0)")
+            .returns(observableProgressStringName);
         methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("downloadProgress")
-                .addModifiers(Modifier.PUBLIC)
-                .addParameter(String.class, "destPath")
-                .addParameter(long.class, "offsetSize")
-                .addStatement("return $T.downloadProgress(addDefaultDomainIfAbsent(param),destPath,offsetSize)", httpSenderName)
-                .returns(observableProgressStringName);
+            .addModifiers(Modifier.PUBLIC)
+            .addParameter(String.class, "destPath")
+            .addParameter(long.class, "offsetSize")
+            .addStatement("return $T.downloadProgress(addDefaultDomainIfAbsent(param),destPath,offsetSize,scheduler)", httpSenderName)
+            .returns(observableProgressStringName);
         methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("uploadProgress")
-                .addModifiers(Modifier.PUBLIC)
-                .addTypeVariable(t)
-                .addStatement("return $T.uploadProgress(addDefaultDomainIfAbsent(param))", httpSenderName)
-                .returns(observableProgressStringName);
+            .addModifiers(Modifier.PUBLIC)
+            .addTypeVariable(t)
+            .addStatement("return uploadProgress(SimpleParser.get(String.class))")
+            .returns(observableProgressStringName);
         methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("uploadProgress")
-                .addModifiers(Modifier.PUBLIC)
-                .addTypeVariable(t)
-                .addParameter(parserTName, "parser")
-                .addStatement("return $T.uploadProgress(addDefaultDomainIfAbsent(param),parser)", httpSenderName)
-                .returns(observableProgressTName);
+            .addModifiers(Modifier.PUBLIC)
+            .addTypeVariable(t)
+            .addParameter(parserTName, "parser")
+            .addStatement("return $T.uploadProgress(addDefaultDomainIfAbsent(param),parser,scheduler)", httpSenderName)
+            .returns(observableProgressTName);
         methodList.add(method.build());
 
         return methodList;
