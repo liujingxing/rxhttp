@@ -295,9 +295,10 @@ public class ParserAnnotatedClass {
         methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("from")
+            .addAnnotation(Deprecated.class)
+            .addJavadoc("@deprecated Use {@link #asParser(Parser)}")
             .addModifiers(Modifier.PUBLIC)
             .addTypeVariable(t)
-            .addAnnotation(Deprecated.class)
             .addParameter(parserTName, "parser")
             .addStatement("Observable<T> observable=$T.syncFrom(addDefaultDomainIfAbsent(param),parser)", httpSenderName)
             .beginControlFlow("if(scheduler!=null)")
@@ -309,6 +310,7 @@ public class ParserAnnotatedClass {
 
         method = MethodSpec.methodBuilder("from")
             .addAnnotation(Deprecated.class)
+            .addJavadoc("@deprecated Use {@link #asString()}")
             .addModifiers(Modifier.PUBLIC)
             .addStatement("return fromSimpleParser(String.class)")
             .returns(observableStringName);
@@ -316,6 +318,7 @@ public class ParserAnnotatedClass {
 
         method = MethodSpec.methodBuilder("fromBoolean")
             .addAnnotation(Deprecated.class)
+            .addJavadoc("@deprecated Use {@link #asBoolean()}")
             .addModifiers(Modifier.PUBLIC)
             .addStatement("return fromSimpleParser(Boolean.class)")
             .returns(observableBooleanName);
@@ -323,6 +326,7 @@ public class ParserAnnotatedClass {
 
         method = MethodSpec.methodBuilder("fromByte")
             .addAnnotation(Deprecated.class)
+            .addJavadoc("@deprecated Use {@link #asByte()}")
             .addModifiers(Modifier.PUBLIC)
             .addStatement("return fromSimpleParser(Byte.class)")
             .returns(observableByteName);
@@ -330,6 +334,7 @@ public class ParserAnnotatedClass {
 
         method = MethodSpec.methodBuilder("fromShort")
             .addAnnotation(Deprecated.class)
+            .addJavadoc("@deprecated Use {@link #asShort()}")
             .addModifiers(Modifier.PUBLIC)
             .addStatement("return fromSimpleParser(Short.class)")
             .returns(observableShortName);
@@ -337,6 +342,7 @@ public class ParserAnnotatedClass {
 
         method = MethodSpec.methodBuilder("fromInteger")
             .addAnnotation(Deprecated.class)
+            .addJavadoc("@deprecated Use {@link #asInteger()}")
             .addModifiers(Modifier.PUBLIC)
             .addStatement("return fromSimpleParser(Integer.class)")
             .returns(observableIntegerName);
@@ -344,6 +350,7 @@ public class ParserAnnotatedClass {
 
         method = MethodSpec.methodBuilder("fromLong")
             .addAnnotation(Deprecated.class)
+            .addJavadoc("@deprecated Use {@link #asLong()}")
             .addModifiers(Modifier.PUBLIC)
             .addStatement("return fromSimpleParser(Long.class)")
             .returns(observableLongName);
@@ -351,6 +358,7 @@ public class ParserAnnotatedClass {
 
         method = MethodSpec.methodBuilder("fromFloat")
             .addAnnotation(Deprecated.class)
+            .addJavadoc("@deprecated Use {@link #asFloat()}")
             .addModifiers(Modifier.PUBLIC)
             .addStatement("return fromSimpleParser(Float.class)")
             .returns(observableFloatName);
@@ -358,6 +366,7 @@ public class ParserAnnotatedClass {
 
         method = MethodSpec.methodBuilder("fromDouble")
             .addAnnotation(Deprecated.class)
+            .addJavadoc("@deprecated Use {@link #asDouble()}")
             .addModifiers(Modifier.PUBLIC)
             .addStatement("return fromSimpleParser(Double.class)")
             .returns(observableDoubleName);
@@ -365,6 +374,7 @@ public class ParserAnnotatedClass {
 
         method = MethodSpec.methodBuilder("fromSimpleParser")
             .addAnnotation(Deprecated.class)
+            .addJavadoc("@deprecated Use {@link #asObject(Class)}")
             .addModifiers(Modifier.PUBLIC)
             .addTypeVariable(t)
             .addParameter(classTName, "type")
@@ -374,6 +384,7 @@ public class ParserAnnotatedClass {
 
         method = MethodSpec.methodBuilder("fromListParser")
             .addAnnotation(Deprecated.class)
+            .addJavadoc("@deprecated Use {@link #asList(Class)}")
             .addModifiers(Modifier.PUBLIC)
             .addTypeVariable(t)
             .addParameter(classTName, "type")
@@ -398,6 +409,7 @@ public class ParserAnnotatedClass {
             }
             if (returnType == null) continue;
             method = MethodSpec.methodBuilder("from" + item.getKey())
+                .addJavadoc("@deprecated Use {@link #as" + item.getKey() + "(Class)}")
                 .addAnnotation(Deprecated.class)
                 .addModifiers(Modifier.PUBLIC)
                 .addTypeVariable(t)
@@ -409,6 +421,7 @@ public class ParserAnnotatedClass {
 
         method = MethodSpec.methodBuilder("syncFrom")
             .addAnnotation(Deprecated.class)
+            .addJavadoc("@deprecated Reference {@link #subscribeOnCurrent()}")
             .addModifiers(Modifier.PUBLIC)
             .addTypeVariable(t)
             .addParameter(parserTName, "parser")
@@ -418,6 +431,7 @@ public class ParserAnnotatedClass {
 
         method = MethodSpec.methodBuilder("download")
             .addAnnotation(Deprecated.class)
+            .addJavadoc("@deprecated Use {@link #asDownload(String)}")
             .addModifiers(Modifier.PUBLIC)
             .addTypeVariable(t)
             .addParameter(String.class, "destPath")
@@ -427,6 +441,7 @@ public class ParserAnnotatedClass {
 
         method = MethodSpec.methodBuilder("downloadProgress")
             .addAnnotation(Deprecated.class)
+            .addJavadoc("@deprecated Use {@link #asDownloadProgress(String)}")
             .addModifiers(Modifier.PUBLIC)
             .addParameter(String.class, "destPath")
             .addStatement("return downloadProgress(destPath,0)")
@@ -435,6 +450,7 @@ public class ParserAnnotatedClass {
 
         method = MethodSpec.methodBuilder("downloadProgress")
             .addAnnotation(Deprecated.class)
+            .addJavadoc("@deprecated Use {@link #asDownloadProgress(String,long)}")
             .addModifiers(Modifier.PUBLIC)
             .addParameter(String.class, "destPath")
             .addParameter(long.class, "offsetSize")
@@ -444,6 +460,7 @@ public class ParserAnnotatedClass {
 
         method = MethodSpec.methodBuilder("uploadProgress")
             .addAnnotation(Deprecated.class)
+            .addJavadoc("@deprecated Use {@link #asUploadProgress()}")
             .addModifiers(Modifier.PUBLIC)
             .addTypeVariable(t)
             .addStatement("return uploadProgress(SimpleParser.get(String.class))")
@@ -452,6 +469,7 @@ public class ParserAnnotatedClass {
 
         method = MethodSpec.methodBuilder("uploadProgress")
             .addAnnotation(Deprecated.class)
+            .addJavadoc("@deprecated Use {@link #asUploadProgress(Parser)}")
             .addModifiers(Modifier.PUBLIC)
             .addTypeVariable(t)
             .addParameter(parserTName, "parser")
