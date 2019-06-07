@@ -42,6 +42,8 @@ public class RxHttpGenerator {
     }
 
     public void generateCode(Elements elementUtils, Filer filer) throws IOException {
+        ClassName schedulerName = ClassName.get("io.reactivex", "Scheduler");
+        ClassName schedulersName = ClassName.get("io.reactivex.schedulers", "Schedulers");
         TypeElement superClassName = elementUtils.getTypeElement(packageName + ".Param");
 
         List<MethodSpec> methodList = new ArrayList<>(); //方法集合
@@ -103,13 +105,17 @@ public class RxHttpGenerator {
                 .returns(TypeName.get(superClassName.asType()));
         methodList.add(method.build());
 
-
+        FieldSpec fieldSpec = FieldSpec.builder(schedulerName, "scheduler", Modifier.PRIVATE)
+            .initializer("$T.io()", schedulersName)
+            .addJavadoc("The request is executed on the IO thread by default")
+            .build();
         TypeSpec typeSpec = TypeSpec
-                .classBuilder(CLASSNAME)
-                .addModifiers(Modifier.PUBLIC)
-                .addField(TypeName.get(superClassName.asType()), "param", Modifier.PRIVATE)
-                .addMethods(methodList)
-                .build();
+            .classBuilder(CLASSNAME)
+            .addModifiers(Modifier.PUBLIC)
+            .addField(TypeName.get(superClassName.asType()), "param", Modifier.PRIVATE)
+            .addField(fieldSpec)
+            .addMethods(methodList)
+            .build();
 
         // Write file
         JavaFile.builder(packageName, typeSpec).build().writeTo(filer);
