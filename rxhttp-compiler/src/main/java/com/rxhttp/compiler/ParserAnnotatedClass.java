@@ -243,12 +243,56 @@ public class ParserAnnotatedClass {
             method = MethodSpec.methodBuilder("as" + item.getKey())
                 .addModifiers(Modifier.PUBLIC)
                 .addTypeVariable(t)
+                .addStatement("return asParser(SimpleParser.get(String.class))", ClassName.get(item.getValue()))
+                .returns(ParameterizedTypeName.get(observableName, typeName));
+            methodList.add(method.build());
+
+            method = MethodSpec.methodBuilder("as" + item.getKey())
+                .addModifiers(Modifier.PUBLIC)
+                .addTypeVariable(t)
                 .addParameter(classTName, "type")
                 .addStatement("return asParser($T.get(type))", ClassName.get(item.getValue()))
                 .returns(ParameterizedTypeName.get(observableName, TypeName.get(returnType)));
             methodList.add(method.build());
         }
 
+        method = MethodSpec.methodBuilder("asDownload")
+            .addModifiers(Modifier.PUBLIC)
+            .addTypeVariable(t)
+            .addParameter(String.class, "destPath")
+            .addStatement("return asParser(new $T(destPath))", downloadParserName)
+            .returns(observableStringName);
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("asDownloadProgress")
+            .addModifiers(Modifier.PUBLIC)
+            .addParameter(String.class, "destPath")
+            .addStatement("return downloadProgress(destPath,0)")
+            .returns(observableProgressStringName);
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("asDownloadProgress")
+            .addModifiers(Modifier.PUBLIC)
+            .addParameter(String.class, "destPath")
+            .addParameter(long.class, "offsetSize")
+            .addStatement("return $T.downloadProgress(addDefaultDomainIfAbsent(param),destPath,offsetSize,scheduler)", httpSenderName)
+            .returns(observableProgressStringName);
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("asUploadProgress")
+            .addModifiers(Modifier.PUBLIC)
+            .addTypeVariable(t)
+            .addStatement("return uploadProgress(SimpleParser.get(String.class))")
+            .returns(observableProgressStringName);
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("asUploadProgress")
+            .addModifiers(Modifier.PUBLIC)
+            .addTypeVariable(t)
+            .addParameter(parserTName, "parser")
+            .addStatement("return $T.uploadProgress(addDefaultDomainIfAbsent(param),parser,scheduler)", httpSenderName)
+            .returns(observableProgressTName);
+        methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("from")
             .addModifiers(Modifier.PUBLIC)
@@ -373,6 +417,7 @@ public class ParserAnnotatedClass {
         methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("download")
+            .addAnnotation(Deprecated.class)
             .addModifiers(Modifier.PUBLIC)
             .addTypeVariable(t)
             .addParameter(String.class, "destPath")
@@ -381,6 +426,7 @@ public class ParserAnnotatedClass {
         methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("downloadProgress")
+            .addAnnotation(Deprecated.class)
             .addModifiers(Modifier.PUBLIC)
             .addParameter(String.class, "destPath")
             .addStatement("return downloadProgress(destPath,0)")
@@ -388,6 +434,7 @@ public class ParserAnnotatedClass {
         methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("downloadProgress")
+            .addAnnotation(Deprecated.class)
             .addModifiers(Modifier.PUBLIC)
             .addParameter(String.class, "destPath")
             .addParameter(long.class, "offsetSize")
@@ -396,6 +443,7 @@ public class ParserAnnotatedClass {
         methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("uploadProgress")
+            .addAnnotation(Deprecated.class)
             .addModifiers(Modifier.PUBLIC)
             .addTypeVariable(t)
             .addStatement("return uploadProgress(SimpleParser.get(String.class))")
@@ -403,6 +451,7 @@ public class ParserAnnotatedClass {
         methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("uploadProgress")
+            .addAnnotation(Deprecated.class)
             .addModifiers(Modifier.PUBLIC)
             .addTypeVariable(t)
             .addParameter(parserTName, "parser")
