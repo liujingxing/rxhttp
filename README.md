@@ -19,9 +19,9 @@ Gradle引用方法
 
 ```java
     dependencies {
-       implementation 'com.rxjava.rxhttp:rxhttp:1.0.5'
+       implementation 'com.rxjava.rxhttp:rxhttp:1.0.6'
        //注解处理器，生成RxHttp类，即可一条链发送请求
-       annotationProcessor 'com.rxjava.rxhttp:rxhttp-compiler:1.0.5'
+       annotationProcessor 'com.rxjava.rxhttp:rxhttp-compiler:1.0.6'
        //管理RxJava及生命周期，Activity/Fragment 销毁，自动关闭未完成的请求
        implementation 'com.rxjava.rxlife:rxlife:1.0.6'
     }
@@ -33,9 +33,9 @@ Gradle引用方法
 
 ```java
     dependencies {
-       implementation 'com.rxjava.rxhttp:rxhttp:1.0.5'
+       implementation 'com.rxjava.rxhttp:rxhttp:1.0.6'
        //注解处理器，生成RxHttp类，即可一条链发送请求
-       kapt 'com.rxjava.rxhttp:rxhttp-compiler:1.0.5'
+       kapt 'com.rxjava.rxhttp:rxhttp-compiler:1.0.6'
        //管理RxJava及生命周期，Activity/Fragment 销毁，自动关闭未完成的请求
        implementation 'com.rxjava.rxlife:rxlife:1.0.6'
     }
@@ -83,9 +83,9 @@ HttpSender.setOnParamAssembly(new Function() {
 ```
 ### 请求三部曲
 ```java
-  RxHttp.get("http://...")                //第一步，确定请求方式
-        .fromSimpleParser(String.class) //  第二步，确定解析器
-        .subscribe(s -> {               //第三部  订阅观察者
+  RxHttp.get("http://...")              //第一步，确定请求方式
+        .asString()                     //第二步，使用asXXX系列方法确定返回类型
+        .subscribe(s -> {               //第三部, 订阅观察者
             //成功回调
         }, throwable -> {
             //失败回调
@@ -111,7 +111,7 @@ HttpSender.setOnParamAssembly(new Function() {
         .add("file1", new File("xxx/1.png"))            //添加文件对象
         .addHeader("headerKey1", "headerValue1")        //添加头部信息
         .addHeader("headerKey2", "headerValue2", false)//根据最后的boolean字段判断是否添加头部信息
-        .fromSimpleParser(String.class)  //这里返回Observable<T> 对象  fromXXX都是异步操作符
+        .asString()            //使用asXXX系列方法确定返回类型,此时返回Observable对象
         //感知生命周期，并在主线程回调，当Activity/Fragment销毁时，自动关闭未完成的请求
         .as(RxLife.asOnMain(this))
         .subscribe(s -> {    //订阅观察者
@@ -128,7 +128,7 @@ HttpSender.setOnParamAssembly(new Function() {
         .addHeader("accept", "*/*") //添加请求头
         .addHeader("connection", "Keep-Alive")
         .addHeader("user-agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1;SV1)")
-        .fromSimpleParser(Response.class)  //这里返回Observable<Response> 对象
+        .asObject(Response.class)  //这里返回Observable<Response> 对象
         .as(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
         .subscribe(response -> {
             //成功回调
@@ -143,7 +143,7 @@ HttpSender.setOnParamAssembly(new Function() {
         .addHeader("accept", "*/*") //添加请求头
         .addHeader("connection", "Keep-Alive")
         .addHeader("user-agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1;SV1)")
-        .fromSimpleParser(Response.class)  //这里返回Observable<Response>对象
+        .asObject(Response.class)  //这里返回Observable<Response>对象
         .as(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
         .subscribe(response -> {
             //成功回调
@@ -158,7 +158,7 @@ HttpSender.setOnParamAssembly(new Function() {
   RxHttp.postForm("http://...") //发送Form表单形式的Post请求
         .add("file1", new File("xxx/1.png"))
         .add("file2", new File("xxx/2.png"))
-        .fromSimpleParser(String.class) //from操作符，是异步操作
+        .asString() //from操作符，是异步操作
         .as(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
         .subscribe(s -> { 
             //成功回调
@@ -171,7 +171,7 @@ HttpSender.setOnParamAssembly(new Function() {
   //文件存储路径
   String destPath = getExternalCacheDir() + "/" + System.currentTimeMillis() + ".apk";
   RxHttp.get("http://update.9158.com/miaolive/Miaolive.apk")
-        .download(destPath) //传入本地路径
+        .asDownload(destPath) //传入本地路径
         .as(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
         .subscribe(s -> {
             //下载成功,回调文件下载路径
@@ -185,7 +185,7 @@ HttpSender.setOnParamAssembly(new Function() {
   //文件存储路径
   String destPath = getExternalCacheDir() + "/" + System.currentTimeMillis() + ".apk";
   RxHttp.get("http://update.9158.com/miaolive/Miaolive.apk")
-        .downloadProgress(destPath) //注:如果需要监听下载进度，使用downloadProgress操作符
+        .asDownloadProgress(destPath) //注:如果需要监听下载进度，使用downloadProgress操作符
         .observeOn(AndroidSchedulers.mainThread())
         .doOnNext(progress -> {
             //下载进度回调,0-100，仅在进度有更新时才会回调，最多回调101次，最后一次回调文件存储路径
@@ -211,7 +211,7 @@ HttpSender.setOnParamAssembly(new Function() {
         .add("key1", "value1")//添加参数，非必须
         .add("key2", "value2")//添加参数，非必须
         .addHeader("versionCode", "100") //添加请求头,非必须
-        .uploadProgress() //注:如果需要监听上传进度，使用uploadProgress操作符
+        .asUploadProgress() //注:如果需要监听上传进度，使用uploadProgress操作符
         .observeOn(AndroidSchedulers.mainThread()) //主线程回调
         .doOnNext(progress -> {
             //上传进度回调,0-100，仅在进度有更新时才会回调,最多回调101次，最后一次回调Http执行结果
@@ -239,7 +239,7 @@ public void breakpointDownloadAndProgress() {
     long length = file.length();
     RxHttp.get("http://update.9158.com/miaolive/Miaolive.apk")
             .setRangeHeader(length)  //设置开始下载位置，结束位置默认为文件末尾
-            .downloadProgress(destPath, length)  //如果需要衔接上次的下载进度，则需要传入上次已下载的字节数
+            .asDownloadProgress(destPath, length)  //如果需要衔接上次的下载进度，则需要传入上次已下载的字节数
             .observeOn(AndroidSchedulers.mainThread()) //主线程回调
             .doOnNext(progress -> {
                 //下载进度回调,0-100，仅在进度有更新时才会回调
@@ -265,7 +265,7 @@ for (int i = 0; i < 3; i++) {
     String destPath = getExternalCacheDir() + "/" + i + ".apk";
     String url = "http://update.9158.com/miaolive/Miaolive.apk"
     Observable<String> down = RxHttp.get(url)
-            .downloadProgress(destPath)//注意这里使用DownloadParser解析器，并传入本地路径
+            .asDownloadProgress(destPath)//注意这里使用DownloadParser解析器，并传入本地路径
             .observeOn(AndroidSchedulers.mainThread())
             .doOnNext(progress -> {
                 //单个下载任务进度回调
@@ -291,6 +291,14 @@ Observable.merge(downList)
 RxHttp&RxLife 交流群：378530627
 
 ### 更新日志
+
+1.0.6
+
+ - RxHttp类增加一系列'subscribeOnXXX'方法，通过该系列方法，指定请求在某个线程执行
+
+ - 增加BitmapParser解析器，通过该解析器，可直接拿到Bitmap对象，详情查看asBitmap方法
+
+ - RxHttp类增加一系列'asXXX'方法，替代'fromXXX'/'downloadXXX'/'uploadXXX'方法，被替代的方法标记为过时，将在未来的版本删除
 
 1.0.5
 
