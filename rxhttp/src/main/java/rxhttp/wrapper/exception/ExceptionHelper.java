@@ -33,6 +33,7 @@ public class ExceptionHelper {
                 "</script>\n" +
                 "</head>\n" +
                 "</html>\n").equals(result)) {
+            //此判断语句不准确，请忽略
             throw new NetworkErrorException("Network unavailable");
         }
     }
