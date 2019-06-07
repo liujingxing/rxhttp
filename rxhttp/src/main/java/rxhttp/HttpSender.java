@@ -3,6 +3,7 @@ package rxhttp;
 import java.io.IOException;
 
 import io.reactivex.Observable;
+import io.reactivex.Scheduler;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
@@ -126,7 +127,7 @@ public class HttpSender {
      * @param <T>    要转换的目标数据类型
      * @return Observable<T>
      * @see #downloadProgress(Param, String) 下载带进度回调
-     * @see #uploadProgress(Param, Parser) 上传带进度回调
+     * @see #uploadProgress(Param) 上传带进度回调
      */
     public static <T> Observable<T> from(@NonNull Param param, @NonNull Parser<T> parser) {
         return syncFrom(param, parser).subscribeOn(Schedulers.io());
@@ -144,7 +145,7 @@ public class HttpSender {
      * @param <T>    要转换的目标数据类型
      * @return Observable<T>
      * @see #downloadProgress(Param, String) 下载带进度回调
-     * @see #uploadProgress(Param, Parser) 上传带进度回调
+     * @see #uploadProgress(Param) 上传带进度回调
      */
     public static <T> Observable<T> syncFrom(@NonNull Param param, @NonNull Parser<T> parser) {
         return new ObservableHttp<>(param, parser);
@@ -169,7 +170,7 @@ public class HttpSender {
      * @return Observable<Progress>
      */
     public static Observable<Progress<String>> downloadProgress(@NonNull Param param, final String destPath) {
-        return downloadProgress(param, destPath, 0);
+        return downloadProgress(param, destPath, 0, Schedulers.io());
     }
 
     /**
@@ -180,8 +181,11 @@ public class HttpSender {
      * @param offsetSize 断点下载时,进度偏移量,仅断点下载时有效
      * @return Observable<Progress>
      */
-    public static Observable<Progress<String>> downloadProgress(@NonNull Param param, final String destPath, long offsetSize) {
-        return new ObservableDownload(param, destPath, offsetSize).subscribeOn(Schedulers.io());
+    public static Observable<Progress<String>> downloadProgress(@NonNull Param param, final String destPath, long offsetSize, Scheduler scheduler) {
+        ObservableDownload observableDownload = new ObservableDownload(param, destPath, offsetSize);
+        if (scheduler != null)
+            return observableDownload.subscribeOn(scheduler);
+        return observableDownload;
     }
 
     /**
@@ -192,7 +196,7 @@ public class HttpSender {
      * @return Observable<Progress   <   String>>
      */
     public static Observable<Progress<String>> uploadProgress(@NonNull Param param) {
-        return uploadProgress(param, SimpleParser.get(String.class));
+        return uploadProgress(param, SimpleParser.get(String.class), Schedulers.io());
     }
 
     /**
@@ -204,7 +208,10 @@ public class HttpSender {
      * @param <T>    要转换的目标数据类型
      * @return Observable<Progress>
      */
-    public static <T> Observable<Progress<T>> uploadProgress(@NonNull Param param, @NonNull Parser<T> parser) {
-        return new ObservableUpload<>(param, parser).subscribeOn(Schedulers.io());
+    public static <T> Observable<Progress<T>> uploadProgress(@NonNull Param param, @NonNull Parser<T> parser, Scheduler scheduler) {
+        ObservableUpload<T> observableUpload = new ObservableUpload<>(param, parser);
+        if (scheduler != null)
+            return observableUpload.subscribeOn(scheduler);
+        return observableUpload;
     }
 }
