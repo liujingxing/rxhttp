@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
         String destPath = getExternalCacheDir() + "/" + System.currentTimeMillis() + ".apk";
         RxHttp.get("/miaolive/Miaolive.apk")
             .setDomainToUpdateIfAbsent()//使用指定的域名
-            .downloadProgress(destPath) //注:如果需要监听下载进度，使用downloadProgress操作符
+            .asDownloadProgress(destPath) //注:如果需要监听下载进度，使用downloadProgress操作符
             .observeOn(AndroidSchedulers.mainThread())
             .doOnNext(progress -> {
                 //下载进度回调,0-100，仅在进度有更新时才会回调，最多回调101次，最后一次回调文件存储路径
@@ -118,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
         RxHttp.get("/miaolive/Miaolive.apk")
             .setDomainToUpdateIfAbsent() //使用指定的域名
             .setRangeHeader(length)  //设置开始下载位置，结束位置默认为文件末尾
-            .download(destPath) //注意这里使用DownloadParser解析器，并传入本地路径
+            .asDownload(destPath) //注意这里使用DownloadParser解析器，并传入本地路径
             .as(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
             .subscribe(s -> {
                 //下载成功,回调文件下载路径
@@ -134,7 +134,7 @@ public class MainActivity extends AppCompatActivity {
         RxHttp.get("/miaolive/Miaolive.apk")
             .setDomainToUpdateIfAbsent()//使用指定的域名
             .setRangeHeader(length)  //设置开始下载位置，结束位置默认为文件末尾
-            .downloadProgress(destPath, length)  //如果需要衔接上次的下载进度，则需要传入上次已下载的字节数
+            .asDownloadProgress(destPath, length)  //如果需要衔接上次的下载进度，则需要传入上次已下载的字节数
             .observeOn(AndroidSchedulers.mainThread()) //主线程回调
             .doOnNext(progress -> {
                 //下载进度回调,0-100，仅在进度有更新时才会回调
@@ -176,7 +176,7 @@ public class MainActivity extends AppCompatActivity {
             .add("key1", "value1")//添加参数，非必须
             .add("key2", "value2")//添加参数，非必须
             .addHeader("versionCode", "100")//添加请求头,非必须
-            .uploadProgress() //注:如果需要监听上传进度，使用upload操作符
+            .asUploadProgress() //注:如果需要监听上传进度，使用upload操作符
             .observeOn(AndroidSchedulers.mainThread()) //主线程回调
             .doOnNext(progress -> {
                 //上传进度回调,0-100，仅在进度有更新时才会回调
@@ -201,7 +201,7 @@ public class MainActivity extends AppCompatActivity {
             String destPath = getExternalCacheDir() + "/" + i + ".apk";
             Observable<String> down = RxHttp.get("/miaolive/Miaolive.apk")
                 .setDomainToUpdateIfAbsent() //使用指定的域名
-                .downloadProgress(destPath)//注意这里使用DownloadParser解析器，并传入本地路径
+                .asDownloadProgress(destPath)//注意这里使用DownloadParser解析器，并传入本地路径
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnNext(stringProgress -> {
                     //单个下载任务进度回调
