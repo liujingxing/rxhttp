@@ -3,6 +3,7 @@ package com.example.httpsender;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.ImageView;
 
 import com.rxjava.rxlife.RxLife;
 
@@ -22,6 +23,21 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+    }
+
+
+    public void bitmap(View view) {
+        String imageUrl = "http://img2.shelinkme.cn/d3/photos/0/017/022/755_org.jpg@!normal_400_400?1558517697888";
+        RxHttp.get(imageUrl) //Get请求
+            .asBitmap()  //这里返回Observable<Response> 对象
+            .as(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
+            .subscribe(s -> {
+                ImageView ivHead = findViewById(R.id.iv_head);
+                ivHead.setImageBitmap(s);
+                //成功回调
+            }, (OnError) throwable -> {
+                //失败回调
+            });
     }
 
     //发送Get请求
