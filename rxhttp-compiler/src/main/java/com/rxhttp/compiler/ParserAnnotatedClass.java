@@ -138,7 +138,7 @@ public class ParserAnnotatedClass {
             .returns(RxHttpGenerator.RXHTTP);
         methodList.add(method.build());
 
-        method = MethodSpec.methodBuilder("from")
+        method = MethodSpec.methodBuilder("asParser")
             .addModifiers(Modifier.PUBLIC)
             .addTypeVariable(t)
             .addParameter(parserTName, "parser")
@@ -150,55 +150,167 @@ public class ParserAnnotatedClass {
             .returns(observableTName);
         methodList.add(method.build());
 
+        method = MethodSpec.methodBuilder("asObject")
+            .addModifiers(Modifier.PUBLIC)
+            .addTypeVariable(t)
+            .addParameter(classTName, "type")
+            .addStatement("return asParser($T.get(type))", simpleParserName)
+            .returns(observableTName);
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("asString")
+            .addModifiers(Modifier.PUBLIC)
+            .addStatement("return asObject(String.class)")
+            .returns(observableStringName);
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("asBoolean")
+            .addModifiers(Modifier.PUBLIC)
+            .addStatement("return asObject(Boolean.class)")
+            .returns(observableBooleanName);
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("asByte")
+            .addModifiers(Modifier.PUBLIC)
+            .addStatement("return asObject(Byte.class)")
+            .returns(observableByteName);
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("asShort")
+            .addModifiers(Modifier.PUBLIC)
+            .addStatement("return asObject(Short.class)")
+            .returns(observableShortName);
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("asInteger")
+            .addModifiers(Modifier.PUBLIC)
+            .addStatement("return asObject(Integer.class)")
+            .returns(observableIntegerName);
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("asLong")
+            .addModifiers(Modifier.PUBLIC)
+            .addStatement("return asObject(Long.class)")
+            .returns(observableLongName);
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("asFloat")
+            .addModifiers(Modifier.PUBLIC)
+            .addStatement("return asObject(Float.class)")
+            .returns(observableFloatName);
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("asDouble")
+            .addModifiers(Modifier.PUBLIC)
+            .addStatement("return asObject(Double.class)")
+            .returns(observableDoubleName);
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("asList")
+            .addModifiers(Modifier.PUBLIC)
+            .addTypeVariable(t)
+            .addParameter(classTName, "type")
+            .addStatement("return asParser($T.get(type))", listParserName)
+            .returns(observableListTName);
+        methodList.add(method.build());
+
+        for (Entry<String, TypeElement> item : mElementMap.entrySet()) {
+            TypeMirror returnType = null; //获取onParse方法的返回类型
+            TypeElement typeElement = item.getValue();
+            for (Element element : typeElement.getEnclosedElements()) {
+                if (!(element instanceof ExecutableElement)) continue;
+                if (!element.getModifiers().contains(Modifier.PUBLIC)
+                    || element.getModifiers().contains(Modifier.STATIC)) continue;
+                ExecutableElement executableElement = (ExecutableElement) element;
+                if (executableElement.getSimpleName().toString().equals("onParse")
+                    && executableElement.getParameters().size() == 1
+                    && executableElement.getParameters().get(0).asType().toString().equals("okhttp3.Response")) {
+                    returnType = executableElement.getReturnType();
+                    break;
+                }
+            }
+            if (returnType == null) continue;
+            method = MethodSpec.methodBuilder("as" + item.getKey())
+                .addModifiers(Modifier.PUBLIC)
+                .addTypeVariable(t)
+                .addParameter(classTName, "type")
+                .addStatement("return asParser($T.get(type))", ClassName.get(item.getValue()))
+                .returns(ParameterizedTypeName.get(observableName, TypeName.get(returnType)));
+            methodList.add(method.build());
+        }
+
+
         method = MethodSpec.methodBuilder("from")
+            .addModifiers(Modifier.PUBLIC)
+            .addTypeVariable(t)
+            .addAnnotation(Deprecated.class)
+            .addParameter(parserTName, "parser")
+            .addStatement("Observable<T> observable=$T.syncFrom(addDefaultDomainIfAbsent(param),parser)", httpSenderName)
+            .beginControlFlow("if(scheduler!=null)")
+            .addStatement("observable=observable.subscribeOn(scheduler)")
+            .endControlFlow()
+            .addStatement("return observable")
+            .returns(observableTName);
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("from")
+            .addAnnotation(Deprecated.class)
             .addModifiers(Modifier.PUBLIC)
             .addStatement("return fromSimpleParser(String.class)")
             .returns(observableStringName);
         methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("fromBoolean")
+            .addAnnotation(Deprecated.class)
             .addModifiers(Modifier.PUBLIC)
             .addStatement("return fromSimpleParser(Boolean.class)")
             .returns(observableBooleanName);
         methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("fromByte")
+            .addAnnotation(Deprecated.class)
             .addModifiers(Modifier.PUBLIC)
             .addStatement("return fromSimpleParser(Byte.class)")
             .returns(observableByteName);
         methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("fromShort")
+            .addAnnotation(Deprecated.class)
             .addModifiers(Modifier.PUBLIC)
             .addStatement("return fromSimpleParser(Short.class)")
             .returns(observableShortName);
         methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("fromInteger")
+            .addAnnotation(Deprecated.class)
             .addModifiers(Modifier.PUBLIC)
             .addStatement("return fromSimpleParser(Integer.class)")
             .returns(observableIntegerName);
         methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("fromLong")
+            .addAnnotation(Deprecated.class)
             .addModifiers(Modifier.PUBLIC)
             .addStatement("return fromSimpleParser(Long.class)")
             .returns(observableLongName);
         methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("fromFloat")
+            .addAnnotation(Deprecated.class)
             .addModifiers(Modifier.PUBLIC)
             .addStatement("return fromSimpleParser(Float.class)")
             .returns(observableFloatName);
         methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("fromDouble")
+            .addAnnotation(Deprecated.class)
             .addModifiers(Modifier.PUBLIC)
             .addStatement("return fromSimpleParser(Double.class)")
             .returns(observableDoubleName);
         methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("fromSimpleParser")
+            .addAnnotation(Deprecated.class)
             .addModifiers(Modifier.PUBLIC)
             .addTypeVariable(t)
             .addParameter(classTName, "type")
@@ -207,6 +319,7 @@ public class ParserAnnotatedClass {
         methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("fromListParser")
+            .addAnnotation(Deprecated.class)
             .addModifiers(Modifier.PUBLIC)
             .addTypeVariable(t)
             .addParameter(classTName, "type")
@@ -231,6 +344,7 @@ public class ParserAnnotatedClass {
             }
             if (returnType == null) continue;
             method = MethodSpec.methodBuilder("from" + item.getKey())
+                .addAnnotation(Deprecated.class)
                 .addModifiers(Modifier.PUBLIC)
                 .addTypeVariable(t)
                 .addParameter(classTName, "type")
@@ -240,6 +354,7 @@ public class ParserAnnotatedClass {
         }
 
         method = MethodSpec.methodBuilder("syncFrom")
+            .addAnnotation(Deprecated.class)
             .addModifiers(Modifier.PUBLIC)
             .addTypeVariable(t)
             .addParameter(parserTName, "parser")
