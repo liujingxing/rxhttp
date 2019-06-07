@@ -20,7 +20,7 @@ import rxhttp.wrapper.utils.GsonUtil;
  * Date: 2018/10/23
  * Time: 13:49
  */
-@Parser(name = "DataPageListParser")
+@Parser(name = "DataPageList")
 public class DataPageListParser<T> extends AbstractParser<PageList<T>> {
 
     protected DataPageListParser() {
