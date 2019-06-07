@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
             .addHeader("accept", "*/*") //添加请求头
             .addHeader("connection", "Keep-Alive")
             .addHeader("user-agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1;SV1)")
-            .fromSimpleParser(String.class)  //这里返回Observable<Response> 对象
+            .asString()  //这里返回Observable<Response> 对象
             .as(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
             .subscribe(s -> {
                 //成功回调
@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
             .addHeader("accept", "*/*") //添加请求头
             .addHeader("connection", "Keep-Alive")
             .addHeader("user-agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1;SV1)")
-            .fromSimpleParser(Response.class)  //这里返回Observable<Response>对象
+            .asObject(Response.class)  //这里返回Observable<Response>对象
             .as(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
             .subscribe(response -> {
                 //成功回调
@@ -142,7 +142,7 @@ public class MainActivity extends AppCompatActivity {
         RxHttp.postForm("http://...") //发送Form表单形式的Post请求
             .add("file1", new File("xxx/1.png"))
             .add("file2", new File("xxx/2.png"))
-            .fromSimpleParser(String.class) //from操作符，是异步操作
+            .asString() //from操作符，是异步操作
             .as(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
             .subscribe(s -> {
                 //成功回调
