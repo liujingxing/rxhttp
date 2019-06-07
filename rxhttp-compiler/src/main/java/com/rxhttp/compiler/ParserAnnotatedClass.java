@@ -41,6 +41,7 @@ public class ParserAnnotatedClass {
     public List<MethodSpec> getMethodList() {
         TypeVariableName t = TypeVariableName.get("T");
         ClassName responseName = ClassName.get("okhttp3", "Response");
+        ClassName bitmapName = ClassName.get("android.graphics", "Bitmap");
         ClassName httpSenderName = ClassName.get("rxhttp", "HttpSender");
         ClassName schedulerName = ClassName.get("io.reactivex", "Scheduler");
         ClassName observableName = ClassName.get("io.reactivex", "Observable");
@@ -49,6 +50,7 @@ public class ParserAnnotatedClass {
         ClassName simpleParserName = ClassName.get("rxhttp.wrapper.parse", "SimpleParser");
         ClassName listParserName = ClassName.get("rxhttp.wrapper.parse", "ListParser");
         ClassName downloadParserName = ClassName.get("rxhttp.wrapper.parse", "DownloadParser");
+        ClassName bitmapParserName = ClassName.get("rxhttp.wrapper.parse", "BitmapParser");
 
         TypeName typeName = TypeName.get(String.class);
         TypeName classTName = ParameterizedTypeName.get(ClassName.get(Class.class), t);
@@ -57,6 +59,7 @@ public class ParserAnnotatedClass {
         TypeName progressStringName = ParameterizedTypeName.get(progressName, typeName);
         TypeName observableTName = ParameterizedTypeName.get(observableName, t);
         TypeName observableListTName = ParameterizedTypeName.get(observableName, listTName);
+        TypeName observableBitmapName = ParameterizedTypeName.get(observableName, bitmapName);
         TypeName observableStringName = ParameterizedTypeName.get(observableName, typeName);
         TypeName observableBooleanName = ParameterizedTypeName.get(observableName, TypeName.get(Boolean.class));
         TypeName observableByteName = ParameterizedTypeName.get(observableName, TypeName.get(Byte.class));
@@ -156,6 +159,13 @@ public class ParserAnnotatedClass {
             .addParameter(classTName, "type")
             .addStatement("return asParser($T.get(type))", simpleParserName)
             .returns(observableTName);
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("asBitmap")
+            .addModifiers(Modifier.PUBLIC)
+            .addTypeVariable(t)
+            .addStatement("return asParser(new $T())", bitmapParserName)
+            .returns(observableBitmapName);
         methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("asString")
