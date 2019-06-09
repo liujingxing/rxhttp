@@ -23,13 +23,19 @@ public class LogUtil {
         isDebug = debug;
     }
 
-    //打印Http异常信息
+    //打印Http请求连接失败异常日志
+    public static void log(@NonNull String url, Throwable throwable) {
+        if (!isDebug) return;
+        Log.e(TAG, "url=" + url + "\n throwable=" + throwable.toString());
+    }
+
+    //打印Http连接成功后的异常信息
     public static void log(@NonNull HttpStatusCodeException exception) {
         if (!isDebug) return;
         Log.e(TAG, exception.toString());
     }
 
-    //打印Http返回结果
+    //打印Http返回的正常结果
     public static void log(@NonNull Response response, String result) {
         if (!isDebug) return;
         Request request = response.request();
