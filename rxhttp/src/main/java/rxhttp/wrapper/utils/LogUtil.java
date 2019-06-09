@@ -5,6 +5,7 @@ import android.util.Log;
 import io.reactivex.annotations.NonNull;
 import okhttp3.Request;
 import okhttp3.Response;
+import rxhttp.wrapper.exception.HttpStatusCodeException;
 import rxhttp.wrapper.param.Param;
 
 /**
@@ -22,15 +23,22 @@ public class LogUtil {
         isDebug = debug;
     }
 
+    //打印Http异常信息
+    public static void log(@NonNull HttpStatusCodeException exception) {
+        if (!isDebug) return;
+        Log.e(TAG, exception.toString());
+    }
+
     //打印Http返回结果
     public static void log(@NonNull Response response, String result) {
         if (!isDebug) return;
         Request request = response.request();
-        String builder = "-------------------Method=" +
-                request.method() + " Code=" + response.code() + "-------------------" +
-                "\nUrl=" + request.url() +
-                "\nResult=" + result;
-        Log.d(TAG, builder);
+        String builder = "------------------- Method=" +
+            request.method() + " Code=" + response.code() + " -------------------" +
+            "\nUrl = " + request.url() +
+            "\n\nHeaders = " + response.headers() +
+            "\nResult = " + result;
+        Log.i(TAG, builder);
     }
 
     public static void log(@NonNull Param param) {
