@@ -16,9 +16,6 @@ package rxhttp;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-import rxhttp.wrapper.entity.Progress;
-import rxhttp.wrapper.param.Param;
-import rxhttp.wrapper.parse.Parser;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.Observer;
@@ -33,9 +30,13 @@ import io.reactivex.internal.util.AtomicThrowable;
 import io.reactivex.plugins.RxJavaPlugins;
 import okhttp3.Call;
 import okhttp3.Response;
+import rxhttp.wrapper.entity.Progress;
+import rxhttp.wrapper.param.Param;
+import rxhttp.wrapper.parse.Parser;
+import rxhttp.wrapper.utils.LogUtil;
 
 public final class ObservableUpload<T> extends Observable<Progress<T>> {
-    private final Param     param;
+    private final Param param;
     private final Parser<T> parser;
 
     private Call mCall;
@@ -65,6 +66,7 @@ public final class ObservableUpload<T> extends Observable<Progress<T>> {
             emitter.onNext(new Progress<>(t)); //最后一次回调Http执行结果
             emitter.onComplete();
         } catch (Throwable ex) {
+            LogUtil.log(param.getUrl(), ex);
             Exceptions.throwIfFatal(ex);
             emitter.onError(ex);
         }
@@ -84,8 +86,8 @@ public final class ObservableUpload<T> extends Observable<Progress<T>> {
     }
 
     static class CreateEmitter<T>
-            extends AtomicReference<Disposable>
-            implements ObservableEmitter<T>, Disposable {
+        extends AtomicReference<Disposable>
+        implements ObservableEmitter<T>, Disposable {
 
         private static final long serialVersionUID = -3434801548987643227L;
 
@@ -177,8 +179,8 @@ public final class ObservableUpload<T> extends Observable<Progress<T>> {
      * @param <T> the value type
      */
     static final class SerializedEmitter<T>
-            extends AtomicInteger
-            implements ObservableEmitter<T> {
+        extends AtomicInteger
+        implements ObservableEmitter<T> {
 
         private static final long serialVersionUID = 4883307006032401862L;
 
