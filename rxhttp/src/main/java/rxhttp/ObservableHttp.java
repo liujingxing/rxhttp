@@ -16,8 +16,6 @@ package rxhttp;
 
 import java.util.concurrent.Callable;
 
-import rxhttp.wrapper.param.Param;
-import rxhttp.wrapper.parse.Parser;
 import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.annotations.NonNull;
@@ -27,6 +25,9 @@ import io.reactivex.internal.observers.DeferredScalarDisposable;
 import io.reactivex.plugins.RxJavaPlugins;
 import okhttp3.Call;
 import okhttp3.Response;
+import rxhttp.wrapper.param.Param;
+import rxhttp.wrapper.parse.Parser;
+import rxhttp.wrapper.utils.LogUtil;
 
 /**
  * 发送Http请求的观察者，管道中断时，请求还未执行完毕，会将请求cancel
@@ -56,6 +57,7 @@ public final class ObservableHttp<T> extends Observable<T> implements Callable<T
         try {
             value = ObjectHelper.requireNonNull(execute(param), "Callable returned null");
         } catch (Throwable e) {
+            LogUtil.log(param.getUrl(), e);
             Exceptions.throwIfFatal(e);
             if (!d.isDisposed()) {
                 observer.onError(e);
