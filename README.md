@@ -19,9 +19,9 @@ Gradle引用方法
 
 ```java
     dependencies {
-       implementation 'com.rxjava.rxhttp:rxhttp:1.0.7'
+       implementation 'com.rxjava.rxhttp:rxhttp:1.0.8'
        //注解处理器，生成RxHttp类，即可一条链发送请求
-       annotationProcessor 'com.rxjava.rxhttp:rxhttp-compiler:1.0.7'
+       annotationProcessor 'com.rxjava.rxhttp:rxhttp-compiler:1.0.8'
        //管理RxJava及生命周期，Activity/Fragment 销毁，自动关闭未完成的请求
        implementation 'com.rxjava.rxlife:rxlife:1.0.6'
     }
@@ -33,9 +33,9 @@ Gradle引用方法
 
 ```java
     dependencies {
-       implementation 'com.rxjava.rxhttp:rxhttp:1.0.7'
+       implementation 'com.rxjava.rxhttp:rxhttp:1.0.8'
        //注解处理器，生成RxHttp类，即可一条链发送请求
-       kapt 'com.rxjava.rxhttp:rxhttp-compiler:1.0.7'
+       kapt 'com.rxjava.rxhttp:rxhttp-compiler:1.0.8'
        //管理RxJava及生命周期，Activity/Fragment 销毁，自动关闭未完成的请求
        implementation 'com.rxjava.rxlife:rxlife:1.0.6'
     }
@@ -291,6 +291,12 @@ Observable.merge(downList)
 RxHttp&RxLife 交流群：378530627
 
 ### 更新日志
+
+1.0.8
+
+ - 增加Http请求连接失败时的异常信息打印
+
+ — 修复1.0.7版本中，一处由注解的生成的方法错误问题
 
 1.0.7
 
