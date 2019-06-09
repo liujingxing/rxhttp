@@ -13,6 +13,8 @@
 package rxhttp;
 
 
+import android.util.Log;
+
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -35,6 +37,7 @@ import rxhttp.wrapper.callback.ProgressCallback;
 import rxhttp.wrapper.entity.Progress;
 import rxhttp.wrapper.param.Param;
 import rxhttp.wrapper.parse.DownloadParser;
+import rxhttp.wrapper.utils.LogUtil;
 
 public final class ObservableDownload extends Observable<Progress<String>> {
     private final Param  param;
@@ -85,6 +88,7 @@ public final class ObservableDownload extends Observable<Progress<String>> {
             emitter.onNext(new Progress<>(filePath)); //最后一次回调文件下载路径
             emitter.onComplete();
         } catch (Throwable ex) {
+            LogUtil.log(param.getUrl(), ex);
             Exceptions.throwIfFatal(ex);
             emitter.onError(ex);
         }
