@@ -1,5 +1,6 @@
 package com.example.httpsender;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -8,10 +9,7 @@ import android.widget.ImageView;
 import com.rxjava.rxlife.RxLife;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
-import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import okhttp3.Response;
 import rxhttp.wrapper.entity.Progress;
@@ -196,30 +194,32 @@ public class MainActivity extends AppCompatActivity {
 
     //多任务下砸
     public void multitaskDownload(View view) {
-        List<Observable<String>> downList = new ArrayList<>();
-        for (int i = 0; i < 3; i++) {
-            String destPath = getExternalCacheDir() + "/" + i + ".apk";
-            Observable<String> down = RxHttp.get("/miaolive/Miaolive.apk")
-                .setDomainToUpdateIfAbsent() //使用指定的域名
-                .asDownloadProgress(destPath)//注意这里使用DownloadParser解析器，并传入本地路径
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnNext(stringProgress -> {
-                    //单个下载任务进度回调
-                })
-                .filter(Progress::isCompleted)
-                .map(Progress::getResult);
-            downList.add(down);
-        }
 
-        //开始多任务下载
-        Observable.merge(downList)
-            .as(RxLife.as(this))
-            .subscribe(s -> {
-                //单个任务下载完成
-            }, throwable -> {
-                //下载出错
-            }, () -> {
-                //所有任务下载完成
-            });
+        startActivity(new Intent(this, DownloadMultiActivity.class));
+//        List<Observable<String>> downList = new ArrayList<>();
+//        for (int i = 0; i < 3; i++) {
+//            String destPath = getExternalCacheDir() + "/" + i + ".apk";
+//            Observable<String> down = RxHttp.get("/miaolive/Miaolive.apk")
+//                .setDomainToUpdateIfAbsent() //使用指定的域名
+//                .asDownloadProgress(destPath)//注意这里使用DownloadParser解析器，并传入本地路径
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .doOnNext(stringProgress -> {
+//                    //单个下载任务进度回调
+//                })
+//                .filter(Progress::isCompleted)
+//                .map(Progress::getResult);
+//            downList.add(down);
+//        }
+//
+//        //开始多任务下载
+//        Observable.merge(downList)
+//            .as(RxLife.as(this))
+//            .subscribe(s -> {
+//                //单个任务下载完成
+//            }, throwable -> {
+//                //下载出错
+//            }, () -> {
+//                //所有任务下载完成
+//            });
     }
 }

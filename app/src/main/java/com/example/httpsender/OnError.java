@@ -3,8 +3,8 @@ package com.example.httpsender;
 
 import android.text.TextUtils;
 
-
 import io.reactivex.functions.Consumer;
+import rxhttp.wrapper.exception.HttpStatusCodeException;
 import rxhttp.wrapper.exception.ParseException;
 
 
@@ -18,16 +18,20 @@ public interface OnError extends Consumer<Throwable> {
 
     @Override
     default void accept(Throwable throwable) throws Exception {
-        boolean isConsume = ExceptionHelper.handleNetworkException(throwable);
+        ExceptionHelper.handleNetworkException(throwable);
         if (throwable instanceof ParseException) {
             String errorCode = throwable.getLocalizedMessage();
             if (!TextUtils.isEmpty(errorCode)) { //errorCode不为空，显示服务器返回的错误提示
                 String errorMsg = throwable.getMessage();
                 Tip.show(TextUtils.isEmpty(errorMsg) ? errorCode : errorMsg); //errorMsg为空，显示errorCode
-                isConsume = true;
+            }
+        } else if (throwable instanceof HttpStatusCodeException) {
+            String code = throwable.getLocalizedMessage();
+            if ("416".equals(code)) {
+                Tip.show("请求范围不符合要求");
             }
         }
-        if (!isConsume) onError(throwable);
+        onError(throwable);
     }
 
     void onError(Throwable throwable) throws Exception;
