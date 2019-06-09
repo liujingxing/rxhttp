@@ -8,6 +8,7 @@ import java.io.IOException;
 
 import okhttp3.Response;
 import okhttp3.ResponseBody;
+import rxhttp.wrapper.exception.ExceptionHelper;
 
 /**
  * Bitmap解析器
@@ -24,12 +25,7 @@ public class BitmapParser implements Parser<Bitmap> {
      */
     @Override
     public Bitmap onParse(Response response) throws IOException {
-        if (!response.isSuccessful())
-            throw new IOException(response.code() + " " + response.message());
-        ResponseBody body = response.body();
-        if (body == null) {
-            throw new IOException("ResponseBody is null");
-        }
+        ResponseBody body = ExceptionHelper.throwIfFatal(response);
         return BitmapFactory.decodeStream(body.byteStream());
     }
 }
