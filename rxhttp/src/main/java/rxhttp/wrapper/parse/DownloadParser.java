@@ -6,6 +6,7 @@ import java.io.IOException;
 import io.reactivex.annotations.NonNull;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
+import rxhttp.wrapper.exception.ExceptionHelper;
 import rxhttp.wrapper.utils.IOUtil;
 
 /**
@@ -31,11 +32,7 @@ public class DownloadParser implements Parser<String> {
      */
     @Override
     public String onParse(Response response) throws IOException {
-        if (!response.isSuccessful())
-            throw new IOException(response.code() + " " + response.message());
-        ResponseBody body = response.body();
-        if (body == null)
-            throw new IOException("ResponseBody is null");
+        ResponseBody body = ExceptionHelper.throwIfFatal(response);
         boolean append = response.header("Content-Range") != null;
         IOUtil.write(body.byteStream(), mDestPath, append);//将输入流写出到文件
         return mDestPath;
