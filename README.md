@@ -33,9 +33,9 @@ Gradle引用方法
 
 ```java
     dependencies {
-       implementation 'com.rxjava.rxhttp:rxhttp:1.0.6'
+       implementation 'com.rxjava.rxhttp:rxhttp:1.0.7'
        //注解处理器，生成RxHttp类，即可一条链发送请求
-       kapt 'com.rxjava.rxhttp:rxhttp-compiler:1.0.6'
+       kapt 'com.rxjava.rxhttp:rxhttp-compiler:1.0.7'
        //管理RxJava及生命周期，Activity/Fragment 销毁，自动关闭未完成的请求
        implementation 'com.rxjava.rxlife:rxlife:1.0.6'
     }
