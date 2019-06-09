@@ -240,12 +240,6 @@ public class ParserAnnotatedClass {
                 }
             }
             if (returnType == null) continue;
-            method = MethodSpec.methodBuilder("as" + item.getKey())
-                .addModifiers(Modifier.PUBLIC)
-                .addTypeVariable(t)
-                .addStatement("return asParser(SimpleParser.get(String.class))", ClassName.get(item.getValue()))
-                .returns(ParameterizedTypeName.get(observableName, typeName));
-            methodList.add(method.build());
 
             method = MethodSpec.methodBuilder("as" + item.getKey())
                 .addModifiers(Modifier.PUBLIC)
