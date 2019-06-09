@@ -8,11 +8,11 @@ import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
-import rxhttp.wrapper.exception.ExceptionHelper;
-import rxhttp.wrapper.utils.LogUtil;
 import io.reactivex.annotations.NonNull;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
+import rxhttp.wrapper.exception.ExceptionHelper;
+import rxhttp.wrapper.utils.LogUtil;
 
 /**
  * User: ljx
@@ -38,11 +38,9 @@ public abstract class AbstractParser<T> implements Parser<T> {
      */
     @NonNull
     protected final String getResult(@NonNull Response response) throws IOException {
-        ResponseBody body = response.body();
-        if (body == null) throw new IOException("ResponseBody is null");
+        ResponseBody body = ExceptionHelper.throwIfFatal(response);
         String result = body.string();
         LogUtil.log(response, result);
-        ExceptionHelper.throwIfFatal(response, result);
         return result;
     }
 
