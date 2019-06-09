@@ -19,9 +19,9 @@ Gradle引用方法
 
 ```java
     dependencies {
-       implementation 'com.rxjava.rxhttp:rxhttp:1.0.6'
+       implementation 'com.rxjava.rxhttp:rxhttp:1.0.7'
        //注解处理器，生成RxHttp类，即可一条链发送请求
-       annotationProcessor 'com.rxjava.rxhttp:rxhttp-compiler:1.0.6'
+       annotationProcessor 'com.rxjava.rxhttp:rxhttp-compiler:1.0.7'
        //管理RxJava及生命周期，Activity/Fragment 销毁，自动关闭未完成的请求
        implementation 'com.rxjava.rxlife:rxlife:1.0.6'
     }
@@ -292,13 +292,19 @@ RxHttp&RxLife 交流群：378530627
 
 ### 更新日志
 
-1.0.6
+1.0.7
 
  - RxHttp类增加一系列'subscribeOnXXX'方法，通过该系列方法，指定请求在某个线程执行
 
  - 增加BitmapParser解析器，通过该解析器，可直接拿到Bitmap对象，详情查看asBitmap方法
 
  - RxHttp类增加一系列'asXXX'方法，替代'fromXXX'/'downloadXXX'/'uploadXXX'方法，被替代的方法标记为过时，将在未来的版本删除
+
+ - 增加HttpStatusCodeException异常类，可在OnError回调中捕获该异常
+
+ - OkHttp 更新至3.14.1，RxJava更新至2.2.8版本，RxAndroid 更新至2.1.1版本
+
+ - HttpSender中一些方法标记为过时，这些方法将在未来的版本中删除，请尽快使用新方法替代
 
 1.0.5
 
