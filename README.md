@@ -20,25 +20,25 @@ RxHttp&RxLife 交流群：378530627
 Gradle引用方法
 
 ```java
-    dependencies {
-       implementation 'com.rxjava.rxhttp:rxhttp:1.0.8'
-       annotationProcessor 'com.rxjava.rxhttp:rxhttp-compiler:1.0.8' //注解处理器，生成RxHttp类
-       implementation 'com.rxjava.rxlife:rxlife:1.0.6'  //页面销毁，关闭请求
+dependencies {
+   implementation 'com.rxjava.rxhttp:rxhttp:1.0.8'
+   annotationProcessor 'com.rxjava.rxhttp:rxhttp-compiler:1.0.8' //注解处理器，生成RxHttp类
+   implementation 'com.rxjava.rxlife:rxlife:1.0.6'  //页面销毁，关闭请求
 
-       if you use kotlin
-       kapt 'com.rxjava.rxhttp:rxhttp-compiler:1.0.8'
-    }
+   // if you use kotlin
+   kapt 'com.rxjava.rxhttp:rxhttp-compiler:1.0.8'
+}
 ```
 
-#### 注：
+### 注：
 
 1、RxHttp 要求项目使用Java 8，请在 app 的 build.gradle 添加以下代码
 
 ```java
-    compileOptions {
-            sourceCompatibility JavaVersion.VERSION_1_8
-            targetCompatibility JavaVersion.VERSION_1_8
-    }
+compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+}
 ```
 
 Usage
@@ -52,6 +52,161 @@ public class Url {
 }
 ```
 此时rebuild一下项目，就能看到RxHttp类了
+
+### 请求三部曲
+```java
+RxHttp.get("http://...")              //第一步，确定请求方式
+    .asString()                     //第二步，使用asXXX系列方法确定返回类型
+    .subscribe(s -> {               //第三部, 订阅观察者
+        //成功回调
+    }, throwable -> {
+        //失败回调
+    });
+```
+
+### post
+```java
+RxHttp.postForm("http://...")       //发送表单形式的post请求
+    .asString()
+    .subscribe(s -> {
+        //成功回调
+    }, throwable -> {
+        //失败回调
+    });
+
+RxHttp.postJson("http://...")       //发送Json字符串形式的post请求
+    //省略部分代码
+
+```
+
+### 添加参数
+```java
+RxHttp.postForm("http://...")       //发送表单形式的post请求
+    .add("key", "value")          //添加参数
+    .addHeader("headerKey", "headerValue") //添加请求头
+    .addFile("file", new File("xxx/1.png"))   //添加文件
+    .asString()
+    .subscribe(s -> {
+        //成功回调
+    }, throwable -> {
+        //失败回调
+    });
+```
+
+### 返回自定义的数据类型
+```java
+RxHttp.postForm("http://...")       //发送表单形式的post请求
+    .asObject(Student.class)      //返回Student对象
+    .subscribe(student -> {
+        //成功回调
+    }, throwable -> {
+        //失败回调
+    });
+
+
+RxHttp.postForm("http://...")       //发送表单形式的post请求
+    .asList(Student.class)        //返回List<Student>集合
+    .subscribe(students -> {
+        //成功回调
+    }, throwable -> {
+        //失败回调
+    });
+
+```
+
+### 文件上传
+```java
+RxHttp.postForm("http://...") //发送Form表单形式的Post请求
+    .addFile("file", new File("xxx/1.png"))  //添加文件
+    .asString()
+    .subscribe(s -> {
+        //成功回调
+    }, throwable -> {
+        //失败回调
+    });
+```
+
+### 文件下载
+
+```java
+RxHttp.get("http://...")
+    .asDownload("sd/xxx/1.apk") //传入本地路径
+    .subscribe(s -> {
+        //下载成功,回调文件下载路径
+    }, throwable -> {
+        //下载失败
+    });
+```
+
+###  文件上传进度监听
+```java
+RxHttp.postForm("http://...") //发送Form表单形式的Post请求
+    .add("file1", new File("xxx/1.png"))
+    .asUploadProgress() //注:如果需要监听上传进度，使用asUploadProgress操作符
+    .observeOn(AndroidSchedulers.mainThread()) //主线程回调
+    .doOnNext(progress -> {
+        //上传进度回调,0-100，仅在进度有更新时才会回调,最多回调101次，最后一次回调Http执行结果
+        int currentProgress = progress.getProgress(); //当前进度 0-100
+        long currentSize = progress.getCurrentSize(); //当前已上传的字节大小
+        long totalSize = progress.getTotalSize();     //要上传的总字节大小
+        String result = progress.getResult(); //Http执行结果，最后一次回调才有内容
+    })
+    .filter(Progress::isCompleted)//过滤事件，上传完成，才继续往下走
+    .map(Progress::getResult) //到这，说明上传完成，拿到Http返回结果并继续往下走
+    .subscribe(s -> { //s为String类型，由SimpleParser类里面的泛型决定的
+        //上传成功，处理相关逻辑
+    }, throwable -> {
+        //上传失败，处理相关逻辑
+    });
+```
+
+### 文件下载进度监听
+```java
+RxHttp.get("http://...")
+    .asDownloadProgress("sd/xxx/1.apk") //传入本地路径
+    .observeOn(AndroidSchedulers.mainThread())
+    .doOnNext(progress -> {
+        //下载进度回调,0-100，仅在进度有更新时才会回调，最多回调101次，最后一次回调文件存储路径
+        int currentProgress = progress.getProgress(); //当前进度 0-100
+        long currentSize = progress.getCurrentSize(); //当前已下载的字节大小
+        long totalSize = progress.getTotalSize();     //要下载的总字节大小
+        String filePath = progress.getResult(); //文件存储路径，最后一次回调才有内容
+    })
+    .filter(Progress::isCompleted)//下载完成，才继续往下走
+    .map(Progress::getResult) //到这，说明下载完成，返回下载目标路径
+    .subscribe(s -> {//s为String类型，这里为文件存储路径
+        //下载完成，处理相关逻辑
+    }, throwable -> {
+        //下载失败，处理相关逻辑
+    });
+```
+
+### 断点下载、带进度回调
+```java
+//断点下载，带进度
+public void breakpointDownloadAndProgress() {
+    String destPath = getExternalCacheDir() + "/" + "Miaobo.apk";
+    File file = new File(destPath);
+    long length = file.length();
+    RxHttp.get("http://update.9158.com/miaolive/Miaolive.apk")
+        .setRangeHeader(length)  //设置开始下载位置，结束位置默认为文件末尾
+        .asDownloadProgress(destPath, length)  //如果需要衔接上次的下载进度，则需要传入上次已下载的字节数
+        .observeOn(AndroidSchedulers.mainThread()) //主线程回调
+        .doOnNext(progress -> {
+            //下载进度回调,0-100，仅在进度有更新时才会回调
+            int currentProgress = progress.getProgress(); //当前进度 0-100
+            long currentSize = progress.getCurrentSize(); //当前已下载的字节大小
+            long totalSize = progress.getTotalSize();     //要下载的总字节大小
+        })
+        .filter(Progress::isCompleted)//过滤事件，下载完成，才继续往下走
+        .map(Progress::getResult) //到这，说明下载完成，拿到Http返回结果并继续往下走
+        .subscribe(s -> { //s为String类型
+            //下载成功，处理相关逻辑
+        }, throwable -> {
+            //下载失败，处理相关逻辑
+        });
+}
+```
 
 ### 添加公共参数/头部及重新设置url
 
@@ -72,201 +227,52 @@ HttpSender.setOnParamAssembly(new Function() {
     }
 });
 ```
-### 请求三部曲
+
+### Activity/Fragment销毁，自动关闭请求
+
 ```java
-  RxHttp.get("http://...")              //第一步，确定请求方式
-        .asString()                     //第二步，使用asXXX系列方法确定返回类型
-        .subscribe(s -> {               //第三部, 订阅观察者
-            //成功回调
-        }, throwable -> {
-            //失败回调
-        });
+RxHttp.postForm("http://...")    //发送表单形式的post请求
+    .asString()
+    .as(RxLife.as(this))         //页面销毁，自动关闭请求
+    .subscribe(s -> {
+        //成功回调
+    }, throwable -> {
+        //失败回调
+    });
+
+RxHttp.postForm("http://...")       //发送表单形式的post请求
+    .asString()
+    .as(RxLife.asOnMain(this))      //在主线程回调，并在页面销毁，自动关闭请求
+    .subscribe(s -> {
+        //成功回调
+    }, throwable -> {
+        //失败回调
+    });
 ```
 
-#### post
+
+### 常用api介绍
 ```java
-  RxHttp.postForm("http://...")       //发送表单形式的post请求
-        .asString()
-        .subscribe(s -> {
-            //成功回调
-        }, throwable -> {
-            //失败回调
-        });
-
-  RxHttp.postJson("http://...")       //发送Json字符串形式的post请求
-        //省略部分代码
-
-```
-
-#### 添加参数
-```java
-  RxHttp.postForm("http://...")       //发送表单形式的post请求
-        .add("key", "value")          //添加参数
-        .addHeader("headerKey", "headerValue") //添加请求头
-        .addFile("file", new File("xxx/1.png"))   //添加文件
-        .asString()
-        .subscribe(s -> {
-            //成功回调
-        }, throwable -> {
-            //失败回调
-        });
-```
-
-#### 返回自定义的数据类型
-```java
-  RxHttp.postForm("http://...")       //发送表单形式的post请求
-        .asObject(Student.class)      //返回Student对象
-        .subscribe(student -> {
-            //成功回调
-        }, throwable -> {
-            //失败回调
-        });
-
-
-  RxHttp.postForm("http://...")       //发送表单形式的post请求
-        .asList(Student.class)        //返回List<Student>集合
-        .subscribe(students -> {
-            //成功回调
-        }, throwable -> {
-            //失败回调
-        });
-
-```
-
-#### Activity/Fragment销毁，自动关闭请求
-
-```java
-  RxHttp.postForm("http://...")       //发送表单形式的post请求
-        .asString()
-        .as(RxLife.as(this))         //页面销毁，自动关闭请求
-        .subscribe(s -> {
-            //成功回调
-        }, throwable -> {
-            //失败回调
-        });
-```
-
-#### 文件上传
-```java
-  RxHttp.postForm("http://...") //发送Form表单形式的Post请求
-        .addFile("file", new File("xxx/1.png"))  //添加文件
-        .asString()
-        .as(RxLife.as(this))  //页面销毁，自动关闭请求
-        .subscribe(s -> {
-            //成功回调
-        }, throwable -> {
-            //失败回调
-        });
-```
-
-#### 文件下载
-
-```java
-  RxHttp.get("http://...")
-        .asDownload("sd/xxx/1.apk") //传入本地路径
-        .subscribe(s -> {
-            //下载成功,回调文件下载路径
-        }, throwable -> {
-            //下载失败
-        });
-```
-
-####  文件上传进度监听
-```java
-  RxHttp.postForm("http://...") //发送Form表单形式的Post请求
-        .add("file1", new File("xxx/1.png"))
-        .asUploadProgress() //注:如果需要监听上传进度，使用asUploadProgress操作符
-        .observeOn(AndroidSchedulers.mainThread()) //主线程回调
-        .doOnNext(progress -> {
-            //上传进度回调,0-100，仅在进度有更新时才会回调,最多回调101次，最后一次回调Http执行结果
-            int currentProgress = progress.getProgress(); //当前进度 0-100
-            long currentSize = progress.getCurrentSize(); //当前已上传的字节大小
-            long totalSize = progress.getTotalSize();     //要上传的总字节大小
-            String result = progress.getResult(); //Http执行结果，最后一次回调才有内容
-        })
-        .filter(Progress::isCompleted)//过滤事件，上传完成，才继续往下走
-        .map(Progress::getResult) //到这，说明上传完成，拿到Http返回结果并继续往下走
-        .as(RxLife.as(this))  //感知生命周期
-        .subscribe(s -> { //s为String类型，由SimpleParser类里面的泛型决定的
-            //上传成功，处理相关逻辑
-        }, throwable -> {
-            //上传失败，处理相关逻辑
-        });
-```
-
-#### 文件下载进度监听
-```java
-  RxHttp.get("http://...")
-        .asDownloadProgress("sd/xxx/1.apk") //传入本地路径
-        .observeOn(AndroidSchedulers.mainThread())
-        .doOnNext(progress -> {
-            //下载进度回调,0-100，仅在进度有更新时才会回调，最多回调101次，最后一次回调文件存储路径
-            int currentProgress = progress.getProgress(); //当前进度 0-100
-            long currentSize = progress.getCurrentSize(); //当前已下载的字节大小
-            long totalSize = progress.getTotalSize();     //要下载的总字节大小
-            String filePath = progress.getResult(); //文件存储路径，最后一次回调才有内容
-        })
-        .filter(Progress::isCompleted)//下载完成，才继续往下走
-        .map(Progress::getResult) //到这，说明下载完成，返回下载目标路径
-        .as(RxLife.as(this)) //感知生命周期
-        .subscribe(s -> {//s为String类型，这里为文件存储路径
-            //下载完成，处理相关逻辑
-        }, throwable -> {
-            //下载失败，处理相关逻辑
-        });
-```
-
-#### 断点下载、带进度回调
-```java
-//断点下载，带进度
-public void breakpointDownloadAndProgress() {
-    String destPath = getExternalCacheDir() + "/" + "Miaobo.apk";
-    File file = new File(destPath);
-    long length = file.length();
-    RxHttp.get("http://update.9158.com/miaolive/Miaolive.apk")
-          .setRangeHeader(length)  //设置开始下载位置，结束位置默认为文件末尾
-          .asDownloadProgress(destPath, length)  //如果需要衔接上次的下载进度，则需要传入上次已下载的字节数
-          .observeOn(AndroidSchedulers.mainThread()) //主线程回调
-          .doOnNext(progress -> {
-              //下载进度回调,0-100，仅在进度有更新时才会回调
-              int currentProgress = progress.getProgress(); //当前进度 0-100
-              long currentSize = progress.getCurrentSize(); //当前已下载的字节大小
-              long totalSize = progress.getTotalSize();     //要下载的总字节大小
-          })
-          .filter(Progress::isCompleted)//过滤事件，下载完成，才继续往下走
-          .map(Progress::getResult) //到这，说明下载完成，拿到Http返回结果并继续往下走
-          .as(RxLife.as(this)) //加入感知生命周期的观察者
-          .subscribe(s -> { //s为String类型
-              //下载成功，处理相关逻辑
-          }, throwable -> {
-              //下载失败，处理相关逻辑
-          });
-}
-```
-
-### api介绍
-```java
-  RxHttp.postForm("/service/getIpInfo.php")        //发送Form表单形式的Post请求
-        .setDomainToUpdate9158IfAbsent()           //手动设置域名，不设置会添加默认域名，此方法是通过@Domain注解生成的
-        .tag("RxHttp.get")                         //为单个请求设置tag
-        .setUrl("http://...")                      //重新设置url
-        .setJsonParams("{"versionName":"1.0.0"}")  //设置Json字符串参数，非Json形式的请求调用此方法没有任何效果
-        .setAssemblyEnabled(false)                 //设置是否添加公共参数，默认为true
-        .cacheControl(CacheControl.FORCE_NETWORK)  //缓存控制
-        .setParam(Param.postForm("http://..."))    //重新设置一个Param对象
-        .add(new HashMap<>())                      //通过Map添加参数
-        .add("key", "value")                       //添加int类型参数
-        .addFile("file1", new File("xxx/1.png"))   //添加文件对象
-        .addHeader("headerKey1", "headerValue1")   //添加头部信息
-        .subscribeOn(Schedulers.io()) //指定请求线程，不指定默认在IO线程执行
-        .asString()                   //使用asXXX系列方法确定返回类型,此时返回Observable对象
-        //感知生命周期，并在主线程回调，当Activity/Fragment销毁时，自动关闭未完成的请求
-        .as(RxLife.asOnMain(this))
-        .subscribe(s -> {    //订阅观察者
-            //成功回调
-        }, throwable -> {
-            //失败回调
-        });
+RxHttp.postForm("/service/getIpInfo.php") //发送Form表单形式的Post请求
+    .setDomainToUpdate9158IfAbsent()      //手动设置域名，不设置会添加默认域名，此方法是通过@Domain注解生成的
+    .tag("RxHttp.get")                    //为单个请求设置tag
+    .setUrl("http://...")                 //重新设置url
+    .setJsonParams("{"versionName":" 1.0 .0 "}")  //设置Json字符串参数，非Json形式的请求调用此方法没有任何效果
+    .setAssemblyEnabled(false)                 //设置是否添加公共参数，默认为true
+    .cacheControl(CacheControl.FORCE_NETWORK)  //缓存控制
+    .setParam(Param.postForm("http://..."))    //重新设置一个Param对象
+    .add(new HashMap<>())                      //通过Map添加参数
+    .add("key", "value")                       //添加int类型参数
+    .addFile("file1", new File("xxx/1.png"))   //添加文件对象
+    .addHeader("headerKey1", "headerValue1")   //添加头部信息
+    .subscribeOn(Schedulers.io())  //指定请求线程，不指定默认在IO线程执行
+    .asString()                   //使用asXXX系列方法确定返回类型,此时返回Observable对象
+    .as(RxLife.asOnMain(this))    //主线程回调，并在页面销毁时，自动关闭未完成的请求
+    .subscribe(s -> {    //订阅观察者
+        //成功回调
+    }, throwable -> {
+        //失败回调
+    });
 ```
 
 ### 更新日志
