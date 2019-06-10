@@ -10,7 +10,7 @@ RxHttp是基于OkHttp的二次封装，并于RxJava做到无缝衔接，一条�
 
 
 
-注：RxHttp是通过注解生成的，请使用@DefaultDomain或@Domain注解在baseUrl上，rebuild一下项目，就能看到RxHttp类了。
+> 注：RxHttp是通过注解生成的，请使用@DefaultDomain或@Domain注解在baseUrl上，rebuild一下项目，就能看到RxHttp类了。
 注解处理器会在编译时检索注解，检索不到，就不会生成RxHttp类。
 
 详细介绍：https://juejin.im/post/5cbd267fe51d456e2b15f623
