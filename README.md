@@ -208,6 +208,18 @@ public void breakpointDownloadAndProgress() {
 }
 ```
 
+### 初始化
+
+```java
+//设置debug模式，此模式下有日志打印
+HttpSender.setDebug(boolean debug)
+//非必须,只能初始化一次，第二次将抛出异常
+HttpSender.init(OkHttpClient okHttpClient)
+//或者，调试模式下会有日志输出
+HttpSender.init(OkHttpClient okHttpClient, boolean debug)
+
+```
+
 ### 添加公共参数/头部及重新设置url
 
 ```java
