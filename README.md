@@ -23,7 +23,7 @@ Gradle引用方法
 dependencies {
    implementation 'com.rxjava.rxhttp:rxhttp:1.0.8'
    annotationProcessor 'com.rxjava.rxhttp:rxhttp-compiler:1.0.8' //注解处理器，生成RxHttp类
-   implementation 'com.rxjava.rxlife:rxlife:1.0.6'  //页面销毁，关闭请求
+   implementation 'com.rxjava.rxlife:rxlife:1.0.6'  //页面销毁，关闭请求，非必须
 
    // if you use kotlin
    kapt 'com.rxjava.rxhttp:rxhttp-compiler:1.0.8'
