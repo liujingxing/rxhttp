@@ -1,13 +1,12 @@
 package rxhttp.wrapper.progress;
 
 
-
 import java.io.IOException;
 
-import rxhttp.wrapper.callback.ProgressCallback;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okio.*;
+import rxhttp.wrapper.callback.ProgressCallback;
 
 //上传文件，带进度的请求实体
 public class ProgressRequestBody extends RequestBody {
@@ -60,6 +59,8 @@ public class ProgressRequestBody extends RequestBody {
      */
     @Override
     public void writeTo(BufferedSink sink) throws IOException {
+        //此行代码为兼容添加 HttpLoggingInterceptor 拦截器后，上传进度超过100%，达到200%问题
+        if (sink instanceof Buffer) return;
         if (bufferedSink == null) {
             //包装
             bufferedSink = Okio.buffer(sink(sink));
