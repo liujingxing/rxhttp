@@ -6,7 +6,6 @@ import io.reactivex.annotations.Nullable;
 import okhttp3.Headers;
 import okhttp3.Request;
 import okhttp3.Response;
-import rxhttp.wrapper.utils.LogUtil;
 
 /**
  * Http 状态码 小于200或者大于等于300时 (code < 200 || code >= 300),或者ResponseBody等于null，抛出此异常
@@ -30,7 +29,6 @@ public final class HttpStatusCodeException extends IOException {
         requestMethod = request.method();
         requestUrl = request.url().toString();
         responseHeaders = response.headers();
-        LogUtil.log(this);
     }
 
     @Nullable
@@ -57,10 +55,9 @@ public final class HttpStatusCodeException extends IOException {
 
     @Override
     public String toString() {
-        return "-------------------" +
+        return getClass().getName() + ":" +
             " Method=" + requestMethod +
-            " Code=" + statusCode + " HttpStatusCodeException -------------------" +
-            "\nUrl = " + requestUrl +
+            " Code=" + statusCode +
             "\n\nHeaders = " + responseHeaders +
             "\nMessage = " + getMessage();
     }
