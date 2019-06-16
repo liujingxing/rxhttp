@@ -3,6 +3,7 @@ package com.example.httpsender;
 import android.arch.lifecycle.LifecycleOwner;
 import android.util.Log;
 
+import com.rxjava.rxlife.BaseScope;
 import com.rxjava.rxlife.RxLife;
 
 import java.util.concurrent.TimeUnit;
