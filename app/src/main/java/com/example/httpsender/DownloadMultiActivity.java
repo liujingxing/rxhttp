@@ -179,8 +179,9 @@ public class DownloadMultiActivity extends AppCompatActivity implements OnItemCl
                 data.setState(4);
                 notifyDataSetChanged(true);
                 //下载成功，处理相关逻辑
-            }, (OnError) throwable -> {
+            }, (OnError) (throwable, errorMsg) -> {
                 data.setState(5);
+                return true;
                 //下载失败，处理相关逻辑
             });
         data.setState(2);
