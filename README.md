@@ -289,7 +289,7 @@ RxHttp.postForm("/service/getIpInfo.php") //发送Form表单形式的Post请求
 
 ### 更新日志
 
-1.0.9
+**1.0.9**
 
  - 增加3个asMap方法，通过该方法，可将服务器返回的数据解析成Map对象
 
@@ -297,13 +297,13 @@ RxHttp.postForm("/service/getIpInfo.php") //发送Form表单形式的Post请求
 
  - 兼容OkHttpClient添加HttpLoggingInterceptor拦截器后，上传文件时，进度会达到200%问题
 
-1.0.8
+**1.0.8**
 
  - 增加Http请求连接失败时的异常信息打印
 
  - 修复1.0.7版本中，一处由注解的生成的方法错误问题
 
-1.0.7
+**1.0.7**
 
  - RxHttp类增加一系列'subscribeOnXXX'方法，通过该系列方法，指定请求在某个线程执行
 
@@ -317,21 +317,21 @@ RxHttp.postForm("/service/getIpInfo.php") //发送Form表单形式的Post请求
 
  - HttpSender中一些方法标记为过时，这些方法将在未来的版本中删除，请尽快使用新方法替代
 
-1.0.5
+**1.0.5**
 
  - 增加一系列'addFile'方法，支持同一个key添加多个文件
 
  - PostFormParam增加setUploadMaxLength方法，以限制文件上传最大长度
 
-1.0.4
+**1.0.4**
 
  - RxHttp类增加setRangeHeader、downloadProgress(String,Long)方法，以更好的支持断点下载
 
-1.0.3
+**1.0.3**
 
  - RxHttp增加 setJsonParams(String) 方法，Json形式的请求直接调用此方法传入Json字符串参数
 
-1.0.2
+**1.0.2**
 
  - 增加@DefaultDomain注解，通过该注解，可以设置baseUrl;
 
