@@ -289,6 +289,14 @@ RxHttp.postForm("/service/getIpInfo.php") //发送Form表单形式的Post请求
 
 ### 更新日志
 
+1.0.9
+
+ - 增加3个asMap方法，通过该方法，可将服务器返回的数据解析成Map对象
+
+ - 修复 HttpStatusCodeException 异常会打印两遍问题
+
+ - 兼容OkHttpClient添加HttpLoggingInterceptor拦截器后，上传文件时，进度会达到200%问题
+
 1.0.8
 
  - 增加Http请求连接失败时的异常信息打印
