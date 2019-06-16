@@ -15,9 +15,6 @@ public class ParseException extends IOException {
 
     private String mErrorCode;
 
-    public ParseException() {
-    }
-
     public ParseException(String message) {
         this("-1", message);
     }
