@@ -6,12 +6,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageView;
 
+import com.example.httpsender.entity.Response;
 import com.rxjava.rxlife.RxLife;
 
 import java.io.File;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import okhttp3.Response;
 import rxhttp.wrapper.entity.Progress;
 import rxhttp.wrapper.param.RxHttp;
 
@@ -75,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
         String destPath = getExternalCacheDir() + "/" + System.currentTimeMillis() + ".apk";
         RxHttp.get("/miaolive/Miaolive.apk")
             .setDomainToUpdateIfAbsent() //使用指定的域名
-            .download(destPath) //注意这里使用DownloadParser解析器，并传入本地路径
+            .asDownload(destPath) //注意这里使用DownloadParser解析器，并传入本地路径
             .as(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
             .subscribe(s -> {
                 //下载成功,回调文件下载路径

@@ -2,7 +2,7 @@ package com.example.httpsender.parser;
 
 
 
-import com.example.httpsender.entity.Data;
+import com.example.httpsender.entity.Response;
 import com.example.httpsender.entity.PageList;
 
 import java.io.IOException;
@@ -20,26 +20,26 @@ import rxhttp.wrapper.utils.GsonUtil;
  * Date: 2018/10/23
  * Time: 13:49
  */
-@Parser(name = "DataPageList")
-public class DataPageListParser<T> extends AbstractParser<PageList<T>> {
+@Parser(name = "ResponsePageList")
+public class ResponsePageListParser<T> extends AbstractParser<PageList<T>> {
 
-    protected DataPageListParser() {
+    protected ResponsePageListParser() {
         super();
     }
 
-    private DataPageListParser(Type type) {
+    private ResponsePageListParser(Type type) {
         super(type);
     }
 
-    public static <T> DataPageListParser<T> get(Class<T> type) {
-        return new DataPageListParser<>(type);
+    public static <T> ResponsePageListParser<T> get(Class<T> type) {
+        return new ResponsePageListParser<>(type);
     }
 
     @Override
     public PageList<T> onParse(okhttp3.Response response) throws IOException {
         String content = getResult(response); //从Response中取出Http执行结果
-        final Type type = ParameterizedTypeImpl.get(Data.class, PageList.class, mType); //获取泛型类型
-        Data<PageList<T>> data = GsonUtil.getObject(content, type);
+        final Type type = ParameterizedTypeImpl.get(Response.class, PageList.class, mType); //获取泛型类型
+        Response<PageList<T>> data = GsonUtil.getObject(content, type);
         if (data == null) //为空 ，表明数据不正确
             throw new ParseException("data parse error");
         //跟服务端协议好，code等于100，才代表数据正确,否则，抛出异常

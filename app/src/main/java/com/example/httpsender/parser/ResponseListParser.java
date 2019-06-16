@@ -2,7 +2,7 @@ package com.example.httpsender.parser;
 
 
 
-import com.example.httpsender.entity.Data;
+import com.example.httpsender.entity.Response;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -20,26 +20,26 @@ import rxhttp.wrapper.utils.GsonUtil;
  * Date: 2018/10/23
  * Time: 13:49
  */
-@Parser(name = "DataList")
-public class DataListParser<T> extends AbstractParser<List<T>> {
+@Parser(name = "ResponseList")
+public class ResponseListParser<T> extends AbstractParser<List<T>> {
 
-    protected DataListParser() {
+    protected ResponseListParser() {
         super();
     }
 
-    private DataListParser(Type type) {
+    private ResponseListParser(Type type) {
         super(type);
     }
 
-    public static <T> DataListParser<T> get(Class<T> type) {
-        return new DataListParser<>(type);
+    public static <T> ResponseListParser<T> get(Class<T> type) {
+        return new ResponseListParser<>(type);
     }
 
     @Override
     public List<T> onParse(okhttp3.Response response) throws IOException {
         String content = getResult(response); //从Response中取出Http执行结果
-        final Type type = ParameterizedTypeImpl.get(Data.class, List.class, mType); //获取泛型类型
-        Data<List<T>> data = GsonUtil.getObject(content, type);
+        final Type type = ParameterizedTypeImpl.get(Response.class, List.class, mType); //获取泛型类型
+        Response<List<T>> data = GsonUtil.getObject(content, type);
         if (data == null) //为空 ，表明数据不正确
             throw new ParseException("data parse error");
         //跟服务端协议好，code等于100，才代表数据正确,否则，抛出异常
