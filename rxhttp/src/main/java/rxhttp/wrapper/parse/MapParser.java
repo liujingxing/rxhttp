@@ -40,7 +40,7 @@ public class MapParser<K, V> implements Parser<Map<K, V>> {
         final Type type = ParameterizedTypeImpl.getParameterized(Map.class, kType, vType);
         Map<K, V> t = GsonUtil.getObject(content, type);  //json 转 对象
         if (t == null)  //解析失败，抛出异常
-            throw new ParseException("data parse error");
+            throw new ParseException("data parse fail");
         return t;
     }
 }
