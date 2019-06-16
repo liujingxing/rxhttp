@@ -18,21 +18,27 @@ public interface OnError extends Consumer<Throwable> {
 
     @Override
     default void accept(Throwable throwable) throws Exception {
-        ExceptionHelper.handleNetworkException(throwable);
+        String errorMsg = ExceptionHelper.handleNetworkException(throwable);
         if (throwable instanceof ParseException) {
             String errorCode = throwable.getLocalizedMessage();
-            if (!TextUtils.isEmpty(errorCode)) { //errorCode不为空，显示服务器返回的错误提示
-                String errorMsg = throwable.getMessage();
-                Tip.show(TextUtils.isEmpty(errorMsg) ? errorCode : errorMsg); //errorMsg为空，显示errorCode
+            if ("-1".equals(errorCode)) {
+                errorMsg = "数据解析失败,请稍后再试";
+            } else {
+                errorMsg = throwable.getMessage();
+                if (TextUtils.isEmpty(errorMsg)) errorMsg = errorCode;//errorMsg为空，显示errorCode
             }
         } else if (throwable instanceof HttpStatusCodeException) {
             String code = throwable.getLocalizedMessage();
             if ("416".equals(code)) {
-                Tip.show("请求范围不符合要求");
+                errorMsg = "请求范围不符合要求";
             }
         }
-        onError(throwable);
+        boolean isConsume = onError(throwable, errorMsg);
+        if (!isConsume && !TextUtils.isEmpty(errorMsg))
+            Tip.show(errorMsg);
+
     }
 
-    void onError(Throwable throwable) throws Exception;
+    //返回事件是否被消费
+    boolean onError(Throwable throwable, String errorMsg) throws Exception;
 }

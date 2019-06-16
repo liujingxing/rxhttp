@@ -2,6 +2,7 @@ package com.example.httpsender;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.text.TextUtils;
 import android.widget.Toast;
 
 
@@ -15,6 +16,12 @@ public class Tip {
 
     private static Handler mHandler = new Handler(Looper.getMainLooper());
     private static Toast   mToast;
+
+
+    public static boolean show(String firstMsg, String secondMsg) {
+        String msg = !TextUtils.isEmpty(firstMsg) ? firstMsg : secondMsg;
+        return show(msg);
+    }
 
 
     public static boolean show(int msgResId) {
