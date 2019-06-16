@@ -6,7 +6,7 @@ package com.example.httpsender.entity;
  * Date: 2018/10/21
  * Time: 13:16
  */
-public class Data<T> {
+public class Response<T> {
 
     private int    code;
     private String msg;
