@@ -5,7 +5,6 @@ import android.util.Log;
 import io.reactivex.annotations.NonNull;
 import okhttp3.Request;
 import okhttp3.Response;
-import rxhttp.wrapper.exception.HttpStatusCodeException;
 import rxhttp.wrapper.param.Param;
 
 /**
@@ -26,13 +25,8 @@ public class LogUtil {
     //打印Http请求连接失败异常日志
     public static void log(@NonNull String url, Throwable throwable) {
         if (!isDebug) return;
+        throwable.printStackTrace();
         Log.e(TAG, "url=" + url + "\n throwable=" + throwable.toString());
-    }
-
-    //打印Http连接成功后的异常信息
-    public static void log(@NonNull HttpStatusCodeException exception) {
-        if (!isDebug) return;
-        Log.e(TAG, exception.toString());
     }
 
     //打印Http返回的正常结果

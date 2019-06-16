@@ -3,6 +3,7 @@ package rxhttp.wrapper.exception;
 
 import java.io.IOException;
 
+import io.reactivex.annotations.NonNull;
 import io.reactivex.annotations.Nullable;
 
 /**
@@ -18,10 +19,10 @@ public class ParseException extends IOException {
     }
 
     public ParseException(String message) {
-        this("", message);
+        this("-1", message);
     }
 
-    public ParseException(String code, String message) {
+    public ParseException(@NonNull String code, String message) {
         super(message);
         mErrorCode = code;
     }
@@ -30,5 +31,10 @@ public class ParseException extends IOException {
     @Override
     public String getLocalizedMessage() {
         return mErrorCode;
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getName() + ": " + getMessage() + ", code is " + mErrorCode;
     }
 }
