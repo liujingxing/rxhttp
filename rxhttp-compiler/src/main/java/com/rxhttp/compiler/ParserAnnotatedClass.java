@@ -40,6 +40,8 @@ public class ParserAnnotatedClass {
 
     public List<MethodSpec> getMethodList() {
         TypeVariableName t = TypeVariableName.get("T");
+        TypeVariableName k = TypeVariableName.get("K");
+        TypeVariableName v = TypeVariableName.get("V");
         ClassName responseName = ClassName.get("okhttp3", "Response");
         ClassName bitmapName = ClassName.get("android.graphics", "Bitmap");
         ClassName httpSenderName = ClassName.get("rxhttp", "HttpSender");
@@ -48,17 +50,25 @@ public class ParserAnnotatedClass {
         ClassName parserName = ClassName.get("rxhttp.wrapper.parse", "Parser");
         ClassName progressName = ClassName.get("rxhttp.wrapper.entity", "Progress");
         ClassName simpleParserName = ClassName.get("rxhttp.wrapper.parse", "SimpleParser");
+        ClassName mapParserName = ClassName.get("rxhttp.wrapper.parse", "MapParser");
         ClassName listParserName = ClassName.get("rxhttp.wrapper.parse", "ListParser");
         ClassName downloadParserName = ClassName.get("rxhttp.wrapper.parse", "DownloadParser");
         ClassName bitmapParserName = ClassName.get("rxhttp.wrapper.parse", "BitmapParser");
 
         TypeName typeName = TypeName.get(String.class);
         TypeName classTName = ParameterizedTypeName.get(ClassName.get(Class.class), t);
+        TypeName classKName = ParameterizedTypeName.get(ClassName.get(Class.class), k);
+        TypeName classVName = ParameterizedTypeName.get(ClassName.get(Class.class), v);
         TypeName listTName = ParameterizedTypeName.get(ClassName.get(List.class), t);
+        TypeName mapTTName = ParameterizedTypeName.get(ClassName.get(Map.class), t, t);
+        TypeName mapKVName = ParameterizedTypeName.get(ClassName.get(Map.class), k, v);
         TypeName progressTName = ParameterizedTypeName.get(progressName, t);
         TypeName progressStringName = ParameterizedTypeName.get(progressName, typeName);
         TypeName observableTName = ParameterizedTypeName.get(observableName, t);
         TypeName observableListTName = ParameterizedTypeName.get(observableName, listTName);
+        TypeName observableMapTTName = ParameterizedTypeName.get(observableName, mapTTName);
+        TypeName observableMapKVName = ParameterizedTypeName.get(observableName, mapKVName);
+        TypeName observableMapName = ParameterizedTypeName.get(observableName, TypeName.get(Map.class));
         TypeName observableBitmapName = ParameterizedTypeName.get(observableName, bitmapName);
         TypeName observableStringName = ParameterizedTypeName.get(observableName, typeName);
         TypeName observableBooleanName = ParameterizedTypeName.get(observableName, TypeName.get(Boolean.class));
@@ -214,6 +224,30 @@ public class ParserAnnotatedClass {
             .addModifiers(Modifier.PUBLIC)
             .addStatement("return asObject(Double.class)")
             .returns(observableDoubleName);
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("asMap")
+            .addModifiers(Modifier.PUBLIC)
+            .addStatement("return asObject(Map.class)")
+            .returns(observableMapName);
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("asMap")
+            .addModifiers(Modifier.PUBLIC)
+            .addTypeVariable(t)
+            .addParameter(classTName, "type")
+            .addStatement("return asParser($T.get(type,type))", mapParserName)
+            .returns(observableMapTTName);
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("asMap")
+            .addModifiers(Modifier.PUBLIC)
+            .addTypeVariable(k)
+            .addTypeVariable(v)
+            .addParameter(classKName, "kType")
+            .addParameter(classVName, "vType")
+            .addStatement("return asParser($T.get(kType,vType))", mapParserName)
+            .returns(observableMapKVName);
         methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("asList")
