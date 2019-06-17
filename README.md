@@ -19,6 +19,8 @@ RxHttp&RxLife 交流群：378530627
 
 ![image](https://github.com/liujingxing/RxHttp/blob/master/screen_record.gif)
 
+> 普通文本请求不便于展示，故这里只演示Bitmap加载及多任务断点下载，更多功能，请下载Demo体验
+
 **Gradle引用方法**
 
 ```java
