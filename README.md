@@ -302,9 +302,11 @@ RxHttp作为开源库，可混淆，也可不混淆，如果不希望被混淆�
 ### 小技巧
 
 在这教大家一个小技巧，由于使用RxHttp发送请求都遵循请求三部曲，故我们可以在android studio 设置代码模版,如下
+
 ![image](https://github.com/liujingxing/RxHttp/blob/master/screen/templates.png)
 
 如图设置好后，写代码时，输入rp,就会自动生成模版，如下：
+
 ![image](https://github.com/liujingxing/RxHttp/blob/master/screen/templates_demo.gif)
 
 
