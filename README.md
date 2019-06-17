@@ -287,6 +287,14 @@ RxHttp.postForm("/service/getIpInfo.php") //发送Form表单形式的Post请求
     });
 ```
 
+### 混淆
+
+RxHttp作为开源库，可混淆，也可不混淆，如果不希望被混淆，请在proguard-rules.pro文件添加以下代码
+
+```java
+-keep class rxhttp.**{*;}
+```
+
 ### 更新日志
 
 **1.0.9**
