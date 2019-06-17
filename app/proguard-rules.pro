@@ -19,3 +19,9 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+
+#RxHttp
+-keep class rxhttp.**{*;}
+#RxLife
+-keep class com.rxjava.rxlife.**{*;}
