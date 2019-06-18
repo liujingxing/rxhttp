@@ -15,7 +15,7 @@ RxHttp是基于OkHttp的二次封装，并于RxJava做到无缝衔接，一条�
 
 RxHttp&RxLife 交流群：378530627
 
-### Demo演示
+## Demo演示
 
 ![image](https://github.com/liujingxing/RxHttp/blob/master/screen/screen_record.gif)
 
@@ -57,7 +57,7 @@ public class Url {
 ```
 此时rebuild一下项目，就能看到RxHttp类了
 
-### 请求三部曲
+## 请求三部曲
 ```java
 RxHttp.get("http://...")            //第一步，确定请求方式
     .asString()                     //第二步，使用asXXX系列方法确定返回类型
@@ -68,7 +68,7 @@ RxHttp.get("http://...")            //第一步，确定请求方式
     });
 ```
 
-### post
+## post
 ```java
 RxHttp.postForm("http://...")       //发送表单形式的post请求
     .asString()
@@ -83,7 +83,7 @@ RxHttp.postJson("http://...")       //发送Json字符串形式的post请求
 
 ```
 
-### 添加参数
+## 添加参数
 ```java
 RxHttp.postForm("http://...")                //发送表单形式的post请求
     .add("key", "value")                     //添加参数
@@ -97,7 +97,7 @@ RxHttp.postForm("http://...")                //发送表单形式的post请求
     });
 ```
 
-### 返回自定义的数据类型
+## 返回自定义的数据类型
 ```java
 RxHttp.postForm("http://...")     //发送表单形式的post请求
     .asObject(Student.class)      //返回Student对象
@@ -118,7 +118,7 @@ RxHttp.postForm("http://...")     //发送表单形式的post请求
 
 ```
 
-### 文件上传
+## 文件上传
 ```java
 RxHttp.postForm("http://...")                //发送Form表单形式的Post请求
     .addFile("file", new File("xxx/1.png"))  //添加文件
@@ -130,7 +130,7 @@ RxHttp.postForm("http://...")                //发送Form表单形式的Post请�
     });
 ```
 
-### 文件下载
+## 文件下载
 
 ```java
 RxHttp.get("http://...")
@@ -142,7 +142,7 @@ RxHttp.get("http://...")
     });
 ```
 
-###  文件上传进度监听
+##  文件上传进度监听
 ```java
 RxHttp.postForm("http://...")
     .add("file1", new File("xxx/1.png"))
@@ -164,7 +164,7 @@ RxHttp.postForm("http://...")
     });
 ```
 
-### 文件下载进度监听
+## 文件下载进度监听
 ```java
 RxHttp.get("http://...")
     .asDownloadProgress("sd/xxx/1.apk") //传入本地路径
@@ -185,7 +185,7 @@ RxHttp.get("http://...")
     });
 ```
 
-### 断点下载、带进度回调
+## 断点下载、带进度回调
 ```java
 //断点下载，带进度
 public void breakpointDownloadAndProgress() {
@@ -212,7 +212,7 @@ public void breakpointDownloadAndProgress() {
 }
 ```
 
-### 初始化
+## 初始化
 
 ```java
 //设置debug模式，此模式下有日志打印
@@ -224,7 +224,7 @@ HttpSender.init(OkHttpClient okHttpClient, boolean debug)
 
 ```
 
-### 添加公共参数/头部及重新设置url
+## 添加公共参数/头部及重新设置url
 
 ```java
 //建议在Application里设置
@@ -244,7 +244,7 @@ HttpSender.setOnParamAssembly(new Function() {
 });
 ```
 
-### Activity/Fragment销毁，自动关闭请求
+## Activity/Fragment销毁，自动关闭请求
 
 ```java
 RxHttp.postForm("http://...")    //发送表单形式的post请求
@@ -267,7 +267,7 @@ RxHttp.postForm("http://...")       //发送表单形式的post请求
 ```
 
 
-### 常用api介绍
+## 常用api介绍
 ```java
 RxHttp.postForm("/service/getIpInfo.php") //发送Form表单形式的Post请求
     .setDomainToUpdate9158IfAbsent()      //手动设置域名，不设置会添加默认域名，此方法是通过@Domain注解生成的
@@ -291,7 +291,7 @@ RxHttp.postForm("/service/getIpInfo.php") //发送Form表单形式的Post请求
     });
 ```
 
-### 混淆
+## 混淆
 
 RxHttp作为开源库，可混淆，也可不混淆，如果不希望被混淆，请在proguard-rules.pro文件添加以下代码
 
@@ -299,7 +299,7 @@ RxHttp作为开源库，可混淆，也可不混淆，如果不希望被混淆�
 -keep class rxhttp.**{*;}
 ```
 
-### 小技巧
+## 小技巧
 
 在这教大家一个小技巧，由于使用RxHttp发送请求都遵循请求三部曲，故我们可以在android studio 设置代码模版,如下
 
@@ -310,7 +310,40 @@ RxHttp作为开源库，可混淆，也可不混淆，如果不希望被混淆�
 ![image](https://github.com/liujingxing/RxHttp/blob/master/screen/templates_demo.gif)
 
 
-### 更新日志
+## 问题简答
+最后，借此机会，简单解答一下读者反馈的问题
+
+#### 1、RxHttp支持Https吗？
+
+答：支持，RxHttp内置默认的OkHttpClient对象，如下：
+
+```java
+new OkHttpClient.Builder()
+    .connectTimeout(10, TimeUnit.SECONDS)
+    .readTimeout(10, TimeUnit.SECONDS)
+    .writeTimeout(10, TimeUnit.SECONDS)
+    .sslSocketFactory(sslSocketFactory, trustAllCert) //添加信任证书
+    .hostnameVerifier((hostname, session) -> true) //忽略host验证
+    .build();
+```
+#### 2、RxHttp支持缓存处理吗？
+
+答：支持，但是RxHttp默认没有做任何缓存处理，如有需要，请自定义OkHttpClient对象开启缓存，并使用RxHttp发送请求时，使用`cacheControl(CacheControl cacheControl)`设置缓存策略
+
+#### 3、RxHttp如何支持session或者token？
+
+答：session或者token涉及到具体的业务逻辑，故RxHttp暂时并没有做深度封装。如有需要，可自定义OkHttpClient对象通过拦截器去实现。
+
+#### 4、RxHttp支持kotlin吗？
+
+答：必须支持，但是依赖注解处理器时，需要使用kapt代替annotationProcessor
+
+#### 5、RxHttp如何支持多任务列表下载
+
+答：在最新的Demo中，已有案例，欢迎下载Demo体验
+
+
+## 更新日志
 
 **1.0.9**
 
