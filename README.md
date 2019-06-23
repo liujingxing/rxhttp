@@ -25,12 +25,12 @@ RxHttp&RxLife 交流群：378530627
 
 ```java
 dependencies {
-   implementation 'com.rxjava.rxhttp:rxhttp:1.0.9'
-   annotationProcessor 'com.rxjava.rxhttp:rxhttp-compiler:1.0.9' //注解处理器，生成RxHttp类
-   implementation 'com.rxjava.rxlife:rxlife:1.0.7'  //页面销毁，关闭请求，非必须
+   implementation 'com.rxjava.rxhttp:rxhttp:1.1.0'
+   annotationProcessor 'com.rxjava.rxhttp:rxhttp-compiler:1.1.0' //注解处理器，生成RxHttp类
+   implementation 'com.rxjava.rxlife:rxlife:1.0.8'  //页面销毁，关闭请求，非必须
 
    // if you use kotlin
-   kapt 'com.rxjava.rxhttp:rxhttp-compiler:1.0.9'
+   kapt 'com.rxjava.rxhttp:rxhttp-compiler:1.1.0'
 }
 ```
 
@@ -344,6 +344,10 @@ new OkHttpClient.Builder()
 
 
 ## 更新日志
+
+**1.1.0**
+
+ - 上传文件时，根据文件名称，自动确定contentType，为空时，默认为application/octet-stream
 
 **1.0.9**
 
