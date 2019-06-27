@@ -11,6 +11,7 @@ RxHttp是基于OkHttp的二次封装，并于RxJava做到无缝衔接，一条�
 > 注：RxHttp是通过注解生成的，请使用@DefaultDomain或@Domain注解在baseUrl上，rebuild一下项目，就能看到RxHttp类了。
 注解处理器会在编译时检索注解，检索不到，就不会生成RxHttp类。
 
+**30秒上手教程：https://juejin.im/post/5cfcbbcbe51d455a694f94df**
 **详细介绍：https://juejin.im/post/5cbd267fe51d456e2b15f623**
 
 **自动关闭请求用到的RxLife类，详情请查看[RxLife库](https://github.com/liujingxing/RxLife)**
