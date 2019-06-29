@@ -33,9 +33,9 @@ public class MainActivity extends AppCompatActivity {
                 ImageView ivHead = findViewById(R.id.iv_head);
                 ivHead.setImageBitmap(s);
                 //成功回调
-            }, (OnError) (throwable, errorMsg) -> {
+            }, (OnError) error -> {
                 //失败回调
-                return Tip.show(errorMsg, "图片加载失败,请稍后再试!");
+                error.show("图片加载失败,请稍后再试!");
             });
     }
 
@@ -50,9 +50,9 @@ public class MainActivity extends AppCompatActivity {
             .as(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
             .subscribe(s -> {
                 //成功回调
-            }, (OnError) (throwable, errorMsg) -> {
+            }, (OnError) error -> {
                 //失败回调
-                return Tip.show(errorMsg, "发送失败,请稍后再试!");
+                error.show("发送失败,请稍后再试!");
             });
     }
 
@@ -67,9 +67,9 @@ public class MainActivity extends AppCompatActivity {
             .as(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
             .subscribe(response -> {
                 //成功回调
-            }, (OnError) (throwable, errorMsg) -> {
+            }, (OnError) error -> {
                 //失败回调
-                return Tip.show(errorMsg, "发送失败,请稍后再试!");
+                error.show("发送失败,请稍后再试!");
             });
     }
 
@@ -82,9 +82,9 @@ public class MainActivity extends AppCompatActivity {
             .as(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
             .subscribe(s -> {
                 //下载成功,回调文件下载路径
-            }, (OnError) (throwable, errorMsg) -> {
+            }, (OnError) error -> {
                 //下载失败
-                return Tip.show(errorMsg, "下载失败,请稍后再试!");
+                error.show("下载失败,请稍后再试!");
             });
     }
 
@@ -108,9 +108,9 @@ public class MainActivity extends AppCompatActivity {
             .as(RxLife.as(this)) //感知生命周期
             .subscribe(s -> {//s为String类型，这里为文件存储路径
                 //下载完成，处理相关逻辑
-            }, (OnError) (throwable, errorMsg) -> {
+            }, (OnError) error -> {
                 //下载失败，处理相关逻辑
-                return Tip.show(errorMsg, "下载失败,请稍后再试!");
+                error.show("下载失败,请稍后再试!");
             });
     }
 
@@ -125,9 +125,9 @@ public class MainActivity extends AppCompatActivity {
             .as(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
             .subscribe(s -> {
                 //下载成功,回调文件下载路径
-            }, (OnError) (throwable, errorMsg) -> {
+            }, (OnError) error -> {
                 //下载失败
-                return Tip.show(errorMsg, "下载失败,请稍后再试!");
+                error.show("下载失败,请稍后再试!");
             });
     }
 
@@ -151,9 +151,9 @@ public class MainActivity extends AppCompatActivity {
             .as(RxLife.as(this)) //加入感知生命周期的观察者
             .subscribe(s -> { //s为String类型
                 //下载成功，处理相关逻辑
-            }, (OnError) (throwable, errorMsg) -> {
+            }, (OnError) error -> {
                 //下载失败，处理相关逻辑
-                return Tip.show(errorMsg, "下载失败,请稍后再试!");
+                error.show("下载失败,请稍后再试!");
             });
     }
 
@@ -167,9 +167,9 @@ public class MainActivity extends AppCompatActivity {
             .as(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
             .subscribe(s -> {
                 //成功回调
-            }, (OnError) (throwable, errorMsg) -> {
+            }, (OnError) error -> {
                 //失败回调
-                return Tip.show(errorMsg, "上传失败,请稍后再试!");
+                error.show("上传失败,请稍后再试!");
             });
     }
 
@@ -195,9 +195,9 @@ public class MainActivity extends AppCompatActivity {
             .as(RxLife.as(this)) //加入感知生命周期的观察者
             .subscribe(s -> { //s为String类型，由SimpleParser类里面的泛型决定的
                 //上传成功，处理相关逻辑
-            }, (OnError) (throwable, errorMsg) -> {
+            }, (OnError) error -> {
                 //上传失败，处理相关逻辑
-                return Tip.show(errorMsg, "上传失败,请稍后再试!");
+                error.show("上传失败,请稍后再试!");
             });
     }
 
