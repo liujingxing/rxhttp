@@ -17,13 +17,6 @@ public class Tip {
     private static Handler mHandler = new Handler(Looper.getMainLooper());
     private static Toast   mToast;
 
-
-    public static boolean show(String firstMsg, String secondMsg) {
-        String msg = !TextUtils.isEmpty(firstMsg) ? firstMsg : secondMsg;
-        return show(msg);
-    }
-
-
     public static boolean show(int msgResId) {
         return show(msgResId, false);
     }
