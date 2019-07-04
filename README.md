@@ -31,7 +31,7 @@ RxHttp是基于OkHttp的二次封装，并于RxJava做到无缝衔接，一条�
 dependencies {
    implementation 'com.rxjava.rxhttp:rxhttp:1.1.0'
    annotationProcessor 'com.rxjava.rxhttp:rxhttp-compiler:1.1.0' //注解处理器，生成RxHttp类
-   implementation 'com.rxjava.rxlife:rxlife:1.0.8'  //页面销毁，关闭请求，非必须
+   implementation 'com.rxjava.rxlife:rxlife:1.0.9'  //页面销毁，关闭请求，非必须
 
    // if you use kotlin
    kapt 'com.rxjava.rxhttp:rxhttp-compiler:1.1.0'
