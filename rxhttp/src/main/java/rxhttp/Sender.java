@@ -16,6 +16,8 @@ import rxhttp.wrapper.callback.ProgressCallback;
 import rxhttp.wrapper.param.IUploadLengthLimit;
 import rxhttp.wrapper.param.Param;
 import rxhttp.wrapper.progress.ProgressInterceptor;
+import rxhttp.wrapper.ssl.SSLSocketFactoryImpl;
+import rxhttp.wrapper.ssl.X509TrustManagerImpl;
 import rxhttp.wrapper.utils.LogUtil;
 
 /**
