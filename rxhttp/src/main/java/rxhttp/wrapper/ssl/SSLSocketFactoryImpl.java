@@ -1,4 +1,4 @@
-package rxhttp;
+package rxhttp.wrapper.ssl;
 
 import android.os.Build;
 
@@ -16,7 +16,7 @@ import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.X509TrustManager;
 
-class SSLSocketFactoryImpl extends SSLSocketFactory {
+public class SSLSocketFactoryImpl extends SSLSocketFactory {
     // Android 5.0+ (API level21) provides reasonable default settings
     // but it still allows SSLv3
     // https://developer.android.com/about/versions/android-5.0-changes.html#ssl
