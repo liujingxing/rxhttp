@@ -111,6 +111,7 @@ public class RxHttpGenerator {
             .build();
         TypeSpec typeSpec = TypeSpec
             .classBuilder(CLASSNAME)
+            .addJavadoc("Github：https://github.com/liujingxing/RxHttp")
             .addModifiers(Modifier.PUBLIC)
             .addField(TypeName.get(superClassName.asType()), "param", Modifier.PRIVATE)
             .addField(fieldSpec)
