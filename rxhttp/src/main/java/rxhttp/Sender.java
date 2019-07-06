@@ -10,6 +10,7 @@ import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Function;
 import okhttp3.Call;
 import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import okhttp3.Response;
 import rxhttp.wrapper.callback.ProgressCallback;
 import rxhttp.wrapper.param.IUploadLengthLimit;
@@ -67,11 +68,12 @@ class Sender {
     //所有的请求，最终都会调此方法拿到Call对象，然后执行请求
     static Call newCall(OkHttpClient client, Param param) throws IOException {
         param = onAssembly(param);
-        LogUtil.log(param);
         if (param instanceof IUploadLengthLimit) {
             ((IUploadLengthLimit) param).checkLength();
         }
-        return client.newCall(param.buildRequest());
+        Request request = param.buildRequest();
+        LogUtil.log(param);
+        return client.newCall(request);
     }
 
     /**
