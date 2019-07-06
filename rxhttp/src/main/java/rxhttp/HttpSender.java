@@ -1,19 +1,30 @@
 package rxhttp;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
+
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.X509TrustManager;
 
 import io.reactivex.Observable;
 import io.reactivex.Scheduler;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Function;
+import okhttp3.Call;
 import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import okhttp3.Response;
 import rxhttp.wrapper.callback.ProgressCallback;
 import rxhttp.wrapper.entity.Progress;
+import rxhttp.wrapper.param.IUploadLengthLimit;
 import rxhttp.wrapper.param.Param;
 import rxhttp.wrapper.param.PostFormParam;
 import rxhttp.wrapper.parse.DownloadParser;
 import rxhttp.wrapper.parse.Parser;
+import rxhttp.wrapper.progress.ProgressInterceptor;
+import rxhttp.wrapper.ssl.SSLSocketFactoryImpl;
+import rxhttp.wrapper.ssl.X509TrustManagerImpl;
+import rxhttp.wrapper.utils.LogUtil;
 
 
 /**
@@ -24,25 +35,32 @@ import rxhttp.wrapper.parse.Parser;
  */
 public class HttpSender {
 
-    public static void init(OkHttpClient okHttpClient) {
-        init(okHttpClient, false);
-    }
+    private static OkHttpClient mOkHttpClient; //只能初始化一次,第二次将抛出异常
+    private static Function<Param, Param> mOnParamAssembly;
 
     public static void init(OkHttpClient okHttpClient, boolean debug) {
-        Sender.setDebug(debug);
-        Sender.init(okHttpClient);
+        setDebug(debug);
+        init(okHttpClient);
+    }
+
+    public static void init(OkHttpClient okHttpClient) {
+        if (mOkHttpClient != null)
+            throw new IllegalArgumentException("OkHttpClient can only be initialized once");
+        mOkHttpClient = okHttpClient;
     }
 
     public static OkHttpClient getOkHttpClient() {
-        return Sender.getOkHttpClient();
+        if (mOkHttpClient == null)
+            mOkHttpClient = getDefaultOkHttpClient();
+        return mOkHttpClient;
     }
 
     public static void setDebug(boolean debug) {
-        Sender.setDebug(debug);
+        LogUtil.setDebug(debug);
     }
 
     public static void setOnParamAssembly(Function<Param, Param> onParamAssembly) {
-        Sender.setOnParamAssembly(onParamAssembly);
+        mOnParamAssembly = onParamAssembly;
     }
 
     /**
@@ -54,7 +72,7 @@ public class HttpSender {
      * @throws IOException 数据解析异常、网络异常等
      */
     public static Response execute(@NonNull Param param) throws IOException {
-        return Sender.execute(param);
+        return newCall(param).execute();
     }
 
     /**
@@ -119,5 +137,69 @@ public class HttpSender {
         if (scheduler != null)
             return observableUpload.subscribeOn(scheduler);
         return observableUpload;
+    }
+
+    static Call newCall(Param param) throws IOException {
+        return newCall(getOkHttpClient(), param);
+    }
+
+
+    //所有的请求，最终都会调此方法拿到Call对象，然后执行请求
+    static Call newCall(OkHttpClient client, Param param) throws IOException {
+        param = onAssembly(param);
+        if (param instanceof IUploadLengthLimit) {
+            ((IUploadLengthLimit) param).checkLength();
+        }
+        Request request = param.buildRequest();
+        LogUtil.log(param);
+        return client.newCall(request);
+    }
+
+    /**
+     * 克隆一个OkHttpClient对象,用于监听下载进度
+     *
+     * @param progressCallback 进度回调
+     * @return 克隆的OkHttpClient对象
+     */
+    static OkHttpClient clone(@NonNull final ProgressCallback progressCallback) {
+        //克隆一个OkHttpClient后,增加拦截器,拦截下载进度
+        return getOkHttpClient().newBuilder()
+            .addNetworkInterceptor(new ProgressInterceptor(progressCallback))
+            .build();
+    }
+
+    /**
+     * 连接、读写超时均为10s、添加信任证书并忽略host验证
+     *
+     * @return 返回默认的OkHttpClient对象
+     */
+    private static OkHttpClient getDefaultOkHttpClient() {
+        X509TrustManager trustAllCert = new X509TrustManagerImpl();
+        SSLSocketFactory sslSocketFactory = new SSLSocketFactoryImpl(trustAllCert);
+        return new OkHttpClient.Builder()
+            .connectTimeout(10, TimeUnit.SECONDS)
+            .readTimeout(10, TimeUnit.SECONDS)
+            .writeTimeout(10, TimeUnit.SECONDS)
+            .sslSocketFactory(sslSocketFactory, trustAllCert) //添加信任证书
+            .hostnameVerifier((hostname, session) -> true) //忽略host验证
+            .build();
+    }
+
+    /**
+     * <P>对Param参数添加一层装饰,可以在该层做一些与业务相关工作，
+     * <P>例如：添加公共参数/请求头信息
+     *
+     * @param p 参数
+     * @return 装饰后的参数
+     */
+    private static Param onAssembly(Param p) throws IOException {
+        Function<Param, Param> f = mOnParamAssembly;
+        if (f == null) return p;
+        if (p == null || !p.isAssemblyEnabled()) return p;
+        try {
+            return f.apply(p);
+        } catch (Exception e) {
+            throw new IOException(e);
+        }
     }
 }
