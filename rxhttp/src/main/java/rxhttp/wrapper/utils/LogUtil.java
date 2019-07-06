@@ -33,7 +33,7 @@ public class LogUtil {
     public static void log(@NonNull Response response, String result) {
         if (!isDebug) return;
         Request request = response.request();
-        String builder = "------------------- Method=" +
+        String builder = "------------------- request end Method=" +
             request.method() + " Code=" + response.code() + " -------------------" +
             "\nUrl = " + request.url() +
             "\n\nHeaders = " + response.headers() +
@@ -43,6 +43,12 @@ public class LogUtil {
 
     public static void log(@NonNull Param param) {
         if (!isDebug) return;
-        Log.d(TAG, param.toString());
+        String requestInfo = "------------------- request start " +
+            param.getClass().getSimpleName() + " -------------------" +
+            "  \nurl = " + param.getUrl() +
+            "?" + BuildUtil.toKeyValue(param.getParams()) +
+            "\n\nheaders = " + param.getHeaders();
+
+        Log.d(TAG, requestInfo);
     }
 }
