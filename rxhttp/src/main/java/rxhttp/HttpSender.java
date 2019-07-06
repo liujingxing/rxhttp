@@ -59,6 +59,7 @@ public class HttpSender {
         LogUtil.setDebug(debug);
     }
 
+    //设置公共参数
     public static void setOnParamAssembly(Function<Param, Param> onParamAssembly) {
         mOnParamAssembly = onParamAssembly;
     }
