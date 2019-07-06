@@ -95,7 +95,7 @@ public final class ObservableDownload extends Observable<Progress<String>> {
     }
 
     private Response execute(@NonNull Param param, @NonNull ProgressCallback callback) throws Exception {
-        Call call = mCall = Sender.newCall(Sender.clone(callback), param);
+        Call call = mCall = HttpSender.newCall(HttpSender.clone(callback), param);
         return call.execute();
     }
 

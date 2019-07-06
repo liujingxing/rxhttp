@@ -74,7 +74,7 @@ public final class ObservableUpload<T> extends Observable<Progress<T>> {
 
     //执行请求
     private T execute(Param param) throws Exception {
-        Call call = mCall = Sender.newCall(param);
+        Call call = mCall = HttpSender.newCall(param);
         Response response = call.execute();
         return parser.onParse(response);
     }
