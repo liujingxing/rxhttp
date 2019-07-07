@@ -29,12 +29,12 @@ RxHttp是基于OkHttp的二次封装，并于RxJava做到无缝衔接，一条�
 
 ```java
 dependencies {
-   implementation 'com.rxjava.rxhttp:rxhttp:1.1.0'
-   annotationProcessor 'com.rxjava.rxhttp:rxhttp-compiler:1.1.0' //注解处理器，生成RxHttp类
+   implementation 'com.rxjava.rxhttp:rxhttp:1.1.1'
+   annotationProcessor 'com.rxjava.rxhttp:rxhttp-compiler:1.1.1' //注解处理器，生成RxHttp类
    implementation 'com.rxjava.rxlife:rxlife:1.0.9'  //页面销毁，关闭请求，非必须
 
    // if you use kotlin
-   kapt 'com.rxjava.rxhttp:rxhttp-compiler:1.1.0'
+   kapt 'com.rxjava.rxhttp:rxhttp-compiler:1.1.1'
 }
 ```
 
@@ -220,11 +220,11 @@ public void breakpointDownloadAndProgress() {
 
 ```java
 //设置debug模式，此模式下有日志打印
-HttpSender.setDebug(boolean debug)
+RxHttp.setDebug(boolean debug)
 //非必须,只能初始化一次，第二次将抛出异常
-HttpSender.init(OkHttpClient okHttpClient)
+RxHttp.init(OkHttpClient okHttpClient)
 //或者，调试模式下会有日志输出
-HttpSender.init(OkHttpClient okHttpClient, boolean debug)
+RxHttp.init(OkHttpClient okHttpClient, boolean debug)
 
 ```
 
@@ -232,7 +232,7 @@ HttpSender.init(OkHttpClient okHttpClient, boolean debug)
 
 ```java
 //建议在Application里设置
-HttpSender.setOnParamAssembly(new Function() {
+RxHttp.setOnParamAssembly(new Function() {
     @Override
     public Param apply(Param p) {
         if (p instanceof GetRequest) {//根据不同请求添加不同参数
@@ -348,6 +348,12 @@ new OkHttpClient.Builder()
 
 
 ## 更新日志
+
+**1.1.1**
+
+ - 删除fromXXX等过时方法，1.0.5版本以下用户可先升级至1.1.0版本过渡
+
+ - 支持使用RxHttp类进行初始化，之前使用HttpSender类初始化的用户不受影响
 
 **1.1.0**
 
