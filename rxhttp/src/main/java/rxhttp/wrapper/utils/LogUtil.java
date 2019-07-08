@@ -45,8 +45,8 @@ public class LogUtil {
         if (!isDebug) return;
         String requestInfo = "------------------- request start " +
             param.getClass().getSimpleName() + " -------------------" +
-            "  \nurl = " + param.getUrl() +
-            "?" + BuildUtil.toKeyValue(param.getParams()) +
+            "  \nurl = " + param.getSimpleUrl() + "?" +
+            BuildUtil.toKeyValue(param.getParams()) +
             "\n\nheaders = " + param.getHeaders();
 
         Log.d(TAG, requestInfo);
