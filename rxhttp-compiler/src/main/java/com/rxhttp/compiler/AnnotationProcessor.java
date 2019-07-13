@@ -1,6 +1,5 @@
 package com.rxhttp.compiler;
 
-import com.google.auto.service.AutoService;
 import com.rxhttp.compiler.exception.ProcessingException;
 
 import java.io.IOException;
@@ -28,7 +27,6 @@ import rxhttp.wrapper.annotation.Parser;
  * Date: 2019/3/21
  * Time: 20:36
  */
-@AutoService(Processor.class)
 public class AnnotationProcessor extends AbstractProcessor {
 
     private Types    typeUtils;
