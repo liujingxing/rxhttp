@@ -5,6 +5,7 @@ import java.io.IOException;
 import io.reactivex.annotations.NonNull;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
+import rxhttp.RxHttpPlugins;
 import rxhttp.wrapper.exception.ExceptionHelper;
 import rxhttp.wrapper.utils.LogUtil;
 
@@ -34,7 +35,7 @@ public interface Parser<T> {
     @NonNull
     default String getResult(@NonNull Response response) throws IOException {
         ResponseBody body = ExceptionHelper.throwIfFatal(response);
-        String result = body.string();
+        String result = RxHttpPlugins.onResultAssembly(body.string());
         LogUtil.log(response, result);
         return result;
     }

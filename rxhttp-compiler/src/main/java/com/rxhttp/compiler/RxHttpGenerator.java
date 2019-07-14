@@ -42,13 +42,16 @@ public class RxHttpGenerator {
 
     public void generateCode(Elements elementUtils, Filer filer) throws IOException {
         ClassName httpSenderName = ClassName.get("rxhttp", "HttpSender");
+        ClassName rxHttpPluginsName = ClassName.get("rxhttp", "RxHttpPlugins");
         ClassName okHttpClientName = ClassName.get("okhttp3", "OkHttpClient");
         ClassName schedulerName = ClassName.get("io.reactivex", "Scheduler");
         ClassName schedulersName = ClassName.get("io.reactivex.schedulers", "Schedulers");
         ClassName functionsName = ClassName.get("io.reactivex.functions", "Function");
         ClassName paramName = ClassName.get(packageName, "Param");
+        ClassName stringName = ClassName.get(String.class);
 
         TypeName mapKVName = ParameterizedTypeName.get(functionsName, paramName, paramName);
+        TypeName mapStringName = ParameterizedTypeName.get(functionsName, stringName, stringName);
         List<MethodSpec> methodList = new ArrayList<>(); //方法集合
         MethodSpec.Builder method = MethodSpec.constructorBuilder()
                 .addModifiers(Modifier.PRIVATE)
@@ -78,11 +81,19 @@ public class RxHttpGenerator {
             .returns(void.class);
         methodList.add(method.build());
 
+        method = MethodSpec.methodBuilder("setOnConverter")
+            .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+            .addJavadoc("Set Converter")
+            .addParameter(mapStringName, "converter")
+            .addStatement("$T.setOnConverter(converter)", rxHttpPluginsName)
+            .returns(void.class);
+        methodList.add(method.build());
+
         method = MethodSpec.methodBuilder("setOnParamAssembly")
             .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
             .addJavadoc("Set common parameters")
             .addParameter(mapKVName, "onParamAssembly")
-            .addStatement("$T.setOnParamAssembly(onParamAssembly)", httpSenderName)
+            .addStatement("$T.setOnParamAssembly(onParamAssembly)", rxHttpPluginsName)
             .returns(void.class);
         methodList.add(method.build());
 
