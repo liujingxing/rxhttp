@@ -74,6 +74,8 @@ fastlane/readme.md
 
 .idea/vcs.xml
 
+.idea
+
 app/src/androidTest/java/com/example/httpsender/ExampleInstrumentedTest.java
 
 gradlew.bat
