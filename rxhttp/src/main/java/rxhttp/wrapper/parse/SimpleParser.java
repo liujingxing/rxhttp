@@ -4,9 +4,9 @@ package rxhttp.wrapper.parse;
 import java.io.IOException;
 import java.lang.reflect.Type;
 
+import okhttp3.Response;
 import rxhttp.wrapper.exception.ParseException;
 import rxhttp.wrapper.utils.GsonUtil;
-import okhttp3.Response;
 
 /**
  * 将Response对象解析成泛型T对象
@@ -36,7 +36,7 @@ public class SimpleParser<T> extends AbstractParser<T> {
         if (type == String.class) return (T) content; //泛型是String类型，直接返回
         T t = GsonUtil.getObject(content, type); //json 转 对象
         if (t == null) //解析失败，抛出异常
-            throw new ParseException("data parse fail");
+            throw new ParseException("data parse fail", response);
         return t;
     }
 }
