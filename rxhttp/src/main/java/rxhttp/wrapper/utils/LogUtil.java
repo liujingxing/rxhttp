@@ -3,7 +3,9 @@ package rxhttp.wrapper.utils;
 import android.util.Log;
 
 import io.reactivex.annotations.NonNull;
+import okhttp3.FormBody;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 import rxhttp.wrapper.param.Param;
 
@@ -35,7 +37,7 @@ public class LogUtil {
         Request request = response.request();
         String builder = "------------------- request end Method=" +
             request.method() + " Code=" + response.code() + " -------------------" +
-            "\nUrl = " + request.url() +
+            "\nUrl = " + request.url() + getRequestParams(request.body()) +
             "\n\nHeaders = " + response.headers() +
             "\nResult = " + result;
         Log.i(TAG, builder);
@@ -50,5 +52,18 @@ public class LogUtil {
             "\n\nheaders = " + param.getHeaders();
 
         Log.d(TAG, requestInfo);
+    }
+
+    private static String getRequestParams(RequestBody body) {
+        StringBuilder builder = new StringBuilder("?");
+        if (body instanceof FormBody) {
+            FormBody formBody = ((FormBody) body);
+            for (int i = 0, size = formBody.size(); i < size; i++) {
+                builder.append(i > 0 ? "&" : "");
+                builder.append(formBody.name(i)).append("=").append(formBody.value(i));
+            }
+        }
+        String result = builder.toString();
+        return result.length() > 1 ? result : "";
     }
 }
