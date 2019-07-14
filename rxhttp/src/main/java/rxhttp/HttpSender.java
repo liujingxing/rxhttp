@@ -10,10 +10,7 @@ import io.reactivex.Observable;
 import io.reactivex.Scheduler;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Function;
-import okhttp3.Call;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
+import okhttp3.*;
 import rxhttp.wrapper.callback.ProgressCallback;
 import rxhttp.wrapper.entity.Progress;
 import rxhttp.wrapper.param.IUploadLengthLimit;
@@ -33,10 +30,9 @@ import rxhttp.wrapper.utils.LogUtil;
  * Date: 2017/12/2
  * Time: 11:13
  */
-public class HttpSender {
+public final class HttpSender {
 
     private static OkHttpClient mOkHttpClient; //只能初始化一次,第二次将抛出异常
-    private static Function<Param, Param> mOnParamAssembly;
 
     public static void init(OkHttpClient okHttpClient, boolean debug) {
         setDebug(debug);
@@ -59,9 +55,13 @@ public class HttpSender {
         LogUtil.setDebug(debug);
     }
 
-    //设置公共参数
+
+    /**
+     * @deprecated please used {@link RxHttpPlugins#setOnParamAssembly(Function) or RxHttp.setOnConverter(Function)}
+     */
+    @Deprecated
     public static void setOnParamAssembly(Function<Param, Param> onParamAssembly) {
-        mOnParamAssembly = onParamAssembly;
+        RxHttpPlugins.setOnParamAssembly(onParamAssembly);
     }
 
     /**
@@ -147,7 +147,7 @@ public class HttpSender {
 
     //所有的请求，最终都会调此方法拿到Call对象，然后执行请求
     static Call newCall(OkHttpClient client, Param param) throws IOException {
-        param = onAssembly(param);
+        param = RxHttpPlugins.onParamAssembly(param);
         if (param instanceof IUploadLengthLimit) {
             ((IUploadLengthLimit) param).checkLength();
         }
@@ -184,23 +184,5 @@ public class HttpSender {
             .sslSocketFactory(sslSocketFactory, trustAllCert) //添加信任证书
             .hostnameVerifier((hostname, session) -> true) //忽略host验证
             .build();
-    }
-
-    /**
-     * <P>对Param参数添加一层装饰,可以在该层做一些与业务相关工作，
-     * <P>例如：添加公共参数/请求头信息
-     *
-     * @param p 参数
-     * @return 装饰后的参数
-     */
-    private static Param onAssembly(Param p) throws IOException {
-        Function<Param, Param> f = mOnParamAssembly;
-        if (f == null) return p;
-        if (p == null || !p.isAssemblyEnabled()) return p;
-        try {
-            return f.apply(p);
-        } catch (Exception e) {
-            throw new IOException(e);
-        }
     }
 }
