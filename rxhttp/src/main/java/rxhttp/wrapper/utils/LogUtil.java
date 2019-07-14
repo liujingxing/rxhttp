@@ -7,6 +7,8 @@ import okhttp3.FormBody;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import rxhttp.wrapper.exception.HttpStatusCodeException;
+import rxhttp.wrapper.exception.ParseException;
 import rxhttp.wrapper.param.Param;
 
 /**
@@ -28,7 +30,11 @@ public class LogUtil {
     public static void log(@NonNull String url, Throwable throwable) {
         if (!isDebug) return;
         throwable.printStackTrace();
-        Log.e(TAG, "url=" + url + "\n throwable=" + throwable.toString());
+        String log = "throwable = " + throwable.toString();
+        if (!(throwable instanceof ParseException) && !(throwable instanceof HttpStatusCodeException)) {
+            log += "\nurl=" + url;
+        }
+        Log.e(TAG, log);
     }
 
     //打印Http返回的正常结果
@@ -37,7 +43,7 @@ public class LogUtil {
         Request request = response.request();
         String builder = "------------------- request end Method=" +
             request.method() + " Code=" + response.code() + " -------------------" +
-            "\nUrl = " + request.url() + getRequestParams(request.body()) +
+            "\nUrl = " + request.url() + getRequestParams(request) +
             "\n\nHeaders = " + response.headers() +
             "\nResult = " + result;
         Log.i(TAG, builder);
@@ -54,7 +60,8 @@ public class LogUtil {
         Log.d(TAG, requestInfo);
     }
 
-    private static String getRequestParams(RequestBody body) {
+    public static String getRequestParams(Request request) {
+        RequestBody body = request.body();
         StringBuilder builder = new StringBuilder("?");
         if (body instanceof FormBody) {
             FormBody formBody = ((FormBody) body);
