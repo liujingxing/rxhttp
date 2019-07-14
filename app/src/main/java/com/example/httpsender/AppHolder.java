@@ -5,7 +5,6 @@ import android.util.Log;
 
 import io.reactivex.functions.Function;
 import io.reactivex.plugins.RxJavaPlugins;
-import rxhttp.HttpSender;
 import rxhttp.wrapper.param.*;
 
 /**
@@ -43,6 +42,8 @@ public class AppHolder extends Application {
              */
         });
         RxHttp.setDebug(BuildConfig.DEBUG);
+
+        RxHttp.setOnConverter(s -> s); //设置数据转换器,可用于数据解密
         RxHttp.setOnParamAssembly(new Function<Param, Param>() {
             /**
              * <p>在这里可以为所有请求添加公共参数，也可以为url统一添加前缀或者后缀
