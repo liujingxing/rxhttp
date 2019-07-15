@@ -14,6 +14,8 @@ import rxhttp.wrapper.entity.UpFile;
  */
 public interface Param extends ParamBuilder, FileBuilder, HeadersBuilder, NoBodyRequest, RequestBuilder {
 
+    String DATA_DECRYPT = "data-decrypt";
+
     //Get请求
     static Param get(@NonNull String url) {
         return GetParam.with(url);
