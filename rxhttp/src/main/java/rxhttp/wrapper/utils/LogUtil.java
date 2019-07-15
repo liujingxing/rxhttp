@@ -43,7 +43,7 @@ public class LogUtil {
         Request request = response.request();
         String builder = "------------------- request end Method=" +
             request.method() + " Code=" + response.code() + " -------------------" +
-            "\nUrl = " + request.url() + getRequestParams(request) +
+            "\nurl = " + request.url() + getRequestParams(request) +
             "\n\nHeaders = " + response.headers() +
             "\nResult = " + result;
         Log.i(TAG, builder);
