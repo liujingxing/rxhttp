@@ -7,6 +7,7 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 import rxhttp.RxHttpPlugins;
 import rxhttp.wrapper.exception.ExceptionHelper;
+import rxhttp.wrapper.param.Param;
 import rxhttp.wrapper.utils.LogUtil;
 
 /**
@@ -35,7 +36,10 @@ public interface Parser<T> {
     @NonNull
     default String getResult(@NonNull Response response) throws IOException {
         ResponseBody body = ExceptionHelper.throwIfFatal(response);
-        String result = RxHttpPlugins.onResultAssembly(body.string());
+        String result = body.string();
+        if (!"false".equals(response.request().header(Param.DATA_DECRYPT))) {
+            result = RxHttpPlugins.onResultAssembly(result);
+        }
         LogUtil.log(response, result);
         return result;
     }

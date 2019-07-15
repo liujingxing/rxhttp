@@ -44,6 +44,7 @@ public class ParamsAnnotatedClass {
         ClassName cacheControlName = ClassName.get("okhttp3", "CacheControl");
         ClassName progressCallbackName = ClassName.get("rxhttp.wrapper.callback", "ProgressCallback");
         ClassName upFileName = ClassName.get("rxhttp.wrapper.entity", "UpFile");
+        ClassName paramName = ClassName.get("rxhttp.wrapper.param", "Param");
         TypeName listUpFileName = ParameterizedTypeName.get(ClassName.get(List.class), upFileName);
         TypeName listFileName = ParameterizedTypeName.get(ClassName.get(List.class), ClassName.get(File.class));
         List<MethodSpec> methodList = new ArrayList<>();
@@ -299,6 +300,14 @@ public class ParamsAnnotatedClass {
                 .addStatement("param.setAssemblyEnabled(enabled)")
                 .addStatement("return this")
                 .returns(rxHttp);
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("setConverterEnabled")
+            .addModifiers(Modifier.PUBLIC)
+            .addParameter(boolean.class, "enabled")
+            .addStatement("param.addHeader($T.DATA_DECRYPT,String.valueOf(enabled))", paramName)
+            .addStatement("return this")
+            .returns(rxHttp);
         methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("isAssemblyEnabled")
