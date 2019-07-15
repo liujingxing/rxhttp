@@ -53,7 +53,7 @@ public class RxHttpPlugins {
     public static String onResultAssembly(String source) {
         Function<? super String, String> f = mConverter;
         if (f != null) {
-             apply(f, source);
+            return apply(f, source);
         }
         return source;
     }
