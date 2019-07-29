@@ -29,12 +29,12 @@ RxHttp是基于OkHttp的二次封装，并于RxJava做到无缝衔接，一条�
 
 ```java
 dependencies {
-   implementation 'com.rxjava.rxhttp:rxhttp:1.1.4'
-   annotationProcessor 'com.rxjava.rxhttp:rxhttp-compiler:1.1.4' //注解处理器，生成RxHttp类
+   implementation 'com.rxjava.rxhttp:rxhttp:1.1.5'
+   annotationProcessor 'com.rxjava.rxhttp:rxhttp-compiler:1.1.5' //注解处理器，生成RxHttp类
    implementation 'com.rxjava.rxlife:rxlife:1.0.9'  //页面销毁，关闭请求，非必须
 
    // if you use kotlin
-   kapt 'com.rxjava.rxhttp:rxhttp-compiler:1.1.4'
+   kapt 'com.rxjava.rxhttp:rxhttp-compiler:1.1.5'
 }
 ```
 
@@ -348,6 +348,12 @@ new OkHttpClient.Builder()
 
 
 ## 更新日志
+
+**1.1.5**
+
+ - 修复在Kotlin编写的类上使用@Parser注解时，导致编译报错问题
+
+ - 升级此版本后，之前有自定义解析器的同学，请将构造方法改为public
 
 **1.1.4**
 
