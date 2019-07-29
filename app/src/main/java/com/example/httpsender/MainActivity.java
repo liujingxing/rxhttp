@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageView;
 
+import com.example.httpsender.entity.Address;
 import com.example.httpsender.entity.Response;
 import com.rxjava.rxlife.RxLife;
 
@@ -46,9 +47,9 @@ public class MainActivity extends AppCompatActivity {
             .addHeader("accept", "*/*") //添加请求头
             .addHeader("connection", "Keep-Alive")
             .addHeader("user-agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1;SV1)")
-            .asString()  //这里返回Observable<Response> 对象
+            .asResponse(Address.class)  //这里返回Observable<Response> 对象
             .as(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
-            .subscribe(s -> {
+            .subscribe(address -> {
                 //成功回调
             }, (OnError) error -> {
                 //失败回调

@@ -170,25 +170,25 @@ public class AnnotationProcessor extends AbstractProcessor {
             currentClass = (TypeElement) typeUtils.asElement(superClassType);
         }
 
-        for (Element enclosedElement : element.getEnclosedElements()) {
-            if (!(enclosedElement instanceof ExecutableElement)) continue;
-            if (!enclosedElement.getModifiers().contains(Modifier.PUBLIC)
-                    || !enclosedElement.getModifiers().contains(Modifier.STATIC)) continue;
-            if (!enclosedElement.toString().equals("<T>get(java.lang.Class<T>)")) continue;
-            ExecutableElement executableElement = (ExecutableElement) enclosedElement;
-            TypeMirror returnType = executableElement.getReturnType();
-            if (!typeUtils.asElement(returnType).toString()
-                    .equals(element.getQualifiedName().toString())) continue;
-            if (returnType instanceof DeclaredType) {
-                DeclaredType declaredType = (DeclaredType) returnType;
-                if (declaredType.getTypeArguments().size() == 1) return;
-            }
-        }
+//        for (Element enclosedElement : element.getEnclosedElements()) {
+//            if (!(enclosedElement instanceof ExecutableElement)) continue;
+//            if (!enclosedElement.getModifiers().contains(Modifier.PUBLIC)
+//                    || !enclosedElement.getModifiers().contains(Modifier.STATIC)) continue;
+//            if (!enclosedElement.toString().equals("<T>get(java.lang.Class<T>)")) continue;
+//            ExecutableElement executableElement = (ExecutableElement) enclosedElement;
+//            TypeMirror returnType = executableElement.getReturnType();
+//            if (!typeUtils.asElement(returnType).toString()
+//                    .equals(element.getQualifiedName().toString())) continue;
+//            if (returnType instanceof DeclaredType) {
+//                DeclaredType declaredType = (DeclaredType) returnType;
+//                if (declaredType.getTypeArguments().size() == 1) return;
+//            }
+//        }
 
         // No empty constructor found
-        throw new ProcessingException(element,
-                "The class %s must provide an public static <T> %s get(Class<T> t) mehod",
-                element.getQualifiedName().toString(), element.getQualifiedName().toString() + "<T>");
+//        throw new ProcessingException(element,
+//                "The class %s must provide an public static <T> %s get(Class<T> t) mehod",
+//                element.getQualifiedName().toString(), element.getQualifiedName().toString() + "<T>");
     }
 
     private void checkVariableValidClass(VariableElement element) throws ProcessingException {
