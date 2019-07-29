@@ -278,7 +278,7 @@ public class ParserAnnotatedClass {
                 .addModifiers(Modifier.PUBLIC)
                 .addTypeVariable(t)
                 .addParameter(classTName, "type")
-                .addStatement("return asParser($T.get(type))", ClassName.get(item.getValue()))
+                .addStatement("return asParser(new $T(type))", ClassName.get(item.getValue()))
                 .returns(ParameterizedTypeName.get(observableName, TypeName.get(returnType)));
             methodList.add(method.build());
         }

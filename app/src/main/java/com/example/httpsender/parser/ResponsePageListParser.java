@@ -26,12 +26,8 @@ public class ResponsePageListParser<T> extends AbstractParser<PageList<T>> {
         super();
     }
 
-    private ResponsePageListParser(Type type) {
+    public ResponsePageListParser(Type type) {
         super(type);
-    }
-
-    public static <T> ResponsePageListParser<T> get(Class<T> type) {
-        return new ResponsePageListParser<>(type);
     }
 
     @Override
