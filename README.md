@@ -63,6 +63,18 @@ RxJavaPlugins.setErrorHandler(throwable -> {
 });
 ```
 
+3、API兼容
+
+RxHttp最低要求为API 15，但是由于内部依赖OkHttp 3.14.1版本, 最低要求为API 21。
+如果你要的项目要兼容到API 15，请将RxHttp内部的OkHttp剔除，并引入低版本的OkHttp,如下：
+
+```
+    implementation('com.rxjava.rxhttp:rxhttp:1.1.5') {
+        exclude group: "com.squareup.okhttp3"
+    }
+    implementation 'com.squareup.okhttp3:okhttp:3.12.3' //此版本最低要求 API 9
+```
+
 ## 准备工作
 
 首先，我们需要通过注解生成RxHttp类
