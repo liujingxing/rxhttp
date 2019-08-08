@@ -42,7 +42,7 @@ dependencies {
 
 ## 注：前方高能预警
 
-1、RxHttp 要求项目使用Java 8，请在 app 的 build.gradle 添加以下代码
+**1、RxHttp 要求项目使用Java 8，请在 app 的 build.gradle 添加以下代码**
 
 ```java
 compileOptions {
@@ -51,7 +51,7 @@ compileOptions {
 }
 ```
 
-2、为RxJava设置全局异常处理，否则有可能造成程序崩溃
+**2、为RxJava设置全局异常处理，否则有可能造成程序崩溃**
 
 ```java
 RxJavaPlugins.setErrorHandler(throwable -> {
@@ -63,7 +63,7 @@ RxJavaPlugins.setErrorHandler(throwable -> {
 });
 ```
 
-3、API兼容
+**3、API兼容**
 
 RxHttp最低要求为API 15，但是由于内部依赖OkHttp 3.14.1版本, 最低要求为API 21。
 如果你要的项目要兼容到API 15，请将RxHttp内部的OkHttp剔除，并引入低版本的OkHttp,如下：
