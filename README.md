@@ -51,6 +51,18 @@ compileOptions {
 }
 ```
 
+2、为RxJava设置全局异常处理，否则有可能造成程序崩溃
+
+```java
+RxJavaPlugins.setErrorHandler(throwable -> {
+    /*
+      RxJava2的一个重要的设计理念是：不吃掉任何一个异常,即抛出的异常无人处理，便会导致程序崩溃
+      这就会导致一个问题，当RxJava2“downStream”取消订阅后，“upStream”仍有可能抛出异常，
+      这时由于已经取消订阅，“downStream”无法处理异常，此时的异常无人处理，便会导致程序崩溃
+     */
+});
+```
+
 Usage
 
 首先，我们需要通过注解生成RxHttp类
