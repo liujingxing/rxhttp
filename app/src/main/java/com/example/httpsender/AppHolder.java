@@ -24,21 +24,20 @@ public class AppHolder extends Application {
     public void onCreate() {
         super.onCreate();
         instance = this;
-        httpSenderInit();
+        initRxHttp();
     }
 
 
-    private void httpSenderInit() {
+    private void initRxHttp() {
         //HttpSender初始化，自定义OkHttpClient对象,非必须
 //        HttpSender.init(new OkHttpClient());
 
         //设置RxJava 全局异常处理
         RxJavaPlugins.setErrorHandler(throwable -> {
-            Log.e("LJX", "setErrorHandler=" + throwable);
-            /**
-             * RxJava2的一个重要的设计理念是：不吃掉任何一个异常,即抛出的异常无人处理，便会导致程序崩溃
-             * 这就会导致一个问题，当RxJava2“downStream”取消订阅后，“upStream”仍有可能抛出异常，
-             * 这时由于已经取消订阅，“downStream”无法处理异常，此时的异常无人处理，便会导致程序崩溃
+            /*
+              RxJava2的一个重要的设计理念是：不吃掉任何一个异常,即抛出的异常无人处理，便会导致程序崩溃
+              这就会导致一个问题，当RxJava2“downStream”取消订阅后，“upStream”仍有可能抛出异常，
+              这时由于已经取消订阅，“downStream”无法处理异常，此时的异常无人处理，便会导致程序崩溃
              */
         });
         RxHttp.setDebug(BuildConfig.DEBUG);
