@@ -40,7 +40,7 @@ dependencies {
 }
 ```
 
-### 注：
+## 注：前方高能预警
 
 1、RxHttp 要求项目使用Java 8，请在 app 的 build.gradle 添加以下代码
 
@@ -63,7 +63,7 @@ RxJavaPlugins.setErrorHandler(throwable -> {
 });
 ```
 
-Usage
+## 准备工作
 
 首先，我们需要通过注解生成RxHttp类
 
