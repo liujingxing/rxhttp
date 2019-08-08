@@ -1,10 +1,8 @@
 package rxhttp.wrapper.param;
 
-import java.io.File;
 import java.util.Map;
 
 import io.reactivex.annotations.NonNull;
-import rxhttp.wrapper.callback.ProgressCallback;
 
 /**
  * User: ljx
