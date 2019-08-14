@@ -274,12 +274,12 @@ RxHttp.setOnParamAssembly(new Function() {
 });
 ```
 
-## Activity/Fragment销毁，自动关闭请求
+## Activity/Fragment/View/ViewModel/任意类生命周期结束时，自动关闭请求
 
 ```java
 RxHttp.postForm("http://...")    //发送表单形式的post请求
     .asString()
-    .as(RxLife.as(this))         //页面销毁，自动关闭请求
+    .as(RxLife.as(this))         //生命周期结束，自动关闭请求
     .subscribe(s -> {
         //成功回调
     }, throwable -> {
@@ -288,7 +288,7 @@ RxHttp.postForm("http://...")    //发送表单形式的post请求
 
 RxHttp.postForm("http://...")       //发送表单形式的post请求
     .asString()
-    .as(RxLife.asOnMain(this))      //在主线程回调，并在页面销毁，自动关闭请求
+    .as(RxLife.asOnMain(this))      //在主线程回调，并在生命周期结束，自动关闭请求
     .subscribe(s -> {
         //成功回调
     }, throwable -> {
