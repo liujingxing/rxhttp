@@ -31,12 +31,12 @@ RxHttp是基于OkHttp的二次封装，并于RxJava做到无缝衔接，一条�
 
 ```java
 dependencies {
-   implementation 'com.rxjava.rxhttp:rxhttp:1.1.5'
-   annotationProcessor 'com.rxjava.rxhttp:rxhttp-compiler:1.1.5' //注解处理器，生成RxHttp类
+   implementation 'com.rxjava.rxhttp:rxhttp:1.1.6'
+   annotationProcessor 'com.rxjava.rxhttp:rxhttp-compiler:1.1.6' //注解处理器，生成RxHttp类
    implementation 'com.rxjava.rxlife:rxlife:1.0.9'  //页面销毁，关闭请求，非必须
 
    // if you use kotlin
-   kapt 'com.rxjava.rxhttp:rxhttp-compiler:1.1.5'
+   kapt 'com.rxjava.rxhttp:rxhttp-compiler:1.1.6'
 }
 ```
 
@@ -176,18 +176,13 @@ RxHttp.get("http://...")
 ```java
 RxHttp.postForm("http://...")
     .add("file1", new File("xxx/1.png"))
-    .asUploadProgress()            //asUploadProgress操作符,监听上传进度
-    .observeOn(AndroidSchedulers.mainThread())
-    .doOnNext(progress -> {
+    .asUpload(progress -> {
         //上传进度回调,0-100，仅在进度有更新时才会回调,最多回调101次，最后一次回调Http执行结果
         int currentProgress = progress.getProgress(); //当前进度 0-100
         long currentSize = progress.getCurrentSize(); //当前已上传的字节大小
         long totalSize = progress.getTotalSize();     //要上传的总字节大小
-        String result = progress.getResult(); //Http执行结果，最后一次回调才有内容
-    })
-    .filter(Progress::isCompleted)//过滤事件，上传完成，才继续往下走
-    .map(Progress::getResult)     //到这，说明上传完成，拿到Http返回结果并继续往下走
-    .subscribe(s -> {             //这里s为String类型,可通过asUploadProgress(Parser<T> parser)自定义返回类型
+    }, AndroidSchedulers.mainThread())     //指定回调(进度/成功/失败)线程,不指定,默认在请求所在线程回调
+    .subscribe(s -> {             //这里s为String类型,可通过asUpload(Parser,Progress,Scheduler)方法指定返回类型
         //上传成功
     }, throwable -> {
         //上传失败
@@ -197,18 +192,13 @@ RxHttp.postForm("http://...")
 ## 文件下载进度监听
 ```java
 RxHttp.get("http://...")
-    .asDownloadProgress("sd/xxx/1.apk") //传入本地路径
-    .observeOn(AndroidSchedulers.mainThread())
-    .doOnNext(progress -> {
+    .asDownload("sd/xxx/1.apk", progress -> {
         //下载进度回调,0-100，仅在进度有更新时才会回调，最多回调101次，最后一次回调文件存储路径
         int currentProgress = progress.getProgress(); //当前进度 0-100
         long currentSize = progress.getCurrentSize(); //当前已下载的字节大小
         long totalSize = progress.getTotalSize();     //要下载的总字节大小
-        String filePath = progress.getResult();       //文件存储路径，最后一次回调才有内容
-    })
-    .filter(Progress::isCompleted)      //下载完成，才继续往下走
-    .map(Progress::getResult)           //到这，说明下载完成，返回下载目标路径
-    .subscribe(s -> {                   //s为String类型，这里为文件存储路径
+    }, AndroidSchedulers.mainThread()) //指定回调(进度/成功/失败)线程,不指定,默认在请求所在线程回调
+    .subscribe(s -> {                  //s为String类型，这里为文件存储路径
         //下载完成
     }, throwable -> {
         //下载失败
@@ -220,20 +210,15 @@ RxHttp.get("http://...")
 //断点下载，带进度
 public void breakpointDownloadAndProgress() {
     String destPath = getExternalCacheDir() + "/" + "Miaobo.apk";
-    File file = new File(destPath);
-    long length = file.length();
+    long length = new File(destPath).length();
     RxHttp.get("http://update.9158.com/miaolive/Miaolive.apk")
         .setRangeHeader(length)                //设置开始下载位置，结束位置默认为文件末尾
-        .asDownloadProgress(destPath, length)  //如果需要衔接上次的下载进度，则需要传入上次已下载的字节数
-        .observeOn(AndroidSchedulers.mainThread())
-        .doOnNext(progress -> {
+        .asDownload(destPath, length, progress -> { //如果需要衔接上次的下载进度，则需要传入上次已下载的字节数length
             //下载进度回调,0-100，仅在进度有更新时才会回调
             int currentProgress = progress.getProgress(); //当前进度 0-100
             long currentSize = progress.getCurrentSize(); //当前已下载的字节大小
             long totalSize = progress.getTotalSize();     //要下载的总字节大小
-        })
-        .filter(Progress::isCompleted)     //过滤事件，下载完成，才继续往下走
-        .map(Progress::getResult)          //到这，说明下载完成，拿到Http返回结果并继续往下走
+        }, AndroidSchedulers.mainThread()) //指定回调(进度/成功/失败)线程,不指定,默认在请求所在线程回调
         .subscribe(s -> { //s为String类型
             //下载成功，处理相关逻辑
         }, throwable -> {
