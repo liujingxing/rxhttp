@@ -1,8 +1,8 @@
 [ ![Download](https://api.bintray.com/packages/32774707/maven/rxhttp/images/download.svg) ](https://bintray.com/32774707/maven/rxhttp/_latestVersion)
 
 # RxHttp
-RxHttp是基于OkHttp的二次封装，并于RxJava做到无缝衔接，一条链就能发送一个完整的请求。
-主要功能如下：
+RxHttp是基于OkHttp的二次封装，并于RxJava做到无缝衔接，一条链就能发送任意请求，
+主要优势如下：
  1. 支持Json、DOM等任意数据解析方式，可自定义数据解析器
  2. 支持Get、Post、Put、Delete等任意请求方式，可自定义请求方式
  3. 支持在Activity/Fragment/View/ViewModel/任意类中，自动关闭请求
