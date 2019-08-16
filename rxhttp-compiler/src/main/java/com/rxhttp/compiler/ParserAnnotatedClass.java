@@ -1,7 +1,11 @@
 package com.rxhttp.compiler;
 
 
-import com.squareup.javapoet.*;
+import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.ParameterizedTypeName;
+import com.squareup.javapoet.TypeName;
+import com.squareup.javapoet.TypeVariableName;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -43,10 +47,13 @@ public class ParserAnnotatedClass {
         TypeVariableName k = TypeVariableName.get("K");
         TypeVariableName v = TypeVariableName.get("V");
         ClassName responseName = ClassName.get("okhttp3", "Response");
-        ClassName bitmapName = ClassName.get("android.graphics", "Bitmap");
-        ClassName httpSenderName = ClassName.get("rxhttp", "HttpSender");
         ClassName schedulerName = ClassName.get("io.reactivex", "Scheduler");
         ClassName observableName = ClassName.get("io.reactivex", "Observable");
+        ClassName consumerName = ClassName.get("io.reactivex.functions", "Consumer");
+        ClassName androidSchedulersName = ClassName.get("io.reactivex.android.schedulers", "AndroidSchedulers");
+
+        ClassName bitmapName = ClassName.get("android.graphics", "Bitmap");
+        ClassName httpSenderName = ClassName.get("rxhttp", "HttpSender");
         ClassName parserName = ClassName.get("rxhttp.wrapper.parse", "Parser");
         ClassName progressName = ClassName.get("rxhttp.wrapper.entity", "Progress");
         ClassName simpleParserName = ClassName.get("rxhttp.wrapper.parse", "SimpleParser");
@@ -80,6 +87,7 @@ public class ParserAnnotatedClass {
         TypeName observableDoubleName = ParameterizedTypeName.get(observableName, TypeName.get(Double.class));
         TypeName observableProgressTName = ParameterizedTypeName.get(observableName, progressTName);
         TypeName observableProgressStringName = ParameterizedTypeName.get(observableName, progressStringName);
+        TypeName consumerProgressStringName = ParameterizedTypeName.get(consumerName, progressStringName);
         TypeName parserTName = ParameterizedTypeName.get(parserName, t);
 
         List<MethodSpec> methodList = new ArrayList<>();
@@ -293,6 +301,8 @@ public class ParserAnnotatedClass {
 
         method = MethodSpec.methodBuilder("asDownloadProgress")
             .addModifiers(Modifier.PUBLIC)
+            .addJavadoc("@deprecated please used {@link RxHttp#asDownload(String,Consumer,Scheduler)}")
+            .addAnnotation(Deprecated.class)
             .addParameter(String.class, "destPath")
             .addStatement("return asDownloadProgress(destPath,0)")
             .returns(observableProgressStringName);
@@ -300,10 +310,54 @@ public class ParserAnnotatedClass {
 
         method = MethodSpec.methodBuilder("asDownloadProgress")
             .addModifiers(Modifier.PUBLIC)
+            .addJavadoc("@deprecated please used {@link RxHttp#asDownload(String,long,Consumer,Scheduler)}")
+            .addAnnotation(Deprecated.class)
             .addParameter(String.class, "destPath")
             .addParameter(long.class, "offsetSize")
             .addStatement("return $T.downloadProgress(addDefaultDomainIfAbsent(param),destPath,offsetSize,scheduler)", httpSenderName)
             .returns(observableProgressStringName);
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("asDownload")
+            .addModifiers(Modifier.PUBLIC)
+            .addParameter(String.class, "destPath")
+            .addParameter(consumerProgressStringName, "progressConsumer")
+            .addStatement("return asDownload(destPath, 0, progressConsumer, null)")
+            .returns(observableStringName);
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("asDownload")
+            .addModifiers(Modifier.PUBLIC)
+            .addParameter(String.class, "destPath")
+            .addParameter(consumerProgressStringName, "progressConsumer")
+            .addParameter(schedulerName, "observeOnScheduler")
+            .addStatement("return asDownload(destPath, 0, progressConsumer, observeOnScheduler)")
+            .returns(observableStringName);
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("asDownload")
+            .addModifiers(Modifier.PUBLIC)
+            .addParameter(String.class, "destPath")
+            .addParameter(long.class, "offsetSize")
+            .addParameter(consumerProgressStringName, "progressConsumer")
+            .addStatement("return asDownload(destPath, offsetSize, progressConsumer, null)")
+            .returns(observableStringName);
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("asDownload")
+            .addModifiers(Modifier.PUBLIC)
+            .addParameter(String.class, "destPath")
+            .addParameter(long.class, "offsetSize")
+            .addParameter(consumerProgressStringName, "progressConsumer")
+            .addParameter(schedulerName, "observeOnScheduler")
+            .addStatement("Observable<Progress<String>> observable = asDownloadProgress(destPath, offsetSize)")
+            .beginControlFlow("if(observeOnScheduler != null)")
+            .addStatement("observable=observable.observeOn(observeOnScheduler)")
+            .endControlFlow()
+            .addStatement("return observable.doOnNext(progressConsumer)\n" +
+                ".filter(Progress::isCompleted)\n" +
+                ".map(Progress::getResult)")
+            .returns(observableStringName);
         methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("asUploadProgress")
