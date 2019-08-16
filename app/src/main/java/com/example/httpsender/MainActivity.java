@@ -95,17 +95,12 @@ public class MainActivity extends AppCompatActivity {
         String destPath = getExternalCacheDir() + "/" + System.currentTimeMillis() + ".apk";
         RxHttp.get("/miaolive/Miaolive.apk")
             .setDomainToUpdateIfAbsent()//使用指定的域名
-            .asDownloadProgress(destPath) //注:如果需要监听下载进度，使用downloadProgress操作符
-            .observeOn(AndroidSchedulers.mainThread())
-            .doOnNext(progress -> {
+            .asDownload(destPath, progress -> {
                 //下载进度回调,0-100，仅在进度有更新时才会回调，最多回调101次，最后一次回调文件存储路径
                 int currentProgress = progress.getProgress(); //当前进度 0-100
                 long currentSize = progress.getCurrentSize(); //当前已下载的字节大小
                 long totalSize = progress.getTotalSize();     //要下载的总字节大小
-                String filePath = progress.getResult(); //文件存储路径，最后一次回调才有内容
-            })
-            .filter(Progress::isCompleted)//下载完成，才继续往下走
-            .map(Progress::getResult) //到这，说明下载完成，返回下载目标路径
+            }, AndroidSchedulers.mainThread()) //指定 进度/成功/失败 回调线程,不指定,默认在请求所在线程回调
             .as(RxLife.as(this)) //感知生命周期
             .subscribe(s -> {//s为String类型，这里为文件存储路径
                 //下载完成，处理相关逻辑
@@ -139,16 +134,12 @@ public class MainActivity extends AppCompatActivity {
         RxHttp.get("/miaolive/Miaolive.apk")
             .setDomainToUpdateIfAbsent()//使用指定的域名
             .setRangeHeader(length)  //设置开始下载位置，结束位置默认为文件末尾
-            .asDownloadProgress(destPath, length)  //如果需要衔接上次的下载进度，则需要传入上次已下载的字节数
-            .observeOn(AndroidSchedulers.mainThread()) //主线程回调
-            .doOnNext(progress -> {
+            .asDownload(destPath, length, progress -> { //如果需要衔接上次的下载进度，则需要传入上次已下载的字节数length
                 //下载进度回调,0-100，仅在进度有更新时才会回调
                 int currentProgress = progress.getProgress(); //当前进度 0-100
                 long currentSize = progress.getCurrentSize(); //当前已下载的字节大小
                 long totalSize = progress.getTotalSize();     //要下载的总字节大小
-            })
-            .filter(Progress::isCompleted)//过滤事件，下载完成，才继续往下走
-            .map(Progress::getResult) //到这，说明下载完成，拿到Http返回结果并继续往下走
+            }, AndroidSchedulers.mainThread()) //指定 进度/成功/失败 回调线程,不指定,默认在请求所在线程回调
             .as(RxLife.as(this)) //加入感知生命周期的观察者
             .subscribe(s -> { //s为String类型
                 //下载成功，处理相关逻辑
