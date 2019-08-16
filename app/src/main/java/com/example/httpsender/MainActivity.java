@@ -13,7 +13,6 @@ import com.rxjava.rxlife.RxLife;
 import java.io.File;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import rxhttp.wrapper.entity.Progress;
 import rxhttp.wrapper.param.RxHttp;
 
 public class MainActivity extends AppCompatActivity {
@@ -174,16 +173,12 @@ public class MainActivity extends AppCompatActivity {
             .add("key1", "value1")//添加参数，非必须
             .add("key2", "value2")//添加参数，非必须
             .addHeader("versionCode", "100")//添加请求头,非必须
-            .asUploadProgress() //注:如果需要监听上传进度，使用upload操作符
-            .observeOn(AndroidSchedulers.mainThread()) //主线程回调
-            .doOnNext(progress -> {
+            .asUpload(progress -> {
                 //上传进度回调,0-100，仅在进度有更新时才会回调
                 int currentProgress = progress.getProgress(); //当前进度 0-100
                 long currentSize = progress.getCurrentSize(); //当前已上传的字节大小
                 long totalSize = progress.getTotalSize();     //要上传的总字节大小
-            })
-            .filter(Progress::isCompleted)//过滤事件，上传完成，才继续往下走
-            .map(Progress::getResult) //到这，说明下载完成，拿到Http返回结果并继续往下走
+            }, AndroidSchedulers.mainThread()) //主线程回调,不指定,默认在请求执行线程回调
             .as(RxLife.as(this)) //加入感知生命周期的观察者
             .subscribe(s -> { //s为String类型，由SimpleParser类里面的泛型决定的
                 //上传成功，处理相关逻辑
