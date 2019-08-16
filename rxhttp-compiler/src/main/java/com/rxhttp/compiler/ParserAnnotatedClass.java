@@ -88,6 +88,7 @@ public class ParserAnnotatedClass {
         TypeName observableProgressTName = ParameterizedTypeName.get(observableName, progressTName);
         TypeName observableProgressStringName = ParameterizedTypeName.get(observableName, progressStringName);
         TypeName consumerProgressStringName = ParameterizedTypeName.get(consumerName, progressStringName);
+        TypeName consumerProgressTName = ParameterizedTypeName.get(consumerName, progressTName);
         TypeName parserTName = ParameterizedTypeName.get(parserName, t);
 
         List<MethodSpec> methodList = new ArrayList<>();
@@ -299,25 +300,6 @@ public class ParserAnnotatedClass {
             .returns(observableStringName);
         methodList.add(method.build());
 
-        method = MethodSpec.methodBuilder("asDownloadProgress")
-            .addModifiers(Modifier.PUBLIC)
-            .addJavadoc("@deprecated please used {@link RxHttp#asDownload(String,Consumer,Scheduler)}")
-            .addAnnotation(Deprecated.class)
-            .addParameter(String.class, "destPath")
-            .addStatement("return asDownloadProgress(destPath,0)")
-            .returns(observableProgressStringName);
-        methodList.add(method.build());
-
-        method = MethodSpec.methodBuilder("asDownloadProgress")
-            .addModifiers(Modifier.PUBLIC)
-            .addJavadoc("@deprecated please used {@link RxHttp#asDownload(String,long,Consumer,Scheduler)}")
-            .addAnnotation(Deprecated.class)
-            .addParameter(String.class, "destPath")
-            .addParameter(long.class, "offsetSize")
-            .addStatement("return $T.downloadProgress(addDefaultDomainIfAbsent(param),destPath,offsetSize,scheduler)", httpSenderName)
-            .returns(observableProgressStringName);
-        methodList.add(method.build());
-
         method = MethodSpec.methodBuilder("asDownload")
             .addModifiers(Modifier.PUBLIC)
             .addParameter(String.class, "destPath")
@@ -360,18 +342,71 @@ public class ParserAnnotatedClass {
             .returns(observableStringName);
         methodList.add(method.build());
 
-        method = MethodSpec.methodBuilder("asUploadProgress")
+        method = MethodSpec.methodBuilder("asDownloadProgress")
+            .addModifiers(Modifier.PUBLIC)
+            .addJavadoc("@deprecated please used {@link RxHttp#asDownload(String,Consumer,Scheduler)}")
+            .addAnnotation(Deprecated.class)
+            .addParameter(String.class, "destPath")
+            .addStatement("return asDownloadProgress(destPath,0)")
+            .returns(observableProgressStringName);
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("asDownloadProgress")
+            .addModifiers(Modifier.PUBLIC)
+            .addJavadoc("@deprecated please used {@link RxHttp#asDownload(String,long,Consumer,Scheduler)}")
+            .addAnnotation(Deprecated.class)
+            .addParameter(String.class, "destPath")
+            .addParameter(long.class, "offsetSize")
+            .addStatement("return $T.downloadProgress(addDefaultDomainIfAbsent(param),destPath,offsetSize,scheduler)", httpSenderName)
+            .returns(observableProgressStringName);
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("asUpload")
+            .addModifiers(Modifier.PUBLIC)
+            .addParameter(consumerProgressStringName, "progressConsumer")
+            .addStatement("return asUpload(SimpleParser.get(String.class), progressConsumer, null)")
+            .returns(observableStringName);
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("asUpload")
+            .addModifiers(Modifier.PUBLIC)
+            .addParameter(consumerProgressStringName, "progressConsumer")
+            .addParameter(schedulerName, "observeOnScheduler")
+            .addStatement("return asUpload(SimpleParser.get(String.class), progressConsumer, observeOnScheduler)")
+            .returns(observableStringName);
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("asUpload")
             .addModifiers(Modifier.PUBLIC)
             .addTypeVariable(t)
+            .addParameter(parserTName, "parser")
+            .addParameter(consumerProgressTName, "progressConsumer")
+            .addParameter(schedulerName, "observeOnScheduler")
+            .addStatement("Observable<Progress<T>> observable = asUploadProgress(parser)")
+            .beginControlFlow("if(observeOnScheduler != null)")
+            .addStatement("observable=observable.observeOn(observeOnScheduler)")
+            .endControlFlow()
+            .addStatement("return observable.doOnNext(progressConsumer)\n" +
+                ".filter(Progress::isCompleted)\n" +
+                ".map(Progress::getResult)")
+            .returns(observableTName);
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("asUploadProgress")
+            .addModifiers(Modifier.PUBLIC)
+            .addJavadoc("@deprecated please used {@link RxHttp#asUpload(Consumer, Scheduler)}")
+            .addAnnotation(Deprecated.class)
             .addStatement("return asUploadProgress(SimpleParser.get(String.class))")
             .returns(observableProgressStringName);
         methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("asUploadProgress")
             .addModifiers(Modifier.PUBLIC)
+            .addJavadoc("@deprecated please used {@link RxHttp#asUpload(Parser, Consumer, Scheduler)}")
+            .addAnnotation(Deprecated.class)
             .addTypeVariable(t)
             .addParameter(parserTName, "parser")
-            .addStatement("return $T.uploadProgress(addDefaultDomainIfAbsent(param),parser,scheduler)", httpSenderName)
+            .addStatement("return $T.uploadProgress(addDefaultDomainIfAbsent(param), parser, scheduler)", httpSenderName)
             .returns(observableProgressTName);
         methodList.add(method.build());
 
