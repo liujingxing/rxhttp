@@ -1,17 +1,26 @@
 [ ![Download](https://api.bintray.com/packages/32774707/maven/rxhttp/images/download.svg) ](https://bintray.com/32774707/maven/rxhttp/_latestVersion)
 
 # RxHttp
-RxHttp是基于OkHttp的二次封装，并于RxJava做到无缝衔接，一条链就能发送任意请求，
-主要优势如下：
- 1. 支持Json、DOM等任意数据解析方式，可自定义数据解析器
- 2. 支持Get、Post、Put、Delete等任意请求方式，可自定义请求方式
- 3. 支持在Activity/Fragment/View/ViewModel/任意类中，自动关闭请求
- 4. 支持统一加解密，且可对单个请求设置是否加解密
- 5. 支持添加公共参数/头部，且可对单个请求设置是否添加公共参数/头部
- 6. 史上最优雅的实现文件上传/下载及进度的监听，且支持断点下载
- 7. 史上最优雅的对错误统一处理，且不打破Lambda表达式
- 8. 史上最优雅的处理多个BaseUrl及动态BaseUrl
- 9. 30秒即可上手，学习成本极地
+RxHttp是基于OkHttp的二次封装，并于RxJava做到无缝衔接，一条链就能发送任意请求，主要优势如下 :
+
+  **1. 支持Json、DOM等任意数据解析方式，可自定义数据解析器**
+  
+  **2. 支持Get、Post、Put、Delete等任意请求方式，可自定义请求方式**
+  
+  **3. 支持在Activity/Fragment/View/ViewModel/任意类中，自动关闭请求**
+  
+  **4. 支持统一加解密，且可对单个请求设置是否加解密**
+  
+  **5. 支持添加公共参数/头部，且可对单个请求设置是否添加公共参数/头部**
+  
+  **6. 史上最优雅的实现文件上传/下载及进度的监听，且支持断点下载**
+  
+  **7. 史上最优雅的对错误统一处理，且不打破Lambda表达式**
+  
+  **8. 史上最优雅的处理多个BaseUrl及动态BaseUrl**
+  
+  **9. 30秒即可上手，学习成本极地**
+
 
 > 注：RxHttp是通过注解生成的，请使用@DefaultDomain或@Domain注解在baseUrl上，rebuild一下项目，就能看到RxHttp类了。
 注解处理器会在编译时检索注解，检索不到，就不会生成RxHttp类。
