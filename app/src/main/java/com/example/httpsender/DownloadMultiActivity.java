@@ -19,7 +19,6 @@ import java.util.List;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import rxhttp.wrapper.entity.Progress;
 import rxhttp.wrapper.param.RxHttp;
 
 /**
@@ -155,9 +154,7 @@ public class DownloadMultiActivity extends AppCompatActivity implements OnItemCl
         long length = new File(destPath).length();
         Disposable disposable = RxHttp.get(data.getUrl())
             .setRangeHeader(length)  //设置开始下载位置，结束位置默认为文件末尾
-            .asDownloadProgress(destPath, length)  //如果需要衔接上次的下载进度，则需要传入上次已下载的字节数
-            .observeOn(AndroidSchedulers.mainThread()) //主线程回调
-            .doOnNext(progress -> {
+            .asDownload(destPath, length, progress -> { //如果需要衔接上次的下载进度，则需要传入上次已下载的字节数length
                 //下载进度回调,0-100，仅在进度有更新时才会回调
                 if (!progress.isCompleted()) {
                     data.setProgress(progress.getProgress());//当前进度 0-100
@@ -165,9 +162,7 @@ public class DownloadMultiActivity extends AppCompatActivity implements OnItemCl
                     data.setTotalSize(progress.getTotalSize()); //要下载的总字节大小
                     notifyDataSetChanged(false);
                 }
-            })
-            .filter(Progress::isCompleted)//过滤事件，下载完成，才继续往下走
-            .map(Progress::getResult) //到这，说明下载完成，拿到Http返回结果并继续往下走
+            }, AndroidSchedulers.mainThread())
             .doFinally(() -> {//不管任务成功还是失败，如果还有在等待的任务，都开启下一个任务
                 downloadingTask.remove(data);
                 if (waitTask.size() > 0)
