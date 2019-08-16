@@ -11,6 +11,7 @@ import com.example.httpsender.entity.Response;
 import com.rxjava.rxlife.RxLife;
 
 import java.io.File;
+
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import rxhttp.wrapper.param.RxHttp;
 
@@ -98,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
                 int currentProgress = progress.getProgress(); //当前进度 0-100
                 long currentSize = progress.getCurrentSize(); //当前已下载的字节大小
                 long totalSize = progress.getTotalSize();     //要下载的总字节大小
-            }, AndroidSchedulers.mainThread()) //指定 进度/成功/失败 回调线程,不指定,默认在请求所在线程回调
+            }, AndroidSchedulers.mainThread()) //指定回调(进度/成功/失败)线程,不指定,默认在请求所在线程回调
             .as(RxLife.as(this)) //感知生命周期
             .subscribe(s -> {//s为String类型，这里为文件存储路径
                 //下载完成，处理相关逻辑
@@ -137,7 +138,7 @@ public class MainActivity extends AppCompatActivity {
                 int currentProgress = progress.getProgress(); //当前进度 0-100
                 long currentSize = progress.getCurrentSize(); //当前已下载的字节大小
                 long totalSize = progress.getTotalSize();     //要下载的总字节大小
-            }, AndroidSchedulers.mainThread()) //指定 进度/成功/失败 回调线程,不指定,默认在请求所在线程回调
+            }, AndroidSchedulers.mainThread()) //指定回调(进度/成功/失败)线程,不指定,默认在请求所在线程回调
             .as(RxLife.as(this)) //加入感知生命周期的观察者
             .subscribe(s -> { //s为String类型
                 //下载成功，处理相关逻辑
@@ -167,17 +168,14 @@ public class MainActivity extends AppCompatActivity {
     private void uploadAndProgress() {
         String url = "http://www.......";
         RxHttp.postForm(url) //发送Form表单形式的Post请求
-            .add("file1", new File("xxx/1.png"))
-            .add("file2", new File("xxx/2.png"))
             .add("key1", "value1")//添加参数，非必须
-            .add("key2", "value2")//添加参数，非必须
-            .addHeader("versionCode", "100")//添加请求头,非必须
+            .add("file1", new File("xxx/1.png"))
             .asUpload(progress -> {
                 //上传进度回调,0-100，仅在进度有更新时才会回调
                 int currentProgress = progress.getProgress(); //当前进度 0-100
                 long currentSize = progress.getCurrentSize(); //当前已上传的字节大小
                 long totalSize = progress.getTotalSize();     //要上传的总字节大小
-            }, AndroidSchedulers.mainThread()) //主线程回调,不指定,默认在请求执行线程回调
+            }, AndroidSchedulers.mainThread()) //指定回调(进度/成功/失败)线程,不指定,默认在请求所在线程回调
             .as(RxLife.as(this)) //加入感知生命周期的观察者
             .subscribe(s -> { //s为String类型，由SimpleParser类里面的泛型决定的
                 //上传成功，处理相关逻辑
