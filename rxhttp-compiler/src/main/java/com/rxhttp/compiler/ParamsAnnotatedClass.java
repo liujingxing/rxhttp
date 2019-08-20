@@ -286,14 +286,6 @@ public class ParamsAnnotatedClass {
                 .returns(rxHttp);
         methodList.add(method.build());
 
-        method = MethodSpec.methodBuilder("setProgressCallback")
-                .addModifiers(Modifier.PUBLIC)
-                .addParameter(progressCallbackName, "callback")
-                .addStatement("param.setProgressCallback(callback)")
-                .addStatement("return this")
-                .returns(rxHttp);
-        methodList.add(method.build());
-
         method = MethodSpec.methodBuilder("setAssemblyEnabled")
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(boolean.class, "enabled")
