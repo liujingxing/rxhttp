@@ -101,7 +101,7 @@ public class Url {
 
 ## 请求三部曲
 ```java
-RxHttp.get("http://...")            //第一步，确定请求方式
+RxHttp.get("/service/...")          //第一步，确定请求方式
     .asString()                     //第二步，使用asXXX系列方法确定返回类型
     .subscribe(s -> {               //第三部, 订阅观察者
         //成功回调
@@ -112,7 +112,7 @@ RxHttp.get("http://...")            //第一步，确定请求方式
 
 ## post
 ```java
-RxHttp.postForm("http://...")       //发送表单形式的post请求
+RxHttp.postForm("/service/...")       //发送表单形式的post请求
     .asString()
     .subscribe(s -> {
         //成功回调
@@ -120,14 +120,14 @@ RxHttp.postForm("http://...")       //发送表单形式的post请求
         //失败回调
     });
 
-RxHttp.postJson("http://...")       //发送Json字符串形式的post请求
+RxHttp.postJson("/service/...")       //发送Json字符串形式的post请求
     //省略部分代码
 
 ```
 
 ## 添加参数
 ```java
-RxHttp.postForm("http://...")                //发送表单形式的post请求
+RxHttp.postForm("/service/...")                //发送表单形式的post请求
     .add("key", "value")                     //添加参数
     .addHeader("headerKey", "headerValue")   //添加请求头
     .addFile("file", new File("xxx/1.png"))  //添加文件
@@ -141,7 +141,7 @@ RxHttp.postForm("http://...")                //发送表单形式的post请求
 
 ## 返回自定义的数据类型
 ```java
-RxHttp.postForm("http://...")     //发送表单形式的post请求
+RxHttp.postForm("/service/...")     //发送表单形式的post请求
     .asObject(Student.class)      //返回Student对象
     .subscribe(student -> {
         //成功回调
@@ -150,7 +150,7 @@ RxHttp.postForm("http://...")     //发送表单形式的post请求
     });
 
 
-RxHttp.postForm("http://...")     //发送表单形式的post请求
+RxHttp.postForm("/service/...")     //发送表单形式的post请求
     .asList(Student.class)        //返回List<Student>集合
     .subscribe(students -> {
         //成功回调
@@ -162,7 +162,7 @@ RxHttp.postForm("http://...")     //发送表单形式的post请求
 
 ## 文件上传
 ```java
-RxHttp.postForm("http://...")                //发送Form表单形式的Post请求
+RxHttp.postForm("/service/...")                //发送Form表单形式的Post请求
     .addFile("file", new File("xxx/1.png"))  //添加文件
     .asString()
     .subscribe(s -> {
@@ -175,7 +175,7 @@ RxHttp.postForm("http://...")                //发送Form表单形式的Post请�
 ## 文件下载
 
 ```java
-RxHttp.get("http://...")
+RxHttp.get("/service/...")
     .asDownload("sd/xxx/1.apk") //传入本地路径
     .subscribe(s -> {
         //下载成功,回调文件下载路径
@@ -186,7 +186,7 @@ RxHttp.get("http://...")
 
 ##  文件上传进度监听
 ```java
-RxHttp.postForm("http://...")
+RxHttp.postForm("/service/...")
     .add("file1", new File("xxx/1.png"))
     .asUpload(progress -> {
         //上传进度回调,0-100，仅在进度有更新时才会回调,最多回调101次，最后一次回调Http执行结果
@@ -203,7 +203,7 @@ RxHttp.postForm("http://...")
 
 ## 文件下载进度监听
 ```java
-RxHttp.get("http://...")
+RxHttp.get("/service/...")
     .asDownload("sd/xxx/1.apk", progress -> {
         //下载进度回调,0-100，仅在进度有更新时才会回调，最多回调101次，最后一次回调文件存储路径
         int currentProgress = progress.getProgress(); //当前进度 0-100
@@ -274,7 +274,7 @@ RxHttp.setOnParamAssembly(new Function() {
 ## Activity/Fragment/View/ViewModel/任意类生命周期结束时，自动关闭请求
 
 ```java
-RxHttp.postForm("http://...")    //发送表单形式的post请求
+RxHttp.postForm("/service/...")    //发送表单形式的post请求
     .asString()
     .as(RxLife.as(this))         //生命周期结束，自动关闭请求
     .subscribe(s -> {
@@ -283,7 +283,7 @@ RxHttp.postForm("http://...")    //发送表单形式的post请求
         //失败回调
     });
 
-RxHttp.postForm("http://...")       //发送表单形式的post请求
+RxHttp.postForm("/service/...")       //发送表单形式的post请求
     .asString()
     .as(RxLife.asOnMain(this))      //在主线程回调，并在生命周期结束，自动关闭请求
     .subscribe(s -> {
@@ -296,7 +296,7 @@ RxHttp.postForm("http://...")       //发送表单形式的post请求
 
 ## 常用api介绍
 ```java
-RxHttp.postForm("/service/getIpInfo.php") //发送Form表单形式的Post请求
+RxHttp.postForm("/service/...") //发送Form表单形式的Post请求
     .setDomainToUpdate9158IfAbsent()      //手动设置域名，不设置会添加默认域名，此方法是通过@Domain注解生成的
     .tag("RxHttp.get")                    //为单个请求设置tag
     .setUrl("http://...")                 //重新设置url
