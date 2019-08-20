@@ -38,10 +38,10 @@ dependencies {
     //管理RxJava及生命周期，Activity/Fragment 销毁，自动关闭未完成的请求
     implementation 'com.rxjava.rxlife:rxlife:1.0.9'
 
-//    implementation project(":rxhttp")
-//    kapt project(':rxhttp-compiler')
-    implementation 'com.rxjava.rxhttp:rxhttp:1.1.6'
-    kapt 'com.rxjava.rxhttp:rxhttp-compiler:1.1.6'
+    implementation project(":rxhttp")
+    kapt project(':rxhttp-compiler')
+//    implementation 'com.rxjava.rxhttp:rxhttp:1.1.6'
+//    kapt 'com.rxjava.rxhttp:rxhttp-compiler:1.1.6'
 
     implementation 'com.android.support:appcompat-v7:28.0.0'
     implementation 'com.android.support:recyclerview-v7:28.0.0'
