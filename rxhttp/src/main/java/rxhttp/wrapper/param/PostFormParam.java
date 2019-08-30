@@ -21,8 +21,8 @@ import rxhttp.wrapper.utils.BuildUtil;
  */
 public class PostFormParam extends AbstractPostParam implements IUploadLengthLimit {
 
-    private ProgressCallback mCallback; //上传进度回调
-    private List<UpFile>     mFileList;  //附件集合
+    protected ProgressCallback mCallback; //上传进度回调
+    protected List<UpFile>     mFileList;  //附件集合
 
     private long uploadMaxLength = Integer.MAX_VALUE;//文件上传最大长度
 
