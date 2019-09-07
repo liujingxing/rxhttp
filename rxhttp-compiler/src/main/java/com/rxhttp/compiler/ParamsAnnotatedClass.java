@@ -89,6 +89,10 @@ public class ParamsAnnotatedClass {
         methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("setJsonParams")
+            .addJavadoc("调用本方法后，通过{@link #add(String,Object)}等一系列方法添加的参数将无效," +
+                "\n本方法仅适用于{application/json}形式的请求，" +
+                "\n如:{@link PostJsonParam,PutJsonParam,DeleteJsonParam,PatchJsonParam}," +
+                "\n其它请求调用此方法将会抛出UnsupportedOperationException异常\n")
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(String.class, "jsonParams")
                 .addStatement("param.setJsonParams(jsonParams)")
@@ -135,6 +139,9 @@ public class ParamsAnnotatedClass {
         methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("addFile")
+            .addJavadoc("RxHttp内部仅有{@link PostFormParam,PostMultiFormParam}请求支持添加文件," +
+                "\n其它请求调用一系列addFile方法将会抛出UnsupportedOperationException异常," +
+                "\n如若不能满足你的需求，可自定义Param\n")
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(String.class, "key")
                 .addParameter(File.class, "file")
@@ -288,6 +295,8 @@ public class ParamsAnnotatedClass {
         methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("setAssemblyEnabled")
+            .addJavadoc("设置单个接口是否需要添加公共参数," +
+                "\n即是否回调通过{@link #setOnParamAssembly(Function)}方法设置的接口,默认为true\n")
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(boolean.class, "enabled")
                 .addStatement("param.setAssemblyEnabled(enabled)")
@@ -296,6 +305,8 @@ public class ParamsAnnotatedClass {
         methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("setConverterEnabled")
+            .addJavadoc("设置单个接口是否需要对Http返回的数据进行转换," +
+                "\n即是否回调通过{@link #setOnConverter(Function)}方法设置的接口,默认为true\n")
             .addModifiers(Modifier.PUBLIC)
             .addParameter(boolean.class, "enabled")
             .addStatement("param.addHeader($T.DATA_DECRYPT,String.valueOf(enabled))", paramName)
