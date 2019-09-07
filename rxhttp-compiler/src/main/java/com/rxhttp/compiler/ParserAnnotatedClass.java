@@ -118,6 +118,7 @@ public class ParserAnnotatedClass {
         methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("subscribeOnCurrent")
+            .addJavadoc("设置在当前线程发请求\n")
             .addModifiers(Modifier.PUBLIC)
             .addStatement("this.scheduler=null")
             .addStatement("return this")
