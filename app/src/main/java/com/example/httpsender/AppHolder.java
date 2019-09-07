@@ -1,11 +1,14 @@
 package com.example.httpsender;
 
 import android.app.Application;
-import android.util.Log;
 
 import io.reactivex.functions.Function;
-import io.reactivex.plugins.RxJavaPlugins;
-import rxhttp.wrapper.param.*;
+import rxhttp.wrapper.param.DeleteRequest;
+import rxhttp.wrapper.param.GetRequest;
+import rxhttp.wrapper.param.Param;
+import rxhttp.wrapper.param.PostRequest;
+import rxhttp.wrapper.param.PutRequest;
+import rxhttp.wrapper.param.RxHttp;
 
 /**
  * User: ljx
@@ -30,19 +33,9 @@ public class AppHolder extends Application {
 
     private void initRxHttp() {
         //HttpSender初始化，自定义OkHttpClient对象,非必须
-//        HttpSender.init(new OkHttpClient());
-
-        //设置RxJava 全局异常处理
-        RxJavaPlugins.setErrorHandler(throwable -> {
-            /*
-              RxJava2的一个重要的设计理念是：不吃掉任何一个异常,即抛出的异常无人处理，便会导致程序崩溃
-              这就会导致一个问题，当RxJava2“downStream”取消订阅后，“upStream”仍有可能抛出异常，
-              这时由于已经取消订阅，“downStream”无法处理异常，此时的异常无人处理，便会导致程序崩溃
-             */
-        });
+//        RxHttp.init(new OkHttpClient());
+//        RxHttp.setOnConverter(s -> s); //设置数据转换器,可用于数据解密
         RxHttp.setDebug(BuildConfig.DEBUG);
-
-        RxHttp.setOnConverter(s -> s); //设置数据转换器,可用于数据解密
         RxHttp.setOnParamAssembly(new Function<Param, Param>() {
             /**
              * <p>在这里可以为所有请求添加公共参数，也可以为url统一添加前缀或者后缀
