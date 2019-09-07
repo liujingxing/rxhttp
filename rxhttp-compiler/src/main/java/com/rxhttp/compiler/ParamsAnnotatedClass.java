@@ -52,6 +52,7 @@ public class ParamsAnnotatedClass {
         methodMap.put("get", "GetParam");
         methodMap.put("head", "HeadParam");
         methodMap.put("postForm", "PostFormParam");
+        methodMap.put("postMultiForm", "PostMultiFormParam");
         methodMap.put("postJson", "PostJsonParam");
         methodMap.put("putForm", "PutFormParam");
         methodMap.put("putJson", "PutJsonParam");
