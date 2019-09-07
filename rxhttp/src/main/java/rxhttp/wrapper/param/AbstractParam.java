@@ -43,11 +43,6 @@ public abstract class AbstractParam extends LinkedHashMap<String, Object> implem
         return this;
     }
 
-    @Override
-    public Param setJsonParams(String jsonParams) {
-        return this;
-    }
-
     /**
      * @return 不带参数的url
      */
