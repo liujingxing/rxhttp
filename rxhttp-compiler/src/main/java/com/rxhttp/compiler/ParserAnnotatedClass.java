@@ -344,7 +344,7 @@ public class ParserAnnotatedClass {
 
         method = MethodSpec.methodBuilder("asDownloadProgress")
             .addModifiers(Modifier.PUBLIC)
-            .addJavadoc("@deprecated please used {@link RxHttp#asDownload(String,Consumer,Scheduler)}")
+            .addJavadoc("@deprecated please used {@link #asDownload(String,Consumer,Scheduler)}\n")
             .addAnnotation(Deprecated.class)
             .addParameter(String.class, "destPath")
             .addStatement("return asDownloadProgress(destPath,0)")
@@ -353,7 +353,7 @@ public class ParserAnnotatedClass {
 
         method = MethodSpec.methodBuilder("asDownloadProgress")
             .addModifiers(Modifier.PUBLIC)
-            .addJavadoc("@deprecated please used {@link RxHttp#asDownload(String,long,Consumer,Scheduler)}")
+            .addJavadoc("@deprecated please used {@link #asDownload(String,long,Consumer,Scheduler)}\n")
             .addAnnotation(Deprecated.class)
             .addParameter(String.class, "destPath")
             .addParameter(long.class, "offsetSize")
@@ -394,7 +394,7 @@ public class ParserAnnotatedClass {
 
         method = MethodSpec.methodBuilder("asUploadProgress")
             .addModifiers(Modifier.PUBLIC)
-            .addJavadoc("@deprecated please used {@link RxHttp#asUpload(Consumer, Scheduler)}")
+            .addJavadoc("@deprecated please used {@link #asUpload(Consumer, Scheduler)}\n")
             .addAnnotation(Deprecated.class)
             .addStatement("return asUploadProgress(SimpleParser.get(String.class))")
             .returns(observableProgressStringName);
@@ -402,7 +402,7 @@ public class ParserAnnotatedClass {
 
         method = MethodSpec.methodBuilder("asUploadProgress")
             .addModifiers(Modifier.PUBLIC)
-            .addJavadoc("@deprecated please used {@link RxHttp#asUpload(Parser, Consumer, Scheduler)}")
+            .addJavadoc("@deprecated please used {@link #asUpload(Parser, Consumer, Scheduler)}\n")
             .addAnnotation(Deprecated.class)
             .addTypeVariable(t)
             .addParameter(parserTName, "parser")

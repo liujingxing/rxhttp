@@ -1,6 +1,13 @@
 package com.rxhttp.compiler;
 
-import com.squareup.javapoet.*;
+import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.FieldSpec;
+import com.squareup.javapoet.JavaFile;
+import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.ParameterizedTypeName;
+import com.squareup.javapoet.TypeName;
+import com.squareup.javapoet.TypeSpec;
+import com.squareup.javapoet.WildcardTypeName;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -83,7 +90,9 @@ public class RxHttpGenerator {
 
         method = MethodSpec.methodBuilder("setOnConverter")
             .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-            .addJavadoc("Set Converter")
+            .addJavadoc("设置统一数据转换接口，每次请求成功后会回调该接口，通过该接口可以拿到Http返回的结果" +
+                "\n通过该接口，可以统一对数据解密，并将解密后的数据返回即可" +
+                "\n若部分接口不需要回调该接口，发请求前，调用{@link #setConverterEnabled(boolean)}方法设置false即可\n")
             .addParameter(mapStringName, "converter")
             .addStatement("$T.setOnConverter(converter)", rxHttpPluginsName)
             .returns(void.class);
@@ -91,7 +100,8 @@ public class RxHttpGenerator {
 
         method = MethodSpec.methodBuilder("setOnParamAssembly")
             .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-            .addJavadoc("Set common parameters")
+            .addJavadoc("设置统一公共参数回调接口,通过该接口,可添加公共参数/请求头，每次请求前会回调该接口" +
+                "\n若部分接口不需要添加公共参数,发请求前，调用{@link #setAssemblyEnabled(boolean)}方法设置false即可\n")
             .addParameter(mapKVName, "onParamAssembly")
             .addStatement("$T.setOnParamAssembly(onParamAssembly)", rxHttpPluginsName)
             .returns(void.class);
@@ -157,11 +167,13 @@ public class RxHttpGenerator {
 
         FieldSpec fieldSpec = FieldSpec.builder(schedulerName, "scheduler", Modifier.PRIVATE)
             .initializer("$T.io()", schedulersName)
-            .addJavadoc("The request is executed on the IO thread by default")
+            .addJavadoc("The request is executed on the IO thread by default\n")
             .build();
         TypeSpec typeSpec = TypeSpec
             .classBuilder(CLASSNAME)
-            .addJavadoc("Github：https://github.com/liujingxing/RxHttp")
+            .addJavadoc("Github" +
+                "\nhttps://github.com/liujingxing/RxHttp" +
+                "\nhttps://github.com/liujingxing/RxLife\n")
             .addModifiers(Modifier.PUBLIC)
             .addField(paramName, "param", Modifier.PRIVATE)
             .addField(fieldSpec)
