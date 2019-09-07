@@ -21,9 +21,14 @@ public interface Param extends ParamBuilder, FileBuilder<Param>, HeadersBuilder,
         return HeadParam.with(url);
     }
 
-    //Post请求，参数以Form表单键值对的形式提交
+    //Post请求，参数以Form表单键值对的形式提交,当有文件时，自动以{multipart/form-data}形式提交
     static Param postForm(@NonNull String url) {
         return PostFormParam.with(url);
+    }
+
+    //Post请求，参数以{multipart/form-data}形式提交
+    static Param postMultiForm(@NonNull String url) {
+        return PostMultiFormParam.with(url);
     }
 
     //Post请求，参数以Json形式提交
