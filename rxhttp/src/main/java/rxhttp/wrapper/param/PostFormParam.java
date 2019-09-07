@@ -14,7 +14,8 @@ import rxhttp.wrapper.progress.ProgressRequestBody;
 import rxhttp.wrapper.utils.BuildUtil;
 
 /**
- * 发送Post请求，参数以form表单键值对的形式提交
+ * 发送Post请求，参数以{application/x-www-form-urlencoded}形式提交
+ * 当带有文件时，自动以{multipart/form-data}形式提交
  * User: ljx
  * Date: 2019/1/19
  * Time: 11:36
