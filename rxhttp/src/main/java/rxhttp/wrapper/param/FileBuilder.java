@@ -12,39 +12,68 @@ import rxhttp.wrapper.entity.UpFile;
  * Date: 2019-05-19
  * Time: 18:18
  */
-public interface FileBuilder {
+@SuppressWarnings("unchecked")
+public interface FileBuilder<T> {
 
-    Param addFile(@NonNull UpFile upFile);
-
-    default Param add(String key, File file) {
+    default T add(String key, File file) {
         return addFile(key, file.getAbsolutePath());
     }
 
-    default Param addFile(String key, File file) {
+    default T addFile(String key, File file) {
         return addFile(key, file.getAbsolutePath());
     }
 
-    default Param addFile(String key, String filePath) {
+    default T addFile(String key, String filePath) {
         return addFile(new UpFile(key, filePath));
     }
 
-    default Param addFile(String key, String value, String filePath) {
+    default T addFile(String key, String value, String filePath) {
         UpFile upFile = new UpFile(key, filePath);
         upFile.setValue(value);
         return addFile(upFile);
     }
 
-    default Param addFile(String key, String value, File file) {
+    default T addFile(String key, String value, File file) {
         return addFile(key, value, file.getAbsolutePath());
     }
 
-    Param addFile(String key, List<File> fileList);
+    default T addFile(String key, List<File> fileList) {
+        for (File file : fileList) {
+            addFile(new UpFile(key, file.getAbsolutePath()));
+        }
+        return (T) this;
+    }
 
-    Param addFile(List<UpFile> upFile);
+    default T addFile(List<UpFile> upFileList) {
+        for (UpFile upFile : upFileList) {
+            addFile(upFile);
+        }
+        return (T) this;
+    }
 
-    Param removeFile(String key);
+    /**
+     * <p>添加文件对象
+     * <P>默认不支持，如有需要,自行扩展,参考{@link PostFormParam}
+     *
+     * @param upFile UpFile
+     * @return Param
+     */
+    default T addFile(@NonNull UpFile upFile) {
+        throw new UnsupportedOperationException("Please override addFile method if you need");
+    }
 
-    default Param setUploadMaxLength(long maxLength) {
+    /**
+     * 根据key 移除已添加的文件
+     * 默认不支持，如有需要,自行扩展,参考{@link PostFormParam}
+     *
+     * @param key String
+     * @return Param
+     */
+    default T removeFile(String key) {
+        throw new UnsupportedOperationException("Please override addFile method if you need");
+    }
+
+    default T setUploadMaxLength(long maxLength) {
         throw new UnsupportedOperationException("Please override setUploadMaxLength method if you need");
     }
 
@@ -55,8 +84,7 @@ public interface FileBuilder {
      * @param callback 进度回调对象
      * @return Param
      */
-    default Param setProgressCallback(ProgressCallback callback) {
+    default T setProgressCallback(ProgressCallback callback) {
         throw new UnsupportedOperationException("Please override setProgressCallback method if you need");
     }
-
 }
