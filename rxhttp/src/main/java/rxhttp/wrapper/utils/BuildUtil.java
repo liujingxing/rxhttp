@@ -150,11 +150,13 @@ public class BuildUtil {
         for (Entry<K, V> entry : map.entrySet()) {
             builder.addFormDataPart(entry.getKey().toString(), entry.getValue().toString());
         }
-        //遍历文件
-        for (UpFile file : fileList) {
-            if (!file.exists() || !file.isFile()) continue;
-            RequestBody requestBody = RequestBody.create(getMediaType(file.getName()), file);
-            builder.addFormDataPart(file.getKey(), file.getValue(), requestBody);
+        if (fileList != null) {
+            //遍历文件
+            for (UpFile file : fileList) {
+                if (!file.exists() || !file.isFile()) continue;
+                RequestBody requestBody = RequestBody.create(getMediaType(file.getName()), file);
+                builder.addFormDataPart(file.getKey(), file.getValue(), requestBody);
+            }
         }
         return builder.build();
     }
