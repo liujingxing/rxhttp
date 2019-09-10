@@ -36,36 +36,36 @@ public class DomainAnnotatedClass {
         List<MethodSpec> methodList = new ArrayList<>();
         MethodSpec.Builder method;
         for (Entry<String, VariableElement> item : mElementMap.entrySet()) {
-            method = MethodSpec.methodBuilder("setDomainTo"+item.getKey() + "IfAbsent")
-                    .addModifiers(Modifier.PUBLIC)
-                    .addStatement("String newUrl = addDomainIfAbsent(param.getSimpleUrl(), $T.$L)",
-                            ClassName.get(item.getValue().getEnclosingElement().asType()),
-                            item.getValue().getSimpleName().toString())
-                    .addStatement("param.setUrl(newUrl)")
-                    .addStatement("return (R)this")
-                    .returns(RxHttpGenerator.r);
+            method = MethodSpec.methodBuilder("setDomainTo" + item.getKey() + "IfAbsent")
+                .addModifiers(Modifier.PUBLIC)
+                .addStatement("String newUrl = addDomainIfAbsent(param.getSimpleUrl(), $T.$L)",
+                    ClassName.get(item.getValue().getEnclosingElement().asType()),
+                    item.getValue().getSimpleName().toString())
+                .addStatement("param.setUrl(newUrl)")
+                .addStatement("return (R)this")
+                .returns(RxHttpGenerator.r);
             methodList.add(method.build());
         }
 
         //对url添加域名方法
         method = MethodSpec.methodBuilder("addDomainIfAbsent")
-                .addModifiers(Modifier.PRIVATE, Modifier.STATIC)
-                .addParameter(String.class, "url")
-                .addParameter(String.class, "domain")
-                .addCode("if (url.startsWith(\"http\")) return url;\n" +
-                        "String newUrl;\n" +
-                        "if (url.startsWith(\"/\")) {\n" +
-                        "    if (domain.endsWith(\"/\"))\n" +
-                        "        newUrl = domain + url.substring(1);\n" +
-                        "    else\n" +
-                        "        newUrl = domain + url;\n" +
-                        "} else if (domain.endsWith(\"/\")) {\n" +
-                        "    newUrl = domain + url;\n" +
-                        "} else {\n" +
-                        "    newUrl = domain + \"/\" + url;\n" +
-                        "}\n" +
-                        "return newUrl;\n")
-                .returns(String.class);
+            .addModifiers(Modifier.PRIVATE, Modifier.STATIC)
+            .addParameter(String.class, "url")
+            .addParameter(String.class, "domain")
+            .addCode("if (url.startsWith(\"http\")) return url;\n" +
+                "String newUrl;\n" +
+                "if (url.startsWith(\"/\")) {\n" +
+                "    if (domain.endsWith(\"/\"))\n" +
+                "        newUrl = domain + url.substring(1);\n" +
+                "    else\n" +
+                "        newUrl = domain + url;\n" +
+                "} else if (domain.endsWith(\"/\")) {\n" +
+                "    newUrl = domain + url;\n" +
+                "} else {\n" +
+                "    newUrl = domain + \"/\" + url;\n" +
+                "}\n" +
+                "return newUrl;\n")
+            .returns(String.class);
         methodList.add(method.build());
         return methodList;
     }
