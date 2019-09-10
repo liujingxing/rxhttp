@@ -1,12 +1,14 @@
 package rxhttp.wrapper.param;
 
 
+import okhttp3.RequestBody;
+
 /**
  * User: ljx
  * Date: 2019/1/19
  * Time: 17:24
  */
-public interface BodyRequest extends NoBodyRequest, RequestBodyBuilder {
+public interface BodyRequest extends NoBodyRequest {
 
-
+    RequestBody getRequestBody();
 }

@@ -13,7 +13,7 @@ import rxhttp.wrapper.entity.UpFile;
  * Time: 18:18
  */
 @SuppressWarnings("unchecked")
-public interface FileBuilder<T> {
+public interface FileBuilder<T extends Param> {
 
     default T add(String key, File file) {
         return addFile(key, file.getAbsolutePath());
@@ -53,38 +53,27 @@ public interface FileBuilder<T> {
 
     /**
      * <p>添加文件对象
-     * <P>默认不支持，如有需要,自行扩展,参考{@link PostFormParam}
      *
      * @param upFile UpFile
      * @return Param
      */
-    default T addFile(@NonNull UpFile upFile) {
-        throw new UnsupportedOperationException("Please override addFile method if you need");
-    }
+    T addFile(@NonNull UpFile upFile);
 
     /**
      * 根据key 移除已添加的文件
-     * 默认不支持，如有需要,自行扩展,参考{@link PostFormParam}
      *
      * @param key String
      * @return Param
      */
-    default T removeFile(String key) {
-        throw new UnsupportedOperationException("Please override addFile method if you need");
-    }
+    T removeFile(String key);
 
-    default T setUploadMaxLength(long maxLength) {
-        throw new UnsupportedOperationException("Please override setUploadMaxLength method if you need");
-    }
+    T setUploadMaxLength(long maxLength);
 
     /**
      * <p>设置上传进度监听器
-     * <p>默认不支持,如有需要，自行扩展，参考{@link PostFormParam}
      *
      * @param callback 进度回调对象
      * @return Param
      */
-    default T setProgressCallback(ProgressCallback callback) {
-        throw new UnsupportedOperationException("Please override setProgressCallback method if you need");
-    }
+    T setProgressCallback(ProgressCallback callback);
 }
