@@ -117,13 +117,13 @@ public class AnnotationProcessor extends AbstractProcessor {
     private void checkParamsValidClass(TypeElement element) throws ProcessingException {
         if (!element.getModifiers().contains(Modifier.PUBLIC)) {
             throw new ProcessingException(element,
-                    "The class %s is not public",
-                    Param.class.getSimpleName());
+                "The class %s is not public",
+                Param.class.getSimpleName());
         }
         if (element.getModifiers().contains(Modifier.ABSTRACT)) {
             throw new ProcessingException(element,
-                    "The class %s is abstract. You can't annotate abstract classes with @%",
-                    element.getSimpleName().toString(), Param.class.getSimpleName());
+                "The class %s is abstract. You can't annotate abstract classes with @%",
+                element.getSimpleName().toString(), Param.class.getSimpleName());
         }
 
         TypeElement currentClass = element;
@@ -137,9 +137,9 @@ public class AnnotationProcessor extends AbstractProcessor {
 
             if (superClassType.getKind() == TypeKind.NONE) {
                 throw new ProcessingException(element,
-                        "The class %s annotated with @%s must inherit from %s",
-                        element.getQualifiedName().toString(), Param.class.getSimpleName(),
-                        "rxhttp.wrapper.param.Param");
+                    "The class %s annotated with @%s must inherit from %s",
+                    element.getQualifiedName().toString(), Param.class.getSimpleName(),
+                    "rxhttp.wrapper.param.Param");
             }
             currentClass = (TypeElement) typeUtils.asElement(superClassType);
         }
@@ -148,13 +148,13 @@ public class AnnotationProcessor extends AbstractProcessor {
     private void checkParserValidClass(TypeElement element) throws ProcessingException {
         if (!element.getModifiers().contains(Modifier.PUBLIC)) {
             throw new ProcessingException(element,
-                    "The class %s is not public",
-                    Parser.class.getSimpleName());
+                "The class %s is not public",
+                Parser.class.getSimpleName());
         }
         if (element.getModifiers().contains(Modifier.ABSTRACT)) {
             throw new ProcessingException(element,
-                    "The class %s is abstract. You can't annotate abstract classes with @%",
-                    element.getSimpleName().toString(), Parser.class.getSimpleName());
+                "The class %s is abstract. You can't annotate abstract classes with @%",
+                element.getSimpleName().toString(), Parser.class.getSimpleName());
         }
 
         TypeElement currentClass = element;
@@ -169,9 +169,9 @@ public class AnnotationProcessor extends AbstractProcessor {
 
             if (superClassType.getKind() == TypeKind.NONE) {
                 throw new ProcessingException(element,
-                        "The class %s annotated with @%s must inherit from %s",
-                        element.getQualifiedName().toString(), Parser.class.getSimpleName(),
-                        "rxhttp.wrapper.parse.Parser<T>");
+                    "The class %s annotated with @%s must inherit from %s",
+                    element.getQualifiedName().toString(), Parser.class.getSimpleName(),
+                    "rxhttp.wrapper.parse.Parser<T>");
             }
             currentClass = (TypeElement) typeUtils.asElement(superClassType);
         }
@@ -200,13 +200,13 @@ public class AnnotationProcessor extends AbstractProcessor {
     private void checkVariableValidClass(VariableElement element) throws ProcessingException {
         if (!element.getModifiers().contains(Modifier.PUBLIC)) {
             throw new ProcessingException(element,
-                    "The variable %s is not public",
-                    element.getSimpleName());
+                "The variable %s is not public",
+                element.getSimpleName());
         }
         if (!element.getModifiers().contains(Modifier.STATIC)) {
             throw new ProcessingException(element,
-                    "The variable %s is not static",
-                    element.getSimpleName().toString());
+                "The variable %s is not static",
+                element.getSimpleName().toString());
         }
     }
 

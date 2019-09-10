@@ -23,7 +23,7 @@ import javax.lang.model.util.Elements;
 
 public class RxHttpGenerator {
 
-    static final String CLASSNAME   = "RxHttp";
+    static final         String CLASSNAME   = "RxHttp";
     private static final String packageName = "rxhttp.wrapper.param";
 
     static ClassName RXHTTP = ClassName.get(packageName, CLASSNAME);
@@ -123,15 +123,15 @@ public class RxHttpGenerator {
 
 
         method = MethodSpec.methodBuilder("getParam")
-                .addModifiers(Modifier.PUBLIC)
-                .addStatement("return param")
-                .returns(paramName);
+            .addModifiers(Modifier.PUBLIC)
+            .addStatement("return param")
+            .returns(paramName);
         methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("setParam")
-                .addModifiers(Modifier.PUBLIC)
+            .addModifiers(Modifier.PUBLIC)
             .addParameter(p, "param")
-                .addStatement("this.param = param")
+            .addStatement("this.param = param")
             .addStatement("return (R)this")
             .returns(r);
         methodList.add(method.build());
@@ -141,9 +141,9 @@ public class RxHttpGenerator {
         TypeName mapName = ParameterizedTypeName.get(ClassName.get(Map.class), subString, subObject);
 
         method = MethodSpec.methodBuilder("add")
-                .addModifiers(Modifier.PUBLIC)
-                .addParameter(mapName, "map")
-                .addStatement("param.add(map)")
+            .addModifiers(Modifier.PUBLIC)
+            .addParameter(mapName, "map")
+            .addStatement("param.add(map)")
             .addStatement("return (R)this")
             .returns(r);
         methodList.add(method.build());
@@ -152,15 +152,15 @@ public class RxHttpGenerator {
         methodList.addAll(mParserAnnotatedClass.getMethodList());
 
         method = MethodSpec.methodBuilder("addDefaultDomainIfAbsent")
-                .addParameter(paramName, "param");
+            .addParameter(paramName, "param");
         if (defaultDomain != null) {
             method.addStatement("String newUrl = addDomainIfAbsent(param.getSimpleUrl(), $T.$L)",
-                    ClassName.get(defaultDomain.getEnclosingElement().asType()),
-                    defaultDomain.getSimpleName().toString())
-                    .addStatement("param.setUrl(newUrl)");
+                ClassName.get(defaultDomain.getEnclosingElement().asType()),
+                defaultDomain.getSimpleName().toString())
+                .addStatement("param.setUrl(newUrl)");
         }
         method.addStatement("return param")
-                .returns(paramName);
+            .returns(paramName);
         methodList.add(method.build());
 
         methodList.addAll(mDomainAnnotatedClass.getMethodList());
