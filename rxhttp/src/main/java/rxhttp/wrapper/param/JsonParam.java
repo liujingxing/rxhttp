@@ -7,6 +7,7 @@ import okhttp3.RequestBody;
 import rxhttp.wrapper.utils.BuildUtil;
 
 /**
+ * post、put、patch、delete请求，参数以{application/json;charset=utf-8}形式提交
  * User: ljx
  * Date: 2019-09-09
  * Time: 21:08
