@@ -7,8 +7,10 @@ import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
+import com.squareup.javapoet.TypeVariableName;
 import com.squareup.javapoet.WildcardTypeName;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +27,12 @@ public class RxHttpGenerator {
     private static final String packageName = "rxhttp.wrapper.param";
 
     static ClassName RXHTTP = ClassName.get(packageName, CLASSNAME);
+
+
+    static ClassName        paramName  = ClassName.get(packageName, "Param");
+    static ClassName        rxHttpName = ClassName.get(packageName, CLASSNAME);
+    static TypeVariableName p          = TypeVariableName.get("P", paramName);
+    static TypeVariableName r          = TypeVariableName.get("R", rxHttpName);
 
     private ParamsAnnotatedClass mParamsAnnotatedClass;
     private ParserAnnotatedClass mParserAnnotatedClass;
@@ -54,15 +62,15 @@ public class RxHttpGenerator {
         ClassName schedulerName = ClassName.get("io.reactivex", "Scheduler");
         ClassName schedulersName = ClassName.get("io.reactivex.schedulers", "Schedulers");
         ClassName functionsName = ClassName.get("io.reactivex.functions", "Function");
-        ClassName paramName = ClassName.get(packageName, "Param");
+
         ClassName stringName = ClassName.get(String.class);
 
         TypeName mapKVName = ParameterizedTypeName.get(functionsName, paramName, paramName);
         TypeName mapStringName = ParameterizedTypeName.get(functionsName, stringName, stringName);
         List<MethodSpec> methodList = new ArrayList<>(); //方法集合
         MethodSpec.Builder method = MethodSpec.constructorBuilder()
-                .addModifiers(Modifier.PRIVATE)
-                .addParameter(paramName, "param")
+            .addModifiers(Modifier.PROTECTED)
+            .addParameter(p, "param")
             .addStatement("this.param = param");
         methodList.add(method.build()); //添加构造方法
 
@@ -122,10 +130,10 @@ public class RxHttpGenerator {
 
         method = MethodSpec.methodBuilder("setParam")
                 .addModifiers(Modifier.PUBLIC)
-                .addParameter(paramName, "param")
+            .addParameter(p, "param")
                 .addStatement("this.param = param")
-                .addStatement("return this")
-                .returns(RxHttpGenerator.RXHTTP);
+            .addStatement("return (R)this")
+            .returns(r);
         methodList.add(method.build());
 
         WildcardTypeName subString = WildcardTypeName.subtypeOf(TypeName.get(String.class));
@@ -136,24 +144,14 @@ public class RxHttpGenerator {
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(mapName, "map")
                 .addStatement("param.add(map)")
-                .addStatement("return this")
-                .returns(RxHttpGenerator.RXHTTP);
-        methodList.add(method.build());
-
-        method = MethodSpec.methodBuilder("with")
-                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                .addParameter(paramName, "param")
-                .addStatement("return new $L(param)", CLASSNAME)
-                .returns(RxHttpGenerator.RXHTTP);
+            .addStatement("return (R)this")
+            .returns(r);
         methodList.add(method.build());
 
         methodList.addAll(mParamsAnnotatedClass.getMethodList());
-        methodList.addAll(mDomainAnnotatedClass.getMethodList());
         methodList.addAll(mParserAnnotatedClass.getMethodList());
 
-
         method = MethodSpec.methodBuilder("addDefaultDomainIfAbsent")
-                .addModifiers(Modifier.PUBLIC)
                 .addParameter(paramName, "param");
         if (defaultDomain != null) {
             method.addStatement("String newUrl = addDomainIfAbsent(param.getSimpleUrl(), $T.$L)",
@@ -165,22 +163,253 @@ public class RxHttpGenerator {
                 .returns(paramName);
         methodList.add(method.build());
 
-        FieldSpec fieldSpec = FieldSpec.builder(schedulerName, "scheduler", Modifier.PRIVATE)
+        methodList.addAll(mDomainAnnotatedClass.getMethodList());
+
+        FieldSpec fieldSpec = FieldSpec.builder(schedulerName, "scheduler", Modifier.PROTECTED)
             .initializer("$T.io()", schedulersName)
             .addJavadoc("The request is executed on the IO thread by default\n")
             .build();
-        TypeSpec typeSpec = TypeSpec
-            .classBuilder(CLASSNAME)
+
+        TypeSpec rxHttp = TypeSpec.classBuilder(CLASSNAME)
             .addJavadoc("Github" +
                 "\nhttps://github.com/liujingxing/RxHttp" +
                 "\nhttps://github.com/liujingxing/RxLife\n")
             .addModifiers(Modifier.PUBLIC)
-            .addField(paramName, "param", Modifier.PRIVATE)
+            .addField(p, "param", Modifier.PROTECTED)
             .addField(fieldSpec)
+            .addTypeVariable(p)
+            .addTypeVariable(r)
             .addMethods(methodList)
             .build();
 
         // Write file
-        JavaFile.builder(packageName, typeSpec).build().writeTo(filer);
+        JavaFile.builder(packageName, rxHttp)
+            .build().writeTo(filer);
+
+        ClassName noBodyParamName = ClassName.get(packageName, "NoBodyParam");
+        ClassName rxHttpNoBodyName = ClassName.get(packageName, "RxHttpNoBody");
+        ClassName formParamName = ClassName.get(packageName, "FormParam");
+        ClassName rxHttpFormName = ClassName.get(packageName, "RxHttpForm");
+        ClassName jsonParamName = ClassName.get(packageName, "JsonParam");
+        ClassName rxHttpJsonName = ClassName.get(packageName, "RxHttpJson");
+
+        TypeName rxHttpNoBody = ParameterizedTypeName.get(RXHTTP, noBodyParamName, rxHttpNoBodyName);
+        TypeName rxHttpForm = ParameterizedTypeName.get(RXHTTP, formParamName, rxHttpFormName);
+        TypeName rxHttpJson = ParameterizedTypeName.get(RXHTTP, jsonParamName, rxHttpJsonName);
+
+        method = MethodSpec.constructorBuilder()
+            .addModifiers(Modifier.PUBLIC)
+            .addParameter(noBodyParamName, "param")
+            .addStatement("super(param)");
+
+        TypeSpec rxHttpNoBodySpec = TypeSpec.classBuilder("RxHttpNoBody")
+            .addJavadoc("Github" +
+                "\nhttps://github.com/liujingxing/RxHttp" +
+                "\nhttps://github.com/liujingxing/RxLife\n")
+            .addModifiers(Modifier.PUBLIC)
+            .superclass(rxHttpNoBody)
+            .addMethod(method.build())
+            .build();
+
+        JavaFile.builder(packageName, rxHttpNoBodySpec)
+            .build().writeTo(filer);
+
+        List<MethodSpec> rxHttpFromMethod = new ArrayList<>();
+
+        method = MethodSpec.constructorBuilder()
+            .addModifiers(Modifier.PUBLIC)
+            .addParameter(formParamName, "param")
+            .addStatement("super(param)");
+        rxHttpFromMethod.add(method.build());
+
+        method = MethodSpec.methodBuilder("setMultiForm")
+            .addModifiers(Modifier.PUBLIC)
+            .addStatement("param.setMultiForm()")
+            .addStatement("return this")
+            .returns(rxHttpFormName);
+        rxHttpFromMethod.add(method.build());
+
+        method = MethodSpec.methodBuilder("setUploadMaxLength")
+            .addModifiers(Modifier.PUBLIC)
+            .addParameter(long.class, "maxLength")
+            .addStatement("param.setUploadMaxLength(maxLength)")
+            .addStatement("return this")
+            .returns(rxHttpFormName);
+        rxHttpFromMethod.add(method.build());
+
+        method = MethodSpec.methodBuilder("add")
+            .addModifiers(Modifier.PUBLIC)
+            .addParameter(String.class, "key")
+            .addParameter(File.class, "file")
+            .addStatement("param.add(key,file)")
+            .addStatement("return this")
+            .returns(rxHttpFormName);
+        rxHttpFromMethod.add(method.build());
+
+        method = MethodSpec.methodBuilder("addFile")
+            .addModifiers(Modifier.PUBLIC)
+            .addParameter(String.class, "key")
+            .addParameter(File.class, "file")
+            .addStatement("param.addFile(key,file)")
+            .addStatement("return this")
+            .returns(rxHttpFormName);
+        rxHttpFromMethod.add(method.build());
+
+        method = MethodSpec.methodBuilder("addFile")
+            .addModifiers(Modifier.PUBLIC)
+            .addParameter(String.class, "key")
+            .addParameter(String.class, "filePath")
+            .addStatement("param.addFile(key,filePath)")
+            .addStatement("return this")
+            .returns(rxHttpFormName);
+        rxHttpFromMethod.add(method.build());
+
+        method = MethodSpec.methodBuilder("addFile")
+            .addModifiers(Modifier.PUBLIC)
+            .addParameter(String.class, "key")
+            .addParameter(String.class, "value")
+            .addParameter(String.class, "filePath")
+            .addStatement("param.addFile(key,value,filePath)")
+            .addStatement("return this")
+            .returns(rxHttpFormName);
+        rxHttpFromMethod.add(method.build());
+
+        method = MethodSpec.methodBuilder("addFile")
+            .addModifiers(Modifier.PUBLIC)
+            .addParameter(String.class, "key")
+            .addParameter(String.class, "value")
+            .addParameter(File.class, "file")
+            .addStatement("param.addFile(key,value,file)")
+            .addStatement("return this")
+            .returns(rxHttpFormName);
+        rxHttpFromMethod.add(method.build());
+
+        ClassName upFileName = ClassName.get("rxhttp.wrapper.entity", "UpFile");
+        TypeName listUpFileName = ParameterizedTypeName.get(ClassName.get(List.class), upFileName);
+        TypeName listFileName = ParameterizedTypeName.get(ClassName.get(List.class), ClassName.get(File.class));
+
+        method = MethodSpec.methodBuilder("addFile")
+            .addModifiers(Modifier.PUBLIC)
+            .addParameter(upFileName, "file")
+            .addStatement("param.addFile(file)")
+            .addStatement("return this")
+            .returns(rxHttpFormName);
+        rxHttpFromMethod.add(method.build());
+
+        method = MethodSpec.methodBuilder("addFile")
+            .addModifiers(Modifier.PUBLIC)
+            .addParameter(String.class, "key")
+            .addParameter(listFileName, "fileList")
+            .addStatement("param.addFile(key,fileList)")
+            .addStatement("return this")
+            .returns(rxHttpFormName);
+        rxHttpFromMethod.add(method.build());
+
+        method = MethodSpec.methodBuilder("addFile")
+            .addModifiers(Modifier.PUBLIC)
+            .addParameter(listUpFileName, "fileList")
+            .addStatement("param.addFile(fileList)")
+            .addStatement("return this")
+            .returns(rxHttpFormName);
+        rxHttpFromMethod.add(method.build());
+
+        method = MethodSpec.methodBuilder("removeFile")
+            .addModifiers(Modifier.PUBLIC)
+            .addParameter(String.class, "key")
+            .addStatement("param.removeFile(key)")
+            .addStatement("return this")
+            .returns(rxHttpFormName);
+        rxHttpFromMethod.add(method.build());
+
+        TypeVariableName t = TypeVariableName.get("T");
+        TypeName typeName = TypeName.get(String.class);
+        ClassName progressName = ClassName.get("rxhttp.wrapper.entity", "Progress");
+        TypeName progressTName = ParameterizedTypeName.get(progressName, t);
+        TypeName progressStringName = ParameterizedTypeName.get(progressName, typeName);
+        ClassName consumerName = ClassName.get("io.reactivex.functions", "Consumer");
+        ClassName observableName = ClassName.get("io.reactivex", "Observable");
+        TypeName observableStringName = ParameterizedTypeName.get(observableName, typeName);
+        TypeName consumerProgressStringName = ParameterizedTypeName.get(consumerName, progressStringName);
+        TypeName consumerProgressTName = ParameterizedTypeName.get(consumerName, progressTName);
+        ClassName parserName = ClassName.get("rxhttp.wrapper.parse", "Parser");
+        TypeName parserTName = ParameterizedTypeName.get(parserName, t);
+        TypeName observableTName = ParameterizedTypeName.get(observableName, t);
+        ClassName simpleParserName = ClassName.get("rxhttp.wrapper.parse", "SimpleParser");
+
+        method = MethodSpec.methodBuilder("asUpload")
+            .addModifiers(Modifier.PUBLIC)
+            .addParameter(consumerProgressStringName, "progressConsumer")
+            .addStatement("return asUpload($T.get(String.class), progressConsumer, null)", simpleParserName)
+            .returns(observableStringName);
+        rxHttpFromMethod.add(method.build());
+
+        method = MethodSpec.methodBuilder("asUpload")
+            .addModifiers(Modifier.PUBLIC)
+            .addParameter(consumerProgressStringName, "progressConsumer")
+            .addParameter(schedulerName, "observeOnScheduler")
+            .addStatement("return asUpload($T.get(String.class), progressConsumer, observeOnScheduler)", simpleParserName)
+            .returns(observableStringName);
+        rxHttpFromMethod.add(method.build());
+
+        method = MethodSpec.methodBuilder("asUpload")
+            .addModifiers(Modifier.PUBLIC)
+            .addTypeVariable(t)
+            .addParameter(parserTName, "parser")
+            .addParameter(consumerProgressTName, "progressConsumer")
+            .addParameter(schedulerName, "observeOnScheduler")
+            .addStatement("Observable<Progress<T>> observable = $T\n" +
+                ".uploadProgress(addDefaultDomainIfAbsent(param), parser, scheduler)", httpSenderName)
+            .beginControlFlow("if(observeOnScheduler != null)")
+            .addStatement("observable=observable.observeOn(observeOnScheduler)")
+            .endControlFlow()
+            .addStatement("return observable.doOnNext(progressConsumer)\n" +
+                ".filter(Progress::isCompleted)\n" +
+                ".map(Progress::getResult)")
+            .returns(observableTName);
+        rxHttpFromMethod.add(method.build());
+
+
+        TypeSpec rxHttpFormSpec = TypeSpec.classBuilder("RxHttpForm")
+            .addJavadoc("Github" +
+                "\nhttps://github.com/liujingxing/RxHttp" +
+                "\nhttps://github.com/liujingxing/RxLife\n")
+            .addModifiers(Modifier.PUBLIC)
+            .superclass(rxHttpForm)
+            .addMethods(rxHttpFromMethod)
+            .build();
+
+        JavaFile.builder(packageName, rxHttpFormSpec)
+            .build().writeTo(filer);
+
+        List<MethodSpec> rxHttpJsonMethod = new ArrayList<>();
+
+
+        method = MethodSpec.constructorBuilder()
+            .addModifiers(Modifier.PUBLIC)
+            .addParameter(jsonParamName, "param")
+            .addStatement("super(param)");
+        rxHttpJsonMethod.add(method.build());
+
+        method = MethodSpec.methodBuilder("setJsonParams")
+            .addModifiers(Modifier.PUBLIC)
+            .addParameter(String.class, "jsonParams")
+            .addStatement("param.setJsonParams(jsonParams)")
+            .addStatement("return this")
+            .returns(rxHttpJsonName);
+        rxHttpJsonMethod.add(method.build());
+
+        TypeSpec rxHttpJsonSpec = TypeSpec.classBuilder("RxHttpJson")
+            .addJavadoc("Github" +
+                "\nhttps://github.com/liujingxing/RxHttp" +
+                "\nhttps://github.com/liujingxing/RxLife\n")
+            .addModifiers(Modifier.PUBLIC)
+            .superclass(rxHttpJson)
+            .addMethods(rxHttpJsonMethod)
+            .build();
+
+        JavaFile.builder(packageName, rxHttpJsonSpec)
+            .build().writeTo(filer);
+
+
     }
 }

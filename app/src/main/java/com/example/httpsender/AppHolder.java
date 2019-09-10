@@ -3,11 +3,7 @@ package com.example.httpsender;
 import android.app.Application;
 
 import io.reactivex.functions.Function;
-import rxhttp.wrapper.param.DeleteRequest;
-import rxhttp.wrapper.param.GetRequest;
 import rxhttp.wrapper.param.Param;
-import rxhttp.wrapper.param.PostRequest;
-import rxhttp.wrapper.param.PutRequest;
 import rxhttp.wrapper.param.RxHttp;
 
 /**
@@ -38,15 +34,6 @@ public class AppHolder extends Application {
 
         Function<Param, Param> onParamAssembly = p -> {
             //根据不同请求添加不同参数，子线程执行，每次发送请求前都会被回调
-            if (p instanceof GetRequest) {
-
-            } else if (p instanceof PostRequest) {
-
-            } else if (p instanceof PutRequest) {
-
-            } else if (p instanceof DeleteRequest) {
-
-            }
             //为url 添加前缀或者后缀  并重新设置url
             //p.setUrl("");
             return p.add("versionName", "1.0.0")//添加公共参数

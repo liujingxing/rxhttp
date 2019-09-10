@@ -16,18 +16,21 @@ import rxhttp.wrapper.utils.BuildUtil;
  * Date: 2019/1/19
  * Time: 14:35
  */
-public abstract class AbstractParam extends LinkedHashMap<String, Object> implements Param {
+@SuppressWarnings("unchecked")
+public abstract class AbstractParam<T extends Param> extends LinkedHashMap<String, Object> implements Param<T> {
 
-    private String  mUrl;    //链接地址
-    private Builder mHBuilder; //请求头构造器
+    private   String  mUrl;    //链接地址
+    protected String  method;
+    private   Builder mHBuilder; //请求头构造器
 
     private boolean mIsAssemblyEnabled = true;
 
     private Object       mTag;
     private CacheControl mCacheControl;
 
-    public AbstractParam(@NonNull String url) {
+    public AbstractParam(@NonNull String url, String method) {
         this.mUrl = url;
+        this.method = method;
     }
 
     /**
@@ -38,9 +41,9 @@ public abstract class AbstractParam extends LinkedHashMap<String, Object> implem
         return BuildUtil.mergeUrlAndParams(mUrl, this);
     }
 
-    public AbstractParam setUrl(@NonNull String url) {
+    public T setUrl(@NonNull String url) {
         mUrl = url;
-        return this;
+        return (T) this;
     }
 
     /**
@@ -65,27 +68,27 @@ public abstract class AbstractParam extends LinkedHashMap<String, Object> implem
     }
 
     @Override
-    public Param setHeadersBuilder(Builder builder) {
+    public T setHeadersBuilder(Builder builder) {
         mHBuilder = builder;
-        return this;
+        return (T) this;
     }
 
     @Override
-    public final Param addHeader(String key, String value) {
+    public final T addHeader(String key, String value) {
         getHeadersBuilder().add(key, value);
-        return this;
+        return (T) this;
     }
 
     @Override
-    public final Param addHeader(String line) {
+    public final T addHeader(String line) {
         getHeadersBuilder().add(line);
-        return this;
+        return (T) this;
     }
 
     @Override
-    public final Param setHeader(String key, String value) {
+    public final T setHeader(String key, String value) {
         getHeadersBuilder().set(key, value);
-        return this;
+        return (T) this;
     }
 
     @Override
@@ -94,22 +97,22 @@ public abstract class AbstractParam extends LinkedHashMap<String, Object> implem
     }
 
     @Override
-    public final Param removeAllHeader(String key) {
+    public final T removeAllHeader(String key) {
         getHeadersBuilder().removeAll(key);
-        return this;
+        return (T) this;
     }
 
     @Override
-    public final Param add(String key, Object value) {
+    public final T add(String key, Object value) {
         if (value == null) value = "";
         super.put(key, value);
-        return this;
+        return (T) this;
     }
 
     @Override
-    public Param add(Map<? extends String, ?> map) {
+    public T add(Map<? extends String, ?> map) {
         putAll(map);
-        return this;
+        return (T) this;
     }
 
     @Override
@@ -123,15 +126,15 @@ public abstract class AbstractParam extends LinkedHashMap<String, Object> implem
     }
 
     @Override
-    public Param cacheControl(CacheControl cacheControl) {
+    public T cacheControl(CacheControl cacheControl) {
         mCacheControl = cacheControl;
-        return this;
+        return (T) this;
     }
 
     @Override
-    public Param tag(Object tag) {
+    public T tag(Object tag) {
         mTag = tag;
-        return this;
+        return (T) this;
     }
 
     @Override
@@ -140,9 +143,9 @@ public abstract class AbstractParam extends LinkedHashMap<String, Object> implem
     }
 
     @Override
-    public final Param setAssemblyEnabled(boolean enabled) {
+    public final T setAssemblyEnabled(boolean enabled) {
         mIsAssemblyEnabled = enabled;
-        return this;
+        return (T) this;
     }
 
     @Override
