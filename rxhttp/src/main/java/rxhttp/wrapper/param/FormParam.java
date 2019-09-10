@@ -14,6 +14,11 @@ import rxhttp.wrapper.progress.ProgressRequestBody;
 import rxhttp.wrapper.utils.BuildUtil;
 
 /**
+ * post、put、patch、delete请求
+ * 参数以{application/x-www-form-urlencoded}形式提交
+ * 当带有文件时，自动以{multipart/form-data}形式提交
+ * 当调用{@link #setMultiForm()}方法，强制以{multipart/form-data}形式提交
+ *
  * User: ljx
  * Date: 2019-09-09
  * Time: 21:08
@@ -50,7 +55,7 @@ public class FormParam extends AbstractParam<FormParam> implements BodyRequest, 
     @Override
     public RequestBody getRequestBody() {
         RequestBody requestBody = isMultiForm || hasFile() ? BuildUtil.buildFormRequestBody(this, mFileList)
-                : BuildUtil.buildFormRequestBody(this);
+            : BuildUtil.buildFormRequestBody(this);
         final ProgressCallback callback = mCallback;
         if (callback != null) {
             //如果设置了进度回调，则对RequestBody进行装饰
@@ -103,6 +108,9 @@ public class FormParam extends AbstractParam<FormParam> implements BodyRequest, 
         return this;
     }
 
+    /**
+     * 设置提交方式为{multipart/form-data}
+     */
     public FormParam setMultiForm() {
         isMultiForm = true;
         return this;
@@ -113,6 +121,6 @@ public class FormParam extends AbstractParam<FormParam> implements BodyRequest, 
         long totalFileLength = getTotalFileLength();
         if (totalFileLength > uploadMaxLength)
             throw new IOException("The current total file length is " + totalFileLength + " byte, " +
-                    "this length cannot be greater than " + uploadMaxLength + " byte");
+                "this length cannot be greater than " + uploadMaxLength + " byte");
     }
 }
