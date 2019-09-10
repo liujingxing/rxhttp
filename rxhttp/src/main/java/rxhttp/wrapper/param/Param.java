@@ -7,62 +7,65 @@ import io.reactivex.annotations.NonNull;
  * Date: 2019/1/19
  * Time: 10:25
  */
-public interface Param extends ParamBuilder, FileBuilder<Param>, HeadersBuilder, NoBodyRequest, RequestBuilder {
+public interface Param<T extends Param> extends ParamBuilder<T>, HeadersBuilder<T>, NoBodyRequest, RequestBuilder {
+
+    String GET    = "get";
+    String HEAD   = "head";
+    String POST   = "post";
+    String PUT    = "put";
+    String PATCH  = "patch";
+    String DELETE = "delete";
+
 
     String DATA_DECRYPT = "data-decrypt";
 
     //Get请求
-    static Param get(@NonNull String url) {
-        return GetParam.with(url);
+    static NoBodyParam get(@NonNull String url) {
+        return new NoBodyParam(url, Param.GET);
     }
 
     //Head请求
-    static Param head(@NonNull String url) {
-        return HeadParam.with(url);
+    static NoBodyParam head(@NonNull String url) {
+        return new NoBodyParam(url, Param.HEAD);
     }
 
     //Post请求，参数以Form表单键值对的形式提交,当有文件时，自动以{multipart/form-data}形式提交
-    static Param postForm(@NonNull String url) {
-        return PostFormParam.with(url);
-    }
-
-    //Post请求，参数以{multipart/form-data}形式提交
-    static Param postMultiForm(@NonNull String url) {
-        return PostMultiFormParam.with(url);
+    static FormParam postForm(@NonNull String url) {
+        return new FormParam(url, POST);
     }
 
     //Post请求，参数以Json形式提交
-    static Param postJson(@NonNull String url) {
-        return PostJsonParam.with(url);
+    static JsonParam postJson(@NonNull String url) {
+        return new JsonParam(url, POST);
     }
 
     //Put请求,参数以Form表单键值对的形式提交
-    static Param putForm(@NonNull String url) {
-        return PutFormParam.with(url);
+    static FormParam putForm(@NonNull String url) {
+        return new FormParam(url, PUT);
     }
 
     //Put请求,参数以Json形式提交
-    static Param putJson(@NonNull String url) {
-        return PutJsonParam.with(url);
+    static JsonParam putJson(@NonNull String url) {
+        return new JsonParam(url, PUT);
     }
 
     //Patch请求,参数以Form表单键值对的形式提交
-    static Param patchForm(@NonNull String url) {
-        return PatchFormParam.with(url);
+    static FormParam patchForm(@NonNull String url) {
+        return new FormParam(url, Param.PATCH);
     }
 
     //Patch请求,参数以Json形式提交
-    static Param patchJson(@NonNull String url) {
-        return PatchJsonParam.with(url);
+    static JsonParam patchJson(@NonNull String url) {
+        return new JsonParam(url, PATCH);
     }
 
     //Delete请求,参数以Form表单键值对的形式提交
-    static Param deleteForm(@NonNull String url) {
-        return DeleteFormParam.with(url);
+    static FormParam deleteForm(@NonNull String url) {
+        return new FormParam(url, Param.DELETE);
     }
 
     //Delete请求,参数以Json形式提交
-    static Param deleteJson(@NonNull String url) {
-        return DeleteJsonParam.with(url);
+    static JsonParam deleteJson(@NonNull String url) {
+        return new JsonParam(url, DELETE);
     }
 }
