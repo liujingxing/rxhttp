@@ -1,12 +1,12 @@
 package rxhttp.wrapper.param;
 
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import io.reactivex.annotations.NonNull;
+import okhttp3.Request;
 import okhttp3.RequestBody;
 import rxhttp.wrapper.callback.ProgressCallback;
 import rxhttp.wrapper.entity.UpFile;
@@ -14,25 +14,25 @@ import rxhttp.wrapper.progress.ProgressRequestBody;
 import rxhttp.wrapper.utils.BuildUtil;
 
 /**
- * 发送Post请求，参数以{application/x-www-form-urlencoded}形式提交
- * 当带有文件时，自动以{multipart/form-data}形式提交
  * User: ljx
- * Date: 2019/1/19
- * Time: 11:36
+ * Date: 2019-09-09
+ * Time: 21:08
  */
-public class PostFormParam extends AbstractPostParam implements IUploadLengthLimit {
+public class FormParam extends AbstractParam<FormParam> implements BodyRequest, IUploadLengthLimit, FileBuilder<FormParam> {
 
     protected ProgressCallback mCallback; //上传进度回调
     protected List<UpFile>     mFileList;  //附件集合
 
-    private long uploadMaxLength = Integer.MAX_VALUE;//文件上传最大长度
+    private long    uploadMaxLength = Integer.MAX_VALUE;//文件上传最大长度
+    private boolean isMultiForm;
 
-    protected PostFormParam(@NonNull String url) {
-        super(url);
+    public FormParam(String url, String method) {
+        super(url, method);
     }
 
-    static PostFormParam with(String url) {
-        return new PostFormParam(url);
+    @Override
+    public Request buildRequest() {
+        return BuildUtil.buildRequest(this, method);
     }
 
     /**
@@ -42,14 +42,14 @@ public class PostFormParam extends AbstractPostParam implements IUploadLengthLim
      * @return PostFormParam
      */
     @Override
-    public final PostFormParam setProgressCallback(ProgressCallback callback) {
+    public final FormParam setProgressCallback(ProgressCallback callback) {
         mCallback = callback;
         return this;
     }
 
     @Override
     public RequestBody getRequestBody() {
-        RequestBody requestBody = hasFile() ? BuildUtil.buildFormRequestBody(this, mFileList)
+        RequestBody requestBody = isMultiForm || hasFile() ? BuildUtil.buildFormRequestBody(this, mFileList)
                 : BuildUtil.buildFormRequestBody(this);
         final ProgressCallback callback = mCallback;
         if (callback != null) {
@@ -60,7 +60,7 @@ public class PostFormParam extends AbstractPostParam implements IUploadLengthLim
     }
 
     @Override
-    public Param addFile(@NonNull UpFile upFile) {
+    public FormParam addFile(@NonNull UpFile upFile) {
         List<UpFile> fileList = mFileList;
         if (fileList == null)
             fileList = mFileList = new ArrayList<>();
@@ -69,7 +69,7 @@ public class PostFormParam extends AbstractPostParam implements IUploadLengthLim
     }
 
     @Override
-    public Param removeFile(String key) {
+    public FormParam removeFile(String key) {
         final List<UpFile> fileList = mFileList;
         if (fileList == null || key == null) return this;
         Iterator<UpFile> it = fileList.iterator();
@@ -98,8 +98,13 @@ public class PostFormParam extends AbstractPostParam implements IUploadLengthLim
     }
 
     @Override
-    public Param setUploadMaxLength(long maxLength) {
+    public FormParam setUploadMaxLength(long maxLength) {
         uploadMaxLength = maxLength;
+        return this;
+    }
+
+    public FormParam setMultiForm() {
+        isMultiForm = true;
         return this;
     }
 

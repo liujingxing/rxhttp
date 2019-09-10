@@ -3,10 +3,8 @@ package com.rxhttp.compiler;
 
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.ParameterizedTypeName;
-import com.squareup.javapoet.TypeName;
+import com.squareup.javapoet.TypeVariableName;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -37,37 +35,36 @@ public class ParamsAnnotatedClass {
     }
 
     public List<MethodSpec> getMethodList() {
-        ClassName rxHttp = RxHttpGenerator.RXHTTP;
+        TypeVariableName rxHttp = RxHttpGenerator.r;
         ClassName headerName = ClassName.get("okhttp3", "Headers");
         ClassName headerBuilderName = ClassName.get("okhttp3", "Headers.Builder");
         ClassName requestName = ClassName.get("okhttp3", "Request");
         ClassName cacheControlName = ClassName.get("okhttp3", "CacheControl");
         ClassName progressCallbackName = ClassName.get("rxhttp.wrapper.callback", "ProgressCallback");
-        ClassName upFileName = ClassName.get("rxhttp.wrapper.entity", "UpFile");
+
         ClassName paramName = ClassName.get("rxhttp.wrapper.param", "Param");
-        TypeName listUpFileName = ParameterizedTypeName.get(ClassName.get(List.class), upFileName);
-        TypeName listFileName = ParameterizedTypeName.get(ClassName.get(List.class), ClassName.get(File.class));
+
         List<MethodSpec> methodList = new ArrayList<>();
         Map<String, String> methodMap = new LinkedHashMap<>();
-        methodMap.put("get", "GetParam");
-        methodMap.put("head", "HeadParam");
-        methodMap.put("postForm", "PostFormParam");
-        methodMap.put("postMultiForm", "PostMultiFormParam");
-        methodMap.put("postJson", "PostJsonParam");
-        methodMap.put("putForm", "PutFormParam");
-        methodMap.put("putJson", "PutJsonParam");
-        methodMap.put("patchForm", "PatchFormParam");
-        methodMap.put("patchJson", "PatchJsonParam");
-        methodMap.put("deleteForm", "DeleteFormParam");
-        methodMap.put("deleteJson", "DeleteJsonParam");
+        methodMap.put("get", "RxHttpNoBody");
+        methodMap.put("head", "RxHttpNoBody");
+        methodMap.put("postForm", "RxHttpForm");
+//        methodMap.put("postMultiForm", "Param");
+        methodMap.put("postJson", "RxHttpJson");
+        methodMap.put("putForm", "RxHttpForm");
+        methodMap.put("putJson", "RxHttpJson");
+        methodMap.put("patchForm", "RxHttpForm");
+        methodMap.put("patchJson", "RxHttpJson");
+        methodMap.put("deleteForm", "RxHttpForm");
+        methodMap.put("deleteJson", "RxHttpJson");
 
         MethodSpec.Builder method;
         for (Map.Entry<String, String> map : methodMap.entrySet()) {
             method = MethodSpec.methodBuilder(map.getKey())
                     .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                     .addParameter(String.class, "url")
-                    .addStatement("return with($L.with(url))", map.getValue())
-                    .returns(rxHttp);
+                .addStatement("return new $L($T.$L(url))", map.getValue(), paramName, map.getKey())
+                    .returns(ClassName.get("rxhttp.wrapper.param", map.getValue()));
             methodList.add(method.build());
         }
 
@@ -84,19 +81,7 @@ public class ParamsAnnotatedClass {
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(String.class, "url")
                 .addStatement("param.setUrl(url)")
-                .addStatement("return this")
-                .returns(rxHttp);
-        methodList.add(method.build());
-
-        method = MethodSpec.methodBuilder("setJsonParams")
-            .addJavadoc("调用本方法后，通过{@link #add(String,Object)}等一系列方法添加的参数将无效," +
-                "\n本方法仅适用于{application/json}形式的请求，" +
-                "\n如:{@link PostJsonParam,PutJsonParam,DeleteJsonParam,PatchJsonParam}," +
-                "\n其它请求调用此方法将会抛出UnsupportedOperationException异常\n")
-                .addModifiers(Modifier.PUBLIC)
-                .addParameter(String.class, "jsonParams")
-                .addStatement("param.setJsonParams(jsonParams)")
-                .addStatement("return this")
+                .addStatement("return (R)this")
                 .returns(rxHttp);
         methodList.add(method.build());
 
@@ -105,7 +90,7 @@ public class ParamsAnnotatedClass {
                 .addParameter(String.class, "key")
                 .addParameter(Object.class, "value")
                 .addStatement("param.add(key,value)")
-                .addStatement("return this")
+            .addStatement("return (R)this")
                 .returns(rxHttp);
         methodList.add(method.build());
 
@@ -117,98 +102,7 @@ public class ParamsAnnotatedClass {
                 .beginControlFlow("if(isAdd)")
                 .addStatement("param.add(key,value)")
                 .endControlFlow()
-                .addStatement("return this")
-                .returns(rxHttp);
-        methodList.add(method.build());
-
-        method = MethodSpec.methodBuilder("setUploadMaxLength")
-                .addModifiers(Modifier.PUBLIC)
-                .addParameter(long.class, "maxLength")
-                .addStatement("param.setUploadMaxLength(maxLength)")
-                .addStatement("return this")
-                .returns(rxHttp);
-        methodList.add(method.build());
-
-        method = MethodSpec.methodBuilder("add")
-                .addModifiers(Modifier.PUBLIC)
-                .addParameter(String.class, "key")
-                .addParameter(File.class, "file")
-                .addStatement("param.add(key,file)")
-                .addStatement("return this")
-                .returns(rxHttp);
-        methodList.add(method.build());
-
-        method = MethodSpec.methodBuilder("addFile")
-            .addJavadoc("RxHttp内部仅有{@link PostFormParam,PostMultiFormParam}请求支持添加文件," +
-                "\n其它请求调用一系列addFile方法将会抛出UnsupportedOperationException异常," +
-                "\n如若不能满足你的需求，可自定义Param\n")
-                .addModifiers(Modifier.PUBLIC)
-                .addParameter(String.class, "key")
-                .addParameter(File.class, "file")
-                .addStatement("param.addFile(key,file)")
-                .addStatement("return this")
-                .returns(rxHttp);
-        methodList.add(method.build());
-
-        method = MethodSpec.methodBuilder("addFile")
-                .addModifiers(Modifier.PUBLIC)
-                .addParameter(String.class, "key")
-                .addParameter(String.class, "filePath")
-                .addStatement("param.addFile(key,filePath)")
-                .addStatement("return this")
-                .returns(rxHttp);
-        methodList.add(method.build());
-
-        method = MethodSpec.methodBuilder("addFile")
-                .addModifiers(Modifier.PUBLIC)
-                .addParameter(String.class, "key")
-                .addParameter(String.class, "value")
-                .addParameter(String.class, "filePath")
-                .addStatement("param.addFile(key,value,filePath)")
-                .addStatement("return this")
-                .returns(rxHttp);
-        methodList.add(method.build());
-
-        method = MethodSpec.methodBuilder("addFile")
-                .addModifiers(Modifier.PUBLIC)
-                .addParameter(String.class, "key")
-                .addParameter(String.class, "value")
-                .addParameter(File.class, "file")
-                .addStatement("param.addFile(key,value,file)")
-                .addStatement("return this")
-                .returns(rxHttp);
-        methodList.add(method.build());
-
-        method = MethodSpec.methodBuilder("addFile")
-                .addModifiers(Modifier.PUBLIC)
-                .addParameter(upFileName, "file")
-                .addStatement("param.addFile(file)")
-                .addStatement("return this")
-                .returns(rxHttp);
-        methodList.add(method.build());
-
-        method = MethodSpec.methodBuilder("addFile")
-                .addModifiers(Modifier.PUBLIC)
-                .addParameter(String.class, "key")
-                .addParameter(listFileName, "fileList")
-                .addStatement("param.addFile(key,fileList)")
-                .addStatement("return this")
-                .returns(rxHttp);
-        methodList.add(method.build());
-
-        method = MethodSpec.methodBuilder("addFile")
-                .addModifiers(Modifier.PUBLIC)
-                .addParameter(listUpFileName, "fileList")
-                .addStatement("param.addFile(fileList)")
-                .addStatement("return this")
-                .returns(rxHttp);
-        methodList.add(method.build());
-
-        method = MethodSpec.methodBuilder("removeFile")
-                .addModifiers(Modifier.PUBLIC)
-                .addParameter(String.class, "key")
-                .addStatement("param.removeFile(key)")
-                .addStatement("return this")
+            .addStatement("return (R)this")
                 .returns(rxHttp);
         methodList.add(method.build());
 
@@ -216,7 +110,7 @@ public class ParamsAnnotatedClass {
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(String.class, "line")
                 .addStatement("param.addHeader(line)")
-                .addStatement("return this")
+            .addStatement("return (R)this")
                 .returns(rxHttp);
         methodList.add(method.build());
 
@@ -227,7 +121,7 @@ public class ParamsAnnotatedClass {
                 .beginControlFlow("if(isAdd)")
                 .addStatement("param.addHeader(line)")
                 .endControlFlow()
-                .addStatement("return this")
+            .addStatement("return (R)this")
                 .returns(rxHttp);
         methodList.add(method.build());
 
@@ -236,7 +130,7 @@ public class ParamsAnnotatedClass {
                 .addParameter(String.class, "key")
                 .addParameter(String.class, "value")
                 .addStatement("param.addHeader(key,value)")
-                .addStatement("return this")
+            .addStatement("return (R)this")
                 .returns(rxHttp);
         methodList.add(method.build());
 
@@ -248,7 +142,7 @@ public class ParamsAnnotatedClass {
                 .beginControlFlow("if(isAdd)")
                 .addStatement("param.addHeader(key,value)")
                 .endControlFlow()
-                .addStatement("return this")
+            .addStatement("return (R)this")
                 .returns(rxHttp);
         methodList.add(method.build());
 
@@ -257,7 +151,7 @@ public class ParamsAnnotatedClass {
                 .addParameter(String.class, "key")
                 .addParameter(String.class, "value")
                 .addStatement("param.setHeader(key,value)")
-                .addStatement("return this")
+            .addStatement("return (R)this")
                 .returns(rxHttp);
         methodList.add(method.build());
 
@@ -265,7 +159,7 @@ public class ParamsAnnotatedClass {
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(long.class, "startIndex")
                 .addStatement("param.setRangeHeader(startIndex)")
-                .addStatement("return this")
+            .addStatement("return (R)this")
                 .returns(rxHttp);
         methodList.add(method.build());
 
@@ -274,7 +168,7 @@ public class ParamsAnnotatedClass {
                 .addParameter(long.class, "startIndex")
                 .addParameter(long.class, "endIndex")
                 .addStatement("param.setRangeHeader(startIndex,endIndex)")
-                .addStatement("return this")
+            .addStatement("return (R)this")
                 .returns(rxHttp);
         methodList.add(method.build());
 
@@ -282,7 +176,7 @@ public class ParamsAnnotatedClass {
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(String.class, "key")
                 .addStatement("param.removeAllHeader(key)")
-                .addStatement("return this")
+            .addStatement("return (R)this")
                 .returns(rxHttp);
         methodList.add(method.build());
 
@@ -290,7 +184,7 @@ public class ParamsAnnotatedClass {
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(headerBuilderName, "builder")
                 .addStatement("param.setHeadersBuilder(builder)")
-                .addStatement("return this")
+            .addStatement("return (R)this")
                 .returns(rxHttp);
         methodList.add(method.build());
 
@@ -300,7 +194,7 @@ public class ParamsAnnotatedClass {
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(boolean.class, "enabled")
                 .addStatement("param.setAssemblyEnabled(enabled)")
-                .addStatement("return this")
+            .addStatement("return (R)this")
                 .returns(rxHttp);
         methodList.add(method.build());
 
@@ -310,7 +204,7 @@ public class ParamsAnnotatedClass {
             .addModifiers(Modifier.PUBLIC)
             .addParameter(boolean.class, "enabled")
             .addStatement("param.addHeader($T.DATA_DECRYPT,String.valueOf(enabled))", paramName)
-            .addStatement("return this")
+            .addStatement("return (R)this")
             .returns(rxHttp);
         methodList.add(method.build());
 
@@ -361,7 +255,7 @@ public class ParamsAnnotatedClass {
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(Object.class,"tag")
                 .addStatement("param.tag(tag)")
-                .addStatement("return this")
+            .addStatement("return (R)this")
                 .returns(rxHttp);
         methodList.add(method.build());
 
@@ -375,7 +269,7 @@ public class ParamsAnnotatedClass {
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(cacheControlName,"cacheControl")
                 .addStatement("param.cacheControl(cacheControl)")
-                .addStatement("return this")
+            .addStatement("return (R)this")
                 .returns(rxHttp);
         methodList.add(method.build());
 

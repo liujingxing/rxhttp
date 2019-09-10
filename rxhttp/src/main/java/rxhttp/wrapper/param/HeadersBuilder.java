@@ -7,7 +7,7 @@ import okhttp3.Headers;
  * Date: 2019/1/22
  * Time: 13:58
  */
-public interface HeadersBuilder {
+public interface HeadersBuilder<T extends Param> {
 
     Headers getHeaders();
 
@@ -15,15 +15,15 @@ public interface HeadersBuilder {
 
     Headers.Builder getHeadersBuilder();
 
-    Param setHeadersBuilder(Headers.Builder builder);
+    T setHeadersBuilder(Headers.Builder builder);
 
-    Param addHeader(String key, String value);
+    T addHeader(String key, String value);
 
-    Param addHeader(String line);
+    T addHeader(String line);
 
-    Param setHeader(String key, String value);
+    T setHeader(String key, String value);
 
-    Param removeAllHeader(String key);
+    T removeAllHeader(String key);
 
     /**
      * 设置断点下载开始位置，结束位置默认为文件末尾
@@ -31,7 +31,7 @@ public interface HeadersBuilder {
      * @param startIndex 开始位置
      * @return Param
      */
-    default Param setRangeHeader(long startIndex) {
+    default T setRangeHeader(long startIndex) {
         return setRangeHeader(startIndex, -1);
     }
 
@@ -45,7 +45,7 @@ public interface HeadersBuilder {
      * @param endIndex   结束位置
      * @return Param
      */
-    default Param setRangeHeader(long startIndex, long endIndex) {
+    default T setRangeHeader(long startIndex, long endIndex) {
         if (endIndex < startIndex) endIndex = -1;
         String headerValue = "bytes=" + startIndex + "-";
         if (endIndex >= 0) {

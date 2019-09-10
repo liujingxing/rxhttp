@@ -17,9 +17,9 @@ import okhttp3.Request;
 import okhttp3.Response;
 import rxhttp.wrapper.callback.ProgressCallback;
 import rxhttp.wrapper.entity.Progress;
+import rxhttp.wrapper.param.FormParam;
 import rxhttp.wrapper.param.IUploadLengthLimit;
 import rxhttp.wrapper.param.Param;
-import rxhttp.wrapper.param.PostFormParam;
 import rxhttp.wrapper.parse.DownloadParser;
 import rxhttp.wrapper.parse.Parser;
 import rxhttp.wrapper.progress.ProgressInterceptor;
@@ -95,7 +95,7 @@ public final class HttpSender {
      * <p>支持任意请求方式，如：Get、Head、Post、Put等
      * <p>亦支持文件上传/下载(无进度回调)
      * {@link DownloadParser} 文件下载(无进度回调)
-     * {@link PostFormParam} 文件上传(无进度回调)
+     * {@link FormParam} 文件上传(无进度回调)
      *
      * @param param  请求参数
      * @param parser 数据解析器
@@ -112,7 +112,7 @@ public final class HttpSender {
      * <p>支持任意请求方式，如：Get、Head、Post、Put等
      * <p>亦支持文件上传/下载(无进度回调)
      * {@link DownloadParser} 文件下载(无进度回调)
-     * {@link PostFormParam} 文件上传(无进度回调)
+     * {@link FormParam} 文件上传(无进度回调)
      *
      * @param param  请求参数
      * @param parser 数据解析器
@@ -142,7 +142,7 @@ public final class HttpSender {
      * 异步发送一个请求,信息上传(支持文件上传,带进度回调)
      * 支持实现了{@link Param}接口的请求
      *
-     * @param param  请求参数，必须要重写{@link Param#setProgressCallback(ProgressCallback)}方法
+     * @param param  请求参数，必须要重写{@link FormParam#setProgressCallback(ProgressCallback)}方法
      * @param parser 数据解析器
      * @param <T>    要转换的目标数据类型
      * @return Observable<Progress>

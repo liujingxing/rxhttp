@@ -42,8 +42,8 @@ public class DomainAnnotatedClass {
                             ClassName.get(item.getValue().getEnclosingElement().asType()),
                             item.getValue().getSimpleName().toString())
                     .addStatement("param.setUrl(newUrl)")
-                    .addStatement("return this")
-                    .returns(RxHttpGenerator.RXHTTP);
+                    .addStatement("return (R)this")
+                    .returns(RxHttpGenerator.r);
             methodList.add(method.build());
         }
 

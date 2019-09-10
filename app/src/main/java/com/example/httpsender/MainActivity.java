@@ -8,6 +8,8 @@ import android.widget.ImageView;
 
 import com.example.httpsender.entity.Address;
 import com.example.httpsender.entity.Response;
+import com.example.httpsender.test.RxHttp1;
+import com.rxjava.rxlife.ObservableLife;
 import com.rxjava.rxlife.RxLife;
 
 import java.io.File;
@@ -21,6 +23,19 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ObservableLife<String> as = RxHttp1.postForm("")
+            .addFile("", "")
+            .add("", "")
+            .asString()
+            .as(RxLife.asOnMain(this));
+
+         RxHttp1.get("")
+            .add("", "")
+            .add("", "")
+            .asString()
+            .as(RxLife.asOnMain(this))
+            .subscribe();
+
     }
 
 
