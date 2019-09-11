@@ -187,11 +187,11 @@ public class RxHttpGenerator {
             .build().writeTo(filer);
 
         ClassName noBodyParamName = ClassName.get(packageName, "NoBodyParam");
-        ClassName rxHttpNoBodyName = ClassName.get(packageName, "RxHttpNoBody");
+        ClassName rxHttpNoBodyName = ClassName.get(packageName, "RxHttp$NoBodyParam");
         ClassName formParamName = ClassName.get(packageName, "FormParam");
-        ClassName rxHttpFormName = ClassName.get(packageName, "RxHttpForm");
+        ClassName rxHttpFormName = ClassName.get(packageName, "RxHttp$FormParam");
         ClassName jsonParamName = ClassName.get(packageName, "JsonParam");
-        ClassName rxHttpJsonName = ClassName.get(packageName, "RxHttpJson");
+        ClassName rxHttpJsonName = ClassName.get(packageName, "RxHttp$JsonParam");
 
         TypeName rxHttpNoBody = ParameterizedTypeName.get(RXHTTP, noBodyParamName, rxHttpNoBodyName);
         TypeName rxHttpForm = ParameterizedTypeName.get(RXHTTP, formParamName, rxHttpFormName);
@@ -202,7 +202,7 @@ public class RxHttpGenerator {
             .addParameter(noBodyParamName, "param")
             .addStatement("super(param)");
 
-        TypeSpec rxHttpNoBodySpec = TypeSpec.classBuilder("RxHttpNoBody")
+        TypeSpec rxHttpNoBodySpec = TypeSpec.classBuilder("RxHttp$NoBodyParam")
             .addJavadoc("Github" +
                 "\nhttps://github.com/liujingxing/RxHttp" +
                 "\nhttps://github.com/liujingxing/RxLife\n")
@@ -369,7 +369,7 @@ public class RxHttpGenerator {
         rxHttpFromMethod.add(method.build());
 
 
-        TypeSpec rxHttpFormSpec = TypeSpec.classBuilder("RxHttpForm")
+        TypeSpec rxHttpFormSpec = TypeSpec.classBuilder("RxHttp$FormParam")
             .addJavadoc("Github" +
                 "\nhttps://github.com/liujingxing/RxHttp" +
                 "\nhttps://github.com/liujingxing/RxLife\n")
@@ -398,7 +398,7 @@ public class RxHttpGenerator {
             .returns(rxHttpJsonName);
         rxHttpJsonMethod.add(method.build());
 
-        TypeSpec rxHttpJsonSpec = TypeSpec.classBuilder("RxHttpJson")
+        TypeSpec rxHttpJsonSpec = TypeSpec.classBuilder("RxHttp$JsonParam")
             .addJavadoc("Github" +
                 "\nhttps://github.com/liujingxing/RxHttp" +
                 "\nhttps://github.com/liujingxing/RxLife\n")
