@@ -130,7 +130,7 @@ public class AnnotationProcessor extends AbstractProcessor {
         while (true) {
             List<? extends TypeMirror> interfaces = currentClass.getInterfaces();
             for (TypeMirror typeMirror : interfaces) {
-                if (!typeMirror.toString().equals("rxhttp.wrapper.param.Param<T>")) continue;
+                if (!typeMirror.toString().equals("rxhttp.wrapper.param.Param<P>")) continue;
                 return;
             }
             TypeMirror superClassType = currentClass.getSuperclass();

@@ -10,15 +10,15 @@ import okhttp3.CacheControl;
  * Date: 2019/1/19
  * Time: 10:25
  */
-public interface ParamBuilder<T extends Param> {
+public interface ParamBuilder<P extends Param> {
 
     Map<String, Object> getParams();
 
-    T setUrl(@NonNull String url);
+    P setUrl(@NonNull String url);
 
-    T add(String key, Object value);
+    P add(String key, Object value);
 
-    T add(Map<? extends String, ?> map);
+    P add(Map<? extends String, ?> map);
 
     /**
      * @return 判断是否对参数添加装饰，即是否添加公共参数
@@ -31,9 +31,9 @@ public interface ParamBuilder<T extends Param> {
      * @param enabled true 是
      * @return Param
      */
-    T setAssemblyEnabled(boolean enabled);
+    P setAssemblyEnabled(boolean enabled);
 
-    T tag(Object tag);
+    P tag(Object tag);
 
-    T cacheControl(CacheControl cacheControl);
+    P cacheControl(CacheControl cacheControl);
 }
