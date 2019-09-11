@@ -9,9 +9,6 @@ import io.reactivex.annotations.NonNull;
  */
 public interface Param<T extends Param> extends ParamBuilder<T>, HeadersBuilder<T>, NoBodyRequest, RequestBuilder {
 
-
-
-
     String DATA_DECRYPT = "data-decrypt";
 
     //Get请求
