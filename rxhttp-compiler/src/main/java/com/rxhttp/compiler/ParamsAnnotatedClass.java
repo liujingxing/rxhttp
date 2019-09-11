@@ -44,27 +44,29 @@ public class ParamsAnnotatedClass {
         ClassName progressCallbackName = ClassName.get("rxhttp.wrapper.callback", "ProgressCallback");
 
         ClassName paramName = ClassName.get("rxhttp.wrapper.param", "Param");
+        ClassName noBodyParamName = ClassName.get("rxhttp.wrapper.param", "NoBodyParam");
+        ClassName jsonParamName = ClassName.get("rxhttp.wrapper.param", "JsonParam");
+        ClassName formParamName = ClassName.get("rxhttp.wrapper.param", "FormParam");
 
         List<MethodSpec> methodList = new ArrayList<>();
         Map<String, String> methodMap = new LinkedHashMap<>();
-        methodMap.put("get", "RxHttpNoBody");
-        methodMap.put("head", "RxHttpNoBody");
-        methodMap.put("postForm", "RxHttpForm");
-//        methodMap.put("postMultiForm", "Param");
-        methodMap.put("postJson", "RxHttpJson");
-        methodMap.put("putForm", "RxHttpForm");
-        methodMap.put("putJson", "RxHttpJson");
-        methodMap.put("patchForm", "RxHttpForm");
-        methodMap.put("patchJson", "RxHttpJson");
-        methodMap.put("deleteForm", "RxHttpForm");
-        methodMap.put("deleteJson", "RxHttpJson");
+        methodMap.put("get", "RxHttp$NoBodyParam");
+        methodMap.put("head", "RxHttp$NoBodyParam");
+        methodMap.put("postForm", "RxHttp$FormParam");
+        methodMap.put("postJson", "RxHttp$JsonParam");
+        methodMap.put("putForm", "RxHttp$FormParam");
+        methodMap.put("putJson", "RxHttp$JsonParam");
+        methodMap.put("patchForm", "RxHttp$FormParam");
+        methodMap.put("patchJson", "RxHttp$JsonParam");
+        methodMap.put("deleteForm", "RxHttp$FormParam");
+        methodMap.put("deleteJson", "RxHttp$JsonParam");
 
         MethodSpec.Builder method;
         for (Map.Entry<String, String> map : methodMap.entrySet()) {
             method = MethodSpec.methodBuilder(map.getKey())
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                 .addParameter(String.class, "url")
-                .addStatement("return new $L($T.$L(url))", map.getValue(), paramName, map.getKey())
+                .addStatement("return with($T.$L(url))", paramName, map.getKey())
                 .returns(ClassName.get("rxhttp.wrapper.param", map.getValue()));
             methodList.add(method.build());
         }
@@ -77,6 +79,27 @@ public class ParamsAnnotatedClass {
                 .returns(rxHttp);
             methodList.add(method.build());
         }
+
+        method = MethodSpec.methodBuilder("with")
+            .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+            .addParameter(noBodyParamName, "noBodyParam")
+            .addStatement("return new $L(noBodyParam)", "RxHttp$NoBodyParam")
+            .returns(ClassName.get("rxhttp.wrapper.param", "RxHttp$NoBodyParam"));
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("with")
+            .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+            .addParameter(formParamName, "formParam")
+            .addStatement("return new $L(formParam)", "RxHttp$FormParam")
+            .returns(ClassName.get("rxhttp.wrapper.param", "RxHttp$FormParam"));
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("with")
+            .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+            .addParameter(jsonParamName, "jsonParam")
+            .addStatement("return new $L(jsonParam)", "RxHttp$JsonParam")
+            .returns(ClassName.get("rxhttp.wrapper.param", "RxHttp$JsonParam"));
+        methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("setUrl")
             .addModifiers(Modifier.PUBLIC)

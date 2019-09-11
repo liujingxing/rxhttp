@@ -1,20 +1,19 @@
 package com.example.httpsender.param
 
 
-import org.json.JSONObject
-
-import rxhttp.wrapper.annotation.Param
-import rxhttp.wrapper.param.AbstractPostParam
 import okhttp3.MediaType
 import okhttp3.RequestBody
+import org.json.JSONObject
+import rxhttp.wrapper.param.JsonParam
+import rxhttp.wrapper.param.Method
 
 /**
  * User: ljx
  * Date: 2019/1/25
  * Time: 19:32
  */
-@Param(methodName = "postEncryptJson")
-class PostEncryptJsonParam(url: String) : AbstractPostParam(url) {
+//@Param(methodName = "postEncryptJson", way = SubmitWay.JSON)
+class PostEncryptJsonParam(url: String) : JsonParam(url, Method.POST) {
 
     /**
      * @return 根据自己的业务需求返回对应的RequestBody
