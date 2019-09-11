@@ -68,7 +68,7 @@ public class AnnotationProcessor extends AbstractProcessor {
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         try {
-            RxHttpGenerator paramsGenerator = new RxHttpGenerator();
+            RxHttpGenerator rxHttpGenerator = new RxHttpGenerator();
 
             ParamsAnnotatedClass paramsAnnotatedClass = new ParamsAnnotatedClass();
             for (Element element : roundEnv.getElementsAnnotatedWith(Param.class)) {
@@ -97,14 +97,14 @@ public class AnnotationProcessor extends AbstractProcessor {
             else if (elementSet.iterator().hasNext()) {
                 VariableElement variableElement = (VariableElement) elementSet.iterator().next();
                 checkVariableValidClass(variableElement);
-                paramsGenerator.setAnnotatedClass(variableElement);
+                rxHttpGenerator.setAnnotatedClass(variableElement);
             }
-            paramsGenerator.setAnnotatedClass(paramsAnnotatedClass);
-            paramsGenerator.setAnnotatedClass(parserAnnotatedClass);
-            paramsGenerator.setAnnotatedClass(domainAnnotatedClass);
+            rxHttpGenerator.setAnnotatedClass(paramsAnnotatedClass);
+            rxHttpGenerator.setAnnotatedClass(parserAnnotatedClass);
+            rxHttpGenerator.setAnnotatedClass(domainAnnotatedClass);
 
             // Generate code
-            paramsGenerator.generateCode(elementUtils, filer);
+            rxHttpGenerator.generateCode(elementUtils, filer);
         } catch (ProcessingException e) {
             error(e.getElement(), e.getMessage());
         } catch (IOException e) {

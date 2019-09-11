@@ -23,8 +23,8 @@ import javax.lang.model.util.Elements;
 
 public class RxHttpGenerator {
 
-    static final         String CLASSNAME   = "RxHttp";
-    private static final String packageName = "rxhttp.wrapper.param";
+    static final String CLASSNAME   = "RxHttp";
+    static final String packageName = "rxhttp.wrapper.param";
 
     static ClassName RXHTTP = ClassName.get(packageName, CLASSNAME);
 
@@ -67,6 +67,8 @@ public class RxHttpGenerator {
 
         TypeName mapKVName = ParameterizedTypeName.get(functionsName, paramName, paramName);
         TypeName mapStringName = ParameterizedTypeName.get(functionsName, stringName, stringName);
+
+
         List<MethodSpec> methodList = new ArrayList<>(); //方法集合
         MethodSpec.Builder method = MethodSpec.constructorBuilder()
             .addModifiers(Modifier.PROTECTED)
@@ -125,7 +127,7 @@ public class RxHttpGenerator {
         method = MethodSpec.methodBuilder("getParam")
             .addModifiers(Modifier.PUBLIC)
             .addStatement("return param")
-            .returns(paramName);
+            .returns(p);
         methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("setParam")
@@ -148,7 +150,7 @@ public class RxHttpGenerator {
             .returns(r);
         methodList.add(method.build());
 
-        methodList.addAll(mParamsAnnotatedClass.getMethodList());
+        methodList.addAll(mParamsAnnotatedClass.getMethodList(filer));
         methodList.addAll(mParserAnnotatedClass.getMethodList());
 
         method = MethodSpec.methodBuilder("addDefaultDomainIfAbsent")
@@ -382,7 +384,6 @@ public class RxHttpGenerator {
             .build().writeTo(filer);
 
         List<MethodSpec> rxHttpJsonMethod = new ArrayList<>();
-
 
         method = MethodSpec.constructorBuilder()
             .addModifiers(Modifier.PUBLIC)
