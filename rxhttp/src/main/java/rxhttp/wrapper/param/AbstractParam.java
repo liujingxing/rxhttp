@@ -17,7 +17,7 @@ import rxhttp.wrapper.utils.BuildUtil;
  * Time: 14:35
  */
 @SuppressWarnings("unchecked")
-public abstract class AbstractParam<T extends Param> extends LinkedHashMap<String, Object> implements Param<T> {
+abstract class AbstractParam<T extends Param> extends LinkedHashMap<String, Object> implements Param<T> {
 
     private   String  mUrl;    //链接地址
     protected String  method;
