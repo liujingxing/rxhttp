@@ -28,7 +28,7 @@ public class JsonParam extends BodyParam<JsonParam> {
         return BuildUtil.buildJsonRequestBody(json);
     }
 
-    public Param setJsonParams(String jsonParams) {
+    public JsonParam setJsonParams(String jsonParams) {
         this.jsonParams = jsonParams;
         return this;
     }
