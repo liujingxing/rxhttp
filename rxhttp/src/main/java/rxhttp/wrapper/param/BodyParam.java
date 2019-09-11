@@ -9,7 +9,7 @@ import rxhttp.wrapper.utils.BuildUtil;
  * Date: 2019-09-09
  * Time: 21:08
  */
-public abstract class BodyParam<T extends BodyParam> extends AbstractParam<T> implements BodyRequest {
+public abstract class BodyParam<P extends BodyParam> extends AbstractParam<P> implements BodyRequest {
 
     public BodyParam(String url, String method) {
         super(url, method);
