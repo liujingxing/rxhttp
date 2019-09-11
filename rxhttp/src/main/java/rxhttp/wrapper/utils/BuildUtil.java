@@ -22,8 +22,8 @@ import okhttp3.Request.Builder;
 import okhttp3.RequestBody;
 import rxhttp.wrapper.entity.UpFile;
 import rxhttp.wrapper.param.BodyRequest;
+import rxhttp.wrapper.param.Method;
 import rxhttp.wrapper.param.NoBodyRequest;
-import rxhttp.wrapper.param.Param;
 
 /**
  * User: ljx
@@ -38,10 +38,10 @@ public class BuildUtil {
         Builder builder = new Request.Builder().url(r.getSimpleUrl())
             .tag(r.getTag());
         switch (method) {
-            case Param.GET:
+            case Method.GET:
                 builder.get();
                 break;
-            case Param.HEAD:
+            case Method.HEAD:
                 builder.head();
                 break;
         }
@@ -60,16 +60,16 @@ public class BuildUtil {
         Builder builder = new Request.Builder().url(r.getSimpleUrl())
             .tag(r.getTag());
         switch (method) {
-            case Param.POST:
+            case Method.POST:
                 builder.post(r.getRequestBody());
                 break;
-            case Param.PUT:
+            case Method.PUT:
                 builder.put(r.getRequestBody());
                 break;
-            case Param.PATCH:
+            case Method.PATCH:
                 builder.patch(r.getRequestBody());
                 break;
-            case Param.DELETE:
+            case Method.DELETE:
                 builder.delete(r.getRequestBody());
                 break;
         }
