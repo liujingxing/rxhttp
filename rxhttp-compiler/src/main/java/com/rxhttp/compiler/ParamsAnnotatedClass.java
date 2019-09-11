@@ -53,12 +53,12 @@ public class ParamsAnnotatedClass {
         methodMap.put("get", "RxHttp$NoBodyParam");
         methodMap.put("head", "RxHttp$NoBodyParam");
         methodMap.put("postForm", "RxHttp$FormParam");
-        methodMap.put("postJson", "RxHttp$JsonParam");
         methodMap.put("putForm", "RxHttp$FormParam");
-        methodMap.put("putJson", "RxHttp$JsonParam");
         methodMap.put("patchForm", "RxHttp$FormParam");
-        methodMap.put("patchJson", "RxHttp$JsonParam");
         methodMap.put("deleteForm", "RxHttp$FormParam");
+        methodMap.put("postJson", "RxHttp$JsonParam");
+        methodMap.put("putJson", "RxHttp$JsonParam");
+        methodMap.put("patchJson", "RxHttp$JsonParam");
         methodMap.put("deleteJson", "RxHttp$JsonParam");
 
         MethodSpec.Builder method;
