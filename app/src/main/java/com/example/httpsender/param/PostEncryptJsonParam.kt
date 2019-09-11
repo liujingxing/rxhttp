@@ -4,6 +4,7 @@ package com.example.httpsender.param
 import okhttp3.MediaType
 import okhttp3.RequestBody
 import org.json.JSONObject
+import rxhttp.wrapper.annotation.Param
 import rxhttp.wrapper.param.JsonParam
 import rxhttp.wrapper.param.Method
 
@@ -12,7 +13,7 @@ import rxhttp.wrapper.param.Method
  * Date: 2019/1/25
  * Time: 19:32
  */
-//@Param(methodName = "postEncryptJson", way = SubmitWay.JSON)
+@Param(methodName = "postEncryptJson")
 class PostEncryptJsonParam(url: String) : JsonParam(url, Method.POST) {
 
     /**
