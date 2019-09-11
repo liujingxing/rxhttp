@@ -17,7 +17,7 @@ import rxhttp.wrapper.utils.BuildUtil;
  * Time: 14:35
  */
 @SuppressWarnings("unchecked")
-abstract class AbstractParam<T extends Param> extends LinkedHashMap<String, Object> implements Param<T> {
+abstract class AbstractParam<P extends Param> extends LinkedHashMap<String, Object> implements Param<P> {
 
     private   String  mUrl;    //链接地址
     protected String  method;
@@ -41,9 +41,9 @@ abstract class AbstractParam<T extends Param> extends LinkedHashMap<String, Obje
         return BuildUtil.mergeUrlAndParams(mUrl, this);
     }
 
-    public T setUrl(@NonNull String url) {
+    public P setUrl(@NonNull String url) {
         mUrl = url;
-        return (T) this;
+        return (P) this;
     }
 
     /**
@@ -68,27 +68,27 @@ abstract class AbstractParam<T extends Param> extends LinkedHashMap<String, Obje
     }
 
     @Override
-    public T setHeadersBuilder(Builder builder) {
+    public P setHeadersBuilder(Builder builder) {
         mHBuilder = builder;
-        return (T) this;
+        return (P) this;
     }
 
     @Override
-    public final T addHeader(String key, String value) {
+    public final P addHeader(String key, String value) {
         getHeadersBuilder().add(key, value);
-        return (T) this;
+        return (P) this;
     }
 
     @Override
-    public final T addHeader(String line) {
+    public final P addHeader(String line) {
         getHeadersBuilder().add(line);
-        return (T) this;
+        return (P) this;
     }
 
     @Override
-    public final T setHeader(String key, String value) {
+    public final P setHeader(String key, String value) {
         getHeadersBuilder().set(key, value);
-        return (T) this;
+        return (P) this;
     }
 
     @Override
@@ -97,22 +97,22 @@ abstract class AbstractParam<T extends Param> extends LinkedHashMap<String, Obje
     }
 
     @Override
-    public final T removeAllHeader(String key) {
+    public final P removeAllHeader(String key) {
         getHeadersBuilder().removeAll(key);
-        return (T) this;
+        return (P) this;
     }
 
     @Override
-    public final T add(String key, Object value) {
+    public final P add(String key, Object value) {
         if (value == null) value = "";
         super.put(key, value);
-        return (T) this;
+        return (P) this;
     }
 
     @Override
-    public T add(Map<? extends String, ?> map) {
+    public P add(Map<? extends String, ?> map) {
         putAll(map);
-        return (T) this;
+        return (P) this;
     }
 
     @Override
@@ -126,15 +126,15 @@ abstract class AbstractParam<T extends Param> extends LinkedHashMap<String, Obje
     }
 
     @Override
-    public T cacheControl(CacheControl cacheControl) {
+    public P cacheControl(CacheControl cacheControl) {
         mCacheControl = cacheControl;
-        return (T) this;
+        return (P) this;
     }
 
     @Override
-    public T tag(Object tag) {
+    public P tag(Object tag) {
         mTag = tag;
-        return (T) this;
+        return (P) this;
     }
 
     @Override
@@ -143,9 +143,9 @@ abstract class AbstractParam<T extends Param> extends LinkedHashMap<String, Obje
     }
 
     @Override
-    public final T setAssemblyEnabled(boolean enabled) {
+    public final P setAssemblyEnabled(boolean enabled) {
         mIsAssemblyEnabled = enabled;
-        return (T) this;
+        return (P) this;
     }
 
     @Override
