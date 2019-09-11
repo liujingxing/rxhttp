@@ -9,63 +9,58 @@ import io.reactivex.annotations.NonNull;
  */
 public interface Param<T extends Param> extends ParamBuilder<T>, HeadersBuilder<T>, NoBodyRequest, RequestBuilder {
 
-    String GET    = "get";
-    String HEAD   = "head";
-    String POST   = "post";
-    String PUT    = "put";
-    String PATCH  = "patch";
-    String DELETE = "delete";
+
 
 
     String DATA_DECRYPT = "data-decrypt";
 
     //Get请求
     static NoBodyParam get(@NonNull String url) {
-        return new NoBodyParam(url, Param.GET);
+        return new NoBodyParam(url, Method.GET);
     }
 
     //Head请求
     static NoBodyParam head(@NonNull String url) {
-        return new NoBodyParam(url, Param.HEAD);
+        return new NoBodyParam(url, Method.HEAD);
     }
 
     //Post请求，参数以Form表单键值对的形式提交,当有文件时，自动以{multipart/form-data}形式提交
     static FormParam postForm(@NonNull String url) {
-        return new FormParam(url, POST);
+        return new FormParam(url, Method.POST);
     }
 
     //Post请求，参数以Json形式提交
     static JsonParam postJson(@NonNull String url) {
-        return new JsonParam(url, POST);
+        return new JsonParam(url, Method.POST);
     }
 
     //Put请求,参数以Form表单键值对的形式提交
     static FormParam putForm(@NonNull String url) {
-        return new FormParam(url, PUT);
+        return new FormParam(url, Method.PUT);
     }
 
     //Put请求,参数以Json形式提交
     static JsonParam putJson(@NonNull String url) {
-        return new JsonParam(url, PUT);
+        return new JsonParam(url, Method.PUT);
     }
 
     //Patch请求,参数以Form表单键值对的形式提交
     static FormParam patchForm(@NonNull String url) {
-        return new FormParam(url, Param.PATCH);
+        return new FormParam(url, Method.PATCH);
     }
 
     //Patch请求,参数以Json形式提交
     static JsonParam patchJson(@NonNull String url) {
-        return new JsonParam(url, PATCH);
+        return new JsonParam(url, Method.PATCH);
     }
 
     //Delete请求,参数以Form表单键值对的形式提交
     static FormParam deleteForm(@NonNull String url) {
-        return new FormParam(url, Param.DELETE);
+        return new FormParam(url, Method.DELETE);
     }
 
     //Delete请求,参数以Json形式提交
     static JsonParam deleteJson(@NonNull String url) {
-        return new JsonParam(url, DELETE);
+        return new JsonParam(url, Method.DELETE);
     }
 }
