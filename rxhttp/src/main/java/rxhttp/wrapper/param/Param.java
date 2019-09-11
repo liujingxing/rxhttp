@@ -7,7 +7,7 @@ import io.reactivex.annotations.NonNull;
  * Date: 2019/1/19
  * Time: 10:25
  */
-public interface Param<T extends Param> extends ParamBuilder<T>, HeadersBuilder<T>, NoBodyRequest, RequestBuilder {
+public interface Param<P extends Param> extends ParamBuilder<P>, HeadersBuilder<P>, NoBodyRequest, RequestBuilder {
 
     String DATA_DECRYPT = "data-decrypt";
 
