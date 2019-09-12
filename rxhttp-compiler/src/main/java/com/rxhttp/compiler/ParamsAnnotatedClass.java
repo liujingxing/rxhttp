@@ -4,6 +4,7 @@ package com.rxhttp.compiler;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
@@ -17,8 +18,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.annotation.processing.Filer;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 
 import rxhttp.wrapper.annotation.Param;
@@ -108,6 +113,36 @@ public class ParamsAnnotatedClass {
                 .addParameter(param, "param")
                 .addStatement("super(param)");
             rxHttp$PostEncryptFormParamMethod.add(method.build());
+
+            for (Element enclosedElement : typeElement.getEnclosedElements()) {
+                if (!(enclosedElement instanceof ExecutableElement)) continue;
+                if (!enclosedElement.getModifiers().contains(Modifier.PUBLIC))
+                    continue; //过滤非public修饰符
+                if (enclosedElement.getKind() != ElementKind.METHOD)
+                    continue; //过滤非方法，
+                if (enclosedElement.getAnnotationMirrors().size() > 0)
+                    continue; //过滤重写的方法
+                List<ParameterSpec> parameterSpecs = new ArrayList<>();
+                StringBuilder builder = new StringBuilder()
+                    .append(enclosedElement.getSimpleName().toString())
+                    .append("(");
+                List<? extends VariableElement> parameters = ((ExecutableElement) enclosedElement).getParameters();
+                for (VariableElement element : parameters) {
+                    ParameterSpec parameterSpec = ParameterSpec.get(element);
+                    parameterSpecs.add(parameterSpec);
+                    builder.append(parameterSpec.name).append(",");
+                }
+                builder.deleteCharAt(builder.length() - 1).append(")");
+
+                method = MethodSpec.methodBuilder(enclosedElement.getSimpleName().toString())
+                    .addModifiers(enclosedElement.getModifiers())
+                    .addParameters(parameterSpecs)
+                    .addStatement("(($T)param)." + builder, param)
+                    .addStatement("return this")
+                    .returns(rxHttp$PostEncryptFormParam);
+                rxHttp$PostEncryptFormParamMethod.add(method.build());
+
+            }
 
             TypeSpec rxHttpPostEncryptFormParamSpec = TypeSpec.classBuilder(rxHttpName)
                 .addJavadoc("Github" +
