@@ -87,23 +87,29 @@ public class ParamsAnnotatedClass {
             TypeElement typeElement = item.getValue();
             ClassName param = ClassName.get(typeElement);
             String rxHttpName = "RxHttp$" + typeElement.getSimpleName();
-            ClassName className = ClassName.get(RxHttpGenerator.packageName, rxHttpName);
+            ClassName rxHttp$ParamName = ClassName.get(RxHttpGenerator.packageName, rxHttpName);
             method = MethodSpec.methodBuilder(item.getKey())
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                 .addParameter(String.class, "url")
-                .addStatement("return new $T(new $T(url))", className, param)
-                .returns(className);
+                .addStatement("return new $T(new $T(url))", rxHttp$ParamName, param)
+                .returns(rxHttp$ParamName);
             methodList.add(method.build());
 
             TypeMirror superclass = typeElement.getSuperclass();
-            ClassName rxHttp$PostEncryptFormParamName = ClassName.get(RxHttpGenerator.packageName, rxHttpName);
-            TypeName rxHttp$PostEncryptFormParam;
-            if (superclass.toString().equals("rxhttp.wrapper.param.FormParam")) {
-                rxHttp$PostEncryptFormParam = ClassName.get(RxHttpGenerator.packageName, "RxHttp$FormParam");
-            } else if (superclass.toString().equals("rxhttp.wrapper.param.JsonParam")) {
-                rxHttp$PostEncryptFormParam = ClassName.get(RxHttpGenerator.packageName, "RxHttp$JsonParam");
-            } else {
-                rxHttp$PostEncryptFormParam = ParameterizedTypeName.get(RxHttpGenerator.RXHTTP, param, rxHttp$PostEncryptFormParamName);
+            TypeName rxHttp$Param;
+            switch (superclass.toString()) {
+                case "rxhttp.wrapper.param.FormParam":
+                    rxHttp$Param = ClassName.get(RxHttpGenerator.packageName, "RxHttp$FormParam");
+                    break;
+                case "rxhttp.wrapper.param.JsonParam":
+                    rxHttp$Param = ClassName.get(RxHttpGenerator.packageName, "RxHttp$JsonParam");
+                    break;
+                case "rxhttp.wrapper.param.NoBodyParam":
+                    rxHttp$Param = ClassName.get(RxHttpGenerator.packageName, "RxHttp$NoBodyParam");
+                    break;
+                default:
+                    rxHttp$Param = ParameterizedTypeName.get(RxHttpGenerator.RXHTTP, param, rxHttp$ParamName);
+                    break;
             }
 
             List<MethodSpec> rxHttp$PostEncryptFormParamMethod = new ArrayList<>();
@@ -142,7 +148,7 @@ public class ParamsAnnotatedClass {
                     .addParameters(parameterSpecs)
                     .addStatement("(($T)param)." + builder, param)
                     .addStatement("return this")
-                    .returns(rxHttp$PostEncryptFormParamName);
+                    .returns(rxHttp$ParamName);
                 rxHttp$PostEncryptFormParamMethod.add(method.build());
 
             }
@@ -152,7 +158,7 @@ public class ParamsAnnotatedClass {
                     "\nhttps://github.com/liujingxing/RxHttp" +
                     "\nhttps://github.com/liujingxing/RxLife\n")
                 .addModifiers(Modifier.PUBLIC)
-                .superclass(rxHttp$PostEncryptFormParam)
+                .superclass(rxHttp$Param)
                 .addMethods(rxHttp$PostEncryptFormParamMethod)
                 .build();
 
