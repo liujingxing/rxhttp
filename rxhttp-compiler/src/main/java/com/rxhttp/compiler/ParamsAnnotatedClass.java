@@ -132,7 +132,10 @@ public class ParamsAnnotatedClass {
                     parameterSpecs.add(parameterSpec);
                     builder.append(parameterSpec.name).append(",");
                 }
-                builder.deleteCharAt(builder.length() - 1).append(")");
+                if (builder.toString().endsWith(",")) {
+                    builder.deleteCharAt(builder.length() - 1);
+                }
+                builder.append(")");
 
                 method = MethodSpec.methodBuilder(enclosedElement.getSimpleName().toString())
                     .addModifiers(enclosedElement.getModifiers())
