@@ -96,13 +96,13 @@ public class ParamsAnnotatedClass {
             methodList.add(method.build());
 
             TypeMirror superclass = typeElement.getSuperclass();
+            ClassName rxHttp$PostEncryptFormParamName = ClassName.get(RxHttpGenerator.packageName, rxHttpName);
             TypeName rxHttp$PostEncryptFormParam;
             if (superclass.toString().equals("rxhttp.wrapper.param.FormParam")) {
                 rxHttp$PostEncryptFormParam = ClassName.get(RxHttpGenerator.packageName, "RxHttp$FormParam");
             } else if (superclass.toString().equals("rxhttp.wrapper.param.JsonParam")) {
                 rxHttp$PostEncryptFormParam = ClassName.get(RxHttpGenerator.packageName, "RxHttp$JsonParam");
             } else {
-                ClassName rxHttp$PostEncryptFormParamName = ClassName.get(RxHttpGenerator.packageName, rxHttpName);
                 rxHttp$PostEncryptFormParam = ParameterizedTypeName.get(RxHttpGenerator.RXHTTP, param, rxHttp$PostEncryptFormParamName);
             }
 
@@ -142,7 +142,7 @@ public class ParamsAnnotatedClass {
                     .addParameters(parameterSpecs)
                     .addStatement("(($T)param)." + builder, param)
                     .addStatement("return this")
-                    .returns(rxHttp$PostEncryptFormParam);
+                    .returns(rxHttp$PostEncryptFormParamName);
                 rxHttp$PostEncryptFormParamMethod.add(method.build());
 
             }
