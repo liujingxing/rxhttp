@@ -27,4 +27,8 @@ public class PostEncryptJsonParam1 extends BodyParam<PostEncryptJsonParam1> {
     public RequestBody getRequestBody() {
         return null;
     }
+
+    public void test(){
+
+    }
 }
