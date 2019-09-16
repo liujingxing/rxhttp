@@ -34,7 +34,7 @@ public class FormParam extends AbstractParam<FormParam> implements IUploadLength
      * @param url    请求路径
      * @param method {@link Method#POST,Method#PUT,Method#DELETE,Method#PATCH}
      */
-    public FormParam(String url, String method) {
+    public FormParam(String url, Method method) {
         super(url, method);
     }
 
