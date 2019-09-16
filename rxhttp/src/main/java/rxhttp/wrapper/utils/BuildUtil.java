@@ -22,7 +22,6 @@ import okhttp3.Request.Builder;
 import okhttp3.RequestBody;
 import rxhttp.wrapper.entity.UpFile;
 import rxhttp.wrapper.param.BodyRequest;
-import rxhttp.wrapper.param.Method;
 import rxhttp.wrapper.param.NoBodyRequest;
 
 /**
@@ -34,17 +33,11 @@ public class BuildUtil {
 
     private static final MediaType MEDIA_TYPE_JSON = MediaType.parse("application/json;charset=utf-8");
 
-    public static Request buildRequest(@NonNull NoBodyRequest r, String method) {
-        Builder builder = new Request.Builder().url(r.getSimpleUrl())
-            .tag(r.getTag());
-        switch (method) {
-            case Method.GET:
-                builder.get();
-                break;
-            case Method.HEAD:
-                builder.head();
-                break;
-        }
+    public static Request buildRequest(@NonNull NoBodyRequest r) {
+        Builder builder = new Request.Builder()
+            .url(r.getSimpleUrl())
+            .tag(r.getTag())
+            .method(r.getMethod(), null);
         CacheControl cacheControl = r.getCacheControl();
         if (cacheControl != null) {
             builder.cacheControl(cacheControl);
@@ -56,23 +49,11 @@ public class BuildUtil {
         return builder.build();
     }
 
-    public static Request buildRequest(@NonNull BodyRequest r, String method) {
-        Builder builder = new Request.Builder().url(r.getSimpleUrl())
-            .tag(r.getTag());
-        switch (method) {
-            case Method.POST:
-                builder.post(r.getRequestBody());
-                break;
-            case Method.PUT:
-                builder.put(r.getRequestBody());
-                break;
-            case Method.PATCH:
-                builder.patch(r.getRequestBody());
-                break;
-            case Method.DELETE:
-                builder.delete(r.getRequestBody());
-                break;
-        }
+    public static Request buildRequest(@NonNull BodyRequest r) {
+        Builder builder = new Request.Builder()
+            .url(r.getSimpleUrl())
+            .tag(r.getTag())
+            .method(r.getMethod(), r.getRequestBody());
         CacheControl cacheControl = r.getCacheControl();
         if (cacheControl != null) {
             builder.cacheControl(cacheControl);

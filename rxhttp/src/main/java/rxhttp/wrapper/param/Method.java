@@ -7,10 +7,10 @@ package rxhttp.wrapper.param;
  */
 public interface Method {
 
-    String GET    = "get";
-    String HEAD   = "head";
-    String POST   = "post";
-    String PUT    = "put";
-    String PATCH  = "patch";
-    String DELETE = "delete";
+    String GET    = "GET";
+    String HEAD   = "HEAD";
+    String POST   = "POST";
+    String PUT    = "PUT";
+    String PATCH  = "PATCH";
+    String DELETE = "DELETE";
 }

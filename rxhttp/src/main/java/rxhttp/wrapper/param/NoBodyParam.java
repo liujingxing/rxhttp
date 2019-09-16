@@ -17,6 +17,6 @@ public class NoBodyParam extends AbstractParam<NoBodyParam> implements NoBodyReq
 
     @Override
     public Request buildRequest() {
-        return BuildUtil.buildRequest(this, mMethod);
+        return BuildUtil.buildRequest(this);
     }
 }
