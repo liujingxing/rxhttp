@@ -24,7 +24,7 @@ class PostEncryptJsonParam(url: String) : JsonParam(url, Method.POST) {
         //第一步，将参数转换为Json字符串
         val json = JSONObject(this).toString()
         //第二步，加密
-        val encryptByte = encrypt(json, "HttpSender")
+        val encryptByte = encrypt(json, "RxHttp")
         //第三部，创建RequestBody并返回
         return RequestBody.create(MEDIA_TYPE_JSON, encryptByte!!)
     }
