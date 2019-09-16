@@ -15,6 +15,10 @@ public class JsonParam extends AbstractParam<JsonParam> {
 
     protected String jsonParams; //Json 字符串参数
 
+    /**
+     * @param url    请求路径
+     * @param method {@link Method#POST,Method#PUT,Method#DELETE,Method#PATCH}
+     */
     public JsonParam(String url, String method) {
         super(url, method);
     }
