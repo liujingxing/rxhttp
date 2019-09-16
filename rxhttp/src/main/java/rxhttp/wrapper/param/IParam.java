@@ -10,7 +10,7 @@ import okhttp3.CacheControl;
  * Date: 2019/1/19
  * Time: 10:25
  */
-public interface ParamBuilder<P extends Param> {
+public interface IParam<P extends Param> {
 
     Map<String, Object> getParams();
 
