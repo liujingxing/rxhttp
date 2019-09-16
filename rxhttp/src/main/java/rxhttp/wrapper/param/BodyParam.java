@@ -17,6 +17,6 @@ public abstract class BodyParam<P extends BodyParam> extends AbstractParam<P> im
 
     @Override
     public Request buildRequest() {
-        return BuildUtil.buildRequest(this, method);
+        return BuildUtil.buildRequest(this, mMethod);
     }
 }
