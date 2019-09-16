@@ -22,6 +22,7 @@ import okhttp3.Request.Builder;
 import okhttp3.RequestBody;
 import rxhttp.wrapper.entity.UpFile;
 import rxhttp.wrapper.param.IRequest;
+import rxhttp.wrapper.param.Method;
 
 /**
  * User: ljx
@@ -33,10 +34,12 @@ public class BuildUtil {
     private static final MediaType MEDIA_TYPE_JSON = MediaType.parse("application/json;charset=utf-8");
 
     public static Request buildRequest(@NonNull IRequest r) {
+        Method method = r.getMethod();
+        String url = method == Method.GET || method == Method.HEAD ? r.getUrl() : r.getSimpleUrl();
         Builder builder = new Request.Builder()
-            .url(r.getSimpleUrl())
+            .url(url)
             .tag(r.getTag())
-            .method(r.getMethod().name(), r.getRequestBody());
+            .method(method.name(), r.getRequestBody());
         CacheControl cacheControl = r.getCacheControl();
         if (cacheControl != null) {
             builder.cacheControl(cacheControl);

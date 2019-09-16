@@ -51,8 +51,8 @@ public class LogUtil {
 
     public static void log(@NonNull Param param) {
         if (!isDebug) return;
-        String requestInfo = "------------------- request start " +
-            param.getClass().getSimpleName() + " -------------------" +
+        String requestInfo = "------------------- request start Method=" + param.getMethod().name() +
+            " " + param.getClass().getSimpleName() + " -------------------" +
             "  \nurl = " + param.getUrl() +
             "\n\nheaders = " + param.getHeaders();
 
