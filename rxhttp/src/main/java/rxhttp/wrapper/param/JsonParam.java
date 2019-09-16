@@ -11,7 +11,7 @@ import rxhttp.wrapper.utils.BuildUtil;
  * Date: 2019-09-09
  * Time: 21:08
  */
-public class JsonParam extends BodyParam<JsonParam> {
+public class JsonParam extends AbstractParam<JsonParam> {
 
     protected String jsonParams; //Json 字符串参数
 
