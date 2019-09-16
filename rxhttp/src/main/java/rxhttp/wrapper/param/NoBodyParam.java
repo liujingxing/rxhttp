@@ -10,6 +10,10 @@ import okhttp3.RequestBody;
  */
 public class NoBodyParam extends AbstractParam<NoBodyParam> {
 
+    /**
+     * @param url    请求路径
+     * @param method {@link Method#GET,Method#HEAD,Method#DELETE}
+     */
     public NoBodyParam(String url, String method) {
         super(url, method);
     }
