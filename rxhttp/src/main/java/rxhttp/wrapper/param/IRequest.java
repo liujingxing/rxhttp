@@ -26,7 +26,7 @@ public interface IRequest {
 
 
     /**
-     * @return 请求头信息
+     * @return 请求方法，GET、POST等
      */
     String getMethod();
 
