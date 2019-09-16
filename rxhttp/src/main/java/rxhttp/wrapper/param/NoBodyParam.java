@@ -1,7 +1,6 @@
 package rxhttp.wrapper.param;
 
-import okhttp3.Request;
-import rxhttp.wrapper.utils.BuildUtil;
+import okhttp3.RequestBody;
 
 /**
  * Get、Head没有body的请求调用此类
@@ -9,14 +8,14 @@ import rxhttp.wrapper.utils.BuildUtil;
  * Date: 2019-09-09
  * Time: 21:08
  */
-public class NoBodyParam extends AbstractParam<NoBodyParam> implements NoBodyRequest {
+public class NoBodyParam extends AbstractParam<NoBodyParam> {
 
     public NoBodyParam(String url, String method) {
         super(url, method);
     }
 
     @Override
-    public Request buildRequest() {
-        return BuildUtil.buildRequest(this);
+    public RequestBody getRequestBody() {
+        return null;
     }
 }
