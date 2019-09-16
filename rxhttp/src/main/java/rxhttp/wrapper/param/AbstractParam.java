@@ -20,7 +20,7 @@ import rxhttp.wrapper.utils.BuildUtil;
 abstract class AbstractParam<P extends Param> extends LinkedHashMap<String, Object> implements Param<P> {
 
     private   String  mUrl;    //链接地址
-    protected String  method;
+    protected String  mMethod;
     private   Builder mHBuilder; //请求头构造器
 
     private boolean mIsAssemblyEnabled = true;
@@ -30,7 +30,7 @@ abstract class AbstractParam<P extends Param> extends LinkedHashMap<String, Obje
 
     public AbstractParam(@NonNull String url, String method) {
         this.mUrl = url;
-        this.method = method;
+        this.mMethod = method;
     }
 
     /**

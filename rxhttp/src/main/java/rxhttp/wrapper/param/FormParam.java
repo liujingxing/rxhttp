@@ -37,7 +37,7 @@ public class FormParam extends BodyParam<FormParam> implements IUploadLengthLimi
 
     @Override
     public Request buildRequest() {
-        return BuildUtil.buildRequest(this, method);
+        return BuildUtil.buildRequest(this, mMethod);
     }
 
     /**
