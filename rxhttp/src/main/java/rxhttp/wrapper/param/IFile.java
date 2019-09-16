@@ -13,7 +13,7 @@ import rxhttp.wrapper.entity.UpFile;
  * Time: 18:18
  */
 @SuppressWarnings("unchecked")
-public interface FileBuilder<P extends Param> {
+public interface IFile<P extends Param> {
 
     default P add(String key, File file) {
         return addFile(key, file.getAbsolutePath());

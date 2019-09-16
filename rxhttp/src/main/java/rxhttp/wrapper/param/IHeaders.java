@@ -7,7 +7,7 @@ import okhttp3.Headers;
  * Date: 2019/1/22
  * Time: 13:58
  */
-public interface HeadersBuilder<P extends Param> {
+public interface IHeaders<P extends Param> {
 
     Headers getHeaders();
 
