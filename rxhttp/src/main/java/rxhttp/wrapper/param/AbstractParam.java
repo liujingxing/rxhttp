@@ -28,6 +28,10 @@ public abstract class AbstractParam<P extends Param> extends LinkedHashMap<Strin
     private Object       mTag;
     private CacheControl mCacheControl;
 
+    /**
+     * @param url    请求路径
+     * @param method {@link Method#GET,Method#HEAD,Method#POST,Method#PUT,Method#DELETE,Method#PATCH}
+     */
     public AbstractParam(@NonNull String url, String method) {
         this.mUrl = url;
         this.mMethod = method;
