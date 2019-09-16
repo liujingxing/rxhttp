@@ -19,9 +19,9 @@ import rxhttp.wrapper.utils.BuildUtil;
 @SuppressWarnings("unchecked")
 abstract class AbstractParam<P extends Param> extends LinkedHashMap<String, Object> implements Param<P> {
 
-    private   String  mUrl;    //链接地址
-    protected String  mMethod;
-    private   Builder mHBuilder; //请求头构造器
+    private String  mUrl;    //链接地址
+    private String  mMethod;
+    private Builder mHBuilder; //请求头构造器
 
     private boolean mIsAssemblyEnabled = true;
 
@@ -52,6 +52,11 @@ abstract class AbstractParam<P extends Param> extends LinkedHashMap<String, Obje
     @Override
     public final String getSimpleUrl() {
         return mUrl;
+    }
+
+    @Override
+    public String getMethod() {
+        return mMethod;
     }
 
     @Nullable
