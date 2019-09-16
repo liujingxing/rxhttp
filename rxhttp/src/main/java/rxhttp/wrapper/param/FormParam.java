@@ -6,7 +6,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import io.reactivex.annotations.NonNull;
-import okhttp3.Request;
 import okhttp3.RequestBody;
 import rxhttp.wrapper.callback.ProgressCallback;
 import rxhttp.wrapper.entity.UpFile;
@@ -31,13 +30,12 @@ public class FormParam extends BodyParam<FormParam> implements IUploadLengthLimi
     private long    uploadMaxLength = Integer.MAX_VALUE;//文件上传最大长度
     private boolean isMultiForm;
 
+    /**
+     * @param url    请求路径
+     * @param method {@link Method#GET,Method#HEAD,Method#POST,Method#PUT,Method#DELETE,Method#PATCH}
+     */
     public FormParam(String url, String method) {
         super(url, method);
-    }
-
-    @Override
-    public Request buildRequest() {
-        return BuildUtil.buildRequest(this, mMethod);
     }
 
     /**

@@ -21,6 +21,12 @@ public interface NoBodyRequest {
      */
     String getSimpleUrl();
 
+
+    /**
+     * @return 请求头信息
+     */
+    String getMethod();
+
     /**
      * @return 请求头信息
      */
