@@ -36,7 +36,7 @@ public class BuildUtil {
         Builder builder = new Request.Builder()
             .url(r.getSimpleUrl())
             .tag(r.getTag())
-            .method(r.getMethod(), r.getRequestBody());
+            .method(r.getMethod().name(), r.getRequestBody());
         CacheControl cacheControl = r.getCacheControl();
         if (cacheControl != null) {
             builder.cacheControl(cacheControl);

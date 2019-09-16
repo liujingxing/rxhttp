@@ -13,6 +13,7 @@ import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import rxhttp.wrapper.param.Method;
 import rxhttp.wrapper.param.Param;
 import rxhttp.wrapper.param.RxHttp;
 import rxhttp.wrapper.ssl.SSLSocketFactoryImpl;
@@ -58,9 +59,15 @@ public class AppHolder extends Application {
 //        RxHttp.setOnConverter(s -> s); //设置数据转换器,可用于数据解密
 
         Function<Param, Param> onParamAssembly = p -> {
-            //根据不同请求添加不同参数，子线程执行，每次发送请求前都会被回调
-            //为url 添加前缀或者后缀  并重新设置url
-            //p.setUrl("");
+            /*根据不同请求添加不同参数，子线程执行，每次发送请求前都会被回调
+            如果希望部分请求不回调这里，发请求前调用Param.setAssemblyEnabled(false)即可
+             */
+            Method method = p.getMethod();
+            if (method.isGet()) { //Get请求
+
+            } else if (method.isPost()) { //Post请求
+
+            }
             return p.add("versionName", "1.0.0")//添加公共参数
                 .addHeader("deviceType", "android"); //添加公共请求头
         };

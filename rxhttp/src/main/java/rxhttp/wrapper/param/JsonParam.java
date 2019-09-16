@@ -19,7 +19,7 @@ public class JsonParam extends AbstractParam<JsonParam> {
      * @param url    请求路径
      * @param method {@link Method#POST,Method#PUT,Method#DELETE,Method#PATCH}
      */
-    public JsonParam(String url, String method) {
+    public JsonParam(String url, Method method) {
         super(url, method);
     }
 
