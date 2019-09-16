@@ -97,6 +97,7 @@ public class ParamsAnnotatedClass {
 
             TypeMirror superclass = typeElement.getSuperclass();
             TypeName rxHttp$Param;
+            String prefix = "((" + param.simpleName() + ")param).";
             switch (superclass.toString()) {
                 case "rxhttp.wrapper.param.FormParam":
                     rxHttp$Param = ClassName.get(RxHttpGenerator.packageName, "RxHttp$FormParam");
@@ -108,6 +109,7 @@ public class ParamsAnnotatedClass {
                     rxHttp$Param = ClassName.get(RxHttpGenerator.packageName, "RxHttp$NoBodyParam");
                     break;
                 default:
+                    prefix = "param.";
                     rxHttp$Param = ParameterizedTypeName.get(RxHttpGenerator.RXHTTP, param, rxHttp$ParamName);
                     break;
             }
@@ -154,12 +156,12 @@ public class ParamsAnnotatedClass {
                     .addParameters(parameterSpecs);
 
                 if (returnType == rxHttp$ParamName) {
-                    method.addStatement("(($T)param)." + methodBuilder, param)
+                    method.addStatement(prefix + methodBuilder, param)
                         .addStatement("return this");
                 } else if (returnType.toString().equals("void")) {
-                    method.addStatement("(($T)param)." + methodBuilder, param);
+                    method.addStatement(prefix + methodBuilder);
                 } else {
-                    method.addStatement("return (($T)param)." + methodBuilder, param);
+                    method.addStatement("return " + prefix + methodBuilder, param);
                 }
                 method.returns(returnType);
                 rxHttp$PostEncryptFormParamMethod.add(method.build());
