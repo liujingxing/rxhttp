@@ -22,7 +22,7 @@ import rxhttp.wrapper.utils.BuildUtil;
  * Date: 2019-09-09
  * Time: 21:08
  */
-public class FormParam extends AbstractParam<FormParam> implements IUploadLengthLimit, FileBuilder<FormParam> {
+public class FormParam extends AbstractParam<FormParam> implements IUploadLengthLimit, IFile<FormParam> {
 
     protected ProgressCallback mCallback; //上传进度回调
     protected List<UpFile>     mFileList;  //附件集合

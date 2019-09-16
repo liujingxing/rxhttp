@@ -31,7 +31,7 @@ import io.reactivex.plugins.RxJavaPlugins;
 import okhttp3.Call;
 import okhttp3.Response;
 import rxhttp.wrapper.entity.Progress;
-import rxhttp.wrapper.param.FileBuilder;
+import rxhttp.wrapper.param.IFile;
 import rxhttp.wrapper.param.Param;
 import rxhttp.wrapper.parse.Parser;
 import rxhttp.wrapper.utils.LogUtil;
@@ -59,7 +59,7 @@ public final class ObservableUpload<T> extends Observable<Progress<T>> {
         observer.onSubscribe(emitter);
 
         try {
-            ((FileBuilder)param).setProgressCallback((progress, currentSize, totalSize) -> {
+            ((IFile)param).setProgressCallback((progress, currentSize, totalSize) -> {
                 //这里最多回调100次,仅在进度有更新时,才会回调
                 emitter.onNext(new Progress<>(progress, currentSize, totalSize));
             });
