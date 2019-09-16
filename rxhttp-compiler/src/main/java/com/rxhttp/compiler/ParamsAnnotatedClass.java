@@ -128,7 +128,7 @@ public class ParamsAnnotatedClass {
                     continue; //过滤非public修饰符
                 if (enclosedElement.getKind() != ElementKind.METHOD)
                     continue; //过滤非方法，
-                if (enclosedElement.getAnnotationMirrors().size() > 0)
+                if (enclosedElement.getAnnotation(Override.class) != null)
                     continue; //过滤重写的方法
                 TypeMirror returnTypeMirror = ((ExecutableElement) enclosedElement).getReturnType();
 
