@@ -15,7 +15,7 @@ public class NoBodyParam extends AbstractParam<NoBodyParam> {
     }
 
     @Override
-    public RequestBody getRequestBody() {
+    public final RequestBody getRequestBody() {
         return null;
     }
 }
