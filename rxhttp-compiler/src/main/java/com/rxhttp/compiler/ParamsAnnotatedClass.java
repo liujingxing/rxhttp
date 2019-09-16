@@ -128,27 +128,40 @@ public class ParamsAnnotatedClass {
                     continue; //过滤非方法，
                 if (enclosedElement.getAnnotationMirrors().size() > 0)
                     continue; //过滤重写的方法
+                TypeMirror returnTypeMirror = ((ExecutableElement) enclosedElement).getReturnType();
+
+                TypeName returnType = TypeName.get(returnTypeMirror);
+                if (returnType.toString().equals(param.toString())) {
+                    returnType = rxHttp$ParamName;
+                }
                 List<ParameterSpec> parameterSpecs = new ArrayList<>();
-                StringBuilder builder = new StringBuilder()
+                StringBuilder methodBuilder = new StringBuilder()
                     .append(enclosedElement.getSimpleName().toString())
                     .append("(");
                 List<? extends VariableElement> parameters = ((ExecutableElement) enclosedElement).getParameters();
                 for (VariableElement element : parameters) {
                     ParameterSpec parameterSpec = ParameterSpec.get(element);
                     parameterSpecs.add(parameterSpec);
-                    builder.append(parameterSpec.name).append(",");
+                    methodBuilder.append(parameterSpec.name).append(",");
                 }
-                if (builder.toString().endsWith(",")) {
-                    builder.deleteCharAt(builder.length() - 1);
+                if (methodBuilder.toString().endsWith(",")) {
+                    methodBuilder.deleteCharAt(methodBuilder.length() - 1);
                 }
-                builder.append(")");
+                methodBuilder.append(")");
 
                 method = MethodSpec.methodBuilder(enclosedElement.getSimpleName().toString())
                     .addModifiers(enclosedElement.getModifiers())
-                    .addParameters(parameterSpecs)
-                    .addStatement("(($T)param)." + builder, param)
-                    .addStatement("return this")
-                    .returns(rxHttp$ParamName);
+                    .addParameters(parameterSpecs);
+
+                if (returnType == rxHttp$ParamName) {
+                    method.addStatement("(($T)param)." + methodBuilder, param)
+                        .addStatement("return this");
+                } else if (returnType.toString().equals("void")) {
+                    method.addStatement("(($T)param)." + methodBuilder, param);
+                } else {
+                    method.addStatement("return (($T)param)." + methodBuilder, param);
+                }
+                method.returns(returnType);
                 rxHttp$PostEncryptFormParamMethod.add(method.build());
 
             }

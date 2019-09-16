@@ -30,4 +30,8 @@ public class PostEncryptFormParam extends FormParam {
     public PostEncryptFormParam test2(long a, float b) {
         return this;
     }
+
+    public int add(int a, int b) {
+        return a + b;
+    }
 }
