@@ -246,10 +246,12 @@ RxHttp.init(OkHttpClient okHttpClient, boolean debug)
 RxHttp.setOnParamAssembly(new Function() {
     @Override
     public Param apply(Param p) {
-        if (p instanceof GetRequest) {//根据不同请求添加不同参数
-        } else if (p instanceof PostRequest) {
-        } else if (p instanceof PutRequest) {
-        } else if (p instanceof DeleteRequest) {
+        Method method = p.getMethod();
+        //根据不同请求添加不同参数
+        if (method.isGet()) { //Get请求
+
+        } else if (method.isPost()) { //Post请求
+
         }
         //可以通过 p.getSimpleUrl() 拿到url更改后，重新设置
         //p.setUrl("");
