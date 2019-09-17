@@ -33,6 +33,11 @@ RxHttp是基于OkHttp的二次封装，并于RxJava做到无缝衔接，一条�
 
 **RxHttp&RxLife 交流群：378530627**
 
+**[常见问题](https://github.com/liujingxing/RxHttp/wiki/%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98)**
+
+**[更新日志](https://github.com/liujingxing/RxHttp/wiki/%E6%9B%B4%E6%96%B0%E6%97%A5%E5%BF%97)**
+
+
 ## Demo演示
 
 ![image](https://github.com/liujingxing/RxHttp/blob/master/screen/screen_record.gif)
@@ -342,11 +347,6 @@ RxHttp作为开源库，可混淆，也可不混淆，如果不希望被混淆�
 如：apply plugin: 'kotlin-kapt'
 
 经过以上步骤后还未生成RxHttp类，请联系我。
-
-
-**[常见问题](https://github.com/liujingxing/RxHttp/wiki/%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98)**
-
-**[更新日志](https://github.com/liujingxing/RxHttp/wiki/%E6%9B%B4%E6%96%B0%E6%97%A5%E5%BF%97)**
 
 
 
