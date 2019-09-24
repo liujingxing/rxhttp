@@ -8,16 +8,16 @@ package com.example.httpsender.entity;
  */
 public class Response<T> {
 
-    private int    code;
-    private String msg;
+    private int    errorCode;
+    private String errorMsg;
     private T      data;
 
     public int getCode() {
-        return code;
+        return errorCode;
     }
 
     public String getMsg() {
-        return msg;
+        return errorMsg;
     }
 
     public T getData() {
