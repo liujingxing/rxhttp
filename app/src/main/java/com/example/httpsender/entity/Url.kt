@@ -16,7 +16,7 @@ class Url {
         const val update = "http://update.9158.com"
 
         @DefaultDomain //设置为默认域名
-        const val baseUrl = "http://ip.taobao.com/"
+        const val baseUrl = "https://www.wanandroid.com/"
     }
 
 }

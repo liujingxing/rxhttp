@@ -2,7 +2,6 @@ package com.example.httpsender.parser
 
 
 import com.example.httpsender.entity.Response
-import com.example.httpsender.entity.Url
 import rxhttp.wrapper.annotation.Parser
 import rxhttp.wrapper.entity.ParameterizedTypeImpl
 import rxhttp.wrapper.exception.ParseException
@@ -12,7 +11,7 @@ import java.io.IOException
 import java.lang.reflect.Type
 
 /**
- * Data<T> 数据解析器 ,解析完成对Data对象做判断,如果ok,返回数据 T
+ * Response<T> 数据解析器 ,解析完成对Data对象做判断,如果ok,返回数据 T
  * User: ljx
  * Date: 2018/10/23
  * Time: 13:49

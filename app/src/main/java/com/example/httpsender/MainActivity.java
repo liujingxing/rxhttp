@@ -1,13 +1,17 @@
 package com.example.httpsender;
 
 import android.content.Intent;
+import android.databinding.DataBindingUtil;
+import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.widget.ImageView;
 
-import com.example.httpsender.entity.Address;
-import com.example.httpsender.entity.Response;
+import com.example.httpsender.databinding.MainActivityBinding;
+import com.example.httpsender.entity.Article;
+import com.google.gson.Gson;
 import com.rxjava.rxlife.RxLife;
 
 import java.io.File;
@@ -17,11 +21,12 @@ import rxhttp.wrapper.param.RxHttp;
 
 public class MainActivity extends AppCompatActivity {
 
+    private MainActivityBinding mBinding;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
+        mBinding = DataBindingUtil.setContentView(this, R.layout.main_activity);
     }
 
 
@@ -30,45 +35,42 @@ public class MainActivity extends AppCompatActivity {
         RxHttp.get(imageUrl) //Get请求
             .asBitmap()  //这里返回Observable<Response> 对象
             .as(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
-            .subscribe(s -> {
-                ImageView ivHead = findViewById(R.id.iv_head);
-                ivHead.setImageBitmap(s);
+            .subscribe(bitmap -> {
+                mBinding.tvResult.setBackground(new BitmapDrawable(bitmap));
                 //成功回调
             }, (OnError) error -> {
+                mBinding.tvResult.setText(error.getErrorMsg());
                 //失败回调
                 error.show("图片加载失败,请稍后再试!");
             });
     }
 
-    //发送Get请求
+    //发送Get请求，获取文章列表
     public void sendGet(View view) {
-        RxHttp.get("/service/getIpInfo.php") //Get请求
-            .add("ip", "63.223.108.42") //添加参数
-            .addHeader("accept", "*/*") //添加请求头
-            .addHeader("connection", "Keep-Alive")
-            .addHeader("user-agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1;SV1)")
-            .asResponse(Address.class)  //这里返回Observable<Response> 对象
+        RxHttp.get("/article/list/0/json")
+            .asResponsePageList(Article.class)
             .as(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
-            .subscribe(address -> {
+            .subscribe(pageList -> {
+                mBinding.tvResult.setText(new Gson().toJson(pageList));
                 //成功回调
             }, (OnError) error -> {
+                mBinding.tvResult.setText(error.getErrorMsg());
                 //失败回调
                 error.show("发送失败,请稍后再试!");
             });
     }
 
-    //发送Post请求
-    private void sendPost() {
-        RxHttp.postForm("/service/getIpInfo.php")
-            .add("ip", "63.223.108.42")//添加参数
-            .addHeader("accept", "*/*") //添加请求头
-            .addHeader("connection", "Keep-Alive")
-            .addHeader("user-agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1;SV1)")
-            .asObject(Response.class)  //这里返回Observable<Response>对象
+    //发送Post请求,根据关键字查询文章
+    public void sendPost(View view) {
+        RxHttp.postForm("/article/query/0/json")
+            .add("k", "性能优化")
+            .asResponsePageList(Article.class)
             .as(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
-            .subscribe(response -> {
+            .subscribe(pageList -> {
+                mBinding.tvResult.setText(new Gson().toJson(pageList));
                 //成功回调
             }, (OnError) error -> {
+                mBinding.tvResult.setText(error.getErrorMsg());
                 //失败回调
                 error.show("发送失败,请稍后再试!");
             });
@@ -79,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
         String destPath = getExternalCacheDir() + "/" + System.currentTimeMillis() + ".apk";
         RxHttp.get("/miaolive/Miaolive.apk")
             .setDomainToUpdateIfAbsent() //使用指定的域名
-            .asDownload(destPath) //注意这里使用DownloadParser解析器，并传入本地路径
+            .asDownload(destPath)
             .as(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
             .subscribe(s -> {
                 //下载成功,回调文件下载路径
@@ -100,11 +102,14 @@ public class MainActivity extends AppCompatActivity {
                 int currentProgress = progress.getProgress(); //当前进度 0-100
                 long currentSize = progress.getCurrentSize(); //当前已下载的字节大小
                 long totalSize = progress.getTotalSize();     //要下载的总字节大小
+                mBinding.tvResult.append("\n" + progress.toString());
             }, AndroidSchedulers.mainThread()) //指定回调(进度/成功/失败)线程,不指定,默认在请求所在线程回调
             .as(RxLife.as(this)) //感知生命周期
-            .subscribe(s -> {//s为String类型，这里为文件存储路径
+            .subscribe(s -> {
                 //下载完成，处理相关逻辑
+                mBinding.tvResult.append("\n下载成功 : " + s);
             }, (OnError) error -> {
+                mBinding.tvResult.append("\n" + error.getErrorMsg());
                 //下载失败，处理相关逻辑
                 error.show("下载失败,请稍后再试!");
             });
@@ -139,49 +144,56 @@ public class MainActivity extends AppCompatActivity {
                 int currentProgress = progress.getProgress(); //当前进度 0-100
                 long currentSize = progress.getCurrentSize(); //当前已下载的字节大小
                 long totalSize = progress.getTotalSize();     //要下载的总字节大小
+                mBinding.tvResult.append("\n" + progress.toString());
             }, AndroidSchedulers.mainThread()) //指定回调(进度/成功/失败)线程,不指定,默认在请求所在线程回调
-            .as(RxLife.as(this)) //加入感知生命周期的观察者
-            .subscribe(s -> { //s为String类型
-                //下载成功，处理相关逻辑
+            .as(RxLife.as(this))              //加入感知生命周期的观察者
+            .subscribe(s -> {
+                //下载成功
+                mBinding.tvResult.append("\n下载成功 : " + s);
             }, (OnError) error -> {
-                //下载失败，处理相关逻辑
+                //下载失败
+                mBinding.tvResult.append("\n" + error.getErrorMsg());
                 error.show("下载失败,请稍后再试!");
             });
     }
 
 
     //文件上传，不带进度
-    private void upload() {
-        RxHttp.postForm("http://...") //发送Form表单形式的Post请求
-            .add("file1", new File("xxx/1.png"))
-            .add("file2", new File("xxx/2.png"))
+    public void upload(View v) {
+        RxHttp.postForm("http://t.xinhuo.com/index.php/Api/Pic/uploadPic")
+            .addFile("uploaded_file", new File(Environment.getExternalStorageDirectory(), "1.jpg"))
             .asString() //from操作符，是异步操作
             .as(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
             .subscribe(s -> {
+                mBinding.tvResult.append("\n");
+                mBinding.tvResult.append(s);
                 //成功回调
             }, (OnError) error -> {
+                mBinding.tvResult.append("\n");
+                mBinding.tvResult.append(error.getErrorMsg());
                 //失败回调
                 error.show("上传失败,请稍后再试!");
             });
     }
 
     //上传文件，带进度
-    private void uploadAndProgress() {
-        String url = "http://www.......";
-        RxHttp.postForm(url) //发送Form表单形式的Post请求
-            .add("key1", "value1")//添加参数，非必须
-            .add("file1", new File("xxx/1.png"))
+    public void uploadAndProgress(View v) {
+        RxHttp.postForm("http://t.xinhuo.com/index.php/Api/Pic/uploadPic")
+            .addFile("uploaded_file", new File(Environment.getExternalStorageDirectory(), "1.jpg"))
             .asUpload(progress -> {
                 //上传进度回调,0-100，仅在进度有更新时才会回调
                 int currentProgress = progress.getProgress(); //当前进度 0-100
                 long currentSize = progress.getCurrentSize(); //当前已上传的字节大小
                 long totalSize = progress.getTotalSize();     //要上传的总字节大小
+                mBinding.tvResult.append("\n" + progress.toString());
             }, AndroidSchedulers.mainThread()) //指定回调(进度/成功/失败)线程,不指定,默认在请求所在线程回调
-            .as(RxLife.as(this)) //加入感知生命周期的观察者
-            .subscribe(s -> { //s为String类型，由SimpleParser类里面的泛型决定的
-                //上传成功，处理相关逻辑
+            .as(RxLife.as(this))               //加入感知生命周期的观察者
+            .subscribe(s -> {
+                //上传成功
+                mBinding.tvResult.append("\n上传成功 : " + s);
             }, (OnError) error -> {
-                //上传失败，处理相关逻辑
+                //上传失败
+                mBinding.tvResult.append("\n" + error.getErrorMsg());
                 error.show("上传失败,请稍后再试!");
             });
     }
@@ -189,5 +201,10 @@ public class MainActivity extends AppCompatActivity {
     //多任务下载
     public void multitaskDownload(View view) {
         startActivity(new Intent(this, DownloadMultiActivity.class));
+    }
+
+    public void clearLog(View view) {
+        mBinding.tvResult.setText("");
+        mBinding.tvResult.setBackgroundColor(Color.TRANSPARENT);
     }
 }
