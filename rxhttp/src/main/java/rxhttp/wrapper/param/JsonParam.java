@@ -27,7 +27,7 @@ public class JsonParam extends AbstractParam<JsonParam> {
     public RequestBody getRequestBody() {
         String json = jsonParams;
         if (TextUtils.isEmpty(json)) {
-            json = BuildUtil.mapToJson(this);
+            json = BuildUtil.mapToJson(getParams());
         }
         return BuildUtil.buildJsonRequestBody(json);
     }
