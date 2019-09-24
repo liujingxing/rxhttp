@@ -17,16 +17,17 @@ import rxhttp.wrapper.utils.BuildUtil;
  * Time: 14:35
  */
 @SuppressWarnings("unchecked")
-public abstract class AbstractParam<P extends Param> extends LinkedHashMap<String, Object> implements Param<P> {
+public abstract class AbstractParam<P extends Param> implements Param<P> {
 
-    private String  mUrl;    //链接地址
-    private Method  mMethod;
+    private String mUrl;    //链接地址
+    private Method mMethod;  //请求方法
     private Builder mHBuilder; //请求头构造器
+    private Map<String, Object> mParam; //请求参数
 
-    private boolean mIsAssemblyEnabled = true;
-
-    private Object       mTag;
+    private Object mTag;
     private CacheControl mCacheControl;
+
+    private boolean mIsAssemblyEnabled = true;//是否添加公共参数
 
     /**
      * @param url    请求路径
@@ -42,7 +43,7 @@ public abstract class AbstractParam<P extends Param> extends LinkedHashMap<Strin
      */
     @Override
     public final String getUrl() {
-        return BuildUtil.mergeUrlAndParams(mUrl, this);
+        return BuildUtil.mergeUrlAndParams(mUrl, mParam);
     }
 
     public P setUrl(@NonNull String url) {
@@ -114,19 +115,24 @@ public abstract class AbstractParam<P extends Param> extends LinkedHashMap<Strin
     @Override
     public final P add(String key, Object value) {
         if (value == null) value = "";
-        super.put(key, value);
+        getParams().put(key, value);
         return (P) this;
     }
 
     @Override
     public P add(Map<? extends String, ?> map) {
-        putAll(map);
+        getParams().putAll(map);
         return (P) this;
     }
 
+    @NonNull
     @Override
     public final Map<String, Object> getParams() {
-        return this;
+        Map<String, Object> map = mParam;
+        if (map == null) {
+            map = mParam = new LinkedHashMap<>();
+        }
+        return map;
     }
 
     @Override
@@ -165,12 +171,12 @@ public abstract class AbstractParam<P extends Param> extends LinkedHashMap<Strin
     @Override
     public String toString() {
         return this.getClass().getSimpleName() + " {" +
-                "  \nurl = " + mUrl + '\'' +
-                ", \nparam = { " + BuildUtil.toKeyValue(this) + " }" +
-                ", \nheaders = { " + (mHBuilder == null ? "" : mHBuilder.build().toString().replace("\n", ",")) + " }" +
-                ", \nisAssemblyEnabled = " + mIsAssemblyEnabled +
-                ", \ntag = " + mTag +
-                ", \ncacheControl = " + mCacheControl +
-                " }";
+            "  \nurl = " + mUrl + '\'' +
+            ", \nparam = { " + BuildUtil.toKeyValue(mParam) + " }" +
+            ", \nheaders = { " + (mHBuilder == null ? "" : mHBuilder.build().toString().replace("\n", ",")) + " }" +
+            ", \nisAssemblyEnabled = " + mIsAssemblyEnabled +
+            ", \ntag = " + mTag +
+            ", \ncacheControl = " + mCacheControl +
+            " }";
     }
 }
