@@ -14,7 +14,7 @@ import rxhttp.wrapper.parse.AbstractParser;
 import rxhttp.wrapper.utils.GsonUtil;
 
 /**
- * Data<PageList<T>> 数据解析器,解析完成对Data对象做判断,如果ok,返回数据 PageList<T>
+ * Response<PageList<T>> 数据解析器,解析完成对Response对象做判断,如果ok,返回数据 PageList<T>
  * User: ljx
  * Date: 2018/10/23
  * Time: 13:49
@@ -37,8 +37,8 @@ public class ResponsePageListParser<T> extends AbstractParser<PageList<T>> {
         Response<PageList<T>> data = GsonUtil.getObject(content, type);
         if (data == null) //为空 ，表明数据不正确
             throw new ParseException("data parse fail", response);
-        //跟服务端协议好，code等于100，才代表数据正确,否则，抛出异常
-        if (data.getCode() != 100) {
+        //跟服务端协议好，code等于0，才代表数据正确,否则，抛出异常
+        if (data.getCode() != 0) {
             throw new ParseException(String.valueOf(data.getCode()), data.getMsg(), response);
         }
         PageList<T> t = data.getData(); //获取data字段
