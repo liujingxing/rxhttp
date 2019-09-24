@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import io.reactivex.annotations.NonNull;
 import okhttp3.RequestBody;
@@ -52,8 +53,9 @@ public class FormParam extends AbstractParam<FormParam> implements IUploadLength
 
     @Override
     public RequestBody getRequestBody() {
-        RequestBody requestBody = isMultiForm || hasFile() ? BuildUtil.buildFormRequestBody(this, mFileList)
-            : BuildUtil.buildFormRequestBody(this);
+        Map<String, Object> params = getParams();
+        RequestBody requestBody = isMultiForm || hasFile() ? BuildUtil.buildFormRequestBody(params, mFileList)
+            : BuildUtil.buildFormRequestBody(params);
         final ProgressCallback callback = mCallback;
         if (callback != null) {
             //如果设置了进度回调，则对RequestBody进行装饰
