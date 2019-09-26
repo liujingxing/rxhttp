@@ -53,10 +53,6 @@ public class MainActivity extends AppCompatActivity {
             .subscribe(pageList -> {
                 mBinding.tvResult.setText(new Gson().toJson(pageList));
                 //成功回调
-            }, (OnError) error -> {
-                mBinding.tvResult.setText(error.getErrorMsg());
-                //失败回调
-                error.show("发送失败,请稍后再试!");
             });
     }
 
