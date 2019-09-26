@@ -19,11 +19,18 @@ import rxhttp.wrapper.param.Param;
 public class LogUtil {
 
     private static final String TAG = "RxHttp";
+    private static final String TAG_RXJAVA = "RxJava";
 
     private static boolean isDebug = false;
 
     public static void setDebug(boolean debug) {
         isDebug = debug;
+    }
+
+    //打印Http请求连接失败异常日志
+    public static void log(Throwable throwable) {
+        if (!isDebug) return;
+        Log.e(TAG_RXJAVA, throwable.toString());
     }
 
     //打印Http请求连接失败异常日志
