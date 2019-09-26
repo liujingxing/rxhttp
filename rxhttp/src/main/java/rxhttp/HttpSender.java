@@ -9,6 +9,7 @@ import javax.net.ssl.X509TrustManager;
 import io.reactivex.Observable;
 import io.reactivex.Scheduler;
 import io.reactivex.annotations.NonNull;
+import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.plugins.RxJavaPlugins;
 import okhttp3.Call;
@@ -37,13 +38,16 @@ import rxhttp.wrapper.utils.LogUtil;
 public final class HttpSender {
 
     static {
-        RxJavaPlugins.setErrorHandler(throwable -> {
-            /*
-              RxJava2的一个重要的设计理念是：不吃掉任何一个异常,即抛出的异常无人处理，便会导致程序崩溃
-              这就会导致一个问题，当RxJava2“downStream”取消订阅后，“upStream”仍有可能抛出异常，
-              这时由于已经取消订阅，“downStream”无法处理异常，此时的异常无人处理，便会导致程序崩溃
-             */
-        });
+        Consumer<? super Throwable> errorHandler = RxJavaPlugins.getErrorHandler();
+        if (errorHandler == null) {
+            RxJavaPlugins.setErrorHandler(throwable -> {
+                /*
+                RxJava2的一个重要的设计理念是：不吃掉任何一个异常, 即抛出的异常无人处理，便会导致程序崩溃
+                这就会导致一个问题，当RxJava2“downStream”取消订阅后，“upStream”仍有可能抛出异常，
+                这时由于已经取消订阅，“downStream”无法处理异常，此时的异常无人处理，便会导致程序崩溃
+                */
+            });
+        }
     }
 
     private static OkHttpClient mOkHttpClient; //只能初始化一次,第二次将抛出异常
@@ -179,8 +183,8 @@ public final class HttpSender {
     static OkHttpClient clone(@NonNull final ProgressCallback progressCallback) {
         //克隆一个OkHttpClient后,增加拦截器,拦截下载进度
         return getOkHttpClient().newBuilder()
-                .addNetworkInterceptor(new ProgressInterceptor(progressCallback))
-                .build();
+            .addNetworkInterceptor(new ProgressInterceptor(progressCallback))
+            .build();
     }
 
     /**
@@ -192,11 +196,11 @@ public final class HttpSender {
         X509TrustManager trustAllCert = new X509TrustManagerImpl();
         SSLSocketFactory sslSocketFactory = new SSLSocketFactoryImpl(trustAllCert);
         return new OkHttpClient.Builder()
-                .connectTimeout(10, TimeUnit.SECONDS)
-                .readTimeout(10, TimeUnit.SECONDS)
-                .writeTimeout(10, TimeUnit.SECONDS)
-                .sslSocketFactory(sslSocketFactory, trustAllCert) //添加信任证书
-                .hostnameVerifier((hostname, session) -> true) //忽略host验证
-                .build();
+            .connectTimeout(10, TimeUnit.SECONDS)
+            .readTimeout(10, TimeUnit.SECONDS)
+            .writeTimeout(10, TimeUnit.SECONDS)
+            .sslSocketFactory(sslSocketFactory, trustAllCert) //添加信任证书
+            .hostnameVerifier((hostname, session) -> true) //忽略host验证
+            .build();
     }
 }
