@@ -19,17 +19,23 @@ import rxhttp.wrapper.utils.LogUtil;
 public final class HttpStatusCodeException extends IOException {
 
     private String statusCode; //Http响应状态吗
+    private String result;    //返回结果
     private String requestMethod; //请求方法，Get/Post等
     private String requestUrl; //请求Url及参数
     private Headers responseHeaders; //响应头
 
-    HttpStatusCodeException(Response response) {
+    public HttpStatusCodeException(Response response) {
+        this(response, null);
+    }
+
+    public HttpStatusCodeException(Response response, String result) {
         super(response.message());
         statusCode = String.valueOf(response.code());
         Request request = response.request();
         requestMethod = request.method();
         requestUrl = request.url().toString() + LogUtil.getRequestParams(request);
         responseHeaders = response.headers();
+        this.result = result;
     }
 
     @Nullable
@@ -54,6 +60,10 @@ public final class HttpStatusCodeException extends IOException {
         return responseHeaders;
     }
 
+    public String getResult() {
+        return result;
+    }
+
     @Override
     public String toString() {
         return getClass().getName() + ":" +
@@ -61,6 +71,7 @@ public final class HttpStatusCodeException extends IOException {
             " Code=" + statusCode +
             "\n\nurl = " + requestUrl +
             "\n\nHeaders = " + responseHeaders +
-            "\nMessage = " + getMessage();
+            "\nMessage = " + getMessage() +
+            "\n\nResult = " + result;
     }
 }

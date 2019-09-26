@@ -23,8 +23,11 @@ public class ExceptionHelper {
      */
     public static ResponseBody throwIfFatal(@NonNull Response response) throws IOException {
         ResponseBody body = response.body();
-        if (body == null || !response.isSuccessful())
+        if (body == null)
             throw new HttpStatusCodeException(response);
+        if (!response.isSuccessful()) {
+            throw new HttpStatusCodeException(response, body.string());
+        }
         return body;
     }
 }
