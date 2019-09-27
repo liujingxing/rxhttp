@@ -1,7 +1,6 @@
 package com.example.httpsender.param
 
 
-import okhttp3.MediaType
 import okhttp3.RequestBody
 import org.json.JSONObject
 import rxhttp.wrapper.annotation.Param
@@ -37,10 +36,5 @@ class PostEncryptJsonParam(url: String) : JsonParam(url, Method.POST) {
     private fun encrypt(content: String, password: String): ByteArray? {
         //加码代码省略
         return null
-    }
-
-    companion object {
-
-        private val MEDIA_TYPE_JSON = MediaType.parse("application/json;charset=utf-8")
     }
 }
