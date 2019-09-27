@@ -22,6 +22,7 @@ import okhttp3.Request.Builder;
 import okhttp3.RequestBody;
 import rxhttp.wrapper.entity.UpFile;
 import rxhttp.wrapper.param.IRequest;
+import rxhttp.wrapper.param.JsonParam;
 import rxhttp.wrapper.param.Method;
 
 /**
@@ -30,8 +31,6 @@ import rxhttp.wrapper.param.Method;
  * Time: 18:36
  */
 public class BuildUtil {
-
-    private static final MediaType MEDIA_TYPE_JSON = MediaType.parse("application/json;charset=utf-8");
 
     public static Request buildRequest(@NonNull IRequest r) {
         Method method = r.getMethod();
@@ -57,10 +56,12 @@ public class BuildUtil {
      * @param map map参数集合
      * @return RequestBody
      */
-    public static <K, V> RequestBody buildFormRequestBody(@NonNull Map<K, V> map) {
+    public static <K, V> RequestBody buildFormRequestBody(Map<K, V> map) {
         FormBody.Builder builder = new FormBody.Builder();
-        for (Entry<K, V> entry : map.entrySet()) {
-            builder.add(entry.getKey().toString(), entry.getValue().toString());
+        if (map != null) {
+            for (Entry<K, V> entry : map.entrySet()) {
+                builder.add(entry.getKey().toString(), entry.getValue().toString());
+            }
         }
         return builder.build();
     }
@@ -72,13 +73,15 @@ public class BuildUtil {
      * @param fileList 文件列表
      * @return RequestBody
      */
-    public static <K, V> RequestBody buildFormRequestBody(@NonNull Map<K, V> map,
-                                                          @NonNull List<UpFile> fileList) {
+    public static <K, V> RequestBody buildFormRequestBody(Map<K, V> map,
+                                                          List<UpFile> fileList) {
         MultipartBody.Builder builder = new MultipartBody.Builder();
         builder.setType(MultipartBody.FORM);
-        //遍历参数
-        for (Entry<K, V> entry : map.entrySet()) {
-            builder.addFormDataPart(entry.getKey().toString(), entry.getValue().toString());
+        if (map != null) {
+            //遍历参数
+            for (Entry<K, V> entry : map.entrySet()) {
+                builder.addFormDataPart(entry.getKey().toString(), entry.getValue().toString());
+            }
         }
         if (fileList != null) {
             //遍历文件
@@ -97,6 +100,7 @@ public class BuildUtil {
      * @param map map对象
      * @return Json 字符串
      */
+    @Deprecated
     public static <K, V> String mapToJson(@NonNull Map<K, V> map) {
         return new JSONObject(map).toString();
     }
@@ -107,8 +111,9 @@ public class BuildUtil {
      * @param map map集合
      * @return RequestBody
      */
+    @Deprecated
     public static <K, V> RequestBody buildJsonRequestBody(@NonNull Map<K, V> map) {
-        return buildJsonRequestBody(new JSONObject(map).toString());
+        return buildJsonRequestBody(mapToJson(map));
     }
 
     /**
@@ -117,8 +122,9 @@ public class BuildUtil {
      * @param json json字符串
      * @return RequestBody
      */
+    @Deprecated
     public static RequestBody buildJsonRequestBody(@NonNull String json) {
-        return RequestBody.create(MEDIA_TYPE_JSON, json);
+        return RequestBody.create(JsonParam.MEDIA_TYPE_JSON, json);
     }
 
     /**

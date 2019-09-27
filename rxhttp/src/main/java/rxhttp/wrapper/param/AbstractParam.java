@@ -115,24 +115,27 @@ public abstract class AbstractParam<P extends Param> implements Param<P> {
     @Override
     public final P add(String key, Object value) {
         if (value == null) value = "";
-        getParams().put(key, value);
+        Map<String, Object> param = mParam;
+        if (param == null) {
+            param = mParam = new LinkedHashMap<>();
+        }
+        param.put(key, value);
         return (P) this;
     }
 
     @Override
     public P add(Map<? extends String, ?> map) {
-        getParams().putAll(map);
+        Map<String, Object> param = mParam;
+        if (param == null) {
+            param = mParam = new LinkedHashMap<>();
+        }
+        param.putAll(map);
         return (P) this;
     }
 
-    @NonNull
     @Override
     public final Map<String, Object> getParams() {
-        Map<String, Object> map = mParam;
-        if (map == null) {
-            map = mParam = new LinkedHashMap<>();
-        }
-        return map;
+        return mParam;
     }
 
     @Override
