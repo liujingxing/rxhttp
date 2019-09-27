@@ -53,7 +53,7 @@ public class FormParam extends AbstractParam<FormParam> implements IUploadLength
 
     @Override
     public RequestBody getRequestBody() {
-        Map<String, Object> params = getParams();
+        final Map<String, Object> params = getParams();
         RequestBody requestBody = isMultiForm || hasFile() ? BuildUtil.buildFormRequestBody(params, mFileList)
             : BuildUtil.buildFormRequestBody(params);
         final ProgressCallback callback = mCallback;
