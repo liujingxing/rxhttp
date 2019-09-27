@@ -2,6 +2,8 @@ package rxhttp.wrapper.utils;
 
 import android.util.Log;
 
+import java.net.URLDecoder;
+
 import io.reactivex.annotations.NonNull;
 import okhttp3.FormBody;
 import okhttp3.Request;
@@ -60,7 +62,7 @@ public class LogUtil {
         if (!isDebug) return;
         String requestInfo = "------------------- request start Method=" + param.getMethod().name() +
             " " + param.getClass().getSimpleName() + " -------------------" +
-            "  \nurl = " + param.getUrl() +
+            "  \nurl = " + URLDecoder.decode(param.getUrl()) +
             "\n\nheaders = " + param.getHeaders();
 
         Log.d(TAG, requestInfo);
