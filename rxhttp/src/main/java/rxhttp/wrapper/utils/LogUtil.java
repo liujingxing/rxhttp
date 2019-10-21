@@ -2,13 +2,16 @@ package rxhttp.wrapper.utils;
 
 import android.util.Log;
 
+import java.io.IOException;
 import java.net.URLDecoder;
+import java.nio.charset.Charset;
 
 import io.reactivex.annotations.NonNull;
 import okhttp3.FormBody;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import okio.Buffer;
 import rxhttp.wrapper.exception.HttpStatusCodeException;
 import rxhttp.wrapper.exception.ParseException;
 import rxhttp.wrapper.param.Param;
@@ -41,7 +44,7 @@ public class LogUtil {
         throwable.printStackTrace();
         String log = "throwable = " + throwable.toString();
         if (!(throwable instanceof ParseException) && !(throwable instanceof HttpStatusCodeException)) {
-            log += "\nurl=" + url;
+            log += "\nurl = " + URLDecoder.decode(url);
         }
         Log.e(TAG, log);
     }
@@ -53,30 +56,41 @@ public class LogUtil {
         String builder = "------------------- request end Method=" +
             request.method() + " Code=" + response.code() + " -------------------" +
             "\nurl = " + request.url() + getRequestParams(request) +
-            "\n\nHeaders = " + response.headers() +
-            "\nResult = " + result;
+            "\n\nheaders = " + response.headers() +
+            "\nresult = " + result;
         Log.i(TAG, builder);
     }
 
+    //请求前，打印日志
     public static void log(@NonNull Param param) {
         if (!isDebug) return;
-        String requestInfo = "------------------- request start Method=" + param.getMethod().name() +
-            " " + param.getClass().getSimpleName() + " -------------------" +
-            "  \nurl = " + URLDecoder.decode(param.getUrl()) +
+        String builder = "------------------- request start Method=" +
+            param.getMethod().name() + " " + param.getClass().getSimpleName() +
+            " -------------------" +
+            "\n\nurl = " + URLDecoder.decode(param.getUrl()) +
             "\n\nheaders = " + param.getHeaders();
-
-        Log.d(TAG, requestInfo);
+        Log.d(TAG, builder);
     }
 
     public static String getRequestParams(Request request) {
         RequestBody body = request.body();
-        StringBuilder builder = new StringBuilder("?");
+        if (body == null) return "";
+        StringBuilder builder = new StringBuilder();
         if (body instanceof FormBody) {
+            builder.append("?");
             FormBody formBody = ((FormBody) body);
             for (int i = 0, size = formBody.size(); i < size; i++) {
                 builder.append(i > 0 ? "&" : "");
                 builder.append(formBody.name(i)).append("=").append(formBody.value(i));
             }
+        } else {
+            Buffer buffer = new Buffer();
+            try {
+                body.writeTo(buffer);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            builder.append("\n\nparams = ").append(buffer.readString(Charset.forName("UTF-8")));
         }
         String result = builder.toString();
         return result.length() > 1 ? result : "";
