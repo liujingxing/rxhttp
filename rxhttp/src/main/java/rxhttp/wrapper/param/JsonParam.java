@@ -1,13 +1,11 @@
 package rxhttp.wrapper.param;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.Iterator;
+import java.util.HashMap;
 import java.util.Map;
 
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
+import rxhttp.wrapper.utils.GsonUtil;
 
 /**
  * post、put、patch、delete请求，参数以{application/json;charset=utf-8}形式提交
@@ -28,9 +26,14 @@ public class JsonParam extends AbstractParam<JsonParam> {
     }
 
     @Override
+    public String getUrl() {
+        return getSimpleUrl() + "\n\nparams = " + GsonUtil.toJson(getParams());
+    }
+
+    @Override
     public RequestBody getRequestBody() {
         final Map<String, Object> params = getParams();
-        String json = params == null ? "" : new JSONObject(params).toString();
+        String json = params == null ? "" : GsonUtil.toJson(params);
         return RequestBody.create(MEDIA_TYPE_JSON, json);
     }
 
@@ -40,24 +43,6 @@ public class JsonParam extends AbstractParam<JsonParam> {
     }
 
     public JsonParam addJsonParams(String jsonParams) {
-        JSONObject jsonObject = null;
-        try {
-            jsonObject = new JSONObject(jsonParams);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return addJsonParams(jsonObject);
-    }
-
-    public JsonParam addJsonParams(JSONObject jsonObject) {
-        if (jsonObject == null) {
-            return this;
-        }
-        Iterator<String> keys = jsonObject.keys();
-        while (keys.hasNext()) {
-            String key = keys.next();
-            add(key, jsonObject.opt(key));
-        }
-        return this;
+        return add(GsonUtil.getObject(jsonParams, HashMap.class));
     }
 }

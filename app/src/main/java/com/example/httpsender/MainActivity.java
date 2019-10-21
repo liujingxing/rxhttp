@@ -3,6 +3,7 @@ package com.example.httpsender;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Environment;
@@ -57,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //发送Post请求,根据关键字查询文章
-    public void sendPost(View view) {
+    public void sendPostForm(View view) {
         RxHttp.postForm("/article/query/0/json")
             .add("k", "性能优化")
             .asResponsePageList(Article.class)
@@ -69,6 +70,21 @@ public class MainActivity extends AppCompatActivity {
                 mBinding.tvResult.setText(error.getErrorMsg());
                 //失败回调
                 error.show("发送失败,请稍后再试!");
+            });
+    }
+
+    //发送Get请求，获取文章列表
+    public void sendPostJson(View view) {
+        RxHttp.postJson("/article/list/0/json")
+            .add("key1", "value1")
+            .add("point", new Point(10, 20))
+            .addJsonParams("{\"content\":\"日暮征帆何处泊，天涯一望断人肠。\"}")
+            .addJsonParams("{\"name\":\"BeJson\",\"address\":{\"street\":\"科技园路.\",\"city\":\"江苏苏州\",\"country\":\"中国\"},\"links\":[{\"name\":\"Google\",\"url\":\"http://www.google.com\"},{\"name\":\"Baidu\",\"url\":\"http://www.baidu.com\"},{\"name\":\"SoSo\",\"url\":\"http://www.SoSo.com\"}]}")
+            .asResponsePageList(Article.class)
+            .as(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
+            .subscribe(pageList -> {
+                mBinding.tvResult.setText(new Gson().toJson(pageList));
+                //成功回调
             });
     }
 

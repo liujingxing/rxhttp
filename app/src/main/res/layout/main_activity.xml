@@ -30,13 +30,19 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:onClick="sendGet"
-                android:text="发送Get请求" />
+                android:text="Get请求" />
 
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:onClick="sendPost"
-                android:text="发送Post请求" />
+                android:onClick="sendPostForm"
+                android:text="Post 表单请求" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="sendPostJson"
+                android:text="Post Json请求" />
 
             <Button
                 android:layout_width="wrap_content"
