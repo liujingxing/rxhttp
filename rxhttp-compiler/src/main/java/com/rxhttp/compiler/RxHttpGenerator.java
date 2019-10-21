@@ -393,8 +393,17 @@ public class RxHttpGenerator {
 
         method = MethodSpec.methodBuilder("setJsonParams")
             .addModifiers(Modifier.PUBLIC)
+            .addAnnotation(Deprecated.class)
             .addParameter(String.class, "jsonParams")
             .addStatement("param.setJsonParams(jsonParams)")
+            .addStatement("return this")
+            .returns(rxHttpJsonName);
+        rxHttpJsonMethod.add(method.build());
+
+        method = MethodSpec.methodBuilder("addJsonParams")
+            .addModifiers(Modifier.PUBLIC)
+            .addParameter(String.class, "jsonParams")
+            .addStatement("param.addJsonParams(jsonParams)")
             .addStatement("return this")
             .returns(rxHttpJsonName);
         rxHttpJsonMethod.add(method.build());

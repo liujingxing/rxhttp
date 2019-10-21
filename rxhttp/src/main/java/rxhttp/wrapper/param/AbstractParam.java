@@ -42,7 +42,7 @@ public abstract class AbstractParam<P extends Param> implements Param<P> {
      * @return 带参数的url
      */
     @Override
-    public final String getUrl() {
+    public String getUrl() {
         return BuildUtil.mergeUrlAndParams(mUrl, mParam);
     }
 
@@ -125,11 +125,13 @@ public abstract class AbstractParam<P extends Param> implements Param<P> {
 
     @Override
     public P add(Map<? extends String, ?> map) {
-        Map<String, Object> param = mParam;
-        if (param == null) {
-            param = mParam = new LinkedHashMap<>();
+        if (map != null && map.size() > 0) {
+            Map<String, Object> param = mParam;
+            if (param == null) {
+                param = mParam = new LinkedHashMap<>();
+            }
+            param.putAll(map);
         }
-        param.putAll(map);
         return (P) this;
     }
 

@@ -23,6 +23,10 @@ public class GsonUtil {
         }
     }
 
+    public static String toJson(Object object) {
+        return buildGson().toJson(object);
+    }
+
     private static Gson buildGson() {
         if (gson == null) {
             gson = new GsonBuilder()
