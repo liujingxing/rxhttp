@@ -1,6 +1,7 @@
 package rxhttp.wrapper.param;
 
 import okhttp3.RequestBody;
+import rxhttp.wrapper.utils.BuildUtil;
 
 /**
  * Get、Head没有body的请求调用此类
@@ -16,6 +17,11 @@ public class NoBodyParam extends AbstractParam<NoBodyParam> {
      */
     public NoBodyParam(String url, Method method) {
         super(url, method);
+    }
+
+    @Override
+    public final String getUrl() {
+        return BuildUtil.mergeUrlAndParams(getSimpleUrl(), getParams());
     }
 
     @Override

@@ -70,8 +70,8 @@ public final class HttpStatusCodeException extends IOException {
             " Method=" + requestMethod +
             " Code=" + statusCode +
             "\n\nurl = " + requestUrl +
-            "\n\nHeaders = " + responseHeaders +
-            "\nMessage = " + getMessage() +
-            "\n\nResult = " + result;
+            "\n\nheaders = " + responseHeaders +
+            "\nmessage = " + getMessage() +
+            "\n\nresult = " + result;
     }
 }

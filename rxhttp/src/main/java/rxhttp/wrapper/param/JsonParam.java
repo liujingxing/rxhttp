@@ -26,11 +26,6 @@ public class JsonParam extends AbstractParam<JsonParam> {
     }
 
     @Override
-    public String getUrl() {
-        return getSimpleUrl() + "\n\nparams = " + GsonUtil.toJson(getParams());
-    }
-
-    @Override
     public RequestBody getRequestBody() {
         final Map<String, Object> params = getParams();
         String json = params == null ? "" : GsonUtil.toJson(params);
