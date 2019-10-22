@@ -13,8 +13,6 @@
 package rxhttp;
 
 
-import android.util.Log;
-
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -87,10 +85,10 @@ public final class ObservableDownload extends Observable<Progress<String>> {
             String filePath = new DownloadParser(destPath).onParse(response);
             emitter.onNext(new Progress<>(filePath)); //最后一次回调文件下载路径
             emitter.onComplete();
-        } catch (Throwable ex) {
-            LogUtil.log(param.getUrl(), ex);
-            Exceptions.throwIfFatal(ex);
-            emitter.onError(ex);
+        } catch (Throwable e) {
+            LogUtil.log(param, e);
+            Exceptions.throwIfFatal(e);
+            emitter.onError(e);
         }
     }
 

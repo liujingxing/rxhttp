@@ -66,10 +66,10 @@ public final class ObservableUpload<T> extends Observable<Progress<T>> {
             T t = execute(param);
             emitter.onNext(new Progress<>(t)); //最后一次回调Http执行结果
             emitter.onComplete();
-        } catch (Throwable ex) {
-            LogUtil.log(param.getUrl(), ex);
-            Exceptions.throwIfFatal(ex);
-            emitter.onError(ex);
+        } catch (Throwable e) {
+            LogUtil.log(param, e);
+            Exceptions.throwIfFatal(e);
+            emitter.onError(e);
         }
     }
 
