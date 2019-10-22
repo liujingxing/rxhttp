@@ -76,7 +76,7 @@ public class ParseException extends IOException {
             " Method=" + requestMethod +
             " Code=" + mErrorCode +
             "\n\nurl = " + requestUrl +
-            "\n\nHeaders = " + responseHeaders +
-            "\nMessage = " + getMessage();
+            "\n\nheaders = " + responseHeaders +
+            "\nmessage = " + getMessage();
     }
 }

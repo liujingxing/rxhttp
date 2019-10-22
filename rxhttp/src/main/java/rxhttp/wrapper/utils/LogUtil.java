@@ -3,7 +3,6 @@ package rxhttp.wrapper.utils;
 import android.util.Log;
 
 import java.io.IOException;
-import java.net.URLDecoder;
 import java.nio.charset.Charset;
 
 import io.reactivex.annotations.NonNull;
@@ -14,6 +13,8 @@ import okhttp3.Response;
 import okio.Buffer;
 import rxhttp.wrapper.exception.HttpStatusCodeException;
 import rxhttp.wrapper.exception.ParseException;
+import rxhttp.wrapper.param.FormParam;
+import rxhttp.wrapper.param.JsonParam;
 import rxhttp.wrapper.param.Param;
 
 /**
@@ -39,14 +40,24 @@ public class LogUtil {
     }
 
     //打印Http请求连接失败异常日志
-    public static void log(@NonNull String url, Throwable throwable) {
+    public static void log(@NonNull Param param, Throwable throwable) {
         if (!isDebug) return;
         throwable.printStackTrace();
-        String log = "throwable = " + throwable.toString();
+        StringBuilder builder = new StringBuilder();
+        builder.append("throwable = ")
+            .append(throwable.toString());
         if (!(throwable instanceof ParseException) && !(throwable instanceof HttpStatusCodeException)) {
-            log += "\nurl = " + URLDecoder.decode(url);
+            builder.append("\n\nurl = ")
+                .append(param.getUrl());
+            if (param instanceof JsonParam) {
+                builder.append("\n\nparams = ")
+                    .append(GsonUtil.toJson(param.getParams()));
+            } else if (param instanceof FormParam) {
+                builder.append("?")
+                    .append(BuildUtil.toKeyValue(param.getParams()));
+            }
         }
-        Log.e(TAG, log);
+        Log.e(TAG, builder.toString());
     }
 
     //打印Http返回的正常结果
@@ -55,7 +66,7 @@ public class LogUtil {
         Request request = response.request();
         String builder = "------------------- request end Method=" +
             request.method() + " Code=" + response.code() + " -------------------" +
-            "\nurl = " + request.url() + getRequestParams(request) +
+            "\n\nurl = " + request.url() + getRequestParams(request) +
             "\n\nheaders = " + response.headers() +
             "\nresult = " + result;
         Log.i(TAG, builder);
@@ -64,12 +75,27 @@ public class LogUtil {
     //请求前，打印日志
     public static void log(@NonNull Param param) {
         if (!isDebug) return;
-        String builder = "------------------- request start Method=" +
-            param.getMethod().name() + " " + param.getClass().getSimpleName() +
-            " -------------------" +
-            "\n\nurl = " + URLDecoder.decode(param.getUrl()) +
-            "\n\nheaders = " + param.getHeaders();
-        Log.d(TAG, builder);
+        StringBuilder builder = new StringBuilder();
+        builder.append("------------------- request start Method=")
+            .append(param.getMethod().name())
+            .append(" ")
+            .append(param.getClass().getSimpleName())
+            .append(" -------------------")
+            .append("\n\nurl = ")
+            .append(param.getUrl());
+
+        if (param instanceof JsonParam) {
+            builder.append("\n\nparams = ")
+                .append(GsonUtil.toJson(param.getParams()));
+        } else if (param instanceof FormParam) {
+            builder.append("?")
+                .append(BuildUtil.toKeyValue(param.getParams()));
+        }
+
+        builder.append("\n\nheaders = ")
+            .append(param.getHeaders());
+
+        Log.d(TAG, builder.toString());
     }
 
     public static String getRequestParams(Request request) {
