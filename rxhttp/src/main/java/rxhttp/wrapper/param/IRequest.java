@@ -15,7 +15,7 @@ import rxhttp.wrapper.utils.BuildUtil;
 public interface IRequest {
 
     /**
-     * @return 带参数的url
+     * @return 带参数的url 仅{@link NoBodyParam}请求会将参数以 ?key=value&... 的形式拼接在url后面
      */
     String getUrl();
 

@@ -57,7 +57,7 @@ public final class ObservableHttp<T> extends Observable<T> implements Callable<T
         try {
             value = ObjectHelper.requireNonNull(execute(param), "Callable returned null");
         } catch (Throwable e) {
-            LogUtil.log(param.getUrl(), e);
+            LogUtil.log(param, e);
             Exceptions.throwIfFatal(e);
             if (!d.isDisposed()) {
                 observer.onError(e);

@@ -43,7 +43,7 @@ public abstract class AbstractParam<P extends Param> implements Param<P> {
      */
     @Override
     public String getUrl() {
-        return BuildUtil.mergeUrlAndParams(mUrl, mParam);
+        return mUrl;
     }
 
     public P setUrl(@NonNull String url) {
