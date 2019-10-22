@@ -3,8 +3,6 @@ package rxhttp.wrapper.utils;
 import android.net.Uri;
 import android.text.TextUtils;
 
-import org.json.JSONObject;
-
 import java.net.URLConnection;
 import java.util.Iterator;
 import java.util.List;
@@ -22,7 +20,6 @@ import okhttp3.Request.Builder;
 import okhttp3.RequestBody;
 import rxhttp.wrapper.entity.UpFile;
 import rxhttp.wrapper.param.IRequest;
-import rxhttp.wrapper.param.JsonParam;
 
 /**
  * User: ljx
@@ -89,39 +86,6 @@ public class BuildUtil {
             }
         }
         return builder.build();
-    }
-
-    /**
-     * map对象转Json字符串
-     *
-     * @param map map对象
-     * @return Json 字符串
-     */
-    @Deprecated
-    public static <K, V> String mapToJson(@NonNull Map<K, V> map) {
-        return new JSONObject(map).toString();
-    }
-
-    /**
-     * 构建一个json形式的RequestBody
-     *
-     * @param map map集合
-     * @return RequestBody
-     */
-    @Deprecated
-    public static <K, V> RequestBody buildJsonRequestBody(@NonNull Map<K, V> map) {
-        return buildJsonRequestBody(mapToJson(map));
-    }
-
-    /**
-     * 构建一个json形式的RequestBody
-     *
-     * @param json json字符串
-     * @return RequestBody
-     */
-    @Deprecated
-    public static RequestBody buildJsonRequestBody(@NonNull String json) {
-        return RequestBody.create(JsonParam.MEDIA_TYPE_JSON, json);
     }
 
     /**
