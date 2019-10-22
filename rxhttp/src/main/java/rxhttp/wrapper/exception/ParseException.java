@@ -23,17 +23,6 @@ public class ParseException extends IOException {
     private String requestUrl; //请求Url及参数
     private Headers responseHeaders; //响应头
 
-    @Deprecated
-    public ParseException(String message) {
-        this("-1", message);
-    }
-
-    @Deprecated
-    public ParseException(@NonNull String code, String message) {
-        super(message);
-        mErrorCode = code;
-    }
-
     public ParseException(String message, Response response) {
         this("-1", message, response);
     }

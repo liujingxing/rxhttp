@@ -10,7 +10,6 @@ import io.reactivex.Observable;
 import io.reactivex.Scheduler;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Function;
 import io.reactivex.plugins.RxJavaPlugins;
 import okhttp3.Call;
 import okhttp3.OkHttpClient;
@@ -72,14 +71,6 @@ public final class HttpSender {
         LogUtil.setDebug(debug);
     }
 
-
-    /**
-     * @deprecated please used {@link RxHttpPlugins#setOnParamAssembly(Function) or RxHttp.setOnConverter(Function)}
-     */
-    @Deprecated
-    public static void setOnParamAssembly(Function<Param, Param> onParamAssembly) {
-        RxHttpPlugins.setOnParamAssembly(onParamAssembly);
-    }
 
     /**
      * 同步发送一个请求
