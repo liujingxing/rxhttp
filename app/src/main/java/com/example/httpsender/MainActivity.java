@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
             });
     }
 
-    //发送Post请求,根据关键字查询文章
+    //发送Post表单请求,根据关键字查询文章
     public void sendPostForm(View view) {
         RxHttp.postForm("/article/query/0/json")
             .add("k", "性能优化")
@@ -73,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
             });
     }
 
-    //发送Get请求，获取文章列表
+    //发送Post Json请求，此接口不通，仅用于调试参数
     public void sendPostJson(View view) {
         RxHttp.postJson("/article/list/0/json")
             .add("key1", "value1")
