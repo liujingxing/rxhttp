@@ -1,6 +1,5 @@
 package rxhttp.wrapper.utils;
 
-import android.net.Uri;
 import android.text.TextUtils;
 
 import java.net.URLConnection;
@@ -13,6 +12,7 @@ import io.reactivex.annotations.NonNull;
 import okhttp3.CacheControl;
 import okhttp3.FormBody;
 import okhttp3.Headers;
+import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.Request;
@@ -30,7 +30,7 @@ public class BuildUtil {
 
     public static Request buildRequest(@NonNull IRequest r) {
         Builder builder = new Request.Builder()
-            .url(r.getUrl())
+            .url(r.getHttpUrl())
             .tag(r.getTag())
             .method(r.getMethod().name(), r.getRequestBody());
         CacheControl cacheControl = r.getCacheControl();
@@ -110,20 +110,14 @@ public class BuildUtil {
         }
     }
 
-    /**
-     * 组合url及参数 格式:mUrl?key=value...
-     *
-     * @param url url链接
-     * @param map map集合
-     * @return 拼接后的字符串
-     */
-    public static <K, V> String mergeUrlAndParams(@NonNull String url, Map<K, V> map) {
-        if (map == null || map.size() == 0) return url;
-        Uri.Builder builder = Uri.parse(url).buildUpon();
+    public static <K, V> HttpUrl getHttpUrl(@NonNull String url, Map<K, V> map) {
+        HttpUrl httpUrl = HttpUrl.get(url);
+        if (map == null || map.size() == 0) return httpUrl;
+        HttpUrl.Builder builder = httpUrl.newBuilder();
         for (Entry<K, V> e : map.entrySet()) {
-            builder.appendQueryParameter(e.getKey().toString(), e.getValue().toString());
+            builder.addQueryParameter(e.getKey().toString(), e.getValue().toString());
         }
-        return builder.toString();
+        return builder.build();
     }
 
     private static MediaType getMediaType(String fName) {
