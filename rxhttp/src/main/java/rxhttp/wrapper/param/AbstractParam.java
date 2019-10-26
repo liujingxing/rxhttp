@@ -8,6 +8,7 @@ import io.reactivex.annotations.Nullable;
 import okhttp3.CacheControl;
 import okhttp3.Headers;
 import okhttp3.Headers.Builder;
+import okhttp3.HttpUrl;
 import rxhttp.wrapper.utils.BuildUtil;
 
 /**
@@ -38,17 +39,14 @@ public abstract class AbstractParam<P extends Param> implements Param<P> {
         this.mMethod = method;
     }
 
-    /**
-     * @return 带参数的url
-     */
-    @Override
-    public String getUrl() {
-        return mUrl;
-    }
-
     public P setUrl(@NonNull String url) {
         mUrl = url;
         return (P) this;
+    }
+
+    @Override
+    public HttpUrl getHttpUrl() {
+        return HttpUrl.get(mUrl);
     }
 
     /**
