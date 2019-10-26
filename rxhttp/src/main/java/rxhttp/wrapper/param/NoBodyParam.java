@@ -1,5 +1,6 @@
 package rxhttp.wrapper.param;
 
+import okhttp3.HttpUrl;
 import okhttp3.RequestBody;
 import rxhttp.wrapper.utils.BuildUtil;
 
@@ -21,7 +22,12 @@ public class NoBodyParam extends AbstractParam<NoBodyParam> {
 
     @Override
     public final String getUrl() {
-        return BuildUtil.mergeUrlAndParams(getSimpleUrl(), getParams());
+        return getHttpUrl().toString();
+    }
+
+    @Override
+    public HttpUrl getHttpUrl() {
+        return BuildUtil.getHttpUrl(getSimpleUrl(), getParams());
     }
 
     @Override
