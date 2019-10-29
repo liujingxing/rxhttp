@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import com.example.httpsender.AppHolder;
 import com.example.httpsender.ExceptionHelper;
 import com.example.httpsender.Tip;
+import com.google.gson.JsonSyntaxException;
 
 import rxhttp.wrapper.exception.HttpStatusCodeException;
 import rxhttp.wrapper.exception.ParseException;
@@ -29,15 +30,13 @@ public class ErrorInfo {
             if ("416".equals(code)) {
                 errorMsg = "请求范围不符合要求";
             }
+        } else if (throwable instanceof JsonSyntaxException) { //请求成功，但Json语法异常,导致解析失败
+            errorMsg = "数据解析失败,请稍后再试";
         } else if (throwable instanceof ParseException) { // ParseException异常表明请求成功，但是数据不正确
             String errorCode = throwable.getLocalizedMessage();
-            if ("-1".equals(errorCode)) {
-                errorMsg = "数据解析失败,请稍后再试";
-            } else {
-                this.errorCode = Integer.valueOf(errorCode);
-                errorMsg = throwable.getMessage();
-                if (TextUtils.isEmpty(errorMsg)) errorMsg = errorCode;//errorMsg为空，显示errorCode
-            }
+            this.errorCode = Integer.valueOf(errorCode);
+            errorMsg = throwable.getMessage();
+            if (TextUtils.isEmpty(errorMsg)) errorMsg = errorCode;//errorMsg为空，显示errorCode
         }
         this.errorMsg = errorMsg;
     }
