@@ -2,7 +2,6 @@ package com.example.httpsender;
 
 import android.os.Handler;
 import android.os.Looper;
-import android.text.TextUtils;
 import android.widget.Toast;
 
 
@@ -15,42 +14,36 @@ import android.widget.Toast;
 public class Tip {
 
     private static Handler mHandler = new Handler(Looper.getMainLooper());
-    private static Toast   mToast;
+    private static Toast mToast;
 
-    public static boolean show(int msgResId) {
-        return show(msgResId, false);
+    public static void show(int msgResId) {
+        show(msgResId, false);
     }
 
-    public static boolean show(int msgResId, boolean timeLong) {
-        return show(AppHolder.getInstance().getString(msgResId), timeLong);
+    public static void show(int msgResId, boolean timeLong) {
+        show(AppHolder.getInstance().getString(msgResId), timeLong);
     }
 
-    public static boolean show(CharSequence msg) {
-        return show(msg, false);
+    public static void show(CharSequence msg) {
+        show(msg, false);
     }
 
-    public static boolean show(final CharSequence msg, final boolean timeLong) {
-        return runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                int duration = timeLong ? Toast.LENGTH_LONG : Toast.LENGTH_SHORT;
-                if (mToast == null) {
-                    mToast = Toast.makeText(AppHolder.getInstance(), msg, duration);
-                } else {
-                    mToast.setDuration(duration);
-                    mToast.setText(msg);
-                }
-                mToast.show();
+    public static void show(final CharSequence msg, final boolean timeLong) {
+        runOnUiThread(() -> {
+            if (mToast != null) {
+                mToast.cancel();
             }
+            int duration = timeLong ? Toast.LENGTH_LONG : Toast.LENGTH_SHORT;
+            mToast = Toast.makeText(AppHolder.getInstance(), msg, duration);
+            mToast.show();
         });
     }
 
-    private static boolean runOnUiThread(Runnable runnable) {
+    private static void runOnUiThread(Runnable runnable) {
         if (Looper.getMainLooper() == Looper.myLooper()) {
             runnable.run();
         } else {
             mHandler.post(runnable);
         }
-        return true;
     }
 }
