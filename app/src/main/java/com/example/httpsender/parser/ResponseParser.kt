@@ -34,8 +34,7 @@ open class ResponseParser<T> : AbstractParser<T> {
         val type = ParameterizedTypeImpl.get(Response::class.java, mType) //获取泛型类型
 
         //通过Gson自动解析成Data<T>对象
-        val data = GsonUtil.getObject<Response<T>>(content, type) ?: //为空 ，表明数据不正确
-        throw ParseException("data parse fail", response)
+        val data = GsonUtil.fromJson<Response<T>>(content, type)
         //跟服务端协议好，code等于0，才代表数据正确,否则，抛出异常
         if (data.code != 0) {
             throw ParseException(data.code.toString(), data.msg, response)

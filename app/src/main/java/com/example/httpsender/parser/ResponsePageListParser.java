@@ -34,9 +34,7 @@ public class ResponsePageListParser<T> extends AbstractParser<PageList<T>> {
     public PageList<T> onParse(okhttp3.Response response) throws IOException {
         String content = getResult(response); //从Response中取出Http执行结果
         final Type type = ParameterizedTypeImpl.get(Response.class, PageList.class, mType); //获取泛型类型
-        Response<PageList<T>> data = GsonUtil.getObject(content, type);
-        if (data == null) //为空 ，表明数据不正确
-            throw new ParseException("data parse fail", response);
+        Response<PageList<T>> data = GsonUtil.fromJson(content, type);
         //跟服务端协议好，code等于0，才代表数据正确,否则，抛出异常
         if (data.getCode() != 0) {
             throw new ParseException(String.valueOf(data.getCode()), data.getMsg(), response);
