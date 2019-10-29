@@ -8,6 +8,7 @@ import android.net.NetworkInfo;
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+import java.util.concurrent.TimeoutException;
 
 /**
  * 异常处理帮助类
@@ -26,7 +27,8 @@ public class ExceptionHelper {
             } else {
                 stringId = R.string.notify_no_network;
             }
-        } else if (throwable instanceof SocketTimeoutException) {
+        } else if (throwable instanceof SocketTimeoutException || throwable instanceof TimeoutException) {
+            //前者是通过OkHttpClient设置的超时引发的异常，后者是对单个请求调用timeout方法引发的超时异常
             stringId = R.string.time_out_please_try_again_later;
         } else if (throwable instanceof ConnectException) {
             stringId = R.string.esky_service_exception;
