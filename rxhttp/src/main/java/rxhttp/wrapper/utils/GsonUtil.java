@@ -5,6 +5,9 @@ import com.google.gson.*;
 
 import java.lang.reflect.Type;
 
+import io.reactivex.annotations.NonNull;
+import io.reactivex.annotations.Nullable;
+
 /**
  * User: ljx
  * Date: 2018/01/19
@@ -14,13 +17,33 @@ public class GsonUtil {
 
     private static Gson gson;
 
-    public static <T> T getObject(String jsonString, Type type) {
+    /**
+     * json字符串转对象，解析失败，不会抛出异常，会直接返回null
+     * @param json json字符串
+     * @param type 对象类类型
+     * @param <T> 返回类型
+     * @return T，返回对象有可能为空
+     */
+    @Nullable
+    public static <T> T getObject(String json, Type type) {
         try {
-            Gson gson = buildGson();
-            return gson.fromJson(jsonString, type);
+            return fromJson(json, type);
         } catch (Exception ignore) {
             return null;
         }
+    }
+
+    /**
+     * json字符串转对象，解析失败，将抛出对应的{@link JsonSyntaxException}异常，根据异常可查找原因
+     * @param json json字符串
+     * @param type 对象类类型
+     * @param <T> 返回类型
+     * @return T，返回对象不为空
+     */
+    @NonNull
+    public static <T> T fromJson(String json, Type type) {
+        Gson gson = buildGson();
+        return gson.fromJson(json, type);
     }
 
     public static String toJson(Object object) {
@@ -30,11 +53,11 @@ public class GsonUtil {
     private static Gson buildGson() {
         if (gson == null) {
             gson = new GsonBuilder()
-                    .registerTypeAdapter(String.class, new StringAdapter())
-                    .registerTypeAdapter(Integer.class, new IntegerDefault0Adapter())
-                    .registerTypeAdapter(Double.class, new DoubleDefault0Adapter())
-                    .registerTypeAdapter(Long.class, new LongDefault0Adapter())
-                    .create();
+                .registerTypeAdapter(String.class, new StringAdapter())
+                .registerTypeAdapter(Integer.class, new IntegerDefault0Adapter())
+                .registerTypeAdapter(Double.class, new DoubleDefault0Adapter())
+                .registerTypeAdapter(Long.class, new LongDefault0Adapter())
+                .create();
         }
         return gson;
     }
@@ -42,7 +65,7 @@ public class GsonUtil {
     private static class StringAdapter implements JsonSerializer<String>, JsonDeserializer<String> {
         @Override
         public String deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
-                throws JsonParseException {
+            throws JsonParseException {
             if (json instanceof JsonPrimitive) {
                 return json.getAsString();
             } else {
@@ -59,7 +82,7 @@ public class GsonUtil {
     private static class IntegerDefault0Adapter implements JsonSerializer<Integer>, JsonDeserializer<Integer> {
         @Override
         public Integer deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
-                throws JsonParseException {
+            throws JsonParseException {
             try {
                 if (json.getAsString().equals("") || json.getAsString().equals("null")) {//定义为int类型,如果后台返回""或者null,则返回0
                     return 0;
@@ -104,7 +127,7 @@ public class GsonUtil {
     private static class LongDefault0Adapter implements JsonSerializer<Long>, JsonDeserializer<Long> {
         @Override
         public Long deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
-                throws JsonParseException {
+            throws JsonParseException {
             try {
                 if (json.getAsString().equals("") || json.getAsString().equals("null")) {//定义为long类型,如果后台返回""或者null,则返回0
                     return 0L;

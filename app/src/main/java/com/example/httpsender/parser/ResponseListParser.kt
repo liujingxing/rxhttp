@@ -27,9 +27,8 @@ open class ResponseListParser<T> : AbstractParser<List<T>> {
     override fun onParse(response: okhttp3.Response): List<T> {
         val content = getResult(response) //从Response中取出Http执行结果
         val type = ParameterizedTypeImpl.get(Response::class.java, List::class.java, mType) //获取泛型类型
-        val data = GsonUtil.getObject<Response<List<T>>>(content, type) ?: //为空 ，表明数据不正确
-        throw ParseException("data parse fail", response)
-//跟服务端协议好，code等于100，才代表数据正确,否则，抛出异常
+        val data = GsonUtil.fromJson<Response<List<T>>>(content, type)
+        //跟服务端协议好，code等于100，才代表数据正确,否则，抛出异常
         if (data.code != 100) {
             throw ParseException(data.code.toString(), data.msg, response)
         }
