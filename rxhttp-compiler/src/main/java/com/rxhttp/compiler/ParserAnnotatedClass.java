@@ -294,7 +294,6 @@ public class ParserAnnotatedClass {
 
         method = MethodSpec.methodBuilder("asDownload")
             .addModifiers(Modifier.PUBLIC)
-            .addTypeVariable(t)
             .addParameter(String.class, "destPath")
             .addStatement("return asParser(new $T(destPath))", downloadParserName)
             .returns(observableStringName);
