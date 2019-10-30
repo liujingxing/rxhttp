@@ -3,6 +3,7 @@ package rxhttp.wrapper.utils;
 import android.util.Log;
 
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.nio.charset.Charset;
 
 import io.reactivex.annotations.NonNull;
@@ -66,7 +67,7 @@ public class LogUtil {
         Request request = response.request();
         String builder = "------------------- request end Method=" +
             request.method() + " Code=" + response.code() + " -------------------" +
-            "\n\nurl = " + request.url() + getRequestParams(request) +
+            "\n\nurl = " + URLDecoder.decode(request.url().toString()) + getRequestParams(request) +
             "\n\nheaders = " + response.headers() +
             "\nresult = " + result;
         Log.i(TAG, builder);
@@ -82,7 +83,7 @@ public class LogUtil {
             .append(param.getClass().getSimpleName())
             .append(" -------------------")
             .append("\n\nurl = ")
-            .append(param.getUrl());
+            .append(URLDecoder.decode(param.getUrl()));
 
         if (param instanceof JsonParam) {
             builder.append("\n\nparams = ")
