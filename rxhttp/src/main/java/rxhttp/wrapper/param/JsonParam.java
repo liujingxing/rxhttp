@@ -15,7 +15,7 @@ import rxhttp.wrapper.utils.GsonUtil;
  */
 public class JsonParam extends AbstractParam<JsonParam> {
 
-    public static final MediaType MEDIA_TYPE_JSON = MediaType.parse("application/json;charset=utf-8");
+    public static final MediaType MEDIA_TYPE_JSON = MediaType.parse("application/json; charset=utf-8");
 
     /**
      * @param url    请求路径
