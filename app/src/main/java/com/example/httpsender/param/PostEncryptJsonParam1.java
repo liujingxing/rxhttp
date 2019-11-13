@@ -31,4 +31,9 @@ public class PostEncryptJsonParam1 extends AbstractParam<PostEncryptJsonParam1> 
     public void test(){
 
     }
+
+    @Override
+    public PostEncryptJsonParam1 add(String key, Object value) {
+        return null;
+    }
 }

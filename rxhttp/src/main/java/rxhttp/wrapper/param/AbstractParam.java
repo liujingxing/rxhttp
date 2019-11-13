@@ -1,15 +1,11 @@
 package rxhttp.wrapper.param;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import io.reactivex.annotations.NonNull;
 import io.reactivex.annotations.Nullable;
 import okhttp3.CacheControl;
 import okhttp3.Headers;
 import okhttp3.Headers.Builder;
 import okhttp3.HttpUrl;
-import rxhttp.wrapper.utils.BuildUtil;
 
 /**
  * 此类是唯一直接实现Param接口的类
@@ -23,7 +19,6 @@ public abstract class AbstractParam<P extends Param> implements Param<P> {
     private String mUrl;    //链接地址
     private Method mMethod;  //请求方法
     private Builder mHBuilder; //请求头构造器
-    private Map<String, Object> mParam; //请求参数
 
     private Object mTag;
     private CacheControl mCacheControl;
@@ -111,22 +106,6 @@ public abstract class AbstractParam<P extends Param> implements Param<P> {
     }
 
     @Override
-    public final P add(String key, Object value) {
-        if (value == null) value = "";
-        Map<String, Object> param = mParam;
-        if (param == null) {
-            param = mParam = new LinkedHashMap<>();
-        }
-        param.put(key, value);
-        return (P) this;
-    }
-
-    @Override
-    public final Map<String, Object> getParams() {
-        return mParam;
-    }
-
-    @Override
     public CacheControl getCacheControl() {
         return mCacheControl;
     }
@@ -157,17 +136,5 @@ public abstract class AbstractParam<P extends Param> implements Param<P> {
     @Override
     public final boolean isAssemblyEnabled() {
         return mIsAssemblyEnabled;
-    }
-
-    @Override
-    public String toString() {
-        return this.getClass().getSimpleName() + " {" +
-            "  \nurl = " + mUrl + '\'' +
-            ", \nparam = { " + BuildUtil.toKeyValue(mParam) + " }" +
-            ", \nheaders = { " + (mHBuilder == null ? "" : mHBuilder.build().toString().replace("\n", ",")) + " }" +
-            ", \nisAssemblyEnabled = " + mIsAssemblyEnabled +
-            ", \ntag = " + mTag +
-            ", \ncacheControl = " + mCacheControl +
-            " }";
     }
 }
