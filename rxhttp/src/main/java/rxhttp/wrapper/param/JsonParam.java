@@ -38,6 +38,6 @@ public class JsonParam extends AbstractParam<JsonParam> {
     }
 
     public JsonParam addJsonParams(String jsonParams) {
-        return add(GsonUtil.getObject(jsonParams, HashMap.class));
+        return addAll(GsonUtil.getObject(jsonParams, HashMap.class));
     }
 }

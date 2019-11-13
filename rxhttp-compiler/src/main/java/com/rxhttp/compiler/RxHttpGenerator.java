@@ -138,18 +138,6 @@ public class RxHttpGenerator {
             .returns(r);
         methodList.add(method.build());
 
-        WildcardTypeName subString = WildcardTypeName.subtypeOf(TypeName.get(String.class));
-        WildcardTypeName subObject = WildcardTypeName.subtypeOf(TypeName.get(Object.class));
-        TypeName mapName = ParameterizedTypeName.get(ClassName.get(Map.class), subString, subObject);
-
-        method = MethodSpec.methodBuilder("add")
-            .addModifiers(Modifier.PUBLIC)
-            .addParameter(mapName, "map")
-            .addStatement("param.add(map)")
-            .addStatement("return (R)this")
-            .returns(r);
-        methodList.add(method.build());
-
         methodList.addAll(mParamsAnnotatedClass.getMethodList(filer));
         methodList.addAll(mParserAnnotatedClass.getMethodList());
 
