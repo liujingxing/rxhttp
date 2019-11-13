@@ -3,6 +3,7 @@ package rxhttp.wrapper.param;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -27,6 +28,7 @@ public class FormParam extends AbstractParam<FormParam> implements IUploadLength
 
     protected ProgressCallback mCallback; //上传进度回调
     protected List<UpFile>     mFileList;  //附件集合
+    private Map<String, Object> mParam; //请求参数
 
     private long    uploadMaxLength = Integer.MAX_VALUE;//文件上传最大长度
     private boolean isMultiForm;
@@ -53,7 +55,7 @@ public class FormParam extends AbstractParam<FormParam> implements IUploadLength
 
     @Override
     public RequestBody getRequestBody() {
-        final Map<String, Object> params = getParams();
+        final Map<String, Object> params = mParam;
         RequestBody requestBody = isMultiForm || hasFile() ? BuildUtil.buildFormRequestBody(params, mFileList)
             : BuildUtil.buildFormRequestBody(params);
         final ProgressCallback callback = mCallback;
@@ -62,6 +64,22 @@ public class FormParam extends AbstractParam<FormParam> implements IUploadLength
             return new ProgressRequestBody(requestBody, callback);
         }
         return requestBody;
+    }
+
+    @NonNull
+    public Map<String, Object> getParams() {
+        return mParam;
+    }
+
+    @Override
+    public FormParam add(String key, Object value) {
+        if (value == null) value = "";
+        Map<String, Object> param = mParam;
+        if (param == null) {
+            param = mParam = new LinkedHashMap<>();
+        }
+        param.put(key, value);
+        return this;
     }
 
     @Override
@@ -122,5 +140,10 @@ public class FormParam extends AbstractParam<FormParam> implements IUploadLength
         if (totalFileLength > uploadMaxLength)
             throw new IOException("The current total file length is " + totalFileLength + " byte, " +
                 "this length cannot be greater than " + uploadMaxLength + " byte");
+    }
+
+    @Override
+    public String toString() {
+        return BuildUtil.getHttpUrl(getSimpleUrl(), mParam).toString();
     }
 }

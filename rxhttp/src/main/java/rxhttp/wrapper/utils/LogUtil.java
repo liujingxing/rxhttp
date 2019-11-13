@@ -49,14 +49,7 @@ public class LogUtil {
             .append(throwable.toString());
         if (!(throwable instanceof ParseException) && !(throwable instanceof HttpStatusCodeException)) {
             builder.append("\n\nurl = ")
-                .append(param.getUrl());
-            if (param instanceof JsonParam) {
-                builder.append("\n\nparams = ")
-                    .append(GsonUtil.toJson(param.getParams()));
-            } else if (param instanceof FormParam) {
-                builder.append("?")
-                    .append(BuildUtil.toKeyValue(param.getParams()));
-            }
+                .append(URLDecoder.decode(param.toString()));
         }
         Log.e(TAG, builder.toString());
     }
@@ -83,15 +76,7 @@ public class LogUtil {
             .append(param.getClass().getSimpleName())
             .append(" -------------------")
             .append("\n\nurl = ")
-            .append(URLDecoder.decode(param.getUrl()));
-
-        if (param instanceof JsonParam) {
-            builder.append("\n\nparams = ")
-                .append(GsonUtil.toJson(param.getParams()));
-        } else if (param instanceof FormParam) {
-            builder.append("?")
-                .append(BuildUtil.toKeyValue(param.getParams()));
-        }
+            .append(URLDecoder.decode(param.toString()));
 
         builder.append("\n\nheaders = ")
             .append(param.getHeaders());
