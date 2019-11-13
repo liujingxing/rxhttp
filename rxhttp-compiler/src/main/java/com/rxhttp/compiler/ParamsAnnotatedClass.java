@@ -9,6 +9,7 @@ import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeVariableName;
+import com.squareup.javapoet.WildcardTypeName;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -59,6 +60,10 @@ public class ParamsAnnotatedClass {
         ClassName noBodyParamName = ClassName.get(RxHttpGenerator.packageName, "NoBodyParam");
         ClassName jsonParamName = ClassName.get(RxHttpGenerator.packageName, "JsonParam");
         ClassName formParamName = ClassName.get(RxHttpGenerator.packageName, "FormParam");
+
+        WildcardTypeName subString = WildcardTypeName.subtypeOf(TypeName.get(String.class));
+        WildcardTypeName subObject = WildcardTypeName.subtypeOf(TypeName.get(Object.class));
+        TypeName mapName = ParameterizedTypeName.get(ClassName.get(Map.class), subString, subObject);
 
         List<MethodSpec> methodList = new ArrayList<>();
         Map<String, String> methodMap = new LinkedHashMap<>();
@@ -227,6 +232,14 @@ public class ParamsAnnotatedClass {
             .beginControlFlow("if(isAdd)")
             .addStatement("param.add(key,value)")
             .endControlFlow()
+            .addStatement("return (R)this")
+            .returns(rxHttp);
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("addAll")
+            .addModifiers(Modifier.PUBLIC)
+            .addParameter(mapName, "map")
+            .addStatement("param.addAll(map)")
             .addStatement("return (R)this")
             .returns(rxHttp);
         methodList.add(method.build());
