@@ -14,8 +14,6 @@ import okhttp3.CacheControl;
 @SuppressWarnings("unchecked")
 public interface IParam<P extends Param> {
 
-    Map<String, Object> getParams();
-
     P setUrl(@NonNull String url);
 
     P add(String key, Object value);
