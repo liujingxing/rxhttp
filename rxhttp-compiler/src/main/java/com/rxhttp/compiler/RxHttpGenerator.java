@@ -62,6 +62,7 @@ public class RxHttpGenerator {
         ClassName schedulerName = ClassName.get("io.reactivex", "Scheduler");
         ClassName schedulersName = ClassName.get("io.reactivex.schedulers", "Schedulers");
         ClassName functionsName = ClassName.get("io.reactivex.functions", "Function");
+        ClassName jsonObjectName = ClassName.get("com.google.gson", "JsonObject");
 
         ClassName stringName = ClassName.get(String.class);
 
@@ -381,17 +382,47 @@ public class RxHttpGenerator {
 
         method = MethodSpec.methodBuilder("setJsonParams")
             .addModifiers(Modifier.PUBLIC)
-            .addAnnotation(Deprecated.class)
             .addParameter(String.class, "jsonParams")
-            .addStatement("param.setJsonParams(jsonParams)")
-            .addStatement("return this")
+            .addAnnotation(Deprecated.class)
+            .addJavadoc("@deprecated Use {@link #addAll(String)} instead.\n")
+            .addStatement("return addAll(jsonParams)")
             .returns(rxHttpJsonName);
         rxHttpJsonMethod.add(method.build());
 
         method = MethodSpec.methodBuilder("addJsonParams")
             .addModifiers(Modifier.PUBLIC)
             .addParameter(String.class, "jsonParams")
-            .addStatement("param.addJsonParams(jsonParams)")
+            .addAnnotation(Deprecated.class)
+            .addJavadoc("@deprecated Use {@link #addAll(String)} instead.\n")
+            .addStatement("return addAll(jsonParams)")
+            .returns(rxHttpJsonName);
+        rxHttpJsonMethod.add(method.build());
+
+        method = MethodSpec.methodBuilder("addAll")
+            .addModifiers(Modifier.PUBLIC)
+            .addJavadoc("将Json对象里面的key-value逐一取出，添加到另一个Json对象中，" +
+                "\n输入非Json对象将抛出{@link IllegalStateException}异常\n")
+            .addParameter(String.class, "jsonObject")
+            .addStatement("param.addAll(jsonObject)")
+            .addStatement("return this")
+            .returns(rxHttpJsonName);
+        rxHttpJsonMethod.add(method.build());
+
+        method = MethodSpec.methodBuilder("addAll")
+            .addModifiers(Modifier.PUBLIC)
+            .addJavadoc("将Json对象里面的key-value逐一取出，添加到另一个Json对象中\n")
+            .addParameter(jsonObjectName, "jsonObject")
+            .addStatement("param.addAll(jsonObject)")
+            .addStatement("return this")
+            .returns(rxHttpJsonName);
+        rxHttpJsonMethod.add(method.build());
+
+        method = MethodSpec.methodBuilder("addJsonObject")
+            .addModifiers(Modifier.PUBLIC)
+            .addJavadoc("添加一个JsonElement对象(Json对象、json数组等)\n")
+            .addParameter(String.class, "key")
+            .addParameter(String.class, "jsonElement")
+            .addStatement("param.addJsonObject(key,jsonElement)")
             .addStatement("return this")
             .returns(rxHttpJsonName);
         rxHttpJsonMethod.add(method.build());
