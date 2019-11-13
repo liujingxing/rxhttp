@@ -13,7 +13,7 @@ import rxhttp.wrapper.utils.GsonUtil;
  * Date: 2019-09-09
  * Time: 21:08
  */
-public class JsonParam extends AbstractParam<JsonParam> {
+public class JsonParam extends AbstractParam<JsonParam> implements IJsonObject<JsonParam>{
 
     public static final MediaType MEDIA_TYPE_JSON = MediaType.parse("application/json; charset=utf-8");
 
@@ -32,12 +32,19 @@ public class JsonParam extends AbstractParam<JsonParam> {
         return RequestBody.create(MEDIA_TYPE_JSON, json);
     }
 
+    /**
+     * @deprecated Use {@link #addAll(String)} instead.
+     */
     @Deprecated
     public JsonParam setJsonParams(String jsonParams) {
-        return addJsonParams(jsonParams);
+        return addAll(jsonParams);
     }
 
+    /**
+     * @deprecated Use {@link #addAll(String)} instead.
+     */
+    @Deprecated
     public JsonParam addJsonParams(String jsonParams) {
-        return addAll(GsonUtil.getObject(jsonParams, HashMap.class));
+        return addAll(jsonParams);
     }
 }

@@ -82,8 +82,8 @@ public class MainActivity extends AppCompatActivity {
         RxHttp.postJson("/article/list/0/json")
             .add("key1", "value1")
             .add("point", new Point(10, 20))
-            .addJsonParams("{\"content\":\"日暮征帆何处泊，天涯一望断人肠。\"}")
-            .addJsonParams("{\"name\":\"BeJson\",\"address\":{\"street\":\"科技园路.\",\"city\":\"江苏苏州\",\"country\":\"中国\"},\"links\":[{\"name\":\"Google\",\"url\":\"http://www.google.com\"},{\"name\":\"Baidu\",\"url\":\"http://www.baidu.com\"},{\"name\":\"SoSo\",\"url\":\"http://www.SoSo.com\"}]}")
+            .addAll("{\"content\":\"日暮征帆何处泊，天涯一望断人肠。\"}")
+            .addAll("{\"name\":\"BeJson\",\"address\":{\"street\":\"科技园路.\",\"city\":\"江苏苏州\",\"country\":\"中国\"},\"links\":[{\"name\":\"Google\",\"url\":\"http://www.google.com\"},{\"name\":\"Baidu\",\"url\":\"http://www.baidu.com\"},{\"name\":\"SoSo\",\"url\":\"http://www.SoSo.com\"}]}")
             .asResponsePageList(Article.class)
             .as(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
             .subscribe(pageList -> {
