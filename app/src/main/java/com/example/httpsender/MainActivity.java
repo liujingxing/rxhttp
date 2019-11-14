@@ -16,6 +16,8 @@ import com.google.gson.Gson;
 import com.rxjava.rxlife.RxLife;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import rxhttp.wrapper.param.RxHttp;
@@ -89,6 +91,27 @@ public class MainActivity extends AppCompatActivity {
             .subscribe(pageList -> {
                 mBinding.tvResult.setText(new Gson().toJson(pageList));
                 //成功回调
+            });
+    }
+
+
+    public void sendPostJsonArray(View view) {
+        HashMap<String, Object> map = new LinkedHashMap<>();
+        map.put("point1", new Point(10, 20));
+        map.put("key1", "value2");
+        RxHttp.postJsonArray("/article/list/0/json")
+            .add(new Point(10, 20))
+            .add("point", new Point(10, 20))
+            .add("key", "value")
+            .add("ceshi")
+            .add("{\"content\":\"日暮征帆何处泊，天涯一望断人肠。\"}")
+            .addJsonObject("{\"content\":\"日暮征帆何处泊，天涯一望断人肠。\"}")
+            .add(map)
+            .addAll(map)
+            .asString()
+            .as(RxLife.asOnMain(this))
+            .subscribe(s -> {
+
             });
     }
 
