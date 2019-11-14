@@ -63,12 +63,13 @@ public class RxHttpGenerator {
         ClassName schedulersName = ClassName.get("io.reactivex.schedulers", "Schedulers");
         ClassName functionsName = ClassName.get("io.reactivex.functions", "Function");
         ClassName jsonObjectName = ClassName.get("com.google.gson", "JsonObject");
-
+        ClassName jsonArrayName = ClassName.get("com.google.gson", "JsonArray");
         ClassName stringName = ClassName.get(String.class);
 
         TypeName mapKVName = ParameterizedTypeName.get(functionsName, paramName, paramName);
         TypeName mapStringName = ParameterizedTypeName.get(functionsName, stringName, stringName);
-
+        WildcardTypeName subObject = WildcardTypeName.subtypeOf(TypeName.get(Object.class));
+        TypeName listName = ParameterizedTypeName.get(ClassName.get(List.class), subObject);
 
         List<MethodSpec> methodList = new ArrayList<>(); //方法集合
         MethodSpec.Builder method = MethodSpec.constructorBuilder()
@@ -183,10 +184,13 @@ public class RxHttpGenerator {
         ClassName rxHttpFormName = ClassName.get(packageName, "RxHttp$FormParam");
         ClassName jsonParamName = ClassName.get(packageName, "JsonParam");
         ClassName rxHttpJsonName = ClassName.get(packageName, "RxHttp$JsonParam");
+        ClassName jsonArrayParamName = ClassName.get(packageName, "JsonArrayParam");
+        ClassName rxHttpJsonArrayName = ClassName.get(packageName, "RxHttp$JsonArrayParam");
 
         TypeName rxHttpNoBody = ParameterizedTypeName.get(RXHTTP, noBodyParamName, rxHttpNoBodyName);
         TypeName rxHttpForm = ParameterizedTypeName.get(RXHTTP, formParamName, rxHttpFormName);
         TypeName rxHttpJson = ParameterizedTypeName.get(RXHTTP, jsonParamName, rxHttpJsonName);
+        TypeName rxHttpJsonArray = ParameterizedTypeName.get(RXHTTP, jsonArrayParamName, rxHttpJsonArrayName);
 
         method = MethodSpec.constructorBuilder()
             .addModifiers(Modifier.PUBLIC)
@@ -439,6 +443,59 @@ public class RxHttpGenerator {
         JavaFile.builder(packageName, rxHttpJsonSpec)
             .build().writeTo(filer);
 
+
+        List<MethodSpec> rxHttpJsonArrayMethod = new ArrayList<>();
+
+        method = MethodSpec.constructorBuilder()
+            .addModifiers(Modifier.PUBLIC)
+            .addParameter(jsonArrayParamName, "param")
+            .addStatement("super(param)");
+        rxHttpJsonArrayMethod.add(method.build());
+
+        method = MethodSpec.methodBuilder("add")
+            .addModifiers(Modifier.PUBLIC)
+            .addJavadoc("将Object对象序列化为json字符串，add系列方法最终都会调用此方法添加参数\n")
+            .addParameter(Object.class, "object")
+            .addStatement("param.add(object)")
+            .addStatement("return this")
+            .returns(rxHttpJsonArrayName);
+        rxHttpJsonArrayMethod.add(method.build());
+
+        method = MethodSpec.methodBuilder("addAll")
+            .addModifiers(Modifier.PUBLIC)
+            .addParameter(listName, "list")
+            .addStatement("param.addAll(list)")
+            .addStatement("return this")
+            .returns(rxHttpJsonArrayName);
+        rxHttpJsonArrayMethod.add(method.build());
+
+        method = MethodSpec.methodBuilder("addAll")
+            .addModifiers(Modifier.PUBLIC)
+            .addParameter(jsonArrayName, "jsonArray")
+            .addStatement("param.addAll(jsonArray)")
+            .addStatement("return this")
+            .returns(rxHttpJsonArrayName);
+        rxHttpJsonArrayMethod.add(method.build());
+
+        method = MethodSpec.methodBuilder("addJsonObject")
+            .addModifiers(Modifier.PUBLIC)
+            .addParameter(String.class, "jsonObject")
+            .addStatement("param.addJsonObject(jsonObject)")
+            .addStatement("return this")
+            .returns(rxHttpJsonArrayName);
+        rxHttpJsonArrayMethod.add(method.build());
+
+        TypeSpec rxHttpJsonArraySpec = TypeSpec.classBuilder("RxHttp$JsonArrayParam")
+            .addJavadoc("Github" +
+                "\nhttps://github.com/liujingxing/RxHttp" +
+                "\nhttps://github.com/liujingxing/RxLife\n")
+            .addModifiers(Modifier.PUBLIC)
+            .superclass(rxHttpJsonArray)
+            .addMethods(rxHttpJsonArrayMethod)
+            .build();
+
+        JavaFile.builder(packageName, rxHttpJsonArraySpec)
+            .build().writeTo(filer);
 
     }
 }
