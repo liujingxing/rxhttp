@@ -14,7 +14,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.processing.Filer;
 import javax.lang.model.element.Modifier;
@@ -23,21 +22,21 @@ import javax.lang.model.util.Elements;
 
 public class RxHttpGenerator {
 
-    static final String CLASSNAME   = "RxHttp";
+    private static final String CLASSNAME = "RxHttp";
     static final String packageName = "rxhttp.wrapper.param";
 
     static ClassName RXHTTP = ClassName.get(packageName, CLASSNAME);
 
 
-    static ClassName        paramName  = ClassName.get(packageName, "Param");
-    static ClassName        rxHttpName = ClassName.get(packageName, CLASSNAME);
-    static TypeVariableName p          = TypeVariableName.get("P", paramName);
-    static TypeVariableName r          = TypeVariableName.get("R", rxHttpName);
+    private static ClassName paramName = ClassName.get(packageName, "Param");
+    private static ClassName rxHttpName = ClassName.get(packageName, CLASSNAME);
+    private static TypeVariableName p = TypeVariableName.get("P", paramName);
+    static TypeVariableName r = TypeVariableName.get("R", rxHttpName);
 
     private ParamsAnnotatedClass mParamsAnnotatedClass;
     private ParserAnnotatedClass mParserAnnotatedClass;
     private DomainAnnotatedClass mDomainAnnotatedClass;
-    private VariableElement      defaultDomain;
+    private VariableElement defaultDomain;
 
     public void setAnnotatedClass(ParamsAnnotatedClass annotatedClass) {
         mParamsAnnotatedClass = annotatedClass;
@@ -421,12 +420,12 @@ public class RxHttpGenerator {
             .returns(rxHttpJsonName);
         rxHttpJsonMethod.add(method.build());
 
-        method = MethodSpec.methodBuilder("addJsonObject")
+        method = MethodSpec.methodBuilder("addJsonElement")
             .addModifiers(Modifier.PUBLIC)
             .addJavadoc("添加一个JsonElement对象(Json对象、json数组等)\n")
             .addParameter(String.class, "key")
             .addParameter(String.class, "jsonElement")
-            .addStatement("param.addJsonObject(key,jsonElement)")
+            .addStatement("param.addJsonElement(key,jsonElement)")
             .addStatement("return this")
             .returns(rxHttpJsonName);
         rxHttpJsonMethod.add(method.build());
@@ -471,16 +470,44 @@ public class RxHttpGenerator {
 
         method = MethodSpec.methodBuilder("addAll")
             .addModifiers(Modifier.PUBLIC)
+            .addJavadoc("添加多个对象，将字符串转JsonElement对象,并根据不同类型,执行不同操作,可输入任意非空字符串\n")
+            .addParameter(String.class, "jsonElement")
+            .addStatement("param.addAll(jsonElement)")
+            .addStatement("return this")
+            .returns(rxHttpJsonArrayName);
+        rxHttpJsonArrayMethod.add(method.build());
+
+        method = MethodSpec.methodBuilder("addAll")
+            .addModifiers(Modifier.PUBLIC)
             .addParameter(jsonArrayName, "jsonArray")
             .addStatement("param.addAll(jsonArray)")
             .addStatement("return this")
             .returns(rxHttpJsonArrayName);
         rxHttpJsonArrayMethod.add(method.build());
 
-        method = MethodSpec.methodBuilder("addJsonObject")
+        method = MethodSpec.methodBuilder("addAll")
             .addModifiers(Modifier.PUBLIC)
-            .addParameter(String.class, "jsonObject")
-            .addStatement("param.addJsonObject(jsonObject)")
+            .addJavadoc("将Json对象里面的key-value逐一取出，添加到Json数组中，成为单独的对象\n")
+            .addParameter(jsonObjectName, "jsonObject")
+            .addStatement("param.addAll(jsonObject)")
+            .addStatement("return this")
+            .returns(rxHttpJsonArrayName);
+        rxHttpJsonArrayMethod.add(method.build());
+
+        method = MethodSpec.methodBuilder("addJsonElement")
+            .addModifiers(Modifier.PUBLIC)
+            .addParameter(String.class, "jsonElement")
+            .addStatement("param.addJsonElement(jsonElement)")
+            .addStatement("return this")
+            .returns(rxHttpJsonArrayName);
+        rxHttpJsonArrayMethod.add(method.build());
+
+        method = MethodSpec.methodBuilder("addJsonElement")
+            .addModifiers(Modifier.PUBLIC)
+            .addJavadoc("添加一个JsonElement对象(Json对象、json数组等)\n")
+            .addParameter(String.class, "key")
+            .addParameter(String.class, "jsonElement")
+            .addStatement("param.addJsonElement(key,jsonElement)")
             .addStatement("return this")
             .returns(rxHttpJsonArrayName);
         rxHttpJsonArrayMethod.add(method.build());
