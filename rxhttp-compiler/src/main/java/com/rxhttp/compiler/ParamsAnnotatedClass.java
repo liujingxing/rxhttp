@@ -58,8 +58,9 @@ public class ParamsAnnotatedClass {
 
         ClassName paramName = ClassName.get(RxHttpGenerator.packageName, "Param");
         ClassName noBodyParamName = ClassName.get(RxHttpGenerator.packageName, "NoBodyParam");
-        ClassName jsonParamName = ClassName.get(RxHttpGenerator.packageName, "JsonParam");
         ClassName formParamName = ClassName.get(RxHttpGenerator.packageName, "FormParam");
+        ClassName jsonParamName = ClassName.get(RxHttpGenerator.packageName, "JsonParam");
+        ClassName jsonArrayParamName = ClassName.get(RxHttpGenerator.packageName, "JsonArrayParam");
 
         WildcardTypeName subString = WildcardTypeName.subtypeOf(TypeName.get(String.class));
         WildcardTypeName subObject = WildcardTypeName.subtypeOf(TypeName.get(Object.class));
@@ -77,6 +78,10 @@ public class ParamsAnnotatedClass {
         methodMap.put("putJson", "RxHttp$JsonParam");
         methodMap.put("patchJson", "RxHttp$JsonParam");
         methodMap.put("deleteJson", "RxHttp$JsonParam");
+        methodMap.put("postJsonArray", "RxHttp$JsonArrayParam");
+        methodMap.put("putJsonArray", "RxHttp$JsonArrayParam");
+        methodMap.put("patchJsonArray", "RxHttp$JsonArrayParam");
+        methodMap.put("deleteJsonArray", "RxHttp$JsonArrayParam");
 
         MethodSpec.Builder method;
         for (Map.Entry<String, String> map : methodMap.entrySet()) {
@@ -205,6 +210,13 @@ public class ParamsAnnotatedClass {
             .addParameter(jsonParamName, "jsonParam")
             .addStatement("return new $L(jsonParam)", "RxHttp$JsonParam")
             .returns(ClassName.get(RxHttpGenerator.packageName, "RxHttp$JsonParam"));
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("with")
+            .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+            .addParameter(jsonArrayParamName, "jsonArrayParam")
+            .addStatement("return new $L(jsonArrayParam)", "RxHttp$JsonArrayParam")
+            .returns(ClassName.get(RxHttpGenerator.packageName, "RxHttp$JsonArrayParam"));
         methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("setUrl")

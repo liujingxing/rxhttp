@@ -62,30 +62,60 @@ public interface Param<P extends Param> extends IParam<P>, IHeaders<P>, IRequest
     }
 
     /**
-     * post请求,参数以{application/json;charset=utf-8}形式提交
+     * post请求,参数以{application/json; charset=utf-8}形式提交,提交Json对象
      */
     static JsonParam postJson(@NonNull String url) {
         return new JsonParam(url, Method.POST);
     }
 
     /**
-     * put请求,参数以{application/json;charset=utf-8}形式提交
+     * put请求,参数以{application/json; charset=utf-8}形式提交,提交Json对象
      */
     static JsonParam putJson(@NonNull String url) {
         return new JsonParam(url, Method.PUT);
     }
 
     /**
-     * patch请求,参数以{application/json;charset=utf-8}形式提交
+     * patch请求,参数以{application/json; charset=utf-8}形式提交,提交Json对象
      */
     static JsonParam patchJson(@NonNull String url) {
         return new JsonParam(url, Method.PATCH);
     }
 
     /**
-     * Delete请求,参数以{application/json;charset=utf-8}形式提交
+     * delete请求,参数以{application/json; charset=utf-8}形式提交,提交Json对象
      */
     static JsonParam deleteJson(@NonNull String url) {
         return new JsonParam(url, Method.DELETE);
     }
+
+    /**
+     * post请求,参数以{application/json; charset=utf-8}形式提交,提交Json数组
+     */
+    static JsonArrayParam postJsonArray(@NonNull String url) {
+        return new JsonArrayParam(url, Method.POST);
+    }
+
+
+    /**
+     * put请求,参数以{application/json; charset=utf-8}形式提交,提交Json数组
+     */
+    static JsonArrayParam putJsonArray(@NonNull String url) {
+        return new JsonArrayParam(url, Method.PUT);
+    }
+
+    /**
+     * patch请求,参数以{application/json; charset=utf-8}形式提交,提交Json数组
+     */
+    static JsonArrayParam patchJsonArray(@NonNull String url) {
+        return new JsonArrayParam(url, Method.PATCH);
+    }
+
+    /**
+     * delete请求,参数以{application/json; charset=utf-8}形式提交,提交Json数组
+     */
+    static JsonArrayParam deleteJsonArray(@NonNull String url) {
+        return new JsonArrayParam(url, Method.DELETE);
+    }
+
 }
