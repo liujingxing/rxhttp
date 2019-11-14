@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import io.reactivex.annotations.NonNull;
-import okhttp3.MediaType;
+import io.reactivex.annotations.Nullable;
 import okhttp3.RequestBody;
 import rxhttp.wrapper.utils.GsonUtil;
 
@@ -16,8 +16,6 @@ import rxhttp.wrapper.utils.GsonUtil;
  * Time: 21:08
  */
 public class JsonArrayParam extends AbstractParam<JsonArrayParam> implements IJsonArray<JsonArrayParam> {
-
-    public static final MediaType MEDIA_TYPE_JSON = MediaType.parse("application/json; charset=utf-8");
 
     private List<Object> mList;
 
@@ -36,6 +34,11 @@ public class JsonArrayParam extends AbstractParam<JsonArrayParam> implements IJs
         return RequestBody.create(MEDIA_TYPE_JSON, json);
     }
 
+    /**
+     * JsonArray类型请求，所有add系列方法内部最终都会调用此方法
+     * @param object Object
+     * @return JsonArrayParam
+     */
     public JsonArrayParam add(@NonNull Object object) {
         List<Object> list = mList;
         if (list == null) {
@@ -50,6 +53,11 @@ public class JsonArrayParam extends AbstractParam<JsonArrayParam> implements IJs
         HashMap<String, Object> map = new HashMap<>();
         map.put(key, value);
         return add(map);
+    }
+
+    @Nullable
+    public List<Object> getList() {
+        return mList;
     }
 
     @Override
