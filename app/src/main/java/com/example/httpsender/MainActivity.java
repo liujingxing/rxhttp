@@ -105,7 +105,7 @@ public class MainActivity extends AppCompatActivity {
             .add("key", "value")
             .add("ceshi")
             .add("{\"content\":\"日暮征帆何处泊，天涯一望断人肠。\"}")
-            .addJsonObject("{\"content\":\"日暮征帆何处泊，天涯一望断人肠。\"}")
+            .addJsonElement("{\"content\":\"日暮征帆何处泊，天涯一望断人肠。\"}")
             .add(map)
             .addAll(map)
             .asString()
