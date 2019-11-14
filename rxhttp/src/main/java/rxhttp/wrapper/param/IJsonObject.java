@@ -7,6 +7,7 @@ import com.google.gson.JsonParser;
 import java.util.Map.Entry;
 
 import io.reactivex.annotations.NonNull;
+import okhttp3.MediaType;
 
 /**
  * User: ljx
@@ -15,6 +16,8 @@ import io.reactivex.annotations.NonNull;
  */
 @SuppressWarnings("unchecked")
 public interface IJsonObject<P extends Param> {
+
+    MediaType MEDIA_TYPE_JSON = MediaType.parse("application/json; charset=utf-8");
 
     P add(String key, @NonNull Object object);
 
@@ -45,10 +48,10 @@ public interface IJsonObject<P extends Param> {
     /**
      * 添加一个JsonElement对象(Json对象、json数组等)
      * @param key key
-     * @param jsonObject 字符串json对象
+     * @param jsonElement 可输入任意非空字符串
      * @return P
      */
-    default P addJsonObject(String key, String jsonObject) {
-        return add(key, new JsonParser().parse(jsonObject));
+    default P addJsonElement(String key, @NonNull String jsonElement) {
+        return add(key, new JsonParser().parse(jsonElement));
     }
 }

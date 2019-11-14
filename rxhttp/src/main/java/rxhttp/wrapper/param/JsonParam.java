@@ -5,7 +5,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import io.reactivex.annotations.NonNull;
-import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import rxhttp.wrapper.utils.GsonUtil;
 
@@ -16,8 +15,6 @@ import rxhttp.wrapper.utils.GsonUtil;
  * Time: 21:08
  */
 public class JsonParam extends AbstractParam<JsonParam> implements IJsonObject<JsonParam> {
-
-    public static final MediaType MEDIA_TYPE_JSON = MediaType.parse("application/json; charset=utf-8");
 
     private Map<String, Object> mParam; //请求参数
 
