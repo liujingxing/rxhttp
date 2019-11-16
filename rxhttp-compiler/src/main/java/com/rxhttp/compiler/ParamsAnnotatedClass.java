@@ -62,9 +62,7 @@ public class ParamsAnnotatedClass {
         ClassName jsonParamName = ClassName.get(RxHttpGenerator.packageName, "JsonParam");
         ClassName jsonArrayParamName = ClassName.get(RxHttpGenerator.packageName, "JsonArrayParam");
 
-        WildcardTypeName subString = WildcardTypeName.subtypeOf(TypeName.get(String.class));
-        WildcardTypeName subObject = WildcardTypeName.subtypeOf(TypeName.get(Object.class));
-        TypeName mapName = ParameterizedTypeName.get(ClassName.get(Map.class), subString, subObject);
+
 
         List<MethodSpec> methodList = new ArrayList<>();
         Map<String, String> methodMap = new LinkedHashMap<>();
@@ -223,35 +221,6 @@ public class ParamsAnnotatedClass {
             .addModifiers(Modifier.PUBLIC)
             .addParameter(String.class, "url")
             .addStatement("param.setUrl(url)")
-            .addStatement("return (R)this")
-            .returns(rxHttp);
-        methodList.add(method.build());
-
-        method = MethodSpec.methodBuilder("add")
-            .addModifiers(Modifier.PUBLIC)
-            .addParameter(String.class, "key")
-            .addParameter(Object.class, "value")
-            .addStatement("param.add(key,value)")
-            .addStatement("return (R)this")
-            .returns(rxHttp);
-        methodList.add(method.build());
-
-        method = MethodSpec.methodBuilder("add")
-            .addModifiers(Modifier.PUBLIC)
-            .addParameter(String.class, "key")
-            .addParameter(Object.class, "value")
-            .addParameter(boolean.class, "isAdd")
-            .beginControlFlow("if(isAdd)")
-            .addStatement("param.add(key,value)")
-            .endControlFlow()
-            .addStatement("return (R)this")
-            .returns(rxHttp);
-        methodList.add(method.build());
-
-        method = MethodSpec.methodBuilder("addAll")
-            .addModifiers(Modifier.PUBLIC)
-            .addParameter(mapName, "map")
-            .addStatement("param.addAll(map)")
             .addStatement("return (R)this")
             .returns(rxHttp);
         methodList.add(method.build());
