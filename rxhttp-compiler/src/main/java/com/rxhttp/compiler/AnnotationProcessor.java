@@ -35,9 +35,9 @@ import rxhttp.wrapper.annotation.Parser;
  */
 public class AnnotationProcessor extends AbstractProcessor {
 
-    private Types    typeUtils;
+    private Types typeUtils;
     private Messager messager;
-    private Filer    filer;
+    private Filer filer;
     private Elements elementUtils;
 
     @Override
@@ -56,6 +56,7 @@ public class AnnotationProcessor extends AbstractProcessor {
         annotations.add(Parser.class.getCanonicalName());
         annotations.add(Domain.class.getCanonicalName());
         annotations.add(DefaultDomain.class.getCanonicalName());
+        annotations.add(Override.class.getCanonicalName());
         return annotations;
     }
 
@@ -67,6 +68,7 @@ public class AnnotationProcessor extends AbstractProcessor {
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
+//        messager.printMessage(Kind.WARNING, "process start annotations.size=" + annotations.size());
         try {
             RxHttpGenerator rxHttpGenerator = new RxHttpGenerator();
 
