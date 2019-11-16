@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.processing.Filer;
 import javax.lang.model.element.Modifier;
@@ -91,6 +92,8 @@ public class RxHttpGenerator {
         ClassName upFileName = ClassName.get("rxhttp.wrapper.entity", "UpFile");
         TypeName listUpFileName = ParameterizedTypeName.get(ClassName.get(List.class), upFileName);
         TypeName listFileName = ParameterizedTypeName.get(ClassName.get(List.class), ClassName.get(File.class));
+        WildcardTypeName subString = WildcardTypeName.subtypeOf(TypeName.get(String.class));
+        TypeName mapName = ParameterizedTypeName.get(ClassName.get(Map.class), subString, subObject);
 
         ClassName noBodyParamName = ClassName.get(packageName, "NoBodyParam");
         ClassName rxHttpNoBodyName = ClassName.get(packageName, "RxHttp$NoBodyParam");
@@ -221,11 +224,40 @@ public class RxHttpGenerator {
             .addStatement("super(param)");
         rxHttpNoBodyMethod.add(method.build());
 
+        method = MethodSpec.methodBuilder("add")
+            .addModifiers(Modifier.PUBLIC)
+            .addParameter(String.class, "key")
+            .addParameter(Object.class, "value")
+            .addStatement("param.add(key,value)")
+            .addStatement("return this")
+            .returns(rxHttpNoBodyName);
+        rxHttpNoBodyMethod.add(method.build());
+
         method = MethodSpec.methodBuilder("addEncoded")
             .addModifiers(Modifier.PUBLIC)
             .addParameter(String.class, "key")
             .addParameter(Object.class, "value")
             .addStatement("param.addEncoded(key,value)")
+            .addStatement("return this")
+            .returns(rxHttpNoBodyName);
+        rxHttpNoBodyMethod.add(method.build());
+
+        method = MethodSpec.methodBuilder("add")
+            .addModifiers(Modifier.PUBLIC)
+            .addParameter(String.class, "key")
+            .addParameter(Object.class, "value")
+            .addParameter(boolean.class, "isAdd")
+            .beginControlFlow("if(isAdd)")
+            .addStatement("param.add(key,value)")
+            .endControlFlow()
+            .addStatement("return this")
+            .returns(rxHttpNoBodyName);
+        rxHttpNoBodyMethod.add(method.build());
+
+        method = MethodSpec.methodBuilder("addAll")
+            .addModifiers(Modifier.PUBLIC)
+            .addParameter(mapName, "map")
+            .addStatement("param.addAll(map)")
             .addStatement("return this")
             .returns(rxHttpNoBodyName);
         rxHttpNoBodyMethod.add(method.build());
@@ -297,11 +329,40 @@ public class RxHttpGenerator {
             .addStatement("super(param)");
         rxHttpFromMethod.add(method.build());
 
+        method = MethodSpec.methodBuilder("add")
+            .addModifiers(Modifier.PUBLIC)
+            .addParameter(String.class, "key")
+            .addParameter(Object.class, "value")
+            .addStatement("param.add(key,value)")
+            .addStatement("return this")
+            .returns(rxHttpFormName);
+        rxHttpFromMethod.add(method.build());
+
         method = MethodSpec.methodBuilder("addEncoded")
             .addModifiers(Modifier.PUBLIC)
             .addParameter(String.class, "key")
             .addParameter(Object.class, "value")
             .addStatement("param.addEncoded(key,value)")
+            .addStatement("return this")
+            .returns(rxHttpFormName);
+        rxHttpNoBodyMethod.add(method.build());
+
+        method = MethodSpec.methodBuilder("add")
+            .addModifiers(Modifier.PUBLIC)
+            .addParameter(String.class, "key")
+            .addParameter(Object.class, "value")
+            .addParameter(boolean.class, "isAdd")
+            .beginControlFlow("if(isAdd)")
+            .addStatement("param.add(key,value)")
+            .endControlFlow()
+            .addStatement("return this")
+            .returns(rxHttpFormName);
+        rxHttpFromMethod.add(method.build());
+
+        method = MethodSpec.methodBuilder("addAll")
+            .addModifiers(Modifier.PUBLIC)
+            .addParameter(mapName, "map")
+            .addStatement("param.addAll(map)")
             .addStatement("return this")
             .returns(rxHttpFormName);
         rxHttpFromMethod.add(method.build());
@@ -501,6 +562,35 @@ public class RxHttpGenerator {
             .addStatement("super(param)");
         rxHttpJsonMethod.add(method.build());
 
+        method = MethodSpec.methodBuilder("add")
+            .addModifiers(Modifier.PUBLIC)
+            .addParameter(String.class, "key")
+            .addParameter(Object.class, "value")
+            .addStatement("param.add(key,value)")
+            .addStatement("return this")
+            .returns(rxHttpJsonName);
+        rxHttpJsonMethod.add(method.build());
+
+        method = MethodSpec.methodBuilder("add")
+            .addModifiers(Modifier.PUBLIC)
+            .addParameter(String.class, "key")
+            .addParameter(Object.class, "value")
+            .addParameter(boolean.class, "isAdd")
+            .beginControlFlow("if(isAdd)")
+            .addStatement("param.add(key,value)")
+            .endControlFlow()
+            .addStatement("return this")
+            .returns(rxHttpJsonName);
+        rxHttpJsonMethod.add(method.build());
+
+        method = MethodSpec.methodBuilder("addAll")
+            .addModifiers(Modifier.PUBLIC)
+            .addParameter(mapName, "map")
+            .addStatement("param.addAll(map)")
+            .addStatement("return this")
+            .returns(rxHttpJsonName);
+        rxHttpJsonMethod.add(method.build());
+
         method = MethodSpec.methodBuilder("setJsonParams")
             .addModifiers(Modifier.PUBLIC)
             .addParameter(String.class, "jsonParams")
@@ -571,9 +661,37 @@ public class RxHttpGenerator {
 
         method = MethodSpec.methodBuilder("add")
             .addModifiers(Modifier.PUBLIC)
-            .addJavadoc("将Object对象序列化为json字符串，add系列方法最终都会调用此方法添加参数\n")
             .addParameter(Object.class, "object")
             .addStatement("param.add(object)")
+            .addStatement("return this")
+            .returns(rxHttpJsonArrayName);
+        rxHttpJsonArrayMethod.add(method.build());
+
+        method = MethodSpec.methodBuilder("add")
+            .addModifiers(Modifier.PUBLIC)
+            .addParameter(String.class, "key")
+            .addParameter(Object.class, "value")
+            .addStatement("param.add(key,value)")
+            .addStatement("return this")
+            .returns(rxHttpJsonArrayName);
+        rxHttpJsonArrayMethod.add(method.build());
+
+        method = MethodSpec.methodBuilder("add")
+            .addModifiers(Modifier.PUBLIC)
+            .addParameter(String.class, "key")
+            .addParameter(Object.class, "value")
+            .addParameter(boolean.class, "isAdd")
+            .beginControlFlow("if(isAdd)")
+            .addStatement("param.add(key,value)")
+            .endControlFlow()
+            .addStatement("return this")
+            .returns(rxHttpJsonArrayName);
+        rxHttpJsonArrayMethod.add(method.build());
+
+        method = MethodSpec.methodBuilder("addAll")
+            .addModifiers(Modifier.PUBLIC)
+            .addParameter(mapName, "map")
+            .addStatement("param.addAll(map)")
             .addStatement("return this")
             .returns(rxHttpJsonArrayName);
         rxHttpJsonArrayMethod.add(method.build());
