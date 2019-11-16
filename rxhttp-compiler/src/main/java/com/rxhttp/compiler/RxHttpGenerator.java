@@ -216,13 +216,12 @@ public class RxHttpGenerator {
         JavaFile.builder(packageName, rxHttp)
             .build().writeTo(filer);
 
-        List<MethodSpec> rxHttpNoBodyMethod = new ArrayList<>();
-
+        methodList.clear();
         method = MethodSpec.constructorBuilder()
             .addModifiers(Modifier.PUBLIC)
             .addParameter(noBodyParamName, "param")
             .addStatement("super(param)");
-        rxHttpNoBodyMethod.add(method.build());
+        methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("add")
             .addModifiers(Modifier.PUBLIC)
@@ -231,7 +230,7 @@ public class RxHttpGenerator {
             .addStatement("param.add(key,value)")
             .addStatement("return this")
             .returns(rxHttpNoBodyName);
-        rxHttpNoBodyMethod.add(method.build());
+        methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("addEncoded")
             .addModifiers(Modifier.PUBLIC)
@@ -240,7 +239,7 @@ public class RxHttpGenerator {
             .addStatement("param.addEncoded(key,value)")
             .addStatement("return this")
             .returns(rxHttpNoBodyName);
-        rxHttpNoBodyMethod.add(method.build());
+        methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("add")
             .addModifiers(Modifier.PUBLIC)
@@ -252,7 +251,7 @@ public class RxHttpGenerator {
             .endControlFlow()
             .addStatement("return this")
             .returns(rxHttpNoBodyName);
-        rxHttpNoBodyMethod.add(method.build());
+        methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("addAll")
             .addModifiers(Modifier.PUBLIC)
@@ -260,14 +259,14 @@ public class RxHttpGenerator {
             .addStatement("param.addAll(map)")
             .addStatement("return this")
             .returns(rxHttpNoBodyName);
-        rxHttpNoBodyMethod.add(method.build());
+        methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("removeAllBody")
             .addModifiers(Modifier.PUBLIC)
             .addStatement("param.removeAllBody()")
             .addStatement("return this")
             .returns(rxHttpNoBodyName);
-        rxHttpNoBodyMethod.add(method.build());
+        methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("removeAllBody")
             .addModifiers(Modifier.PUBLIC)
@@ -275,7 +274,7 @@ public class RxHttpGenerator {
             .addStatement("param.removeAllBody(key)")
             .addStatement("return this")
             .returns(rxHttpNoBodyName);
-        rxHttpNoBodyMethod.add(method.build());
+        methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("set")
             .addModifiers(Modifier.PUBLIC)
@@ -284,7 +283,7 @@ public class RxHttpGenerator {
             .addStatement("param.set(key,value)")
             .addStatement("return this")
             .returns(rxHttpNoBodyName);
-        rxHttpNoBodyMethod.add(method.build());
+        methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("setEncoded")
             .addModifiers(Modifier.PUBLIC)
@@ -293,21 +292,21 @@ public class RxHttpGenerator {
             .addStatement("param.setEncoded(key,value)")
             .addStatement("return this")
             .returns(rxHttpNoBodyName);
-        rxHttpNoBodyMethod.add(method.build());
+        methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("queryValue")
             .addModifiers(Modifier.PUBLIC)
             .addParameter(String.class, "key")
             .addStatement("return param.queryValue(key)")
             .returns(Object.class);
-        rxHttpNoBodyMethod.add(method.build());
+        methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("queryValues")
             .addModifiers(Modifier.PUBLIC)
             .addParameter(String.class, "key")
             .addStatement("return param.queryValues(key)")
             .returns(listObjectName);
-        rxHttpNoBodyMethod.add(method.build());
+        methodList.add(method.build());
 
         TypeSpec rxHttpNoBodySpec = TypeSpec.classBuilder("RxHttp$NoBodyParam")
             .addJavadoc("Github" +
@@ -315,19 +314,18 @@ public class RxHttpGenerator {
                 "\nhttps://github.com/liujingxing/RxLife\n")
             .addModifiers(Modifier.PUBLIC)
             .superclass(rxHttpNoBody)
-            .addMethods(rxHttpNoBodyMethod)
+            .addMethods(methodList)
             .build();
 
         JavaFile.builder(packageName, rxHttpNoBodySpec)
             .build().writeTo(filer);
 
-        List<MethodSpec> rxHttpFromMethod = new ArrayList<>();
-
+        methodList.clear();
         method = MethodSpec.constructorBuilder()
             .addModifiers(Modifier.PUBLIC)
             .addParameter(formParamName, "param")
             .addStatement("super(param)");
-        rxHttpFromMethod.add(method.build());
+        methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("add")
             .addModifiers(Modifier.PUBLIC)
@@ -336,7 +334,7 @@ public class RxHttpGenerator {
             .addStatement("param.add(key,value)")
             .addStatement("return this")
             .returns(rxHttpFormName);
-        rxHttpFromMethod.add(method.build());
+        methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("addEncoded")
             .addModifiers(Modifier.PUBLIC)
@@ -345,7 +343,7 @@ public class RxHttpGenerator {
             .addStatement("param.addEncoded(key,value)")
             .addStatement("return this")
             .returns(rxHttpFormName);
-        rxHttpNoBodyMethod.add(method.build());
+        methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("add")
             .addModifiers(Modifier.PUBLIC)
@@ -357,7 +355,7 @@ public class RxHttpGenerator {
             .endControlFlow()
             .addStatement("return this")
             .returns(rxHttpFormName);
-        rxHttpFromMethod.add(method.build());
+        methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("addAll")
             .addModifiers(Modifier.PUBLIC)
@@ -365,14 +363,14 @@ public class RxHttpGenerator {
             .addStatement("param.addAll(map)")
             .addStatement("return this")
             .returns(rxHttpFormName);
-        rxHttpFromMethod.add(method.build());
+        methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("removeAllBody")
             .addModifiers(Modifier.PUBLIC)
             .addStatement("param.removeAllBody()")
             .addStatement("return this")
             .returns(rxHttpFormName);
-        rxHttpFromMethod.add(method.build());
+        methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("removeAllBody")
             .addModifiers(Modifier.PUBLIC)
@@ -380,7 +378,7 @@ public class RxHttpGenerator {
             .addStatement("param.removeAllBody(key)")
             .addStatement("return this")
             .returns(rxHttpFormName);
-        rxHttpFromMethod.add(method.build());
+        methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("set")
             .addModifiers(Modifier.PUBLIC)
@@ -389,7 +387,7 @@ public class RxHttpGenerator {
             .addStatement("param.set(key,value)")
             .addStatement("return this")
             .returns(rxHttpFormName);
-        rxHttpFromMethod.add(method.build());
+        methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("setEncoded")
             .addModifiers(Modifier.PUBLIC)
@@ -398,21 +396,21 @@ public class RxHttpGenerator {
             .addStatement("param.setEncoded(key,value)")
             .addStatement("return this")
             .returns(rxHttpFormName);
-        rxHttpFromMethod.add(method.build());
+        methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("queryValue")
             .addModifiers(Modifier.PUBLIC)
             .addParameter(String.class, "key")
             .addStatement("return param.queryValue(key)")
             .returns(Object.class);
-        rxHttpFromMethod.add(method.build());
+        methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("queryValues")
             .addModifiers(Modifier.PUBLIC)
             .addParameter(String.class, "key")
             .addStatement("return param.queryValues(key)")
             .returns(listObjectName);
-        rxHttpFromMethod.add(method.build());
+        methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("add")
             .addModifiers(Modifier.PUBLIC)
@@ -421,7 +419,7 @@ public class RxHttpGenerator {
             .addStatement("param.add(key,file)")
             .addStatement("return this")
             .returns(rxHttpFormName);
-        rxHttpFromMethod.add(method.build());
+        methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("addFile")
             .addModifiers(Modifier.PUBLIC)
@@ -430,7 +428,7 @@ public class RxHttpGenerator {
             .addStatement("param.addFile(key,file)")
             .addStatement("return this")
             .returns(rxHttpFormName);
-        rxHttpFromMethod.add(method.build());
+        methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("addFile")
             .addModifiers(Modifier.PUBLIC)
@@ -439,7 +437,7 @@ public class RxHttpGenerator {
             .addStatement("param.addFile(key,filePath)")
             .addStatement("return this")
             .returns(rxHttpFormName);
-        rxHttpFromMethod.add(method.build());
+        methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("addFile")
             .addModifiers(Modifier.PUBLIC)
@@ -449,7 +447,7 @@ public class RxHttpGenerator {
             .addStatement("param.addFile(key,value,filePath)")
             .addStatement("return this")
             .returns(rxHttpFormName);
-        rxHttpFromMethod.add(method.build());
+        methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("addFile")
             .addModifiers(Modifier.PUBLIC)
@@ -459,7 +457,7 @@ public class RxHttpGenerator {
             .addStatement("param.addFile(key,value,file)")
             .addStatement("return this")
             .returns(rxHttpFormName);
-        rxHttpFromMethod.add(method.build());
+        methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("addFile")
             .addModifiers(Modifier.PUBLIC)
@@ -467,7 +465,7 @@ public class RxHttpGenerator {
             .addStatement("param.addFile(file)")
             .addStatement("return this")
             .returns(rxHttpFormName);
-        rxHttpFromMethod.add(method.build());
+        methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("addFile")
             .addModifiers(Modifier.PUBLIC)
@@ -476,7 +474,7 @@ public class RxHttpGenerator {
             .addStatement("param.addFile(key,fileList)")
             .addStatement("return this")
             .returns(rxHttpFormName);
-        rxHttpFromMethod.add(method.build());
+        methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("addFile")
             .addModifiers(Modifier.PUBLIC)
@@ -484,7 +482,7 @@ public class RxHttpGenerator {
             .addStatement("param.addFile(fileList)")
             .addStatement("return this")
             .returns(rxHttpFormName);
-        rxHttpFromMethod.add(method.build());
+        methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("removeFile")
             .addModifiers(Modifier.PUBLIC)
@@ -492,14 +490,14 @@ public class RxHttpGenerator {
             .addStatement("param.removeFile(key)")
             .addStatement("return this")
             .returns(rxHttpFormName);
-        rxHttpFromMethod.add(method.build());
+        methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("setMultiForm")
             .addModifiers(Modifier.PUBLIC)
             .addStatement("param.setMultiForm()")
             .addStatement("return this")
             .returns(rxHttpFormName);
-        rxHttpFromMethod.add(method.build());
+        methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("setUploadMaxLength")
             .addModifiers(Modifier.PUBLIC)
@@ -507,14 +505,14 @@ public class RxHttpGenerator {
             .addStatement("param.setUploadMaxLength(maxLength)")
             .addStatement("return this")
             .returns(rxHttpFormName);
-        rxHttpFromMethod.add(method.build());
+        methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("asUpload")
             .addModifiers(Modifier.PUBLIC)
             .addParameter(consumerProgressStringName, "progressConsumer")
             .addStatement("return asUpload($T.get(String.class), progressConsumer, null)", simpleParserName)
             .returns(observableStringName);
-        rxHttpFromMethod.add(method.build());
+        methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("asUpload")
             .addModifiers(Modifier.PUBLIC)
@@ -522,7 +520,7 @@ public class RxHttpGenerator {
             .addParameter(schedulerName, "observeOnScheduler")
             .addStatement("return asUpload($T.get(String.class), progressConsumer, observeOnScheduler)", simpleParserName)
             .returns(observableStringName);
-        rxHttpFromMethod.add(method.build());
+        methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("asUpload")
             .addModifiers(Modifier.PUBLIC)
@@ -539,7 +537,7 @@ public class RxHttpGenerator {
                 ".filter(Progress::isCompleted)\n" +
                 ".map(Progress::getResult)")
             .returns(observableTName);
-        rxHttpFromMethod.add(method.build());
+        methodList.add(method.build());
 
 
         TypeSpec rxHttpFormSpec = TypeSpec.classBuilder("RxHttp$FormParam")
@@ -548,19 +546,18 @@ public class RxHttpGenerator {
                 "\nhttps://github.com/liujingxing/RxLife\n")
             .addModifiers(Modifier.PUBLIC)
             .superclass(rxHttpForm)
-            .addMethods(rxHttpFromMethod)
+            .addMethods(methodList)
             .build();
 
         JavaFile.builder(packageName, rxHttpFormSpec)
             .build().writeTo(filer);
 
-        List<MethodSpec> rxHttpJsonMethod = new ArrayList<>();
-
+        methodList.clear();
         method = MethodSpec.constructorBuilder()
             .addModifiers(Modifier.PUBLIC)
             .addParameter(jsonParamName, "param")
             .addStatement("super(param)");
-        rxHttpJsonMethod.add(method.build());
+        methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("add")
             .addModifiers(Modifier.PUBLIC)
@@ -569,7 +566,7 @@ public class RxHttpGenerator {
             .addStatement("param.add(key,value)")
             .addStatement("return this")
             .returns(rxHttpJsonName);
-        rxHttpJsonMethod.add(method.build());
+        methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("add")
             .addModifiers(Modifier.PUBLIC)
@@ -581,7 +578,7 @@ public class RxHttpGenerator {
             .endControlFlow()
             .addStatement("return this")
             .returns(rxHttpJsonName);
-        rxHttpJsonMethod.add(method.build());
+        methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("addAll")
             .addModifiers(Modifier.PUBLIC)
@@ -589,7 +586,7 @@ public class RxHttpGenerator {
             .addStatement("param.addAll(map)")
             .addStatement("return this")
             .returns(rxHttpJsonName);
-        rxHttpJsonMethod.add(method.build());
+        methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("addAll")
             .addModifiers(Modifier.PUBLIC)
@@ -599,7 +596,7 @@ public class RxHttpGenerator {
             .addStatement("param.addAll(jsonObject)")
             .addStatement("return this")
             .returns(rxHttpJsonName);
-        rxHttpJsonMethod.add(method.build());
+        methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("addAll")
             .addModifiers(Modifier.PUBLIC)
@@ -608,7 +605,7 @@ public class RxHttpGenerator {
             .addStatement("param.addAll(jsonObject)")
             .addStatement("return this")
             .returns(rxHttpJsonName);
-        rxHttpJsonMethod.add(method.build());
+        methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("addJsonElement")
             .addModifiers(Modifier.PUBLIC)
@@ -618,7 +615,7 @@ public class RxHttpGenerator {
             .addStatement("param.addJsonElement(key,jsonElement)")
             .addStatement("return this")
             .returns(rxHttpJsonName);
-        rxHttpJsonMethod.add(method.build());
+        methodList.add(method.build());
 
         TypeSpec rxHttpJsonSpec = TypeSpec.classBuilder("RxHttp$JsonParam")
             .addJavadoc("Github" +
@@ -626,20 +623,18 @@ public class RxHttpGenerator {
                 "\nhttps://github.com/liujingxing/RxLife\n")
             .addModifiers(Modifier.PUBLIC)
             .superclass(rxHttpJson)
-            .addMethods(rxHttpJsonMethod)
+            .addMethods(methodList)
             .build();
 
         JavaFile.builder(packageName, rxHttpJsonSpec)
             .build().writeTo(filer);
 
-
-        List<MethodSpec> rxHttpJsonArrayMethod = new ArrayList<>();
-
+        methodList.clear();
         method = MethodSpec.constructorBuilder()
             .addModifiers(Modifier.PUBLIC)
             .addParameter(jsonArrayParamName, "param")
             .addStatement("super(param)");
-        rxHttpJsonArrayMethod.add(method.build());
+        methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("add")
             .addModifiers(Modifier.PUBLIC)
@@ -647,7 +642,7 @@ public class RxHttpGenerator {
             .addStatement("param.add(object)")
             .addStatement("return this")
             .returns(rxHttpJsonArrayName);
-        rxHttpJsonArrayMethod.add(method.build());
+        methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("add")
             .addModifiers(Modifier.PUBLIC)
@@ -656,7 +651,7 @@ public class RxHttpGenerator {
             .addStatement("param.add(key,value)")
             .addStatement("return this")
             .returns(rxHttpJsonArrayName);
-        rxHttpJsonArrayMethod.add(method.build());
+        methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("add")
             .addModifiers(Modifier.PUBLIC)
@@ -668,7 +663,7 @@ public class RxHttpGenerator {
             .endControlFlow()
             .addStatement("return this")
             .returns(rxHttpJsonArrayName);
-        rxHttpJsonArrayMethod.add(method.build());
+        methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("addAll")
             .addModifiers(Modifier.PUBLIC)
@@ -676,7 +671,7 @@ public class RxHttpGenerator {
             .addStatement("param.addAll(map)")
             .addStatement("return this")
             .returns(rxHttpJsonArrayName);
-        rxHttpJsonArrayMethod.add(method.build());
+        methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("addAll")
             .addModifiers(Modifier.PUBLIC)
@@ -684,7 +679,7 @@ public class RxHttpGenerator {
             .addStatement("param.addAll(list)")
             .addStatement("return this")
             .returns(rxHttpJsonArrayName);
-        rxHttpJsonArrayMethod.add(method.build());
+        methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("addAll")
             .addModifiers(Modifier.PUBLIC)
@@ -693,7 +688,7 @@ public class RxHttpGenerator {
             .addStatement("param.addAll(jsonElement)")
             .addStatement("return this")
             .returns(rxHttpJsonArrayName);
-        rxHttpJsonArrayMethod.add(method.build());
+        methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("addAll")
             .addModifiers(Modifier.PUBLIC)
@@ -701,7 +696,7 @@ public class RxHttpGenerator {
             .addStatement("param.addAll(jsonArray)")
             .addStatement("return this")
             .returns(rxHttpJsonArrayName);
-        rxHttpJsonArrayMethod.add(method.build());
+        methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("addAll")
             .addModifiers(Modifier.PUBLIC)
@@ -710,7 +705,7 @@ public class RxHttpGenerator {
             .addStatement("param.addAll(jsonObject)")
             .addStatement("return this")
             .returns(rxHttpJsonArrayName);
-        rxHttpJsonArrayMethod.add(method.build());
+        methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("addJsonElement")
             .addModifiers(Modifier.PUBLIC)
@@ -718,7 +713,7 @@ public class RxHttpGenerator {
             .addStatement("param.addJsonElement(jsonElement)")
             .addStatement("return this")
             .returns(rxHttpJsonArrayName);
-        rxHttpJsonArrayMethod.add(method.build());
+        methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("addJsonElement")
             .addModifiers(Modifier.PUBLIC)
@@ -728,7 +723,7 @@ public class RxHttpGenerator {
             .addStatement("param.addJsonElement(key,jsonElement)")
             .addStatement("return this")
             .returns(rxHttpJsonArrayName);
-        rxHttpJsonArrayMethod.add(method.build());
+        methodList.add(method.build());
 
         TypeSpec rxHttpJsonArraySpec = TypeSpec.classBuilder("RxHttp$JsonArrayParam")
             .addJavadoc("Github" +
@@ -736,7 +731,7 @@ public class RxHttpGenerator {
                 "\nhttps://github.com/liujingxing/RxLife\n")
             .addModifiers(Modifier.PUBLIC)
             .superclass(rxHttpJsonArray)
-            .addMethods(rxHttpJsonArrayMethod)
+            .addMethods(methodList)
             .build();
 
         JavaFile.builder(packageName, rxHttpJsonArraySpec)
