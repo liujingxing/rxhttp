@@ -591,24 +591,6 @@ public class RxHttpGenerator {
             .returns(rxHttpJsonName);
         rxHttpJsonMethod.add(method.build());
 
-        method = MethodSpec.methodBuilder("setJsonParams")
-            .addModifiers(Modifier.PUBLIC)
-            .addParameter(String.class, "jsonParams")
-            .addAnnotation(Deprecated.class)
-            .addJavadoc("@deprecated Use {@link #addAll(String)} instead.\n")
-            .addStatement("return addAll(jsonParams)")
-            .returns(rxHttpJsonName);
-        rxHttpJsonMethod.add(method.build());
-
-        method = MethodSpec.methodBuilder("addJsonParams")
-            .addModifiers(Modifier.PUBLIC)
-            .addParameter(String.class, "jsonParams")
-            .addAnnotation(Deprecated.class)
-            .addJavadoc("@deprecated Use {@link #addAll(String)} instead.\n")
-            .addStatement("return addAll(jsonParams)")
-            .returns(rxHttpJsonName);
-        rxHttpJsonMethod.add(method.build());
-
         method = MethodSpec.methodBuilder("addAll")
             .addModifiers(Modifier.PUBLIC)
             .addJavadoc("将Json对象里面的key-value逐一取出，添加到另一个Json对象中，" +
