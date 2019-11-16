@@ -105,7 +105,7 @@ public class ParserAnnotatedClass {
             .addTypeVariable(t)
             .addException(IOException.class)
             .addParameter(parserTName, "parser")
-            .addStatement("return $T.execute(addDefaultDomainIfAbsent(param),parser)", httpSenderName)
+            .addStatement("return parser.onParse(execute())", httpSenderName)
             .returns(t);
         methodList.add(method.build());
 
