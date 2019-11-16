@@ -2,14 +2,15 @@ package rxhttp.wrapper.param;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import io.reactivex.annotations.NonNull;
+import io.reactivex.annotations.Nullable;
 import okhttp3.RequestBody;
 import rxhttp.wrapper.callback.ProgressCallback;
+import rxhttp.wrapper.entity.KeyValuePair;
 import rxhttp.wrapper.entity.UpFile;
 import rxhttp.wrapper.progress.ProgressRequestBody;
 import rxhttp.wrapper.utils.BuildUtil;
@@ -26,11 +27,11 @@ import rxhttp.wrapper.utils.BuildUtil;
  */
 public class FormParam extends AbstractParam<FormParam> implements IUploadLengthLimit, IFile<FormParam> {
 
-    protected ProgressCallback mCallback; //上传进度回调
-    protected List<UpFile>     mFileList;  //附件集合
-    private Map<String, Object> mParam; //请求参数
+    private ProgressCallback mCallback; //上传进度回调
+    private List<UpFile> mFileList;  //附件集合
+    private List<KeyValuePair> mKeyValuePairs; //请求参数
 
-    private long    uploadMaxLength = Integer.MAX_VALUE;//文件上传最大长度
+    private long uploadMaxLength = Integer.MAX_VALUE;//文件上传最大长度
     private boolean isMultiForm;
 
     /**
@@ -41,44 +42,73 @@ public class FormParam extends AbstractParam<FormParam> implements IUploadLength
         super(url, method);
     }
 
-    /**
-     * 设置上传进度监听器
-     *
-     * @param callback 进度回调对象
-     * @return PostFormParam
-     */
     @Override
-    public final FormParam setProgressCallback(ProgressCallback callback) {
-        mCallback = callback;
+    public FormParam add(String key, Object value) {
+        return add(new KeyValuePair(key, value));
+    }
+
+    public FormParam addEncoded(String key, Object value) {
+        return add(new KeyValuePair(key, value, true));
+    }
+
+    public FormParam removeAllBody(String key) {
+        final List<KeyValuePair> keyValuePairs = mKeyValuePairs;
+        if (keyValuePairs == null) return this;
+        Iterator<KeyValuePair> iterator = keyValuePairs.iterator();
+        while (iterator.hasNext()) {
+            KeyValuePair next = iterator.next();
+            if (next.equals(key))
+                iterator.remove();
+        }
         return this;
     }
 
-    @Override
-    public RequestBody getRequestBody() {
-        final Map<String, Object> params = mParam;
-        RequestBody requestBody = isMultiForm || hasFile() ? BuildUtil.buildFormRequestBody(params, mFileList)
-            : BuildUtil.buildFormRequestBody(params);
-        final ProgressCallback callback = mCallback;
-        if (callback != null) {
-            //如果设置了进度回调，则对RequestBody进行装饰
-            return new ProgressRequestBody(requestBody, callback);
+    public FormParam removeAllBody() {
+        final List<KeyValuePair> keyValuePairs = mKeyValuePairs;
+        if (keyValuePairs != null)
+            keyValuePairs.clear();
+        return this;
+    }
+
+    public FormParam set(String key, Object value) {
+        removeAllBody(key);
+        return add(key, value);
+    }
+
+    public FormParam setEncoded(String key, Object value) {
+        removeAllBody(key);
+        return addEncoded(key, value);
+    }
+
+    @Nullable
+    public Object queryValue(String key) {
+        final List<KeyValuePair> keyValuePairs = mKeyValuePairs;
+        if (keyValuePairs == null) return this;
+        for (KeyValuePair pair : keyValuePairs) {
+            if (pair.equals(key))
+                return pair.getValue();
         }
-        return requestBody;
+        return null;
     }
 
     @NonNull
-    public Map<String, Object> getParams() {
-        return mParam;
+    public List<Object> queryValues(String key) {
+        final List<KeyValuePair> keyValuePairs = mKeyValuePairs;
+        if (keyValuePairs == null) return Collections.emptyList();
+        List<Object> values = new ArrayList<>();
+        for (KeyValuePair pair : keyValuePairs) {
+            if (pair.equals(key))
+                values.add(pair.getValue());
+        }
+        return Collections.unmodifiableList(values);
     }
 
-    @Override
-    public FormParam add(String key, Object value) {
-        if (value == null) value = "";
-        Map<String, Object> param = mParam;
-        if (param == null) {
-            param = mParam = new LinkedHashMap<>();
+    private FormParam add(KeyValuePair keyValuePair) {
+        List<KeyValuePair> keyValuePairs = mKeyValuePairs;
+        if (keyValuePairs == null) {
+            keyValuePairs = mKeyValuePairs = new ArrayList<>();
         }
-        param.put(key, value);
+        keyValuePairs.add(keyValuePair);
         return this;
     }
 
@@ -142,8 +172,50 @@ public class FormParam extends AbstractParam<FormParam> implements IUploadLength
                 "this length cannot be greater than " + uploadMaxLength + " byte");
     }
 
+    /**
+     * 设置上传进度监听器
+     *
+     * @param callback 进度回调对象
+     * @return FormParam
+     */
+    @Override
+    public final FormParam setProgressCallback(ProgressCallback callback) {
+        mCallback = callback;
+        return this;
+    }
+
+    @Override
+    public RequestBody getRequestBody() {
+        final List<KeyValuePair> keyValuePairs = mKeyValuePairs;
+        RequestBody requestBody = isMultiForm || hasFile() ?
+            BuildUtil.buildFormRequestBody(keyValuePairs, mFileList)
+            : BuildUtil.buildFormRequestBody(keyValuePairs);
+        final ProgressCallback callback = mCallback;
+        if (callback != null) {
+            //如果设置了进度回调，则对RequestBody进行装饰
+            return new ProgressRequestBody(requestBody, callback);
+        }
+        return requestBody;
+    }
+
+    public ProgressCallback getCallback() {
+        return mCallback;
+    }
+
+    public List<UpFile> getFileList() {
+        return mFileList;
+    }
+
+    public List<KeyValuePair> getKeyValuePairs() {
+        return mKeyValuePairs;
+    }
+
+    public boolean isMultiForm() {
+        return isMultiForm;
+    }
+
     @Override
     public String toString() {
-        return BuildUtil.getHttpUrl(getSimpleUrl(), mParam).toString();
+        return BuildUtil.getHttpUrl(getSimpleUrl(), mKeyValuePairs).toString();
     }
 }
