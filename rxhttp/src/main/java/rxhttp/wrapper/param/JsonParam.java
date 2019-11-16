@@ -4,7 +4,7 @@ package rxhttp.wrapper.param;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import io.reactivex.annotations.NonNull;
+import io.reactivex.annotations.Nullable;
 import okhttp3.RequestBody;
 import rxhttp.wrapper.utils.GsonUtil;
 
@@ -44,7 +44,7 @@ public class JsonParam extends AbstractParam<JsonParam> implements IJsonObject<J
         return this;
     }
 
-    @NonNull
+    @Nullable
     public Map<String, Object> getParams() {
         return mParam;
     }
