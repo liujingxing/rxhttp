@@ -49,22 +49,6 @@ public class JsonParam extends AbstractParam<JsonParam> implements IJsonObject<J
         return mParam;
     }
 
-    /**
-     * @deprecated Use {@link #addAll(String)} instead.
-     */
-    @Deprecated
-    public JsonParam setJsonParams(String jsonParams) {
-        return addAll(jsonParams);
-    }
-
-    /**
-     * @deprecated Use {@link #addAll(String)} instead.
-     */
-    @Deprecated
-    public JsonParam addJsonParams(String jsonParams) {
-        return addAll(jsonParams);
-    }
-
     @Override
     public String toString() {
         return getSimpleUrl() + "\n\nparams = " + GsonUtil.toJson(mParam);
