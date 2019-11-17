@@ -29,7 +29,7 @@ public class JsonParam extends AbstractParam<JsonParam> implements IJsonObject<J
     @Override
     public RequestBody getRequestBody() {
         final Map<String, Object> params = mParam;
-        String json = params == null ? "" : GsonUtil.toJson(params);
+        String json = params == null ? "{}" : GsonUtil.toJson(params);
         return RequestBody.create(MEDIA_TYPE_JSON, json);
     }
 
