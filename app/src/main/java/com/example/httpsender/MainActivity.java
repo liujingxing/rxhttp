@@ -3,7 +3,6 @@ package com.example.httpsender;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.graphics.Color;
-import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Environment;
@@ -13,13 +12,12 @@ import android.view.View;
 import com.example.httpsender.databinding.MainActivityBinding;
 import com.example.httpsender.entity.Article;
 import com.example.httpsender.entity.Location;
+import com.example.httpsender.entity.Name;
 import com.google.gson.Gson;
 import com.rxjava.rxlife.RxLife;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -110,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
         interestList.add("羽毛球");
         interestList.add("游泳");
         String address = "{\"street\":\"科技园路.\",\"city\":\"江苏苏州\",\"country\":\"中国\"}";
-        
+
         RxHttp.postJson("/article/list/0/json")
             .add("name", "张三")
             .add("sex", 1)
@@ -129,22 +127,38 @@ public class MainActivity extends AppCompatActivity {
 
     //发送Post JsonArray请求，此接口不通，仅用于调试参数
     public void sendPostJsonArray(View view) {
-        HashMap<String, Object> map = new LinkedHashMap<>();
-        map.put("point1", new Point(10, 20));
-        map.put("key1", "value2");
+        //发送以下Json数组
+        /*
+           [
+               {
+                   "name": "张三"
+               },
+               {
+                   "name": "李四"
+               },
+               {
+                   "name": "王五"
+               },
+               {
+                   "name": "赵六"
+               },
+               {
+                   "name": "杨七"
+               }
+           ]
+         */
+        List<Name> names = new ArrayList<>();
+        names.add(new Name("赵六"));
+        names.add(new Name("杨七"));
         RxHttp.postJsonArray("/article/list/0/json")
-            .add(new Point(10, 20))
-            .add("point", new Point(10, 20))
-            .add("key", "value")
-            .add("ceshi")
-            .add("{\"content\":\"日暮征帆何处泊，天涯一望断人肠。\"}")
-            .addJsonElement("{\"content\":\"日暮征帆何处泊，天涯一望断人肠。\"}")
-            .add(map)
-            .addAll(map)
+            .add("name", "张三")
+            .add(new Name("李四"))
+            .addJsonElement("{\"name\":\"王五\"}")
+            .addAll(names)
             .asString()
             .as(RxLife.asOnMain(this))
             .subscribe(s -> {
-
+                mBinding.tvResult.setText(s);
             });
     }
 
