@@ -124,7 +124,7 @@ RxHttp.postForm("/service/...")       //发送表单形式的post请求
 ## post Json对象请求
 
 ```java
-//发送以下User对象                                                                   
+//发送以下Json对象                                                                   
 /*                                                                             
    {                                                                           
        "name": "张三",                                                           
@@ -340,8 +340,6 @@ RxHttp.setOnParamAssembly(new Function() {
         } else if (method.isPost()) { //Post请求
 
         }
-        //可以通过 p.getSimpleUrl() 拿到url更改后，重新设置
-        //p.setUrl("");
         return p.add("versionName", "1.0.0")//添加公共参数
                 .addHeader("deviceType", "android"); //添加公共请求头
     }
