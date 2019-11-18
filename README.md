@@ -191,7 +191,8 @@ RxHttp.postJson("/article/list/0/json")
  */                                         
 List<Name> names = new ArrayList<>();       
 names.add(new Name("赵六"));                  
-names.add(new Name("杨七"));                  
+names.add(new Name("杨七"));   
+
 RxHttp.postJsonArray("/article/list/0/json")
     .add("name", "张三")                       
     .add(new Name("李四"))                     
