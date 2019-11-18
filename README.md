@@ -110,6 +110,52 @@ RxHttp.postJson("/service/...")       //发送Json字符串形式的post请求
 
 ```
 
+## post Json请求
+
+```java
+//发送以下User对象                                                                   
+/*                                                                             
+   {                                                                           
+       "name": "张三",                                                           
+       "sex": 1,                                                               
+       "height": 180,                                                          
+       "weight": 70,                                                           
+       "interest": [                                                           
+           "羽毛球",                                                              
+           "游泳"                                                                
+       ],                                                                      
+       "location": {                                                           
+           "latitude": 30.7866,                                                
+           "longitude": 120.6788                                               
+       },                                                                      
+       "address": {                                                            
+           "street": "科技园路.",                                                  
+           "city": "江苏苏州",                                                     
+           "country": "中国"                                                     
+       }                                                                       
+   }                                                                           
+ */                                                                            
+List<String> interestList = new ArrayList<>();//爱好                             
+interestList.add("羽毛球");                                                       
+interestList.add("游泳");                                                        
+String address = "{\"street\":\"科技园路.\",\"city\":\"江苏苏州\",\"country\":\"中国\"}";
+                                                                               
+RxHttp.postJson("/article/list/0/json")                                        
+    .add("name", "张三")                                                         
+    .add("sex", 1)                                                             
+    .addAll("{\"height\":180,\"weight\":70}") //通过addAll系列方法添加多个参数             
+    .add("interest", interestList) //添加数组对象                                    
+    .add("location", new Location(120.6788, 30.7866))  //添加位置对象                
+    .addJsonElement("address", address) //通过字符串添加一个对象                          
+    .asString()                                                                
+    .subscribe(s -> {
+        //成功回调
+    }, throwable -> {
+        //失败回调
+    });                                                                     
+
+```
+
 ## 添加参数
 ```java
 RxHttp.postForm("/service/...")                //发送表单形式的post请求
