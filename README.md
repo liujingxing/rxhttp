@@ -328,14 +328,12 @@ RxHttp作为开源库，可混淆，也可不混淆，如果不希望被混淆�
 1、检查有没有依赖注解处理器
 如：annotationProcessor 'com.rxjava.rxhttp:rxhttp-compiler:x.x.x’ (x.x.x为具体版本号)
 
-2、检查下有没有使用@DefaultDomain、@Domain、@Parser、@Param其中一个注解，且要在依赖注解处理器所在的Module中使用注解
+2、rebuild一下项目
 
-3、rebuild一下项目
-
-4、kotlin用户，要使用kapt依赖注解处理器，
+3、kotlin用户，要使用kapt依赖注解处理器，
 如：kapt 'com.rxjava.rxhttp:rxhttp-compiler:x.x.x’ (x.x.x为具体版本号)
 
-5、kotlin用户，检查Module的build.gradle文件中，有没有导入kapt插件
+4、kotlin用户，检查Module的build.gradle文件中，有没有导入kapt插件
 如：apply plugin: 'kotlin-kapt'
 
 经过以上步骤后还未生成RxHttp类，请联系我。
