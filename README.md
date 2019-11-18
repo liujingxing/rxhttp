@@ -94,23 +94,34 @@ RxHttp.get("/service/...")          //第一步，确定请求方式
         //失败回调
     });
 ```
+使用RxHttp发送任何请求都遵循请求三部曲
 
-## post
+## get请求
+```java
+RxHttp.get("/service/...")     
+    .add("key", "value)
+    .asString()                     
+    .subscribe(s -> {               
+        //成功回调
+    }, throwable -> {
+        //失败回调
+    });
+
+```
+
+## post Form请求
 ```java
 RxHttp.postForm("/service/...")       //发送表单形式的post请求
+    .add("key", "value)
     .asString()
     .subscribe(s -> {
         //成功回调
     }, throwable -> {
         //失败回调
     });
-
-RxHttp.postJson("/service/...")       //发送Json字符串形式的post请求
-    //省略部分代码
-
 ```
 
-## post Json请求
+## post Json对象请求
 
 ```java
 //发送以下User对象                                                                   
@@ -156,18 +167,51 @@ RxHttp.postJson("/article/list/0/json")
 
 ```
 
-## 添加参数
+## post Json数组请求
 ```java
-RxHttp.postForm("/service/...")                //发送表单形式的post请求
-    .add("key", "value")                     //添加参数
-    .addHeader("headerKey", "headerValue")   //添加请求头
-    .addFile("file", new File("xxx/1.png"))  //添加文件
-    .asString()
+//发送以下Json数组                                
+/*                                          
+   [                                        
+       {                                    
+           "name": "张三"                     
+       },                                   
+       {                                    
+           "name": "李四"                     
+       },                                   
+       {                                    
+           "name": "王五"                     
+       },                                   
+       {                                    
+           "name": "赵六"                     
+       },                                   
+       {                                    
+           "name": "杨七"                     
+       }                                    
+   ]                                        
+ */                                         
+List<Name> names = new ArrayList<>();       
+names.add(new Name("赵六"));                  
+names.add(new Name("杨七"));                  
+RxHttp.postJsonArray("/article/list/0/json")
+    .add("name", "张三")                       
+    .add(new Name("李四"))                     
+    .addJsonElement("{\"name\":\"王五\"}")     
+    .addAll(names)                           
+    .asString()                              
     .subscribe(s -> {
         //成功回调
     }, throwable -> {
         //失败回调
-    });
+    });          
+    
+public class Name {
+
+    String name;
+
+    public Name(String name) {
+        this.name = name;
+    }
+}
 ```
 
 ## 返回自定义的数据类型
@@ -333,12 +377,11 @@ RxHttp.postForm("/service/...") //发送Form表单形式的Post请求
     .setDomainToUpdate9158IfAbsent()      //手动设置域名，不设置会添加默认域名，此方法是通过@Domain注解生成的
     .tag("RxHttp.get")                    //为单个请求设置tag
     .setUrl("http://...")                 //重新设置url
-    .setJsonParams("{"versionName":" 1.0 .0 "}")  //设置Json字符串参数，非Json形式的请求调用此方法没有任何效果
     .setAssemblyEnabled(false)                 //设置是否添加公共参数，默认为true
     .cacheControl(CacheControl.FORCE_NETWORK)  //缓存控制
     .setParam(Param.postForm("http://..."))    //重新设置一个Param对象
-    .add(new HashMap<>())                      //通过Map添加参数
     .add("key", "value")                       //添加int类型参数
+    .addAll(new HashMap<>())                   //通过Map添加参数
     .addFile("file1", new File("xxx/1.png"))   //添加文件对象
     .addHeader("headerKey1", "headerValue1")   //添加头部信息
     .subscribeOn(Schedulers.io())  //指定请求线程，不指定默认在IO线程执行
