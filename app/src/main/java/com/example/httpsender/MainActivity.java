@@ -12,12 +12,15 @@ import android.view.View;
 
 import com.example.httpsender.databinding.MainActivityBinding;
 import com.example.httpsender.entity.Article;
+import com.example.httpsender.entity.Location;
 import com.google.gson.Gson;
 import com.rxjava.rxlife.RxLife;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import rxhttp.wrapper.param.RxHttp;
@@ -81,20 +84,50 @@ public class MainActivity extends AppCompatActivity {
 
     //发送Post Json请求，此接口不通，仅用于调试参数
     public void sendPostJson(View view) {
+        //发送以下User对象
+        /*
+           {
+               "name": "张三",
+               "sex": 1,
+               "height": 180,
+               "weight": 70,
+               "interest": [
+                   "羽毛球",
+                   "游泳"
+               ],
+               "location": {
+                   "latitude": 30.7866,
+                   "longitude": 120.6788
+               },
+               "address": {
+                   "street": "科技园路.",
+                   "city": "江苏苏州",
+                   "country": "中国"
+               }
+           }
+         */
+        List<String> interestList = new ArrayList<>();//爱好
+        interestList.add("羽毛球");
+        interestList.add("游泳");
+        String address = "{\"street\":\"科技园路.\",\"city\":\"江苏苏州\",\"country\":\"中国\"}";
+        
         RxHttp.postJson("/article/list/0/json")
-            .add("key1", "value1")
-            .add("point", new Point(10, 20))
-            .addAll("{\"content\":\"日暮征帆何处泊，天涯一望断人肠。\"}")
-            .addAll("{\"name\":\"BeJson\",\"address\":{\"street\":\"科技园路.\",\"city\":\"江苏苏州\",\"country\":\"中国\"},\"links\":[{\"name\":\"Google\",\"url\":\"http://www.google.com\"},{\"name\":\"Baidu\",\"url\":\"http://www.baidu.com\"},{\"name\":\"SoSo\",\"url\":\"http://www.SoSo.com\"}]}")
-            .asResponsePageList(Article.class)
+            .add("name", "张三")
+            .add("sex", 1)
+            .addAll("{\"height\":180,\"weight\":70}") //通过addAll系列方法添加多个参数
+            .add("interest", interestList) //添加数组对象
+            .add("location", new Location(120.6788, 30.7866))  //添加位置对象
+            .addJsonElement("address", address) //通过字符串添加一个对象
+            .asString()
             .as(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
-            .subscribe(pageList -> {
-                mBinding.tvResult.setText(new Gson().toJson(pageList));
+            .subscribe(s -> {
+                mBinding.tvResult.setText(s);
                 //成功回调
             });
     }
 
 
+    //发送Post JsonArray请求，此接口不通，仅用于调试参数
     public void sendPostJsonArray(View view) {
         HashMap<String, Object> map = new LinkedHashMap<>();
         map.put("point1", new Point(10, 20));
