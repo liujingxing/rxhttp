@@ -149,12 +149,14 @@ RxHttp.postForm("/service/...")       //发送表单形式的post请求
 List<String> interestList = new ArrayList<>();//爱好                             
 interestList.add("羽毛球");                                                       
 interestList.add("游泳");                                                        
+String json = "{\"height\":180,\"weight\":70}";
 String address = "{\"street\":\"科技园路.\",\"city\":\"江苏苏州\",\"country\":\"中国\"}";
+
                                                                                
 RxHttp.postJson("/article/list/0/json")                                        
     .add("name", "张三")                                                         
     .add("sex", 1)                                                             
-    .addAll("{\"height\":180,\"weight\":70}") //通过addAll系列方法添加多个参数             
+    .addAll(json) //通过addAll系列方法添加多个参数             
     .add("interest", interestList) //添加数组对象                                    
     .add("location", new Location(120.6788, 30.7866))  //添加位置对象                
     .addJsonElement("address", address) //通过字符串添加一个对象                          
@@ -193,10 +195,12 @@ List<Name> names = new ArrayList<>();
 names.add(new Name("赵六"));                  
 names.add(new Name("杨七"));   
 
+String json = "{\"name\":\"王五\"}";
+
 RxHttp.postJsonArray("/article/list/0/json")
     .add("name", "张三")                       
     .add(new Name("李四"))                     
-    .addJsonElement("{\"name\":\"王五\"}")     
+    .addJsonElement(json)     
     .addAll(names)                           
     .asString()                              
     .subscribe(s -> {
