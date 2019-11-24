@@ -9,14 +9,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import io.reactivex.annotations.NonNull;
-import okhttp3.CacheControl;
 import okhttp3.FormBody;
 import okhttp3.Headers;
 import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.Request;
-import okhttp3.Request.Builder;
 import okhttp3.RequestBody;
 import rxhttp.wrapper.entity.KeyValuePair;
 import rxhttp.wrapper.entity.UpFile;
@@ -29,15 +27,9 @@ import rxhttp.wrapper.param.IRequest;
  */
 public class BuildUtil {
 
-    public static Request buildRequest(@NonNull IRequest r) {
-        Builder builder = new Request.Builder()
-            .url(r.getHttpUrl())
-            .tag(r.getTag())
+    public static Request buildRequest(@NonNull IRequest r, @NonNull Request.Builder builder) {
+        builder.url(r.getHttpUrl())
             .method(r.getMethod().name(), r.getRequestBody());
-        CacheControl cacheControl = r.getCacheControl();
-        if (cacheControl != null) {
-            builder.cacheControl(cacheControl);
-        }
         Headers headers = r.getHeaders();
         if (headers != null) {
             builder.headers(headers);

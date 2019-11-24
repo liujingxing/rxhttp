@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import io.reactivex.annotations.NonNull;
+import io.reactivex.annotations.Nullable;
 import okhttp3.CacheControl;
 
 /**
@@ -38,7 +39,11 @@ public interface IParam<P extends Param> {
      */
     P setAssemblyEnabled(boolean enabled);
 
-    P tag(Object tag);
+    default P tag(@Nullable Object tag) {
+        return tag(Object.class, tag);
+    }
+
+    <T> P tag(Class<? super T> type, @Nullable T tag);
 
     P cacheControl(CacheControl cacheControl);
 }

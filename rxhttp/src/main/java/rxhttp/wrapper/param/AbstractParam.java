@@ -1,11 +1,14 @@
 package rxhttp.wrapper.param;
 
+
 import io.reactivex.annotations.NonNull;
 import io.reactivex.annotations.Nullable;
 import okhttp3.CacheControl;
 import okhttp3.Headers;
 import okhttp3.Headers.Builder;
 import okhttp3.HttpUrl;
+import okhttp3.Request;
+import rxhttp.wrapper.utils.BuildUtil;
 
 /**
  * 此类是唯一直接实现Param接口的类
@@ -20,8 +23,7 @@ public abstract class AbstractParam<P extends Param> implements Param<P> {
     private Method mMethod;  //请求方法
     private Builder mHBuilder; //请求头构造器
 
-    private Object mTag;
-    private CacheControl mCacheControl;
+    private Request.Builder requestBuilder = new Request.Builder(); //请求构造器
 
     private boolean mIsAssemblyEnabled = true;//是否添加公共参数
 
@@ -106,25 +108,15 @@ public abstract class AbstractParam<P extends Param> implements Param<P> {
     }
 
     @Override
-    public CacheControl getCacheControl() {
-        return mCacheControl;
-    }
-
-    @Override
     public P cacheControl(CacheControl cacheControl) {
-        mCacheControl = cacheControl;
+        requestBuilder.cacheControl(cacheControl);
         return (P) this;
     }
 
     @Override
-    public P tag(Object tag) {
-        mTag = tag;
+    public <T> P tag(Class<? super T> type, T tag) {
+        requestBuilder.tag(type, tag);
         return (P) this;
-    }
-
-    @Override
-    public Object getTag() {
-        return mTag;
     }
 
     @Override
@@ -136,5 +128,14 @@ public abstract class AbstractParam<P extends Param> implements Param<P> {
     @Override
     public final boolean isAssemblyEnabled() {
         return mIsAssemblyEnabled;
+    }
+
+    public Request.Builder getRequestBuilder() {
+        return requestBuilder;
+    }
+
+    @Override
+    public Request buildRequest() {
+        return BuildUtil.buildRequest(this, requestBuilder);
     }
 }
