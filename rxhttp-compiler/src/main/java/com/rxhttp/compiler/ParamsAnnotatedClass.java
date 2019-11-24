@@ -378,10 +378,18 @@ public class ParamsAnnotatedClass {
             .returns(rxHttp);
         methodList.add(method.build());
 
-        method = MethodSpec.methodBuilder("getTag")
+        TypeVariableName t = TypeVariableName.get("T");
+        WildcardTypeName subString = WildcardTypeName.subtypeOf(t);
+        TypeName classTName = ParameterizedTypeName.get(ClassName.get(Class.class), subString);
+
+        method = MethodSpec.methodBuilder("tag")
             .addModifiers(Modifier.PUBLIC)
-            .addStatement("return param.getTag()")
-            .returns(Object.class);
+            .addTypeVariable(t)
+            .addParameter(classTName, "type")
+            .addParameter(Object.class, "tag")
+            .addStatement("param.tag(type,tag)")
+            .addStatement("return (R)this")
+            .returns(rxHttp);
         methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("cacheControl")
@@ -390,12 +398,6 @@ public class ParamsAnnotatedClass {
             .addStatement("param.cacheControl(cacheControl)")
             .addStatement("return (R)this")
             .returns(rxHttp);
-        methodList.add(method.build());
-
-        method = MethodSpec.methodBuilder("getCacheControl")
-            .addModifiers(Modifier.PUBLIC)
-            .addStatement("return param.getCacheControl()")
-            .returns(cacheControlName);
         methodList.add(method.build());
         return methodList;
     }
