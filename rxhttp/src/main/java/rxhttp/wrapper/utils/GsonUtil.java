@@ -53,6 +53,7 @@ public class GsonUtil {
     private static Gson buildGson() {
         if (gson == null) {
             gson = new GsonBuilder()
+                .disableHtmlEscaping()
                 .registerTypeAdapter(String.class, new StringAdapter())
                 .registerTypeAdapter(Integer.class, new IntegerDefault0Adapter())
                 .registerTypeAdapter(Double.class, new DoubleDefault0Adapter())
