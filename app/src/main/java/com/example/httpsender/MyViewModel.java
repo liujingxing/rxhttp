@@ -1,7 +1,7 @@
 package com.example.httpsender;
 
 import android.app.Application;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.util.Log;
 
 import com.rxjava.rxlife.RxLife;
