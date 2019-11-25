@@ -45,7 +45,7 @@ public class ParseException extends IOException {
 
         Request request = response.request();
         requestMethod = request.method();
-        requestUrl = request.url().toString() + LogUtil.getRequestParams(request);
+        requestUrl = LogUtil.getEncodedUrlAndParams(request);
         responseHeaders = response.headers();
     }
 
@@ -81,7 +81,7 @@ public class ParseException extends IOException {
             " Method=" + requestMethod +
             " Code=" + errorCode +
             "\n\nurl = " + requestUrl +
-            "\n\nheaders = " + responseHeaders +
+            "\n\nresponse headers = " + responseHeaders +
             "\nmessage = " + getMessage();
     }
 }
