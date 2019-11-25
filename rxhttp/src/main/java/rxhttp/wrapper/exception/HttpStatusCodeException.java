@@ -33,7 +33,7 @@ public final class HttpStatusCodeException extends IOException {
         statusCode = String.valueOf(response.code());
         Request request = response.request();
         requestMethod = request.method();
-        requestUrl = request.url().toString() + LogUtil.getRequestParams(request);
+        requestUrl =  LogUtil.getEncodedUrlAndParams(request);
         responseHeaders = response.headers();
         this.result = result;
     }
@@ -70,7 +70,7 @@ public final class HttpStatusCodeException extends IOException {
             " Method=" + requestMethod +
             " Code=" + statusCode +
             "\n\nurl = " + requestUrl +
-            "\n\nheaders = " + responseHeaders +
+            "\n\nresponse headers = " + responseHeaders +
             "\nmessage = " + getMessage() +
             "\n\nresult = " + result;
     }
