@@ -160,7 +160,7 @@ public final class HttpSender {
             ((IUploadLengthLimit) param).checkLength();
         }
         Request request = param.buildRequest();
-        LogUtil.log(param);
+        LogUtil.log(request);
         return client.newCall(request);
     }
 

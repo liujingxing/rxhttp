@@ -4,18 +4,19 @@ import android.util.Log;
 
 import java.io.IOException;
 import java.net.URLDecoder;
-import java.nio.charset.Charset;
+import java.util.List;
 
 import io.reactivex.annotations.NonNull;
 import okhttp3.FormBody;
+import okhttp3.Headers;
+import okhttp3.HttpUrl.Builder;
+import okhttp3.MultipartBody;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import okio.Buffer;
 import rxhttp.wrapper.exception.HttpStatusCodeException;
 import rxhttp.wrapper.exception.ParseException;
-import rxhttp.wrapper.param.FormParam;
-import rxhttp.wrapper.param.JsonParam;
 import rxhttp.wrapper.param.Param;
 
 /**
@@ -49,7 +50,7 @@ public class LogUtil {
             .append(throwable.toString());
         if (!(throwable instanceof ParseException) && !(throwable instanceof HttpStatusCodeException)) {
             builder.append("\n\nurl = ")
-                .append(URLDecoder.decode(param.toString()));
+                .append(URLDecoder.decode(param.getUrl()));
         }
         Log.e(TAG, builder.toString());
     }
@@ -60,51 +61,93 @@ public class LogUtil {
         Request request = response.request();
         String builder = "------------------- request end Method=" +
             request.method() + " Code=" + response.code() + " -------------------" +
-            "\n\nurl = " + URLDecoder.decode(request.url().toString()) + getRequestParams(request) +
-            "\n\nheaders = " + response.headers() +
+            "\n\nurl = " + getEncodedUrlAndParams(request) +
+            "\n\nresponse headers = " + response.headers() +
             "\nresult = " + result;
         Log.i(TAG, builder);
     }
 
     //请求前，打印日志
-    public static void log(@NonNull Param param) {
+    public static void log(@NonNull Request request) {
         if (!isDebug) return;
-        StringBuilder builder = new StringBuilder();
-        builder.append("------------------- request start Method=")
-            .append(param.getMethod().name())
-            .append(" ")
-            .append(param.getClass().getSimpleName())
-            .append(" -------------------")
-            .append("\n\nurl = ")
-            .append(URLDecoder.decode(param.toString()));
-
-        builder.append("\n\nheaders = ")
-            .append(param.getHeaders());
-
-        Log.d(TAG, builder.toString());
+        String builder = "------------------- request start Method=" +
+            request.method() + " -------------------" +
+            request2Str(request);
+        Log.d(TAG, builder);
     }
 
-    public static String getRequestParams(Request request) {
+    private static String request2Str(Request request) {
+        return "\n\nurl = " + getEncodedUrlAndParams(request)
+            + "\n\nrequest headers = " + request.headers();
+    }
+
+    public static String getEncodedUrlAndParams(Request request) {
+        String result;
+        try {
+            result = getRequestParams(request);
+        } catch (IOException e) {
+            e.printStackTrace();
+            result = request.url().toString();
+        }
+        return URLDecoder.decode(result);
+    }
+
+    private static String getRequestParams(Request request) throws IOException {
         RequestBody body = request.body();
-        if (body == null) return "";
-        StringBuilder builder = new StringBuilder();
+        Builder urlBuilder = request.url().newBuilder();
+
         if (body instanceof FormBody) {
-            builder.append("?");
             FormBody formBody = ((FormBody) body);
             for (int i = 0, size = formBody.size(); i < size; i++) {
-                builder.append(i > 0 ? "&" : "");
-                builder.append(formBody.name(i)).append("=").append(formBody.value(i));
+                urlBuilder.addQueryParameter(formBody.name(i), formBody.value(i));
             }
-        } else {
-            Buffer buffer = new Buffer();
-            try {
-                body.writeTo(buffer);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            builder.append("\n\nparams = ").append(buffer.readString(Charset.forName("UTF-8")));
+            return urlBuilder.toString();
         }
-        String result = builder.toString();
-        return result.length() > 1 ? result : "";
+
+        if (body instanceof MultipartBody) {
+            MultipartBody multipartBody = (MultipartBody) body;
+            List<MultipartBody.Part> parts = multipartBody.parts();
+            StringBuilder fileBuilder = new StringBuilder();
+            for (int i = 0, size = parts.size(); i < size; i++) {
+                MultipartBody.Part part = parts.get(i);
+                RequestBody requestBody = part.body();
+                Headers headers = part.headers();
+                if (headers == null || headers.size() == 0) continue;
+                String[] split = headers.value(0).split(";");
+                String name = null, fileName = null;
+                for (String s : split) {
+                    if (s.equals("form-data")) continue;
+                    String[] keyValue = s.split("=");
+                    if (keyValue.length < 2) continue;
+                    String value = keyValue[1].substring(1, keyValue[1].length() - 1);
+                    if (name == null) {
+                        name = value;
+                    } else {
+                        fileName = value;
+                        break;
+                    }
+                }
+                if (name == null) continue;
+                if (requestBody.contentLength() < 1024) {
+                    Buffer buffer = new Buffer();
+                    requestBody.writeTo(buffer);
+                    String value = buffer.readUtf8();
+                    urlBuilder.addQueryParameter(name, value);
+                } else {
+                    if (fileBuilder.length() > 0) {
+                        fileBuilder.append("&");
+                    }
+                    fileBuilder.append(name).append("=").append(fileName);
+                }
+            }
+            return urlBuilder.toString() + "\n\nfiles = " + fileBuilder.toString();
+        }
+
+        if (body != null) {
+            Buffer buffer = new Buffer();
+            body.writeTo(buffer);
+            return urlBuilder.toString() + "\n\nparams = " + buffer.readUtf8();
+        }
+        return urlBuilder.toString();
     }
 }
