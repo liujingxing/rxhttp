@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
     public void bitmap(View view) {
         String imageUrl = "http://img2.shelinkme.cn/d3/photos/0/017/022/755_org.jpg@!normal_400_400?1558517697888";
         RxHttp.get(imageUrl) //Get请求
-            .asBitmap()  //这里返回Observable<Response> 对象
+            .asBitmap()  //这里返回Observable<Bitmap> 对象
             .as(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
             .subscribe(bitmap -> {
                 mBinding.tvResult.setBackground(new BitmapDrawable(bitmap));
