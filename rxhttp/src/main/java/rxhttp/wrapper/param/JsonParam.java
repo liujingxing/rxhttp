@@ -6,7 +6,6 @@ import java.util.Map;
 
 import io.reactivex.annotations.Nullable;
 import okhttp3.RequestBody;
-import rxhttp.wrapper.utils.GsonUtil;
 
 /**
  * post、put、patch、delete请求，参数以{application/json; charset=utf-8}形式提交
@@ -29,8 +28,9 @@ public class JsonParam extends AbstractParam<JsonParam> implements IJsonObject<J
     @Override
     public RequestBody getRequestBody() {
         final Map<String, Object> params = mParam;
-        String json = params == null ? "{}" : GsonUtil.toJson(params);
-        return RequestBody.create(MEDIA_TYPE_JSON, json);
+        if (params == null)
+            return RequestBody.create(null, new byte[0]);
+        return convert(params);
     }
 
     @Override
@@ -51,6 +51,9 @@ public class JsonParam extends AbstractParam<JsonParam> implements IJsonObject<J
 
     @Override
     public String toString() {
-        return getSimpleUrl() + "\n\nparams = " + GsonUtil.toJson(mParam);
+        return "JsonParam{" +
+            "url=" + getUrl() +
+            "mParam=" + mParam +
+            '}';
     }
 }
