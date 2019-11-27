@@ -23,4 +23,16 @@ public class Response<T> {
     public T getData() {
         return data;
     }
+
+    public void setErrorCode(int errorCode) {
+        this.errorCode = errorCode;
+    }
+
+    public void setErrorMsg(String errorMsg) {
+        this.errorMsg = errorMsg;
+    }
+
+    public void setData(T data) {
+        this.data = data;
+    }
 }

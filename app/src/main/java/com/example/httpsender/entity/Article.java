@@ -175,4 +175,113 @@ public class Article {
     public int getZan() {
         return zan;
     }
+
+
+    public void setApkLink(String apkLink) {
+        this.apkLink = apkLink;
+    }
+
+    public void setAudit(int audit) {
+        this.audit = audit;
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
+    }
+
+    public void setChapterId(int chapterId) {
+        this.chapterId = chapterId;
+    }
+
+    public void setChapterName(String chapterName) {
+        this.chapterName = chapterName;
+    }
+
+    public void setCollect(boolean collect) {
+        this.collect = collect;
+    }
+
+    public void setCourseId(int courseId) {
+        this.courseId = courseId;
+    }
+
+    public void setDesc(String desc) {
+        this.desc = desc;
+    }
+
+    public void setEnvelopePic(String envelopePic) {
+        this.envelopePic = envelopePic;
+    }
+
+    public void setFresh(boolean fresh) {
+        this.fresh = fresh;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setLink(String link) {
+        this.link = link;
+    }
+
+    public void setNiceDate(String niceDate) {
+        this.niceDate = niceDate;
+    }
+
+    public void setNiceShareDate(String niceShareDate) {
+        this.niceShareDate = niceShareDate;
+    }
+
+    public void setOrigin(String origin) {
+        this.origin = origin;
+    }
+
+    public void setPrefix(String prefix) {
+        this.prefix = prefix;
+    }
+
+    public void setProjectLink(String projectLink) {
+        this.projectLink = projectLink;
+    }
+
+    public void setPublishTime(long publishTime) {
+        this.publishTime = publishTime;
+    }
+
+    public void setShareDate(long shareDate) {
+        this.shareDate = shareDate;
+    }
+
+    public void setShareUser(String shareUser) {
+        this.shareUser = shareUser;
+    }
+
+    public void setSuperChapterId(int superChapterId) {
+        this.superChapterId = superChapterId;
+    }
+
+    public void setSuperChapterName(String superChapterName) {
+        this.superChapterName = superChapterName;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setType(int type) {
+        this.type = type;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
+
+    public void setVisible(int visible) {
+        this.visible = visible;
+    }
+
+    public void setZan(int zan) {
+        this.zan = zan;
+    }
 }
