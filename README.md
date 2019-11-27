@@ -385,7 +385,7 @@ public class RxHttpManager {
     public static IConverter xmlConverter = XmlConverter.create();
 }
 ```
-然后，rebuild 一下项目，就在自动在RxHttp类中生成`setXmlConverter()`方法，随后就可以调用此方法为单个请求指定Converter为XmlConverter，如下：
+然后，rebuild 一下项目，就在自动在RxHttp类中生成`setXmlConverter()`方法，随后就可以调用此方法为单个请求指定Converter，如下：
 
 ```java
 RxHttp.get("/service/...")
