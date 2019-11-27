@@ -122,11 +122,10 @@ public class RxHttpGenerator {
             .addStatement("this.param = param");
         methodList.add(method.build()); //添加构造方法
 
-        method = MethodSpec.methodBuilder("init")
+        method = MethodSpec.methodBuilder("setDebug")
             .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-            .addParameter(okHttpClientName, "okHttpClient")
             .addParameter(boolean.class, "debug")
-            .addStatement("$T.init(okHttpClient,debug)", httpSenderName)
+            .addStatement("$T.setDebug(debug)", httpSenderName)
             .returns(void.class);
         methodList.add(method.build());
 
@@ -137,10 +136,11 @@ public class RxHttpGenerator {
             .returns(void.class);
         methodList.add(method.build());
 
-        method = MethodSpec.methodBuilder("setDebug")
+        method = MethodSpec.methodBuilder("init")
             .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+            .addParameter(okHttpClientName, "okHttpClient")
             .addParameter(boolean.class, "debug")
-            .addStatement("$T.setDebug(debug)", httpSenderName)
+            .addStatement("$T.init(okHttpClient,debug)", httpSenderName)
             .returns(void.class);
         methodList.add(method.build());
 
@@ -160,6 +160,14 @@ public class RxHttpGenerator {
                 "\n若部分接口不需要回调该接口，发请求前，调用{@link #setConverterEnabled(boolean)}方法设置false即可\n")
             .addParameter(mapStringName, "decoder")
             .addStatement("$T.setResultDecoder(decoder)", rxHttpPluginsName)
+            .returns(void.class);
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("setConverter")
+            .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+            .addJavadoc("设置默认的转换器\n")
+            .addParameter(converterName, "converter")
+            .addStatement("$T.setConverter(converter)", rxHttpPluginsName)
             .returns(void.class);
         methodList.add(method.build());
 
