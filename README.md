@@ -352,7 +352,7 @@ RxHttp.setOnParamAssembly(p -> {
 
 ## 请求开始/结束回调
 ```java
-RxHttp.get("/article/list/0/json")
+RxHttp.get("/service/...")
     .asString()
     .observeOn(AndroidSchedulers.mainThread())
     .doOnSubscribe(disposable -> {
@@ -361,11 +361,41 @@ RxHttp.get("/article/list/0/json")
     .doFinally(() -> {
         //请求结束，当前在主线程回调
     })
-    .as(RxLife.as(this))  //感知生命周期，并在主线程回调
+    .as(RxLife.as(this))  //感知生命周期
     .subscribe(pageList -> {
         //成功回调，当前在主线程回调
     }, (OnError) error -> {
         //失败回调，当前在主线程回调
+    });
+```
+
+## 设置Converter
+
+1、设置全局Converter
+```java
+IConverter converter = FastJsonConverter.create();
+RxHttp.setConverter(converter)
+```
+2、为请求设置单独的Converter
+
+首先需要在任意public类中通过@Converter注解声明Converter，如下：
+```java
+public class RxHttpManager {
+    @Converter(name = "XmlConverter") //指定Converter名称
+    public static IConverter xmlConverter = XmlConverter.create();
+}
+```
+然后，rebuild 一下项目，就在自动在RxHttp类中生成`setXmlConverter()`方法，随后就可以调用此方法为单个请求指定Converter为XmlConverter，如下：
+
+```java
+RxHttp.get("/service/...")
+    .setXmlConverter()   //指定使用XmlConverter，不指定，则使用全局的Converter
+    .asObject(NewsDataXml.class)
+    .as(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
+    .subscribe(dataXml -> {
+        //成功回调
+    }, (OnError) error -> {
+        //失败回调
     });
 ```
 
