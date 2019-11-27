@@ -3,7 +3,7 @@
 # RxHttp
 RxHttp是基于OkHttp的二次封装，并于RxJava做到无缝衔接，一条链就能发送任意请求，主要优势如下 :
 
-  **1. 支持Json、DOM等任意数据解析方式，可自定义数据解析器**
+  **1. 支持Gson、Xml、ProtoBuf、FastJson等任意数据解析方式**
   
   **2. 支持Get、Post、Put、Delete等任意请求方式，可自定义请求方式**
   
@@ -335,20 +335,19 @@ RxHttp.init(OkHttpClient okHttpClient, boolean debug)
 
 ```java
 //建议在Application里设置
-RxHttp.setOnParamAssembly(new Function() {
-    @Override
-    public Param apply(Param p) {
-        Method method = p.getMethod();
-        //根据不同请求添加不同参数
-        if (method.isGet()) { //Get请求
-
-        } else if (method.isPost()) { //Post请求
-
-        }
-        return p.add("versionName", "1.0.0")//添加公共参数
-                .addHeader("deviceType", "android"); //添加公共请求头
-    }
-});
+RxHttp.setOnParamAssembly(p -> {                         
+    /*根据不同请求添加不同参数，子线程执行，每次发送请求前都会被回调                    
+    如果希望部分请求不回调这里，发请求前调用Param.setAssemblyEnabled(false)即可
+     */                                                  
+    Method method = p.getMethod();                       
+    if (method.isGet()) { //Get请求                        
+                                                         
+    } else if (method.isPost()) { //Post请求               
+                                                         
+    }                                                    
+    return p.add("versionName", "1.0.0")//添加公共参数         
+        .addHeader("deviceType", "android"); //添加公共请求头   
+});                                                      
 ```
 
 ## Activity/Fragment/View/ViewModel/任意类生命周期结束时，自动关闭请求
