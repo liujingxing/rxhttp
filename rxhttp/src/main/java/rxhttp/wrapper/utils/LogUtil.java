@@ -4,17 +4,22 @@ import android.util.Log;
 
 import java.io.IOException;
 import java.net.URLDecoder;
+import java.nio.charset.Charset;
 import java.util.List;
 
 import io.reactivex.annotations.NonNull;
 import okhttp3.FormBody;
 import okhttp3.Headers;
 import okhttp3.HttpUrl.Builder;
+import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 import okio.Buffer;
+import okio.BufferedSource;
+import rxhttp.RxHttpPlugins;
 import rxhttp.wrapper.exception.HttpStatusCodeException;
 import rxhttp.wrapper.exception.ParseException;
 import rxhttp.wrapper.param.Param;
@@ -53,6 +58,25 @@ public class LogUtil {
                 .append(URLDecoder.decode(param.getUrl()));
         }
         Log.e(TAG, builder.toString());
+    }
+
+    //打印Http返回的正常结果
+    public static void log(@NonNull Response response, boolean onResultAssembly) throws IOException {
+        if (!isDebug) return;
+        ResponseBody body = response.body();
+        BufferedSource source = body.source();
+        source.request(Long.MAX_VALUE); // Buffer the entire body.
+        Buffer buffer = source.getBuffer();
+        Charset UTF_8 = Charset.forName("UTF-8");
+        MediaType contentType = body.contentType();
+        if (contentType != null) {
+            UTF_8 = contentType.charset(UTF_8);
+        }
+        String result = buffer.clone().readString(UTF_8);
+        if (onResultAssembly) {
+            result = RxHttpPlugins.onResultDecoder(result);
+        }
+        log(response, result);
     }
 
     //打印Http返回的正常结果

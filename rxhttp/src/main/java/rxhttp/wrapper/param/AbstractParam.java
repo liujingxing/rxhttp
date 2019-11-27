@@ -1,6 +1,8 @@
 package rxhttp.wrapper.param;
 
 
+import java.io.IOException;
+
 import io.reactivex.annotations.NonNull;
 import io.reactivex.annotations.Nullable;
 import okhttp3.CacheControl;
@@ -8,6 +10,8 @@ import okhttp3.Headers;
 import okhttp3.Headers.Builder;
 import okhttp3.HttpUrl;
 import okhttp3.Request;
+import okhttp3.RequestBody;
+import rxhttp.wrapper.callback.IConverter;
 import rxhttp.wrapper.utils.BuildUtil;
 
 /**
@@ -137,5 +141,21 @@ public abstract class AbstractParam<P extends Param> implements Param<P> {
     @Override
     public Request buildRequest() {
         return BuildUtil.buildRequest(this, requestBuilder);
+    }
+
+    protected IConverter getConverter() {
+        Request request = getRequestBuilder().build();
+        return request.tag(IConverter.class);
+    }
+
+    protected final RequestBody convert(Object object) {
+        IConverter converter = getConverter();
+        if (converter == null)
+            throw new NullPointerException("converter can not be null");
+        try {
+            return converter.convert(object);
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Unable to convert " + object + " to RequestBody", e);
+        }
     }
 }

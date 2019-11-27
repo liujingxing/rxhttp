@@ -4,6 +4,8 @@ import io.reactivex.annotations.NonNull;
 import io.reactivex.annotations.Nullable;
 import io.reactivex.functions.Function;
 import io.reactivex.internal.util.ExceptionHelper;
+import rxhttp.wrapper.converter.GsonConverter;
+import rxhttp.wrapper.callback.IConverter;
 import rxhttp.wrapper.param.Param;
 
 /**
@@ -16,6 +18,7 @@ public class RxHttpPlugins {
 
     private static Function<? super Param, ? extends Param> mOnParamAssembly;
     private static Function<? super String, String> decoder;
+    private static IConverter converter = GsonConverter.create();
 
     //设置公共参数装饰
     public static void setOnParamAssembly(@Nullable Function<? super Param, ? extends Param> onParamAssembly) {
@@ -37,6 +40,15 @@ public class RxHttpPlugins {
         RxHttpPlugins.decoder = decoder;
     }
 
+    public static void setConverter(@NonNull IConverter converter) {
+        if (converter == null)
+            throw new IllegalArgumentException("converter can not be null");
+        RxHttpPlugins.converter = converter;
+    }
+
+    public static IConverter getConverter() {
+        return converter;
+    }
 
     /**
      * <P>对Param参数添加一层装饰,可以在该层做一些与业务相关工作，

@@ -96,6 +96,7 @@ public class ParserAnnotatedClass {
         method = MethodSpec.methodBuilder("execute")
             .addModifiers(Modifier.PUBLIC)
             .addException(IOException.class)
+            .addStatement("setConverter(param)")
             .addStatement("return $T.execute(addDefaultDomainIfAbsent(param))", httpSenderName)
             .returns(responseName);
         methodList.add(method.build());
@@ -164,6 +165,7 @@ public class ParserAnnotatedClass {
             .addModifiers(Modifier.PUBLIC)
             .addTypeVariable(t)
             .addParameter(parserTName, "parser")
+            .addStatement("setConverter(param)")
             .addStatement("Observable<T> observable=$T.syncFrom(addDefaultDomainIfAbsent(param),parser)", httpSenderName)
             .beginControlFlow("if(scheduler!=null)")
             .addStatement("observable=observable.subscribeOn(scheduler)")
@@ -331,6 +333,7 @@ public class ParserAnnotatedClass {
             .addParameter(long.class, "offsetSize")
             .addParameter(consumerProgressStringName, "progressConsumer")
             .addParameter(schedulerName, "observeOnScheduler")
+            .addStatement("setConverter(param)")
             .addStatement("Observable<Progress<String>> observable = $T\n" +
                 ".downloadProgress(addDefaultDomainIfAbsent(param),destPath,offsetSize,scheduler)", httpSenderName)
             .beginControlFlow("if(observeOnScheduler != null)")

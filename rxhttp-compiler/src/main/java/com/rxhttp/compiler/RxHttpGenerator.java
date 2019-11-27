@@ -37,10 +37,15 @@ public class RxHttpGenerator {
     private ParamsAnnotatedClass mParamsAnnotatedClass;
     private ParserAnnotatedClass mParserAnnotatedClass;
     private DomainAnnotatedClass mDomainAnnotatedClass;
+    private ConverterAnnotatedClass mConverterAnnotatedClass;
     private VariableElement defaultDomain;
 
     public void setAnnotatedClass(ParamsAnnotatedClass annotatedClass) {
         mParamsAnnotatedClass = annotatedClass;
+    }
+
+    public void setAnnotatedClass(ConverterAnnotatedClass annotatedClass) {
+        mConverterAnnotatedClass = annotatedClass;
     }
 
     public void setAnnotatedClass(DomainAnnotatedClass annotatedClass) {
@@ -60,6 +65,7 @@ public class RxHttpGenerator {
         ClassName rxHttpPluginsName = ClassName.get("rxhttp", "RxHttpPlugins");
         ClassName okHttpClientName = ClassName.get("okhttp3", "OkHttpClient");
         ClassName schedulerName = ClassName.get("io.reactivex", "Scheduler");
+        ClassName converterName = ClassName.get("rxhttp.wrapper.callback", "IConverter");
         ClassName schedulersName = ClassName.get("io.reactivex.schedulers", "Schedulers");
         ClassName functionsName = ClassName.get("io.reactivex.functions", "Function");
         ClassName jsonObjectName = ClassName.get("com.google.gson", "JsonObject");
@@ -189,8 +195,9 @@ public class RxHttpGenerator {
 
         methodList.addAll(mParamsAnnotatedClass.getMethodList(filer));
         methodList.addAll(mParserAnnotatedClass.getMethodList());
-
+        methodList.addAll(mConverterAnnotatedClass.getMethodList());
         method = MethodSpec.methodBuilder("addDefaultDomainIfAbsent")
+            .addJavadoc("给Param设置默认域名(如何缺席的话)，此方法会在请求发起前，被RxHttp内部调用\n")
             .addParameter(paramName, "param");
         if (defaultDomain != null) {
             method.addStatement("String newUrl = addDomainIfAbsent(param.getSimpleUrl(), $T.$L)",
@@ -204,9 +211,13 @@ public class RxHttpGenerator {
 
         methodList.addAll(mDomainAnnotatedClass.getMethodList());
 
-        FieldSpec fieldSpec = FieldSpec.builder(schedulerName, "scheduler", Modifier.PROTECTED)
+        FieldSpec schedulerField = FieldSpec.builder(schedulerName, "scheduler", Modifier.PROTECTED)
             .initializer("$T.io()", schedulersName)
             .addJavadoc("The request is executed on the IO thread by default\n")
+            .build();
+
+        FieldSpec converterSpec = FieldSpec.builder(converterName, "converter", Modifier.PROTECTED)
+            .initializer("$T.getConverter()", rxHttpPluginsName)
             .build();
 
         TypeSpec rxHttp = TypeSpec.classBuilder(CLASSNAME)
@@ -215,7 +226,8 @@ public class RxHttpGenerator {
                 "\nhttps://github.com/liujingxing/RxLife\n")
             .addModifiers(Modifier.PUBLIC)
             .addField(p, "param", Modifier.PROTECTED)
-            .addField(fieldSpec)
+            .addField(schedulerField)
+            .addField(converterSpec)
             .addTypeVariable(p)
             .addTypeVariable(r)
             .addMethods(methodList)
@@ -537,6 +549,7 @@ public class RxHttpGenerator {
             .addParameter(parserTName, "parser")
             .addParameter(consumerProgressTName, "progressConsumer")
             .addParameter(schedulerName, "observeOnScheduler")
+            .addStatement("setConverter(param)")
             .addStatement("Observable<Progress<T>> observable = $T\n" +
                 ".uploadProgress(addDefaultDomainIfAbsent(param), parser, scheduler)", httpSenderName)
             .beginControlFlow("if(observeOnScheduler != null)")

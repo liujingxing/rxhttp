@@ -7,7 +7,6 @@ import java.util.Map;
 
 import okhttp3.Response;
 import rxhttp.wrapper.entity.ParameterizedTypeImpl;
-import rxhttp.wrapper.utils.GsonUtil;
 import rxhttp.wrapper.utils.TypeUtil;
 
 /**
@@ -35,8 +34,7 @@ public class MapParser<K, V> implements Parser<Map<K, V>> {
 
     @Override
     public Map<K, V> onParse(Response response) throws IOException {
-        String content = getResult(response);
         final Type type = ParameterizedTypeImpl.getParameterized(Map.class, kType, vType);
-        return GsonUtil.fromJson(content, type);  //json 转 对象
+        return convert(response, type);
     }
 }
