@@ -58,10 +58,10 @@ public class GsonConverter implements IConverter {
 
     @NonNull
     @Override
-    public <T> T convert(ResponseBody body, @NonNull Type type, boolean onResultAssembly) throws IOException {
+    public <T> T convert(ResponseBody body, @NonNull Type type, boolean onResultDecoder) throws IOException {
         try {
             String result = body.string();
-            if (onResultAssembly) {
+            if (onResultDecoder) {
                 result = RxHttpPlugins.onResultDecoder(result);
             }
             return gson.fromJson(result, type);

@@ -49,7 +49,7 @@ public class FastJsonConverter implements IConverter {
     }
 
     @Override
-    public <T> T convert(ResponseBody body, Type type, boolean onParamAssembly) throws IOException {
+    public <T> T convert(ResponseBody body, Type type, boolean onResultDecoder) throws IOException {
         try {
             return JSON.parseObject(body.string(), type, parserConfig);
         } finally {
