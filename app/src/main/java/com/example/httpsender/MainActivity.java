@@ -1,13 +1,14 @@
 package com.example.httpsender;
 
 import android.content.Intent;
-import androidx.databinding.DataBindingUtil;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Environment;
-import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.databinding.DataBindingUtil;
 
 import com.example.httpsender.databinding.MainActivityBinding;
 import com.example.httpsender.entity.Article;
@@ -52,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
     //发送Get请求，获取文章列表
     public void sendGet(View view) {
         RxHttp.get("/article/list/0/json")
+//            .setFastJsonConverter()
             .asResponsePageList(Article.class)
             .as(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
             .subscribe(pageList -> {
@@ -121,6 +123,10 @@ public class MainActivity extends AppCompatActivity {
             .subscribe(s -> {
                 mBinding.tvResult.setText(s);
                 //成功回调
+            }, (OnError) error -> {
+                mBinding.tvResult.setText(error.getErrorMsg());
+                //失败回调
+                error.show("发送失败,请稍后再试!");
             });
     }
 
@@ -159,6 +165,10 @@ public class MainActivity extends AppCompatActivity {
             .as(RxLife.asOnMain(this))
             .subscribe(s -> {
                 mBinding.tvResult.setText(s);
+            }, (OnError) error -> {
+                mBinding.tvResult.setText(error.getErrorMsg());
+                //失败回调
+                error.show("发送失败,请稍后再试!");
             });
     }
 

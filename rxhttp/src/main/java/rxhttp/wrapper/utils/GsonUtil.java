@@ -50,7 +50,7 @@ public class GsonUtil {
         return buildGson().toJson(object);
     }
 
-    private static Gson buildGson() {
+    public static Gson buildGson() {
         if (gson == null) {
             gson = new GsonBuilder()
                 .disableHtmlEscaping()

@@ -6,7 +6,6 @@ import rxhttp.wrapper.annotation.Parser
 import rxhttp.wrapper.entity.ParameterizedTypeImpl
 import rxhttp.wrapper.exception.ParseException
 import rxhttp.wrapper.parse.AbstractParser
-import rxhttp.wrapper.utils.GsonUtil
 import java.io.IOException
 import java.lang.reflect.Type
 
@@ -30,11 +29,8 @@ open class ResponseParser<T> : AbstractParser<T> {
      */
     @Throws(IOException::class)
     override fun onParse(response: okhttp3.Response): T {
-        val content = getResult(response) //从Response中取出Http执行结果
         val type = ParameterizedTypeImpl.get(Response::class.java, mType) //获取泛型类型
-
-        //通过Gson自动解析成Data<T>对象
-        val data = GsonUtil.fromJson<Response<T>>(content, type)
+        val data = convert<Response<T>>(response, type)
         //跟服务端协议好，code等于0，才代表数据正确,否则，抛出异常
         if (data.code != 0) {
             throw ParseException(data.code.toString(), data.msg, response)

@@ -7,7 +7,6 @@ import java.util.List;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.annotations.Nullable;
 import okhttp3.RequestBody;
-import rxhttp.wrapper.utils.GsonUtil;
 
 /**
  * post、put、patch、delete请求，参数以{application/json; charset=utf-8}形式提交
@@ -30,8 +29,9 @@ public class JsonArrayParam extends AbstractParam<JsonArrayParam> implements IJs
     @Override
     public RequestBody getRequestBody() {
         final List<?> jsonArray = mList;
-        String json = jsonArray == null ? "[]" : GsonUtil.toJson(mList);
-        return RequestBody.create(MEDIA_TYPE_JSON, json);
+        if (jsonArray == null)
+            return RequestBody.create(null, new byte[0]);
+        return convert(jsonArray);
     }
 
     /**
@@ -62,6 +62,9 @@ public class JsonArrayParam extends AbstractParam<JsonArrayParam> implements IJs
 
     @Override
     public String toString() {
-        return getSimpleUrl() + "\n\nparams = " + GsonUtil.toJson(mList);
+        return "JsonArrayParam{" +
+            "url=" + getUrl() +
+            "mList=" + mList +
+            '}';
     }
 }
