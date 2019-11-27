@@ -40,7 +40,7 @@ RxHttp是基于OkHttp的二次封装，并于RxJava做到无缝衔接，一条�
 
 ## Demo演示
 
-![image](https://github.com/liujingxing/RxHttp/blob/master/screen/screenrecorder-2019-11-27_22_50_33.gif)
+![image](https://github.com/liujingxing/RxHttp/blob/master/screen/screenrecorder-2019-11-27_22_56_26.gif)
 
 > 普通文本请求不便于展示，故这里只演示Bitmap加载及多任务断点下载，更多功能，请下载Demo体验
 
