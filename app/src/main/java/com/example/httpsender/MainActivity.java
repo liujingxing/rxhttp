@@ -14,6 +14,7 @@ import com.example.httpsender.databinding.MainActivityBinding;
 import com.example.httpsender.entity.Article;
 import com.example.httpsender.entity.Location;
 import com.example.httpsender.entity.Name;
+import com.example.httpsender.entity.NewsDataXml;
 import com.google.gson.Gson;
 import com.rxjava.rxlife.RxLife;
 
@@ -53,7 +54,6 @@ public class MainActivity extends AppCompatActivity {
     //发送Get请求，获取文章列表
     public void sendGet(View view) {
         RxHttp.get("/article/list/0/json")
-//            .setFastJsonConverter()
             .asResponsePageList(Article.class)
             .as(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
             .subscribe(pageList -> {
@@ -165,6 +165,38 @@ public class MainActivity extends AppCompatActivity {
             .as(RxLife.asOnMain(this))
             .subscribe(s -> {
                 mBinding.tvResult.setText(s);
+            }, (OnError) error -> {
+                mBinding.tvResult.setText(error.getErrorMsg());
+                //失败回调
+                error.show("发送失败,请稍后再试!");
+            });
+    }
+
+    //使用XmlConverter解析数据，此接口返回数据太多，会有点慢
+    public void xmlConverter(View view) {
+        RxHttp.get("http://webservices.nextbus.com/service/publicXMLFeed?command=routeConfig&a=sf-muni")
+            .setXmlConverter()
+            .asObject(NewsDataXml.class)
+            .as(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
+            .subscribe(dataXml -> {
+                mBinding.tvResult.setText(new Gson().toJson(dataXml));
+                //成功回调
+            }, (OnError) error -> {
+                mBinding.tvResult.setText(error.getErrorMsg());
+                //失败回调
+                error.show("发送失败,请稍后再试!");
+            });
+    }
+
+    //使用XmlConverter解析数据
+    public void fastJsonConverter(View view) {
+        RxHttp.get("/article/list/0/json")
+            .setFastJsonConverter()
+            .asResponsePageList(Article.class)
+            .as(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
+            .subscribe(pageList -> {
+                mBinding.tvResult.setText(new Gson().toJson(pageList));
+                //成功回调
             }, (OnError) error -> {
                 mBinding.tvResult.setText(error.getErrorMsg());
                 //失败回调
