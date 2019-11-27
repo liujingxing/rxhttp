@@ -3,7 +3,8 @@ apply plugin: 'java-library'
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'com.squareup:javapoet:1.11.1'
-    implementation 'com.rxjava.rxhttp:rxhttp-annotation:1.0.1'
+//    implementation 'com.rxjava.rxhttp:rxhttp-annotation:1.0.1'
+    api project(":rxhttp-annotation")
 }
 
 sourceCompatibility = "8"

@@ -23,6 +23,7 @@ import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
 
+import rxhttp.wrapper.annotation.Converter;
 import rxhttp.wrapper.annotation.DefaultDomain;
 import rxhttp.wrapper.annotation.Domain;
 import rxhttp.wrapper.annotation.Param;
@@ -86,6 +87,13 @@ public class AnnotationProcessor extends AbstractProcessor {
                 parserAnnotatedClass.add(typeElement);
             }
 
+            ConverterAnnotatedClass converterAnnotatedClass = new ConverterAnnotatedClass();
+            for (Element annotatedElement : roundEnv.getElementsAnnotatedWith(Converter.class)) {
+                VariableElement variableElement = (VariableElement) annotatedElement;
+                checkConverterValidClass(variableElement);
+                converterAnnotatedClass.add(variableElement);
+            }
+
             DomainAnnotatedClass domainAnnotatedClass = new DomainAnnotatedClass();
             for (Element annotatedElement : roundEnv.getElementsAnnotatedWith(Domain.class)) {
                 VariableElement variableElement = (VariableElement) annotatedElement;
@@ -103,6 +111,7 @@ public class AnnotationProcessor extends AbstractProcessor {
             }
             rxHttpGenerator.setAnnotatedClass(paramsAnnotatedClass);
             rxHttpGenerator.setAnnotatedClass(parserAnnotatedClass);
+            rxHttpGenerator.setAnnotatedClass(converterAnnotatedClass);
             rxHttpGenerator.setAnnotatedClass(domainAnnotatedClass);
 
             // Generate code
@@ -197,6 +206,25 @@ public class AnnotationProcessor extends AbstractProcessor {
 //        throw new ProcessingException(element,
 //                "The class %s must provide an public static <T> %s get(Class<T> t) mehod",
 //                element.getQualifiedName().toString(), element.getQualifiedName().toString() + "<T>");
+    }
+
+    private void checkConverterValidClass(VariableElement element) throws ProcessingException {
+        if (!element.getModifiers().contains(Modifier.PUBLIC)) {
+            throw new ProcessingException(element,
+                "The variable %s is not public",
+                element.getSimpleName());
+        }
+        if (!element.getModifiers().contains(Modifier.STATIC)) {
+            throw new ProcessingException(element,
+                "The variable %s is not static",
+                element.getSimpleName().toString());
+        }
+        if (!"rxhttp.wrapper.callback.IConverter".equals(element.asType().toString())) {
+            throw new ProcessingException(element,
+                "The variable %s is not a IConverter",
+                element.getSimpleName().toString());
+        }
+
     }
 
     private void checkVariableValidClass(VariableElement element) throws ProcessingException {

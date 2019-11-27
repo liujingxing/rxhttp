@@ -11,7 +11,6 @@ import rxhttp.wrapper.annotation.Parser;
 import rxhttp.wrapper.entity.ParameterizedTypeImpl;
 import rxhttp.wrapper.exception.ParseException;
 import rxhttp.wrapper.parse.AbstractParser;
-import rxhttp.wrapper.utils.GsonUtil;
 
 /**
  * Response<PageList<T>> 数据解析器,解析完成对Response对象做判断,如果ok,返回数据 PageList<T>
@@ -32,9 +31,9 @@ public class ResponsePageListParser<T> extends AbstractParser<PageList<T>> {
 
     @Override
     public PageList<T> onParse(okhttp3.Response response) throws IOException {
-        String content = getResult(response); //从Response中取出Http执行结果
         final Type type = ParameterizedTypeImpl.get(Response.class, PageList.class, mType); //获取泛型类型
-        Response<PageList<T>> data = GsonUtil.fromJson(content, type);
+        Response<PageList<T>> data = convert(response, type);
+
         //跟服务端协议好，code等于0，才代表数据正确,否则，抛出异常
         if (data.getCode() != 0) {
             throw new ParseException(String.valueOf(data.getCode()), data.getMsg(), response);
