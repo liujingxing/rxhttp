@@ -24,31 +24,50 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:onClick="bitmap"
-                android:text="请求Bitmap" />
+                android:text="请求Bitmap"
+                android:textAllCaps="false" />
 
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:onClick="sendGet"
-                android:text="Get请求" />
+                android:text="Get请求"
+                android:textAllCaps="false" />
 
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:onClick="sendPostForm"
-                android:text="Post 表单请求" />
+                android:text="Post 表单请求"
+                android:textAllCaps="false" />
 
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:onClick="sendPostJson"
-                android:text="Post Json请求" />
+                android:text="Post Json请求"
+                android:textAllCaps="false" />
 
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:onClick="sendPostJsonArray"
-                android:text="Post JsonArray请求" />
+                android:text="Post JsonArray请求"
+                android:textAllCaps="false" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="xmlConverter"
+                android:text="XmlConverter 解析"
+                android:textAllCaps="false" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="fastJsonConverter"
+                android:text="FastJsonConverter 解析"
+                android:textAllCaps="false" />
 
             <Button
                 android:layout_width="wrap_content"
