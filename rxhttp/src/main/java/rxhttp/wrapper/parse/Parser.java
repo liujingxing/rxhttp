@@ -38,7 +38,7 @@ public interface Parser<T> {
         ResponseBody body = ExceptionHelper.throwIfFatal(response);
         String result = body.string();
         if (!"false".equals(response.request().header(Param.DATA_DECRYPT))) {
-            result = RxHttpPlugins.onResultAssembly(result);
+            result = RxHttpPlugins.onResultDecoder(result);
         }
         LogUtil.log(response, result);
         return result;

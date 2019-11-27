@@ -15,7 +15,7 @@ import rxhttp.wrapper.param.Param;
 public class RxHttpPlugins {
 
     private static Function<? super Param, ? extends Param> mOnParamAssembly;
-    private static Function<? super String, String> mConverter;
+    private static Function<? super String, String> decoder;
 
     //设置公共参数装饰
     public static void setOnParamAssembly(@Nullable Function<? super Param, ? extends Param> onParamAssembly) {
@@ -23,8 +23,18 @@ public class RxHttpPlugins {
     }
 
     //设置转换器,可用于对Http返回的String 字符串解密
-    public static void setOnConverter(@Nullable Function<? super String, String> converter) {
-        mConverter = converter;
+
+    /**
+     * @deprecated please user {@link #setResultDecoder(Function)} instead
+     */
+    @Deprecated
+    public static void setOnConverter(@Nullable Function<? super String, String> decoder) {
+        setResultDecoder(decoder);
+    }
+
+    //设置解码/解密器,可用于对Http返回的String 字符串解码/解密
+    public static void setResultDecoder(@Nullable Function<? super String, String> decoder) {
+        RxHttpPlugins.decoder = decoder;
     }
 
 
@@ -45,13 +55,13 @@ public class RxHttpPlugins {
     }
 
     /**
-     * 对字符串进行装饰
+     * 对字符串进行解码/解密
      *
      * @param source String字符串
-     * @return 装饰后字符串
+     * @return 解码/解密后字符串
      */
-    public static String onResultAssembly(String source) {
-        Function<? super String, String> f = mConverter;
+    public static String onResultDecoder(String source) {
+        Function<? super String, String> f = decoder;
         if (f != null) {
             return apply(f, source);
         }
