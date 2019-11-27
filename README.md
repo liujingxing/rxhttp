@@ -350,6 +350,25 @@ RxHttp.setOnParamAssembly(p -> {
 });                                                      
 ```
 
+## 请求开始/结束回调
+```java
+RxHttp.get("/article/list/0/json")
+    .asString()
+    .observeOn(AndroidSchedulers.mainThread())
+    .doOnSubscribe(disposable -> {
+        //请求开始，当前在主线程回调
+    })
+    .doFinally(() -> {
+        //请求结束，当前在主线程回调
+    })
+    .as(RxLife.as(this))  //感知生命周期，并在主线程回调
+    .subscribe(pageList -> {
+        //成功回调，当前在主线程回调
+    }, (OnError) error -> {
+        //失败回调，当前在主线程回调
+    });
+```
+
 ## Activity/Fragment/View/ViewModel/任意类生命周期结束时，自动关闭请求
 
 ```java
