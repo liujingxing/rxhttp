@@ -1,6 +1,7 @@
 package com.example.httpsender;
 
 import com.example.httpsender.converter.FastJsonConverter;
+import com.example.httpsender.converter.XmlConverter;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
@@ -28,6 +29,8 @@ public class RxHttpManager {
 
     @Converter(name = "FastJsonConverter")
     public static IConverter fastJsonConverter = FastJsonConverter.create();
+    @Converter(name = "XmlConverter")
+    public static IConverter xmlConverter = XmlConverter.create();
 
 
     public static void init() {
