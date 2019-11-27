@@ -7,123 +7,130 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:paddingLeft="10dp"
+        android:paddingStart="10dp"
+        android:paddingTop="20dp"
+        android:paddingEnd="10dp"
+        android:paddingBottom="20dp"
         tools:context=".MainActivity">
 
-        <LinearLayout
-            android:id="@+id/ll_bt"
+        <ScrollView
+            android:id="@+id/left_scroll_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="100dp"
-            android:gravity="center_horizontal"
-            android:orientation="vertical"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-            <Button
+            <LinearLayout
+                android:id="@+id/ll_bt"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:onClick="bitmap"
-                android:text="请求Bitmap"
-                android:textAllCaps="false" />
+                android:gravity="center_horizontal"
+                android:orientation="vertical">
 
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:onClick="sendGet"
-                android:text="Get请求"
-                android:textAllCaps="false" />
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="bitmap"
+                    android:text="请求Bitmap"
+                    android:textAllCaps="false" />
 
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:onClick="sendPostForm"
-                android:text="Post 表单请求"
-                android:textAllCaps="false" />
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="sendGet"
+                    android:text="Get请求"
+                    android:textAllCaps="false" />
 
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:onClick="sendPostJson"
-                android:text="Post Json请求"
-                android:textAllCaps="false" />
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="sendPostForm"
+                    android:text="Post 表单请求"
+                    android:textAllCaps="false" />
 
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:onClick="sendPostJsonArray"
-                android:text="Post JsonArray请求"
-                android:textAllCaps="false" />
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="sendPostJson"
+                    android:text="Post Json请求"
+                    android:textAllCaps="false" />
 
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:onClick="xmlConverter"
-                android:text="XmlConverter 解析"
-                android:textAllCaps="false" />
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="sendPostJsonArray"
+                    android:text="Post JsonArray请求"
+                    android:textAllCaps="false" />
 
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:onClick="fastJsonConverter"
-                android:text="FastJsonConverter 解析"
-                android:textAllCaps="false" />
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="xmlConverter"
+                    android:text="XmlConverter 解析"
+                    android:textAllCaps="false" />
 
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:onClick="download"
-                android:text="下载文件" />
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="fastJsonConverter"
+                    android:text="FastJsonConverter 解析"
+                    android:textAllCaps="false" />
 
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:onClick="downloadAndProgress"
-                android:text="带进度下载文件" />
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="download"
+                    android:text="下载文件" />
 
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:onClick="breakpointDownload"
-                android:text="断点下载" />
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="downloadAndProgress"
+                    android:text="带进度下载文件" />
 
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:onClick="breakpointDownloadAndProgress"
-                android:text="带进度断点下载" />
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="breakpointDownload"
+                    android:text="断点下载" />
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="breakpointDownloadAndProgress"
+                    android:text="带进度断点下载" />
 
 
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:onClick="upload"
-                android:text="上传文件" />
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="upload"
+                    android:text="上传文件" />
 
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:onClick="uploadAndProgress"
-                android:text="带进度上传文件" />
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="uploadAndProgress"
+                    android:text="带进度上传文件" />
 
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:onClick="multitaskDownload"
-                android:text="多任务下载" />
-        </LinearLayout>
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="multitaskDownload"
+                    android:text="多任务下载" />
+            </LinearLayout>
+        </ScrollView>
 
         <ScrollView
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
+            android:layout_marginStart="10dp"
             android:layout_marginBottom="10dp"
             android:background="#CCCCCC"
             app:layout_constraintBottom_toTopOf="@+id/bt_clear"
-            app:layout_constraintLeft_toRightOf="@+id/ll_bt"
+            app:layout_constraintLeft_toRightOf="@+id/left_scroll_view"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/ll_bt">
+            app:layout_constraintTop_toTopOf="@+id/left_scroll_view">
 
             <TextView
                 android:id="@+id/tv_result"
