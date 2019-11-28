@@ -1,7 +1,5 @@
 package com.example.httpsender;
 
-import com.example.httpsender.converter.FastJsonConverter;
-import com.example.httpsender.converter.XmlConverter;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
@@ -15,6 +13,8 @@ import okhttp3.Request;
 import okhttp3.Response;
 import rxhttp.wrapper.annotation.Converter;
 import rxhttp.wrapper.callback.IConverter;
+import rxhttp.wrapper.converter.FastJsonConverter;
+import rxhttp.wrapper.converter.XmlConverter;
 import rxhttp.wrapper.param.Method;
 import rxhttp.wrapper.param.RxHttp;
 import rxhttp.wrapper.ssl.SSLSocketFactoryImpl;
