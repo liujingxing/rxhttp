@@ -54,6 +54,12 @@ dependencies {
 
    // if you use kotlin
    kapt 'com.rxjava.rxhttp:rxhttp-compiler:1.3.1'
+
+   //Converter 根据自己需求选择  非必须  RxHttp默认内置了GsonConverter
+   implementation 'com.rxjava.rxhttp:converter-jackson:1.3.1'
+   implementation 'com.rxjava.rxhttp:converter-fastjson:1.3.1'
+   implementation 'com.rxjava.rxhttp:converter-protobuf:1.3.1'
+   implementation 'com.rxjava.rxhttp:converter-simplexml:1.3.1'
 }
 ```
 
