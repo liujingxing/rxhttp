@@ -1,4 +1,4 @@
-package com.example.httpsender.converter;
+package rxhttp.wrapper.converter;
 
 
 import org.simpleframework.xml.Serializer;
@@ -56,8 +56,9 @@ public class XmlConverter implements IConverter {
         this.strict = strict;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public <T> T convert(@NonNull ResponseBody body, @NonNull Type type, boolean resultDecode) throws IOException {
+    public <T> T convert(@NonNull ResponseBody body, @NonNull Type type, boolean onResultDecoder) throws IOException {
         if (!(type instanceof Class)) return null;
         Class<T> cls = (Class<T>) type;
         try {

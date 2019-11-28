@@ -1,1 +1,6 @@
-include ':app', ':rxhttp', ':rxhttp-compiler', ':rxhttp-annotation'
+include ':app',
+        ':rxhttp',
+        ':rxhttp-compiler',
+        ':rxhttp-annotation',
+        'rxhttp-converter:converter-fastjson',
+        'rxhttp-converter:converter-simplexml'
