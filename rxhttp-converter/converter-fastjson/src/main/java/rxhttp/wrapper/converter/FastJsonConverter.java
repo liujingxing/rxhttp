@@ -1,4 +1,4 @@
-package com.example.httpsender.converter;
+package rxhttp.wrapper.converter;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.parser.ParserConfig;
@@ -49,7 +49,7 @@ public class FastJsonConverter implements IConverter {
     }
 
     @Override
-    public <T> T convert(ResponseBody body, Type type, boolean onResultDecoder) throws IOException {
+    public <T> T convert(ResponseBody body, Type type,boolean onResultDecoder) throws IOException {
         try {
             return JSON.parseObject(body.string(), type, parserConfig);
         } finally {
