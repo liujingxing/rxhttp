@@ -22,8 +22,8 @@ RxHttp是基于OkHttp的二次封装，并于RxJava做到无缝衔接，一条�
   **9. 30秒即可上手，学习成本极低**
 
 
-> 注：RxHttp是通过注解生成的，请使用@DefaultDomain或@Domain注解在baseUrl上，rebuild一下项目，就能看到RxHttp类了。
-注解处理器会在编译时检索注解，检索不到，就不会生成RxHttp类。
+
+## 上手教程
 
 **30秒上手教程：https://juejin.im/post/5cfcbbcbe51d455a694f94df**
 
