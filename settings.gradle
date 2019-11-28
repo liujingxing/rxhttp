@@ -2,5 +2,7 @@ include ':app',
         ':rxhttp',
         ':rxhttp-compiler',
         ':rxhttp-annotation',
+        'rxhttp-converter:converter-jackson',
+        'rxhttp-converter:converter-protobuf',
         'rxhttp-converter:converter-fastjson',
         'rxhttp-converter:converter-simplexml'
