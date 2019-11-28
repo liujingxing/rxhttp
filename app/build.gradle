@@ -56,4 +56,6 @@ dependencies {
 
     implementation project(':rxhttp-converter:converter-fastjson')
     implementation project(':rxhttp-converter:converter-simplexml')
+    implementation project(':rxhttp-converter:converter-protobuf')
+    implementation project(':rxhttp-converter:converter-jackson')
 }
