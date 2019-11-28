@@ -51,8 +51,8 @@ public class RxHttpManager {
         //设置数据解密/解码器
 //        RxHttp.setResultDecoder(s -> s);
 
-        //设置默认的转换器
-//        RxHttpPlugins.setConverter(FastJsonConverter.create());
+        //设置全局的转换器
+//        RxHttp.setConverter(FastJsonConverter.create());
 
         //设置公共参数
         RxHttp.setOnParamAssembly(p -> {
