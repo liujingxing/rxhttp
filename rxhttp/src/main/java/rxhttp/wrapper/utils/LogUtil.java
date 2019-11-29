@@ -66,7 +66,7 @@ public class LogUtil {
         ResponseBody body = response.body();
         BufferedSource source = body.source();
         source.request(Long.MAX_VALUE); // Buffer the entire body.
-        Buffer buffer = source.getBuffer();
+        Buffer buffer = source.buffer();
         Charset UTF_8 = Charset.forName("UTF-8");
         MediaType contentType = body.contentType();
         if (contentType != null) {
