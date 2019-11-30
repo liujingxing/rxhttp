@@ -49,71 +49,70 @@ public class LogUtil {
     //打印Http请求连接失败异常日志
     public static void log(@NonNull Param param, Throwable throwable) {
         if (!isDebug) return;
-        throwable.printStackTrace();
-        StringBuilder builder = new StringBuilder()
-            .append(throwable.toString());
-        if (!(throwable instanceof ParseException) && !(throwable instanceof HttpStatusCodeException)) {
-            builder.append("\n\n")
-                .append(URLDecoder.decode(param.getUrl()));
+        try {
+            throwable.printStackTrace();
+            StringBuilder builder = new StringBuilder()
+                .append(throwable.toString());
+            if (!(throwable instanceof ParseException) && !(throwable instanceof HttpStatusCodeException)) {
+                builder.append("\n\n")
+                    .append(URLDecoder.decode(param.getUrl()));
+            }
+            Log.e(TAG, builder.toString());
+        } catch (Exception e) {
+            Log.d(TAG, "Request error Log printing failed", e);
         }
-        Log.e(TAG, builder.toString());
     }
 
     //打印Http返回的正常结果
-    public static void log(@NonNull Response response, boolean onResultAssembly) throws IOException {
+    public static void log(@NonNull Response response, boolean onResultAssembly) {
         if (!isDebug) return;
-        ResponseBody body = response.body();
-        BufferedSource source = body.source();
-        source.request(Long.MAX_VALUE); // Buffer the entire body.
-        Buffer buffer = source.buffer();
-        Charset UTF_8 = Charset.forName("UTF-8");
-        MediaType contentType = body.contentType();
-        if (contentType != null) {
-            UTF_8 = contentType.charset(UTF_8);
+        try {
+            ResponseBody body = response.body();
+            BufferedSource source = body.source();
+            source.request(Long.MAX_VALUE); // Buffer the entire body.
+            Buffer buffer = source.buffer();
+            Charset UTF_8 = Charset.forName("UTF-8");
+            MediaType contentType = body.contentType();
+            if (contentType != null) {
+                UTF_8 = contentType.charset(UTF_8);
+            }
+            String result = buffer.clone().readString(UTF_8);
+            if (onResultAssembly) {
+                result = RxHttpPlugins.onResultDecoder(result);
+            }
+            log(response, result);
+        } catch (Exception e) {
+            Log.d(TAG, "Request end Log printing failed", e);
         }
-        String result = buffer.clone().readString(UTF_8);
-        if (onResultAssembly) {
-            result = RxHttpPlugins.onResultDecoder(result);
-        }
-        log(response, result);
     }
 
     //打印Http返回的正常结果
     public static void log(@NonNull Response response, String result) {
         if (!isDebug) return;
-        Request request = response.request();
-        String builder = "<------------------- request end Method=" +
-            request.method() + " Code=" + response.code() + " ------------------->" +
-            "\n\n" + getEncodedUrlAndParams(request) +
-            "\n\n" + response.headers() +
-            "\n" + result;
-        Log.i(TAG, builder);
+        try {
+            Request request = response.request();
+            String builder = "<------------------- request end Method=" +
+                request.method() + " Code=" + response.code() + " ------------------->" +
+                "\n\n" + getEncodedUrlAndParams(request) +
+                "\n\n" + response.headers() +
+                "\n" + result;
+            Log.i(TAG, builder);
+        } catch (Exception e) {
+            Log.d(TAG, "Request end Log printing failed", e);
+        }
     }
 
     //请求前，打印日志
     public static void log(@NonNull Request request) {
         if (!isDebug) return;
-        String builder = "<------------------- request start Method=" +
-            request.method() + " ------------------->" +
-            request2Str(request);
-        Log.d(TAG, builder);
-    }
-
-    private static String request2Str(Request request) {
-        StringBuilder builder = new StringBuilder();
-        builder.append("\n\n")
-            .append(getEncodedUrlAndParams(request));
         try {
-            RequestBody body = request.body();
-            if (body != null) {
-                builder.append("\n\nContent-Type: ").append(body.contentType())
-                    .append("\nContent-Length: ").append(body.contentLength());
-            }
-        } catch (IOException ignore) {
-
+            String builder = "<------------------- request start Method=" +
+                request.method() + " ------------------->" +
+                request2Str(request);
+            Log.d(TAG, builder);
+        } catch (Exception e) {
+            Log.d(TAG, "Request start log printing failed", e);
         }
-        builder.append("\n").append(request.headers()).append("\n");
-        return builder.toString();
     }
 
     public static String getEncodedUrlAndParams(Request request) {
@@ -124,7 +123,27 @@ public class LogUtil {
             e.printStackTrace();
             result = request.url().toString();
         }
-        return URLDecoder.decode(result);
+        try {
+            return URLDecoder.decode(result);
+        } catch (Exception e) {
+            return result;
+        }
+    }
+
+    private static String request2Str(Request request) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("\n\n")
+            .append(getEncodedUrlAndParams(request));
+        RequestBody body = request.body();
+        if (body != null) {
+            builder.append("\n\nContent-Type: ").append(body.contentType());
+            try {
+                builder.append("\nContent-Length: ").append(body.contentLength());
+            } catch (IOException ignore) {
+            }
+        }
+        builder.append(body != null ? "\n" : "\n\n").append(request.headers());
+        return builder.toString();
     }
 
     private static String getRequestParams(Request request) throws IOException {
