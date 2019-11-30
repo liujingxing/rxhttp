@@ -9,7 +9,6 @@ import java.nio.charset.Charset;
 import java.util.List;
 
 import io.reactivex.annotations.NonNull;
-import okhttp3.FormBody;
 import okhttp3.Headers;
 import okhttp3.HttpUrl.Builder;
 import okhttp3.MediaType;
@@ -51,11 +50,10 @@ public class LogUtil {
     public static void log(@NonNull Param param, Throwable throwable) {
         if (!isDebug) return;
         throwable.printStackTrace();
-        StringBuilder builder = new StringBuilder();
-        builder.append("throwable = ")
+        StringBuilder builder = new StringBuilder()
             .append(throwable.toString());
         if (!(throwable instanceof ParseException) && !(throwable instanceof HttpStatusCodeException)) {
-            builder.append("\n\nurl = ")
+            builder.append("\n\n")
                 .append(URLDecoder.decode(param.getUrl()));
         }
         Log.e(TAG, builder.toString());
@@ -84,26 +82,38 @@ public class LogUtil {
     public static void log(@NonNull Response response, String result) {
         if (!isDebug) return;
         Request request = response.request();
-        String builder = "------------------- request end Method=" +
-            request.method() + " Code=" + response.code() + " -------------------" +
-            "\n\nurl = " + getEncodedUrlAndParams(request) +
-            "\n\nresponse headers = " + response.headers() +
-            "\nresult = " + result;
+        String builder = "<------------------- request end Method=" +
+            request.method() + " Code=" + response.code() + " ------------------->" +
+            "\n\n" + getEncodedUrlAndParams(request) +
+            "\n\n" + response.headers() +
+            "\n" + result;
         Log.i(TAG, builder);
     }
 
     //请求前，打印日志
     public static void log(@NonNull Request request) {
         if (!isDebug) return;
-        String builder = "------------------- request start Method=" +
-            request.method() + " -------------------" +
+        String builder = "<------------------- request start Method=" +
+            request.method() + " ------------------->" +
             request2Str(request);
         Log.d(TAG, builder);
     }
 
     private static String request2Str(Request request) {
-        return "\n\nurl = " + getEncodedUrlAndParams(request)
-            + "\n\nrequest headers = " + request.headers();
+        StringBuilder builder = new StringBuilder();
+        builder.append("\n\n")
+            .append(getEncodedUrlAndParams(request));
+        try {
+            RequestBody body = request.body();
+            if (body != null) {
+                builder.append("\n\nContent-Type: ").append(body.contentType())
+                    .append("\nContent-Length: ").append(body.contentLength());
+            }
+        } catch (IOException ignore) {
+
+        }
+        builder.append("\n").append(request.headers()).append("\n");
+        return builder.toString();
     }
 
     public static String getEncodedUrlAndParams(Request request) {
@@ -120,14 +130,6 @@ public class LogUtil {
     private static String getRequestParams(Request request) throws IOException {
         RequestBody body = request.body();
         Builder urlBuilder = request.url().newBuilder();
-
-        if (body instanceof FormBody) {
-            FormBody formBody = ((FormBody) body);
-            for (int i = 0, size = formBody.size(); i < size; i++) {
-                urlBuilder.addQueryParameter(formBody.name(i), formBody.value(i));
-            }
-            return urlBuilder.toString();
-        }
 
         if (body instanceof MultipartBody) {
             MultipartBody multipartBody = (MultipartBody) body;
@@ -172,7 +174,7 @@ public class LogUtil {
             Buffer buffer = new Buffer();
             body.writeTo(buffer);
             if (!isPlaintext(buffer)) {
-                return urlBuilder.toString() + "\n\n (binary "
+                return urlBuilder.toString() + "\n\n(binary "
                     + body.contentLength() + "-byte body omitted)";
             } else {
                 return urlBuilder.toString() + "\n\n" + buffer.readUtf8();
