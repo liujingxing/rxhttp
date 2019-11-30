@@ -69,9 +69,9 @@ public final class HttpStatusCodeException extends IOException {
         return getClass().getName() + ":" +
             " Method=" + requestMethod +
             " Code=" + statusCode +
-            "\n\nurl = " + requestUrl +
-            "\n\nresponse headers = " + responseHeaders +
             "\nmessage = " + getMessage() +
-            "\n\nresult = " + result;
+            "\n\n" + requestUrl +
+            "\n\n" + responseHeaders +
+            "\n" + result;
     }
 }
