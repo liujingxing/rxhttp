@@ -27,7 +27,7 @@ public class BitmapParser implements Parser<Bitmap> {
     @Override
     public Bitmap onParse(Response response) throws IOException {
         ResponseBody body = ExceptionHelper.throwIfFatal(response);
-        LogUtil.log(response, "Bitmap");
+        LogUtil.log(response, false, null);
         return BitmapFactory.decodeStream(body.byteStream());
     }
 }

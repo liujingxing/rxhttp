@@ -41,23 +41,21 @@ public interface Parser<T> {
     @NonNull
     default String getResult(@NonNull Response response) throws IOException {
         ResponseBody body = ExceptionHelper.throwIfFatal(response);
+        boolean onResultDecoder = isOnResultDecoder(response);
+        LogUtil.log(response, onResultDecoder, null);
         String result = body.string();
-        if (isOnResultAssembly(response)) {
-            result = RxHttpPlugins.onResultDecoder(result);
-        }
-        LogUtil.log(response, result);
-        return result;
+        return onResultDecoder ? RxHttpPlugins.onResultDecoder(result) : result;
     }
 
     default <R> R convert(Response response, Type type) throws IOException {
         ResponseBody body = ExceptionHelper.throwIfFatal(response);
-        boolean onResultAssembly = isOnResultAssembly(response);
-        LogUtil.log(response, onResultAssembly);
+        boolean onResultDecoder = isOnResultDecoder(response);
+        LogUtil.log(response, onResultDecoder, null);
         IConverter converter = getConverter(response);
-        return converter.convert(body, type, onResultAssembly);
+        return converter.convert(body, type, onResultDecoder);
     }
 
-    default boolean isOnResultAssembly(Response response) {
+    default boolean isOnResultDecoder(Response response) {
         return !"false".equals(response.request().header(Param.DATA_DECRYPT));
     }
 
