@@ -40,6 +40,10 @@ public class LogUtil {
         isDebug = debug;
     }
 
+    public static boolean isIsDebug() {
+        return isDebug;
+    }
+
     //打印Http请求连接失败异常日志
     public static void log(Throwable throwable) {
         if (!isDebug) return;
@@ -68,13 +72,19 @@ public class LogUtil {
         if (!isDebug) return;
         try {
             Request request = response.request();
+            LogTime logTime = request.tag(LogTime.class);
+            long tookMs = logTime != null ? logTime.tookMs() : 0;
             String result = downloadPath != null ? downloadPath : getResult(response.body(), onResultDecoder);
-            String builder = "<------------------- request end Method=" +
-                request.method() + " Code=" + response.code() + " ------------------->" +
-                "\n\n" + getEncodedUrlAndParams(request) +
-                "\n\n" + response.headers() +
-                "\n" + result;
-            Log.i(TAG, builder);
+            StringBuilder builder = new StringBuilder()
+                .append("<------------------- request end Method=").append(request.method())
+                .append(" Code=").append(response.code()).append(" ------------------->");
+            if (tookMs > 0) {
+                builder.append("(").append(tookMs).append("ms)");
+            }
+            builder.append("\n\n").append(getEncodedUrlAndParams(request))
+                .append("\n\n").append(response.headers())
+                .append("\n").append(result);
+            Log.i(TAG, builder.toString());
         } catch (Exception e) {
             Log.d(TAG, "Request end Log printing failed", e);
         }

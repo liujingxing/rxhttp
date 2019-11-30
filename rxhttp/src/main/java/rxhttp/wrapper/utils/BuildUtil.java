@@ -34,6 +34,9 @@ public class BuildUtil {
         if (headers != null) {
             builder.headers(headers);
         }
+        if (LogUtil.isIsDebug()) {
+            builder.tag(LogTime.class, new LogTime());
+        }
         return builder.build();
     }
 
