@@ -2,6 +2,7 @@ package rxhttp.wrapper.utils;
 
 import android.util.Log;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
@@ -170,8 +171,34 @@ public class LogUtil {
         if (body != null) {
             Buffer buffer = new Buffer();
             body.writeTo(buffer);
-            return urlBuilder.toString() + "\n\nparams = " + buffer.readUtf8();
+            if (!isPlaintext(buffer)) {
+                return urlBuilder.toString() + "\n\n (binary "
+                    + body.contentLength() + "-byte body omitted)";
+            } else {
+                return urlBuilder.toString() + "\n\n" + buffer.readUtf8();
+            }
         }
         return urlBuilder.toString();
+    }
+
+
+    private static boolean isPlaintext(Buffer buffer) {
+        try {
+            Buffer prefix = new Buffer();
+            long byteCount = buffer.size() < 64 ? buffer.size() : 64;
+            buffer.copyTo(prefix, 0, byteCount);
+            for (int i = 0; i < 16; i++) {
+                if (prefix.exhausted()) {
+                    break;
+                }
+                int codePoint = prefix.readUtf8CodePoint();
+                if (Character.isISOControl(codePoint) && !Character.isWhitespace(codePoint)) {
+                    return false;
+                }
+            }
+            return true;
+        } catch (EOFException e) {
+            return false; // Truncated UTF-8 sequence.
+        }
     }
 }
