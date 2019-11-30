@@ -80,8 +80,8 @@ public class ParseException extends IOException {
         return getClass().getName() + ":" +
             " Method=" + requestMethod +
             " Code=" + errorCode +
-            "\n\nurl = " + requestUrl +
-            "\n\nresponse headers = " + responseHeaders +
+            "\n\n" + requestUrl +
+            "\n\n" + responseHeaders +
             "\nmessage = " + getMessage();
     }
 }
