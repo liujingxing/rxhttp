@@ -64,33 +64,11 @@ public class LogUtil {
     }
 
     //打印Http返回的正常结果
-    public static void log(@NonNull Response response, boolean onResultAssembly) {
-        if (!isDebug) return;
-        try {
-            ResponseBody body = response.body();
-            BufferedSource source = body.source();
-            source.request(Long.MAX_VALUE); // Buffer the entire body.
-            Buffer buffer = source.buffer();
-            Charset UTF_8 = Charset.forName("UTF-8");
-            MediaType contentType = body.contentType();
-            if (contentType != null) {
-                UTF_8 = contentType.charset(UTF_8);
-            }
-            String result = buffer.clone().readString(UTF_8);
-            if (onResultAssembly) {
-                result = RxHttpPlugins.onResultDecoder(result);
-            }
-            log(response, result);
-        } catch (Exception e) {
-            Log.d(TAG, "Request end Log printing failed", e);
-        }
-    }
-
-    //打印Http返回的正常结果
-    public static void log(@NonNull Response response, String result) {
+    public static void log(@NonNull Response response, boolean onResultDecoder, String downloadPath) {
         if (!isDebug) return;
         try {
             Request request = response.request();
+            String result = downloadPath != null ? downloadPath : getResult(response.body(), onResultDecoder);
             String builder = "<------------------- request end Method=" +
                 request.method() + " Code=" + response.code() + " ------------------->" +
                 "\n\n" + getEncodedUrlAndParams(request) +
@@ -200,6 +178,27 @@ public class LogUtil {
             }
         }
         return urlBuilder.toString();
+    }
+
+    private static String getResult(ResponseBody body, boolean onResultDecoder) throws IOException {
+        BufferedSource source = body.source();
+        source.request(Long.MAX_VALUE); // Buffer the entire body.
+        Buffer buffer = source.buffer();
+        String result;
+        if (isPlaintext(buffer)) {
+            Charset UTF_8 = Charset.forName("UTF-8");
+            MediaType contentType = body.contentType();
+            if (contentType != null) {
+                UTF_8 = contentType.charset(UTF_8);
+            }
+            result = buffer.clone().readString(UTF_8);
+            if (onResultDecoder) {
+                result = RxHttpPlugins.onResultDecoder(result);
+            }
+        } else {
+            result = "(binary " + buffer.size() + "-byte body omitted)";
+        }
+        return result;
     }
 
 
