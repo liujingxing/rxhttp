@@ -92,7 +92,7 @@ compileOptions {
 
 ## 请求三部曲
 ```java
-RxHttp.get("/service/...")          //第一步，确定请求方式
+RxHttp.get("/service/...")          //第一步，确定请求方式，可以选择postForm、postJson等方法
     .asString()                     //第二步，使用asXXX系列方法确定返回类型
     .subscribe(s -> {               //第三部, 订阅观察者
         //成功回调
