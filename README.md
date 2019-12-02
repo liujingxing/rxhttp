@@ -100,7 +100,12 @@ RxHttp.get("/service/...")          //第一步，确定请求方式
         //失败回调
     });
 ```
-使用RxHttp发送任何请求都遵循请求三部曲
+**任意请求，任意返回数据类型，皆遵循请求三部曲**
+
+**任意请求，任意返回数据类型，皆遵循请求三部曲**
+
+**任意请求，任意返回数据类型，皆遵循请求三部曲**
+
 
 ## get请求
 ```java
@@ -404,6 +409,37 @@ RxHttp.get("/service/...")
         //失败回调
     });
 ```
+
+## 超时设置
+
+1、设置全局超时
+
+RxHttp内部默认的读、写、连接超时时间均为10s，如需修改，请自定义OkHttpClient对象，如下：
+```java
+//设置读、写、连接超时时间为15s
+OkHttpClient client = new OkHttpClient.Builder()
+    .connectTimeout(15, TimeUnit.SECONDS)
+    .readTimeout(15, TimeUnit.SECONDS)
+    .writeTimeout(15, TimeUnit.SECONDS)
+    .build();
+RxHttp.init(client);
+```
+2、为单个请求设置超时
+
+为单个请求设置超时，使用的是RxJava的`timeout(long timeout, TimeUnit timeUnit)`方法，如下：
+```java
+RxHttp.get("/service/...")
+    .asString()
+    .timeout(5, TimeUnit.SECONDS)//设置总超时时间为5s
+    .as(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
+    .subscribe(pageList -> {
+        //成功回调
+    }, (OnError) error -> {
+        //失败回调
+    });
+```
+**注：这里设置的总超时时间要小于全局读、写、连接超时时间之和，否则无效**
+
 
 ## Activity/Fragment/View/ViewModel/任意类生命周期结束时，自动关闭请求
 
