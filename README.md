@@ -110,7 +110,7 @@ RxHttp.get("/service/...")          //第一步，确定请求方式，可以选
 ## get请求
 ```java
 RxHttp.get("/service/...")     
-    .add("key", "value)
+    .add("key", "value")
     .asString()                     
     .subscribe(s -> {               
         //成功回调
@@ -123,7 +123,7 @@ RxHttp.get("/service/...")
 ## post Form请求
 ```java
 RxHttp.postForm("/service/...")       //发送表单形式的post请求
-    .add("key", "value)
+    .add("key", "value")
     .asString()
     .subscribe(s -> {
         //成功回调
