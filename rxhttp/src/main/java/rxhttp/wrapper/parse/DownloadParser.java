@@ -34,7 +34,7 @@ public class DownloadParser implements Parser<String> {
     @Override
     public String onParse(Response response) throws IOException {
         ResponseBody body = ExceptionHelper.throwIfFatal(response);
-        LogUtil.log(response, false,mDestPath);
+        LogUtil.log(response, false, mDestPath);
         boolean append = response.header("Content-Range") != null;
         IOUtil.write(body.byteStream(), mDestPath, append);//将输入流写出到文件
         return mDestPath;
