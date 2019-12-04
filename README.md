@@ -3,7 +3,7 @@
 # RxHttp
 RxHttp是基于OkHttp的二次封装，并于RxJava做到无缝衔接，一条链就能发送任意请求，主要优势如下 :
 
-  **1. 支持Gson、Xml、ProtoBuf、FastJson等任意数据解析方式**
+  **1. 支持Gson、Xml、ProtoBuf、FastJson等第三方数据解析工具**
   
   **2. 支持Get、Post、Put、Delete等任意请求方式，可自定义请求方式**
   
@@ -92,7 +92,7 @@ compileOptions {
 
 ## 请求三部曲
 ```java
-RxHttp.get("/service/...")          //第一步，确定请求方式
+RxHttp.get("/service/...")          //第一步，确定请求方式，可以选择postForm、postJson等方法
     .asString()                     //第二步，使用asXXX系列方法确定返回类型
     .subscribe(s -> {               //第三部, 订阅观察者
         //成功回调
@@ -110,7 +110,7 @@ RxHttp.get("/service/...")          //第一步，确定请求方式
 ## get请求
 ```java
 RxHttp.get("/service/...")     
-    .add("key", "value)
+    .add("key", "value")
     .asString()                     
     .subscribe(s -> {               
         //成功回调
@@ -123,7 +123,7 @@ RxHttp.get("/service/...")
 ## post Form请求
 ```java
 RxHttp.postForm("/service/...")       //发送表单形式的post请求
-    .add("key", "value)
+    .add("key", "value")
     .asString()
     .subscribe(s -> {
         //成功回调
