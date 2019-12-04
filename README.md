@@ -90,6 +90,23 @@ compileOptions {
 ```
 此时rebuild一下项目，就能看到RxHttp类了
 
+## 配置BaseUrl
+
+通过@DefaultDomain注解配置默认域名，@Domain注解配置非默认域名，如下：
+
+```java
+public class Url {
+
+    //这里使用@Domain注解后，会在RxHttp自动生成一个setDomainToUpdateIfAbsent()方法
+    @Domain(name = "Update")
+    public static String update = "http://update.9158.com";
+
+    @DefaultDomain //设置为默认域名
+    public static String baseUrl = "https://www.wanandroid.com/";
+
+}
+```
+
 ## 请求三部曲
 ```java
 RxHttp.get("/service/...")          //第一步，确定请求方式，可以选择postForm、postJson等方法
