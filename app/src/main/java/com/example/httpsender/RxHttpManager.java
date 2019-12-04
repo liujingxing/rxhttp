@@ -44,6 +44,7 @@ public class RxHttpManager {
             .hostnameVerifier((hostname, session) -> true) //忽略host验证
             .followRedirects(false)  //禁制OkHttp的重定向操作，我们自己处理重定向
             .addInterceptor(new RedirectInterceptor())
+//            .addInterceptor(new TokenInterceptor())
             .build();
 
         //RxHttp初始化，自定义OkHttpClient对象,非必须
