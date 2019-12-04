@@ -25,7 +25,7 @@ public class ResponsePageListParser<T> extends AbstractParser<PageList<T>> {
         super();
     }
 
-    public ResponsePageListParser(Type type) {
+    public ResponsePageListParser(Class<T> type) {
         super(type);
     }
 
@@ -33,15 +33,10 @@ public class ResponsePageListParser<T> extends AbstractParser<PageList<T>> {
     public PageList<T> onParse(okhttp3.Response response) throws IOException {
         final Type type = ParameterizedTypeImpl.get(Response.class, PageList.class, mType); //获取泛型类型
         Response<PageList<T>> data = convert(response, type);
-
-        //跟服务端协议好，code等于0，才代表数据正确,否则，抛出异常
-        if (data.getCode() != 0) {
+        PageList<T> pageList = data.getData(); //获取data字段
+        if (data.getCode() != 0 || pageList == null) {  //code不等于0，说明数据不正确，抛出异常
             throw new ParseException(String.valueOf(data.getCode()), data.getMsg(), response);
         }
-        PageList<T> t = data.getData(); //获取data字段
-        if (t == null) {  //为空，有可能是参数错误或者其他原因，导致服务器不能正确给我们data字段数据
-            throw new ParseException(String.valueOf(data.getCode()), data.getMsg(), response);
-        }
-        return t;
+        return pageList;
     }
 }
