@@ -1,6 +1,7 @@
 package com.rxhttp.compiler;
 
 
+import com.squareup.javapoet.ArrayTypeName;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
@@ -86,7 +87,9 @@ public class ParamsAnnotatedClass {
             method = MethodSpec.methodBuilder(map.getKey())
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                 .addParameter(String.class, "url")
-                .addStatement("return with($T.$L(url))", paramName, map.getKey())
+                .addParameter(ArrayTypeName.of(Object.class), "formatArgs")
+                .varargs()
+                .addStatement("return with($T.$L(format(url, formatArgs)))", paramName, map.getKey())
                 .returns(ClassName.get(RxHttpGenerator.packageName, map.getValue()));
             methodList.add(method.build());
         }
@@ -99,7 +102,9 @@ public class ParamsAnnotatedClass {
             method = MethodSpec.methodBuilder(item.getKey())
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                 .addParameter(String.class, "url")
-                .addStatement("return new $T(new $T(url))", rxHttp$ParamName, param)
+                .addParameter(ArrayTypeName.of(Object.class), "formatArgs")
+                .varargs()
+                .addStatement("return new $T(new $T(format(url, formatArgs)))", rxHttp$ParamName, param)
                 .returns(rxHttp$ParamName);
             methodList.add(method.build());
 
