@@ -56,7 +56,7 @@ public class GsonConverter implements IConverter {
         this.gson = gson;
     }
 
-    @NonNull
+    @SuppressWarnings("unchecked")
     @Override
     public <T> T convert(ResponseBody body, @NonNull Type type, boolean onResultDecoder) throws IOException {
         try {
@@ -64,6 +64,7 @@ public class GsonConverter implements IConverter {
             if (onResultDecoder) {
                 result = RxHttpPlugins.onResultDecoder(result);
             }
+            if (type == String.class) return (T) result;
             return gson.fromJson(result, type);
         } finally {
             body.close();
