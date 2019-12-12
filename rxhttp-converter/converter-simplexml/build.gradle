@@ -26,7 +26,7 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    compileOnly 'com.rxjava.rxhttp:rxhttp:1.3.2'
+    compileOnly "com.rxjava.rxhttp:rxhttp:${rxhttp_version}"
     api 'org.simpleframework:simple-xml:2.7.1'
 }
 
