@@ -51,13 +51,13 @@ dependencies {
 
 //    implementation project(":rxhttp")
 //    kapt project(':rxhttp-compiler')
-    implementation 'com.rxjava.rxhttp:rxhttp:1.3.2'
-    kapt 'com.rxjava.rxhttp:rxhttp-compiler:1.3.2'
+    implementation "com.rxjava.rxhttp:rxhttp:${rxhttp_version}"
+    kapt "com.rxjava.rxhttp:rxhttp-compiler:${rxhttp_version}"
 
-    implementation 'com.rxjava.rxhttp:converter-jackson:1.3.2'
-    implementation 'com.rxjava.rxhttp:converter-fastjson:1.3.2'
-    implementation 'com.rxjava.rxhttp:converter-protobuf:1.3.2'
-    implementation 'com.rxjava.rxhttp:converter-simplexml:1.3.2'
+    implementation "com.rxjava.rxhttp:converter-jackson:${rxhttp_version}"
+    implementation "com.rxjava.rxhttp:converter-fastjson:${rxhttp_version}"
+    implementation "com.rxjava.rxhttp:converter-protobuf:${rxhttp_version}"
+    implementation "com.rxjava.rxhttp:converter-simplexml:${rxhttp_version}"
 
 //    implementation project(':rxhttp-converter:converter-fastjson')
 //    implementation project(':rxhttp-converter:converter-simplexml')
