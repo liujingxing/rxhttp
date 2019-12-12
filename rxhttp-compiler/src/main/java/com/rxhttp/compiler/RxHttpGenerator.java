@@ -1,5 +1,6 @@
 package com.rxhttp.compiler;
 
+import com.squareup.javapoet.ArrayTypeName;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.JavaFile;
@@ -218,6 +219,15 @@ public class RxHttpGenerator {
         methodList.add(method.build());
 
         methodList.addAll(mDomainAnnotatedClass.getMethodList());
+
+        method = MethodSpec.methodBuilder("format")
+            .addModifiers(Modifier.PRIVATE, Modifier.STATIC)
+            .addParameter(String.class, "url")
+            .addParameter(ArrayTypeName.of(Object.class), "formatArgs")
+            .varargs()
+            .addStatement("return formatArgs == null || formatArgs.length == 0 ? url : String.format(url, formatArgs)")
+            .returns(String.class);
+        methodList.add(method.build());
 
         FieldSpec schedulerField = FieldSpec.builder(schedulerName, "scheduler", Modifier.PROTECTED)
             .initializer("$T.io()", schedulersName)
