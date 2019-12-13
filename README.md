@@ -48,15 +48,15 @@ RxHttp是基于OkHttp的二次封装，并于RxJava做到无缝衔接，一条�
 
 ```java
 dependencies {
-   implementation 'com.rxjava.rxhttp:rxhttp:1.3.3'
-   annotationProcessor 'com.rxjava.rxhttp:rxhttp-compiler:1.3.3' //注解处理器，生成RxHttp类
+   implementation 'com.rxjava.rxhttp:rxhttp:1.3.4'
+   annotationProcessor 'com.rxjava.rxhttp:rxhttp-compiler:1.3.4' //注解处理器，生成RxHttp类
    implementation 'com.rxjava.rxlife:rxlife:1.1.0'  //页面销毁，关闭请求，非必须
 
    //Converter 根据自己需求选择  非必须  RxHttp默认内置了GsonConverter
-   implementation 'com.rxjava.rxhttp:converter-jackson:1.3.3'
-   implementation 'com.rxjava.rxhttp:converter-fastjson:1.3.3'
-   implementation 'com.rxjava.rxhttp:converter-protobuf:1.3.3'
-   implementation 'com.rxjava.rxhttp:converter-simplexml:1.3.3'
+   implementation 'com.rxjava.rxhttp:converter-jackson:1.3.4'
+   implementation 'com.rxjava.rxhttp:converter-fastjson:1.3.4'
+   implementation 'com.rxjava.rxhttp:converter-protobuf:1.3.4'
+   implementation 'com.rxjava.rxhttp:converter-simplexml:1.3.4'
 }
 ```
 
