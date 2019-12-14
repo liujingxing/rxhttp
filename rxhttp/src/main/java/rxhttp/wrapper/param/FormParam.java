@@ -44,6 +44,7 @@ public class FormParam extends AbstractParam<FormParam> implements IUploadLength
 
     @Override
     public FormParam add(String key, Object value) {
+        if (value == null) value = "";
         return add(new KeyValuePair(key, value));
     }
 
