@@ -50,6 +50,7 @@ public class JsonArrayParam extends AbstractParam<JsonArrayParam> implements IJs
 
     @Override
     public JsonArrayParam add(String key, Object value) {
+        if (value == null) value = "";
         HashMap<String, Object> map = new HashMap<>();
         map.put(key, value);
         return add(map);
