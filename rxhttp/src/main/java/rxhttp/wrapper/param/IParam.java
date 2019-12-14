@@ -17,7 +17,7 @@ public interface IParam<P extends Param> {
 
     P setUrl(@NonNull String url);
 
-    P add(String key, @NonNull Object value);
+    P add(String key, Object value);
 
     default P addAll(@NonNull Map<? extends String, ?> map) {
         for (Entry<? extends String, ?> entry : map.entrySet()) {
