@@ -155,13 +155,22 @@ public final class HttpSender {
 
     //所有的请求，最终都会调此方法拿到Call对象，然后执行请求
     static Call newCall(OkHttpClient client, Param param) throws IOException {
+        Request request = newRequest(param);
+        return client.newCall(request);
+    }
+
+    static Request newRequest(Param param) throws IOException {
         param = RxHttpPlugins.onParamAssembly(param);
         if (param instanceof IUploadLengthLimit) {
             ((IUploadLengthLimit) param).checkLength();
         }
         Request request = param.buildRequest();
         LogUtil.log(request);
-        return client.newCall(request);
+        return request;
+    }
+
+    static Call execute(Request request) throws IOException {
+        return getOkHttpClient().newCall(request);
     }
 
     /**
