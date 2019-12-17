@@ -3,20 +3,13 @@ package com.example.httpsender;
 
 import android.app.Application;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.X509TrustManager;
 
-import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-import rxhttp.RxHttpPlugins;
 import rxhttp.wrapper.annotation.Converter;
-import rxhttp.wrapper.cahce.CacheMode;
 import rxhttp.wrapper.callback.IConverter;
 import rxhttp.wrapper.converter.FastJsonConverter;
 import rxhttp.wrapper.converter.XmlConverter;
@@ -47,23 +40,24 @@ public class RxHttpManager {
             .writeTimeout(10, TimeUnit.SECONDS)
             .sslSocketFactory(sslSocketFactory, trustAllCert) //添加信任证书
             .hostnameVerifier((hostname, session) -> true) //忽略host验证
-            .followRedirects(false)  //禁制OkHttp的重定向操作，我们自己处理重定向
-            .addInterceptor(new RedirectInterceptor())
+//            .followRedirects(false)  //禁制OkHttp的重定向操作，我们自己处理重定向
+//            .addInterceptor(new RedirectInterceptor())
 //            .addInterceptor(new TokenInterceptor())
             .build();
-
-        File file = new File(context.getExternalCacheDir(), "RxHttpCache");
-        RxHttpPlugins.setCache(file, 1000 * 1000 * 20, CacheMode.REQUEST_NETWORK_FAILED_READ_CACHE);
-
-        //RxHttp初始化，自定义OkHttpClient对象,非必须
+        //RxHttp初始化，自定义OkHttpClient对象，非必须
         RxHttp.init(client, BuildConfig.DEBUG);
-        //设置数据解密/解码器
+
+        //设置缓存策略，非必须
+//        File file = new File(context.getExternalCacheDir(), "RxHttpCache");
+//        RxHttpPlugins.setCache(file, 1000 * 1000 * 20, CacheMode.REQUEST_NETWORK_FAILED_READ_CACHE);
+
+        //设置数据解密/解码器，非必须
 //        RxHttp.setResultDecoder(s -> s);
 
-        //设置全局的转换器
+        //设置全局的转换器，非必须
 //        RxHttp.setConverter(FastJsonConverter.create());
 
-        //设置公共参数
+        //设置公共参数，非必须
         RxHttp.setOnParamAssembly(p -> {
             /*根据不同请求添加不同参数，子线程执行，每次发送请求前都会被回调
             如果希望部分请求不回调这里，发请求前调用Param.setAssemblyEnabled(false)即可
@@ -77,25 +71,5 @@ public class RxHttpManager {
             return p.add("versionName", "1.0.0")//添加公共参数
                 .addHeader("deviceType", "android"); //添加公共请求头
         });
-    }
-
-    //处理重定向的拦截器，非必须
-    public static class RedirectInterceptor implements Interceptor {
-
-        @Override
-        public Response intercept(Chain chain) throws IOException {
-            okhttp3.Request request = chain.request();
-            Response response = chain.proceed(request);
-            int code = response.code();
-            if (code == 308) {
-                //获取重定向的地址
-                String location = response.headers().get("Location");
-                //重新构建请求
-                Request newRequest = request.newBuilder().url(location).build();
-                response.close();
-                response = chain.proceed(newRequest);
-            }
-            return response;
-        }
     }
 }
