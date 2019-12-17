@@ -11,6 +11,9 @@ import okhttp3.Headers.Builder;
 import okhttp3.HttpUrl;
 import okhttp3.Request;
 import okhttp3.RequestBody;
+import rxhttp.RxHttpPlugins;
+import rxhttp.wrapper.cahce.CacheMode;
+import rxhttp.wrapper.cahce.CacheStrategy;
 import rxhttp.wrapper.callback.IConverter;
 import rxhttp.wrapper.utils.BuildUtil;
 
@@ -31,6 +34,8 @@ public abstract class AbstractParam<P extends Param> implements Param<P> {
 
     private boolean mIsAssemblyEnabled = true;//是否添加公共参数
 
+    private CacheStrategy mCacheStrategy;
+
     /**
      * @param url    请求路径
      * @param method {@link Method#GET,Method#HEAD,Method#POST,Method#PUT,Method#DELETE,Method#PATCH}
@@ -38,6 +43,7 @@ public abstract class AbstractParam<P extends Param> implements Param<P> {
     public AbstractParam(@NonNull String url, Method method) {
         this.mUrl = url;
         this.mMethod = method;
+        mCacheStrategy = RxHttpPlugins.getCacheStrategy();
     }
 
     public P setUrl(@NonNull String url) {
@@ -136,6 +142,39 @@ public abstract class AbstractParam<P extends Param> implements Param<P> {
 
     public Request.Builder getRequestBuilder() {
         return requestBuilder;
+    }
+
+    @Override
+    public String getCacheKey() {
+        return mCacheStrategy.getCacheKey();
+    }
+
+    @Override
+    public P setCacheKey(String cacheKey) {
+        mCacheStrategy.setCacheKey(cacheKey);
+        return (P) this;
+    }
+
+    @Override
+    public long getCacheValidTime() {
+        return mCacheStrategy.getCacheValidTime();
+    }
+
+    @Override
+    public P setCacheValidTime(long cacheTime) {
+        mCacheStrategy.setCacheValidTime(cacheTime);
+        return (P) this;
+    }
+
+    @Override
+    public CacheMode getCacheMode() {
+        return mCacheStrategy.getCacheMode();
+    }
+
+    @Override
+    public P setCacheMode(CacheMode cacheMode) {
+        mCacheStrategy.setCacheMode(cacheMode);
+        return (P) this;
     }
 
     @Override

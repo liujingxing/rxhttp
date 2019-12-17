@@ -5,7 +5,10 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import io.reactivex.annotations.Nullable;
+import okhttp3.HttpUrl;
+import okhttp3.HttpUrl.Builder;
 import okhttp3.RequestBody;
+import rxhttp.wrapper.utils.GsonUtil;
 
 /**
  * post、put、patch、delete请求，参数以{application/json; charset=utf-8}形式提交
@@ -47,6 +50,16 @@ public class JsonParam extends AbstractParam<JsonParam> implements IJsonObject<J
     @Nullable
     public Map<String, Object> getParams() {
         return mParam;
+    }
+
+    @Override
+    public String getCacheKey() {
+        String cacheKey = super.getCacheKey();
+        if (cacheKey != null) return cacheKey;
+        String json = GsonUtil.toJson(mParam);
+        HttpUrl httpUrl = HttpUrl.get(getSimpleUrl());
+        Builder builder = httpUrl.newBuilder().addQueryParameter("json", json);
+        return builder.toString();
     }
 
     @Override

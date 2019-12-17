@@ -14,17 +14,23 @@
 package rxhttp;
 
 
+import java.io.IOException;
 import java.util.concurrent.Callable;
 
 import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.annotations.NonNull;
+import io.reactivex.annotations.Nullable;
 import io.reactivex.exceptions.Exceptions;
 import io.reactivex.internal.functions.ObjectHelper;
 import io.reactivex.internal.observers.DeferredScalarDisposable;
 import io.reactivex.plugins.RxJavaPlugins;
 import okhttp3.Call;
+import okhttp3.Request;
 import okhttp3.Response;
+import rxhttp.wrapper.cahce.CacheMode;
+import rxhttp.wrapper.cahce.InternalCache;
+import rxhttp.wrapper.exception.CacheReadFailedException;
 import rxhttp.wrapper.param.Param;
 import rxhttp.wrapper.parse.Parser;
 import rxhttp.wrapper.utils.LogUtil;
@@ -36,14 +42,17 @@ import rxhttp.wrapper.utils.LogUtil;
  * Time: 11:15
  */
 public final class ObservableHttp<T> extends Observable<T> implements Callable<T> {
-    private final Param     param;
+    private final Param param;
     private final Parser<T> parser;
 
     private Call mCall;
 
+    private InternalCache cache;
+
     ObservableHttp(@NonNull Param param, @NonNull Parser<T> parser) {
         this.param = param;
         this.parser = parser;
+        cache = RxHttpPlugins.getCache();
     }
 
     @Override
@@ -77,11 +86,57 @@ public final class ObservableHttp<T> extends Observable<T> implements Callable<T
 
     //执行请求
     private T execute(Param param) throws Exception {
-        Call call = mCall = HttpSender.newCall(param);
-        Response response = call.execute();
-        return parser.onParse(response);
+        Request request = HttpSender.newRequest(param);
+        CacheMode cacheMode = param.getCacheMode();
+        if (cacheModeIs(CacheMode.ONLY_CACHE, CacheMode.READ_CACHE_FAILED_REQUEST_NETWORK)) {
+            //读取缓存
+            Response cacheResponse = getCacheResponse(request, param.getCacheValidTime());
+            if (cacheResponse != null) {
+                return parser.onParse(cacheResponse);
+            }
+            if (cacheModeIs(CacheMode.ONLY_CACHE)) //仅读缓存模式下，缓存读取失败，直接抛出异常
+                throw new CacheReadFailedException("Cache read failed");
+        }
+        Call call = mCall = HttpSender.execute(request);
+        Response networkResponse = null;
+        try {
+            networkResponse = call.execute();
+            if (cache != null && cacheMode != CacheMode.ONLY_NETWORK) {
+                //非ONLY_NETWORK模式下,请求成功，写入缓存
+                networkResponse = cache.put(networkResponse, param.getCacheKey());
+            }
+        } catch (Exception e) {
+            if (cacheModeIs(CacheMode.REQUEST_NETWORK_FAILED_READ_CACHE)) {
+                //请求失败，读取缓存
+                networkResponse = getCacheResponse(request, param.getCacheValidTime());
+            }
+            if (networkResponse == null)
+                throw e;
+        }
+        return parser.onParse(networkResponse);
     }
 
+    private boolean cacheModeIs(CacheMode... cacheModes) {
+        if (cacheModes == null || cache == null) return false;
+        CacheMode cacheMode = param.getCacheMode();
+        for (CacheMode mode : cacheModes) {
+            if (mode == cacheMode) return true;
+        }
+        return false;
+    }
+
+    @Nullable
+    private Response getCacheResponse(Request request, long validTime) throws IOException {
+        if (cache == null) return null;
+        Response cacheResponse = cache.get(request, param.getCacheKey());
+        if (cacheResponse != null) {
+            long receivedTime = cacheResponse.receivedResponseAtMillis();
+            if (validTime != -1 && System.currentTimeMillis() - receivedTime > validTime)
+                return null; //缓存过期，返回null
+            return cacheResponse;
+        }
+        return null;
+    }
 
     class HttpDisposable extends DeferredScalarDisposable<T> {
 

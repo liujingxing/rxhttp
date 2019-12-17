@@ -1,0 +1,24 @@
+package rxhttp.wrapper.param;
+
+import rxhttp.wrapper.cahce.CacheMode;
+
+/**
+ * User: ljx
+ * Date: 2019-12-15
+ * Time: 14:08
+ */
+public interface ICache<P extends Param> {
+
+    P setCacheKey(String cacheKey);
+
+    P setCacheValidTime(long cacheTime);
+
+    P setCacheMode(CacheMode cacheMode);
+
+    String getCacheKey();
+
+    long getCacheValidTime();
+
+    CacheMode getCacheMode();
+
+}

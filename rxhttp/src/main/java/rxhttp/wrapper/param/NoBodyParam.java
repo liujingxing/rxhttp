@@ -117,6 +117,12 @@ public class NoBodyParam extends AbstractParam<NoBodyParam> {
     }
 
     @Override
+    public String getCacheKey() {
+        String cacheKey = super.getCacheKey();
+        return cacheKey != null ? cacheKey : getHttpUrl().toString();
+    }
+
+    @Override
     public String toString() {
         return getUrl();
     }
