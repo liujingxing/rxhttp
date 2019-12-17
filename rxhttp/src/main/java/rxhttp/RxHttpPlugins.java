@@ -1,11 +1,17 @@
 package rxhttp;
 
+import java.io.File;
+
 import io.reactivex.annotations.NonNull;
 import io.reactivex.annotations.Nullable;
 import io.reactivex.functions.Function;
 import io.reactivex.internal.util.ExceptionHelper;
-import rxhttp.wrapper.converter.GsonConverter;
+import rxhttp.wrapper.cahce.CacheMode;
+import rxhttp.wrapper.cahce.CacheStrategy;
+import rxhttp.wrapper.cahce.InternalCache;
+import rxhttp.wrapper.cahce.CacheManager;
 import rxhttp.wrapper.callback.IConverter;
+import rxhttp.wrapper.converter.GsonConverter;
 import rxhttp.wrapper.param.Param;
 
 /**
@@ -19,6 +25,9 @@ public class RxHttpPlugins {
     private static Function<? super Param, ? extends Param> mOnParamAssembly;
     private static Function<? super String, String> decoder;
     private static IConverter converter = GsonConverter.create();
+
+    private static InternalCache cache;
+    private static CacheStrategy cacheStrategy = new CacheStrategy(CacheMode.ONLY_NETWORK);
 
     //设置公共参数装饰
     public static void setOnParamAssembly(@Nullable Function<? super Param, ? extends Param> onParamAssembly) {
@@ -87,5 +96,34 @@ public class RxHttpPlugins {
         } catch (Throwable ex) {
             throw ExceptionHelper.wrapOrThrow(ex);
         }
+    }
+
+    public static CacheStrategy getCacheStrategy() {
+        if (cacheStrategy == null) {
+            cacheStrategy = new CacheStrategy(CacheMode.ONLY_NETWORK);
+        }
+        return new CacheStrategy(cacheStrategy);
+    }
+
+    public static InternalCache getCache() {
+        return cache;
+    }
+
+    public static void setCache(File directory, long maxSize) {
+        setCache(directory, maxSize, CacheMode.ONLY_NETWORK, -1);
+    }
+
+    public static void setCache(File directory, long maxSize, long cacheValidTime) {
+        setCache(directory, maxSize, CacheMode.ONLY_NETWORK, cacheValidTime);
+    }
+
+    public static void setCache(File directory, long maxSize, CacheMode cacheMode) {
+        setCache(directory, maxSize, cacheMode, -1);
+    }
+
+    public static void setCache(File directory, long maxSize, CacheMode cacheMode, long cacheValidTime) {
+        CacheManager rxHttpCache = new CacheManager(directory, maxSize);
+        RxHttpPlugins.cache = rxHttpCache.internalCache;
+        RxHttpPlugins.cacheStrategy = new CacheStrategy(cacheMode, cacheValidTime);
     }
 }

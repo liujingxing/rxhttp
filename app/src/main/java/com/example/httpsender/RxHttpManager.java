@@ -1,6 +1,9 @@
 package com.example.httpsender;
 
 
+import android.app.Application;
+
+import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
@@ -11,7 +14,9 @@ import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import rxhttp.RxHttpPlugins;
 import rxhttp.wrapper.annotation.Converter;
+import rxhttp.wrapper.cahce.CacheMode;
 import rxhttp.wrapper.callback.IConverter;
 import rxhttp.wrapper.converter.FastJsonConverter;
 import rxhttp.wrapper.converter.XmlConverter;
@@ -33,7 +38,7 @@ public class RxHttpManager {
     public static IConverter xmlConverter = XmlConverter.create();
 
 
-    public static void init() {
+    public static void init(Application context) {
         X509TrustManager trustAllCert = new X509TrustManagerImpl();
         SSLSocketFactory sslSocketFactory = new SSLSocketFactoryImpl(trustAllCert);
         OkHttpClient client = new OkHttpClient.Builder()
@@ -46,6 +51,9 @@ public class RxHttpManager {
             .addInterceptor(new RedirectInterceptor())
 //            .addInterceptor(new TokenInterceptor())
             .build();
+
+        File file = new File(context.getExternalCacheDir(), "ResponseParserCache");
+        RxHttpPlugins.setCache(file, 1000 * 1000 * 20, CacheMode.REQUEST_NETWORK_FAILED_READ_CACHE);
 
         //RxHttp初始化，自定义OkHttpClient对象,非必须
         RxHttp.init(client, BuildConfig.DEBUG);
