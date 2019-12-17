@@ -52,7 +52,7 @@ public class RxHttpManager {
 //            .addInterceptor(new TokenInterceptor())
             .build();
 
-        File file = new File(context.getExternalCacheDir(), "ResponseParserCache");
+        File file = new File(context.getExternalCacheDir(), "RxHttpCache");
         RxHttpPlugins.setCache(file, 1000 * 1000 * 20, CacheMode.REQUEST_NETWORK_FAILED_READ_CACHE);
 
         //RxHttp初始化，自定义OkHttpClient对象,非必须
