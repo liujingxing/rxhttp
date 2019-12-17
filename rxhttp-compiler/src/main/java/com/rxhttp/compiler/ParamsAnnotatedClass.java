@@ -63,6 +63,8 @@ public class ParamsAnnotatedClass {
         ClassName jsonParamName = ClassName.get(RxHttpGenerator.packageName, "JsonParam");
         ClassName jsonArrayParamName = ClassName.get(RxHttpGenerator.packageName, "JsonArrayParam");
 
+        ClassName cacheModeName = ClassName.get("rxhttp.wrapper.cahce", "CacheMode");
+
 
 
         List<MethodSpec> methodList = new ArrayList<>();
@@ -410,6 +412,30 @@ public class ParamsAnnotatedClass {
             .addModifiers(Modifier.PUBLIC)
             .addParameter(cacheControlName, "cacheControl")
             .addStatement("param.cacheControl(cacheControl)")
+            .addStatement("return (R)this")
+            .returns(rxHttp);
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("setCacheKey")
+            .addModifiers(Modifier.PUBLIC)
+            .addParameter(String.class, "cacheKey")
+            .addStatement("param.setCacheKey(cacheKey)")
+            .addStatement("return (R)this")
+            .returns(rxHttp);
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("setCacheValidTime")
+            .addModifiers(Modifier.PUBLIC)
+            .addParameter(long.class, "cacheValidTime")
+            .addStatement("param.setCacheValidTime(cacheValidTime)")
+            .addStatement("return (R)this")
+            .returns(rxHttp);
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("setCacheMode")
+            .addModifiers(Modifier.PUBLIC)
+            .addParameter(cacheModeName, "cacheMode")
+            .addStatement("param.setCacheMode(cacheMode)")
             .addStatement("return (R)this")
             .returns(rxHttp);
         methodList.add(method.build());

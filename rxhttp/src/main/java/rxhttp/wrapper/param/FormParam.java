@@ -216,6 +216,12 @@ public class FormParam extends AbstractParam<FormParam> implements IUploadLength
     }
 
     @Override
+    public String getCacheKey() {
+        String cacheKey = super.getCacheKey();
+        return cacheKey != null ? cacheKey : BuildUtil.getHttpUrl(getSimpleUrl(), mKeyValuePairs).toString();
+    }
+
+    @Override
     public String toString() {
         return BuildUtil.getHttpUrl(getSimpleUrl(), mKeyValuePairs).toString();
     }

@@ -22,7 +22,7 @@ public class AppHolder extends Application {
     public void onCreate() {
         super.onCreate();
         instance = this;
-        RxHttpManager.init();
+        RxHttpManager.init(this);
     }
 
     protected void attachBaseContext(Context base) {
