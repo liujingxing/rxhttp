@@ -14,6 +14,7 @@ import rxhttp.wrapper.entity.KeyValuePair;
 import rxhttp.wrapper.entity.UpFile;
 import rxhttp.wrapper.progress.ProgressRequestBody;
 import rxhttp.wrapper.utils.BuildUtil;
+import rxhttp.wrapper.utils.CacheUtil;
 
 /**
  * post、put、patch、delete请求
@@ -218,7 +219,9 @@ public class FormParam extends AbstractParam<FormParam> implements IUploadLength
     @Override
     public String getCacheKey() {
         String cacheKey = super.getCacheKey();
-        return cacheKey != null ? cacheKey : BuildUtil.getHttpUrl(getSimpleUrl(), mKeyValuePairs).toString();
+        if (cacheKey != null) return cacheKey;
+        List<KeyValuePair> keyValuePairs = CacheUtil.excludeCacheKey(mKeyValuePairs);
+        return BuildUtil.getHttpUrl(getSimpleUrl(), keyValuePairs).toString();
     }
 
     @Override

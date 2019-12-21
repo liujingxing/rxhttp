@@ -8,6 +8,7 @@ import io.reactivex.annotations.Nullable;
 import okhttp3.HttpUrl;
 import okhttp3.HttpUrl.Builder;
 import okhttp3.RequestBody;
+import rxhttp.wrapper.utils.CacheUtil;
 import rxhttp.wrapper.utils.GsonUtil;
 
 /**
@@ -56,7 +57,8 @@ public class JsonParam extends AbstractParam<JsonParam> implements IJsonObject<J
     public String getCacheKey() {
         String cacheKey = super.getCacheKey();
         if (cacheKey != null) return cacheKey;
-        String json = GsonUtil.toJson(mParam);
+        Map<?, ?> param = CacheUtil.excludeCacheKey(mParam);
+        String json = GsonUtil.toJson(param);
         HttpUrl httpUrl = HttpUrl.get(getSimpleUrl());
         Builder builder = httpUrl.newBuilder().addQueryParameter("json", json);
         return builder.toString();
