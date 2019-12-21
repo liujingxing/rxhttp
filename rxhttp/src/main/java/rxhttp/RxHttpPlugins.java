@@ -1,15 +1,18 @@
 package rxhttp;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import io.reactivex.annotations.NonNull;
 import io.reactivex.annotations.Nullable;
 import io.reactivex.functions.Function;
 import io.reactivex.internal.util.ExceptionHelper;
+import rxhttp.wrapper.cahce.CacheManager;
 import rxhttp.wrapper.cahce.CacheMode;
 import rxhttp.wrapper.cahce.CacheStrategy;
 import rxhttp.wrapper.cahce.InternalCache;
-import rxhttp.wrapper.cahce.CacheManager;
 import rxhttp.wrapper.callback.IConverter;
 import rxhttp.wrapper.converter.GsonConverter;
 import rxhttp.wrapper.param.Param;
@@ -25,6 +28,8 @@ public class RxHttpPlugins {
     private static Function<? super Param, ? extends Param> mOnParamAssembly;
     private static Function<? super String, String> decoder;
     private static IConverter converter = GsonConverter.create();
+
+    private static List<String> excludeCacheKeys = Collections.emptyList();
 
     private static InternalCache cache;
     private static CacheStrategy cacheStrategy = new CacheStrategy(CacheMode.ONLY_NETWORK);
@@ -125,5 +130,13 @@ public class RxHttpPlugins {
         CacheManager rxHttpCache = new CacheManager(directory, maxSize);
         RxHttpPlugins.cache = rxHttpCache.internalCache;
         RxHttpPlugins.cacheStrategy = new CacheStrategy(cacheMode, cacheValidTime);
+    }
+
+    public static void setExcludeCacheKeys(String... keys) {
+        excludeCacheKeys = Arrays.asList(keys);
+    }
+
+    public static List<String> getExcludeCacheKeys() {
+        return excludeCacheKeys;
     }
 }

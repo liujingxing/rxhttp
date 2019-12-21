@@ -3,13 +3,16 @@ package com.example.httpsender;
 
 import android.app.Application;
 
+import java.io.File;
 import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.X509TrustManager;
 
 import okhttp3.OkHttpClient;
+import rxhttp.RxHttpPlugins;
 import rxhttp.wrapper.annotation.Converter;
+import rxhttp.wrapper.cahce.CacheMode;
 import rxhttp.wrapper.callback.IConverter;
 import rxhttp.wrapper.converter.FastJsonConverter;
 import rxhttp.wrapper.converter.XmlConverter;
@@ -48,8 +51,8 @@ public class RxHttpManager {
         RxHttp.init(client, BuildConfig.DEBUG);
 
         //设置缓存策略，非必须
-//        File file = new File(context.getExternalCacheDir(), "RxHttpCache");
-//        RxHttpPlugins.setCache(file, 1000 * 1000 * 20, CacheMode.REQUEST_NETWORK_FAILED_READ_CACHE);
+        File file = new File(context.getExternalCacheDir(), "RxHttpCache");
+        RxHttpPlugins.setCache(file, 1000 * 100, CacheMode.REQUEST_NETWORK_FAILED_READ_CACHE);
 
         //设置数据解密/解码器，非必须
 //        RxHttp.setResultDecoder(s -> s);
@@ -57,6 +60,7 @@ public class RxHttpManager {
         //设置全局的转换器，非必须
 //        RxHttp.setConverter(FastJsonConverter.create());
 
+        RxHttpPlugins.setExcludeCacheKeys("time");
         //设置公共参数，非必须
         RxHttp.setOnParamAssembly(p -> {
             /*根据不同请求添加不同参数，子线程执行，每次发送请求前都会被回调
@@ -69,6 +73,7 @@ public class RxHttpManager {
 
             }
             return p.add("versionName", "1.0.0")//添加公共参数
+                .add("time", System.currentTimeMillis())
                 .addHeader("deviceType", "android"); //添加公共请求头
         });
     }
