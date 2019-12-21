@@ -158,7 +158,7 @@ public class RxHttpGenerator {
             .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
             .addJavadoc("设置统一数据解码/解密器，每次请求成功后会回调该接口并传入Http请求的结果" +
                 "\n通过该接口，可以统一对数据解密，并将解密后的数据返回即可" +
-                "\n若部分接口不需要回调该接口，发请求前，调用{@link #setConverterEnabled(boolean)}方法设置false即可\n")
+                "\n若部分接口不需要回调该接口，发请求前，调用{@link #setDecoderEnabled(boolean)}方法设置false即可\n")
             .addParameter(mapStringName, "decoder")
             .addStatement("$T.setResultDecoder(decoder)", rxHttpPluginsName)
             .returns(void.class);
