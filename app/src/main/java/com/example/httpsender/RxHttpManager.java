@@ -51,8 +51,9 @@ public class RxHttpManager {
         RxHttp.init(client, BuildConfig.DEBUG);
 
         //设置缓存策略，非必须
-        File file = new File(context.getExternalCacheDir(), "RxHttpCache");
-        RxHttpPlugins.setCache(file, 1000 * 100, CacheMode.REQUEST_NETWORK_FAILED_READ_CACHE);
+//        File file = new File(context.getExternalCacheDir(), "RxHttpCache");
+//        RxHttpPlugins.setCache(file, 1000 * 100, CacheMode.REQUEST_NETWORK_FAILED_READ_CACHE);
+//        RxHttpPlugins.setExcludeCacheKeys("time"); //设置一些key，不参与cacheKey的组拼
 
         //设置数据解密/解码器，非必须
 //        RxHttp.setResultDecoder(s -> s);
@@ -60,7 +61,6 @@ public class RxHttpManager {
         //设置全局的转换器，非必须
 //        RxHttp.setConverter(FastJsonConverter.create());
 
-        RxHttpPlugins.setExcludeCacheKeys("time");
         //设置公共参数，非必须
         RxHttp.setOnParamAssembly(p -> {
             /*根据不同请求添加不同参数，子线程执行，每次发送请求前都会被回调
