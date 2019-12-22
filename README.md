@@ -480,28 +480,10 @@ RxHttp.postForm("/service/...")       //发送表单形式的post请求
 ```
 
 
-## 常用api介绍
-```java
-RxHttp.postForm("/service/...") //发送Form表单形式的Post请求
-    .setDomainToUpdate9158IfAbsent()      //手动设置域名，不设置会添加默认域名，此方法是通过@Domain注解生成的
-    .tag("RxHttp.get")                    //为单个请求设置tag
-    .setUrl("http://...")                 //重新设置url
-    .setAssemblyEnabled(false)                 //设置是否添加公共参数，默认为true
-    .cacheControl(CacheControl.FORCE_NETWORK)  //缓存控制
-    .setParam(Param.postForm("http://..."))    //重新设置一个Param对象
-    .add("key", "value")                       //添加int类型参数
-    .addAll(new HashMap<>())                   //通过Map添加参数
-    .addFile("file1", new File("xxx/1.png"))   //添加文件对象
-    .addHeader("headerKey1", "headerValue1")   //添加头部信息
-    .subscribeOn(Schedulers.io())  //指定请求线程，不指定默认在IO线程执行
-    .asString()                   //使用asXXX系列方法确定返回类型,此时返回Observable对象
-    .as(RxLife.asOnMain(this))    //主线程回调，并在页面销毁时，自动关闭未完成的请求
-    .subscribe(s -> {    //订阅观察者
-        //成功回调
-    }, throwable -> {
-        //失败回调
-    });
-```
+## 缓存
+
+缓存功能请查看[RxHttp缓存详细介绍](https://github.com/liujingxing/RxHttp/wiki/%E7%BC%93%E5%AD%98%E7%AD%96%E7%95%A5)
+
 
 ## 混淆
 
