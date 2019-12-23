@@ -21,6 +21,7 @@ public class CacheUtil {
     //过滤要剔除的cacheKey
     @SuppressWarnings("unchecked")
     public static <T> List<T> excludeCacheKey(List<T> objects) {
+        if (objects == null) return null;
         List<String> excludeCacheKeys = RxHttpPlugins.getExcludeCacheKeys();
         if (excludeCacheKeys.isEmpty()) return objects;
         List<Object> newList = new ArrayList<>();
@@ -30,10 +31,10 @@ public class CacheUtil {
                 if (excludeCacheKeys.contains(pair.getKey())) continue;
             } else if (object instanceof Map) {
                 Map<?, ?> map = excludeCacheKey((Map<?, ?>) object);
-                if (map.size() == 0) continue;
+                if (map == null || map.size() == 0) continue;
             } else if (object instanceof JsonObject) {
                 JsonObject jsonObject = excludeCacheKey((JsonObject) object);
-                if (jsonObject.size() == 0) continue;
+                if (jsonObject == null || jsonObject.size() == 0) continue;
             }
             newList.add(object);
         }
@@ -42,6 +43,7 @@ public class CacheUtil {
 
     //过滤要剔除的cacheKey
     public static Map<?, ?> excludeCacheKey(Map<?, ?> param) {
+        if (param == null) return null;
         List<String> excludeCacheKeys = RxHttpPlugins.getExcludeCacheKeys();
         if (excludeCacheKeys.isEmpty()) return param;
         Map<String, Object> newParam = new LinkedHashMap<>();
@@ -55,6 +57,7 @@ public class CacheUtil {
 
     //过滤要剔除的cacheKey
     private static JsonObject excludeCacheKey(JsonObject jsonObject) {
+        if (jsonObject == null) return null;
         List<String> excludeCacheKeys = RxHttpPlugins.getExcludeCacheKeys();
         if (excludeCacheKeys.isEmpty()) return jsonObject;
         JsonObject newParam = new JsonObject();
