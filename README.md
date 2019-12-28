@@ -1,7 +1,6 @@
 [ ![Download](https://api.bintray.com/packages/32774707/maven/rxhttp/images/download.svg) ](https://bintray.com/32774707/maven/rxhttp/_latestVersion)
 
-# RxHttp
-RxHttp是基于OkHttp的二次封装，并于RxJava做到无缝衔接，一条链就能发送任意请求，主要优势如下 :
+# RxHttp主要优势
 
   ***1. 30秒即可上手，学习成本极低***
   
@@ -23,8 +22,6 @@ RxHttp是基于OkHttp的二次封装，并于RxJava做到无缝衔接，一条�
   
   ***10. 支持添加公共参数/头部，且可对单个请求设置是否添加公共参数/头部***
 
-**RxHttp&RxLife 交流群：378530627**
-
 **Gradle依赖**
 
 ```java
@@ -41,6 +38,8 @@ dependencies {
 }
 ```
 `注：kotlin用户，请使用kapt替代annotationProcessor`
+
+***RxHttp&RxLife 交流群：378530627***
 
 ## 准备工作
 
