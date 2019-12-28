@@ -55,13 +55,13 @@ compileOptions {
 
 ## 上手教程
 
-**30秒上手教程：https://juejin.im/post/5cfcbbcbe51d455a694f94df**
+30秒上手教程：https://juejin.im/post/5cfcbbcbe51d455a694f94df
 
-**掘金详细文档：https://juejin.im/post/5ded221a518825125d14a1d4**
+掘金详细文档：https://juejin.im/post/5ded221a518825125d14a1d4
 
-**wiki详细文档：https://github.com/liujingxing/okhttp-RxHttp/wiki**
+wiki详细文档：https://github.com/liujingxing/okhttp-RxHttp/wiki  (此文档会持续更新)
 
-**自动关闭请求用到的RxLife类，详情请查看[RxLife库](https://github.com/liujingxing/RxLife)**
+自动关闭请求用到的RxLife类，详情请查看[RxLife库](https://github.com/liujingxing/RxLife)
 
 ## API兼容
 
