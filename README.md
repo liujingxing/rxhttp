@@ -125,21 +125,6 @@ RxHttp作为开源库，可混淆，也可不混淆，如果不希望被混淆�
 
 ![image](https://github.com/liujingxing/RxHttp/blob/master/screen/templates_demo.gif)
 
-## RxHttp类没有自动生成，报红检查步骤
-
-1、检查有没有依赖注解处理器
-如：annotationProcessor 'com.rxjava.rxhttp:rxhttp-compiler:x.x.x’ (x.x.x为具体版本号)
-
-2、rebuild一下项目
-
-3、kotlin用户，要使用kapt依赖注解处理器，
-如：kapt 'com.rxjava.rxhttp:rxhttp-compiler:x.x.x’ (x.x.x为具体版本号)
-
-4、kotlin用户，检查Module的build.gradle文件中，有没有导入kapt插件
-如：apply plugin: 'kotlin-kapt'
-
-经过以上步骤后还未生成RxHttp类，请联系我。
-
 
 ## Donations
 如果它对你帮助很大，并且你很想支持库的后续开发和维护，那么你可以扫下方二维码随意打赏我，就当是请我喝杯咖啡或是啤酒，开源不易，感激不尽
