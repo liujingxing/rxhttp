@@ -65,17 +65,6 @@ dependencies {
 `注：kotlin用户，请使用kapt替代annotationProcessor`
 
 
-## API兼容
-
-RxHttp最低要求为API 15，但是由于内部依赖OkHttp 3.14.1版本, 最低要求为API 21。
-如果你要的项目要兼容到API 15，请将RxHttp内部的OkHttp剔除，并引入低版本的OkHttp，如下：
-
-```
-implementation('com.rxjava.rxhttp:rxhttp:x.x.x') { //xxx为RxHttp最新版本
-    exclude group: "com.squareup.okhttp3"
-}
-implementation 'com.squareup.okhttp3:okhttp:3.12.6' //此版本最低要求 API 9
-```
 
 ## 准备工作
 
@@ -106,82 +95,16 @@ RxHttp.get("/service/...")          //第一步，确定请求方式，可以选
 
 **任意请求，任意返回数据类型，皆遵循请求三部曲**
 
+## API兼容
 
-## get请求
-```java
-RxHttp.get("/service/...")     
-    .add("key", "value")
-    .asString()                     
-    .subscribe(s -> {               
-        //成功回调
-    }, throwable -> {
-        //失败回调
-    });
+RxHttp最低要求为API 15，但是由于内部依赖OkHttp 3.14.1版本, 最低要求为API 21。
+如果你要的项目要兼容到API 15，请将RxHttp内部的OkHttp剔除，并引入低版本的OkHttp，如下：
 
 ```
-
-## post Form请求
-```java
-RxHttp.postForm("/service/...")       //发送表单形式的post请求
-    .add("key", "value")
-    .asString()
-    .subscribe(s -> {
-        //成功回调
-    }, throwable -> {
-        //失败回调
-    });
-```
-
-## 返回自定义的数据类型
-```java
-RxHttp.postForm("/service/...")     //发送表单形式的post请求
-    .asObject(Student.class)      //返回Student对象
-    .subscribe(student -> {
-        //成功回调
-    }, throwable -> {
-        //失败回调
-    });
-
-
-RxHttp.postForm("/service/...")     //发送表单形式的post请求
-    .asList(Student.class)        //返回List<Student>集合
-    .subscribe(students -> {
-        //成功回调
-    }, throwable -> {
-        //失败回调
-    });
-
-```
-
-## 初始化
-
-```java
-//设置debug模式，此模式下有日志打印
-RxHttp.setDebug(boolean debug)
-//非必须,只能初始化一次，第二次将抛出异常
-RxHttp.init(OkHttpClient okHttpClient)
-//或者，调试模式下会有日志输出
-RxHttp.init(OkHttpClient okHttpClient, boolean debug)
-
-```
-
-## 请求开始/结束回调
-```java
-RxHttp.get("/service/...")
-    .asString()
-    .observeOn(AndroidSchedulers.mainThread())
-    .doOnSubscribe(disposable -> {
-        //请求开始，当前在主线程回调
-    })
-    .doFinally(() -> {
-        //请求结束，当前在主线程回调
-    })
-    .as(RxLife.as(this))  //感知生命周期
-    .subscribe(pageList -> {
-        //成功回调，当前在主线程回调
-    }, (OnError) error -> {
-        //失败回调，当前在主线程回调
-    });
+implementation('com.rxjava.rxhttp:rxhttp:x.x.x') { //xxx为RxHttp最新版本
+    exclude group: "com.squareup.okhttp3"
+}
+implementation 'com.squareup.okhttp3:okhttp:3.12.6' //此版本最低要求 API 9
 ```
 
 ## 混淆
