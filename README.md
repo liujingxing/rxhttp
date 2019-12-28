@@ -524,7 +524,7 @@ RxHttp作为开源库，可混淆，也可不混淆，如果不希望被混淆�
 ## Donations
 如果它对你帮助很大，并且你很想支持库的后续开发和维护，那么你可以扫下方二维码随意打赏我，就当是请我喝杯咖啡或是啤酒，开源不易，感激不尽
 
-![image](https://github.com/liujingxing/RxHttp/blob/master/screen/alipay.jpg)![image](https://github.com/liujingxing/RxHttp/blob/master/screen/wxpay.png)
+![image](https://github.com/liujingxing/RxHttp/blob/master/screen/donations.jpeg)
 
 
 
