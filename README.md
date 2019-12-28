@@ -64,10 +64,8 @@ dependencies {
 
 `注：kotlin用户，请使用kapt替代annotationProcessor`
 
-## 注：前方高能预警
 
-
-**1、API兼容**
+## API兼容
 
 RxHttp最低要求为API 15，但是由于内部依赖OkHttp 3.14.1版本, 最低要求为API 21。
 如果你要的项目要兼容到API 15，请将RxHttp内部的OkHttp剔除，并引入低版本的OkHttp，如下：
@@ -91,22 +89,6 @@ compileOptions {
 ```
 此时rebuild一下项目，就能看到RxHttp类了
 
-## 配置BaseUrl
-
-通过`@DefaultDomain`注解配置默认域名，`@Domain`注解配置非默认域名，如下：
-
-```java
-public class Url {
-
-    //这里使用@Domain注解后，会在RxHttp自动生成一个setDomainToUpdateIfAbsent()方法
-    @Domain(name = "Update")
-    public static String update = "http://update.9158.com";
-
-    @DefaultDomain //设置为默认域名
-    public static String baseUrl = "https://www.wanandroid.com/";
-
-}
-```
 
 ## 请求三部曲
 ```java
@@ -150,104 +132,6 @@ RxHttp.postForm("/service/...")       //发送表单形式的post请求
     });
 ```
 
-## post Json对象请求
-
-```java
-//发送以下Json对象                                                                   
-/*                                                                             
-   {                                                                           
-       "name": "张三",                                                           
-       "sex": 1,                                                               
-       "height": 180,                                                          
-       "weight": 70,                                                           
-       "interest": [                                                           
-           "羽毛球",                                                              
-           "游泳"                                                                
-       ],                                                                      
-       "location": {                                                           
-           "latitude": 30.7866,                                                
-           "longitude": 120.6788                                               
-       },                                                                      
-       "address": {                                                            
-           "street": "科技园路.",                                                  
-           "city": "江苏苏州",                                                     
-           "country": "中国"                                                     
-       }                                                                       
-   }                                                                           
- */                                                                            
-List<String> interestList = new ArrayList<>();//爱好                             
-interestList.add("羽毛球");                                                       
-interestList.add("游泳");                                                        
-String json = "{\"height\":180,\"weight\":70}";
-String address = "{\"street\":\"科技园路.\",\"city\":\"江苏苏州\",\"country\":\"中国\"}";
-
-                                                                               
-RxHttp.postJson("/article/list/0/json")                                        
-    .add("name", "张三")                                                         
-    .add("sex", 1)                                                             
-    .addAll(json) //通过addAll系列方法添加多个参数             
-    .add("interest", interestList) //添加数组对象                                    
-    .add("location", new Location(120.6788, 30.7866))  //添加位置对象                
-    .addJsonElement("address", address) //通过字符串添加一个对象                          
-    .asString()                                                                
-    .subscribe(s -> {
-        //成功回调
-    }, throwable -> {
-        //失败回调
-    });                                                                     
-
-```
-
-## post Json数组请求
-```java
-//发送以下Json数组                                
-/*                                          
-   [                                        
-       {                                    
-           "name": "张三"                     
-       },                                   
-       {                                    
-           "name": "李四"                     
-       },                                   
-       {                                    
-           "name": "王五"                     
-       },                                   
-       {                                    
-           "name": "赵六"                     
-       },                                   
-       {                                    
-           "name": "杨七"                     
-       }                                    
-   ]                                        
- */                                         
-List<Name> names = new ArrayList<>();       
-names.add(new Name("赵六"));                  
-names.add(new Name("杨七"));   
-
-String json = "{\"name\":\"王五\"}";
-
-RxHttp.postJsonArray("/article/list/0/json")
-    .add("name", "张三")                       
-    .add(new Name("李四"))                     
-    .addJsonElement(json)     
-    .addAll(names)                           
-    .asString()                              
-    .subscribe(s -> {
-        //成功回调
-    }, throwable -> {
-        //失败回调
-    });          
-    
-public class Name {
-
-    String name;
-
-    public Name(String name) {
-        this.name = name;
-    }
-}
-```
-
 ## 返回自定义的数据类型
 ```java
 RxHttp.postForm("/service/...")     //发送表单形式的post请求
@@ -269,85 +153,6 @@ RxHttp.postForm("/service/...")     //发送表单形式的post请求
 
 ```
 
-## 文件上传
-```java
-RxHttp.postForm("/service/...")                //发送Form表单形式的Post请求
-    .addFile("file", new File("xxx/1.png"))  //添加文件
-    .asString()
-    .subscribe(s -> {
-        //成功回调
-    }, throwable -> {
-        //失败回调
-    });
-```
-
-## 文件下载
-
-```java
-RxHttp.get("/service/...")
-    .asDownload("sd/xxx/1.apk") //传入本地路径
-    .subscribe(s -> {
-        //下载成功,回调文件下载路径
-    }, throwable -> {
-        //下载失败
-    });
-```
-
-##  文件上传进度监听
-```java
-RxHttp.postForm("/service/...")
-    .add("file1", new File("xxx/1.png"))
-    .asUpload(progress -> {
-        //上传进度回调,0-100，仅在进度有更新时才会回调,最多回调101次，最后一次回调Http执行结果
-        int currentProgress = progress.getProgress(); //当前进度 0-100
-        long currentSize = progress.getCurrentSize(); //当前已上传的字节大小
-        long totalSize = progress.getTotalSize();     //要上传的总字节大小
-    }, AndroidSchedulers.mainThread())     //指定回调(进度/成功/失败)线程,不指定,默认在请求所在线程回调
-    .subscribe(s -> {             //这里s为String类型,可通过asUpload(Parser,Progress,Scheduler)方法指定返回类型
-        //上传成功
-    }, throwable -> {
-        //上传失败
-    });
-```
-
-## 文件下载进度监听
-```java
-RxHttp.get("/service/...")
-    .asDownload("sd/xxx/1.apk", progress -> {
-        //下载进度回调,0-100，仅在进度有更新时才会回调，最多回调101次，最后一次回调文件存储路径
-        int currentProgress = progress.getProgress(); //当前进度 0-100
-        long currentSize = progress.getCurrentSize(); //当前已下载的字节大小
-        long totalSize = progress.getTotalSize();     //要下载的总字节大小
-    }, AndroidSchedulers.mainThread()) //指定回调(进度/成功/失败)线程,不指定,默认在请求所在线程回调
-    .subscribe(s -> {                  //s为String类型，这里为文件存储路径
-        //下载完成
-    }, throwable -> {
-        //下载失败
-    });
-```
-
-## 断点下载、带进度回调
-```java
-//断点下载，带进度
-public void breakpointDownloadAndProgress() {
-    String destPath = getExternalCacheDir() + "/" + "Miaobo.apk";
-    long length = new File(destPath).length();
-    RxHttp.get("http://update.9158.com/miaolive/Miaolive.apk")
-        .setRangeHeader(length)                //设置开始下载位置，结束位置默认为文件末尾
-        .asDownload(destPath, length, progress -> { //如果需要衔接上次的下载进度，则需要传入上次已下载的字节数length
-            //下载进度回调,0-100，仅在进度有更新时才会回调
-            int currentProgress = progress.getProgress(); //当前进度 0-100
-            long currentSize = progress.getCurrentSize(); //当前已下载的字节大小
-            long totalSize = progress.getTotalSize();     //要下载的总字节大小
-        }, AndroidSchedulers.mainThread()) //指定回调(进度/成功/失败)线程,不指定,默认在请求所在线程回调
-        .subscribe(s -> { //s为String类型
-            //下载成功，处理相关逻辑
-        }, throwable -> {
-            //下载失败，处理相关逻辑
-        });
-}
-```
-
 ## 初始化
 
 ```java
@@ -358,25 +163,6 @@ RxHttp.init(OkHttpClient okHttpClient)
 //或者，调试模式下会有日志输出
 RxHttp.init(OkHttpClient okHttpClient, boolean debug)
 
-```
-
-## 添加公共参数/头部及重新设置url
-
-```java
-//建议在Application里设置
-RxHttp.setOnParamAssembly(p -> {                         
-    /*根据不同请求添加不同参数，子线程执行，每次发送请求前都会被回调                    
-    如果希望部分请求不回调这里，发请求前调用Param.setAssemblyEnabled(false)即可
-     */                                                  
-    Method method = p.getMethod();                       
-    if (method.isGet()) { //Get请求                        
-                                                         
-    } else if (method.isPost()) { //Post请求               
-                                                         
-    }                                                    
-    return p.add("versionName", "1.0.0")//添加公共参数         
-        .addHeader("deviceType", "android"); //添加公共请求头   
-});                                                      
 ```
 
 ## 请求开始/结束回调
@@ -397,95 +183,6 @@ RxHttp.get("/service/...")
         //失败回调，当前在主线程回调
     });
 ```
-
-## 设置Converter
-
-1、设置全局Converter
-```java
-IConverter converter = FastJsonConverter.create();
-RxHttp.setConverter(converter)
-```
-2、为请求设置单独的Converter
-
-首先需要在任意public类中通过@Converter注解声明Converter，如下：
-```java
-public class RxHttpManager {
-    @Converter(name = "XmlConverter") //指定Converter名称
-    public static IConverter xmlConverter = XmlConverter.create();
-}
-```
-然后，rebuild 一下项目，就在自动在RxHttp类中生成`setXmlConverter()`方法，随后就可以调用此方法为单个请求指定Converter，如下：
-
-```java
-RxHttp.get("/service/...")
-    .setXmlConverter()   //指定使用XmlConverter，不指定，则使用全局的Converter
-    .asObject(NewsDataXml.class)
-    .as(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
-    .subscribe(dataXml -> {
-        //成功回调
-    }, (OnError) error -> {
-        //失败回调
-    });
-```
-
-## 超时设置
-
-1、设置全局超时
-
-RxHttp内部默认的读、写、连接超时时间均为10s，如需修改，请自定义OkHttpClient对象，如下：
-```java
-//设置读、写、连接超时时间为15s
-OkHttpClient client = new OkHttpClient.Builder()
-    .connectTimeout(15, TimeUnit.SECONDS)
-    .readTimeout(15, TimeUnit.SECONDS)
-    .writeTimeout(15, TimeUnit.SECONDS)
-    .build();
-RxHttp.init(client);
-```
-2、为单个请求设置超时
-
-为单个请求设置超时，使用的是RxJava的`timeout(long timeout, TimeUnit timeUnit)`方法，如下：
-```java
-RxHttp.get("/service/...")
-    .asString()
-    .timeout(5, TimeUnit.SECONDS)//设置总超时时间为5s
-    .as(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
-    .subscribe(pageList -> {
-        //成功回调
-    }, (OnError) error -> {
-        //失败回调
-    });
-```
-**注：这里设置的总超时时间要小于全局读、写、连接超时时间之和，否则无效**
-
-
-## Activity/Fragment/View/ViewModel/任意类生命周期结束时，自动关闭请求
-
-```java
-RxHttp.postForm("/service/...")    //发送表单形式的post请求
-    .asString()
-    .as(RxLife.as(this))         //生命周期结束，自动关闭请求
-    .subscribe(s -> {
-        //成功回调
-    }, throwable -> {
-        //失败回调
-    });
-
-RxHttp.postForm("/service/...")       //发送表单形式的post请求
-    .asString()
-    .as(RxLife.asOnMain(this))      //在主线程回调，并在生命周期结束，自动关闭请求
-    .subscribe(s -> {
-        //成功回调
-    }, throwable -> {
-        //失败回调
-    });
-```
-
-
-## 缓存
-
-缓存功能请查看[RxHttp缓存详细介绍](https://github.com/liujingxing/RxHttp/wiki/%E7%BC%93%E5%AD%98%E7%AD%96%E7%95%A5)
-
 
 ## 混淆
 
