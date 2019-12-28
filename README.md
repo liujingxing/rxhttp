@@ -41,10 +41,11 @@ RxHttp是基于OkHttp的二次封装，并于RxJava做到无缝衔接，一条�
 
 
 ## Demo演示
-
-![image](https://github.com/liujingxing/RxHttp/blob/master/screen/screenrecorder-2019-11-27_22_56_26.gif)
-
+<img src="https://github.com/liujingxing/RxHttp/blob/master/screen/screenrecorder-2019-11-27_22_56_26.gif" width = "240" height = "520" /> 
 > 更多功能，请下载Demo体验
+
+
+
 
 **Gradle引用方法**
 
