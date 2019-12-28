@@ -51,7 +51,7 @@ compileOptions {
     targetCompatibility JavaVersion.VERSION_1_8
 }
 ```
-此时rebuild一下项目，就能看到RxHttp类了
+此时rebuild一下项目，就能看到RxHttp类了，到这，准备工作完毕，即可直接调用RxHttp发送请求了。
 
 ## 上手教程
 
