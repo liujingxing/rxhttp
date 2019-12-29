@@ -50,7 +50,6 @@ public class ParserAnnotatedClass {
         ClassName schedulerName = ClassName.get("io.reactivex", "Scheduler");
         ClassName observableName = ClassName.get("io.reactivex", "Observable");
         ClassName consumerName = ClassName.get("io.reactivex.functions", "Consumer");
-        ClassName androidSchedulersName = ClassName.get("io.reactivex.android.schedulers", "AndroidSchedulers");
 
         ClassName bitmapName = ClassName.get("android.graphics", "Bitmap");
         ClassName httpSenderName = ClassName.get("rxhttp", "HttpSender");
@@ -182,11 +181,16 @@ public class ParserAnnotatedClass {
             .returns(observableTName);
         methodList.add(method.build());
 
-        method = MethodSpec.methodBuilder("asBitmap")
-            .addModifiers(Modifier.PUBLIC)
-            .addStatement("return asParser(new $T())", bitmapParserName)
-            .returns(observableBitmapName);
-        methodList.add(method.build());
+        try {
+            Class.forName("android.os.Build");
+            method = MethodSpec.methodBuilder("asBitmap")
+                .addModifiers(Modifier.PUBLIC)
+                .addStatement("return asParser(new $T())", bitmapParserName)
+                .returns(observableBitmapName);
+            methodList.add(method.build());
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
 
         method = MethodSpec.methodBuilder("asString")
             .addModifiers(Modifier.PUBLIC)
