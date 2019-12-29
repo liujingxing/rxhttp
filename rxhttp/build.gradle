@@ -1,27 +1,4 @@
-apply plugin: 'com.android.library'
-
-android {
-    compileSdkVersion 28
-
-    defaultConfig {
-        minSdkVersion 15
-        targetSdkVersion 28
-        versionCode 1
-        versionName "1.0"
-    }
-
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-    }
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-}
+apply plugin: 'java-library'
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
@@ -30,6 +7,8 @@ dependencies {
     api 'com.squareup.okhttp3:okhttp:3.14.1'
     api 'com.google.code.gson:gson:2.8.5'
     api 'io.reactivex.rxjava2:rxjava:2.2.8'
-    api 'io.reactivex.rxjava2:rxandroid:2.1.1'
+    compileOnly 'com.google.android:android:4.1.1.4'
 }
 
+sourceCompatibility = "8"
+targetCompatibility = "8"

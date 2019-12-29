@@ -48,11 +48,13 @@ dependencies {
 
     //管理RxJava及生命周期，Activity/Fragment 销毁，自动关闭未完成的请求
     implementation 'com.rxjava.rxlife:rxlife-x:1.1.0'
+    implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
 
-//    implementation project(":rxhttp")
-//    kapt project(':rxhttp-compiler')
-    implementation "com.rxjava.rxhttp:rxhttp:${rxhttp_version}"
-    kapt "com.rxjava.rxhttp:rxhttp-compiler:${rxhttp_version}"
+    implementation project(":rxhttp")
+    kapt project(':rxhttp-compiler')
+
+//    implementation "com.rxjava.rxhttp:rxhttp:${rxhttp_version}"
+//    kapt "com.rxjava.rxhttp:rxhttp-compiler:${rxhttp_version}"
 
     implementation "com.rxjava.rxhttp:converter-jackson:${rxhttp_converter_version}"
     implementation "com.rxjava.rxhttp:converter-fastjson:${rxhttp_converter_version}"
