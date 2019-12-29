@@ -1,6 +1,5 @@
 package rxhttp.wrapper.utils;
 
-import android.util.Log;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -19,6 +18,7 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 import okio.Buffer;
 import okio.BufferedSource;
+import rxhttp.Platform;
 import rxhttp.RxHttpPlugins;
 import rxhttp.wrapper.exception.HttpStatusCodeException;
 import rxhttp.wrapper.exception.ParseException;
@@ -47,7 +47,7 @@ public class LogUtil {
     //打印Http请求连接失败异常日志
     public static void log(Throwable throwable) {
         if (!isDebug) return;
-        Log.e(TAG_RXJAVA, throwable.toString());
+        Platform.get().loge(TAG_RXJAVA, throwable.toString());
     }
 
     //打印Http请求连接失败异常日志
@@ -61,9 +61,9 @@ public class LogUtil {
                 builder.append("\n\n")
                     .append(URLDecoder.decode(param.getUrl()));
             }
-            Log.e(TAG, builder.toString());
+            Platform.get().loge(TAG, builder.toString());
         } catch (Exception e) {
-            Log.d(TAG, "Request error Log printing failed", e);
+            Platform.get().logd(TAG, "Request error Log printing failed", e);
         }
     }
 
@@ -84,9 +84,9 @@ public class LogUtil {
             builder.append("\n\n").append(getEncodedUrlAndParams(request))
                 .append("\n\n").append(response.headers())
                 .append("\n").append(result);
-            Log.i(TAG, builder.toString());
+            Platform.get().logi(TAG, builder.toString());
         } catch (Exception e) {
-            Log.d(TAG, "Request end Log printing failed", e);
+            Platform.get().logd(TAG, "Request end Log printing failed", e);
         }
     }
 
@@ -97,9 +97,9 @@ public class LogUtil {
             String builder = "<------------------- request start Method=" +
                 request.method() + " ------------------->" +
                 request2Str(request);
-            Log.d(TAG, builder);
+            Platform.get().logd(TAG, builder);
         } catch (Exception e) {
-            Log.d(TAG, "Request start log printing failed", e);
+            Platform.get().logd(TAG, "Request start log printing failed", e);
         }
     }
 

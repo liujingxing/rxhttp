@@ -1,7 +1,5 @@
 package rxhttp.wrapper.utils;
 
-import android.text.TextUtils;
-
 import java.net.URLConnection;
 import java.util.Iterator;
 import java.util.List;
@@ -185,7 +183,7 @@ public class BuildUtil {
 
     private static MediaType getMediaType(String fName) {
         String contentType = URLConnection.guessContentTypeFromName(fName);
-        if (TextUtils.isEmpty(contentType)) {
+        if (contentType == null || contentType.isEmpty()) {
             contentType = "application/octet-stream";
         }
         return MediaType.parse(contentType);

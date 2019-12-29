@@ -1,8 +1,15 @@
 package rxhttp.wrapper.utils;
 
-import android.text.TextUtils;
-
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.Closeable;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * User: ljx
@@ -87,7 +94,7 @@ public class IOUtil {
     }
 
     public static boolean write(InputStream is, String path, boolean append) throws IOException {
-        return !TextUtils.isEmpty(path) && write(is, new File(path), append);
+        return path != null && !path.isEmpty() && write(is, new File(path), append);
     }
 
 

@@ -1,6 +1,5 @@
 package rxhttp.wrapper.ssl;
 
-import android.os.Build;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -15,6 +14,8 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.X509TrustManager;
+
+import rxhttp.Platform;
 
 public class SSLSocketFactoryImpl extends SSLSocketFactory {
     // Android 5.0+ (API level21) provides reasonable default settings
@@ -35,7 +36,7 @@ public class SSLSocketFactoryImpl extends SSLSocketFactory {
                         protocols.add(protocol);
                 SSLSocketFactoryImpl.protocols = protocols.toArray(new String[protocols.size()]);
                 /* set upload reasonable cipher suites */
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+                if (Platform.get().sdkLessThan(21)) {
                     // choose known secure cipher suites
                     List<String> allowedCiphers = Arrays.asList(
                             // TLS 1.2
@@ -93,7 +94,7 @@ public class SSLSocketFactoryImpl extends SSLSocketFactory {
         if (protocols != null) {
             ssl.setEnabledProtocols(protocols);
         }
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP && cipherSuites != null) {
+        if (Platform.get().sdkLessThan(21) && cipherSuites != null) {
             ssl.setEnabledCipherSuites(cipherSuites);
         }
     }
