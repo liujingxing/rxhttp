@@ -1,31 +1,12 @@
-apply plugin: 'com.android.library'
+apply plugin: 'java-library'
 
-android {
-    compileSdkVersion 28
-
-    defaultConfig {
-        minSdkVersion 19
-        targetSdkVersion 28
-        versionCode 1
-        versionName "1.0"
-    }
-
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-    }
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-}
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    compileOnly "com.rxjava.rxhttp:rxhttp:${rxhttp_version}"
+    compileOnly project(":rxhttp")
+//    compileOnly "com.rxjava.rxhttp:rxhttp:${rxhttp_version}"
     api 'com.google.protobuf:protobuf-java:3.5.0'
 }
 
+sourceCompatibility = "8"
+targetCompatibility = "8"
