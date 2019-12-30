@@ -10,12 +10,11 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.X509TrustManager;
 
 import okhttp3.OkHttpClient;
-import rxhttp.RxHttpPlugins;
 import rxhttp.wrapper.annotation.Converter;
-import rxhttp.wrapper.cahce.CacheMode;
 import rxhttp.wrapper.callback.IConverter;
 import rxhttp.wrapper.converter.FastJsonConverter;
 import rxhttp.wrapper.converter.XmlConverter;
+import rxhttp.wrapper.cookie.CookieStore;
 import rxhttp.wrapper.param.Method;
 import rxhttp.wrapper.param.RxHttp;
 import rxhttp.wrapper.ssl.SSLSocketFactoryImpl;
@@ -35,9 +34,11 @@ public class RxHttpManager {
 
 
     public static void init(Application context) {
+        File file = new File(context.getExternalCacheDir(), "RxHttpCookie");
         X509TrustManager trustAllCert = new X509TrustManagerImpl();
         SSLSocketFactory sslSocketFactory = new SSLSocketFactoryImpl(trustAllCert);
         OkHttpClient client = new OkHttpClient.Builder()
+            .cookieJar(new CookieStore(file))
             .connectTimeout(10, TimeUnit.SECONDS)
             .readTimeout(10, TimeUnit.SECONDS)
             .writeTimeout(10, TimeUnit.SECONDS)
