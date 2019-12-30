@@ -3,6 +3,7 @@ package rxhttp.wrapper.cookie;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -61,10 +62,26 @@ public class CookieStore implements ICookieJar {
         }
     }
 
-    private static String md5(String key) {
-        return ByteString.encodeUtf8(key).md5().hex();
+
+    /**
+     * 保存url对应的cookie，线程安全，若开启了磁盘缓存，建议在子线程调用
+     *
+     * @param url    HttpUrl
+     * @param cookie Cookie
+     */
+    @Override
+    public void saveCookie(HttpUrl url, Cookie cookie) {
+        List<Cookie> cookies = new ArrayList<>();
+        cookies.add(cookie);
+        saveCookie(url, cookies);
     }
 
+    /**
+     * 保存url对应的所有cookie，线程安全，若开启了磁盘缓存，建议在子线程调用
+     *
+     * @param url     HttpUrl
+     * @param cookies List<Cookie>
+     */
     @Override
     public void saveCookie(HttpUrl url, List<Cookie> cookies) {
         final String host = url.host();
@@ -89,12 +106,12 @@ public class CookieStore implements ICookieJar {
         }
     }
 
-    @Override
-    public void saveCookie(HttpUrl url, Cookie cookie) {
-        List<Cookie> cookies = new ArrayList<>();
-        saveCookie(url, cookies);
-    }
-
+    /**
+     * 加载url对应的cookie，线程安全，若开启了磁盘缓存，建议在子线程调用
+     *
+     * @param url HttpUrl
+     * @return List<Cookie>
+     */
     @Override
     public List<Cookie> loadCookie(HttpUrl url) {
         final String host = url.host();
@@ -102,7 +119,7 @@ public class CookieStore implements ICookieJar {
         if (memoryCache != null) {  //1、开启了内存缓存，则从内存查找cookie
             cookies = memoryCache.get(host);
             if (cookies != null) { //2、内存缓存查找成功，直接返回
-                return cookies;
+                return Collections.unmodifiableList(cookies);
             }
         }
         cookies = new ArrayList<>();
@@ -111,7 +128,7 @@ public class CookieStore implements ICookieJar {
             try {
                 //4、磁盘缓存查找
                 snapshot = diskCache.get(md5(host));
-                if (snapshot == null) return cookies;
+                if (snapshot == null) return Collections.unmodifiableList(cookies);
                 List<Cookie> cookiesList = readCookie(url, snapshot.getSource(0));
                 if (!cookiesList.isEmpty())
                     cookies.addAll(cookiesList);
@@ -123,9 +140,14 @@ public class CookieStore implements ICookieJar {
         }
         if (!cookies.isEmpty()) //5、磁盘缓存查找成功，添加进内存缓存
             memoryCache.put(host, cookies);
-        return cookies;
+        return Collections.unmodifiableList(cookies);
     }
 
+    /**
+     * 移除url对应的cookie，线程安全，若开启了磁盘缓存，建议在子线程调用
+     *
+     * @param url HttpUrl
+     */
     @Override
     public void removeCookie(HttpUrl url) {
         String host = url.host();
@@ -141,6 +163,9 @@ public class CookieStore implements ICookieJar {
         }
     }
 
+    /**
+     * 移除所有的cookie，线程安全，若开启了磁盘缓存，建议在子线程调用
+     */
     @Override
     public void removeAllCookie() {
         if (memoryCache != null)
@@ -188,5 +213,9 @@ public class CookieStore implements ICookieJar {
             }
         } catch (Exception ignored) {
         }
+    }
+
+    private static String md5(String key) {
+        return ByteString.encodeUtf8(key).md5().hex();
     }
 }
