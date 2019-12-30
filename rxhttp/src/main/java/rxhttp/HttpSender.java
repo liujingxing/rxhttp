@@ -123,6 +123,7 @@ public final class HttpSender {
      * @param param      请求参数
      * @param destPath   目标路径
      * @param offsetSize 断点下载时,进度偏移量,仅断点下载时有效
+     * @param scheduler  线程调度器
      * @return Observable<Progress>
      */
     public static Observable<Progress<String>> downloadProgress(@NonNull Param param, final String destPath, long offsetSize, Scheduler scheduler) {
@@ -136,9 +137,10 @@ public final class HttpSender {
      * 异步发送一个请求,信息上传(支持文件上传,带进度回调)
      * 支持实现了{@link Param}接口的请求
      *
-     * @param param  请求参数，必须要重写{@link FormParam#setProgressCallback(ProgressCallback)}方法
-     * @param parser 数据解析器
-     * @param <T>    要转换的目标数据类型
+     * @param param     请求参数，必须要重写{@link FormParam#setProgressCallback(ProgressCallback)}方法
+     * @param parser    数据解析器
+     * @param scheduler 线程调度器
+     * @param <T>       要转换的目标数据类型
      * @return Observable<Progress>
      */
     public static <T> Observable<Progress<T>> uploadProgress(@NonNull Param param, @NonNull Parser<T> parser, Scheduler scheduler) {

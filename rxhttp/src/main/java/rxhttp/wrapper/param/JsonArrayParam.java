@@ -24,7 +24,7 @@ public class JsonArrayParam extends AbstractParam<JsonArrayParam> implements IJs
 
     /**
      * @param url    请求路径
-     * @param method {@link Method#POST, Method#PUT, Method#DELETE, Method#PATCH}
+     * @param method Method#POST  Method#PUT  Method#DELETE  Method#PATCH
      */
     public JsonArrayParam(String url, Method method) {
         super(url, method);
@@ -40,6 +40,7 @@ public class JsonArrayParam extends AbstractParam<JsonArrayParam> implements IJs
 
     /**
      * JsonArray类型请求，所有add系列方法内部最终都会调用此方法
+     *
      * @param object Object
      * @return JsonArrayParam
      */

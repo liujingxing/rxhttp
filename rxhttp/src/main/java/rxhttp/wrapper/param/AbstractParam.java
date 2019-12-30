@@ -38,7 +38,7 @@ public abstract class AbstractParam<P extends Param> implements Param<P> {
 
     /**
      * @param url    请求路径
-     * @param method {@link Method#GET,Method#HEAD,Method#POST,Method#PUT,Method#DELETE,Method#PATCH}
+     * @param method Method#GET  Method#HEAD  Method#POST  Method#PUT  Method#DELETE  Method#PATCH
      */
     public AbstractParam(@NonNull String url, Method method) {
         this.mUrl = url;

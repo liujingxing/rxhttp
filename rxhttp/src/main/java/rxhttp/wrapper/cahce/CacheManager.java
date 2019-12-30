@@ -92,6 +92,8 @@ public class CacheManager implements Closeable, Flushable {
 
     /**
      * Create a cache of at most {@code maxSize} bytes in {@code directory}.
+     * @param directory File
+     * @param maxSize long
      */
     public CacheManager(File directory, long maxSize) {
         this(directory, maxSize, FileSystem.SYSTEM);
@@ -243,6 +245,7 @@ public class CacheManager implements Closeable, Flushable {
      *
      * <p>Note that if the application chooses to not call this method to initialize the cache. By
      * default, the okhttp will perform lazy initialization upon the first usage of the cache.
+     * @throws IOException 初始化失败
      */
     public void initialize() throws IOException {
         cache.initialize();
@@ -264,15 +267,7 @@ public class CacheManager implements Closeable, Flushable {
         cache.evictAll();
     }
 
-    /**
-     * Returns an iterator over the URLs in this cache. This iterator doesn't throw {@code
-     * ConcurrentModificationException}, but if new responses are added while iterating, their URLs
-     * will not be returned. If existing responses are evicted during iteration, they will be absent
-     * (unless they were already returned).
-     *
-     * <p>The iterator supports {@linkplain Iterator#remove}. Removing a URL from the iterator evicts
-     * the corresponding response from the cache. Use this to evict selected responses.
-     */
+
     public Iterator<String> urls() throws IOException {
         return new Iterator<String>() {
             final Iterator<DiskLruCache.Snapshot> delegate = cache.snapshots();
@@ -322,7 +317,7 @@ public class CacheManager implements Closeable, Flushable {
     }
 
     /**
-     * Max size of the cache (in bytes).
+     * @return Max size of the cache (in bytes).
      */
     public long maxSize() {
         return cache.getMaxSize();

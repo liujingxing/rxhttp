@@ -43,6 +43,7 @@ public class RxHttpPlugins {
 
     /**
      * @deprecated please user {@link #setResultDecoder(Function)} instead
+     * @param decoder 数据转换器
      */
     @Deprecated
     public static void setOnConverter(@Nullable Function<? super String, String> decoder) {
