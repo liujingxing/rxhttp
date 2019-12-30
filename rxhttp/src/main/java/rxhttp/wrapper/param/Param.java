@@ -26,6 +26,9 @@ public interface Param<P extends Param> extends IParam<P>, IHeaders<P>, ICache<P
      * 参数以{application/x-www-form-urlencoded}形式提交
      * 当带有文件时，自动以{multipart/form-data}形式提交
      * 当调用{@link FormParam#setMultiForm()}方法，强制以{multipart/form-data}形式提交
+     *
+     * @param url url
+     * @return FormParam
      */
     static FormParam postForm(@NonNull String url) {
         return new FormParam(url, Method.POST);
@@ -36,6 +39,9 @@ public interface Param<P extends Param> extends IParam<P>, IHeaders<P>, ICache<P
      * 参数以{application/x-www-form-urlencoded}形式提交
      * 当带有文件时，自动以{multipart/form-data}形式提交
      * 当调用{@link FormParam#setMultiForm()}方法，强制以{multipart/form-data}形式提交
+     *
+     * @param url url
+     * @return FormParam
      */
     static FormParam putForm(@NonNull String url) {
         return new FormParam(url, Method.PUT);
@@ -46,6 +52,9 @@ public interface Param<P extends Param> extends IParam<P>, IHeaders<P>, ICache<P
      * 参数以{application/x-www-form-urlencoded}形式提交
      * 当带有文件时，自动以{multipart/form-data}形式提交
      * 当调用{@link FormParam#setMultiForm()}方法，强制以{multipart/form-data}形式提交
+     *
+     * @param url url
+     * @return FormParam
      */
     static FormParam patchForm(@NonNull String url) {
         return new FormParam(url, Method.PATCH);
@@ -56,6 +65,9 @@ public interface Param<P extends Param> extends IParam<P>, IHeaders<P>, ICache<P
      * 参数以{application/x-www-form-urlencoded}形式提交
      * 当带有文件时，自动以{multipart/form-data}形式提交
      * 当调用{@link FormParam#setMultiForm()}方法，强制以{multipart/form-data}形式提交
+     *
+     * @param url url
+     * @return FormParam
      */
     static FormParam deleteForm(@NonNull String url) {
         return new FormParam(url, Method.DELETE);
@@ -63,6 +75,9 @@ public interface Param<P extends Param> extends IParam<P>, IHeaders<P>, ICache<P
 
     /**
      * post请求,参数以{application/json; charset=utf-8}形式提交,提交Json对象
+     *
+     * @param url url
+     * @return JsonParam
      */
     static JsonParam postJson(@NonNull String url) {
         return new JsonParam(url, Method.POST);
@@ -70,6 +85,9 @@ public interface Param<P extends Param> extends IParam<P>, IHeaders<P>, ICache<P
 
     /**
      * put请求,参数以{application/json; charset=utf-8}形式提交,提交Json对象
+     *
+     * @param url url
+     * @return JsonParam
      */
     static JsonParam putJson(@NonNull String url) {
         return new JsonParam(url, Method.PUT);
@@ -77,6 +95,9 @@ public interface Param<P extends Param> extends IParam<P>, IHeaders<P>, ICache<P
 
     /**
      * patch请求,参数以{application/json; charset=utf-8}形式提交,提交Json对象
+     *
+     * @param url url
+     * @return JsonParam
      */
     static JsonParam patchJson(@NonNull String url) {
         return new JsonParam(url, Method.PATCH);
@@ -84,6 +105,9 @@ public interface Param<P extends Param> extends IParam<P>, IHeaders<P>, ICache<P
 
     /**
      * delete请求,参数以{application/json; charset=utf-8}形式提交,提交Json对象
+     *
+     * @param url url
+     * @return JsonParam
      */
     static JsonParam deleteJson(@NonNull String url) {
         return new JsonParam(url, Method.DELETE);
@@ -91,6 +115,9 @@ public interface Param<P extends Param> extends IParam<P>, IHeaders<P>, ICache<P
 
     /**
      * post请求,参数以{application/json; charset=utf-8}形式提交,提交Json数组
+     *
+     * @param url url
+     * @return JsonArrayParam
      */
     static JsonArrayParam postJsonArray(@NonNull String url) {
         return new JsonArrayParam(url, Method.POST);
@@ -99,6 +126,9 @@ public interface Param<P extends Param> extends IParam<P>, IHeaders<P>, ICache<P
 
     /**
      * put请求,参数以{application/json; charset=utf-8}形式提交,提交Json数组
+     *
+     * @param url url
+     * @return JsonArrayParam
      */
     static JsonArrayParam putJsonArray(@NonNull String url) {
         return new JsonArrayParam(url, Method.PUT);
@@ -106,6 +136,9 @@ public interface Param<P extends Param> extends IParam<P>, IHeaders<P>, ICache<P
 
     /**
      * patch请求,参数以{application/json; charset=utf-8}形式提交,提交Json数组
+     *
+     * @param url url
+     * @return JsonArrayParam
      */
     static JsonArrayParam patchJsonArray(@NonNull String url) {
         return new JsonArrayParam(url, Method.PATCH);
@@ -113,6 +146,9 @@ public interface Param<P extends Param> extends IParam<P>, IHeaders<P>, ICache<P
 
     /**
      * delete请求,参数以{application/json; charset=utf-8}形式提交,提交Json数组
+     *
+     * @param url url
+     * @return JsonArrayParam
      */
     static JsonArrayParam deleteJsonArray(@NonNull String url) {
         return new JsonArrayParam(url, Method.DELETE);

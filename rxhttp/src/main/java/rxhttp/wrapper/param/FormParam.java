@@ -21,7 +21,7 @@ import rxhttp.wrapper.utils.CacheUtil;
  * 参数以{application/x-www-form-urlencoded}形式提交
  * 当带有文件时，自动以{multipart/form-data}形式提交
  * 当调用{@link #setMultiForm()}方法，强制以{multipart/form-data}形式提交
- *
+ * <p>
  * User: ljx
  * Date: 2019-09-09
  * Time: 21:08
@@ -37,7 +37,7 @@ public class FormParam extends AbstractParam<FormParam> implements IUploadLength
 
     /**
      * @param url    请求路径
-     * @param method {@link Method#POST,Method#PUT,Method#DELETE,Method#PATCH}
+     * @param method Method#POST  Method#PUT  Method#DELETE  Method#PATCH
      */
     public FormParam(String url, Method method) {
         super(url, method);
@@ -160,6 +160,8 @@ public class FormParam extends AbstractParam<FormParam> implements IUploadLength
 
     /**
      * 设置提交方式为{multipart/form-data}
+     *
+     * @return FormParam
      */
     public FormParam setMultiForm() {
         isMultiForm = true;

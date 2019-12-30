@@ -42,6 +42,8 @@ public class BuildUtil {
      * 构建一个表单 (不带文件)
      *
      * @param map map参数集合
+     * @param <K> key
+     * @param <V> value
      * @return RequestBody
      */
     @Deprecated
@@ -60,6 +62,8 @@ public class BuildUtil {
      *
      * @param map      map参数集合
      * @param fileList 文件列表
+     * @param <K> key
+     * @param <V> value
      * @return RequestBody
      */
     @Deprecated
@@ -137,6 +141,8 @@ public class BuildUtil {
      * 所有参数以 key=value 格式拼接(用 & 拼接)在一起并返回
      *
      * @param map Map集合
+     * @param <K> key
+     * @param <V> value
      * @return 拼接后的字符串
      */
     @Deprecated
