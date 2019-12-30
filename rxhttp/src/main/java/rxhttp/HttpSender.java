@@ -111,7 +111,7 @@ public final class HttpSender {
      * @param param  请求参数
      * @param parser 数据解析器
      * @param <T>    要转换的目标数据类型
-     * @return Observable<T>
+     * @return Observable
      */
     public static <T> Observable<T> syncFrom(@NonNull Param param, @NonNull Parser<T> parser) {
         return new ObservableHttp<>(param, parser);
@@ -124,7 +124,7 @@ public final class HttpSender {
      * @param destPath   目标路径
      * @param offsetSize 断点下载时,进度偏移量,仅断点下载时有效
      * @param scheduler  线程调度器
-     * @return Observable<Progress>
+     * @return Observable
      */
     public static Observable<Progress<String>> downloadProgress(@NonNull Param param, final String destPath, long offsetSize, Scheduler scheduler) {
         ObservableDownload observableDownload = new ObservableDownload(param, destPath, offsetSize);
@@ -141,7 +141,7 @@ public final class HttpSender {
      * @param parser    数据解析器
      * @param scheduler 线程调度器
      * @param <T>       要转换的目标数据类型
-     * @return Observable<Progress>
+     * @return Observable
      */
     public static <T> Observable<Progress<T>> uploadProgress(@NonNull Param param, @NonNull Parser<T> parser, Scheduler scheduler) {
         ObservableUpload<T> observableUpload = new ObservableUpload<>(param, parser);
