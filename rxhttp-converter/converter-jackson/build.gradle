@@ -2,8 +2,8 @@ apply plugin: 'java-library'
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    compileOnly project(":rxhttp")
-//    compileOnly "com.rxjava.rxhttp:rxhttp:${rxhttp_version}"
+//    compileOnly project(":rxhttp")
+    compileOnly "com.rxjava.rxhttp:rxhttp:${rxhttp_version}"
     api 'com.fasterxml.jackson.core:jackson-core:2.9.8'
     api 'com.fasterxml.jackson.core:jackson-databind:2.9.8'
     api 'com.fasterxml.jackson.core:jackson-annotations:2.9.8'
