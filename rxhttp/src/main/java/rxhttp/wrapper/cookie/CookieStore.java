@@ -83,7 +83,7 @@ public class CookieStore implements ICookieJar {
      * 保存url对应的所有cookie，线程安全，若开启了磁盘缓存，建议在子线程调用
      *
      * @param url     HttpUrl
-     * @param cookies List<Cookie>
+     * @param cookies List
      */
     @Override
     public void saveCookie(HttpUrl url, List<Cookie> cookies) {
@@ -113,7 +113,7 @@ public class CookieStore implements ICookieJar {
      * 加载url对应的cookie，线程安全，若开启了磁盘缓存，建议在子线程调用
      *
      * @param url HttpUrl
-     * @return List<Cookie>
+     * @return List
      */
     @Override
     public List<Cookie> loadCookie(HttpUrl url) {

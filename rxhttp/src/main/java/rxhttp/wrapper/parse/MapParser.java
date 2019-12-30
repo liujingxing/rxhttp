@@ -10,7 +10,7 @@ import rxhttp.wrapper.entity.ParameterizedTypeImpl;
 import rxhttp.wrapper.utils.TypeUtil;
 
 /**
- * 将Response对象解析成泛型Map<K,V>对象
+ * 将Response对象解析成泛型Map对象
  * User: ljx
  * Date: 2018/10/23
  * Time: 13:49

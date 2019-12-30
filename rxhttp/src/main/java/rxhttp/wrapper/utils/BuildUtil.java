@@ -138,7 +138,7 @@ public class BuildUtil {
     }
 
     /**
-     * 所有参数以 key=value 格式拼接(用 & 拼接)在一起并返回
+     * 所有参数以 key=value 格式拼接在一起并返回
      *
      * @param map Map集合
      * @param <K> key
