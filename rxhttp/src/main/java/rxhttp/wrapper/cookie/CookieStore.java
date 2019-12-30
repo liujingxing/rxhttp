@@ -141,7 +141,7 @@ public class CookieStore implements ICookieJar {
                 Util.closeQuietly(snapshot);
             }
         }
-        if (!cookies.isEmpty()) //5、磁盘缓存查找成功，添加进内存缓存
+        if (!cookies.isEmpty() && memoryCache != null) //5、磁盘缓存查找成功，添加进内存缓存
             memoryCache.put(host, cookies);
         return Collections.unmodifiableList(cookies);
     }
