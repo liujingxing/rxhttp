@@ -22,16 +22,10 @@ public class JacksonConverter implements IConverter {
 
     private static final MediaType MEDIA_TYPE = MediaType.get("application/json; charset=UTF-8");
 
-    /**
-     * Create an instance using a default {@link ObjectMapper} instance for conversion.
-     */
     public static JacksonConverter create() {
         return create(new ObjectMapper());
     }
 
-    /**
-     * Create an instance using {@code mapper} for conversion.
-     */
     @SuppressWarnings("ConstantConditions") // Guarding public API nullability.
     public static JacksonConverter create(ObjectMapper mapper) {
         if (mapper == null) throw new NullPointerException("mapper == null");
