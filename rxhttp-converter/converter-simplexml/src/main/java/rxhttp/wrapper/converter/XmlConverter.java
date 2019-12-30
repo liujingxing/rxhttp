@@ -21,30 +21,18 @@ public class XmlConverter implements IConverter {
     private final Serializer serializer;
     private final boolean strict;
 
-    /**
-     * Create an instance using a default {@link Persister} instance for conversion.
-     */
     public static XmlConverter create() {
         return create(new Persister());
     }
 
-    /**
-     * Create an instance using {@code serializer} for conversion.
-     */
     public static XmlConverter create(Serializer serializer) {
         return new XmlConverter(serializer, true);
     }
 
-    /**
-     * Create an instance using a default {@link Persister} instance for non-strict conversion.
-     */
     public static XmlConverter createNonStrict() {
         return createNonStrict(new Persister());
     }
 
-    /**
-     * Create an instance using {@code serializer} for non-strict conversion.
-     */
     @SuppressWarnings("ConstantConditions") // Guarding public API nullability.
     public static XmlConverter createNonStrict(Serializer serializer) {
         if (serializer == null) throw new NullPointerException("serializer == null");
