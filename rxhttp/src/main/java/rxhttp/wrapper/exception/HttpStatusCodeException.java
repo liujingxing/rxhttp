@@ -9,7 +9,7 @@ import okhttp3.Response;
 import rxhttp.wrapper.utils.LogUtil;
 
 /**
- * Http 状态码 小于200或者大于等于300时 (code < 200 || code >= 300),或者ResponseBody等于null，抛出此异常
+ * Http 状态码 小于200或者大于等于300时,或者ResponseBody等于null，抛出此异常
  * <p>
  * 可通过{@link #getLocalizedMessage()}方法获取code
  * User: ljx
