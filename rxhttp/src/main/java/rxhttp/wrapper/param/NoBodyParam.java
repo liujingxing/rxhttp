@@ -25,7 +25,7 @@ public class NoBodyParam extends AbstractParam<NoBodyParam> {
 
     /**
      * @param url    请求路径
-     * @param method {@link Method#GET,Method#HEAD,Method#DELETE}
+     * @param method Method#GET  Method#HEAD  Method#DELETE
      */
     public NoBodyParam(String url, Method method) {
         super(url, method);

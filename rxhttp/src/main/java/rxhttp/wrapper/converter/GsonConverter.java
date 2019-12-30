@@ -34,19 +34,12 @@ public class GsonConverter implements IConverter {
 
     private final Gson gson;
 
-    /**
-     * Create an instance using a default {@link Gson} instance for conversion. Encoding to JSON and
-     * decoding from JSON (when no charset is specified by a header) will use UTF-8.
-     */
+
     public static GsonConverter create() {
         return create(GsonUtil.buildGson());
     }
 
-    /**
-     * Create an instance using {@code gson} for conversion. Encoding to JSON and
-     * decoding from JSON (when no charset is specified by a header) will use UTF-8.
-     */
-    // Guarding public API nullability.
+
     public static GsonConverter create(Gson gson) {
         if (gson == null) throw new NullPointerException("gson == null");
         return new GsonConverter(gson);
