@@ -38,7 +38,13 @@ public interface ICookieJar extends CookieJar {
      */
     List<Cookie> loadCookie(HttpUrl url);
 
+    /**
+     * 移除url 对应的cookie
+     */
     void removeCookie(HttpUrl url);
 
+    /**
+     * 移除所有cookie
+     */
     void removeAllCookie();
 }
