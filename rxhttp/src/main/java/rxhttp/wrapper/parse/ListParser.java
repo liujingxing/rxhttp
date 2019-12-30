@@ -9,7 +9,7 @@ import okhttp3.Response;
 import rxhttp.wrapper.entity.ParameterizedTypeImpl;
 
 /**
- * 将Response对象解析成List<T>对象
+ * 将Response对象解析成List对象
  * User: ljx
  * Date: 2018/10/23
  * Time: 13:49

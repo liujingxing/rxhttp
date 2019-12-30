@@ -14,8 +14,8 @@ import io.reactivex.annotations.NonNull;
  */
 public class ParameterizedTypeImpl implements ParameterizedType {
 
-    private final Type   rawType;
-    private final Type   ownerType;
+    private final Type rawType;
+    private final Type ownerType;
     private final Type[] actualTypeArguments;
 
     //适用于单个泛型参数的类
@@ -33,10 +33,10 @@ public class ParameterizedTypeImpl implements ParameterizedType {
     /**
      * 本方法仅使用于单个泛型参数的类
      * 根据types数组，确定具体的泛型类型
-     * List<List<String>>  对应  get(List.class, List.class, String.class)
+     * List里面是List  对应  get(List.class, List.class, String.class)
      *
      * @param rawType Type
-     * @param types Type数组
+     * @param types   Type数组
      * @return ParameterizedTypeImpl
      */
     public static ParameterizedTypeImpl get(@NonNull Type rawType, @NonNull Type... types) {
