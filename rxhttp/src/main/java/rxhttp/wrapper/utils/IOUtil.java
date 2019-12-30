@@ -108,6 +108,8 @@ public class IOUtil {
      * @param is      要读取的流
      * @param dstFile 保存的目标文件对象
      * @param append  是否追加
+     * @return 是否写入成功
+     * @throws IOException 写失败异常
      */
     public static boolean write(InputStream is, File dstFile, boolean append) throws IOException {
         if (dstFile == null) return false;

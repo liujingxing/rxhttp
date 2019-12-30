@@ -25,21 +25,28 @@ public interface ICookieJar extends CookieJar {
 
     /**
      * 保存url对应所有cookie
+     * @param url  HttpUrl
+     * @param cookies List
      */
     void saveCookie(HttpUrl url, List<Cookie> cookies);
 
     /**
      * 保存url对应所有cookie
+     * @param url HttpUrl
+     * @param cookie Cookie
      */
     void saveCookie(HttpUrl url, Cookie cookie);
 
     /**
      * 加载url所有的cookie
+     * @param url HttpUrl
+     * @return List
      */
     List<Cookie> loadCookie(HttpUrl url);
 
     /**
      * 移除url 对应的cookie
+     * @param url HttpUrl
      */
     void removeCookie(HttpUrl url);
 

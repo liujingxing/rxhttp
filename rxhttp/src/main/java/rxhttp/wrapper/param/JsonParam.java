@@ -23,7 +23,7 @@ public class JsonParam extends AbstractParam<JsonParam> implements IJsonObject<J
 
     /**
      * @param url    请求路径
-     * @param method {@link Method#POST,Method#PUT,Method#DELETE,Method#PATCH}
+     * @param method Method#POST  Method#PUT  Method#DELETE  Method#PATCH
      */
     public JsonParam(String url, Method method) {
         super(url, method);

@@ -31,10 +31,7 @@ public interface InternalCache {
     @Nullable
     Response put(Response response, String key) throws IOException;
 
-    /**
-     * Remove any cache entries for the supplied {@code request}. This is invoked when the client
-     * invalidates the cache, such as when making POST requests.
-     */
+
     void remove(String key) throws IOException;
 
     void removeAll() throws IOException;

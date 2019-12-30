@@ -35,6 +35,7 @@ public class ParameterizedTypeImpl implements ParameterizedType {
      * 根据types数组，确定具体的泛型类型
      * List<List<String>>  对应  get(List.class, List.class, String.class)
      *
+     * @param rawType Type
      * @param types Type数组
      * @return ParameterizedTypeImpl
      */
