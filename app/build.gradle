@@ -13,6 +13,13 @@ android {
         versionName "1.0"
 
         multiDexEnabled true
+
+        //Java平台需要传入platform参数，传入java即可，与Android 平台的区别是少了RxHttp#asBitmap方法
+//        javaCompileOptions {
+//            annotationProcessorOptions {
+//                arguments = [platform: 'java']
+//            }
+//        }
     }
     buildTypes {
         release {
