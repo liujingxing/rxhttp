@@ -64,7 +64,7 @@ public class RxHttpGenerator {
         this.defaultDomain = defaultDomain;
     }
 
-    public void generateCode(Elements elementUtils, Filer filer) throws IOException {
+    public void generateCode(Elements elementUtils, Filer filer, String platform) throws IOException {
         ClassName httpSenderName = ClassName.get("rxhttp", "HttpSender");
         ClassName rxHttpPluginsName = ClassName.get("rxhttp", "RxHttpPlugins");
         ClassName okHttpClientName = ClassName.get("okhttp3", "OkHttpClient");
@@ -206,7 +206,7 @@ public class RxHttpGenerator {
         methodList.add(method.build());
 
         methodList.addAll(mParamsAnnotatedClass.getMethodList(filer));
-        methodList.addAll(mParserAnnotatedClass.getMethodList());
+        methodList.addAll(mParserAnnotatedClass.getMethodList(platform));
         methodList.addAll(mConverterAnnotatedClass.getMethodList());
         method = MethodSpec.methodBuilder("addDefaultDomainIfAbsent")
             .addJavadoc("给Param设置默认域名(如何缺席的话)，此方法会在请求发起前，被RxHttp内部调用\n")
