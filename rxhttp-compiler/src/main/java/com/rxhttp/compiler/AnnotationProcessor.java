@@ -5,6 +5,7 @@ import com.rxhttp.compiler.exception.ProcessingException;
 import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -41,6 +42,7 @@ public class AnnotationProcessor extends AbstractProcessor {
     private Filer filer;
     private Elements elementUtils;
     private boolean processed;
+    private String platform;
 
     @Override
     public synchronized void init(ProcessingEnvironment processingEnvironment) {
@@ -49,6 +51,12 @@ public class AnnotationProcessor extends AbstractProcessor {
         messager = processingEnvironment.getMessager();
         filer = processingEnvironment.getFiler();
         elementUtils = processingEnvironment.getElementUtils();
+
+        Map<String, String> map = processingEnvironment.getOptions();
+        platform = map.get("platform");
+        if (platform == null) {
+            platform = "Android";
+        }
     }
 
     @Override
@@ -118,7 +126,7 @@ public class AnnotationProcessor extends AbstractProcessor {
             rxHttpGenerator.setAnnotatedClass(domainAnnotatedClass);
 
             // Generate code
-            rxHttpGenerator.generateCode(elementUtils, filer);
+            rxHttpGenerator.generateCode(elementUtils, filer, platform);
             processed = true;
         } catch (ProcessingException e) {
             error(e.getElement(), e.getMessage());
