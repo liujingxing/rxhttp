@@ -1,5 +1,6 @@
 package com.rxhttp.compiler;
 
+import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ArrayTypeName;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.FieldSpec;
@@ -29,10 +30,12 @@ public class RxHttpGenerator {
 
     static ClassName RXHTTP = ClassName.get(packageName, CLASSNAME);
 
-
+    private static TypeVariableName P = TypeVariableName.get("P");
     private static ClassName paramName = ClassName.get(packageName, "Param");
+    private static TypeName paramPName = ParameterizedTypeName.get(paramName, P);
+
     private static ClassName rxHttpName = ClassName.get(packageName, CLASSNAME);
-    private static TypeVariableName p = TypeVariableName.get("P", paramName);
+    static TypeVariableName p = TypeVariableName.get("P", paramPName);
     static TypeVariableName r = TypeVariableName.get("R", rxHttpName);
 
     private ParamsAnnotatedClass mParamsAnnotatedClass;
@@ -207,7 +210,7 @@ public class RxHttpGenerator {
         methodList.addAll(mConverterAnnotatedClass.getMethodList());
         method = MethodSpec.methodBuilder("addDefaultDomainIfAbsent")
             .addJavadoc("给Param设置默认域名(如何缺席的话)，此方法会在请求发起前，被RxHttp内部调用\n")
-            .addParameter(paramName, "param");
+            .addParameter(p, "param");
         if (defaultDomain != null) {
             method.addStatement("String newUrl = addDomainIfAbsent(param.getSimpleUrl(), $T.$L)",
                 ClassName.get(defaultDomain.getEnclosingElement().asType()),
@@ -215,7 +218,7 @@ public class RxHttpGenerator {
                 .addStatement("param.setUrl(newUrl)");
         }
         method.addStatement("return param")
-            .returns(paramName);
+            .returns(p);
         methodList.add(method.build());
 
         methodList.addAll(mDomainAnnotatedClass.getMethodList());
@@ -238,11 +241,16 @@ public class RxHttpGenerator {
             .initializer("$T.getConverter()", rxHttpPluginsName)
             .build();
 
+        AnnotationSpec build = AnnotationSpec.builder(SuppressWarnings.class)
+            .addMember("value", "\"unchecked\"")
+            .build();
+
         TypeSpec rxHttp = TypeSpec.classBuilder(CLASSNAME)
             .addJavadoc("Github" +
                 "\nhttps://github.com/liujingxing/RxHttp" +
                 "\nhttps://github.com/liujingxing/RxLife\n")
             .addModifiers(Modifier.PUBLIC)
+            .addAnnotation(build)
             .addField(p, "param", Modifier.PROTECTED)
             .addField(schedulerField)
             .addField(converterSpec)
