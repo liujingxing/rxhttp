@@ -51,6 +51,7 @@ public class LogUtil {
     }
 
     //打印Http请求连接失败异常日志
+    @SuppressWarnings("deprecation")
     public static void log(@NonNull Param param, Throwable throwable) {
         if (!isDebug) return;
         try {
@@ -103,6 +104,7 @@ public class LogUtil {
         }
     }
 
+    @SuppressWarnings("deprecation")
     public static String getEncodedUrlAndParams(Request request) {
         String result;
         try {
@@ -190,6 +192,7 @@ public class LogUtil {
         return urlBuilder.toString();
     }
 
+    @SuppressWarnings("deprecation")
     private static String getResult(ResponseBody body, boolean onResultDecoder) throws IOException {
         BufferedSource source = body.source();
         source.request(Long.MAX_VALUE); // Buffer the entire body.

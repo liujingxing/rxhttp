@@ -395,14 +395,14 @@ public class ParamsAnnotatedClass {
         methodList.add(method.build());
 
         TypeVariableName t = TypeVariableName.get("T");
-        WildcardTypeName subString = WildcardTypeName.subtypeOf(t);
-        TypeName classTName = ParameterizedTypeName.get(ClassName.get(Class.class), subString);
+        WildcardTypeName superT = WildcardTypeName.supertypeOf(t);
+        TypeName classTName = ParameterizedTypeName.get(ClassName.get(Class.class), superT);
 
         method = MethodSpec.methodBuilder("tag")
             .addModifiers(Modifier.PUBLIC)
             .addTypeVariable(t)
             .addParameter(classTName, "type")
-            .addParameter(Object.class, "tag")
+            .addParameter(t, "tag")
             .addStatement("param.tag(type,tag)")
             .addStatement("return (R)this")
             .returns(rxHttp);
