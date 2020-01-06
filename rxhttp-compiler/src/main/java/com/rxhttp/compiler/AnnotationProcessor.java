@@ -40,6 +40,7 @@ public class AnnotationProcessor extends AbstractProcessor {
     private Messager messager;
     private Filer filer;
     private Elements elementUtils;
+    private boolean processed;
 
     @Override
     public synchronized void init(ProcessingEnvironment processingEnvironment) {
@@ -55,6 +56,7 @@ public class AnnotationProcessor extends AbstractProcessor {
         Set<String> annotations = new LinkedHashSet<>();
         annotations.add(Param.class.getCanonicalName());
         annotations.add(Parser.class.getCanonicalName());
+        annotations.add(Converter.class.getCanonicalName());
         annotations.add(Domain.class.getCanonicalName());
         annotations.add(DefaultDomain.class.getCanonicalName());
         annotations.add(Override.class.getCanonicalName());
@@ -69,7 +71,8 @@ public class AnnotationProcessor extends AbstractProcessor {
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-//        messager.printMessage(Kind.WARNING, "process start annotations.size=" + annotations.size());
+//        messager.printMessage(Kind.WARNING, "process start annotations" + annotations + " this=" + this);
+        if (annotations.isEmpty() || processed) return true;
         try {
             RxHttpGenerator rxHttpGenerator = new RxHttpGenerator();
 
@@ -116,6 +119,7 @@ public class AnnotationProcessor extends AbstractProcessor {
 
             // Generate code
             rxHttpGenerator.generateCode(elementUtils, filer);
+            processed = true;
         } catch (ProcessingException e) {
             error(e.getElement(), e.getMessage());
         } catch (IOException e) {
