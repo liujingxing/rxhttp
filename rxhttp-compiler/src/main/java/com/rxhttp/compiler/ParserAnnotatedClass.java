@@ -42,7 +42,7 @@ public class ParserAnnotatedClass {
         mElementMap.put(name, typeElement);
     }
 
-    public List<MethodSpec> getMethodList() {
+    public List<MethodSpec> getMethodList(String platform) {
         TypeVariableName t = TypeVariableName.get("T");
         TypeVariableName k = TypeVariableName.get("K");
         TypeVariableName v = TypeVariableName.get("V");
@@ -68,7 +68,6 @@ public class ParserAnnotatedClass {
         TypeName listTName = ParameterizedTypeName.get(ClassName.get(List.class), t);
         TypeName mapTTName = ParameterizedTypeName.get(ClassName.get(Map.class), t, t);
         TypeName mapKVName = ParameterizedTypeName.get(ClassName.get(Map.class), k, v);
-        TypeName progressTName = ParameterizedTypeName.get(progressName, t);
         TypeName progressStringName = ParameterizedTypeName.get(progressName, typeName);
         TypeName observableTName = ParameterizedTypeName.get(observableName, t);
         TypeName observableListTName = ParameterizedTypeName.get(observableName, listTName);
@@ -84,10 +83,7 @@ public class ParserAnnotatedClass {
         TypeName observableLongName = ParameterizedTypeName.get(observableName, TypeName.get(Long.class));
         TypeName observableFloatName = ParameterizedTypeName.get(observableName, TypeName.get(Float.class));
         TypeName observableDoubleName = ParameterizedTypeName.get(observableName, TypeName.get(Double.class));
-        TypeName observableProgressTName = ParameterizedTypeName.get(observableName, progressTName);
-        TypeName observableProgressStringName = ParameterizedTypeName.get(observableName, progressStringName);
         TypeName consumerProgressStringName = ParameterizedTypeName.get(consumerName, progressStringName);
-        TypeName consumerProgressTName = ParameterizedTypeName.get(consumerName, progressTName);
         TypeName parserTName = ParameterizedTypeName.get(parserName, t);
 
         List<MethodSpec> methodList = new ArrayList<>();
@@ -181,15 +177,12 @@ public class ParserAnnotatedClass {
             .returns(observableTName);
         methodList.add(method.build());
 
-        try {
-            Class.forName("android.os.Build");
+        if ("Android".equals(platform)) {
             method = MethodSpec.methodBuilder("asBitmap")
                 .addModifiers(Modifier.PUBLIC)
                 .addStatement("return asParser(new $T())", bitmapParserName)
                 .returns(observableBitmapName);
             methodList.add(method.build());
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
         }
 
         method = MethodSpec.methodBuilder("asString")
