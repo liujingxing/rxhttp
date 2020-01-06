@@ -36,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    @SuppressWarnings("deprecation")
     public void bitmap(View view) {
         String imageUrl = "http://img2.shelinkme.cn/d3/photos/0/017/022/755_org.jpg@!normal_400_400?1558517697888";
         RxHttp.get(imageUrl) //Get请求
