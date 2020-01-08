@@ -20,7 +20,7 @@ public class MapParser<K, V> implements Parser<Map<K, V>> {
 
     protected MapParser() {
         kType = TypeUtil.getActualTypeParameter(this.getClass(), 0);
-        kType = TypeUtil.getActualTypeParameter(this.getClass(), 1);
+        vType = TypeUtil.getActualTypeParameter(this.getClass(), 1);
     }
 
     private MapParser(Type kType, Type vType) {
