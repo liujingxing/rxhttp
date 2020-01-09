@@ -65,6 +65,10 @@ wiki详细文档：https://github.com/liujingxing/okhttp-RxHttp/wiki  (此文档
 
 自动关闭请求用到的RxLife类，详情请查看[RxLife库](https://github.com/liujingxing/RxLife)
 
+[更新日志](https://github.com/liujingxing/okhttp-RxHttp/wiki/%E6%9B%B4%E6%96%B0%E6%97%A5%E5%BF%97) &nbsp;&nbsp;&nbsp;&nbsp;
+[已知问题](https://github.com/liujingxing/okhttp-RxHttp/wiki/%E6%9B%B4%E6%96%B0%E6%97%A5%E5%BF%97) &nbsp;&nbsp;&nbsp;&nbsp;
+[Java工程依赖注意事项](https://github.com/liujingxing/okhttp-RxHttp/wiki/Java%E5%B7%A5%E7%A8%8B%E4%BE%9D%E8%B5%96)
+
 ## API兼容
 
 RxHttp最低要求为API 15，但是由于内部依赖OkHttp 3.14.1版本, 最低要求为API 21。
