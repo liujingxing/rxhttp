@@ -26,11 +26,12 @@
 
 ```java
 dependencies {
-   implementation 'com.rxjava.rxhttp:rxhttp:1.4.1'
-   annotationProcessor 'com.rxjava.rxhttp:rxhttp-compiler:1.4.1' //注解处理器，生成RxHttp类
+
+   implementation 'com.rxjava.rxhttp:rxhttp:1.4.1' //必须
+   annotationProcessor 'com.rxjava.rxhttp:rxhttp-compiler:1.4.1' //注解处理器，生成RxHttp类,必须
+   implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'  //切换主线程，必须
 
    implementation 'com.rxjava.rxlife:rxlife:1.1.0'  //页面销毁，关闭请求，非必须
-   implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'  //切换主线程，非必须
 
    //Converter 根据自己需求选择  非必须  RxHttp默认内置了GsonConverter
    implementation 'com.rxjava.rxhttp:converter-jackson:1.4.1'
