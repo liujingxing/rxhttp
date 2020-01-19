@@ -54,6 +54,8 @@ public class ParserAnnotatedClass {
         ClassName consumerName = ClassName.get("io.reactivex.functions", "Consumer");
 
         ClassName bitmapName = ClassName.get("android.graphics", "Bitmap");
+        ClassName okResponseName = ClassName.get("okhttp3", "Response");
+        ClassName headersName = ClassName.get("okhttp3", "Headers");
         ClassName httpSenderName = ClassName.get("rxhttp", "HttpSender");
         ClassName parserName = ClassName.get("rxhttp.wrapper.parse", "Parser");
         ClassName progressName = ClassName.get("rxhttp.wrapper.entity", "Progress");
@@ -62,6 +64,7 @@ public class ParserAnnotatedClass {
         ClassName listParserName = ClassName.get("rxhttp.wrapper.parse", "ListParser");
         ClassName downloadParserName = ClassName.get("rxhttp.wrapper.parse", "DownloadParser");
         ClassName bitmapParserName = ClassName.get("rxhttp.wrapper.parse", "BitmapParser");
+        ClassName okResponseParserName = ClassName.get("rxhttp.wrapper.parse", "OkResponseParser");
 
         TypeName typeName = TypeName.get(String.class);
         TypeName classTName = ParameterizedTypeName.get(ClassName.get(Class.class), t);
@@ -77,6 +80,8 @@ public class ParserAnnotatedClass {
         TypeName observableMapKVName = ParameterizedTypeName.get(observableName, mapKVName);
         TypeName observableMapName = ParameterizedTypeName.get(observableName, TypeName.get(Map.class));
         TypeName observableBitmapName = ParameterizedTypeName.get(observableName, bitmapName);
+        TypeName observableOkResponseName = ParameterizedTypeName.get(observableName, okResponseName);
+        TypeName observableHeadersName = ParameterizedTypeName.get(observableName, headersName);
         TypeName observableStringName = ParameterizedTypeName.get(observableName, typeName);
         TypeName observableBooleanName = ParameterizedTypeName.get(observableName, TypeName.get(Boolean.class));
         TypeName observableByteName = ParameterizedTypeName.get(observableName, TypeName.get(Byte.class));
@@ -265,6 +270,21 @@ public class ParserAnnotatedClass {
             .addParameter(classTName, "type")
             .addStatement("return asParser($T.get(type))", listParserName)
             .returns(observableListTName);
+        methodList.add(method.build());
+
+
+        method = MethodSpec.methodBuilder("asHeaders")
+            .addJavadoc("调用此方法，订阅回调时，返回 {@link okhttp3.Headers} 对象\n")
+            .addModifiers(Modifier.PUBLIC)
+            .addStatement("return asOkResponse().map(Response::headers)")
+            .returns(observableHeadersName);
+        methodList.add(method.build());
+
+        method = MethodSpec.methodBuilder("asOkResponse")
+            .addJavadoc("调用此方法，订阅回调时，返回 {@link okhttp3.Response} 对象\n")
+            .addModifiers(Modifier.PUBLIC)
+            .addStatement("return asParser(new $T())", okResponseParserName)
+            .returns(observableOkResponseName);
         methodList.add(method.build());
 
         //获取自定义的解析器
