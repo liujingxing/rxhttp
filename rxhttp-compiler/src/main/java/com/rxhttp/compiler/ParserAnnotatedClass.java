@@ -3,6 +3,7 @@ package com.rxhttp.compiler;
 
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeVariableName;
@@ -18,6 +19,7 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.type.TypeMirror;
 
 import rxhttp.wrapper.annotation.Parser;
@@ -265,6 +267,7 @@ public class ParserAnnotatedClass {
             .returns(observableListTName);
         methodList.add(method.build());
 
+        //获取自定义的解析器
         for (Entry<String, TypeElement> item : mElementMap.entrySet()) {
             TypeMirror returnType = null; //获取onParse方法的返回类型
             TypeElement typeElement = item.getValue();
@@ -282,11 +285,43 @@ public class ParserAnnotatedClass {
             }
             if (returnType == null) continue;
 
+            List<TypeVariableName> typeVariableNames = new ArrayList<>();
+            List<ParameterSpec> parameterSpecs = new ArrayList<>();
+            List<? extends TypeParameterElement> typeParameters = item.getValue().getTypeParameters();
+            for (TypeParameterElement element : typeParameters) {
+                TypeVariableName typeVariableName = TypeVariableName.get(element);
+                typeVariableNames.add(typeVariableName);
+                ParameterSpec parameterSpec = ParameterSpec.builder(
+                    ParameterizedTypeName.get(ClassName.get(Class.class), typeVariableName),
+                    element.asType().toString().toLowerCase() + "Type").build();
+                parameterSpecs.add(parameterSpec);
+            }
+
+            //自定义解析器对应的asXxx方法里面的语句
+            StringBuilder statementBuilder = new StringBuilder("return asParser(new $T");
+            if (typeVariableNames.size() > 0) { //添加泛型
+                statementBuilder.append("<");
+                for (int i = 0, size = typeVariableNames.size(); i < size; i++) {
+                    TypeVariableName variableName = typeVariableNames.get(i);
+                    statementBuilder.append(variableName.name)
+                        .append(i == size - 1 ? ">" : ",");
+                }
+            }
+
+            statementBuilder.append("(");
+            if (parameterSpecs.size() > 0) { //添加参数
+                for (int i = 0, size = parameterSpecs.size(); i < size; i++) {
+                    ParameterSpec parameterSpec = parameterSpecs.get(i);
+                    statementBuilder.append(parameterSpec.name);
+                    if (i < size - 1) statementBuilder.append(",");
+                }
+            }
+            statementBuilder.append("))");
             method = MethodSpec.methodBuilder("as" + item.getKey())
                 .addModifiers(Modifier.PUBLIC)
-                .addTypeVariable(t)
-                .addParameter(classTName, "type")
-                .addStatement("return asParser(new $T<>(type))", ClassName.get(item.getValue()))
+                .addTypeVariables(typeVariableNames)
+                .addParameters(parameterSpecs)
+                .addStatement(statementBuilder.toString(), ClassName.get(item.getValue()))
                 .returns(ParameterizedTypeName.get(observableName, TypeName.get(returnType)));
             methodList.add(method.build());
         }
