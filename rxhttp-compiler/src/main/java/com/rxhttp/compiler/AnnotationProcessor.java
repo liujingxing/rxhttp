@@ -185,7 +185,7 @@ public class AnnotationProcessor extends AbstractProcessor {
         while (true) {
             List<? extends TypeMirror> interfaces = currentClass.getInterfaces();
             for (TypeMirror typeMirror : interfaces) {
-                if (!typeMirror.toString().equals("rxhttp.wrapper.parse.Parser<T>")) continue;
+                if (!typeMirror.toString().contains("rxhttp.wrapper.parse.Parser")) continue;
                 break All;
             }
             TypeMirror superClassType = currentClass.getSuperclass();
