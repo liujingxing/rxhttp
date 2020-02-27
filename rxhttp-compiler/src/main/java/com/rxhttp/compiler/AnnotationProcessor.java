@@ -181,43 +181,25 @@ public class AnnotationProcessor extends AbstractProcessor {
         }
 
         TypeElement currentClass = element;
-        All:
         while (true) {
             List<? extends TypeMirror> interfaces = currentClass.getInterfaces();
+            //遍历实现的接口有没有Parser接口
             for (TypeMirror typeMirror : interfaces) {
-                if (!typeMirror.toString().contains("rxhttp.wrapper.parse.Parser")) continue;
-                break All;
+                if (typeMirror.toString().contains("rxhttp.wrapper.parse.Parser")) {
+                    return;
+                }
             }
+            //未遍历到Parser，则找到父类继续，一直循环下去，直到最顶层的父类
             TypeMirror superClassType = currentClass.getSuperclass();
-
             if (superClassType.getKind() == TypeKind.NONE) {
                 throw new ProcessingException(element,
                     "The class %s annotated with @%s must inherit from %s",
                     element.getQualifiedName().toString(), Parser.class.getSimpleName(),
                     "rxhttp.wrapper.parse.Parser<T>");
             }
+            //TypeMirror转TypeElement
             currentClass = (TypeElement) typeUtils.asElement(superClassType);
         }
-
-//        for (Element enclosedElement : element.getEnclosedElements()) {
-//            if (!(enclosedElement instanceof ExecutableElement)) continue;
-//            if (!enclosedElement.getModifiers().contains(Modifier.PUBLIC)
-//                    || !enclosedElement.getModifiers().contains(Modifier.STATIC)) continue;
-//            if (!enclosedElement.toString().equals("<T>get(java.lang.Class<T>)")) continue;
-//            ExecutableElement executableElement = (ExecutableElement) enclosedElement;
-//            TypeMirror returnType = executableElement.getReturnType();
-//            if (!typeUtils.asElement(returnType).toString()
-//                    .equals(element.getQualifiedName().toString())) continue;
-//            if (returnType instanceof DeclaredType) {
-//                DeclaredType declaredType = (DeclaredType) returnType;
-//                if (declaredType.getTypeArguments().size() == 1) return;
-//            }
-//        }
-
-        // No empty constructor found
-//        throw new ProcessingException(element,
-//                "The class %s must provide an public static <T> %s get(Class<T> t) mehod",
-//                element.getQualifiedName().toString(), element.getQualifiedName().toString() + "<T>");
     }
 
     private void checkConverterValidClass(VariableElement element) throws ProcessingException {
@@ -231,10 +213,25 @@ public class AnnotationProcessor extends AbstractProcessor {
                 "The variable %s is not static",
                 element.getSimpleName().toString());
         }
-        if (!"rxhttp.wrapper.callback.IConverter".equals(element.asType().toString())) {
-            throw new ProcessingException(element,
-                "The variable %s is not a IConverter",
-                element.getSimpleName().toString());
+        TypeMirror classType = element.asType();
+        if (!"rxhttp.wrapper.callback.IConverter".equals(classType.toString())) {
+            while (true) {
+                //TypeMirror转TypeElement
+                TypeElement currentClass = (TypeElement) typeUtils.asElement(classType);
+                //遍历实现的接口有没有IConverter接口
+                for (TypeMirror mirror : currentClass.getInterfaces()) {
+                    if (mirror.toString().equals("rxhttp.wrapper.callback.IConverter")) {
+                        return;
+                    }
+                }
+                //未遍历到IConverter，则找到父类继续，一直循环下去，直到最顶层的父类
+                classType = currentClass.getSuperclass();
+                if (classType.getKind() == TypeKind.NONE) {
+                    throw new ProcessingException(element,
+                        "The variable %s is not a IConverter",
+                        element.getSimpleName().toString());
+                }
+            }
         }
 
     }
