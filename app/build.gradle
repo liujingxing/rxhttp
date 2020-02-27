@@ -1,14 +1,11 @@
 apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-kapt'
-apply plugin: 'kotlin-android-extensions'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 29
     defaultConfig {
         applicationId "com.example.rxhttp"
         minSdkVersion 19
-        targetSdkVersion 28
+        targetSdkVersion 29
         versionCode 1
         versionName "1.0"
 
@@ -37,10 +34,6 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
-    kotlinOptions {
-        jvmTarget = '1.8'
-    }
-
     dataBinding {
         enabled = true
     }
@@ -57,11 +50,11 @@ dependencies {
     implementation 'com.rxjava.rxlife:rxlife-x:1.1.0'
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
 
-//    implementation project(":rxhttp")
-//    kapt project(':rxhttp-compiler')
+    implementation project(":rxhttp")
+    annotationProcessor project(':rxhttp-compiler')
 
-    implementation "com.rxjava.rxhttp:rxhttp:${rxhttp_version}"
-    kapt "com.rxjava.rxhttp:rxhttp-compiler:${rxhttp_version}"
+//    implementation "com.rxjava.rxhttp:rxhttp:${rxhttp_version}"
+//    annotationProcessor "com.rxjava.rxhttp:rxhttp-compiler:${rxhttp_version}"
 
     implementation "com.rxjava.rxhttp:converter-jackson:${rxhttp_converter_version}"
     implementation "com.rxjava.rxhttp:converter-fastjson:${rxhttp_converter_version}"
