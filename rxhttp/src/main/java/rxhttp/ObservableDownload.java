@@ -80,7 +80,7 @@ public final class ObservableDownload extends Observable<Progress<String>> {
                     if (currentProgress <= lastProgress) return;
                     lastProgress = currentProgress;
                 }
-                if (p.isCompleted()) {
+                if (p.isFinish()) {
                     //下载完成的回调，需要带上本地存储路径，故这里先保存进度
                     completeProgress.set(p);
                 } else {
