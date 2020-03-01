@@ -63,7 +63,7 @@ public final class ObservableUpload<T> extends Observable<Progress<T>> {
             ((IFile) param).setProgressCallback((progress, currentSize, totalSize) -> {
                 //这里最多回调100次,仅在进度有更新时,才会回调
                 Progress<T> p = new Progress<>(progress, currentSize, totalSize);
-                if (p.isCompleted()) {
+                if (p.isFinish()) {
                     //上传完成的回调，需要带上请求返回值，故这里先保存进度
                     completeProgress.set(p);
                 } else {
