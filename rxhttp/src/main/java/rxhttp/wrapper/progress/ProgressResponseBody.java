@@ -3,33 +3,46 @@ package rxhttp.wrapper.progress;
 
 import java.io.IOException;
 
-import rxhttp.wrapper.callback.ProgressCallback;
 import okhttp3.MediaType;
+import okhttp3.Response;
 import okhttp3.ResponseBody;
-import okio.*;
+import okio.Buffer;
+import okio.BufferedSource;
+import okio.ForwardingSource;
+import okio.Okio;
+import okio.Source;
+import rxhttp.wrapper.callback.ProgressCallback;
 
 /**
  * 文件下载，带进度的响应实体
  */
 public class ProgressResponseBody extends ResponseBody {
-    public static final int MIN_INTERVAL = 50;
+    private static final int MIN_INTERVAL = 50;
 
     //实际的待包装响应体
-    private final    ResponseBody     responseBody;
+    private final ResponseBody responseBody;
     //进度回调接口
     private volatile ProgressCallback callback;
     //包装完成的BufferedSource
-    private          BufferedSource   bufferedSource;
+    private BufferedSource bufferedSource;
+
+    private long contentLength; //ResponseBody 内容长度，部分接口拿不到，会返回-1，此时会没有进度回调
 
     /**
      * 构造函数，赋值
      *
-     * @param responseBody 待包装的响应体
-     * @param callback     回调接口
+     * @param response 响应体
+     * @param callback 回调接口
      */
-    public ProgressResponseBody(ResponseBody responseBody, ProgressCallback callback) {
-        this.responseBody = responseBody;
+    public ProgressResponseBody(Response response, ProgressCallback callback) {
+        this.responseBody = response.body();
         this.callback = callback;
+        if (responseBody != null) {
+            contentLength = responseBody.contentLength();
+        }
+        if (contentLength == -1) {
+            contentLength = getContentLengthByHeader(response);
+        }
     }
 
 
@@ -50,7 +63,7 @@ public class ProgressResponseBody extends ResponseBody {
      */
     @Override
     public long contentLength() {
-        return responseBody.contentLength();
+        return contentLength;
     }
 
     /**
@@ -84,23 +97,25 @@ public class ProgressResponseBody extends ResponseBody {
             @Override
             public long read(Buffer sink, long byteCount) throws IOException {
                 long bytesRead = super.read(sink, byteCount);
-                //增加当前读取的字节数，如果读取完成了bytesRead会返回-1
-                totalBytesRead += bytesRead != -1 ? bytesRead : 0;
-                final long fileSize = responseBody.contentLength();
-                //回调，如果contentLength()不知道长度，会返回-1
-                final int currentProgress = (int) ((totalBytesRead * 100) / fileSize);
-                //当前进度较上次没有更新，直接返回
-                if (currentProgress <= lastProgress) return bytesRead;
-                //当前进度小于100,需要判断两次回调时间间隔是否小于一定时间,是的话直接返回
-                if (currentProgress < 100) {
-                    long currentTime = System.currentTimeMillis();
-                    //两次回调时间小于 MIN_INTERVAL 毫秒，直接返回，避免更新太频繁
-                    if (currentTime - lastTime < MIN_INTERVAL) return bytesRead;
-                    lastTime = currentTime;
+                if (bytesRead == -1) {   //-1 代表读取完毕
+                    if (contentLength == -1) contentLength = totalBytesRead;
+                } else {
+                    totalBytesRead += bytesRead; //未读取完，则累加已读取的字节
                 }
-                lastProgress = currentProgress;
-                //回调,更新进度
-                updateProgress(lastProgress, totalBytesRead, fileSize);
+
+                //当前进度 = 当前已读取的字节 / 总字节
+                final int currentProgress = (int) ((totalBytesRead * 100) / contentLength);
+                if (currentProgress > lastProgress) {  //前进度大于上次进度，则更新进度
+                    if (currentProgress < 100) {
+                        long currentTime = System.currentTimeMillis();
+                        //两次回调时间小于 MIN_INTERVAL 毫秒，直接返回，避免更新太频繁
+                        if (currentTime - lastTime < MIN_INTERVAL) return bytesRead;
+                        lastTime = currentTime;
+                    }
+                    lastProgress = currentProgress;
+                    //回调,更新进度
+                    updateProgress(lastProgress, totalBytesRead, contentLength);
+                }
                 return bytesRead;
             }
         };
@@ -109,5 +124,25 @@ public class ProgressResponseBody extends ResponseBody {
     private void updateProgress(final int progress, final long currentSize, final long totalSize) {
         if (callback == null) return;
         callback.onProgress(progress, currentSize, totalSize);
+    }
+
+    //从响应头 Content-Range 中，取 contentLength
+    private long getContentLengthByHeader(Response response) {
+        String headerValue = response.header("Content-Range");
+        long contentLength = -1;
+        if (headerValue != null) {
+            //响应头Content-Range格式 : bytes 100001-20000000/20000001
+            try {
+                int divideIndex = headerValue.indexOf("/"); //斜杠下标
+                int blankIndex = headerValue.indexOf(" ");
+                String fromToValue = headerValue.substring(blankIndex + 1, divideIndex);
+                String[] split = fromToValue.split("-");
+                long start = Long.parseLong(split[0]); //开始下载位置
+                long end = Long.parseLong(split[1]);   //结束下载位置
+                contentLength = end - start + 1;       //要下载的总长度
+            } catch (Exception ignore) {
+            }
+        }
+        return contentLength;
     }
 }
