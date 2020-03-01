@@ -26,7 +26,7 @@ public class ProgressInterceptor implements Interceptor {
         Response originalResponse = chain.proceed(chain.request());
         //包装响应体并返回
         return originalResponse.newBuilder()
-                .body(new ProgressResponseBody(originalResponse.body(), progressCallback))
+                .body(new ProgressResponseBody(originalResponse, progressCallback))
                 .build();
     }
 }
