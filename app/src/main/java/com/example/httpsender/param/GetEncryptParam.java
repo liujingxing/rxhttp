@@ -2,6 +2,7 @@ package com.example.httpsender.param;
 
 import okhttp3.HttpUrl;
 import rxhttp.wrapper.annotation.Param;
+import rxhttp.wrapper.entity.KeyValuePair;
 import rxhttp.wrapper.param.Method;
 import rxhttp.wrapper.param.NoBodyParam;
 
@@ -24,14 +25,11 @@ public class GetEncryptParam extends NoBodyParam {
 
     @Override
     public HttpUrl getHttpUrl() {
-        HttpUrl httpUrl = super.getHttpUrl();
-        int querySize = httpUrl.querySize();
         StringBuilder paramsBuilder = new StringBuilder(); //存储加密后的参数
-        for (int i = 0; i < querySize; i++) {
+        for (KeyValuePair pair : getKeyValuePairs()) {
             //这里遍历所有添加的参数，可对参数进行加密操作
-            String key = httpUrl.queryParameterName(i);
-            String value = httpUrl.queryParameterValue(i);
-
+            String key = pair.getKey();
+            String value = pair.getValue().toString();
             //加密逻辑自己写
 
         }
