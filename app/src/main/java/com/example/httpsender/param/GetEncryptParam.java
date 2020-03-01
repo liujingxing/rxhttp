@@ -1,5 +1,11 @@
 package com.example.httpsender.param;
 
+import android.graphics.Point;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+
 import okhttp3.HttpUrl;
 import rxhttp.wrapper.annotation.Param;
 import rxhttp.wrapper.entity.KeyValuePair;
@@ -19,8 +25,8 @@ public class GetEncryptParam extends NoBodyParam {
         super(url, Method.GET);
     }
 
-    public void test() {
-
+    public <T extends Point, R extends CharSequence> GetEncryptParam test(List<R> a, Map<T, R> map, T[]... b) throws IOException, IllegalArgumentException {
+        return this;
     }
 
     @Override

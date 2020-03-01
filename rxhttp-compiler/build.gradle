@@ -2,7 +2,7 @@ apply plugin: 'java-library'
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.squareup:javapoet:1.11.1'
+    implementation 'com.squareup:javapoet:1.12.1'
     implementation 'com.rxjava.rxhttp:rxhttp-annotation:1.0.2'
 //    api project(":rxhttp-annotation")
 }
