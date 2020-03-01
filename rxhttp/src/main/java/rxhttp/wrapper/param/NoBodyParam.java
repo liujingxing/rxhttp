@@ -125,6 +125,10 @@ public class NoBodyParam extends AbstractParam<NoBodyParam> {
         return BuildUtil.getHttpUrl(getSimpleUrl(), keyValuePairs).toString();
     }
 
+    public List<KeyValuePair> getKeyValuePairs() {
+        return mKeyValuePairs;
+    }
+
     @Override
     public String toString() {
         return getUrl();
