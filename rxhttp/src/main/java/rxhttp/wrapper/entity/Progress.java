@@ -15,14 +15,7 @@ public class Progress<T> {
 
     private T mResult; //http返回结果,上传/下载完成时调用
 
-    /**
-     * 上传/下载完成时调用,并将进度设置为-1
-     *
-     * @param result http执行结果
-     */
-    public Progress(T result) {
-        this(-1, -1, -1);
-        this.mResult = result;
+    public Progress() {
     }
 
     public Progress(int progress, long currentSize, long totalSize) {
@@ -31,11 +24,17 @@ public class Progress<T> {
         this.totalSize = totalSize;
     }
 
+    public void set(Progress<?> progress) {
+        this.progress = progress.progress;
+        this.currentSize = progress.currentSize;
+        this.totalSize = progress.totalSize;
+    }
+
     /**
      * @return 上传/下载是否完成
      */
     public boolean isCompleted() {
-        return progress == -1;
+        return progress == 100;
     }
 
     public int getProgress() {
@@ -62,6 +61,10 @@ public class Progress<T> {
         this.currentSize = currentSize;
     }
 
+    public void setProgress(int progress) {
+        this.progress = progress;
+    }
+
     public void setTotalSize(long totalSize) {
         this.totalSize = totalSize;
     }
@@ -72,6 +75,10 @@ public class Progress<T> {
 
     public void addCurrentSize(long addSize) {
         currentSize += addSize;
+    }
+
+    public void setResult(T result) {
+        mResult = result;
     }
 
     @Override
