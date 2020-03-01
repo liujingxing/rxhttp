@@ -59,12 +59,19 @@ public final class ObservableUpload<T> extends Observable<Progress<T>> {
         observer.onSubscribe(emitter);
 
         try {
-            ((IFile)param).setProgressCallback((progress, currentSize, totalSize) -> {
+            Progress<T> completeProgress = new Progress<>(); //上传完成回调
+            ((IFile) param).setProgressCallback((progress, currentSize, totalSize) -> {
                 //这里最多回调100次,仅在进度有更新时,才会回调
-                emitter.onNext(new Progress<>(progress, currentSize, totalSize));
+                Progress<T> p = new Progress<>(progress, currentSize, totalSize);
+                if (p.isCompleted()) {
+                    //上传完成的回调，需要带上请求返回值，故这里先保存进度
+                    completeProgress.set(p);
+                } else {
+                    emitter.onNext(p);
+                }
             });
-            T t = execute(param);
-            emitter.onNext(new Progress<>(t)); //最后一次回调Http执行结果
+            completeProgress.setResult(execute(param));
+            emitter.onNext(completeProgress); //最后一次回调Http执行结果
             emitter.onComplete();
         } catch (Throwable e) {
             LogUtil.log(param, e);

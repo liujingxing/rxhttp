@@ -1,12 +1,13 @@
 package com.example.httpsender;
 
 import android.os.Bundle;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.httpsender.DownloadMultiAdapter.OnItemClickListener;
 import com.example.httpsender.entity.DownloadInfo;
@@ -156,12 +157,10 @@ public class DownloadMultiActivity extends AppCompatActivity implements OnItemCl
             .setRangeHeader(length)  //设置开始下载位置，结束位置默认为文件末尾
             .asDownload(destPath, length, progress -> { //如果需要衔接上次的下载进度，则需要传入上次已下载的字节数length
                 //下载进度回调,0-100，仅在进度有更新时才会回调
-                if (!progress.isCompleted()) {
-                    data.setProgress(progress.getProgress());//当前进度 0-100
-                    data.setCurrentSize(progress.getCurrentSize());//当前已下载的字节大小
-                    data.setTotalSize(progress.getTotalSize()); //要下载的总字节大小
-                    notifyDataSetChanged(false);
-                }
+                data.setProgress(progress.getProgress());//当前进度 0-100
+                data.setCurrentSize(progress.getCurrentSize());//当前已下载的字节大小
+                data.setTotalSize(progress.getTotalSize()); //要下载的总字节大小
+                notifyDataSetChanged(false);
             }, AndroidSchedulers.mainThread())
             .doFinally(() -> {//不管任务成功还是失败，如果还有在等待的任务，都开启下一个任务
                 downloadingTask.remove(data);
