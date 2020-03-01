@@ -25,8 +25,10 @@ import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.type.TypeVariable;
 
 import rxhttp.wrapper.annotation.Param;
 
@@ -138,49 +140,60 @@ public class ParamsAnnotatedClass {
             rxHttp$PostEncryptFormParamMethod.add(method.build());
 
             for (Element enclosedElement : typeElement.getEnclosedElements()) {
-                if (!(enclosedElement instanceof ExecutableElement)) continue;
-                if (!enclosedElement.getModifiers().contains(Modifier.PUBLIC))
-                    continue; //过滤非public修饰符
-                if (enclosedElement.getKind() != ElementKind.METHOD)
-                    continue; //过滤非方法，
-                if (enclosedElement.getAnnotation(Override.class) != null)
-                    continue; //过滤重写的方法
-                TypeMirror returnTypeMirror = ((ExecutableElement) enclosedElement).getReturnType();
-
-                TypeName returnType = TypeName.get(returnTypeMirror);
+                if (!(enclosedElement instanceof ExecutableElement)
+                    || enclosedElement.getKind() != ElementKind.METHOD          //过滤非方法，
+                    || !enclosedElement.getModifiers().contains(Modifier.PUBLIC)//过滤非public修饰符
+                    || enclosedElement.getAnnotation(Override.class) != null    //过滤重写的方法
+                ) continue;
+                ExecutableElement methodElement = (ExecutableElement) enclosedElement;
+                TypeName returnType = TypeName.get(methodElement.getReturnType()); //方法返回值
                 if (returnType.toString().equals(param.toString())) {
                     returnType = rxHttp$ParamName;
                 }
-                List<ParameterSpec> parameterSpecs = new ArrayList<>();
-                StringBuilder methodBuilder = new StringBuilder()
-                    .append(enclosedElement.getSimpleName().toString())
+                List<ParameterSpec> parameterSpecs = new ArrayList<>();  //方法参数
+                StringBuilder methodBody = new StringBuilder(enclosedElement.getSimpleName().toString())  //方法体
                     .append("(");
-                List<? extends VariableElement> parameters = ((ExecutableElement) enclosedElement).getParameters();
-                for (VariableElement element : parameters) {
+                for (VariableElement element : methodElement.getParameters()) {
                     ParameterSpec parameterSpec = ParameterSpec.get(element);
                     parameterSpecs.add(parameterSpec);
-                    methodBuilder.append(parameterSpec.name).append(",");
+                    methodBody.append(parameterSpec.name).append(",");
                 }
-                if (methodBuilder.toString().endsWith(",")) {
-                    methodBuilder.deleteCharAt(methodBuilder.length() - 1);
+                if (methodBody.toString().endsWith(",")) {
+                    methodBody.deleteCharAt(methodBody.length() - 1);
                 }
-                methodBuilder.append(")");
+                methodBody.append(")");
+
+                List<TypeVariableName> typeVariableNames = new ArrayList<>(); //方法声明的泛型
+                for (TypeParameterElement element : methodElement.getTypeParameters()) {
+                    TypeVariableName typeVariableName = TypeVariableName.get((TypeVariable) element.asType());
+                    typeVariableNames.add(typeVariableName);
+                }
+
+                List<TypeName> throwTypeName = new ArrayList<>(); //方法要抛出的异常
+                for (TypeMirror mirror : methodElement.getThrownTypes()) {
+                    TypeName typeName = TypeName.get(mirror);
+                    throwTypeName.add(typeName);
+                }
 
                 method = MethodSpec.methodBuilder(enclosedElement.getSimpleName().toString())
                     .addModifiers(enclosedElement.getModifiers())
+                    .addTypeVariables(typeVariableNames)
+                    .addExceptions(throwTypeName)
                     .addParameters(parameterSpecs);
+                if (methodElement.isVarArgs()) {
+                    method.varargs();
+                }
 
                 if (returnType == rxHttp$ParamName) {
-                    method.addStatement(prefix + methodBuilder, param)
+                    method.addStatement(prefix + methodBody, param)
                         .addStatement("return this");
                 } else if (returnType.toString().equals("void")) {
-                    method.addStatement(prefix + methodBuilder);
+                    method.addStatement(prefix + methodBody);
                 } else {
-                    method.addStatement("return " + prefix + methodBuilder, param);
+                    method.addStatement("return " + prefix + methodBody, param);
                 }
                 method.returns(returnType);
                 rxHttp$PostEncryptFormParamMethod.add(method.build());
-
             }
 
             TypeSpec rxHttpPostEncryptFormParamSpec = TypeSpec.classBuilder(rxHttpName)
