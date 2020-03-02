@@ -21,6 +21,7 @@ import rxhttp.wrapper.parse.AbstractParser;
 @Parser(name = "ResponsePageList")
 public class ResponsePageListParser<T> extends AbstractParser<PageList<T>> {
 
+    //注意：此构造方法一定要用protected关键字修饰，否则调用此构造方法将拿不到泛型类型
     protected ResponsePageListParser() {
         super();
     }
