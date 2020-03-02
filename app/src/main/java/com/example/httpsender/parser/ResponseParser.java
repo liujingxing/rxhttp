@@ -12,7 +12,7 @@ import rxhttp.wrapper.exception.ParseException;
 import rxhttp.wrapper.parse.AbstractParser;
 
 /**
- * Response<T> 数据解析器,解析完成对Response对象做判断,如果ok,返回数据 T
+ * 输入T,输出T,并对code统一判断
  * User: ljx
  * Date: 2018/10/23
  * Time: 13:49
