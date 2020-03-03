@@ -20,11 +20,26 @@ import rxhttp.wrapper.parse.AbstractParser;
 @Parser(name = "Response")
 public class ResponseParser<T> extends AbstractParser<T> {
 
-    //注意：此构造方法一定要用protected关键字修饰，否则调用此构造方法将拿不到泛型类型
+    /**
+     * 此构造方法适用于任意Class对象，但更多用于带泛型的Class对象，如：List<Student>
+     *
+     * 用法:
+     * Java: .asParser(new ResponseParser<List<Student>>(){})
+     * Kotlin: .asParser(object : ResponseParser<List<Student>>() {})
+     *
+     * 注：此构造方法一定要用protected关键字修饰，否则调用此构造方法将拿不到泛型类型
+     */
     protected ResponseParser() {
         super();
     }
 
+    /**
+     * 此构造方法仅适用于不带泛型的Class对象，如: Student.class
+     *
+     * 用法
+     * Java: .asParser(new ResponseParser<>(Student.class))   或者  .asResponse(Student.class)
+     * Kotlin: .asParser(ResponseParser(Student::class.java)) 或者  .asResponse(Student::class.java)
+     */
     public ResponseParser(Class<T> type) {
         super(type);
     }
