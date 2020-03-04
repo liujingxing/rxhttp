@@ -4,6 +4,7 @@ package rxhttp.wrapper.param;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import io.reactivex.annotations.NonNull;
 import io.reactivex.annotations.Nullable;
 import okhttp3.HttpUrl;
 import okhttp3.HttpUrl.Builder;
@@ -38,8 +39,7 @@ public class JsonParam extends AbstractParam<JsonParam> implements IJsonObject<J
     }
 
     @Override
-    public JsonParam add(String key, Object value) {
-        if (value == null) value = "";
+    public JsonParam add(String key, @NonNull Object value) {
         Map<String, Object> param = mParam;
         if (param == null) {
             param = mParam = new LinkedHashMap<>();
