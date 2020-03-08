@@ -4,6 +4,7 @@ package com.example.httpsender.interceptor;
 import com.example.httpsender.entity.User;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 import okhttp3.FormBody;
 import okhttp3.Interceptor;
@@ -11,7 +12,6 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import rxhttp.wrapper.param.RxHttp;
-import rxhttp.wrapper.param.RxHttp$FormParam;
 import rxhttp.wrapper.parse.SimpleParser;
 
 /**
@@ -39,21 +39,23 @@ public class TokenInterceptor implements Interceptor {
 
     //处理token失效问题
     private Response handleTokenInvalid(Chain chain, Request request) throws IOException {
-        RxHttp$FormParam rxHttp = RxHttp.postForm(request.url().toString());  //2、根据自己的业务修改
+        HashMap<String, String> mapParam = new HashMap<>();
         RequestBody body = request.body();
         if (body instanceof FormBody) {
             FormBody formBody = (FormBody) body;
             for (int i = 0; i < formBody.size(); i++) {
-                rxHttp.add(formBody.name(i), formBody.value(i));
+                mapParam.put(formBody.name(i), formBody.value(i));  //2、保存参数
             }
         }
         //同步刷新token
-        Object requestTime = rxHttp.queryValue("request_time");  //3、发请求前需要add("request_time",System.currentTimeMillis())
+        String requestTime = mapParam.get("request_time");  //3、发请求前需要add("request_time",System.currentTimeMillis())
         boolean success = refreshToken(requestTime);
         Request newRequest;
         if (success) { //刷新成功，重新签名
-            rxHttp.add("token", User.get().getToken()); //拿到最新的token,重新发起请求 4、根据自己的业务修改
-            newRequest = rxHttp.buildRequest();
+            mapParam.put("token", User.get().getToken()); //4、拿到最新的token,重新发起请求
+            newRequest = RxHttp.postForm(request.url().toString())
+                .addAll(mapParam) //添加参数
+                .buildRequest();
         } else {
             newRequest = request;
         }
@@ -64,7 +66,7 @@ public class TokenInterceptor implements Interceptor {
     private boolean refreshToken(Object value) {
         long requestTime = 0;
         try {
-            requestTime = Integer.valueOf(value.toString());
+            requestTime = Integer.parseInt(value.toString());
         } catch (Exception ignore) {
         }
         //请求时间小于token刷新时间，说明token已经刷新，则无需再次刷新
