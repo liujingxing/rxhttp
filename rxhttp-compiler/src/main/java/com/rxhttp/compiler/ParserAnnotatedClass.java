@@ -248,21 +248,7 @@ public class ParserAnnotatedClass {
         rxHttpExtensions.generateClassFile(filer);
 
         method = MethodSpec.methodBuilder("asDownload")
-            .addModifiers(Modifier.PUBLIC)
-            .addParameter(String.class, "destPath")
-            .addStatement("return asParser(new $T(destPath))", downloadParserName)
-            .returns(observableStringName);
-        methodList.add(method.build());
-
-        method = MethodSpec.methodBuilder("asDownload")
-            .addModifiers(Modifier.PUBLIC)
-            .addParameter(String.class, "destPath")
-            .addParameter(consumerProgressStringName, "progressConsumer")
-            .addStatement("return asDownload(destPath, progressConsumer, null)")
-            .returns(observableStringName);
-        methodList.add(method.build());
-
-        method = MethodSpec.methodBuilder("asDownload")
+            .addAnnotation(Override.class)
             .addModifiers(Modifier.PUBLIC)
             .addParameter(String.class, "destPath")
             .addParameter(consumerProgressStringName, "progressConsumer")

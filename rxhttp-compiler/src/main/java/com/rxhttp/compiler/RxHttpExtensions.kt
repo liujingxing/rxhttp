@@ -35,20 +35,20 @@ class RxHttpExtensions {
         }
 
         //自定义解析器对应的asXxx方法里面的语句
-        var statementBuilder = StringBuilder("return asParser(%T") //方法里面的表达式
+        //自定义解析器对应的asXxx方法里面的语句
+        var statementBuilder = StringBuilder("return asParser(object: %T") //方法里面的表达式
         if (typeVariableNames.size > 0) { //添加泛型
-            statementBuilder.append("(")
+            statementBuilder.append("<")
             var i = 0
             val size = typeVariableNames.size
             while (i < size) {
                 val variableName = typeVariableNames[i]
                 statementBuilder.append(variableName.name)
-                    .append("::class.java")
-                    .append(if (i == size - 1) ")" else ",")
+                    .append(if (i == size - 1) ">" else ",")
                 i++
             }
         }
-        statementBuilder.append(")")
+        statementBuilder.append("() {})")
         var funBuilder = FunSpec.builder("as$key")
             .addModifiers(KModifier.INLINE)
             .receiver(ClassName("rxhttp", "BaseRxHttp"))
@@ -66,25 +66,24 @@ class RxHttpExtensions {
         val awaitName = ClassName("rxhttp", "await")
 
         //自定义解析器对应的awaitXxx方法里面的语句
-        statementBuilder = StringBuilder("return %T(%T") //方法里面的表达式
+        statementBuilder = StringBuilder("return %T(object: %T") //方法里面的表达式
         if (typeVariableNames.size > 0) { //添加泛型
-            statementBuilder.append("(")
+            statementBuilder.append("<")
             var i = 0
             val size = typeVariableNames.size
             while (i < size) {
                 val variableName = typeVariableNames[i]
                 statementBuilder.append(variableName.name)
-                    .append("::class.java")
-                    .append(if (i == size - 1) ")" else ",")
+                    .append(if (i == size - 1) ">" else ",")
                 i++
             }
         }
 
-        statementBuilder.append(")")
+        statementBuilder.append("() {})")
         funBuilder = FunSpec.builder("await$key")
             .addModifiers(KModifier.SUSPEND, KModifier.INLINE)
             .receiver(ClassName("rxhttp", "BaseRxHttp"))
-            .addStatement(statementBuilder.toString(), awaitName, typeElement.asClassName())
+            .addStatement(statementBuilder.toString(), awaitName,typeElement.asClassName())
 
         typeVariableNames.forEach {
             if (it.bounds.isEmpty()
