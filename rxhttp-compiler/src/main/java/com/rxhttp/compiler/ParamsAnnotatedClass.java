@@ -325,6 +325,7 @@ public class ParamsAnnotatedClass {
 
         methodList.add(
             MethodSpec.methodBuilder("getBreakDownloadOffSize")
+                .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC)
                 .addStatement("return breakDownloadOffSize")
                 .returns(long.class)

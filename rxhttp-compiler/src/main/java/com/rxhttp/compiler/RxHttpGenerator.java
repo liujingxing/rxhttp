@@ -206,10 +206,11 @@ public class RxHttpGenerator {
         methodList.add(method.build());
 
         methodList.addAll(mParamsAnnotatedClass.getMethodList(filer));
-        methodList.addAll(mParserAnnotatedClass.getMethodList(platform));
+        methodList.addAll(mParserAnnotatedClass.getMethodList(filer));
         methodList.addAll(mConverterAnnotatedClass.getMethodList());
         method = MethodSpec.methodBuilder("addDefaultDomainIfAbsent")
             .addJavadoc("给Param设置默认域名(如何缺席的话)，此方法会在请求发起前，被RxHttp内部调用\n")
+            .addModifiers(Modifier.PRIVATE)
             .addParameter(p, "param");
         if (defaultDomain != null) {
             method.addStatement("String newUrl = addDomainIfAbsent(param.getSimpleUrl(), $T.$L)",
@@ -249,6 +250,7 @@ public class RxHttpGenerator {
             .addMember("value", "\"unchecked\"")
             .build();
 
+        ClassName baseRxHttpName = ClassName.get("rxhttp", "BaseRxHttp");
         TypeSpec rxHttp = TypeSpec.classBuilder(CLASSNAME)
             .addJavadoc("Github" +
                 "\nhttps://github.com/liujingxing/RxHttp" +
@@ -259,6 +261,7 @@ public class RxHttpGenerator {
             .addField(schedulerField)
             .addField(converterSpec)
             .addField(breakDownloadOffSize)
+            .superclass(baseRxHttpName)
             .addTypeVariable(p)
             .addTypeVariable(r)
             .addMethods(methodList)
@@ -580,9 +583,9 @@ public class RxHttpGenerator {
             .addParameter(parserTName, "parser")
             .addParameter(consumerProgressTName, "progressConsumer")
             .addParameter(schedulerName, "observeOnScheduler")
-            .addStatement("setConverter(param)")
+            .addStatement("doOnStart()")
             .addStatement("Observable<Progress<T>> observable = $T\n" +
-                ".uploadProgress(addDefaultDomainIfAbsent(param), parser, scheduler)", httpSenderName)
+                ".uploadProgress(param, parser, scheduler)", httpSenderName)
             .beginControlFlow("if(observeOnScheduler != null)")
             .addStatement("observable=observable.observeOn(observeOnScheduler)")
             .endControlFlow()
