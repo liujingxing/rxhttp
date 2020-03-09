@@ -154,8 +154,8 @@ public class DownloadMultiActivity extends AppCompatActivity implements OnItemCl
         String destPath = getExternalCacheDir() + "/" + data.getTaskId() + ".apk";
         long length = new File(destPath).length();
         Disposable disposable = RxHttp.get(data.getUrl())
-            .setRangeHeader(length)  //设置开始下载位置，结束位置默认为文件末尾
-            .asDownload(destPath, length, progress -> { //如果需要衔接上次的下载进度，则需要传入上次已下载的字节数length
+            .setRangeHeader(length, -1, true)  //设置开始下载位置，结束位置默认为文件末尾
+            .asDownload(destPath,  progress -> { //如果需要衔接上次的下载进度，则需要传入上次已下载的字节数length
                 //下载进度回调,0-100，仅在进度有更新时才会回调
                 data.setProgress(progress.getProgress());//当前进度 0-100
                 data.setCurrentSize(progress.getCurrentSize());//当前已下载的字节大小
