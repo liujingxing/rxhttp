@@ -150,18 +150,17 @@ public final class HttpSender {
         return observableUpload;
     }
 
-    static Call newCall(Param param) throws IOException {
-        return newCall(getOkHttpClient(), param);
-    }
-
-
     //所有的请求，最终都会调此方法拿到Call对象，然后执行请求
-    static Call newCall(OkHttpClient client, Param param) throws IOException {
+    public static Call newCall(OkHttpClient client, Param param) {
         Request request = newRequest(param);
         return client.newCall(request);
     }
 
-    static Request newRequest(Param param) throws IOException {
+    static Call newCall(Param param) {
+        return newCall(getOkHttpClient(), param);
+    }
+
+    static Request newRequest(Param param) {
         param = RxHttpPlugins.onParamAssembly(param);
         if (param instanceof IUploadLengthLimit) {
             ((IUploadLengthLimit) param).checkLength();
@@ -171,7 +170,7 @@ public final class HttpSender {
         return request;
     }
 
-    static Call execute(Request request) throws IOException {
+    static Call execute(Request request) {
         return getOkHttpClient().newCall(request);
     }
 

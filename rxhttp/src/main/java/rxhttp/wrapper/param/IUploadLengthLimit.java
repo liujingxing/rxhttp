@@ -1,7 +1,6 @@
 package rxhttp.wrapper.param;
 
 
-import java.io.IOException;
 
 /**
  * 文件上传长度限制接口
@@ -12,5 +11,5 @@ import java.io.IOException;
 public interface IUploadLengthLimit {
 
     //检查长度逻辑自行实现
-    void checkLength() throws IOException;
+    void checkLength();
 }

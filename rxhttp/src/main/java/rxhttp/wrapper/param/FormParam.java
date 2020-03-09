@@ -1,6 +1,5 @@
 package rxhttp.wrapper.param;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -169,10 +168,10 @@ public class FormParam extends AbstractParam<FormParam> implements IUploadLength
     }
 
     @Override
-    public void checkLength() throws IOException {
+    public void checkLength() {
         long totalFileLength = getTotalFileLength();
         if (totalFileLength > uploadMaxLength)
-            throw new IOException("The current total file length is " + totalFileLength + " byte, " +
+            throw new IllegalArgumentException("The current total file length is " + totalFileLength + " byte, " +
                 "this length cannot be greater than " + uploadMaxLength + " byte");
     }
 
