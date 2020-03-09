@@ -1,9 +1,12 @@
 package rxhttp
 
 import io.reactivex.Observable
+import io.reactivex.Scheduler
+import io.reactivex.functions.Consumer
 import okhttp3.Call
 import okhttp3.Headers
 import okhttp3.OkHttpClient
+import rxhttp.wrapper.entity.Progress
 import rxhttp.wrapper.parse.*
 
 /**
@@ -24,6 +27,12 @@ abstract class BaseRxHttp {
     abstract fun newCall(client: OkHttpClient): Call
 
     abstract fun <T> asParser(parser: Parser<T>): Observable<T>
+
+    abstract fun asDownload(
+        destPath: String,
+        progressConsumer: Consumer<Progress<String>>,
+        observeOnScheduler: Scheduler? = null
+    ): Observable<String>
 
     fun asBoolean() = asObject<Boolean>()
 
@@ -62,5 +71,19 @@ abstract class BaseRxHttp {
      * 调用此方法，订阅回调时，返回 [okhttp3.Response] 对象
      */
     fun asOkResponse() = asParser(OkResponseParser())
+
+    fun asDownload(destPath: String) = asParser(DownloadParser(destPath))
+
+    fun asDownload(
+        destPath: String,
+        progressConsumer: Consumer<Progress<String>>
+    ) = asDownload(destPath, progressConsumer, null)
+
+    @JvmOverloads
+    fun asDownload(
+        destPath: String,
+        observeOnScheduler: Scheduler? = null,
+        progress: (Progress<String>) -> Unit
+    ) = asDownload(destPath, Consumer { progress(it) }, observeOnScheduler)
 
 }
