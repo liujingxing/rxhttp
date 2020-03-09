@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.annotation.processing.Filer;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
@@ -44,10 +45,12 @@ public class ParserAnnotatedClass {
         mElementMap.put(name, typeElement);
     }
 
-    public List<MethodSpec> getMethodList(String platform) {
+    public List<MethodSpec> getMethodList(Filer filer) {
         TypeVariableName t = TypeVariableName.get("T");
         TypeVariableName k = TypeVariableName.get("K");
         TypeVariableName v = TypeVariableName.get("V");
+        ClassName callName = ClassName.get("okhttp3", "Call");
+        ClassName okHttpClientName = ClassName.get("okhttp3", "OkHttpClient");
         ClassName responseName = ClassName.get("okhttp3", "Response");
         ClassName schedulerName = ClassName.get("io.reactivex", "Scheduler");
         ClassName observableName = ClassName.get("io.reactivex", "Observable");
@@ -59,37 +62,15 @@ public class ParserAnnotatedClass {
         ClassName httpSenderName = ClassName.get("rxhttp", "HttpSender");
         ClassName parserName = ClassName.get("rxhttp.wrapper.parse", "Parser");
         ClassName progressName = ClassName.get("rxhttp.wrapper.entity", "Progress");
-        ClassName simpleParserName = ClassName.get("rxhttp.wrapper.parse", "SimpleParser");
-        ClassName mapParserName = ClassName.get("rxhttp.wrapper.parse", "MapParser");
-        ClassName listParserName = ClassName.get("rxhttp.wrapper.parse", "ListParser");
         ClassName downloadParserName = ClassName.get("rxhttp.wrapper.parse", "DownloadParser");
-        ClassName bitmapParserName = ClassName.get("rxhttp.wrapper.parse", "BitmapParser");
-        ClassName okResponseParserName = ClassName.get("rxhttp.wrapper.parse", "OkResponseParser");
 
         TypeName typeName = TypeName.get(String.class);
-        TypeName classTName = ParameterizedTypeName.get(ClassName.get(Class.class), t);
-        TypeName classKName = ParameterizedTypeName.get(ClassName.get(Class.class), k);
-        TypeName classVName = ParameterizedTypeName.get(ClassName.get(Class.class), v);
         TypeName listTName = ParameterizedTypeName.get(ClassName.get(List.class), t);
         TypeName mapTTName = ParameterizedTypeName.get(ClassName.get(Map.class), t, t);
         TypeName mapKVName = ParameterizedTypeName.get(ClassName.get(Map.class), k, v);
         TypeName progressStringName = ParameterizedTypeName.get(progressName, typeName);
         TypeName observableTName = ParameterizedTypeName.get(observableName, t);
-        TypeName observableListTName = ParameterizedTypeName.get(observableName, listTName);
-        TypeName observableMapTTName = ParameterizedTypeName.get(observableName, mapTTName);
-        TypeName observableMapKVName = ParameterizedTypeName.get(observableName, mapKVName);
-        TypeName observableMapName = ParameterizedTypeName.get(observableName, TypeName.get(Map.class));
-        TypeName observableBitmapName = ParameterizedTypeName.get(observableName, bitmapName);
-        TypeName observableOkResponseName = ParameterizedTypeName.get(observableName, okResponseName);
-        TypeName observableHeadersName = ParameterizedTypeName.get(observableName, headersName);
         TypeName observableStringName = ParameterizedTypeName.get(observableName, typeName);
-        TypeName observableBooleanName = ParameterizedTypeName.get(observableName, TypeName.get(Boolean.class));
-        TypeName observableByteName = ParameterizedTypeName.get(observableName, TypeName.get(Byte.class));
-        TypeName observableShortName = ParameterizedTypeName.get(observableName, TypeName.get(Short.class));
-        TypeName observableIntegerName = ParameterizedTypeName.get(observableName, TypeName.get(Integer.class));
-        TypeName observableLongName = ParameterizedTypeName.get(observableName, TypeName.get(Long.class));
-        TypeName observableFloatName = ParameterizedTypeName.get(observableName, TypeName.get(Float.class));
-        TypeName observableDoubleName = ParameterizedTypeName.get(observableName, TypeName.get(Double.class));
         TypeName consumerProgressStringName = ParameterizedTypeName.get(consumerName, progressStringName);
         TypeName parserTName = ParameterizedTypeName.get(parserName, t);
 
@@ -98,8 +79,8 @@ public class ParserAnnotatedClass {
         method = MethodSpec.methodBuilder("execute")
             .addModifiers(Modifier.PUBLIC)
             .addException(IOException.class)
-            .addStatement("setConverter(param)")
-            .addStatement("return $T.execute(addDefaultDomainIfAbsent(param))", httpSenderName)
+            .addStatement("doOnStart()")
+            .addStatement("return $T.execute(param)", httpSenderName)
             .returns(responseName);
         methodList.add(method.build());
 
@@ -111,6 +92,32 @@ public class ParserAnnotatedClass {
             .addStatement("return parser.onParse(execute())", httpSenderName)
             .returns(t);
         methodList.add(method.build());
+
+        methodList.add(
+            MethodSpec.methodBuilder("newCall")
+                .addAnnotation(Override.class)
+                .addModifiers(Modifier.PUBLIC)
+                .addStatement("return newCall(getOkHttpClient())")
+                .returns(callName)
+                .build());
+
+        methodList.add(
+            MethodSpec.methodBuilder("newCall")
+                .addAnnotation(Override.class)
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(okHttpClientName, "okHttp")
+                .addStatement("doOnStart()")
+                .addStatement("return $T.newCall(okHttp, param)", httpSenderName)
+                .returns(callName)
+                .build());
+
+        methodList.add(
+            MethodSpec.methodBuilder("doOnStart")
+                .addAnnotation(Override.class)
+                .addModifiers(Modifier.PROTECTED)
+                .addStatement("setConverter(param)")
+                .addStatement("addDefaultDomainIfAbsent(param)")
+                .build());
 
         method = MethodSpec.methodBuilder("subscribeOn")
             .addModifiers(Modifier.PUBLIC)
@@ -164,11 +171,12 @@ public class ParserAnnotatedClass {
         methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("asParser")
+            .addAnnotation(Override.class)
             .addModifiers(Modifier.PUBLIC)
             .addTypeVariable(t)
             .addParameter(parserTName, "parser")
-            .addStatement("setConverter(param)")
-            .addStatement("Observable<T> observable=$T.syncFrom(addDefaultDomainIfAbsent(param),parser)", httpSenderName)
+            .addStatement("doOnStart()")
+            .addStatement("Observable<T> observable=$T.syncFrom(param,parser)", httpSenderName)
             .beginControlFlow("if(scheduler!=null)")
             .addStatement("observable=observable.subscribeOn(scheduler)")
             .endControlFlow()
@@ -176,116 +184,7 @@ public class ParserAnnotatedClass {
             .returns(observableTName);
         methodList.add(method.build());
 
-        method = MethodSpec.methodBuilder("asObject")
-            .addModifiers(Modifier.PUBLIC)
-            .addTypeVariable(t)
-            .addParameter(classTName, "type")
-            .addStatement("return asParser($T.get(type))", simpleParserName)
-            .returns(observableTName);
-        methodList.add(method.build());
-
-        if ("Android".equals(platform)) {
-            method = MethodSpec.methodBuilder("asBitmap")
-                .addModifiers(Modifier.PUBLIC)
-                .addStatement("return asParser(new $T())", bitmapParserName)
-                .returns(observableBitmapName);
-            methodList.add(method.build());
-        }
-
-        method = MethodSpec.methodBuilder("asString")
-            .addModifiers(Modifier.PUBLIC)
-            .addStatement("return asObject(String.class)")
-            .returns(observableStringName);
-        methodList.add(method.build());
-
-        method = MethodSpec.methodBuilder("asBoolean")
-            .addModifiers(Modifier.PUBLIC)
-            .addStatement("return asObject(Boolean.class)")
-            .returns(observableBooleanName);
-        methodList.add(method.build());
-
-        method = MethodSpec.methodBuilder("asByte")
-            .addModifiers(Modifier.PUBLIC)
-            .addStatement("return asObject(Byte.class)")
-            .returns(observableByteName);
-        methodList.add(method.build());
-
-        method = MethodSpec.methodBuilder("asShort")
-            .addModifiers(Modifier.PUBLIC)
-            .addStatement("return asObject(Short.class)")
-            .returns(observableShortName);
-        methodList.add(method.build());
-
-        method = MethodSpec.methodBuilder("asInteger")
-            .addModifiers(Modifier.PUBLIC)
-            .addStatement("return asObject(Integer.class)")
-            .returns(observableIntegerName);
-        methodList.add(method.build());
-
-        method = MethodSpec.methodBuilder("asLong")
-            .addModifiers(Modifier.PUBLIC)
-            .addStatement("return asObject(Long.class)")
-            .returns(observableLongName);
-        methodList.add(method.build());
-
-        method = MethodSpec.methodBuilder("asFloat")
-            .addModifiers(Modifier.PUBLIC)
-            .addStatement("return asObject(Float.class)")
-            .returns(observableFloatName);
-        methodList.add(method.build());
-
-        method = MethodSpec.methodBuilder("asDouble")
-            .addModifiers(Modifier.PUBLIC)
-            .addStatement("return asObject(Double.class)")
-            .returns(observableDoubleName);
-        methodList.add(method.build());
-
-        method = MethodSpec.methodBuilder("asMap")
-            .addModifiers(Modifier.PUBLIC)
-            .addStatement("return asObject(Map.class)")
-            .returns(observableMapName);
-        methodList.add(method.build());
-
-        method = MethodSpec.methodBuilder("asMap")
-            .addModifiers(Modifier.PUBLIC)
-            .addTypeVariable(t)
-            .addParameter(classTName, "type")
-            .addStatement("return asParser($T.get(type,type))", mapParserName)
-            .returns(observableMapTTName);
-        methodList.add(method.build());
-
-        method = MethodSpec.methodBuilder("asMap")
-            .addModifiers(Modifier.PUBLIC)
-            .addTypeVariable(k)
-            .addTypeVariable(v)
-            .addParameter(classKName, "kType")
-            .addParameter(classVName, "vType")
-            .addStatement("return asParser($T.get(kType,vType))", mapParserName)
-            .returns(observableMapKVName);
-        methodList.add(method.build());
-
-        method = MethodSpec.methodBuilder("asList")
-            .addModifiers(Modifier.PUBLIC)
-            .addTypeVariable(t)
-            .addParameter(classTName, "type")
-            .addStatement("return asParser($T.get(type))", listParserName)
-            .returns(observableListTName);
-        methodList.add(method.build());
-
-
-        method = MethodSpec.methodBuilder("asHeaders")
-            .addJavadoc("调用此方法，订阅回调时，返回 {@link okhttp3.Headers} 对象\n")
-            .addModifiers(Modifier.PUBLIC)
-            .addStatement("return asOkResponse().map(Response::headers)")
-            .returns(observableHeadersName);
-        methodList.add(method.build());
-
-        method = MethodSpec.methodBuilder("asOkResponse")
-            .addJavadoc("调用此方法，订阅回调时，返回 {@link okhttp3.Response} 对象\n")
-            .addModifiers(Modifier.PUBLIC)
-            .addStatement("return asParser(new $T())", okResponseParserName)
-            .returns(observableOkResponseName);
-        methodList.add(method.build());
+        RxHttpExtensions rxHttpExtensions = new RxHttpExtensions();
 
         //获取自定义的解析器
         for (Entry<String, TypeElement> item : mElementMap.entrySet()) {
@@ -304,6 +203,7 @@ public class ParserAnnotatedClass {
                 }
             }
             if (returnType == null) continue;
+            rxHttpExtensions.generateAsClassFun(typeElement, item.getKey());
 
             List<TypeVariableName> typeVariableNames = new ArrayList<>();
             List<ParameterSpec> parameterSpecs = new ArrayList<>();
@@ -345,6 +245,7 @@ public class ParserAnnotatedClass {
                 .returns(ParameterizedTypeName.get(observableName, TypeName.get(returnType)));
             methodList.add(method.build());
         }
+        rxHttpExtensions.generateClassFile(filer);
 
         method = MethodSpec.methodBuilder("asDownload")
             .addModifiers(Modifier.PUBLIC)
@@ -366,9 +267,9 @@ public class ParserAnnotatedClass {
             .addParameter(String.class, "destPath")
             .addParameter(consumerProgressStringName, "progressConsumer")
             .addParameter(schedulerName, "observeOnScheduler")
-            .addStatement("setConverter(param)")
+            .addStatement("doOnStart()")
             .addStatement("Observable<Progress<String>> observable = $T\n" +
-                ".downloadProgress(addDefaultDomainIfAbsent(param), destPath, breakDownloadOffSize, scheduler)", httpSenderName)
+                ".downloadProgress(param, destPath, breakDownloadOffSize, scheduler)", httpSenderName)
             .beginControlFlow("if(observeOnScheduler != null)")
             .addStatement("observable=observable.observeOn(observeOnScheduler)")
             .endControlFlow()
