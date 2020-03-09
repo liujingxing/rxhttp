@@ -71,20 +71,20 @@ public class ParamsAnnotatedClass {
 
         List<MethodSpec> methodList = new ArrayList<>();
         Map<String, String> methodMap = new LinkedHashMap<>();
-        methodMap.put("get", "RxHttp$NoBodyParam");
-        methodMap.put("head", "RxHttp$NoBodyParam");
-        methodMap.put("postForm", "RxHttp$FormParam");
-        methodMap.put("putForm", "RxHttp$FormParam");
-        methodMap.put("patchForm", "RxHttp$FormParam");
-        methodMap.put("deleteForm", "RxHttp$FormParam");
-        methodMap.put("postJson", "RxHttp$JsonParam");
-        methodMap.put("putJson", "RxHttp$JsonParam");
-        methodMap.put("patchJson", "RxHttp$JsonParam");
-        methodMap.put("deleteJson", "RxHttp$JsonParam");
-        methodMap.put("postJsonArray", "RxHttp$JsonArrayParam");
-        methodMap.put("putJsonArray", "RxHttp$JsonArrayParam");
-        methodMap.put("patchJsonArray", "RxHttp$JsonArrayParam");
-        methodMap.put("deleteJsonArray", "RxHttp$JsonArrayParam");
+        methodMap.put("get", "RxHttpNoBodyParam");
+        methodMap.put("head", "RxHttpNoBodyParam");
+        methodMap.put("postForm", "RxHttpFormParam");
+        methodMap.put("putForm", "RxHttpFormParam");
+        methodMap.put("patchForm", "RxHttpFormParam");
+        methodMap.put("deleteForm", "RxHttpFormParam");
+        methodMap.put("postJson", "RxHttpJsonParam");
+        methodMap.put("putJson", "RxHttpJsonParam");
+        methodMap.put("patchJson", "RxHttpJsonParam");
+        methodMap.put("deleteJson", "RxHttpJsonParam");
+        methodMap.put("postJsonArray", "RxHttpJsonArrayParam");
+        methodMap.put("putJsonArray", "RxHttpJsonArrayParam");
+        methodMap.put("patchJsonArray", "RxHttpJsonArrayParam");
+        methodMap.put("deleteJsonArray", "RxHttpJsonArrayParam");
 
         MethodSpec.Builder method;
         for (Map.Entry<String, String> map : methodMap.entrySet()) {
@@ -101,43 +101,43 @@ public class ParamsAnnotatedClass {
         for (Entry<String, TypeElement> item : mElementMap.entrySet()) {
             TypeElement typeElement = item.getValue();
             ClassName param = ClassName.get(typeElement);
-            String rxHttpName = "RxHttp$" + typeElement.getSimpleName();
-            ClassName rxHttp$ParamName = ClassName.get(RxHttpGenerator.packageName, rxHttpName);
+            String rxHttpName = "RxHttp" + typeElement.getSimpleName();
+            ClassName RxHttpParamName = ClassName.get(RxHttpGenerator.packageName, rxHttpName);
             method = MethodSpec.methodBuilder(item.getKey())
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                 .addParameter(String.class, "url")
                 .addParameter(ArrayTypeName.of(Object.class), "formatArgs")
                 .varargs()
-                .addStatement("return new $T(new $T(format(url, formatArgs)))", rxHttp$ParamName, param)
-                .returns(rxHttp$ParamName);
+                .addStatement("return new $T(new $T(format(url, formatArgs)))", RxHttpParamName, param)
+                .returns(RxHttpParamName);
             methodList.add(method.build());
 
             TypeMirror superclass = typeElement.getSuperclass();
-            TypeName rxHttp$Param;
+            TypeName RxHttpParam;
             String prefix = "((" + param.simpleName() + ")param).";
             switch (superclass.toString()) {
                 case "rxhttp.wrapper.param.FormParam":
-                    rxHttp$Param = ClassName.get(RxHttpGenerator.packageName, "RxHttp$FormParam");
+                    RxHttpParam = ClassName.get(RxHttpGenerator.packageName, "RxHttpFormParam");
                     break;
                 case "rxhttp.wrapper.param.JsonParam":
-                    rxHttp$Param = ClassName.get(RxHttpGenerator.packageName, "RxHttp$JsonParam");
+                    RxHttpParam = ClassName.get(RxHttpGenerator.packageName, "RxHttpJsonParam");
                     break;
                 case "rxhttp.wrapper.param.NoBodyParam":
-                    rxHttp$Param = ClassName.get(RxHttpGenerator.packageName, "RxHttp$NoBodyParam");
+                    RxHttpParam = ClassName.get(RxHttpGenerator.packageName, "RxHttpNoBodyParam");
                     break;
                 default:
                     prefix = "param.";
-                    rxHttp$Param = ParameterizedTypeName.get(RxHttpGenerator.RXHTTP, param, rxHttp$ParamName);
+                    RxHttpParam = ParameterizedTypeName.get(RxHttpGenerator.RXHTTP, param, RxHttpParamName);
                     break;
             }
 
-            List<MethodSpec> rxHttp$PostEncryptFormParamMethod = new ArrayList<>();
+            List<MethodSpec> RxHttpPostEncryptFormParamMethod = new ArrayList<>();
 
             method = MethodSpec.constructorBuilder()
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(param, "param")
                 .addStatement("super(param)");
-            rxHttp$PostEncryptFormParamMethod.add(method.build());
+            RxHttpPostEncryptFormParamMethod.add(method.build());
 
             for (Element enclosedElement : typeElement.getEnclosedElements()) {
                 if (!(enclosedElement instanceof ExecutableElement)
@@ -148,7 +148,7 @@ public class ParamsAnnotatedClass {
                 ExecutableElement methodElement = (ExecutableElement) enclosedElement;
                 TypeName returnType = TypeName.get(methodElement.getReturnType()); //方法返回值
                 if (returnType.toString().equals(param.toString())) {
-                    returnType = rxHttp$ParamName;
+                    returnType = RxHttpParamName;
                 }
                 List<ParameterSpec> parameterSpecs = new ArrayList<>();  //方法参数
                 StringBuilder methodBody = new StringBuilder(enclosedElement.getSimpleName().toString())  //方法体
@@ -184,7 +184,7 @@ public class ParamsAnnotatedClass {
                     method.varargs();
                 }
 
-                if (returnType == rxHttp$ParamName) {
+                if (returnType == RxHttpParamName) {
                     method.addStatement(prefix + methodBody, param)
                         .addStatement("return this");
                 } else if (returnType.toString().equals("void")) {
@@ -193,7 +193,7 @@ public class ParamsAnnotatedClass {
                     method.addStatement("return " + prefix + methodBody, param);
                 }
                 method.returns(returnType);
-                rxHttp$PostEncryptFormParamMethod.add(method.build());
+                RxHttpPostEncryptFormParamMethod.add(method.build());
             }
 
             TypeSpec rxHttpPostEncryptFormParamSpec = TypeSpec.classBuilder(rxHttpName)
@@ -201,8 +201,8 @@ public class ParamsAnnotatedClass {
                     "\nhttps://github.com/liujingxing/RxHttp" +
                     "\nhttps://github.com/liujingxing/RxLife\n")
                 .addModifiers(Modifier.PUBLIC)
-                .superclass(rxHttp$Param)
-                .addMethods(rxHttp$PostEncryptFormParamMethod)
+                .superclass(RxHttpParam)
+                .addMethods(RxHttpPostEncryptFormParamMethod)
                 .build();
 
             JavaFile.builder(RxHttpGenerator.packageName, rxHttpPostEncryptFormParamSpec)
@@ -212,29 +212,29 @@ public class ParamsAnnotatedClass {
         method = MethodSpec.methodBuilder("with")
             .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
             .addParameter(noBodyParamName, "noBodyParam")
-            .addStatement("return new $L(noBodyParam)", "RxHttp$NoBodyParam")
-            .returns(ClassName.get(RxHttpGenerator.packageName, "RxHttp$NoBodyParam"));
+            .addStatement("return new $L(noBodyParam)", "RxHttpNoBodyParam")
+            .returns(ClassName.get(RxHttpGenerator.packageName, "RxHttpNoBodyParam"));
         methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("with")
             .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
             .addParameter(formParamName, "formParam")
-            .addStatement("return new $L(formParam)", "RxHttp$FormParam")
-            .returns(ClassName.get(RxHttpGenerator.packageName, "RxHttp$FormParam"));
+            .addStatement("return new $L(formParam)", "RxHttpFormParam")
+            .returns(ClassName.get(RxHttpGenerator.packageName, "RxHttpFormParam"));
         methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("with")
             .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
             .addParameter(jsonParamName, "jsonParam")
-            .addStatement("return new $L(jsonParam)", "RxHttp$JsonParam")
-            .returns(ClassName.get(RxHttpGenerator.packageName, "RxHttp$JsonParam"));
+            .addStatement("return new $L(jsonParam)", "RxHttpJsonParam")
+            .returns(ClassName.get(RxHttpGenerator.packageName, "RxHttpJsonParam"));
         methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("with")
             .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
             .addParameter(jsonArrayParamName, "jsonArrayParam")
-            .addStatement("return new $L(jsonArrayParam)", "RxHttp$JsonArrayParam")
-            .returns(ClassName.get(RxHttpGenerator.packageName, "RxHttp$JsonArrayParam"));
+            .addStatement("return new $L(jsonArrayParam)", "RxHttpJsonArrayParam")
+            .returns(ClassName.get(RxHttpGenerator.packageName, "RxHttpJsonArrayParam"));
         methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("setUrl")
