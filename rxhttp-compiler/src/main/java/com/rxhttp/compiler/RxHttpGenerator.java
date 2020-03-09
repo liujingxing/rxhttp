@@ -106,13 +106,13 @@ public class RxHttpGenerator {
         TypeName mapName = ParameterizedTypeName.get(ClassName.get(Map.class), subString, subObject);
 
         ClassName noBodyParamName = ClassName.get(packageName, "NoBodyParam");
-        ClassName rxHttpNoBodyName = ClassName.get(packageName, "RxHttp$NoBodyParam");
+        ClassName rxHttpNoBodyName = ClassName.get(packageName, "RxHttpNoBodyParam");
         ClassName formParamName = ClassName.get(packageName, "FormParam");
-        ClassName rxHttpFormName = ClassName.get(packageName, "RxHttp$FormParam");
+        ClassName rxHttpFormName = ClassName.get(packageName, "RxHttpFormParam");
         ClassName jsonParamName = ClassName.get(packageName, "JsonParam");
-        ClassName rxHttpJsonName = ClassName.get(packageName, "RxHttp$JsonParam");
+        ClassName rxHttpJsonName = ClassName.get(packageName, "RxHttpJsonParam");
         ClassName jsonArrayParamName = ClassName.get(packageName, "JsonArrayParam");
-        ClassName rxHttpJsonArrayName = ClassName.get(packageName, "RxHttp$JsonArrayParam");
+        ClassName rxHttpJsonArrayName = ClassName.get(packageName, "RxHttpJsonArrayParam");
 
         TypeName rxHttpNoBody = ParameterizedTypeName.get(RXHTTP, noBodyParamName, rxHttpNoBodyName);
         TypeName rxHttpForm = ParameterizedTypeName.get(RXHTTP, formParamName, rxHttpFormName);
@@ -355,7 +355,7 @@ public class RxHttpGenerator {
             .returns(listObjectName);
         methodList.add(method.build());
 
-        TypeSpec rxHttpNoBodySpec = TypeSpec.classBuilder("RxHttp$NoBodyParam")
+        TypeSpec rxHttpNoBodySpec = TypeSpec.classBuilder("RxHttpNoBodyParam")
             .addJavadoc("Github" +
                 "\nhttps://github.com/liujingxing/RxHttp" +
                 "\nhttps://github.com/liujingxing/RxLife\n")
@@ -588,7 +588,7 @@ public class RxHttpGenerator {
         methodList.add(method.build());
 
 
-        TypeSpec rxHttpFormSpec = TypeSpec.classBuilder("RxHttp$FormParam")
+        TypeSpec rxHttpFormSpec = TypeSpec.classBuilder("RxHttpFormParam")
             .addJavadoc("Github" +
                 "\nhttps://github.com/liujingxing/RxHttp" +
                 "\nhttps://github.com/liujingxing/RxLife\n")
@@ -665,7 +665,7 @@ public class RxHttpGenerator {
             .returns(rxHttpJsonName);
         methodList.add(method.build());
 
-        TypeSpec rxHttpJsonSpec = TypeSpec.classBuilder("RxHttp$JsonParam")
+        TypeSpec rxHttpJsonSpec = TypeSpec.classBuilder("RxHttpJsonParam")
             .addJavadoc("Github" +
                 "\nhttps://github.com/liujingxing/RxHttp" +
                 "\nhttps://github.com/liujingxing/RxLife\n")
@@ -773,7 +773,7 @@ public class RxHttpGenerator {
             .returns(rxHttpJsonArrayName);
         methodList.add(method.build());
 
-        TypeSpec rxHttpJsonArraySpec = TypeSpec.classBuilder("RxHttp$JsonArrayParam")
+        TypeSpec rxHttpJsonArraySpec = TypeSpec.classBuilder("RxHttpJsonArrayParam")
             .addJavadoc("Github" +
                 "\nhttps://github.com/liujingxing/RxHttp" +
                 "\nhttps://github.com/liujingxing/RxLife\n")
