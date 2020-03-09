@@ -241,6 +241,10 @@ public class RxHttpGenerator {
             .initializer("$T.getConverter()", rxHttpPluginsName)
             .build();
 
+        FieldSpec breakDownloadOffSize = FieldSpec.builder(long.class, "breakDownloadOffSize", Modifier.PRIVATE)  //添加变量
+            .initializer("0L")
+            .build();
+
         AnnotationSpec build = AnnotationSpec.builder(SuppressWarnings.class)
             .addMember("value", "\"unchecked\"")
             .build();
@@ -254,6 +258,7 @@ public class RxHttpGenerator {
             .addField(p, "param", Modifier.PROTECTED)
             .addField(schedulerField)
             .addField(converterSpec)
+            .addField(breakDownloadOffSize)
             .addTypeVariable(p)
             .addTypeVariable(r)
             .addMethods(methodList)

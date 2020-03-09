@@ -68,7 +68,6 @@ public class ParamsAnnotatedClass {
         ClassName cacheModeName = ClassName.get("rxhttp.wrapper.cahce", "CacheMode");
 
 
-
         List<MethodSpec> methodList = new ArrayList<>();
         Map<String, String> methodMap = new LinkedHashMap<>();
         methodMap.put("get", "RxHttpNoBodyParam");
@@ -297,8 +296,7 @@ public class ParamsAnnotatedClass {
         method = MethodSpec.methodBuilder("setRangeHeader")
             .addModifiers(Modifier.PUBLIC)
             .addParameter(long.class, "startIndex")
-            .addStatement("param.setRangeHeader(startIndex)")
-            .addStatement("return (R)this")
+            .addStatement("return setRangeHeader(startIndex, -1, false)")
             .returns(rxHttp);
         methodList.add(method.build());
 
@@ -306,10 +304,31 @@ public class ParamsAnnotatedClass {
             .addModifiers(Modifier.PUBLIC)
             .addParameter(long.class, "startIndex")
             .addParameter(long.class, "endIndex")
-            .addStatement("param.setRangeHeader(startIndex,endIndex)")
-            .addStatement("return (R)this")
+            .addStatement("return setRangeHeader(startIndex, endIndex, false)")
             .returns(rxHttp);
         methodList.add(method.build());
+
+        methodList.add(
+            MethodSpec.methodBuilder("setRangeHeader")
+                .addJavadoc("设置断点下载开始/结束位置\n" +
+                    "@param startIndex 断点下载开始位置\n" +
+                    "@param endIndex 断点下载结束位置，默认为-1，即默认结束位置为文件末尾\n" +
+                    "@param connectLastProgress 是否衔接上次的下载进度，该参数仅在带进度断点下载时生效\n")
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(long.class, "startIndex")
+                .addParameter(long.class, "endIndex")
+                .addParameter(boolean.class, "connectLastProgress")
+                .addStatement("param.setRangeHeader(startIndex,endIndex)")
+                .addStatement("if(connectLastProgress) breakDownloadOffSize = startIndex")
+                .addStatement("return (R)this")
+                .returns(rxHttp).build());
+
+        methodList.add(
+            MethodSpec.methodBuilder("getBreakDownloadOffSize")
+                .addModifiers(Modifier.PUBLIC)
+                .addStatement("return breakDownloadOffSize")
+                .returns(long.class)
+                .build());
 
         method = MethodSpec.methodBuilder("removeAllHeader")
             .addModifiers(Modifier.PUBLIC)
