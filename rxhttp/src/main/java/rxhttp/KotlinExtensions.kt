@@ -30,7 +30,7 @@ inline fun <reified T : Any> BaseRxHttp.asList() = asObject<List<T>>()
 
 inline fun <reified K : Any, reified V : Any> BaseRxHttp.asMap() = asObject<Map<K, V>>()
 
-inline fun <reified T : Any> BaseRxHttp.asObject() = asParser(SimpleParser(T::class.java))
+inline fun <reified T : Any> BaseRxHttp.asObject() = asParser(object : SimpleParser<T>() {})
 
 suspend fun BaseRxHttp.awaitBoolean() = await<Boolean>()
 
