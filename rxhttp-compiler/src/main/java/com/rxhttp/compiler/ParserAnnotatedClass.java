@@ -357,37 +357,18 @@ public class ParserAnnotatedClass {
             .addModifiers(Modifier.PUBLIC)
             .addParameter(String.class, "destPath")
             .addParameter(consumerProgressStringName, "progressConsumer")
-            .addStatement("return asDownload(destPath, 0, progressConsumer, null)")
+            .addStatement("return asDownload(destPath, progressConsumer, null)")
             .returns(observableStringName);
         methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("asDownload")
             .addModifiers(Modifier.PUBLIC)
             .addParameter(String.class, "destPath")
-            .addParameter(consumerProgressStringName, "progressConsumer")
-            .addParameter(schedulerName, "observeOnScheduler")
-            .addStatement("return asDownload(destPath, 0, progressConsumer, observeOnScheduler)")
-            .returns(observableStringName);
-        methodList.add(method.build());
-
-        method = MethodSpec.methodBuilder("asDownload")
-            .addModifiers(Modifier.PUBLIC)
-            .addParameter(String.class, "destPath")
-            .addParameter(long.class, "offsetSize")
-            .addParameter(consumerProgressStringName, "progressConsumer")
-            .addStatement("return asDownload(destPath, offsetSize, progressConsumer, null)")
-            .returns(observableStringName);
-        methodList.add(method.build());
-
-        method = MethodSpec.methodBuilder("asDownload")
-            .addModifiers(Modifier.PUBLIC)
-            .addParameter(String.class, "destPath")
-            .addParameter(long.class, "offsetSize")
             .addParameter(consumerProgressStringName, "progressConsumer")
             .addParameter(schedulerName, "observeOnScheduler")
             .addStatement("setConverter(param)")
             .addStatement("Observable<Progress<String>> observable = $T\n" +
-                ".downloadProgress(addDefaultDomainIfAbsent(param),destPath,offsetSize,scheduler)", httpSenderName)
+                ".downloadProgress(addDefaultDomainIfAbsent(param), destPath, breakDownloadOffSize, scheduler)", httpSenderName)
             .beginControlFlow("if(observeOnScheduler != null)")
             .addStatement("observable=observable.observeOn(observeOnScheduler)")
             .endControlFlow()

@@ -43,7 +43,6 @@ public final class ObservableDownload extends Observable<Progress<String>> {
     private final long   offsetSize;
 
     private Call    mCall;
-    private boolean isBreakpointDown;//是否断点下载
 
     private int lastProgress; //上次下载进度
     ObservableDownload(Param param, final String destPath) {
@@ -72,7 +71,7 @@ public final class ObservableDownload extends Observable<Progress<String>> {
             Response response = execute(param, (progress, currentSize, totalSize) -> {
                 //这里最多回调100次,仅在进度有更新时,才会回调
                 Progress<String> p = new Progress<>(progress, currentSize, totalSize);
-                if (offsetSize > 0 && isBreakpointDown) {
+                if (offsetSize > 0) {
                     p.addCurrentSize(offsetSize);
                     p.addTotalSize(offsetSize);
                     p.updateProgress();
@@ -87,7 +86,6 @@ public final class ObservableDownload extends Observable<Progress<String>> {
                     emitter.onNext(p);
                 }
             });
-            isBreakpointDown = response.header("Content-Range") != null;
             String filePath = new DownloadParser(destPath).onParse(response);
             completeProgress.setResult(filePath);
             emitter.onNext(completeProgress); //最后一次回调文件下载路径
