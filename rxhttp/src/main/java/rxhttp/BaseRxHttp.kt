@@ -78,12 +78,4 @@ abstract class BaseRxHttp {
         destPath: String,
         progressConsumer: Consumer<Progress<String>>
     ) = asDownload(destPath, progressConsumer, null)
-
-    @JvmOverloads
-    fun asDownload(
-        destPath: String,
-        observeOnScheduler: Scheduler? = null,
-        progress: (Progress<String>) -> Unit
-    ) = asDownload(destPath, Consumer { progress(it) }, observeOnScheduler)
-
 }
