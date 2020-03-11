@@ -6,6 +6,8 @@ package rxhttp
  * Time: 08:47
  */
 import io.reactivex.Observable
+import io.reactivex.Scheduler
+import io.reactivex.functions.Consumer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -31,6 +33,13 @@ inline fun <reified T : Any> BaseRxHttp.asList() = asObject<List<T>>()
 inline fun <reified K : Any, reified V : Any> BaseRxHttp.asMap() = asObject<Map<K, V>>()
 
 inline fun <reified T : Any> BaseRxHttp.asObject() = asParser(object : SimpleParser<T>() {})
+
+@JvmOverloads
+fun BaseRxHttp.asDownload(
+    destPath: String,
+    observeOnScheduler: Scheduler? = null,
+    progress: (Progress<String>) -> Unit
+) = asDownload(destPath, Consumer { progress(it) }, observeOnScheduler)
 
 suspend fun BaseRxHttp.awaitBoolean() = await<Boolean>()
 
