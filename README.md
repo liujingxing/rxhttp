@@ -27,8 +27,8 @@
 ```java
 dependencies {
 
-   implementation 'com.rxjava.rxhttp:rxhttp:0.0.8' //必须
-   annotationProcessor 'com.rxjava.rxhttp:rxhttp-compiler:0.0.8' //注解处理器，生成RxHttp类,必须
+   implementation 'com.rxjava.rxhttp:rxhttp:0.1.1' //必须
+   annotationProcessor 'com.rxjava.rxhttp:rxhttp-compiler:0.1.1' //注解处理器，生成RxHttp类,必须
    implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'  //切换主线程，Android工程必须
 
    implementation 'com.rxjava.rxlife:rxlife:1.1.0'  //页面销毁，关闭请求，非必须
@@ -49,15 +49,19 @@ dependencies {
 
 - 新增一系列`suspend <T> awaitXxx(): T` 方法，用于对协程的支持，通过该系列方法，可直接拿到http返回值
 
-- 新增：对于之前要传`Classs<T>`参数的asXxx方法，新增了与之对应同名的无参方法，如：`T asObject<T>()`
+- 新增：对于之前`asXxx(Class<T>)`方法，新增了与之同名的无参方法，如：`T asXXX<T>()`，此系列方法只有在kotlin下才可见；
+由于此改动，自定义解析器的同学，必须要提供两个构造方法，其中一个无参数，一个带`Class<T>`参数，无参构造方法需要使用protected关键字修饰
 
-- 修改`setRangeHeader(long,long)`方法签名为`setRangeHeader(long,long,boolean)`，其中第三个参数代表在带进度断点下载时，是否需要衔接上次的下载进度，默认为false
+- 新增`setRangeHeader(long,long,boolean)`，其中第三个参数代表在带进度断点下载时，是否需要衔接上次的下载进度，默认为false
 
-- 删除`asDownload(String,long,Consumer,Scheduler)`方法，但保留了`asDownload(String,Consumer,Scheduler)`方法，删除该方法后，带进度断点下载时，如果需要衔接上次的下载进度，可通过`setRangeHeader(long,long,boolean)`方法的第三个参数进行配置
+- 删除`asDownload(String,long,Consumer,Scheduler)`方法，但保留了`asDownload(String,Consumer,Scheduler)`方法，
+删除该方法后，带进度断点下载时，如果需要衔接上次的下载进度，可通过`setRangeHeader(long,long,boolean)`方法的第三个参数进行配置
 
-- 修改：对RxHttp子类的命名方式由之前的`RxHttp$Xxx`，改为`RxHttp_Xxx`，因为kotlin不允许用`$`符号命名
+- 修改：对RxHttp子类的命名方式由之前的`RxHttp$XxxParam`，改为`RxHttpXxxParam`，删除了`$`符号
 
-- 修改：`rxhttp-compiler`库全部用kotlin改写，`rxhttp`库对常用类、关键类用kotlin改写
+- 修改：对add(String,File)标记为过时，请尽快使用addFile(String,File)方法替代
+
+- 修改：对部分关键类用kotlin改写，如Parser相关类
 
 
 
