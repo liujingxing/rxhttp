@@ -468,6 +468,8 @@ public class RxHttpGenerator {
         methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("add")
+            .addAnnotation(Deprecated.class)
+            .addJavadoc("@deprecated please user {@link #addFile(String,File)} instead\n")
             .addModifiers(Modifier.PUBLIC)
             .addParameter(String.class, "key")
             .addParameter(File.class, "file")
