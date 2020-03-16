@@ -300,13 +300,21 @@ public class ParamsAnnotatedClass {
             .returns(rxHttp);
         methodList.add(method.build());
 
-        method = MethodSpec.methodBuilder("setRangeHeader")
-            .addModifiers(Modifier.PUBLIC)
-            .addParameter(long.class, "startIndex")
-            .addParameter(long.class, "endIndex")
-            .addStatement("return setRangeHeader(startIndex, endIndex, false)")
-            .returns(rxHttp);
-        methodList.add(method.build());
+        methodList.add(
+            MethodSpec.methodBuilder("setRangeHeader")
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(long.class, "startIndex")
+                .addParameter(long.class, "endIndex")
+                .addStatement("return setRangeHeader(startIndex, endIndex, false)")
+                .returns(rxHttp).build());
+
+        methodList.add(
+            MethodSpec.methodBuilder("setRangeHeader")
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(long.class, "startIndex")
+                .addParameter(boolean.class, "connectLastProgress")
+                .addStatement("return setRangeHeader(startIndex, -1, connectLastProgress)")
+                .returns(rxHttp).build());
 
         methodList.add(
             MethodSpec.methodBuilder("setRangeHeader")
