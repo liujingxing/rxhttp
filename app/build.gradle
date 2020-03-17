@@ -50,7 +50,7 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
 
     //管理RxJava及生命周期，Activity/Fragment 销毁，自动关闭未完成的请求
-    implementation 'com.rxjava.rxlife:rxlife-x:1.1.0'
+    implementation 'com.rxjava.rxlife:rxlife-x:0.0.7'
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
 
     implementation project(":rxhttp")
