@@ -60,9 +60,7 @@ abstract class BaseRxHttp {
 
     fun <T> asClass(type: Class<T>) = asParser(SimpleParser(type))
 
-    fun asMap() = asClass<Map<Any, Any>>()
-
-    fun <T> asMap(type: Class<T>) = asParser(MapParser(type, type))
+    fun <T> asMap(type: Class<T>) = asMap(type, type)
 
     fun <K, V> asMap(kType: Class<K>, vType: Class<V>) = asParser(MapParser(kType, vType))
 
