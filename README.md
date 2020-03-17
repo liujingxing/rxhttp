@@ -4,7 +4,7 @@
 
   ***1. 30秒即可上手，学习成本极低***
 
-  ***2. 史上最优雅的处理网络缓存***
+  ***2. 完美支持kotlin 协程***
 
   ***3. 史上最优雅的处理多个BaseUrl及动态BaseUrl***
 
@@ -18,9 +18,7 @@
 
   ***8. 支持在Activity/Fragment/View/ViewModel/任意类中，自动关闭请求***
 
-  ***9. 支持统一加解密，且可对单个请求设置是否加解密***
-
-  ***10. 支持添加公共参数/头部，且可对单个请求设置是否添加公共参数/头部***
+  ***9. 支持全局加解密、添加公共参数及头部、网络缓存，也支持对单个请求单独设置***
 
 **Gradle依赖**
 
@@ -31,7 +29,7 @@ dependencies {
    annotationProcessor 'com.rxjava.rxhttp:rxhttp-compiler:2.0.0' //注解处理器，生成RxHttp类,必须
    implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'  //切换主线程，Android工程必须
 
-   implementation 'com.rxjava.rxlife:rxlife:1.1.0'  //页面销毁，关闭请求，非必须
+   implementation 'com.rxjava.rxlife:rxlife-x:2.0.0'  //页面销毁，关闭请求，非必须
 
    //Converter 根据自己需求选择  非必须  RxHttp默认内置了GsonConverter
    implementation 'com.rxjava.rxhttp:converter-jackson:2.0.0'
