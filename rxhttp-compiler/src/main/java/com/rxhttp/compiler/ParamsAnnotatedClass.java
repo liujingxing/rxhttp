@@ -365,15 +365,6 @@ public class ParamsAnnotatedClass {
             .returns(rxHttp);
         methodList.add(method.build());
 
-        method = MethodSpec.methodBuilder("setConverterEnabled")
-            .addAnnotation(Deprecated.class)
-            .addJavadoc("@deprecated please user {@link #setDecoderEnabled(boolean)} instead\n")
-            .addModifiers(Modifier.PUBLIC)
-            .addParameter(boolean.class, "enabled")
-            .addStatement("return setDecoderEnabled(enabled)")
-            .returns(rxHttp);
-        methodList.add(method.build());
-
         method = MethodSpec.methodBuilder("setDecoderEnabled")
             .addJavadoc("设置单个接口是否需要对Http返回的数据进行解码/解密," +
                 "\n即是否回调通过{@link #setResultDecoder(Function)}方法设置的接口,默认为true\n")
