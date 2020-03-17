@@ -28,11 +28,11 @@ import kotlin.coroutines.resumeWithException
  * Time: 21:04
  */
 
-inline fun <reified T : Any> BaseRxHttp.asList() = asObject<List<T>>()
+inline fun <reified T : Any> BaseRxHttp.asList() = asClass<List<T>>()
 
-inline fun <reified K : Any, reified V : Any> BaseRxHttp.asMap() = asObject<Map<K, V>>()
+inline fun <reified K : Any, reified V : Any> BaseRxHttp.asMap() = asClass<Map<K, V>>()
 
-inline fun <reified T : Any> BaseRxHttp.asObject() = asParser(object : SimpleParser<T>() {})
+inline fun <reified T : Any> BaseRxHttp.asClass() = asParser(object : SimpleParser<T>() {})
 
 @JvmOverloads
 fun BaseRxHttp.asDownload(
