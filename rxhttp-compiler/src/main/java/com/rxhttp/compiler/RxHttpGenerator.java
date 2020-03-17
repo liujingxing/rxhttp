@@ -148,15 +148,6 @@ public class RxHttpGenerator {
             .returns(void.class);
         methodList.add(method.build());
 
-        method = MethodSpec.methodBuilder("setOnConverter")
-            .addAnnotation(Deprecated.class)
-            .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-            .addJavadoc("@deprecated please user {@link #setResultDecoder(Function)} instead\n")
-            .addParameter(mapStringName, "converter")
-            .addStatement("setResultDecoder(converter)")
-            .returns(void.class);
-        methodList.add(method.build());
-
         method = MethodSpec.methodBuilder("setResultDecoder")
             .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
             .addJavadoc("设置统一数据解码/解密器，每次请求成功后会回调该接口并传入Http请求的结果" +
