@@ -34,27 +34,33 @@ abstract class BaseRxHttp {
         observeOnScheduler: Scheduler? = null
     ): Observable<String>
 
-    fun asBoolean() = asObject<Boolean>()
+    fun asBoolean() = asClass<Boolean>()
 
-    fun asByte() = asObject<Byte>()
+    fun asByte() = asClass<Byte>()
 
-    fun asShort() = asObject<Short>()
+    fun asShort() = asClass<Short>()
 
-    fun asInteger() = asObject<Int>()
+    fun asInteger() = asClass<Int>()
 
-    fun asLong() = asObject<Long>()
+    fun asLong() = asClass<Long>()
 
-    fun asFloat() = asObject<Float>()
+    fun asFloat() = asClass<Float>()
 
-    fun asDouble() = asObject<Double>()
+    fun asDouble() = asClass<Double>()
 
-    fun asString() = asObject<String>()
+    fun asString() = asClass<String>()
 
     fun asBitmap() = asParser(BitmapParser())
 
-    fun <T> asObject(type: Class<T>) = asParser(SimpleParser(type))
+    /**
+     * please user [asClass] instead
+     */
+    @Deprecated("The method has been renamed", ReplaceWith("asClass(type)"))
+    fun <T> asObject(type: Class<T>) = asClass(type)
 
-    fun asMap() = asObject<Map<Any, Any>>()
+    fun <T> asClass(type: Class<T>) = asParser(SimpleParser(type))
+
+    fun asMap() = asClass<Map<Any, Any>>()
 
     fun <T> asMap(type: Class<T>) = asParser(MapParser(type, type))
 
