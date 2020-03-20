@@ -1,6 +1,5 @@
 package com.example.httpsender.parser
 
-import android.graphics.Point
 import com.example.httpsender.entity.Response
 import rxhttp.wrapper.annotation.Parser
 import rxhttp.wrapper.entity.ParameterizedTypeImpl
