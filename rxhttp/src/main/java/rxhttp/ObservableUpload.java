@@ -85,7 +85,7 @@ public final class ObservableUpload<T> extends Observable<Progress<T>> {
     //执行请求
     private T execute(Param param) throws Exception {
         if (mRequest == null) { //防止失败重试时，重复构造okhttp3.Request对象
-            mRequest = HttpSender.newRequest(param);
+            mRequest = param.buildRequest();
         }
         Call call = mCall = HttpSender.newCall(mRequest);
         Response response = call.execute();
