@@ -11,7 +11,7 @@ import rxhttp.wrapper.parse.Parser
  * Time: 17:06
  */
 class RxHttpRetry(
-    baseRxHttp: BaseRxHttp,
+    baseRxHttp: IRxHttp,
     private var times: Int = 0,
     private val period: Long = 0L,
     private val test: ((Throwable) -> Boolean)? = null
