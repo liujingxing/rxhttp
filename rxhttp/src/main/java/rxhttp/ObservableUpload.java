@@ -29,6 +29,7 @@ import io.reactivex.internal.queue.SpscLinkedArrayQueue;
 import io.reactivex.internal.util.AtomicThrowable;
 import io.reactivex.plugins.RxJavaPlugins;
 import okhttp3.Call;
+import okhttp3.Request;
 import okhttp3.Response;
 import rxhttp.wrapper.entity.Progress;
 import rxhttp.wrapper.param.IFile;
@@ -41,6 +42,7 @@ public final class ObservableUpload<T> extends Observable<Progress<T>> {
     private final Parser<T> parser;
 
     private Call mCall;
+    private Request mRequest;
 
     ObservableUpload(Param param, final Parser<T> parser) {
         this.param = param;
@@ -82,7 +84,10 @@ public final class ObservableUpload<T> extends Observable<Progress<T>> {
 
     //执行请求
     private T execute(Param param) throws Exception {
-        Call call = mCall = HttpSender.newCall(param);
+        if (mRequest == null) { //防止失败重试时，重复构造okhttp3.Request对象
+            mRequest = HttpSender.newRequest(param);
+        }
+        Call call = mCall = HttpSender.newCall(mRequest);
         Response response = call.execute();
         return parser.onParse(response);
     }
