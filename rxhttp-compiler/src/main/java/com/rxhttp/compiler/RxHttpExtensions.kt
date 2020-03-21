@@ -95,20 +95,20 @@ class RxHttpExtensions {
         }
         awaitFunList.add(funBuilder.build())
 
-        funBuilder = FunSpec.builder("await$key")
-            .addModifiers(KModifier.SUSPEND, KModifier.INLINE)
-            .receiver(ClassName("rxhttp", "ErrorRetry"))
-            .addStatement(statementBuilder.toString(), awaitName, typeElement.asClassName())
-
-        typeVariableNames.forEach {
-            if (it.bounds.isEmpty()
-                || (it.bounds.size == 1 && it.bounds[0].toString() == "java.lang.Object")) {
-                funBuilder.addTypeVariable(TypeVariableName(it.name, anyTypeName).copy(reified = true))
-            } else {
-                funBuilder.addTypeVariable((it.toKClassTypeName() as TypeVariableName).copy(reified = true))
-            }
-        }
-        awaitFunList.add(funBuilder.build())
+//        funBuilder = FunSpec.builder("await$key")
+//            .addModifiers(KModifier.SUSPEND, KModifier.INLINE)
+//            .receiver(ClassName("rxhttp", "ErrorRetry"))
+//            .addStatement(statementBuilder.toString(), awaitName, typeElement.asClassName())
+//
+//        typeVariableNames.forEach {
+//            if (it.bounds.isEmpty()
+//                || (it.bounds.size == 1 && it.bounds[0].toString() == "java.lang.Object")) {
+//                funBuilder.addTypeVariable(TypeVariableName(it.name, anyTypeName).copy(reified = true))
+//            } else {
+//                funBuilder.addTypeVariable((it.toKClassTypeName() as TypeVariableName).copy(reified = true))
+//            }
+//        }
+//        awaitFunList.add(funBuilder.build())
     }
 
 
