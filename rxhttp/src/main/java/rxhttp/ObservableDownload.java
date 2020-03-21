@@ -30,6 +30,7 @@ import io.reactivex.internal.queue.SpscLinkedArrayQueue;
 import io.reactivex.internal.util.AtomicThrowable;
 import io.reactivex.plugins.RxJavaPlugins;
 import okhttp3.Call;
+import okhttp3.Request;
 import okhttp3.Response;
 import rxhttp.wrapper.callback.ProgressCallback;
 import rxhttp.wrapper.entity.Progress;
@@ -38,13 +39,15 @@ import rxhttp.wrapper.parse.DownloadParser;
 import rxhttp.wrapper.utils.LogUtil;
 
 public final class ObservableDownload extends Observable<Progress<String>> {
-    private final Param  param;
+    private final Param param;
     private final String destPath;
-    private final long   offsetSize;
+    private final long offsetSize;
 
-    private Call    mCall;
+    private Call mCall;
+    private Request mRequest;
 
     private int lastProgress; //上次下载进度
+
     ObservableDownload(Param param, final String destPath) {
         this(param, destPath, 0);
     }
@@ -98,7 +101,10 @@ public final class ObservableDownload extends Observable<Progress<String>> {
     }
 
     private Response execute(@NonNull Param param, @NonNull ProgressCallback callback) throws Exception {
-        Call call = mCall = HttpSender.newCall(HttpSender.clone(callback), param);
+        if (mRequest == null) { //防止失败重试时，重复构造okhttp3.Request对象
+            mRequest = HttpSender.newRequest(param);
+        }
+        Call call = mCall = HttpSender.clone(callback).newCall(mRequest);
         return call.execute();
     }
 
@@ -109,8 +115,8 @@ public final class ObservableDownload extends Observable<Progress<String>> {
     }
 
     static class CreateEmitter<T>
-            extends AtomicReference<Disposable>
-            implements ObservableEmitter<T>, Disposable {
+        extends AtomicReference<Disposable>
+        implements ObservableEmitter<T>, Disposable {
 
         private static final long serialVersionUID = -3434801548987643227L;
 
@@ -202,8 +208,8 @@ public final class ObservableDownload extends Observable<Progress<String>> {
      * @param <T> the value type
      */
     static final class SerializedEmitter<T>
-            extends AtomicInteger
-            implements ObservableEmitter<T> {
+        extends AtomicInteger
+        implements ObservableEmitter<T> {
 
         private static final long serialVersionUID = 4883307006032401862L;
 
