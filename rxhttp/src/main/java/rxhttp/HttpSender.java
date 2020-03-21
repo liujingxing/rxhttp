@@ -149,16 +149,12 @@ public final class HttpSender {
         return observableUpload;
     }
 
-    public static Call newCall(OkHttpClient client, Param param) {
-        return newCall(client, param.buildRequest());
-    }
-
     static Call newCall(Request request) {
         return newCall(getOkHttpClient(), request);
     }
 
     //所有的请求，最终都会调此方法拿到Call对象，然后执行请求
-    static Call newCall(OkHttpClient client, Request request) {
+    public static Call newCall(OkHttpClient client, Request request) {
         return client.newCall(request);
     }
 

@@ -55,7 +55,6 @@ public class ParamsAnnotatedClass {
         TypeVariableName rxHttp = RxHttpGenerator.r;
         ClassName headerName = ClassName.get("okhttp3", "Headers");
         ClassName headerBuilderName = ClassName.get("okhttp3", "Headers.Builder");
-        ClassName requestName = ClassName.get("okhttp3", "Request");
         ClassName cacheControlName = ClassName.get("okhttp3", "CacheControl");
         ClassName progressCallbackName = ClassName.get("rxhttp.wrapper.callback", "ProgressCallback");
 
@@ -410,14 +409,6 @@ public class ParamsAnnotatedClass {
             .addModifiers(Modifier.PUBLIC)
             .addStatement("return param.getHeadersBuilder()")
             .returns(headerBuilderName);
-        methodList.add(method.build());
-
-        method = MethodSpec.methodBuilder("buildRequest")
-            .addAnnotation(Override.class)
-            .addModifiers(Modifier.PUBLIC)
-            .addStatement("doOnStart()")
-            .addStatement("return param.buildRequest()")
-            .returns(requestName);
         methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("tag")
