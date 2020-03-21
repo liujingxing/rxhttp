@@ -95,7 +95,7 @@ public class ParserAnnotatedClass {
 
         methodList.add(
             MethodSpec.methodBuilder("newCall")
-                .addAnnotation(Override.class)
+//                .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC)
                 .addStatement("return newCall(getOkHttpClient())")
                 .returns(callName)
@@ -103,7 +103,7 @@ public class ParserAnnotatedClass {
 
         methodList.add(
             MethodSpec.methodBuilder("newCall")
-                .addAnnotation(Override.class)
+//                .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(okHttpClientName, "okHttp")
                 .addStatement("doOnStart()")
@@ -113,7 +113,7 @@ public class ParserAnnotatedClass {
 
         methodList.add(
             MethodSpec.methodBuilder("doOnStart")
-                .addAnnotation(Override.class)
+//                .addAnnotation(Override.class)
                 .addModifiers(Modifier.PROTECTED)
                 .addStatement("setConverter(param)")
                 .addStatement("addDefaultDomainIfAbsent(param)")

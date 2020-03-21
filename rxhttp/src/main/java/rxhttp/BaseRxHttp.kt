@@ -3,7 +3,6 @@ package rxhttp
 import io.reactivex.Observable
 import io.reactivex.Scheduler
 import io.reactivex.functions.Consumer
-import okhttp3.Call
 import okhttp3.Headers
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -20,12 +19,6 @@ abstract class BaseRxHttp {
 
     //断点下载进度偏移量，进在带进度断点下载时生效
     abstract val breakDownloadOffSize: Long
-
-    protected abstract fun doOnStart()
-
-    abstract fun newCall(): Call
-
-    abstract fun newCall(client: OkHttpClient): Call
 
     abstract fun buildRequest(): Request
 
@@ -85,4 +78,12 @@ abstract class BaseRxHttp {
         destPath: String,
         progressConsumer: Consumer<Progress<String>>
     ) = asDownload(destPath, progressConsumer, null)
+
+    /**
+     * 失败重试/超时处理，需要重写此方法
+     */
+    internal open suspend fun <T> await(
+        client: OkHttpClient = HttpSender.getOkHttpClient(),
+        parser: Parser<T>
+    ) = HttpSender.newCall(client, buildRequest()).await(parser)
 }
