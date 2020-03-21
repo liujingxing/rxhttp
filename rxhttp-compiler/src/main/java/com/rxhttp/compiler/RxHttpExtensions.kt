@@ -82,7 +82,7 @@ class RxHttpExtensions {
         statementBuilder.append("() {})")
         funBuilder = FunSpec.builder("await$key")
             .addModifiers(KModifier.SUSPEND, KModifier.INLINE)
-            .receiver(ClassName("rxhttp", "BaseRxHttp"))
+            .receiver(ClassName("rxhttp", "IRxHttp"))
             .addStatement(statementBuilder.toString(), awaitName, typeElement.asClassName())
 
         typeVariableNames.forEach {

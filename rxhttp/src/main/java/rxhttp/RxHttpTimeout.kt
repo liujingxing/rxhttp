@@ -11,7 +11,7 @@ import rxhttp.wrapper.parse.Parser
  * Time: 17:06
  */
 class RxHttpTimeout(
-    baseRxHttp: BaseRxHttp,
+    baseRxHttp: IRxHttp,
     private var timeoutMillis: Long = 0L
 ) : RxHttpProxy(baseRxHttp) {
 
