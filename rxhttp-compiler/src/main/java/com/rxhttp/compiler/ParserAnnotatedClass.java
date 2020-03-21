@@ -60,6 +60,7 @@ public class ParserAnnotatedClass {
         ClassName okResponseName = ClassName.get("okhttp3", "Response");
         ClassName headersName = ClassName.get("okhttp3", "Headers");
         ClassName httpSenderName = ClassName.get("rxhttp", "HttpSender");
+        ClassName requestName = ClassName.get("okhttp3", "Request");
         ClassName parserName = ClassName.get("rxhttp.wrapper.parse", "Parser");
         ClassName progressName = ClassName.get("rxhttp.wrapper.entity", "Progress");
         ClassName downloadParserName = ClassName.get("rxhttp.wrapper.parse", "DownloadParser");
@@ -95,7 +96,6 @@ public class ParserAnnotatedClass {
 
         methodList.add(
             MethodSpec.methodBuilder("newCall")
-//                .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC)
                 .addStatement("return newCall(getOkHttpClient())")
                 .returns(callName)
@@ -103,18 +103,24 @@ public class ParserAnnotatedClass {
 
         methodList.add(
             MethodSpec.methodBuilder("newCall")
-//                .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(okHttpClientName, "okHttp")
-                .addStatement("doOnStart()")
-                .addStatement("return $T.newCall(okHttp, param)", httpSenderName)
+                .addStatement("return $T.newCall(okHttp, buildRequest())", httpSenderName)
                 .returns(callName)
                 .build());
 
         methodList.add(
+            MethodSpec.methodBuilder("buildRequest")
+                .addAnnotation(Override.class)
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                .addStatement("doOnStart()")
+                .addStatement("return param.buildRequest()")
+                .returns(requestName)
+                .build());
+
+        methodList.add(
             MethodSpec.methodBuilder("doOnStart")
-//                .addAnnotation(Override.class)
-                .addModifiers(Modifier.PROTECTED)
+                .addJavadoc("请求开始前内部调用，用于添加默认域名等操作\n")
                 .addStatement("setConverter(param)")
                 .addStatement("addDefaultDomainIfAbsent(param)")
                 .build());
