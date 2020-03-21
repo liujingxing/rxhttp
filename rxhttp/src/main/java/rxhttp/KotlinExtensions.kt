@@ -57,26 +57,22 @@ suspend fun BaseRxHttp.awaitDouble() = await<Double>()
 
 suspend fun BaseRxHttp.awaitString() = await<String>()
 
-suspend fun BaseRxHttp.awaitBitmap() = await(BitmapParser())
-
-suspend inline fun <reified T : Any> BaseRxHttp.await() = await(object : SimpleParser<T>() {})
-
 suspend inline fun <reified T : Any> BaseRxHttp.awaitList() = await<List<T>>()
 
 suspend inline fun <reified K : Any, reified V : Any> BaseRxHttp.awaitMap() = await<Map<K, V>>()
+
+suspend fun BaseRxHttp.awaitBitmap() = await(BitmapParser())
 
 suspend fun BaseRxHttp.awaitHeaders(): Headers = awaitOkResponse().headers()
 
 suspend fun BaseRxHttp.awaitOkResponse() = await(OkResponseParser())
 
-/**
- * 除过awaitDownload方法，所有的awaitXxx方法,最终都会调用本方法
- */
-suspend fun <T> BaseRxHttp.await(parser: Parser<T>) = newCall().await(parser)
+suspend inline fun <reified T : Any> BaseRxHttp.await() = await(object : SimpleParser<T>() {})
 
-suspend fun BaseRxHttp.awaitDownload(destPath: String): String {
-    return await(DownloadParser(destPath))
-}
+suspend fun BaseRxHttp.awaitDownload(destPath: String) = await(DownloadParser(destPath))
+
+//以上awaitXxx方法都会调用本方法
+suspend fun <T> BaseRxHttp.await(parser: Parser<T>) = await(parser = parser)
 
 /**
  * @param destPath 本地存储路径
@@ -89,32 +85,8 @@ suspend fun BaseRxHttp.awaitDownload(
     progress: (Progress<String>) -> Unit
 ): String {
     val clone = HttpSender.clone(ProgressCallbackImpl(coroutine, breakDownloadOffSize, progress))
-    return newCall(clone).await(DownloadParser(destPath))
+    return await(clone, DownloadParser(destPath))
 }
-
-private class ProgressCallbackImpl(
-    private val coroutine: CoroutineScope? = null,  //协程，用于对进度回调切换线程
-    private val offsetSize: Long,
-    private val progress: (Progress<String>) -> Unit
-) : ProgressCallback {
-
-    private var lastProgress = 0   //上次下载进度
-
-    override fun onProgress(progress: Int, currentSize: Long, totalSize: Long) {
-        //这里最多回调100次,仅在进度有更新时,才会回调
-        val p = Progress<String>(progress, currentSize, totalSize)
-        if (offsetSize > 0) {
-            p.addCurrentSize(offsetSize)
-            p.addTotalSize(offsetSize)
-            p.updateProgress()
-            val currentProgress: Int = p.progress
-            if (currentProgress <= lastProgress) return
-            lastProgress = currentProgress
-        }
-        coroutine?.launch { progress(p) } ?: progress(p)
-    }
-}
-
 
 /**
  * 所有的awaitXxx方法,最终都会调用本方法
@@ -141,7 +113,6 @@ suspend fun <T> Call.await(parser: Parser<T>): T {
     }
 }
 
-
 suspend fun <T : Any> Observable<T>.await(): T {
     return suspendCancellableCoroutine { continuation ->
         val subscribe = subscribe({
@@ -153,5 +124,28 @@ suspend fun <T : Any> Observable<T>.await(): T {
         continuation.invokeOnCancellation {
             subscribe.dispose()
         }
+    }
+}
+
+private class ProgressCallbackImpl(
+    private val coroutine: CoroutineScope? = null,  //协程，用于对进度回调切换线程
+    private val offsetSize: Long,
+    private val progress: (Progress<String>) -> Unit
+) : ProgressCallback {
+
+    private var lastProgress = 0   //上次下载进度
+
+    override fun onProgress(progress: Int, currentSize: Long, totalSize: Long) {
+        //这里最多回调100次,仅在进度有更新时,才会回调
+        val p = Progress<String>(progress, currentSize, totalSize)
+        if (offsetSize > 0) {
+            p.addCurrentSize(offsetSize)
+            p.addTotalSize(offsetSize)
+            p.updateProgress()
+            val currentProgress: Int = p.progress
+            if (currentProgress <= lastProgress) return
+            lastProgress = currentProgress
+        }
+        coroutine?.launch { progress(p) } ?: progress(p)
     }
 }
