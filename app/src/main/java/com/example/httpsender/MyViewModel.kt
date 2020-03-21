@@ -9,6 +9,7 @@ import com.rxjava.rxlife.ScopeViewModel
 import com.rxjava.rxlife.lifeOnMain
 import io.reactivex.Observable
 import kotlinx.coroutines.TimeoutCancellationException
+import rxhttp.retry
 import rxhttp.timeout
 import rxhttp.wrapper.param.RxHttp
 import rxhttp.wrapper.param.awaitResponse

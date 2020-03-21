@@ -15,64 +15,66 @@ import rxhttp.wrapper.parse.SimpleParser
  * Date: 2020/3/21
  * Time: 17:06
  */
-class RxHttpRetry(
+class ErrorRetry(
     internal val baseRxHttp: BaseRxHttp
 ) {
     internal var times = 0
     internal var period = 0L
     internal var test: ((Throwable) -> Boolean)? = null
     internal var timeoutMillis = 0L
-
-    fun timeout(timeMillis: Long): RxHttpRetry {
-        timeoutMillis = timeMillis
-        return this
-    }
-
-    fun retry(
-        times: Int = Int.MAX_VALUE,
-        period: Long = 0,
-        test: ((Throwable) -> Boolean)? = null
-    ): RxHttpRetry {
-        this.times = times
-        this.period = period
-        this.test = test
-        return this
-    }
 }
 
 /**
- * @param times  重试次数，默认Int.MAX_VALUE 代表不断重试
- * @param period 重试周期，默认为0，单位: milliseconds
+ * @param times  重试次数, 默认Int.MAX_VALUE 代表不断重试
+ * @param period 重试周期, 默认为0, 单位: milliseconds
  * @param test   重试条件, 默认为空，即无条件重试
  */
 fun BaseRxHttp.retry(
     times: Int = Int.MAX_VALUE,
     period: Long = 0,
     test: ((Throwable) -> Boolean)? = null
-) = RxHttpRetry(this).retry(times, period, test)
+) = ErrorRetry(this).retry(times, period, test)
 
-fun BaseRxHttp.timeout(timeMillis: Long
-) = RxHttpRetry(this).timeout(timeMillis)
+/**
+ * @param timeMillis 超时时长  注意: 要保证 timeMillis < OkHttp全局超时(连接+读+写)之和，否则无效
+ */
+fun BaseRxHttp.timeout(timeMillis: Long) = ErrorRetry(this).timeout(timeMillis)
 
-suspend fun RxHttpRetry.awaitBitmap() = await(BitmapParser())
+fun ErrorRetry.timeout(timeMillis: Long): ErrorRetry {
+    timeoutMillis = timeMillis
+    return this
+}
 
-suspend fun RxHttpRetry.awaitHeaders(): Headers = awaitOkResponse().headers()
+fun ErrorRetry.retry(
+    times: Int = Int.MAX_VALUE,
+    period: Long = 0,
+    test: ((Throwable) -> Boolean)? = null
+): ErrorRetry {
+    this.times = times
+    this.period = period
+    this.test = test
+    return this
+}
 
-suspend fun RxHttpRetry.awaitOkResponse() = await(OkResponseParser())
+suspend fun ErrorRetry.awaitBitmap() = await(BitmapParser())
 
-suspend inline fun <reified T : Any> RxHttpRetry.awaitList() = await<List<T>>()
+suspend fun ErrorRetry.awaitHeaders(): Headers = awaitOkResponse().headers()
 
-suspend inline fun <reified K : Any, reified V : Any> RxHttpRetry.awaitMap() = await<Map<K, V>>()
+suspend fun ErrorRetry.awaitOkResponse() = await(OkResponseParser())
 
-suspend inline fun <reified T : Any> RxHttpRetry.await() = await(object : SimpleParser<T>() {})
+suspend inline fun <reified T : Any> ErrorRetry.awaitList() = await<List<T>>()
 
-suspend fun <T> RxHttpRetry.await(parser: Parser<T>) = awaitRetry(baseRxHttp.buildRequest(), parser)
+suspend inline fun <reified K : Any, reified V : Any> ErrorRetry.awaitMap() = await<Map<K, V>>()
+
+suspend inline fun <reified T : Any> ErrorRetry.await() = await(object : SimpleParser<T>() {})
+
+suspend fun <T> ErrorRetry.await(parser: Parser<T>) = awaitRetry(baseRxHttp.buildRequest(), parser)
 
 /**
  * @param request [okhttp3.Request] 对象，用于构建 [okhttp3.Call]对象
  * @param parser 解析器
  */
-private suspend fun <T> RxHttpRetry.awaitRetry(
+private suspend fun <T> ErrorRetry.awaitRetry(
     request: Request,
     parser: Parser<T>
 ): T {
