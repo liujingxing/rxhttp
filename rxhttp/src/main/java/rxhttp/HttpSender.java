@@ -18,7 +18,6 @@ import okhttp3.Response;
 import rxhttp.wrapper.callback.ProgressCallback;
 import rxhttp.wrapper.entity.Progress;
 import rxhttp.wrapper.param.FormParam;
-import rxhttp.wrapper.param.IUploadLengthLimit;
 import rxhttp.wrapper.param.Param;
 import rxhttp.wrapper.parse.DownloadParser;
 import rxhttp.wrapper.parse.Parser;
@@ -81,7 +80,7 @@ public final class HttpSender {
      * @throws IOException 数据解析异常、网络异常等
      */
     public static Response execute(@NonNull Param param) throws IOException {
-        return newCall(param).execute();
+        return newCall(param.buildRequest()).execute();
     }
 
     /**
@@ -150,36 +149,17 @@ public final class HttpSender {
         return observableUpload;
     }
 
-    //所有的请求，最终都会调此方法拿到Call对象，然后执行请求
     public static Call newCall(OkHttpClient client, Param param) {
-        Request request = newRequest(param);
-        return client.newCall(request);
-    }
-
-    static Call newCall(Param param) {
-        return newCall(getOkHttpClient(), param);
-    }
-
-    static Request newRequest(Param param) {
-        param = RxHttpPlugins.onParamAssembly(param);
-        if (param instanceof IUploadLengthLimit) {
-            ((IUploadLengthLimit) param).checkLength();
-        }
-        Request request = param.buildRequest();
-        LogUtil.log(request);
-        return request;
+        return newCall(client, param.buildRequest());
     }
 
     static Call newCall(Request request) {
-        return getOkHttpClient().newCall(request);
+        return newCall(getOkHttpClient(), request);
     }
 
-    /**
-     * @deprecated please user {@link HttpSender#newCall(Request) } instead
-     */
-    @Deprecated
-    static Call execute(Request request) {
-        return newCall(request);
+    //所有的请求，最终都会调此方法拿到Call对象，然后执行请求
+    static Call newCall(OkHttpClient client, Request request) {
+        return client.newCall(request);
     }
 
     /**
