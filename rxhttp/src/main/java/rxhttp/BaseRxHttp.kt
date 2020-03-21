@@ -6,6 +6,7 @@ import io.reactivex.functions.Consumer
 import okhttp3.Call
 import okhttp3.Headers
 import okhttp3.OkHttpClient
+import okhttp3.Request
 import rxhttp.wrapper.entity.Progress
 import rxhttp.wrapper.parse.*
 
@@ -25,6 +26,8 @@ abstract class BaseRxHttp {
     abstract fun newCall(): Call
 
     abstract fun newCall(client: OkHttpClient): Call
+
+    abstract fun buildRequest(): Request
 
     abstract fun <T> asParser(parser: Parser<T>): Observable<T>
 
