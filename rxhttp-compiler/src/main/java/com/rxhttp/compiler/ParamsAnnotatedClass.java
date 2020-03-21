@@ -414,6 +414,7 @@ public class ParamsAnnotatedClass {
 
         method = MethodSpec.methodBuilder("buildRequest")
             .addModifiers(Modifier.PUBLIC)
+            .addStatement("doOnStart()")
             .addStatement("return param.buildRequest()")
             .returns(requestName);
         methodList.add(method.build());

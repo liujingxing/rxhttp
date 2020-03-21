@@ -16,6 +16,7 @@ import rxhttp.wrapper.cahce.CacheMode;
 import rxhttp.wrapper.cahce.CacheStrategy;
 import rxhttp.wrapper.callback.IConverter;
 import rxhttp.wrapper.utils.BuildUtil;
+import rxhttp.wrapper.utils.LogUtil;
 
 /**
  * 此类是唯一直接实现Param接口的类
@@ -178,8 +179,14 @@ public abstract class AbstractParam<P extends Param> implements Param<P> {
     }
 
     @Override
-    public Request buildRequest() {
-        return BuildUtil.buildRequest(this, requestBuilder);
+    public final Request buildRequest() {
+        Param param = RxHttpPlugins.onParamAssembly(this);
+        if (param instanceof IUploadLengthLimit) {
+            ((IUploadLengthLimit) param).checkLength();
+        }
+        Request request = BuildUtil.buildRequest(param, requestBuilder);
+        LogUtil.log(request);
+        return request;
     }
 
     protected IConverter getConverter() {
