@@ -46,7 +46,7 @@ public final class ObservableHttp<T> extends Observable<T> implements Callable<T
     private final Parser<T> parser;
 
     private Call mCall;
-
+    private Request request;
     private InternalCache cache;
 
     ObservableHttp(@NonNull Param param, @NonNull Parser<T> parser) {
@@ -86,7 +86,9 @@ public final class ObservableHttp<T> extends Observable<T> implements Callable<T
 
     //执行请求
     private T execute(Param param) throws Exception {
-        Request request = HttpSender.newRequest(param);
+        if (request == null) { //防止失败重试时，重复构造okhttp3.Request对象
+            request = HttpSender.newRequest(param);
+        }
         CacheMode cacheMode = param.getCacheMode();
         if (cacheModeIs(CacheMode.ONLY_CACHE, CacheMode.READ_CACHE_FAILED_REQUEST_NETWORK)) {
             //读取缓存
@@ -97,7 +99,7 @@ public final class ObservableHttp<T> extends Observable<T> implements Callable<T
             if (cacheModeIs(CacheMode.ONLY_CACHE)) //仅读缓存模式下，缓存读取失败，直接抛出异常
                 throw new CacheReadFailedException("Cache read failed");
         }
-        Call call = mCall = HttpSender.execute(request);
+        Call call = mCall = HttpSender.newCall(request);
         Response networkResponse = null;
         try {
             networkResponse = call.execute();

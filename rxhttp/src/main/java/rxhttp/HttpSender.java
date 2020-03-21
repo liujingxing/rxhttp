@@ -170,8 +170,16 @@ public final class HttpSender {
         return request;
     }
 
-    static Call execute(Request request) {
+    static Call newCall(Request request) {
         return getOkHttpClient().newCall(request);
+    }
+
+    /**
+     * @deprecated please user {@link HttpSender#newCall(Request) } instead
+     */
+    @Deprecated
+    static Call execute(Request request) {
+        return newCall(request);
     }
 
     /**
