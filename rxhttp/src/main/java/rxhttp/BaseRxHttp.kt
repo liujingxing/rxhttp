@@ -15,10 +15,7 @@ import rxhttp.wrapper.parse.*
  * Date: 2020/3/9
  * Time: 08:43
  */
-abstract class BaseRxHttp {
-
-    //断点下载进度偏移量，进在带进度断点下载时生效
-    abstract val breakDownloadOffSize: Long
+abstract class BaseRxHttp : IRxHttp {
 
     abstract fun buildRequest(): Request
 
@@ -82,8 +79,21 @@ abstract class BaseRxHttp {
     /**
      * 失败重试/超时处理，需要重写此方法
      */
-    internal open suspend fun <T> await(
-        client: OkHttpClient = HttpSender.getOkHttpClient(),
+    override suspend fun <T> await(
+        client: OkHttpClient,
         parser: Parser<T>
     ) = HttpSender.newCall(client, buildRequest()).await(parser)
 }
+
+inline fun <reified T : Any> BaseRxHttp.asList() = asClass<List<T>>()
+
+inline fun <reified K : Any, reified V : Any> BaseRxHttp.asMap() = asClass<Map<K, V>>()
+
+inline fun <reified T : Any> BaseRxHttp.asClass() = asParser(object : SimpleParser<T>() {})
+
+@JvmOverloads
+fun BaseRxHttp.asDownload(
+    destPath: String,
+    observeOnScheduler: Scheduler? = null,
+    progress: (Progress<String>) -> Unit
+) = asDownload(destPath, Consumer { progress(it) }, observeOnScheduler)
