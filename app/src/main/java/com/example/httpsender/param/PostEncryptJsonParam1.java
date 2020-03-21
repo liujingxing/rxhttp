@@ -19,11 +19,6 @@ public class PostEncryptJsonParam1 extends AbstractParam<PostEncryptJsonParam1> 
     }
 
     @Override
-    public Request buildRequest() {
-        return null;
-    }
-
-    @Override
     public RequestBody getRequestBody() {
         return null;
     }

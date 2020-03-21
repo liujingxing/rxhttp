@@ -87,7 +87,7 @@ public final class ObservableHttp<T> extends Observable<T> implements Callable<T
     //执行请求
     private T execute(Param param) throws Exception {
         if (request == null) { //防止失败重试时，重复构造okhttp3.Request对象
-            request = HttpSender.newRequest(param);
+            request = param.buildRequest();
         }
         CacheMode cacheMode = param.getCacheMode();
         if (cacheModeIs(CacheMode.ONLY_CACHE, CacheMode.READ_CACHE_FAILED_REQUEST_NETWORK)) {

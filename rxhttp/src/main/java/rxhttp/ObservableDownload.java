@@ -102,9 +102,9 @@ public final class ObservableDownload extends Observable<Progress<String>> {
 
     private Response execute(@NonNull Param param, @NonNull ProgressCallback callback) throws Exception {
         if (mRequest == null) { //防止失败重试时，重复构造okhttp3.Request对象
-            mRequest = HttpSender.newRequest(param);
+            mRequest = param.buildRequest();
         }
-        Call call = mCall = HttpSender.clone(callback).newCall(mRequest);
+        Call call = mCall = HttpSender.newCall(HttpSender.clone(callback), mRequest);
         return call.execute();
     }
 
