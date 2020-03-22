@@ -24,7 +24,7 @@ public class ProgressT<T> extends Progress {
 
     @Override
     public String toString() {
-        return "Progress{" +
+        return "ProgressT{" +
             "progress=" + getProgress() +
             ", currentSize=" + getCurrentSize() +
             ", totalSize=" + getTotalSize() +
