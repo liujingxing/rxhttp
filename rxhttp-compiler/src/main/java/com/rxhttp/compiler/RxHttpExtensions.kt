@@ -171,13 +171,31 @@ class RxHttpExtensions {
                 .addParameter(coroutine)
                 .addParameter("progress", progressLambdaName)
                 .addCode("""
+                    upload(coroutine, progress)
+                    return %T(parser)
+                    """.trimIndent(), awaitName)
+                .returns(t)
+                .build())
+
+        builder.addFunction(
+            FunSpec.builder("upload")
+                .addKdoc("""
+                    调用此方法监听上传进度                                                    
+                    @param coroutine  CoroutineScope对象，用于开启协程回调进度，进度回调所在线程取决于协程所在线程
+                    @param progress 进度回调  
+                    注意：此方法仅在协程环境下才生效                                         
+                """.trimIndent())
+                .receiver(rxhttpFormParam)
+                .addParameter(coroutine)
+                .addParameter("progress", progressLambdaName)
+                .addCode("""
                     param.setProgressCallback(%T { currentProgress, currentSize, totalSize ->
                         val p = Progress(currentProgress, currentSize, totalSize)
                         coroutine?.%T { progress(p) } ?: progress(p)
                     })
-                    return %T(parser)
-                    """.trimIndent(), progressCallbackName, launchName, awaitName)
-                .returns(t)
+                    return this
+                    """.trimIndent(), progressCallbackName, launchName)
+                .returns(rxhttpFormParam)
                 .build())
 
         builder.addFunction(
