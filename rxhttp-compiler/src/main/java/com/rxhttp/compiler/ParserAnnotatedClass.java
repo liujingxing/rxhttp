@@ -267,7 +267,7 @@ public class ParserAnnotatedClass {
             .addStatement("observable=observable.observeOn(observeOnScheduler)")
             .endControlFlow()
             .addStatement("return observable.doOnNext(progressConsumer)\n" +
-                ".filter(Progress::isFinish)\n" +
+                ".filter(progress -> progress instanceof ProgressT)\n" +
                 ".map(progress -> (($T) progress).getResult())", progressTStringName)
             .returns(observableStringName);
         methodList.add(method.build());
