@@ -32,12 +32,13 @@ import okhttp3.Call;
 import okhttp3.Request;
 import okhttp3.Response;
 import rxhttp.wrapper.entity.Progress;
+import rxhttp.wrapper.entity.ProgressT;
 import rxhttp.wrapper.param.IFile;
 import rxhttp.wrapper.param.Param;
 import rxhttp.wrapper.parse.Parser;
 import rxhttp.wrapper.utils.LogUtil;
 
-public final class ObservableUpload<T> extends Observable<Progress<T>> {
+public final class ObservableUpload<T> extends Observable<Progress> {
     private final Param param;
     private final Parser<T> parser;
 
@@ -50,8 +51,8 @@ public final class ObservableUpload<T> extends Observable<Progress<T>> {
     }
 
     @Override
-    protected void subscribeActual(Observer<? super Progress<T>> observer) {
-        CreateEmitter<Progress<T>> emitter = new CreateEmitter<Progress<T>>(observer) {
+    protected void subscribeActual(Observer<? super Progress> observer) {
+        CreateEmitter<Progress> emitter = new CreateEmitter<Progress>(observer) {
             @Override
             public void dispose() {
                 cancelRequest(mCall);
@@ -61,10 +62,10 @@ public final class ObservableUpload<T> extends Observable<Progress<T>> {
         observer.onSubscribe(emitter);
 
         try {
-            Progress<T> completeProgress = new Progress<>(); //上传完成回调
+            ProgressT<T> completeProgress = new ProgressT<>(); //上传完成回调
             ((IFile) param).setProgressCallback((progress, currentSize, totalSize) -> {
                 //这里最多回调100次,仅在进度有更新时,才会回调
-                Progress<T> p = new Progress<>(progress, currentSize, totalSize);
+                Progress p = new Progress(progress, currentSize, totalSize);
                 if (p.isFinish()) {
                     //上传完成的回调，需要带上请求返回值，故这里先保存进度
                     completeProgress.set(p);

@@ -7,13 +7,11 @@ package rxhttp.wrapper.entity;
  *
  * It is NOT thread safe.
  */
-public class Progress<T> {
+public class Progress {
 
     private int  progress; //当前进度 0-100
     private long currentSize;//当前已完成的字节大小
     private long totalSize; //总字节大小
-
-    private T mResult; //http返回结果,上传/下载完成时调用
 
     public Progress() {
     }
@@ -24,7 +22,7 @@ public class Progress<T> {
         this.totalSize = totalSize;
     }
 
-    public void set(Progress<?> progress) {
+    public void set(Progress progress) {
         this.progress = progress.progress;
         this.currentSize = progress.currentSize;
         this.totalSize = progress.totalSize;
@@ -52,10 +50,6 @@ public class Progress<T> {
         return totalSize;
     }
 
-    public T getResult() {
-        return mResult;
-    }
-
     public void updateProgress() {
         this.progress = (int) (currentSize * 100 / totalSize);
     }
@@ -80,17 +74,12 @@ public class Progress<T> {
         currentSize += addSize;
     }
 
-    public void setResult(T result) {
-        mResult = result;
-    }
-
     @Override
     public String toString() {
         return "Progress{" +
                 "progress=" + progress +
                 ", currentSize=" + currentSize +
                 ", totalSize=" + totalSize +
-                ", mResult=" + mResult +
                 '}';
     }
 }
