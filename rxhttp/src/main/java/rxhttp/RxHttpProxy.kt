@@ -7,11 +7,11 @@ package rxhttp
  * Time: 23:06
  */
 abstract class RxHttpProxy(
-    protected val baseRxHttp: IRxHttp
+    protected val iRxHttp: IRxHttp
 ) : IRxHttp {
 
     override val breakDownloadOffSize: Long
-        get() = baseRxHttp.breakDownloadOffSize
+        get() = iRxHttp.breakDownloadOffSize
 
 }
 

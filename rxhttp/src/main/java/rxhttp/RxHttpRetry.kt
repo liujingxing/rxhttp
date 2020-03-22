@@ -11,15 +11,15 @@ import rxhttp.wrapper.parse.Parser
  * Time: 17:06
  */
 class RxHttpRetry(
-    baseRxHttp: IRxHttp,
+    iRxHttp: IRxHttp,
     private var times: Int = 0,
     private val period: Long = 0L,
     private val test: ((Throwable) -> Boolean)? = null
-) : RxHttpProxy(baseRxHttp) {
+) : RxHttpProxy(iRxHttp) {
 
     override suspend fun <T> await(client: OkHttpClient, parser: Parser<T>): T {
         return try {
-            baseRxHttp.await(client, parser)
+            iRxHttp.await(client, parser)
         } catch (e: Throwable) {
             val remaining = times  //剩余次数
             if (remaining != Int.MAX_VALUE) {
