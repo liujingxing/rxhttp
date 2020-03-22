@@ -91,7 +91,6 @@ inline fun <reified K : Any, reified V : Any> BaseRxHttp.asMap() = asClass<Map<K
 
 inline fun <reified T : Any> BaseRxHttp.asClass() = asParser(object : SimpleParser<T>() {})
 
-@JvmOverloads
 fun BaseRxHttp.asDownload(
     destPath: String,
     observeOnScheduler: Scheduler? = null,
