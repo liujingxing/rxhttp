@@ -125,7 +125,6 @@ class RxHttpExtensions {
         val t = TypeVariableName("T")
         val schedulerName = ClassName("io.reactivex", "Scheduler")
         val progressName = ClassName("rxhttp.wrapper.entity", "Progress")
-        val progressTName = progressName.parameterizedBy(t)
         val observableName = ClassName("io.reactivex", "Observable")
         val observableTName = observableName.parameterizedBy(t)
         val parserName = ClassName("rxhttp.wrapper.parse", "Parser")
@@ -147,7 +146,7 @@ class RxHttpExtensions {
             .defaultValue("null")
             .build()
 
-        val progressTLambdaName = LambdaTypeName.get(parameters = *arrayOf(progressTName),
+        val progressLambdaName = LambdaTypeName.get(parameters = *arrayOf(progressName),
             returnType = Unit::class.asClassName())
 
         val consumerName = ClassName("io.reactivex.functions", "Consumer")
@@ -158,7 +157,7 @@ class RxHttpExtensions {
                 .addModifiers(KModifier.SUSPEND, KModifier.INLINE)
                 .addTypeVariable(anyT.copy(reified = true))
                 .addParameter(coroutine)
-                .addParameter("progress", progressTLambdaName, KModifier.NOINLINE)
+                .addParameter("progress", progressLambdaName, KModifier.NOINLINE)
                 .addStatement("return awaitUpload(object: SimpleParser<T>() {}, coroutine, progress)")
                 .returns(t)
                 .build())
@@ -170,10 +169,10 @@ class RxHttpExtensions {
                 .addTypeVariable(anyT)
                 .addParameter(parser)
                 .addParameter(coroutine)
-                .addParameter("progress", progressTLambdaName)
+                .addParameter("progress", progressLambdaName)
                 .addCode("""
                     param.setProgressCallback(%T { currentProgress, currentSize, totalSize ->
-                        val p = Progress<T>(currentProgress, currentSize, totalSize)
+                        val p = Progress(currentProgress, currentSize, totalSize)
                         coroutine?.%T { progress(p) } ?: progress(p)
                     })
                     return %T(parser)
@@ -187,7 +186,7 @@ class RxHttpExtensions {
                 .addModifiers(KModifier.INLINE)
                 .addTypeVariable(anyT.copy(reified = true))
                 .addParameter(observeOnScheduler)
-                .addParameter("progress", progressTLambdaName, KModifier.NOINLINE)
+                .addParameter("progress", progressLambdaName, KModifier.NOINLINE)
                 .addStatement("return asUpload(object: %T<T>() {}, %T{ progress(it) }, observeOnScheduler)", simpleParserName, consumerName)
                 .build())
 
@@ -197,7 +196,7 @@ class RxHttpExtensions {
                 .addTypeVariable(anyT)
                 .addParameter(parser)
                 .addParameter(observeOnScheduler)
-                .addParameter("progress", progressTLambdaName)
+                .addParameter("progress", progressLambdaName)
                 .addStatement("return asUpload(parser, %T{ progress(it) }, observeOnScheduler)", consumerName)
                 .returns(observableTName)
                 .build())

@@ -13,14 +13,14 @@ import rxhttp.wrapper.entity.Progress
 internal class ProgressCallbackImpl(
     private val coroutine: CoroutineScope? = null,  //协程，用于对进度回调切换线程
     private val offsetSize: Long,
-    private val progress: (Progress<String>) -> Unit
+    private val progress: (Progress) -> Unit
 ) : ProgressCallback {
 
     private var lastProgress = 0   //上次下载进度
 
     override fun onProgress(progress: Int, currentSize: Long, totalSize: Long) {
         //这里最多回调100次,仅在进度有更新时,才会回调
-        val p = Progress<String>(progress, currentSize, totalSize)
+        val p = Progress(progress, currentSize, totalSize)
         if (offsetSize > 0) {
             p.addCurrentSize(offsetSize)
             p.addTotalSize(offsetSize)
