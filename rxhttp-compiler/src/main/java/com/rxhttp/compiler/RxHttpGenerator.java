@@ -86,13 +86,13 @@ public class RxHttpGenerator {
         TypeVariableName t = TypeVariableName.get("T");
         TypeName typeName = TypeName.get(String.class);
         ClassName progressName = ClassName.get("rxhttp.wrapper.entity", "Progress");
-        TypeName progressTName = ParameterizedTypeName.get(progressName, t);
+        ClassName progressTName = ClassName.get("rxhttp.wrapper.entity", "ProgressT");
+        TypeName progressTTName = ParameterizedTypeName.get(progressTName, t);
         TypeName progressStringName = ParameterizedTypeName.get(progressName, typeName);
         ClassName consumerName = ClassName.get("io.reactivex.functions", "Consumer");
         ClassName observableName = ClassName.get("io.reactivex", "Observable");
         TypeName observableStringName = ParameterizedTypeName.get(observableName, typeName);
-        TypeName consumerProgressStringName = ParameterizedTypeName.get(consumerName, progressStringName);
-        TypeName consumerProgressTName = ParameterizedTypeName.get(consumerName, progressTName);
+        TypeName consumerProgressName = ParameterizedTypeName.get(consumerName, progressName);
         ClassName parserName = ClassName.get("rxhttp.wrapper.parse", "Parser");
         TypeName parserTName = ParameterizedTypeName.get(parserName, t);
         TypeName observableTName = ParameterizedTypeName.get(observableName, t);
@@ -557,14 +557,14 @@ public class RxHttpGenerator {
 
         method = MethodSpec.methodBuilder("asUpload")
             .addModifiers(Modifier.PUBLIC)
-            .addParameter(consumerProgressStringName, "progressConsumer")
+            .addParameter(consumerProgressName, "progressConsumer")
             .addStatement("return asUpload($T.get(String.class), progressConsumer, null)", simpleParserName)
             .returns(observableStringName);
         methodList.add(method.build());
 
         method = MethodSpec.methodBuilder("asUpload")
             .addModifiers(Modifier.PUBLIC)
-            .addParameter(consumerProgressStringName, "progressConsumer")
+            .addParameter(consumerProgressName, "progressConsumer")
             .addParameter(schedulerName, "observeOnScheduler")
             .addStatement("return asUpload($T.get(String.class), progressConsumer, observeOnScheduler)", simpleParserName)
             .returns(observableStringName);
@@ -574,17 +574,17 @@ public class RxHttpGenerator {
             .addModifiers(Modifier.PUBLIC)
             .addTypeVariable(t)
             .addParameter(parserTName, "parser")
-            .addParameter(consumerProgressTName, "progressConsumer")
+            .addParameter(consumerProgressName, "progressConsumer")
             .addParameter(schedulerName, "observeOnScheduler")
             .addStatement("doOnStart()")
-            .addStatement("Observable<Progress<T>> observable = $T\n" +
+            .addStatement("Observable<Progress> observable = $T\n" +
                 ".uploadProgress(param, parser, scheduler)", httpSenderName)
             .beginControlFlow("if(observeOnScheduler != null)")
             .addStatement("observable=observable.observeOn(observeOnScheduler)")
             .endControlFlow()
             .addStatement("return observable.doOnNext(progressConsumer)\n" +
                 ".filter(Progress::isFinish)\n" +
-                ".map(Progress::getResult)")
+                ".map(progress -> (($T) progress).getResult())", progressTTName)
             .returns(observableTName);
         methodList.add(method.build());
 

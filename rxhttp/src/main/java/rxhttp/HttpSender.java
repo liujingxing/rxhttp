@@ -125,7 +125,7 @@ public final class HttpSender {
      * @param scheduler  线程调度器
      * @return Observable
      */
-    public static Observable<Progress<String>> downloadProgress(@NonNull Param param, final String destPath, long offsetSize, Scheduler scheduler) {
+    public static Observable<Progress> downloadProgress(@NonNull Param param, final String destPath, long offsetSize, Scheduler scheduler) {
         ObservableDownload observableDownload = new ObservableDownload(param, destPath, offsetSize);
         if (scheduler != null)
             return observableDownload.subscribeOn(scheduler);
@@ -142,7 +142,7 @@ public final class HttpSender {
      * @param <T>       要转换的目标数据类型
      * @return Observable
      */
-    public static <T> Observable<Progress<T>> uploadProgress(@NonNull Param param, @NonNull Parser<T> parser, Scheduler scheduler) {
+    public static <T> Observable<Progress> uploadProgress(@NonNull Param param, @NonNull Parser<T> parser, Scheduler scheduler) {
         ObservableUpload<T> observableUpload = new ObservableUpload<>(param, parser);
         if (scheduler != null)
             return observableUpload.subscribeOn(scheduler);
