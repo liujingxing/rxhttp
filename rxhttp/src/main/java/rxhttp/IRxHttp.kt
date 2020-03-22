@@ -18,7 +18,7 @@ interface IRxHttp {
     val breakDownloadOffSize: Long
 
     /**
-     * 失败重试/超时处理，需要重写此方法
+     * 失败重试/超时处理，需要重写此方法，扩展方法IRxHttp.awaitXxx，最终都会调用本方法
      */
     suspend fun <T> await(
         client: OkHttpClient = HttpSender.getOkHttpClient(),

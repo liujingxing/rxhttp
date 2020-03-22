@@ -11,10 +11,10 @@ import rxhttp.wrapper.parse.Parser
  * Time: 17:06
  */
 class RxHttpTimeout(
-    baseRxHttp: IRxHttp,
+    iRxHttp: IRxHttp,
     private var timeoutMillis: Long = 0L
-) : RxHttpProxy(baseRxHttp) {
+) : RxHttpProxy(iRxHttp) {
 
     override suspend fun <T> await(client: OkHttpClient, parser: Parser<T>) =
-        withTimeout(timeoutMillis) { baseRxHttp.await(client, parser) }
+        withTimeout(timeoutMillis) { iRxHttp.await(client, parser) }
 }
