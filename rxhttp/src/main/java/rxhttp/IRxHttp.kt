@@ -67,7 +67,7 @@ suspend fun <T> IRxHttp.await(parser: Parser<T>) = await(parser = parser)
 suspend fun IRxHttp.awaitDownload(
     destPath: String,
     coroutine: CoroutineScope? = null,
-    progress: (Progress<String>) -> Unit
+    progress: (Progress) -> Unit
 ): String {
     val clone = HttpSender.clone(ProgressCallbackImpl(coroutine, breakDownloadOffSize, progress))
     return await(clone, DownloadParser(destPath))

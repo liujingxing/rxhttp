@@ -34,11 +34,12 @@ import okhttp3.Request;
 import okhttp3.Response;
 import rxhttp.wrapper.callback.ProgressCallback;
 import rxhttp.wrapper.entity.Progress;
+import rxhttp.wrapper.entity.ProgressT;
 import rxhttp.wrapper.param.Param;
 import rxhttp.wrapper.parse.DownloadParser;
 import rxhttp.wrapper.utils.LogUtil;
 
-public final class ObservableDownload extends Observable<Progress<String>> {
+public final class ObservableDownload extends Observable<Progress> {
     private final Param param;
     private final String destPath;
     private final long offsetSize;
@@ -59,8 +60,8 @@ public final class ObservableDownload extends Observable<Progress<String>> {
     }
 
     @Override
-    protected void subscribeActual(Observer<? super Progress<String>> observer) {
-        CreateEmitter<Progress<String>> emitter = new CreateEmitter<Progress<String>>(observer) {
+    protected void subscribeActual(Observer<? super Progress> observer) {
+        CreateEmitter<Progress> emitter = new CreateEmitter<Progress>(observer) {
             @Override
             public void dispose() {
                 cancelRequest(mCall);
@@ -70,10 +71,10 @@ public final class ObservableDownload extends Observable<Progress<String>> {
         observer.onSubscribe(emitter);
 
         try {
-            Progress<String> completeProgress = new Progress<>();  //下载完成回调
+            ProgressT<String> completeProgress = new ProgressT<>();  //下载完成回调
             Response response = execute(param, (progress, currentSize, totalSize) -> {
                 //这里最多回调100次,仅在进度有更新时,才会回调
-                Progress<String> p = new Progress<>(progress, currentSize, totalSize);
+                Progress p = new Progress(progress, currentSize, totalSize);
                 if (offsetSize > 0) {
                     p.addCurrentSize(offsetSize);
                     p.addTotalSize(offsetSize);

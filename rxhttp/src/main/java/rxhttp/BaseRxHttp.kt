@@ -23,7 +23,7 @@ abstract class BaseRxHttp : IRxHttp {
 
     abstract fun asDownload(
         destPath: String,
-        progressConsumer: Consumer<Progress<String>>,
+        progressConsumer: Consumer<Progress>,
         observeOnScheduler: Scheduler? = null
     ): Observable<String>
 
@@ -73,7 +73,7 @@ abstract class BaseRxHttp : IRxHttp {
 
     fun asDownload(
         destPath: String,
-        progressConsumer: Consumer<Progress<String>>
+        progressConsumer: Consumer<Progress>
     ) = asDownload(destPath, progressConsumer, null)
 
     /**
@@ -95,5 +95,5 @@ inline fun <reified T : Any> BaseRxHttp.asClass() = asParser(object : SimplePars
 fun BaseRxHttp.asDownload(
     destPath: String,
     observeOnScheduler: Scheduler? = null,
-    progress: (Progress<String>) -> Unit
+    progress: (Progress) -> Unit
 ) = asDownload(destPath, Consumer { progress(it) }, observeOnScheduler)

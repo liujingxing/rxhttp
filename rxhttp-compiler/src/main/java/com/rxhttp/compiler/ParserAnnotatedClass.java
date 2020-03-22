@@ -63,16 +63,17 @@ public class ParserAnnotatedClass {
         ClassName requestName = ClassName.get("okhttp3", "Request");
         ClassName parserName = ClassName.get("rxhttp.wrapper.parse", "Parser");
         ClassName progressName = ClassName.get("rxhttp.wrapper.entity", "Progress");
+        ClassName progressTName = ClassName.get("rxhttp.wrapper.entity", "ProgressT");
         ClassName downloadParserName = ClassName.get("rxhttp.wrapper.parse", "DownloadParser");
 
         TypeName typeName = TypeName.get(String.class);
         TypeName listTName = ParameterizedTypeName.get(ClassName.get(List.class), t);
         TypeName mapTTName = ParameterizedTypeName.get(ClassName.get(Map.class), t, t);
         TypeName mapKVName = ParameterizedTypeName.get(ClassName.get(Map.class), k, v);
-        TypeName progressStringName = ParameterizedTypeName.get(progressName, typeName);
+        TypeName progressTStringName = ParameterizedTypeName.get(progressTName, typeName);
         TypeName observableTName = ParameterizedTypeName.get(observableName, t);
         TypeName observableStringName = ParameterizedTypeName.get(observableName, typeName);
-        TypeName consumerProgressStringName = ParameterizedTypeName.get(consumerName, progressStringName);
+        TypeName consumerProgressName = ParameterizedTypeName.get(consumerName, progressName);
         TypeName parserTName = ParameterizedTypeName.get(parserName, t);
 
         List<MethodSpec> methodList = new ArrayList<>();
@@ -257,17 +258,17 @@ public class ParserAnnotatedClass {
             .addAnnotation(Override.class)
             .addModifiers(Modifier.PUBLIC)
             .addParameter(String.class, "destPath")
-            .addParameter(consumerProgressStringName, "progressConsumer")
+            .addParameter(consumerProgressName, "progressConsumer")
             .addParameter(schedulerName, "observeOnScheduler")
             .addStatement("doOnStart()")
-            .addStatement("Observable<Progress<String>> observable = $T\n" +
+            .addStatement("Observable<Progress> observable = $T\n" +
                 ".downloadProgress(param, destPath, breakDownloadOffSize, scheduler)", httpSenderName)
             .beginControlFlow("if(observeOnScheduler != null)")
             .addStatement("observable=observable.observeOn(observeOnScheduler)")
             .endControlFlow()
             .addStatement("return observable.doOnNext(progressConsumer)\n" +
                 ".filter(Progress::isFinish)\n" +
-                ".map(Progress::getResult)")
+                ".map(progress -> (($T) progress).getResult())", progressTStringName)
             .returns(observableStringName);
         methodList.add(method.build());
 
