@@ -25,17 +25,17 @@
 ```java
 dependencies {
 
-   implementation 'com.rxjava.rxhttp:rxhttp:2.0.0' //必须
-   annotationProcessor 'com.rxjava.rxhttp:rxhttp-compiler:2.0.0' //注解处理器，生成RxHttp类,必须
+   implementation 'com.rxjava.rxhttp:rxhttp:2.1.0' //必须
+   annotationProcessor 'com.rxjava.rxhttp:rxhttp-compiler:2.1.0' //注解处理器，生成RxHttp类,必须
    implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'  //切换主线程，Android工程必须
 
    implementation 'com.rxjava.rxlife:rxlife-x:2.0.0'  //页面销毁，关闭请求，非必须
 
    //Converter 根据自己需求选择  非必须  RxHttp默认内置了GsonConverter
-   implementation 'com.rxjava.rxhttp:converter-jackson:2.0.0'
-   implementation 'com.rxjava.rxhttp:converter-fastjson:2.0.0'
-   implementation 'com.rxjava.rxhttp:converter-protobuf:2.0.0'
-   implementation 'com.rxjava.rxhttp:converter-simplexml:2.0.0'
+   implementation 'com.rxjava.rxhttp:converter-jackson:2.1.0'
+   implementation 'com.rxjava.rxhttp:converter-fastjson:2.1.0'
+   implementation 'com.rxjava.rxhttp:converter-protobuf:2.1.0'
+   implementation 'com.rxjava.rxhttp:converter-simplexml:2.1.0'
 }
 ```
 `注：kotlin用户，请使用kapt替代annotationProcessor`
