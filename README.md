@@ -67,7 +67,7 @@ kotlinOptions {
 
 wiki详细文档：https://github.com/liujingxing/okhttp-RxHttp/wiki  (此文档会持续更新)
 
-协程文档：https://github.com/liujingxing/okhttp-RxHttp/wiki/%E5%8D%8F%E7%A8%8B%E4%BD%BF%E7%94%A8
+协程文档：https://juejin.im/post/5e77604fe51d4527066eb81a
 
 自动关闭请求用到的RxLife类，详情请查看[RxLife库](https://github.com/liujingxing/RxLife)
 
