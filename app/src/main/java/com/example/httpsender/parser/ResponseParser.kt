@@ -25,7 +25,7 @@ open class ResponseParser<T> : AbstractParser<T> {
      * Kotlin: .asParser(object : ResponseParser<List<Student>>() {})
      *
      * 注：此构造方法一定要用protected关键字修饰，否则调用此构造方法将拿不到泛型类型
-    </Student></Student></Student> */
+     */
     protected constructor() : super()
 
     /**
