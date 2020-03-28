@@ -9,5 +9,13 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.CLASS)
 public @interface Parser {
 
+    /**
+     * @return 解析器名称
+     */
     String name();
+
+    /**
+     * 解析器泛型的包装类，通过该参数，可以生成任意个asXxx方法
+     */
+    Class<?>[] wrappers() default {};
 }
