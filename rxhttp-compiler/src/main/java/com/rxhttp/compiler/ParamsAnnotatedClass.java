@@ -98,17 +98,36 @@ public class ParamsAnnotatedClass {
 
         for (Entry<String, TypeElement> item : mElementMap.entrySet()) {
             TypeElement typeElement = item.getValue();
+            List<? extends TypeParameterElement> typeParameters = typeElement.getTypeParameters();
+            StringBuilder type = new StringBuilder();
+            List<TypeVariableName> rxHttpTypeNames = new ArrayList<>();
+            for (int i = 0, size = typeParameters.size(); i < size; i++) {
+                if (i == 0) type.append("<");
+                TypeParameterElement element = typeParameters.get(i);
+                TypeVariableName typeVariableName = TypeVariableName.get(element);
+                rxHttpTypeNames.add(typeVariableName);
+                type.append(typeVariableName.name).append(i < size - 1 ? "," : ">");
+            }
             ClassName param = ClassName.get(typeElement);
             String rxHttpName = "RxHttp" + typeElement.getSimpleName();
-            ClassName RxHttpParamName = ClassName.get(RxHttpGenerator.packageName, rxHttpName);
-            method = MethodSpec.methodBuilder(item.getKey())
-                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                .addParameter(String.class, "url")
-                .addParameter(ArrayTypeName.of(Object.class), "formatArgs")
-                .varargs()
-                .addStatement("return new $T(new $T(format(url, formatArgs)))", RxHttpParamName, param)
-                .returns(RxHttpParamName);
-            methodList.add(method.build());
+            ClassName rxHttpParamName = ClassName.get(RxHttpGenerator.packageName, rxHttpName);
+            TypeName methodReturnType;
+            if (rxHttpTypeNames.size() > 0) {
+                methodReturnType = ParameterizedTypeName.get(rxHttpParamName, rxHttpTypeNames.toArray(new TypeName[0]));
+            } else {
+                methodReturnType = rxHttpParamName;
+            }
+
+            methodList.add(
+                MethodSpec.methodBuilder(item.getKey())
+                    .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                    .addParameter(String.class, "url")
+                    .addTypeVariables(rxHttpTypeNames)
+                    .addParameter(ArrayTypeName.of(Object.class), "formatArgs")
+                    .varargs()
+                    .addStatement("return new $T" + type + "(new $T" + type + "(format(url, formatArgs)))", rxHttpParamName, param)
+                    .returns(methodReturnType)
+                    .build());
 
             TypeMirror superclass = typeElement.getSuperclass();
             TypeName RxHttpParam;
@@ -125,7 +144,7 @@ public class ParamsAnnotatedClass {
                     break;
                 default:
                     prefix = "param.";
-                    RxHttpParam = ParameterizedTypeName.get(RxHttpGenerator.RXHTTP, param, RxHttpParamName);
+                    RxHttpParam = ParameterizedTypeName.get(RxHttpGenerator.RXHTTP, param, rxHttpParamName);
                     break;
             }
 
@@ -146,7 +165,7 @@ public class ParamsAnnotatedClass {
                 ExecutableElement methodElement = (ExecutableElement) enclosedElement;
                 TypeName returnType = TypeName.get(methodElement.getReturnType()); //方法返回值
                 if (returnType.toString().equals(param.toString())) {
-                    returnType = RxHttpParamName;
+                    returnType = rxHttpParamName;
                 }
                 List<ParameterSpec> parameterSpecs = new ArrayList<>();  //方法参数
                 StringBuilder methodBody = new StringBuilder(enclosedElement.getSimpleName().toString())  //方法体
@@ -182,7 +201,7 @@ public class ParamsAnnotatedClass {
                     method.varargs();
                 }
 
-                if (returnType == RxHttpParamName) {
+                if (returnType == rxHttpParamName) {
                     method.addStatement(prefix + methodBody, param)
                         .addStatement("return this");
                 } else if (returnType.toString().equals("void")) {
@@ -199,6 +218,7 @@ public class ParamsAnnotatedClass {
                     "\nhttps://github.com/liujingxing/RxHttp" +
                     "\nhttps://github.com/liujingxing/RxLife\n")
                 .addModifiers(Modifier.PUBLIC)
+                .addTypeVariables(rxHttpTypeNames)
                 .superclass(RxHttpParam)
                 .addMethods(RxHttpPostEncryptFormParamMethod)
                 .build();
