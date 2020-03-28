@@ -1,5 +1,7 @@
 package com.example.httpsender.parser.java;
 
+import com.example.httpsender.entity.Response;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -15,7 +17,7 @@ import rxhttp.wrapper.parse.AbstractParser;
  * Date: 2018/10/23
  * Time: 13:49
  */
-//@Parser(name = "Response")
+//@Parser(name = "Response", wrappers = {List.class, PageList.class})
 public class ResponseParser<T> extends AbstractParser<T> {
 
     /**
@@ -38,15 +40,15 @@ public class ResponseParser<T> extends AbstractParser<T> {
      * Java: .asParser(new ResponseParser<>(Student.class))   或者  .asResponse(Student.class)
      * Kotlin: .asParser(ResponseParser(Student::class.java)) 或者  .asResponse(Student::class.java)
      */
-    public ResponseParser(Class<T> type) {
+    public ResponseParser(Type type) {
         super(type);
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public T onParse(@NotNull okhttp3.Response response) throws IOException {
-        final Type type = ParameterizedTypeImpl.get(com.example.httpsender.entity.Response.class, mType); //获取泛型类型
-        com.example.httpsender.entity.Response<T> data = convert(response, type);
+        final Type type = ParameterizedTypeImpl.get(Response.class, mType); //获取泛型类型
+        Response<T> data = convert(response, type);
         T t = data.getData(); //获取data字段
         if (t == null && mType == String.class) {
             /*
