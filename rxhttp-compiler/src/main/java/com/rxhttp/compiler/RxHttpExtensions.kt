@@ -2,7 +2,6 @@ package com.rxhttp.compiler
 
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
-import java.util.*
 import javax.annotation.processing.Filer
 import javax.lang.model.element.TypeElement
 
@@ -19,7 +18,6 @@ class RxHttpExtensions {
     private val awaitFunList = ArrayList<FunSpec>()
     private val asFunList = ArrayList<FunSpec>()
 
-
     //根据@Parser注解，生成asXxx()、awaitXxx()类型方法
     fun generateAsClassFun(typeElement: TypeElement, key: String) {
         val typeVariableNames = ArrayList<TypeVariableName>()
@@ -35,80 +33,25 @@ class RxHttpExtensions {
         }
 
         //自定义解析器对应的asXxx方法里面的语句
-        //自定义解析器对应的asXxx方法里面的语句
-        var statementBuilder = StringBuilder("return asParser(object: %T") //方法里面的表达式
-        if (typeVariableNames.size > 0) { //添加泛型
-            statementBuilder.append("<")
-            var i = 0
-            val size = typeVariableNames.size
-            while (i < size) {
-                val variableName = typeVariableNames[i]
-                statementBuilder.append(variableName.name)
-                    .append(if (i == size - 1) ">" else ",")
-                i++
-            }
-        }
-        statementBuilder.append("() {})")
-        var funBuilder = FunSpec.builder("as$key")
-            .addModifiers(KModifier.INLINE)
-            .receiver(ClassName("rxhttp", "BaseRxHttp"))
-            .addStatement(statementBuilder.toString(), typeElement.asClassName())
-
-        typeVariableNames.forEach {
-            if (it.bounds.isEmpty()
-                || (it.bounds.size == 1 && it.bounds[0].toString() == "java.lang.Object")) {
-                funBuilder.addTypeVariable(TypeVariableName(it.name, anyTypeName).copy(reified = true))
-            } else {
-                funBuilder.addTypeVariable((it.toKClassTypeName() as TypeVariableName).copy(reified = true))
-            }
-        }
-        asFunList.add(funBuilder.build())
-        val awaitName = ClassName("rxhttp", "await")
+        asFunList.add(
+            FunSpec.builder("as$key")
+                .addModifiers(KModifier.INLINE)
+                .receiver(ClassName("rxhttp", "BaseRxHttp"))
+                .addStatement("return asParser(object: %T${getTypeVariableString(typeVariableNames)}() {})",
+                    typeElement.asClassName()) //方法里面的表达式
+                .addTypeVariables(getTypeVariableNames(typeVariableNames))
+                .build())
 
         //自定义解析器对应的awaitXxx方法里面的语句
-        statementBuilder = StringBuilder("return %T(object: %T") //方法里面的表达式
-        if (typeVariableNames.size > 0) { //添加泛型
-            statementBuilder.append("<")
-            var i = 0
-            val size = typeVariableNames.size
-            while (i < size) {
-                val variableName = typeVariableNames[i]
-                statementBuilder.append(variableName.name)
-                    .append(if (i == size - 1) ">" else ",")
-                i++
-            }
-        }
-
-        statementBuilder.append("() {})")
-        funBuilder = FunSpec.builder("await$key")
-            .addModifiers(KModifier.SUSPEND, KModifier.INLINE)
-            .receiver(ClassName("rxhttp", "IRxHttp"))
-            .addStatement(statementBuilder.toString(), awaitName, typeElement.asClassName())
-
-        typeVariableNames.forEach {
-            if (it.bounds.isEmpty()
-                || (it.bounds.size == 1 && it.bounds[0].toString() == "java.lang.Object")) {
-                funBuilder.addTypeVariable(TypeVariableName(it.name, anyTypeName).copy(reified = true))
-            } else {
-                funBuilder.addTypeVariable((it.toKClassTypeName() as TypeVariableName).copy(reified = true))
-            }
-        }
-        awaitFunList.add(funBuilder.build())
-
-//        funBuilder = FunSpec.builder("await$key")
-//            .addModifiers(KModifier.SUSPEND, KModifier.INLINE)
-//            .receiver(ClassName("rxhttp", "ErrorRetry"))
-//            .addStatement(statementBuilder.toString(), awaitName, typeElement.asClassName())
-//
-//        typeVariableNames.forEach {
-//            if (it.bounds.isEmpty()
-//                || (it.bounds.size == 1 && it.bounds[0].toString() == "java.lang.Object")) {
-//                funBuilder.addTypeVariable(TypeVariableName(it.name, anyTypeName).copy(reified = true))
-//            } else {
-//                funBuilder.addTypeVariable((it.toKClassTypeName() as TypeVariableName).copy(reified = true))
-//            }
-//        }
-//        awaitFunList.add(funBuilder.build())
+        val awaitName = ClassName("rxhttp", "await")
+        awaitFunList.add(
+            FunSpec.builder("await$key")
+                .addModifiers(KModifier.SUSPEND, KModifier.INLINE)
+                .receiver(ClassName("rxhttp", "IRxHttp"))
+                .addStatement("return %T(object: %T${getTypeVariableString(typeVariableNames)}() {})",
+                    awaitName, typeElement.asClassName())  //方法里面的表达式
+                .addTypeVariables(getTypeVariableNames(typeVariableNames))
+                .build())
     }
 
 
@@ -220,5 +163,33 @@ class RxHttpExtensions {
                 .build())
 
         builder.build().writeTo(filer)
+    }
+
+    //获取泛型字符串 比如:<T> 、<K,V>等等
+    private fun getTypeVariableString(typeVariableNames: ArrayList<TypeVariableName>): String {
+        val type = StringBuilder()
+        val size = typeVariableNames.size
+        for (i in typeVariableNames.indices) {
+            if (i == 0) type.append("<")
+            type.append(typeVariableNames[i].name)
+            type.append(if (i < size - 1) "," else ">")
+        }
+        return type.toString()
+    }
+
+    //获取泛型对象列表
+    private fun getTypeVariableNames(typeVariableNames: ArrayList<TypeVariableName>): ArrayList<TypeVariableName> {
+        val newTypeVariableNames = ArrayList<TypeVariableName>()
+        typeVariableNames.forEach {
+            val bounds = it.bounds //泛型边界
+            val typeVariableName =
+                if (bounds.isEmpty() || (bounds.size == 1 && bounds[0].toString() == "java.lang.Object")) {
+                    TypeVariableName(it.name, anyTypeName).copy(reified = true)
+                } else {
+                    (it.toKClassTypeName() as TypeVariableName).copy(reified = true)
+                }
+            newTypeVariableNames.add(typeVariableName)
+        }
+        return newTypeVariableNames;
     }
 }
