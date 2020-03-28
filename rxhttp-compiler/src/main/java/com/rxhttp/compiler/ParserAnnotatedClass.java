@@ -3,10 +3,13 @@ package com.rxhttp.compiler;
 
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.MethodSpec.Builder;
 import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeVariableName;
+
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -21,6 +24,7 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.TypeParameterElement;
+import javax.lang.model.type.MirroredTypesException;
 import javax.lang.model.type.TypeMirror;
 
 import rxhttp.wrapper.annotation.Parser;
@@ -29,9 +33,11 @@ import rxhttp.wrapper.annotation.Parser;
 public class ParserAnnotatedClass {
 
     private Map<String, TypeElement> mElementMap;
+    private Map<String, List<? extends TypeMirror>> mTypeMap;
 
     public ParserAnnotatedClass() {
         mElementMap = new LinkedHashMap<>();
+        mTypeMap = new LinkedHashMap<>();
     }
 
     public void add(TypeElement typeElement) {
@@ -41,6 +47,12 @@ public class ParserAnnotatedClass {
             throw new IllegalArgumentException(
                 String.format("methodName() in @%s for class %s is null or empty! that's not allowed",
                     Parser.class.getSimpleName(), typeElement.getQualifiedName().toString()));
+        }
+        try {
+            annotation.wrappers();
+        } catch (MirroredTypesException e) {
+            List<? extends TypeMirror> typeMirrors = e.getTypeMirrors();
+            mTypeMap.put(name, typeMirrors);
         }
         mElementMap.put(name, typeElement);
     }
@@ -198,9 +210,10 @@ public class ParserAnnotatedClass {
             TypeMirror returnType = null; //获取onParse方法的返回类型
             TypeElement typeElement = item.getValue();
             for (Element element : typeElement.getEnclosedElements()) {
-                if (!(element instanceof ExecutableElement)) continue;
-                if (!element.getModifiers().contains(Modifier.PUBLIC)
-                    || element.getModifiers().contains(Modifier.STATIC)) continue;
+                if (!(element instanceof ExecutableElement)
+                    || !element.getModifiers().contains(Modifier.PUBLIC)
+                    || element.getModifiers().contains(Modifier.STATIC))
+                    continue;
                 ExecutableElement executableElement = (ExecutableElement) element;
                 if (executableElement.getSimpleName().toString().equals("onParse")
                     && executableElement.getParameters().size() == 1
@@ -210,47 +223,17 @@ public class ParserAnnotatedClass {
                 }
             }
             if (returnType == null) continue;
-            rxHttpExtensions.generateAsClassFun(typeElement, item.getKey());
+            String parserAlias = item.getKey();  //Parser注解里面的name字段值
+            rxHttpExtensions.generateAsClassFun(typeElement, parserAlias);
 
-            List<TypeVariableName> typeVariableNames = new ArrayList<>();
-            List<ParameterSpec> parameterSpecs = new ArrayList<>();
-            List<? extends TypeParameterElement> typeParameters = item.getValue().getTypeParameters();
-            for (TypeParameterElement element : typeParameters) {
-                TypeVariableName typeVariableName = TypeVariableName.get(element);
-                typeVariableNames.add(typeVariableName);
-                ParameterSpec parameterSpec = ParameterSpec.builder(
-                    ParameterizedTypeName.get(ClassName.get(Class.class), typeVariableName),
-                    element.asType().toString().toLowerCase() + "Type").build();
-                parameterSpecs.add(parameterSpec);
+            methodList.add(generateAsXxxMethod(typeElement, parserAlias, returnType, null));
+            List<? extends TypeMirror> typeMirrors = mTypeMap.get(parserAlias);
+            for (TypeMirror mirror : typeMirrors) {
+                String name = mirror.toString();
+                String simpleName = name.substring(name.lastIndexOf(".") + 1);
+                String methodName = parserAlias + simpleName;
+                methodList.add(generateAsXxxMethod(typeElement, methodName, returnType, mirror));
             }
-
-            //自定义解析器对应的asXxx方法里面的语句
-            StringBuilder statementBuilder = new StringBuilder("return asParser(new $T");
-            if (typeVariableNames.size() > 0) { //添加泛型
-                statementBuilder.append("<");
-                for (int i = 0, size = typeVariableNames.size(); i < size; i++) {
-                    TypeVariableName variableName = typeVariableNames.get(i);
-                    statementBuilder.append(variableName.name)
-                        .append(i == size - 1 ? ">" : ",");
-                }
-            }
-
-            statementBuilder.append("(");
-            if (parameterSpecs.size() > 0) { //添加参数
-                for (int i = 0, size = parameterSpecs.size(); i < size; i++) {
-                    ParameterSpec parameterSpec = parameterSpecs.get(i);
-                    statementBuilder.append(parameterSpec.name);
-                    if (i < size - 1) statementBuilder.append(",");
-                }
-            }
-            statementBuilder.append("))");
-            method = MethodSpec.methodBuilder("as" + item.getKey())
-                .addModifiers(Modifier.PUBLIC)
-                .addTypeVariables(typeVariableNames)
-                .addParameters(parameterSpecs)
-                .addStatement(statementBuilder.toString(), ClassName.get(item.getValue()))
-                .returns(ParameterizedTypeName.get(observableName, TypeName.get(returnType)));
-            methodList.add(method.build());
         }
         rxHttpExtensions.generateClassFile(filer);
 
@@ -273,5 +256,100 @@ public class ParserAnnotatedClass {
         methodList.add(method.build());
 
         return methodList;
+    }
+
+    private MethodSpec generateAsXxxMethod(
+        TypeElement typeElement,
+        String methodName,
+        TypeMirror returnTypeMirror,
+        @Nullable TypeMirror mirror
+    ) {
+        List<TypeVariableName> typeVariableNames = new ArrayList<>();
+        List<ParameterSpec> parameterSpecs = new ArrayList<>();
+        List<? extends TypeParameterElement> typeParameters = typeElement.getTypeParameters();
+        for (TypeParameterElement element : typeParameters) {
+            TypeVariableName typeVariableName = TypeVariableName.get(element);
+            typeVariableNames.add(typeVariableName);
+            ParameterSpec parameterSpec = ParameterSpec.builder(
+                ParameterizedTypeName.get(ClassName.get(Class.class), typeVariableName),
+                element.asType().toString().toLowerCase() + "Type").build();
+            parameterSpecs.add(parameterSpec);
+        }
+
+        //自定义解析器对应的asXxx方法里面的语句
+        StringBuilder statementBuilder = new StringBuilder("return asParser(new $T");
+        int size = typeVariableNames.size();
+        if (size > 0) statementBuilder.append("<");
+        for (int i = 0; i < size; i++) {//添加泛型
+            if (mirror != null) {
+                String name = mirror.toString();
+                String simpleName = name.substring(name.lastIndexOf('.') + 1);
+                statementBuilder.append(simpleName).append("<");
+            }
+            TypeVariableName variableName = typeVariableNames.get(i);
+            statementBuilder.append(variableName.name);
+            if (mirror != null) {
+                statementBuilder.append(">");
+            }
+            statementBuilder.append(i == size - 1 ? ">" : ",");
+        }
+        if (mirror != null) {
+            String name = mirror.toString();
+            String simpleName = name.substring(name.lastIndexOf('.') + 1);
+            statementBuilder.append("(");
+            for (ParameterSpec spec : parameterSpecs) {
+                statementBuilder.append(spec.name).append(simpleName)
+                    .append(",");
+            }
+            statementBuilder.deleteCharAt(statementBuilder.length() - 1).append(")");
+        } else {
+            statementBuilder.append("(");
+            size = parameterSpecs.size();
+            for (int i = 0; i < size; i++) {//添加参数
+                ParameterSpec parameterSpec = parameterSpecs.get(i);
+                statementBuilder.append(parameterSpec.name);
+                statementBuilder.append(i < size - 1 ? "," : ")");
+            }
+        }
+        statementBuilder.append(")");
+
+        TypeName typeName = TypeName.get(returnTypeMirror);
+        if (mirror != null) {
+            ClassName className = ClassName.bestGuess(mirror.toString());
+            if (typeName instanceof ParameterizedTypeName) {
+                ParameterizedTypeName parameterizedTypeName = (ParameterizedTypeName) typeName;
+                List<TypeName> typeNames = new ArrayList<>();
+                for (TypeName type : parameterizedTypeName.typeArguments) {
+                    TypeName parameterizedReturnType = ParameterizedTypeName
+                        .get(className, type);
+                    typeNames.add(parameterizedReturnType);
+                }
+                typeName = ParameterizedTypeName.get(parameterizedTypeName.rawType,
+                    typeNames.toArray(new TypeName[0]));
+            } else {
+                typeName = ParameterizedTypeName.get(className, typeName);
+            }
+        }
+        ClassName observableName = ClassName.get("io.reactivex", "Observable");
+        TypeName returnType = ParameterizedTypeName.get(observableName, typeName);
+
+        Builder builder = MethodSpec.methodBuilder("as" + methodName)
+            .addModifiers(Modifier.PUBLIC);
+
+        if (mirror != null) {
+            ClassName parameterizedType = ClassName.get("rxhttp.wrapper.entity", "ParameterizedTypeImpl");
+            ClassName type = ClassName.get("java.lang.reflect", "Type");
+            for (ParameterSpec spec : parameterSpecs) {
+                String expression = "$T " + spec.name + "$T = $T.get($T.class, " + spec.name + ")";
+                builder.addStatement(expression, type, TypeName.get(mirror), parameterizedType, TypeName.get(mirror));
+            }
+        }
+
+        builder.addTypeVariables(typeVariableNames)  //添加泛型
+            .addParameters(parameterSpecs)     //添加参数
+            .addStatement(statementBuilder.toString(), ClassName.get(typeElement)) //添加表达式
+            .returns(returnType);//设置返回值
+
+        return builder.build();
     }
 }
