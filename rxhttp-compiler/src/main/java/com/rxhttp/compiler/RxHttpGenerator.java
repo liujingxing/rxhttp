@@ -35,7 +35,7 @@ public class RxHttpGenerator {
     private static TypeName paramPName = ParameterizedTypeName.get(paramName, P);
 
     private static ClassName rxHttpName = ClassName.get(packageName, CLASSNAME);
-    static TypeVariableName p = TypeVariableName.get("P", paramPName);
+    static TypeVariableName p = TypeVariableName.get("P", paramName);
     static TypeVariableName r = TypeVariableName.get("R", rxHttpName);
 
     private ParamsAnnotatedClass mParamsAnnotatedClass;
