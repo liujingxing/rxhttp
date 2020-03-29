@@ -599,7 +599,8 @@ public class RxHttpGenerator {
         methodList.add(
             MethodSpec.methodBuilder("asUpload")
                 .addAnnotation(Deprecated.class)
-                .addJavadoc("please use {@link RxHttpFormParam#upload(Consumer, Scheduler)} + asXxx method instead")
+                .addJavadoc("Will be removed in a future release")
+                .addJavadoc("\nPlease use {@link RxHttpFormParam#upload(Consumer, Scheduler)} + asXxx method instead")
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(consumerProgressName, "progressConsumer")
                 .addStatement("return asUpload($T.get(String.class), progressConsumer, null)", simpleParserName)
@@ -609,7 +610,8 @@ public class RxHttpGenerator {
         methodList.add(
             MethodSpec.methodBuilder("asUpload")
                 .addAnnotation(Deprecated.class)
-                .addJavadoc("please use {@link RxHttpFormParam#upload(Consumer, Scheduler)} + asXxx method instead")
+                .addJavadoc("Will be removed in a future release")
+                .addJavadoc("\nPlease use {@link RxHttpFormParam#upload(Consumer, Scheduler)} + asXxx method instead")
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(consumerProgressName, "progressConsumer")
                 .addParameter(schedulerName, "observeOnScheduler")
@@ -620,7 +622,8 @@ public class RxHttpGenerator {
         methodList.add(
             MethodSpec.methodBuilder("asUpload")
                 .addAnnotation(Deprecated.class)
-                .addJavadoc("please use {@link RxHttpFormParam#upload(Consumer, Scheduler)} + asXxx method instead")
+                .addJavadoc("Will be removed in a future release")
+                .addJavadoc("\nPlease use {@link RxHttpFormParam#upload(Consumer, Scheduler)} + asXxx method instead")
                 .addModifiers(Modifier.PUBLIC)
                 .addTypeVariable(t)
                 .addParameter(parserTName, "parser")
