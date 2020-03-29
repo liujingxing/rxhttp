@@ -16,6 +16,7 @@ public @interface Parser {
 
     /**
      * 解析器泛型的包装类，通过该参数，可以生成任意个asXxx方法
+     * @return Class数组
      */
     Class<?>[] wrappers() default {};
 }
