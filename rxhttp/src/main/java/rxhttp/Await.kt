@@ -11,6 +11,7 @@ import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.Response
 import rxhttp.wrapper.parse.Parser
+import rxhttp.wrapper.utils.LogUtil
 import java.io.IOException
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -30,11 +31,13 @@ suspend fun <T> Call.await(parser: Parser<T>): T {
                 try {
                     continuation.resume(parser.onParse(response))
                 } catch (e: Throwable) {
+                    LogUtil.log(call.request().url().toString(), e)
                     continuation.resumeWithException(e)
                 }
             }
 
             override fun onFailure(call: Call, e: IOException) {
+                LogUtil.log(call.request().url().toString(), e)
                 continuation.resumeWithException(e)
             }
         })

@@ -52,7 +52,7 @@ public class LogUtil {
 
     //打印Http请求连接失败异常日志
     @SuppressWarnings("deprecation")
-    public static void log(@NonNull Param param, Throwable throwable) {
+    public static void log(String url, Throwable throwable) {
         if (!isDebug) return;
         try {
             throwable.printStackTrace();
@@ -60,7 +60,7 @@ public class LogUtil {
                 .append(throwable.toString());
             if (!(throwable instanceof ParseException) && !(throwable instanceof HttpStatusCodeException)) {
                 builder.append("\n\n")
-                    .append(URLDecoder.decode(param.getUrl()));
+                    .append(URLDecoder.decode(url));
             }
             Platform.get().loge(TAG, builder.toString());
         } catch (Exception e) {
