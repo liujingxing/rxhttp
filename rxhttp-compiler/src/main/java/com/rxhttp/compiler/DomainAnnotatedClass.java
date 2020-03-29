@@ -53,18 +53,16 @@ public class DomainAnnotatedClass {
             .addParameter(String.class, "url")
             .addParameter(String.class, "domain")
             .addCode("if (url.startsWith(\"http\")) return url;\n" +
-                "String newUrl;\n" +
                 "if (url.startsWith(\"/\")) {\n" +
                 "    if (domain.endsWith(\"/\"))\n" +
-                "        newUrl = domain + url.substring(1);\n" +
+                "        return domain + url.substring(1);\n" +
                 "    else\n" +
-                "        newUrl = domain + url;\n" +
+                "        return domain + url;\n" +
                 "} else if (domain.endsWith(\"/\")) {\n" +
-                "    newUrl = domain + url;\n" +
+                "    return domain + url;\n" +
                 "} else {\n" +
-                "    newUrl = domain + \"/\" + url;\n" +
-                "}\n" +
-                "return newUrl;\n")
+                "    return domain + \"/\" + url;\n" +
+                "}")
             .returns(String.class);
         methodList.add(method.build());
         return methodList;
