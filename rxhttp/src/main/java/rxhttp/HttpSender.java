@@ -66,6 +66,10 @@ public final class HttpSender {
         return mOkHttpClient;
     }
 
+    public static OkHttpClient.Builder newOkClientBuilder() {
+        return getOkHttpClient().newBuilder();
+    }
+
     public static void setDebug(boolean debug) {
         LogUtil.setDebug(debug);
     }
