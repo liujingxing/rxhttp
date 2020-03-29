@@ -127,7 +127,7 @@ class RxHttpExtensions {
                 .build())
 
         val deprecatedAnno = AnnotationSpec.builder(Deprecated::class.java)
-            .addMember("\"Future versions will be deleted\"").build()
+            .addMember("\"Will be removed in a future release\"").build()
 
         builder.addFunction(
             FunSpec.builder("asUpload")
