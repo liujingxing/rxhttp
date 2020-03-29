@@ -555,39 +555,82 @@ public class RxHttpGenerator {
             .returns(rxHttpFormName);
         methodList.add(method.build());
 
-        method = MethodSpec.methodBuilder("asUpload")
-            .addModifiers(Modifier.PUBLIC)
-            .addParameter(consumerProgressName, "progressConsumer")
-            .addStatement("return asUpload($T.get(String.class), progressConsumer, null)", simpleParserName)
-            .returns(observableStringName);
-        methodList.add(method.build());
+        methodList.add(
+            MethodSpec.methodBuilder("asUpload")
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(consumerProgressName, "progressConsumer")
+                .addStatement("return asUpload($T.get(String.class), progressConsumer, null)", simpleParserName)
+                .returns(observableStringName)
+                .build());
 
-        method = MethodSpec.methodBuilder("asUpload")
-            .addModifiers(Modifier.PUBLIC)
-            .addParameter(consumerProgressName, "progressConsumer")
-            .addParameter(schedulerName, "observeOnScheduler")
-            .addStatement("return asUpload($T.get(String.class), progressConsumer, observeOnScheduler)", simpleParserName)
-            .returns(observableStringName);
-        methodList.add(method.build());
+        methodList.add(
+            MethodSpec.methodBuilder("asUpload")
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(consumerProgressName, "progressConsumer")
+                .addParameter(schedulerName, "observeOnScheduler")
+                .addStatement("return asUpload($T.get(String.class), progressConsumer, observeOnScheduler)", simpleParserName)
+                .returns(observableStringName)
+                .build());
 
-        method = MethodSpec.methodBuilder("asUpload")
-            .addModifiers(Modifier.PUBLIC)
-            .addTypeVariable(t)
-            .addParameter(parserTName, "parser")
-            .addParameter(consumerProgressName, "progressConsumer")
-            .addParameter(schedulerName, "observeOnScheduler")
-            .addStatement("doOnStart()")
-            .addStatement("Observable<Progress> observable = $T\n" +
-                ".uploadProgress(param, parser, scheduler)", httpSenderName)
-            .beginControlFlow("if(observeOnScheduler != null)")
-            .addStatement("observable=observable.observeOn(observeOnScheduler)")
-            .endControlFlow()
-            .addStatement("return observable.doOnNext(progressConsumer)\n" +
-                ".filter(progress -> progress instanceof ProgressT)\n" +
-                ".map(progress -> (($T) progress).getResult())", progressTTName)
-            .returns(observableTName);
-        methodList.add(method.build());
+        methodList.add(
+            MethodSpec.methodBuilder("asUpload")
+                .addModifiers(Modifier.PUBLIC)
+                .addTypeVariable(t)
+                .addParameter(parserTName, "parser")
+                .addParameter(consumerProgressName, "progressConsumer")
+                .addParameter(schedulerName, "observeOnScheduler")
+                .addStatement("upload(progressConsumer, observeOnScheduler)")
+                .addStatement("return asParser(parser)")
+                .returns(observableTName)
+                .build());
 
+        methodList.add(
+            MethodSpec.methodBuilder("upload")
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(consumerProgressName, "progressConsumer")
+                .addStatement("return upload(progressConsumer, null)")
+                .returns(rxHttpFormName)
+                .build());
+
+        methodList.add(
+            MethodSpec.methodBuilder("upload")
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(consumerProgressName, "progressConsumer")
+                .addParameter(schedulerName, "observeOnScheduler")
+                .addStatement("this.progressConsumer = progressConsumer")
+                .addStatement("this.observeOnScheduler = observeOnScheduler")
+                .addStatement("return this")
+                .returns(rxHttpFormName)
+                .build());
+
+        methodList.add(
+            MethodSpec.methodBuilder("asParser")
+                .addModifiers(Modifier.PUBLIC)
+                .addAnnotation(Override.class)
+                .addTypeVariable(t)
+                .addParameter(parserTName, "parser")
+                .beginControlFlow("if(progressConsumer == null)")
+                .addStatement("return super.asParser(parser)")
+                .endControlFlow()
+                .addStatement("doOnStart()")
+                .addStatement("Observable<Progress> observable = $T.uploadProgress(param, parser, scheduler)", httpSenderName)
+                .beginControlFlow("if(observeOnScheduler != null)")
+                .addStatement("observable = observable.observeOn(observeOnScheduler)")
+                .endControlFlow()
+                .addStatement("return observable.doOnNext(progressConsumer)\n" +
+                    ".filter(progress -> progress instanceof ProgressT)\n" +
+                    ".map(progress -> (($T) progress).getResult())", progressTTName)
+                .returns(observableTName).build());
+
+        FieldSpec observeOnSchedulerField = FieldSpec
+            .builder(schedulerName, "observeOnScheduler", Modifier.PRIVATE)
+            .addJavadoc("用于控制下游回调所在线程(包括进度回调)，仅当{@link progressConsumer}不为 null 时生效")
+            .build();
+
+        FieldSpec progressConsumerField = FieldSpec
+            .builder(consumerProgressName, "progressConsumer", Modifier.PRIVATE)
+            .addJavadoc("用于监听上传进度回调")
+            .build();
 
         TypeSpec rxHttpFormSpec = TypeSpec.classBuilder("RxHttpFormParam")
             .addJavadoc("Github" +
@@ -595,6 +638,8 @@ public class RxHttpGenerator {
                 "\nhttps://github.com/liujingxing/RxLife\n")
             .addModifiers(Modifier.PUBLIC)
             .superclass(rxHttpForm)
+            .addField(observeOnSchedulerField)
+            .addField(progressConsumerField)
             .addMethods(methodList)
             .build();
 
