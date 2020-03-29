@@ -244,10 +244,9 @@ public class ParserAnnotatedClass {
             .addParameter(consumerProgressName, "progressConsumer")
             .addParameter(schedulerName, "observeOnScheduler")
             .addStatement("doOnStart()")
-            .addStatement("Observable<Progress> observable = $T\n" +
-                ".downloadProgress(param, destPath, breakDownloadOffSize, scheduler)", httpSenderName)
+            .addStatement("Observable<Progress> observable = $T.downloadProgress(param, destPath, breakDownloadOffSize, scheduler)", httpSenderName)
             .beginControlFlow("if(observeOnScheduler != null)")
-            .addStatement("observable=observable.observeOn(observeOnScheduler)")
+            .addStatement("observable = observable.observeOn(observeOnScheduler)")
             .endControlFlow()
             .addStatement("return observable.doOnNext(progressConsumer)\n" +
                 ".filter(progress -> progress instanceof ProgressT)\n" +
