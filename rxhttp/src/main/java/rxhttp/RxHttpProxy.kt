@@ -10,6 +10,8 @@ abstract class RxHttpProxy(
     protected val iRxHttp: IRxHttp
 ) : IRxHttp {
 
+    override fun buildRequest() = iRxHttp.buildRequest()
+
     override val breakDownloadOffSize: Long
         get() = iRxHttp.breakDownloadOffSize
 
