@@ -3,6 +3,7 @@ package rxhttp
 import kotlinx.coroutines.CoroutineScope
 import okhttp3.Headers
 import okhttp3.OkHttpClient
+import okhttp3.Request
 import rxhttp.wrapper.callback.ProgressCallbackImpl
 import rxhttp.wrapper.entity.Progress
 import rxhttp.wrapper.parse.*
@@ -14,16 +15,19 @@ import rxhttp.wrapper.parse.*
  */
 interface IRxHttp {
 
+    fun buildRequest(): Request
+
     //断点下载进度偏移量，进在带进度断点下载时生效
     val breakDownloadOffSize: Long
 
     /**
-     * 失败重试/超时处理，需要重写此方法，扩展方法IRxHttp.awaitXxx，最终都会调用本方法
+     * 失败重试/超时处理等，可以重写此方法，扩展方法IRxHttp.awaitXxx，最终都会调用本方法
      */
     suspend fun <T> await(
         client: OkHttpClient = HttpSender.getOkHttpClient(),
+        request: Request,
         parser: Parser<T>
-    ): T
+    ) = HttpSender.newCall(client, request).await(parser)
 }
 
 suspend fun IRxHttp.awaitBoolean() = await<Boolean>()
@@ -56,9 +60,6 @@ suspend inline fun <reified T : Any> IRxHttp.await() = await(object : SimplePars
 
 suspend fun IRxHttp.awaitDownload(destPath: String) = await(DownloadParser(destPath))
 
-//以上awaitXxx方法都会调用本方法
-suspend fun <T> IRxHttp.await(parser: Parser<T>) = await(parser = parser)
-
 /**
  * @param destPath 本地存储路径
  * @param coroutine 用于开启一个协程，来控制进度回调所在的线程
@@ -70,5 +71,11 @@ suspend fun IRxHttp.awaitDownload(
     progress: (Progress) -> Unit
 ): String {
     val clone = HttpSender.clone(ProgressCallbackImpl(coroutine, breakDownloadOffSize, progress))
-    return await(clone, DownloadParser(destPath))
+    return await(DownloadParser(destPath), clone)
 }
+
+//内部所有awaitXxx方法最终都会调用本方法
+suspend fun <T> IRxHttp.await(
+    parser: Parser<T>,
+    client: OkHttpClient = HttpSender.getOkHttpClient()
+) = await(client, buildRequest(), parser)
