@@ -177,7 +177,7 @@ public class MainActivity extends AppCompatActivity {
     public void xmlConverter(View view) {
         RxHttp.get("http://webservices.nextbus.com/service/publicXMLFeed?command=routeConfig&a=sf-muni")
             .setXmlConverter()
-            .asObject(NewsDataXml.class)
+            .asClass(NewsDataXml.class)
             .as(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
             .subscribe(dataXml -> {
                 mBinding.tvResult.setText(new Gson().toJson(dataXml));
