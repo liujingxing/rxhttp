@@ -2,6 +2,7 @@ package rxhttp
 
 import kotlinx.coroutines.withTimeout
 import okhttp3.OkHttpClient
+import okhttp3.Request
 import rxhttp.wrapper.parse.Parser
 
 /**
@@ -15,6 +16,6 @@ class RxHttpTimeout(
     private var timeoutMillis: Long = 0L
 ) : RxHttpProxy(iRxHttp) {
 
-    override suspend fun <T> await(client: OkHttpClient, parser: Parser<T>) =
-        withTimeout(timeoutMillis) { iRxHttp.await(client, parser) }
+    override suspend fun <T> await(client: OkHttpClient, request: Request, parser: Parser<T>) =
+        withTimeout(timeoutMillis) { iRxHttp.await(client, request, parser) }
 }

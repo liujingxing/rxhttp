@@ -4,8 +4,6 @@ import io.reactivex.Observable
 import io.reactivex.Scheduler
 import io.reactivex.functions.Consumer
 import okhttp3.Headers
-import okhttp3.OkHttpClient
-import okhttp3.Request
 import rxhttp.wrapper.entity.Progress
 import rxhttp.wrapper.parse.*
 
@@ -16,8 +14,6 @@ import rxhttp.wrapper.parse.*
  * Time: 08:43
  */
 abstract class BaseRxHttp : IRxHttp {
-
-    abstract fun buildRequest(): Request
 
     abstract fun <T> asParser(parser: Parser<T>): Observable<T>
 
@@ -75,14 +71,6 @@ abstract class BaseRxHttp : IRxHttp {
         destPath: String,
         progressConsumer: Consumer<Progress>
     ) = asDownload(destPath, progressConsumer, null)
-
-    /**
-     * 失败重试/超时处理，需要重写此方法
-     */
-    override suspend fun <T> await(
-        client: OkHttpClient,
-        parser: Parser<T>
-    ) = HttpSender.newCall(client, buildRequest()).await(parser)
 }
 
 inline fun <reified T : Any> BaseRxHttp.asList() = asClass<List<T>>()
