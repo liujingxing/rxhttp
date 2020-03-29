@@ -95,7 +95,7 @@ public final class ObservableDownload extends Observable<Progress> {
             emitter.onNext(completeProgress); //最后一次回调文件下载路径
             emitter.onComplete();
         } catch (Throwable e) {
-            LogUtil.log(param, e);
+            LogUtil.log(param.getUrl(), e);
             Exceptions.throwIfFatal(e);
             emitter.onError(e);
         }
