@@ -24,9 +24,9 @@ interface IRxHttp {
      * 失败重试/超时处理等，可以重写此方法，扩展方法IRxHttp.awaitXxx，最终都会调用本方法
      */
     suspend fun <T> await(
+        parser: Parser<T>,
         client: OkHttpClient = HttpSender.getOkHttpClient(),
-        request: Request,
-        parser: Parser<T>
+        request: Request = buildRequest()
     ) = HttpSender.newCall(client, request).await(parser)
 }
 
@@ -73,9 +73,3 @@ suspend fun IRxHttp.awaitDownload(
     val clone = HttpSender.clone(ProgressCallbackImpl(coroutine, breakDownloadOffSize, progress))
     return await(DownloadParser(destPath), clone)
 }
-
-//内部所有awaitXxx方法最终都会调用本方法
-suspend fun <T> IRxHttp.await(
-    parser: Parser<T>,
-    client: OkHttpClient = HttpSender.getOkHttpClient()
-) = await(client, buildRequest(), parser)
