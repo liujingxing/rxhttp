@@ -5,7 +5,11 @@ import java.io.IOException;
 
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
-import okio.*;
+import okio.Buffer;
+import okio.BufferedSink;
+import okio.ForwardingSink;
+import okio.Okio;
+import okio.Sink;
 import rxhttp.wrapper.callback.ProgressCallback;
 
 //上传文件，带进度的请求实体
@@ -13,11 +17,11 @@ public class ProgressRequestBody extends RequestBody {
     public static final int MIN_INTERVAL = 50;
 
     //实际的待包装请求体
-    private final RequestBody      requestBody;
+    private final RequestBody requestBody;
     //进度回调接口
     private final ProgressCallback callback;
     //包装完成的BufferedSink
-    private       BufferedSink     bufferedSink;
+    private BufferedSink bufferedSink;
 
     /**
      * 构造函数，赋值

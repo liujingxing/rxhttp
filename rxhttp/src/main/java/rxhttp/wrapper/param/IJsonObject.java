@@ -6,8 +6,8 @@ import com.google.gson.JsonParser;
 
 import java.util.Map.Entry;
 
-import io.reactivex.annotations.NonNull;
 import okhttp3.MediaType;
+import rxhttp.wrapper.annotations.NonNull;
 
 /**
  * User: ljx
@@ -47,7 +47,8 @@ public interface IJsonObject<P extends Param> {
 
     /**
      * 添加一个JsonElement对象(Json对象、json数组等)
-     * @param key key
+     *
+     * @param key         key
      * @param jsonElement 可输入任意非空字符串
      * @return P
      */

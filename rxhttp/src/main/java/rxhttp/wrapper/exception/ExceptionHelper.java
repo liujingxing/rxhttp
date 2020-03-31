@@ -5,9 +5,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 
-import io.reactivex.annotations.NonNull;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
+import rxhttp.wrapper.annotations.NonNull;
 
 /**
  * 异常处理帮助类
@@ -21,8 +21,8 @@ public class ExceptionHelper {
      * 根据Http执行结果过滤异常
      *
      * @param response Http响应体
-     * @throws IOException 请求失败异常、网络不可用异常
      * @return ResponseBody
+     * @throws IOException 请求失败异常、网络不可用异常
      */
     @NotNull
     public static ResponseBody throwIfFatal(@NonNull Response response) throws IOException {

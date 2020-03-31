@@ -2,10 +2,10 @@ package rxhttp.wrapper.exception;
 
 import java.io.IOException;
 
-import io.reactivex.annotations.Nullable;
 import okhttp3.Headers;
 import okhttp3.Request;
 import okhttp3.Response;
+import rxhttp.wrapper.annotations.Nullable;
 import rxhttp.wrapper.utils.LogUtil;
 
 /**
@@ -33,7 +33,7 @@ public final class HttpStatusCodeException extends IOException {
         statusCode = String.valueOf(response.code());
         Request request = response.request();
         requestMethod = request.method();
-        requestUrl =  LogUtil.getEncodedUrlAndParams(request);
+        requestUrl = LogUtil.getEncodedUrlAndParams(request);
         responseHeaders = response.headers();
         this.result = result;
     }

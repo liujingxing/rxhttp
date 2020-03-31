@@ -6,7 +6,7 @@ import com.google.gson.JsonParser;
 
 import java.util.List;
 
-import io.reactivex.annotations.NonNull;
+import rxhttp.wrapper.annotations.NonNull;
 
 /**
  * User: ljx
