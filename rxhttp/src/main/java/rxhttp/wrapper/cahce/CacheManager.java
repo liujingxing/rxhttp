@@ -14,7 +14,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import io.reactivex.annotations.Nullable;
 import okhttp3.CipherSuite;
 import okhttp3.Handshake;
 import okhttp3.Headers;
@@ -43,6 +42,7 @@ import okio.Okio;
 import okio.Sink;
 import okio.Source;
 import okio.Timeout;
+import rxhttp.wrapper.annotations.Nullable;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static okhttp3.internal.Util.discard;
@@ -92,8 +92,9 @@ public class CacheManager implements Closeable, Flushable {
 
     /**
      * Create a cache of at most {@code maxSize} bytes in {@code directory}.
+     *
      * @param directory File
-     * @param maxSize long
+     * @param maxSize   long
      */
     public CacheManager(File directory, long maxSize) {
         this(directory, maxSize, FileSystem.SYSTEM);
@@ -245,6 +246,7 @@ public class CacheManager implements Closeable, Flushable {
      *
      * <p>Note that if the application chooses to not call this method to initialize the cache. By
      * default, the okhttp will perform lazy initialization upon the first usage of the cache.
+     *
      * @throws IOException 初始化失败
      */
     public void initialize() throws IOException {

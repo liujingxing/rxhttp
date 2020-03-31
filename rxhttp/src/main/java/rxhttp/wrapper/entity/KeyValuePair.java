@@ -1,7 +1,7 @@
 package rxhttp.wrapper.entity;
 
 
-import io.reactivex.annotations.NonNull;
+import rxhttp.wrapper.annotations.NonNull;
 
 /**
  * User: ljx

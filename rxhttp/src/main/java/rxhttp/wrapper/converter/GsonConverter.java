@@ -12,12 +12,12 @@ import java.io.Writer;
 import java.lang.reflect.Type;
 import java.nio.charset.Charset;
 
-import io.reactivex.annotations.NonNull;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import okio.Buffer;
 import rxhttp.RxHttpPlugins;
+import rxhttp.wrapper.annotations.NonNull;
 import rxhttp.wrapper.callback.IConverter;
 import rxhttp.wrapper.utils.GsonUtil;
 

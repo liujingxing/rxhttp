@@ -3,7 +3,7 @@ package rxhttp.wrapper.param;
 import java.io.File;
 import java.util.List;
 
-import io.reactivex.annotations.NonNull;
+import rxhttp.wrapper.annotations.NonNull;
 import rxhttp.wrapper.callback.ProgressCallback;
 import rxhttp.wrapper.entity.UpFile;
 

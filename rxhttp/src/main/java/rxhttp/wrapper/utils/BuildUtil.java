@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import io.reactivex.annotations.NonNull;
 import okhttp3.FormBody;
 import okhttp3.Headers;
 import okhttp3.HttpUrl;
@@ -14,6 +13,7 @@ import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.Request;
 import okhttp3.RequestBody;
+import rxhttp.wrapper.annotations.NonNull;
 import rxhttp.wrapper.entity.KeyValuePair;
 import rxhttp.wrapper.entity.UpFile;
 import rxhttp.wrapper.param.IRequest;
@@ -62,8 +62,8 @@ public class BuildUtil {
      *
      * @param map      map参数集合
      * @param fileList 文件列表
-     * @param <K> key
-     * @param <V> value
+     * @param <K>      key
+     * @param <V>      value
      * @return RequestBody
      */
     @Deprecated
