@@ -16,6 +16,6 @@ class RxHttpTimeout(
     private var timeoutMillis: Long = 0L
 ) : RxHttpProxy(iRxHttp) {
 
-    override suspend fun <T> await(client: OkHttpClient, request: Request, parser: Parser<T>) =
-        withTimeout(timeoutMillis) { iRxHttp.await(client, request, parser) }
+    override suspend fun <T> await(parser: Parser<T>, client: OkHttpClient, request: Request) =
+        withTimeout(timeoutMillis) { iRxHttp.await(parser, client, request) }
 }
