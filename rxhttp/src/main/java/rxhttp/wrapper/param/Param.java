@@ -1,6 +1,6 @@
 package rxhttp.wrapper.param;
 
-import io.reactivex.annotations.NonNull;
+import rxhttp.wrapper.annotations.NonNull;
 
 /**
  * User: ljx

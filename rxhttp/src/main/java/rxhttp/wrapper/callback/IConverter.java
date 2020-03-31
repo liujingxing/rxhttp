@@ -4,9 +4,9 @@ package rxhttp.wrapper.callback;
 import java.io.IOException;
 import java.lang.reflect.Type;
 
-import io.reactivex.annotations.NonNull;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
+import rxhttp.wrapper.annotations.NonNull;
 import rxhttp.wrapper.converter.GsonConverter;
 
 /**
@@ -34,7 +34,7 @@ public interface IConverter {
      * 对象转 RequestBody,目前(RxHttp 1.3.1版本)发送{application/json; charset=utf-8}类型请求前，将会调用此方法
      *
      * @param value T
-     * @param <T> T
+     * @param <T>   T
      * @return RequestBody
      * @throws IOException 转换失败异常
      */

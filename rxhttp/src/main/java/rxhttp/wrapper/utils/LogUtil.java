@@ -7,7 +7,6 @@ import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.util.List;
 
-import io.reactivex.annotations.NonNull;
 import okhttp3.Headers;
 import okhttp3.HttpUrl.Builder;
 import okhttp3.MediaType;
@@ -20,9 +19,9 @@ import okio.Buffer;
 import okio.BufferedSource;
 import rxhttp.Platform;
 import rxhttp.RxHttpPlugins;
+import rxhttp.wrapper.annotations.NonNull;
 import rxhttp.wrapper.exception.HttpStatusCodeException;
 import rxhttp.wrapper.exception.ParseException;
-import rxhttp.wrapper.param.Param;
 
 /**
  * User: ljx

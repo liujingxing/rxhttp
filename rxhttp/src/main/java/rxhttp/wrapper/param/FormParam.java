@@ -5,9 +5,9 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import io.reactivex.annotations.NonNull;
-import io.reactivex.annotations.Nullable;
 import okhttp3.RequestBody;
+import rxhttp.wrapper.annotations.NonNull;
+import rxhttp.wrapper.annotations.Nullable;
 import rxhttp.wrapper.callback.ProgressCallback;
 import rxhttp.wrapper.entity.KeyValuePair;
 import rxhttp.wrapper.entity.UpFile;

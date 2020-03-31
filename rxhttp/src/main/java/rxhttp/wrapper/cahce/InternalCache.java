@@ -17,9 +17,9 @@ package rxhttp.wrapper.cahce;
 
 import java.io.IOException;
 
-import io.reactivex.annotations.Nullable;
 import okhttp3.Request;
 import okhttp3.Response;
+import rxhttp.wrapper.annotations.Nullable;
 
 /**
  * RxHttp's internal cache interface. Applications shouldn't implement this: instead use {@link CacheManager}.

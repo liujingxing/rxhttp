@@ -3,8 +3,6 @@ package rxhttp.wrapper.param;
 
 import java.io.IOException;
 
-import io.reactivex.annotations.NonNull;
-import io.reactivex.annotations.Nullable;
 import okhttp3.CacheControl;
 import okhttp3.Headers;
 import okhttp3.Headers.Builder;
@@ -12,6 +10,8 @@ import okhttp3.HttpUrl;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import rxhttp.RxHttpPlugins;
+import rxhttp.wrapper.annotations.NonNull;
+import rxhttp.wrapper.annotations.Nullable;
 import rxhttp.wrapper.cahce.CacheMode;
 import rxhttp.wrapper.cahce.CacheStrategy;
 import rxhttp.wrapper.callback.IConverter;

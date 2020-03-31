@@ -2,9 +2,9 @@ package rxhttp.wrapper.progress;
 
 import java.io.IOException;
 
-import rxhttp.wrapper.callback.ProgressCallback;
 import okhttp3.Interceptor;
 import okhttp3.Response;
+import rxhttp.wrapper.callback.ProgressCallback;
 
 /**
  * 下载进度拦截器
@@ -26,7 +26,7 @@ public class ProgressInterceptor implements Interceptor {
         Response originalResponse = chain.proceed(chain.request());
         //包装响应体并返回
         return originalResponse.newBuilder()
-                .body(new ProgressResponseBody(originalResponse, progressCallback))
-                .build();
+            .body(new ProgressResponseBody(originalResponse, progressCallback))
+            .build();
     }
 }
