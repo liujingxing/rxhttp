@@ -1,7 +1,6 @@
 package rxhttp.wrapper.parse
 
 import okhttp3.Response
-import org.jetbrains.annotations.NotNull
 import java.io.IOException
 
 /**

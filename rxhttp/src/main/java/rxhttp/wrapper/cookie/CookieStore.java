@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import io.reactivex.annotations.Nullable;
 import okhttp3.Cookie;
 import okhttp3.HttpUrl;
 import okhttp3.internal.Util;
@@ -19,10 +18,11 @@ import okio.BufferedSource;
 import okio.ByteString;
 import okio.Okio;
 import okio.Source;
+import rxhttp.wrapper.annotations.Nullable;
 
 /**
  * Cookie管理类，支持内存、磁盘同时缓存，默认仅开启内存缓存；若要开启磁盘缓存，构造方法传入磁盘缓存目录即可
- *
+ * <p>
  * 注：内存、磁盘缓存至少要开启一个，否则构造方法抛出非法参数异常
  * User: ljx
  * Date: 2019-12-29

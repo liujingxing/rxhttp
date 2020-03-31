@@ -5,10 +5,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import io.reactivex.annotations.NonNull;
-import io.reactivex.annotations.Nullable;
 import io.reactivex.functions.Function;
 import io.reactivex.internal.util.ExceptionHelper;
+import rxhttp.wrapper.annotations.NonNull;
+import rxhttp.wrapper.annotations.Nullable;
 import rxhttp.wrapper.cahce.CacheManager;
 import rxhttp.wrapper.cahce.CacheMode;
 import rxhttp.wrapper.cahce.CacheStrategy;
@@ -42,8 +42,8 @@ public class RxHttpPlugins {
     //设置转换器,可用于对Http返回的String 字符串解密
 
     /**
-     * @deprecated please user {@link #setResultDecoder(Function)} instead
      * @param decoder 数据转换器
+     * @deprecated please user {@link #setResultDecoder(Function)} instead
      */
     @Deprecated
     public static void setOnConverter(@Nullable Function<? super String, String> decoder) {

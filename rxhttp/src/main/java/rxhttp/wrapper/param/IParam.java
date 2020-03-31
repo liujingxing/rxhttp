@@ -3,9 +3,9 @@ package rxhttp.wrapper.param;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import io.reactivex.annotations.NonNull;
-import io.reactivex.annotations.Nullable;
 import okhttp3.CacheControl;
+import rxhttp.wrapper.annotations.NonNull;
+import rxhttp.wrapper.annotations.Nullable;
 
 /**
  * User: ljx
