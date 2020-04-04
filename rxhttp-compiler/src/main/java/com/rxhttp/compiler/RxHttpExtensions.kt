@@ -33,25 +33,36 @@ class RxHttpExtensions {
         }
 
         //自定义解析器对应的asXxx方法里面的语句
-        asFunList.add(
-            FunSpec.builder("as$key")
-                .addModifiers(KModifier.INLINE)
-                .receiver(ClassName("rxhttp", "BaseRxHttp"))
-                .addStatement("return asParser(object: %T${getTypeVariableString(typeVariableNames)}() {})",
-                    typeElement.asClassName()) //方法里面的表达式
-                .addTypeVariables(getTypeVariableNames(typeVariableNames))
-                .build())
+        if (typeVariableNames.size > 0) {  //自定义的解析器泛型数量
+            asFunList.add(
+                FunSpec.builder("as$key")
+                    .addModifiers(KModifier.INLINE)
+                    .receiver(ClassName("rxhttp", "BaseRxHttp"))
+                    .addStatement("return asParser(object: %T${getTypeVariableString(typeVariableNames)}() {})",
+                        typeElement.asClassName()) //方法里面的表达式
+                    .addTypeVariables(getTypeVariableNames(typeVariableNames))
+                    .build())
 
-        //自定义解析器对应的awaitXxx方法里面的语句
-        val awaitName = ClassName("rxhttp", "await")
-        awaitFunList.add(
-            FunSpec.builder("await$key")
-                .addModifiers(KModifier.SUSPEND, KModifier.INLINE)
-                .receiver(ClassName("rxhttp", "IRxHttp"))
-                .addStatement("return %T(object: %T${getTypeVariableString(typeVariableNames)}() {})",
-                    awaitName, typeElement.asClassName())  //方法里面的表达式
-                .addTypeVariables(getTypeVariableNames(typeVariableNames))
-                .build())
+            //自定义解析器对应的awaitXxx方法里面的语句
+            val awaitName = ClassName("rxhttp", "await")
+            awaitFunList.add(
+                FunSpec.builder("await$key")
+                    .addModifiers(KModifier.SUSPEND, KModifier.INLINE)
+                    .receiver(ClassName("rxhttp", "IRxHttp"))
+                    .addStatement("return %T(object: %T${getTypeVariableString(typeVariableNames)}() {})",
+                        awaitName, typeElement.asClassName())  //方法里面的表达式
+                    .addTypeVariables(getTypeVariableNames(typeVariableNames))
+                    .build())
+        } else {
+            val awaitName = ClassName("rxhttp", "await")
+            awaitFunList.add(
+                FunSpec.builder("await$key")
+                    .addModifiers(KModifier.SUSPEND)
+                    .receiver(ClassName("rxhttp", "IRxHttp"))
+                    .addStatement("return %T(%T())", awaitName, typeElement.asClassName())  //方法里面的表达式
+                    .build())
+        }
+
     }
 
 
