@@ -228,7 +228,7 @@ public class ParserAnnotatedClass {
 
             methodList.add(generateAsXxxMethod(typeElement, parserAlias, returnType, null));
             List<? extends TypeMirror> typeMirrors = mTypeMap.get(parserAlias);
-            for (TypeMirror mirror : typeMirrors) {
+            for (TypeMirror mirror : typeMirrors) {  //遍历Parser注解里面的wrappers数组
                 String name = mirror.toString();
                 String simpleName = name.substring(name.lastIndexOf(".") + 1);
                 String methodName = parserAlias + simpleName;
@@ -307,8 +307,11 @@ public class ParserAnnotatedClass {
             for (int i = 0; i < size; i++) {//添加参数
                 ParameterSpec parameterSpec = parameterSpecs.get(i);
                 statementBuilder.append(parameterSpec.name);
-                statementBuilder.append(i < size - 1 ? "," : ")");
+                if (i < size - 1) {
+                    statementBuilder.append(",");
+                }
             }
+            statementBuilder.append(")");
         }
         statementBuilder.append(")");
 
