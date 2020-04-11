@@ -1,17 +1,4 @@
-/**
- * Copyright (c) 2016-present, RxJava Contributors.
- * <p>
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in
- * compliance with the License. You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
- * Unless required by applicable law or agreed to in writing, software distributed under the License is
- * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See
- * the License for the specific language governing permissions and limitations under the License.
- */
-
-package rxhttp;
+package rxhttp.wrapper.param;
 
 
 import java.io.IOException;
@@ -26,6 +13,8 @@ import io.reactivex.plugins.RxJavaPlugins;
 import okhttp3.Call;
 import okhttp3.Request;
 import okhttp3.Response;
+import rxhttp.HttpSender;
+import rxhttp.RxHttpPlugins;
 import rxhttp.wrapper.annotations.NonNull;
 import rxhttp.wrapper.annotations.Nullable;
 import rxhttp.wrapper.cahce.CacheMode;
@@ -41,7 +30,7 @@ import rxhttp.wrapper.utils.LogUtil;
  * Date: 2018/04/20
  * Time: 11:15
  */
-public final class ObservableHttp<T> extends Observable<T> implements Callable<T> {
+final class ObservableHttp<T> extends ObservableErrorHandler<T> implements Callable<T> {
     private final Param param;
     private final Parser<T> parser;
 

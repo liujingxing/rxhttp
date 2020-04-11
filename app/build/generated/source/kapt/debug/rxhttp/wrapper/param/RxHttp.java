@@ -11,7 +11,6 @@ import com.example.httpsender.parser.ResponseParser;
 import io.reactivex.Observable;
 import io.reactivex.Scheduler;
 import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import java.io.IOException;
 import java.lang.Class;
@@ -28,10 +27,10 @@ import okhttp3.Headers.Builder;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import rxhttp.BaseRxHttp;
 import rxhttp.HttpSender;
 import rxhttp.RxHttpPlugins;
 import rxhttp.wrapper.cahce.CacheMode;
+import rxhttp.wrapper.callback.Function;
 import rxhttp.wrapper.callback.IConverter;
 import rxhttp.wrapper.entity.ParameterizedTypeImpl;
 import rxhttp.wrapper.entity.Progress;
@@ -413,12 +412,27 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
 
   @Override
   public <T> Observable<T> asParser(Parser<T> parser) {
-    doOnStart();
-    Observable<T> observable=HttpSender.syncFrom(param,parser);
-    if(scheduler!=null) {
-      observable=observable.subscribeOn(scheduler);
-    }
-    return observable;
+        doOnStart();
+        Observable<T> observable = new ObservableHttp<T>(param, parser);
+        if (scheduler != null) {
+            observable = observable.subscribeOn(scheduler);
+        }
+        return observable;
+  }
+
+  @Override
+  public Observable<String> asDownload(String destPath, Consumer<Progress> progressConsumer,
+      Scheduler observeOnScheduler) {
+        doOnStart();
+        Observable<Progress> observable = new ObservableDownload(param, destPath, breakDownloadOffSize);
+        if (scheduler != null)
+            observable = observable.subscribeOn(scheduler);
+        if (observeOnScheduler != null) {
+            observable = observable.observeOn(observeOnScheduler);
+        }
+        return observable.doOnNext(progressConsumer)
+            .filter(progress -> progress instanceof ProgressT)
+            .map(progress -> ((ProgressT<String>) progress).getResult());
   }
 
   public <T> Observable<T> asResponse(Class<T> tType) {
@@ -433,19 +447,6 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
   public <T> Observable<PageList<T>> asResponsePageList(Class<T> tType) {
     Type tTypePageList = ParameterizedTypeImpl.get(PageList.class, tType);
     return asParser(new ResponseParser<PageList<T>>(tTypePageList));
-  }
-
-  @Override
-  public Observable<String> asDownload(String destPath, Consumer<Progress> progressConsumer,
-      Scheduler observeOnScheduler) {
-    doOnStart();
-    Observable<Progress> observable = HttpSender.downloadProgress(param, destPath, breakDownloadOffSize, scheduler);
-    if(observeOnScheduler != null) {
-      observable = observable.observeOn(observeOnScheduler);
-    }
-    return observable.doOnNext(progressConsumer)
-        .filter(progress -> progress instanceof ProgressT)
-        .map(progress -> ((ProgressT<String>) progress).getResult());
   }
 
   public R setFastJsonConverter() {

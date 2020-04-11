@@ -10,13 +10,12 @@
  * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See
  * the License for the specific language governing permissions and limitations under the License.
  */
-package rxhttp;
+package rxhttp.wrapper.param;
 
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
@@ -31,15 +30,15 @@ import io.reactivex.plugins.RxJavaPlugins;
 import okhttp3.Call;
 import okhttp3.Request;
 import okhttp3.Response;
+import rxhttp.HttpSender;
 import rxhttp.wrapper.annotations.NonNull;
 import rxhttp.wrapper.callback.ProgressCallback;
 import rxhttp.wrapper.entity.Progress;
 import rxhttp.wrapper.entity.ProgressT;
-import rxhttp.wrapper.param.Param;
 import rxhttp.wrapper.parse.DownloadParser;
 import rxhttp.wrapper.utils.LogUtil;
 
-public final class ObservableDownload extends Observable<Progress> {
+final class ObservableDownload extends ObservableErrorHandler<Progress> {
     private final Param param;
     private final String destPath;
     private final long offsetSize;

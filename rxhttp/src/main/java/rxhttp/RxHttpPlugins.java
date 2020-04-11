@@ -5,16 +5,16 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import io.reactivex.functions.Function;
-import io.reactivex.internal.util.ExceptionHelper;
 import rxhttp.wrapper.annotations.NonNull;
 import rxhttp.wrapper.annotations.Nullable;
 import rxhttp.wrapper.cahce.CacheManager;
 import rxhttp.wrapper.cahce.CacheMode;
 import rxhttp.wrapper.cahce.CacheStrategy;
 import rxhttp.wrapper.cahce.InternalCache;
+import rxhttp.wrapper.callback.Function;
 import rxhttp.wrapper.callback.IConverter;
 import rxhttp.wrapper.converter.GsonConverter;
+import rxhttp.wrapper.exception.ExceptionHelper;
 import rxhttp.wrapper.param.Param;
 
 /**
