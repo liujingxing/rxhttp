@@ -6,16 +6,43 @@ import io.reactivex.Scheduler
 import io.reactivex.functions.Consumer
 import kotlin.Any
 import kotlin.Deprecated
+import kotlin.String
 import kotlin.Unit
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import rxhttp.BaseRxHttp
+import kotlinx.coroutines.suspendCancellableCoroutine
 import rxhttp.IRxHttp
 import rxhttp.await
 import rxhttp.wrapper.callback.ProgressCallback
 import rxhttp.wrapper.entity.Progress
 import rxhttp.wrapper.parse.Parser
 import rxhttp.wrapper.parse.SimpleParser
+
+suspend fun <T> Observable<T>.await(): T = suspendCancellableCoroutine { continuation ->
+    val subscribe = subscribe({                      
+        continuation.resume(it)                     
+    }, {                                             
+        continuation.resumeWithException(it)        
+    })                                              
+                                                    
+    continuation.invokeOnCancellation {              
+        subscribe.dispose()                         
+    }                                               
+}                                                   
+
+fun BaseRxHttp.asDownload(
+  destPath: String,
+  observeOnScheduler: Scheduler? = null,
+  progress: (Progress) -> Unit
+) = asDownload(destPath, Consumer { progress(it) }, observeOnScheduler)
+
+inline fun <reified T> BaseRxHttp.asList() = asClass<List<T>>()
+
+inline fun <reified K, reified V> BaseRxHttp.asMap() = asClass<Map<K,V>>()
+
+inline fun <reified T> BaseRxHttp.asClass() = asParser(object : SimpleParser<T>() {})
 
 inline fun <reified T : Any> BaseRxHttp.asResponse() = asParser(object: ResponseParser<T>() {})
 
