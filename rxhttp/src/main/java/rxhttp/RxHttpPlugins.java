@@ -140,4 +140,18 @@ public class RxHttpPlugins {
     public static List<String> getExcludeCacheKeys() {
         return excludeCacheKeys;
     }
+
+    /**
+     * 取消所有请求
+     */
+    public static void cancelAll() {
+        HttpSender.cancelAll();
+    }
+
+    /**
+     * 根据Tag取消请求
+     */
+    public static void cancelAll(Object tag) {
+        HttpSender.cancelTag(tag);
+    }
 }
