@@ -11,6 +11,8 @@ import java.util.Map;
  * Github
  * https://github.com/liujingxing/RxHttp
  * https://github.com/liujingxing/RxLife
+ * https://github.com/liujingxing/okhttp-RxHttp/wiki/FAQ
+ * https://github.com/liujingxing/okhttp-RxHttp/wiki/更新日志
  */
 public class RxHttpJsonArrayParam extends RxHttp<JsonArrayParam, RxHttpJsonArrayParam> {
   public RxHttpJsonArrayParam(JsonArrayParam param) {
