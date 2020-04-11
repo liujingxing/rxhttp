@@ -41,6 +41,8 @@ import rxhttp.wrapper.parse.Parser;
  * Github
  * https://github.com/liujingxing/RxHttp
  * https://github.com/liujingxing/RxLife
+ * https://github.com/liujingxing/okhttp-RxHttp/wiki/FAQ
+ * https://github.com/liujingxing/okhttp-RxHttp/wiki/更新日志
  */
 @SuppressWarnings("unchecked")
 public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
