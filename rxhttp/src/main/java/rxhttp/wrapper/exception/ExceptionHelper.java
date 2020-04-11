@@ -34,4 +34,21 @@ public class ExceptionHelper {
         }
         return body;
     }
+
+    /**
+     * If the provided Throwable is an Error this method
+     * throws it, otherwise returns a RuntimeException wrapping the error
+     * if that error is a checked exception.
+     * @param error the error to wrap or throw
+     * @return the (wrapped) error
+     */
+    public static RuntimeException wrapOrThrow(Throwable error) {
+        if (error instanceof Error) {
+            throw (Error)error;
+        }
+        if (error instanceof RuntimeException) {
+            return (RuntimeException)error;
+        }
+        return new RuntimeException(error);
+    }
 }

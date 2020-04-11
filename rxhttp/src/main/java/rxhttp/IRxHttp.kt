@@ -13,17 +13,17 @@ import rxhttp.wrapper.parse.*
  * Date: 2020/3/21
  * Time: 23:56
  */
-interface IRxHttp {
+abstract class IRxHttp {
 
-    fun buildRequest(): Request
+    abstract fun buildRequest(): Request
 
     //断点下载进度偏移量，进在带进度断点下载时生效
-    val breakDownloadOffSize: Long
+    open val breakDownloadOffSize = 0L
 
     /**
      * 失败重试/超时处理等，可以重写此方法，扩展方法IRxHttp.awaitXxx，最终都会调用本方法
      */
-    suspend fun <T> await(
+    open suspend fun <T> await(
         parser: Parser<T>,
         client: OkHttpClient = HttpSender.getOkHttpClient(),
         request: Request = buildRequest()

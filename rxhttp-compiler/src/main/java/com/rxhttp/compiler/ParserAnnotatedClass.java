@@ -68,20 +68,13 @@ public class ParserAnnotatedClass {
         ClassName observableName = ClassName.get("io.reactivex", "Observable");
         ClassName consumerName = ClassName.get("io.reactivex.functions", "Consumer");
 
-        ClassName bitmapName = ClassName.get("android.graphics", "Bitmap");
-        ClassName okResponseName = ClassName.get("okhttp3", "Response");
-        ClassName headersName = ClassName.get("okhttp3", "Headers");
         ClassName httpSenderName = ClassName.get("rxhttp", "HttpSender");
         ClassName requestName = ClassName.get("okhttp3", "Request");
         ClassName parserName = ClassName.get("rxhttp.wrapper.parse", "Parser");
         ClassName progressName = ClassName.get("rxhttp.wrapper.entity", "Progress");
         ClassName progressTName = ClassName.get("rxhttp.wrapper.entity", "ProgressT");
-        ClassName downloadParserName = ClassName.get("rxhttp.wrapper.parse", "DownloadParser");
 
         TypeName typeName = TypeName.get(String.class);
-        TypeName listTName = ParameterizedTypeName.get(ClassName.get(List.class), t);
-        TypeName mapTTName = ParameterizedTypeName.get(ClassName.get(Map.class), t, t);
-        TypeName mapKVName = ParameterizedTypeName.get(ClassName.get(Map.class), k, v);
         TypeName progressTStringName = ParameterizedTypeName.get(progressTName, typeName);
         TypeName observableTName = ParameterizedTypeName.get(observableName, t);
         TypeName observableStringName = ParameterizedTypeName.get(observableName, typeName);
@@ -189,19 +182,40 @@ public class ParserAnnotatedClass {
             .returns(RxHttpGenerator.r);
         methodList.add(method.build());
 
-        method = MethodSpec.methodBuilder("asParser")
-            .addAnnotation(Override.class)
-            .addModifiers(Modifier.PUBLIC)
-            .addTypeVariable(t)
-            .addParameter(parserTName, "parser")
-            .addStatement("doOnStart()")
-            .addStatement("Observable<T> observable=$T.syncFrom(param,parser)", httpSenderName)
-            .beginControlFlow("if(scheduler!=null)")
-            .addStatement("observable=observable.subscribeOn(scheduler)")
-            .endControlFlow()
-            .addStatement("return observable")
-            .returns(observableTName);
-        methodList.add(method.build());
+        methodList.add(
+            MethodSpec.methodBuilder("asParser")
+                .addAnnotation(Override.class)
+                .addModifiers(Modifier.PUBLIC)
+                .addTypeVariable(t)
+                .addParameter(parserTName, "parser")
+                .addStatement("    doOnStart();\n" +
+                    "Observable<T> observable = new ObservableHttp<T>(param, parser);\n" +
+                    "if (scheduler != null) {\n" +
+                    "    observable = observable.subscribeOn(scheduler);\n" +
+                    "}\n" +
+                    "return observable")
+                .returns(observableTName)
+                .build());
+
+        methodList.add(
+            MethodSpec.methodBuilder("asDownload")
+                .addAnnotation(Override.class)
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(String.class, "destPath")
+                .addParameter(consumerProgressName, "progressConsumer")
+                .addParameter(schedulerName, "observeOnScheduler")
+                .addStatement("    doOnStart();\n" +
+                    "Observable<Progress> observable = new ObservableDownload(param, destPath, breakDownloadOffSize);\n" +
+                    "if (scheduler != null)\n" +
+                    "    observable = observable.subscribeOn(scheduler);\n" +
+                    "if (observeOnScheduler != null) {\n" +
+                    "    observable = observable.observeOn(observeOnScheduler);\n" +
+                    "}\n" +
+                    "return observable.doOnNext(progressConsumer)\n" +
+                    "    .filter(progress -> progress instanceof ProgressT)\n" +
+                    "    .map(progress -> (($T) progress).getResult())", progressTStringName)
+                .returns(observableStringName)
+                .build());
 
         RxHttpExtensions rxHttpExtensions = new RxHttpExtensions();
 
@@ -236,23 +250,6 @@ public class ParserAnnotatedClass {
             }
         }
         rxHttpExtensions.generateClassFile(filer);
-
-        method = MethodSpec.methodBuilder("asDownload")
-            .addAnnotation(Override.class)
-            .addModifiers(Modifier.PUBLIC)
-            .addParameter(String.class, "destPath")
-            .addParameter(consumerProgressName, "progressConsumer")
-            .addParameter(schedulerName, "observeOnScheduler")
-            .addStatement("doOnStart()")
-            .addStatement("Observable<Progress> observable = $T.downloadProgress(param, destPath, breakDownloadOffSize, scheduler)", httpSenderName)
-            .beginControlFlow("if(observeOnScheduler != null)")
-            .addStatement("observable = observable.observeOn(observeOnScheduler)")
-            .endControlFlow()
-            .addStatement("return observable.doOnNext(progressConsumer)\n" +
-                ".filter(progress -> progress instanceof ProgressT)\n" +
-                ".map(progress -> (($T) progress).getResult())", progressTStringName)
-            .returns(observableStringName);
-        methodList.add(method.build());
 
         return methodList;
     }

@@ -71,7 +71,7 @@ public class RxHttpGenerator {
         ClassName schedulerName = ClassName.get("io.reactivex", "Scheduler");
         ClassName converterName = ClassName.get("rxhttp.wrapper.callback", "IConverter");
         ClassName schedulersName = ClassName.get("io.reactivex.schedulers", "Schedulers");
-        ClassName functionsName = ClassName.get("io.reactivex.functions", "Function");
+        ClassName functionsName = ClassName.get("rxhttp.wrapper.callback", "Function");
         ClassName jsonObjectName = ClassName.get("com.google.gson", "JsonObject");
         ClassName jsonArrayName = ClassName.get("com.google.gson", "JsonArray");
         ClassName stringName = ClassName.get(String.class);
@@ -88,7 +88,6 @@ public class RxHttpGenerator {
         ClassName progressName = ClassName.get("rxhttp.wrapper.entity", "Progress");
         ClassName progressTName = ClassName.get("rxhttp.wrapper.entity", "ProgressT");
         TypeName progressTTName = ParameterizedTypeName.get(progressTName, t);
-        TypeName progressStringName = ParameterizedTypeName.get(progressName, typeName);
         ClassName consumerName = ClassName.get("io.reactivex.functions", "Consumer");
         ClassName observableName = ClassName.get("io.reactivex", "Observable");
         TypeName observableStringName = ParameterizedTypeName.get(observableName, typeName);
@@ -241,7 +240,7 @@ public class RxHttpGenerator {
             .addMember("value", "\"unchecked\"")
             .build();
 
-        ClassName baseRxHttpName = ClassName.get("rxhttp", "BaseRxHttp");
+        ClassName baseRxHttpName = ClassName.get("rxhttp.wrapper.param", "BaseRxHttp");
         TypeSpec rxHttp = TypeSpec.classBuilder(CLASSNAME)
             .addJavadoc("Github" +
                 "\nhttps://github.com/liujingxing/RxHttp" +
@@ -583,17 +582,19 @@ public class RxHttpGenerator {
                 .addAnnotation(Override.class)
                 .addTypeVariable(t)
                 .addParameter(parserTName, "parser")
-                .beginControlFlow("if(progressConsumer == null)")
-                .addStatement("return super.asParser(parser)")
-                .endControlFlow()
-                .addStatement("doOnStart()")
-                .addStatement("Observable<Progress> observable = $T.uploadProgress(param, parser, scheduler)", httpSenderName)
-                .beginControlFlow("if(observeOnScheduler != null)")
-                .addStatement("observable = observable.observeOn(observeOnScheduler)")
-                .endControlFlow()
-                .addStatement("return observable.doOnNext(progressConsumer)\n" +
-                    ".filter(progress -> progress instanceof ProgressT)\n" +
-                    ".map(progress -> (($T) progress).getResult())", progressTTName)
+                .addStatement("    if (progressConsumer == null) {\n" +
+                    "    return super.asParser(parser);\n" +
+                    "}\n" +
+                    "doOnStart();\n" +
+                    "Observable<Progress> observable = new ObservableUpload<T>(param, parser);\n" +
+                    "if (scheduler != null)\n" +
+                    "    observable = observable.subscribeOn(scheduler);\n" +
+                    "if (observeOnScheduler != null) {\n" +
+                    "    observable = observable.observeOn(observeOnScheduler);\n" +
+                    "}\n" +
+                    "return observable.doOnNext(progressConsumer)\n" +
+                    "    .filter(progress -> progress instanceof ProgressT)\n" +
+                    "    .map(progress -> (($T) progress).getResult())", progressTTName)
                 .returns(observableTName).build());
 
         methodList.add(
