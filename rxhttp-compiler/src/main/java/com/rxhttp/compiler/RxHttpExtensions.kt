@@ -19,6 +19,10 @@ class RxHttpExtensions {
     private val awaitFunList = ArrayList<FunSpec>()
     private val asFunList = ArrayList<FunSpec>()
 
+    private val schedulerName = ClassName("io.reactivex", "Scheduler")
+    private val observableName = ClassName("io.reactivex", "Observable")
+    private val consumerName = ClassName("io.reactivex.functions", "Consumer")
+
     //根据@Parser注解，生成asXxx()、awaitXxx()类型方法
     fun generateAsClassFun(typeElement: TypeElement, key: String) {
         val typeVariableNames = ArrayList<TypeVariableName>()
@@ -71,9 +75,8 @@ class RxHttpExtensions {
         val t = TypeVariableName("T")
         val k = TypeVariableName("K")
         val v = TypeVariableName("V")
-        val schedulerName = ClassName("io.reactivex", "Scheduler")
+
         val progressName = ClassName("rxhttp.wrapper.entity", "Progress")
-        val observableName = ClassName("io.reactivex", "Observable")
         val observableTName = observableName.parameterizedBy(t)
         val parserName = ClassName("rxhttp.wrapper.parse", "Parser")
         val simpleParserName = ClassName("rxhttp.wrapper.parse", "SimpleParser")
@@ -96,8 +99,6 @@ class RxHttpExtensions {
 
         val progressLambdaName = LambdaTypeName.get(parameters = *arrayOf(progressName),
             returnType = Unit::class.asClassName())
-
-        val consumerName = ClassName("io.reactivex.functions", "Consumer")
 
         val fileBuilder = FileSpec.builder("rxhttp.wrapper.param", "RxHttp")
 
