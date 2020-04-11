@@ -11,6 +11,7 @@ import io.reactivex.Scheduler;
 import io.reactivex.functions.Consumer;
 import io.reactivex.plugins.RxJavaPlugins;
 import okhttp3.Call;
+import okhttp3.Dispatcher;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -190,5 +191,37 @@ public final class HttpSender {
             .sslSocketFactory(sslSocketFactory, trustAllCert) //添加信任证书
             .hostnameVerifier((hostname, session) -> true) //忽略host验证
             .build();
+    }
+
+    /**
+     * 取消所有请求
+     */
+    static void cancelAll() {
+        final OkHttpClient okHttpClient = mOkHttpClient;
+        if (okHttpClient == null) return;
+        okHttpClient.dispatcher().cancelAll();
+    }
+
+
+    /**
+     * 根据Tag取消请求
+     */
+    static void cancelTag(Object tag) {
+        if (tag == null) return;
+        final OkHttpClient okHttpClient = mOkHttpClient;
+        if (okHttpClient == null) return;
+        Dispatcher dispatcher = okHttpClient.dispatcher();
+
+        for (Call call : dispatcher.queuedCalls()) {
+            if (tag.equals(call.request().tag())) {
+                call.cancel();
+            }
+        }
+
+        for (Call call : dispatcher.runningCalls()) {
+            if (tag.equals(call.request().tag())) {
+                call.cancel();
+            }
+        }
     }
 }

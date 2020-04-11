@@ -76,7 +76,11 @@ public class RxHttpPlugins {
         if (source == null || !source.isAssemblyEnabled()) return source;
         Function<? super Param, ? extends Param> f = mOnParamAssembly;
         if (f != null) {
-            return apply(f, source);
+            Param p = apply(f, source);
+            if (p == null) {
+                throw new NullPointerException("onParamAssembly return must not be null");
+            }
+            return p;
         }
         return source;
     }
@@ -139,5 +143,19 @@ public class RxHttpPlugins {
 
     public static List<String> getExcludeCacheKeys() {
         return excludeCacheKeys;
+    }
+
+    /**
+     * 取消所有请求
+     */
+    public static void cancelAll() {
+        HttpSender.cancelAll();
+    }
+
+    /**
+     * 根据Tag取消请求
+     */
+    public static void cancelAll(Object tag) {
+        HttpSender.cancelTag(tag);
     }
 }
