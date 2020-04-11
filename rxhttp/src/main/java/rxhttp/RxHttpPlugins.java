@@ -76,7 +76,11 @@ public class RxHttpPlugins {
         if (source == null || !source.isAssemblyEnabled()) return source;
         Function<? super Param, ? extends Param> f = mOnParamAssembly;
         if (f != null) {
-            return apply(f, source);
+            Param p = apply(f, source);
+            if (p == null) {
+                throw new NullPointerException("onParamAssembly return must not be null");
+            }
+            return p;
         }
         return source;
     }
