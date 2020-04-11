@@ -15,6 +15,7 @@ class RxHttpExtensions {
     private val classTypeName = Class::class.asClassName()
     private val anyTypeName = Any::class.asTypeName()
 
+    private val baseRxHttpName = ClassName("rxhttp.wrapper.param", "BaseRxHttp")
     private val awaitFunList = ArrayList<FunSpec>()
     private val asFunList = ArrayList<FunSpec>()
 
@@ -37,7 +38,7 @@ class RxHttpExtensions {
             asFunList.add(
                 FunSpec.builder("as$key")
                     .addModifiers(KModifier.INLINE)
-                    .receiver(ClassName("rxhttp", "BaseRxHttp"))
+                    .receiver(baseRxHttpName)
                     .addStatement("return asParser(object: %T${getTypeVariableString(typeVariableNames)}() {})",
                         typeElement.asClassName()) //方法里面的表达式
                     .addTypeVariables(getTypeVariableNames(typeVariableNames))
@@ -67,16 +68,9 @@ class RxHttpExtensions {
 
 
     fun generateClassFile(filer: Filer) {
-        val builder = FileSpec.builder("rxhttp.wrapper.param", "KotlinExtensions")
-        asFunList.forEach {
-            builder.addFunction(it)
-        }
-
-        awaitFunList.forEach {
-            builder.addFunction(it)
-        }
-
         val t = TypeVariableName("T")
+        val k = TypeVariableName("K")
+        val v = TypeVariableName("V")
         val schedulerName = ClassName("io.reactivex", "Scheduler")
         val progressName = ClassName("rxhttp.wrapper.entity", "Progress")
         val observableName = ClassName("io.reactivex", "Observable")
@@ -105,7 +99,69 @@ class RxHttpExtensions {
 
         val consumerName = ClassName("io.reactivex.functions", "Consumer")
 
-        builder.addFunction(
+        val fileBuilder = FileSpec.builder("rxhttp.wrapper.param", "RxHttp")
+
+        fileBuilder.addImport("kotlinx.coroutines", "suspendCancellableCoroutine")
+        fileBuilder.addImport("kotlin.coroutines",  "resume", "resumeWithException")
+        fileBuilder.addFunction(FunSpec.builder("await")
+            .addModifiers(KModifier.SUSPEND)
+            .receiver(observableTName)
+            .addTypeVariable(t)
+            .addStatement("""
+                return suspendCancellableCoroutine { continuation ->
+                    val subscribe = subscribe({                      
+                        continuation.resume(it)                     
+                    }, {                                             
+                        continuation.resumeWithException(it)        
+                    })                                              
+                                                                    
+                    continuation.invokeOnCancellation {              
+                        subscribe.dispose()                         
+                    }                                               
+                }                                                   
+            """.trimIndent())
+            .returns(t)
+            .build())
+
+        fileBuilder.addFunction(FunSpec.builder("asDownload")
+            .receiver(baseRxHttpName)
+            .addParameter("destPath", String::class)
+            .addParameter(observeOnScheduler)
+            .addParameter("progress", progressLambdaName)
+            .addStatement("return asDownload(destPath, Consumer { progress(it) }, observeOnScheduler)")
+            .build())
+
+        fileBuilder.addFunction(FunSpec.builder("asList")
+            .addModifiers(KModifier.INLINE)
+            .receiver(baseRxHttpName)
+            .addTypeVariable(t.copy(reified = true))
+            .addStatement("return asClass<List<T>>()")
+            .build())
+
+        fileBuilder.addFunction(FunSpec.builder("asMap")
+            .addModifiers(KModifier.INLINE)
+            .receiver(baseRxHttpName)
+            .addTypeVariable(k.copy(reified = true))
+            .addTypeVariable(v.copy(reified = true))
+            .addStatement("return asClass<Map<K,V>>()")
+            .build())
+
+        fileBuilder.addFunction(FunSpec.builder("asClass")
+            .addModifiers(KModifier.INLINE)
+            .receiver(baseRxHttpName)
+            .addTypeVariable(t.copy(reified = true))
+            .addStatement("return asParser(object : %T<T>() {})", simpleParserName)
+            .build())
+
+        asFunList.forEach {
+            fileBuilder.addFunction(it)
+        }
+
+        awaitFunList.forEach {
+            fileBuilder.addFunction(it)
+        }
+
+        fileBuilder.addFunction(
             FunSpec.builder("upload")
                 .addKdoc("""
                     调用此方法监听上传进度                                                    
@@ -124,7 +180,7 @@ class RxHttpExtensions {
                     """.trimIndent(), progressCallbackName, launchName)
                 .build())
 
-        builder.addFunction(
+        fileBuilder.addFunction(
             FunSpec.builder("upload")
                 .addKdoc("""
                     调用此方法监听上传进度                                                    
@@ -140,7 +196,7 @@ class RxHttpExtensions {
         val deprecatedAnno = AnnotationSpec.builder(Deprecated::class.java)
             .addMember("\"Will be removed in a future release\"").build()
 
-        builder.addFunction(
+        fileBuilder.addFunction(
             FunSpec.builder("asUpload")
                 .addKdoc("please use [upload] + asXxx method instead")
                 .addAnnotation(deprecatedAnno)
@@ -152,7 +208,7 @@ class RxHttpExtensions {
                 .addStatement("return asUpload(object: %T<T>() {}, observeOnScheduler, progress)", simpleParserName)
                 .build())
 
-        builder.addFunction(
+        fileBuilder.addFunction(
             FunSpec.builder("asUpload")
                 .addKdoc("please use [upload] + asXxx method instead")
                 .addAnnotation(deprecatedAnno)
@@ -165,7 +221,7 @@ class RxHttpExtensions {
                 .returns(observableTName)
                 .build())
 
-        builder.addFunction(
+        fileBuilder.addFunction(
             FunSpec.builder("awaitUpload")
                 .addKdoc("please use [upload] + awaitXxx method instead")
                 .addAnnotation(deprecatedAnno)
@@ -178,7 +234,7 @@ class RxHttpExtensions {
                 .returns(t)
                 .build())
 
-        builder.addFunction(
+        fileBuilder.addFunction(
             FunSpec.builder("awaitUpload")
                 .addKdoc("please use [upload] + awaitXxx method instead")
                 .addAnnotation(deprecatedAnno)
@@ -195,7 +251,7 @@ class RxHttpExtensions {
                 .returns(t)
                 .build())
 
-        builder.build().writeTo(filer)
+        fileBuilder.build().writeTo(filer)
     }
 
     //获取泛型字符串 比如:<T> 、<K,V>等等

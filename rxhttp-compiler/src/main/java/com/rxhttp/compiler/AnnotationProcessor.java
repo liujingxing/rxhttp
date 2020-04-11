@@ -81,6 +81,11 @@ public class AnnotationProcessor extends AbstractProcessor {
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
 //        messager.printMessage(Kind.WARNING, "process start annotations" + annotations + " this=" + this);
         if (annotations.isEmpty() || processed) return true;
+        ClassHelper.generatorBaseRxHttp(filer);
+        ClassHelper.generatorObservableErrorHandler(filer);
+        ClassHelper.generatorObservableHttp(filer);
+        ClassHelper.generatorObservableUpload(filer);
+        ClassHelper.generatorObservableDownload(filer);
         try {
             RxHttpGenerator rxHttpGenerator = new RxHttpGenerator();
 

@@ -5,7 +5,6 @@ package rxhttp
  * Date: 2020/3/9
  * Time: 08:47
  */
-import io.reactivex.Observable
 import kotlinx.coroutines.suspendCancellableCoroutine
 import okhttp3.Call
 import okhttp3.Callback
@@ -41,20 +40,6 @@ suspend fun <T> Call.await(parser: Parser<T>): T {
                 continuation.resumeWithException(e)
             }
         })
-    }
-}
-
-suspend fun <T : Any> Observable<T>.await(): T {
-    return suspendCancellableCoroutine { continuation ->
-        val subscribe = subscribe({
-            continuation.resume(it)
-        }, {
-            continuation.resumeWithException(it)
-        })
-
-        continuation.invokeOnCancellation {
-            subscribe.dispose()
-        }
     }
 }
 
