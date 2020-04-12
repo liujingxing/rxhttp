@@ -153,7 +153,7 @@ public class RxHttpPlugins {
     }
 
     /**
-     * 根据Tag取消请求
+     * @param tag 根据Tag取消请求
      */
     public static void cancelAll(Object tag) {
         HttpSender.cancelTag(tag);
