@@ -21,7 +21,7 @@ abstract class IRxHttp {
     open val breakDownloadOffSize = 0L
 
     /**
-     * 失败重试/超时处理等，可以重写此方法，扩展方法IRxHttp.awaitXxx，最终都会调用本方法
+     * 失败重试/超时等，会重写此方法；扩展方法IRxHttp.awaitXxx，最终都会调用本方法
      */
     open suspend fun <T> await(
         parser: Parser<T>,
