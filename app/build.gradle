@@ -17,7 +17,7 @@ android {
         //Java平台需要传入platform参数，传入java即可，与Android 平台的区别是少了RxHttp#asBitmap方法
         javaCompileOptions {
             annotationProcessorOptions {
-                arguments = [rxhttp: 'rxjava2']
+                arguments = [rxhttp_rxjava: 'rxjava2']
             }
         }
     }

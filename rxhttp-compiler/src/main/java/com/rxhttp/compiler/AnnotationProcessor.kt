@@ -6,7 +6,6 @@ import com.rxhttp.compiler.ClassHelper.generatorObservableErrorHandler
 import com.rxhttp.compiler.ClassHelper.generatorObservableHttp
 import com.rxhttp.compiler.ClassHelper.generatorObservableUpload
 import com.rxhttp.compiler.exception.ProcessingException
-import com.squareup.javapoet.ClassName
 import rxhttp.wrapper.annotation.*
 import java.io.IOException
 import java.util.*
@@ -20,7 +19,6 @@ import javax.lang.model.type.TypeKind
 import javax.lang.model.util.Elements
 import javax.lang.model.util.Types
 import javax.tools.Diagnostic
-import kotlin.collections.LinkedHashMap
 
 /**
  * User: ljx
@@ -32,21 +30,7 @@ class AnnotationProcessor : AbstractProcessor() {
     private lateinit var messager: Messager
     private lateinit var filer: Filer
     private lateinit var elementUtils: Elements
-    private var platform: String? = null
     private var processed = false
-
-
-    companion object {
-        private val rxJavaClassList = LinkedHashMap<String, String>()
-
-        fun getClassName(simpleName: String): ClassName =
-            ClassName.get(rxJavaClassList[simpleName], simpleName)
-
-        fun getClassPath(simpleName: String) = rxJavaClassList[simpleName] + ".$simpleName"
-
-        fun getKClassName(simpleName: String) =
-            com.squareup.kotlinpoet.ClassName(rxJavaClassList[simpleName]!!, simpleName)
-    }
 
     @Synchronized
     override fun init(processingEnvironment: ProcessingEnvironment) {
@@ -56,47 +40,7 @@ class AnnotationProcessor : AbstractProcessor() {
         filer = processingEnvironment.filer
         elementUtils = processingEnvironment.elementUtils
         val map = processingEnvironment.options
-        platform = map["rxhttp"]
-        messager.printMessage(Diagnostic.Kind.WARNING, "process init platform=$platform")
-        if (platform == "rxjava2") {
-            rxJavaClassList["Scheduler"] = "io.reactivex"
-            rxJavaClassList["Observable"] = "io.reactivex"
-            rxJavaClassList["Consumer"] = "io.reactivex.functions"
-            rxJavaClassList["Schedulers"] = "io.reactivex.schedulers"
-            rxJavaClassList["RxJavaPlugins"] = "io.reactivex.plugins"
-            rxJavaClassList["Observer"] = "io.reactivex"
-            rxJavaClassList["Exceptions"] = "io.reactivex.exceptions"
-            rxJavaClassList["DeferredScalarDisposable"] = "io.reactivex.internal.observers"
-            rxJavaClassList["ObservableEmitter"] = "io.reactivex"
-            rxJavaClassList["Disposable"] = "io.reactivex.disposables"
-            rxJavaClassList["Cancellable"] = "io.reactivex.functions"
-            rxJavaClassList["CancellableDisposable"] = "io.reactivex.internal.disposables"
-            rxJavaClassList["DisposableHelper"] = "io.reactivex.internal.disposables"
-            rxJavaClassList["SimpleQueue"] = "io.reactivex.internal.fuseable"
-            rxJavaClassList["SpscLinkedArrayQueue"] = "io.reactivex.internal.queue"
-            rxJavaClassList["AtomicThrowable"] = "io.reactivex.internal.util"
-            rxJavaClassList["ExceptionHelper"] = "io.reactivex.internal.util"
-
-        } else if (platform == "rxjava3") {
-            rxJavaClassList["Scheduler"] = "io.reactivex.rxjava3.core"
-            rxJavaClassList["Observable"] = "io.reactivex.rxjava3.core"
-            rxJavaClassList["Consumer"] = "io.reactivex.rxjava3.functions"
-            rxJavaClassList["Schedulers"] = "io.reactivex.rxjava3.schedulers"
-            rxJavaClassList["RxJavaPlugins"] = "io.reactivex.rxjava3.plugins"
-            rxJavaClassList["Observer"] = "io.reactivex.rxjava3.core"
-            rxJavaClassList["Exceptions"] = "io.reactivex.rxjava3.exceptions"
-            rxJavaClassList["DeferredScalarDisposable"] = "io.reactivex.rxjava3.internal.observers"
-            rxJavaClassList["ObservableEmitter"] = "io.reactivex.rxjava3.core"
-            rxJavaClassList["Disposable"] = "io.reactivex.rxjava3.disposables"
-            rxJavaClassList["Cancellable"] = "io.reactivex.rxjava3.functions"
-            rxJavaClassList["CancellableDisposable"] = "io.reactivex.rxjava3.internal.disposables"
-            rxJavaClassList["DisposableHelper"] = "io.reactivex.rxjava3.internal.disposables"
-            rxJavaClassList["SimpleQueue"] = "io.reactivex.rxjava3.internal.fuseable"
-            rxJavaClassList["SpscLinkedArrayQueue"] = "io.reactivex.rxjava3.internal.queue"
-            rxJavaClassList["AtomicThrowable"] = "io.reactivex.rxjava3.internal.util"
-            rxJavaClassList["ExceptionHelper"] = "io.reactivex.rxjava3.internal.util"
-        }
-
+        initRxJavaVersion(map["rxhttp_rxjava"])
     }
 
     override fun getSupportedAnnotationTypes(): Set<String> {
@@ -118,10 +62,12 @@ class AnnotationProcessor : AbstractProcessor() {
         messager.printMessage(Diagnostic.Kind.WARNING, "process start annotations$annotations this=$this")
         if (annotations.isEmpty() || processed) return true
         generatorBaseRxHttp(filer)
-        generatorObservableErrorHandler(filer)
-        generatorObservableHttp(filer)
-        generatorObservableUpload(filer)
-        generatorObservableDownload(filer)
+        if (isDependenceRxJava()) {  //是否依赖了RxJava
+            generatorObservableErrorHandler(filer)
+            generatorObservableHttp(filer)
+            generatorObservableUpload(filer)
+            generatorObservableDownload(filer)
+        }
         try {
             val rxHttpGenerator = RxHttpGenerator()
             val paramsAnnotatedClass = ParamsAnnotatedClass()

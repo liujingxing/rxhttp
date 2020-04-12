@@ -14,7 +14,24 @@ object ClassHelper {
 
     @JvmStatic
     fun generatorBaseRxHttp(filer: Filer) {
-        generatorClass(filer, "BaseRxHttp", """
+        if (!isDependenceRxJava()) {
+            generatorClass(filer,"BaseRxHttp","""
+                package rxhttp.wrapper.param;
+
+                import rxhttp.IRxHttp;
+
+                /**
+                 * User: ljx
+                 * Date: 2020/4/11
+                 * Time: 18:15
+                 */
+                public abstract class BaseRxHttp extends IRxHttp {
+
+                    
+                }
+            """.trimIndent())
+        } else {
+            generatorClass(filer, "BaseRxHttp", """
             package rxhttp.wrapper.param;
 
             import android.graphics.Bitmap;
@@ -22,9 +39,9 @@ object ClassHelper {
             import java.util.List;
             import java.util.Map;
 
-            import ${AnnotationProcessor.getClassPath("Observable")};
-            import ${AnnotationProcessor.getClassPath("Scheduler")};
-            import ${AnnotationProcessor.getClassPath("Consumer")};
+            import ${getClassPath("Observable")};
+            import ${getClassPath("Scheduler")};
+            import ${getClassPath("Consumer")};
             import okhttp3.Headers;
             import okhttp3.Response;
             import rxhttp.IRxHttp;
@@ -131,6 +148,7 @@ object ClassHelper {
             }
 
         """.trimIndent())
+        }
     }
 
     @JvmStatic
@@ -138,9 +156,9 @@ object ClassHelper {
         generatorClass(filer, "ObservableErrorHandler", """
                 package rxhttp.wrapper.param;
 
-                import ${AnnotationProcessor.getClassPath("Observable")};
-                import ${AnnotationProcessor.getClassPath("Consumer")};
-                import ${AnnotationProcessor.getClassPath("RxJavaPlugins")};
+                import ${getClassPath("Observable")};
+                import ${getClassPath("Consumer")};
+                import ${getClassPath("RxJavaPlugins")};
                 import rxhttp.wrapper.utils.LogUtil;
 
                 /**
@@ -174,11 +192,11 @@ object ClassHelper {
                 import java.io.IOException;
                 import java.util.concurrent.Callable;
 
-                import ${AnnotationProcessor.getClassPath("Observable")};
-                import ${AnnotationProcessor.getClassPath("Observer")};
-                import ${AnnotationProcessor.getClassPath("Exceptions")};
-                import ${AnnotationProcessor.getClassPath("DeferredScalarDisposable")};
-                import ${AnnotationProcessor.getClassPath("RxJavaPlugins")};
+                import ${getClassPath("Observable")};
+                import ${getClassPath("Observer")};
+                import ${getClassPath("Exceptions")};
+                import ${getClassPath("DeferredScalarDisposable")};
+                import ${getClassPath("RxJavaPlugins")};
                 import okhttp3.Call;
                 import okhttp3.Request;
                 import okhttp3.Response;
@@ -342,18 +360,18 @@ object ClassHelper {
                 import java.util.concurrent.atomic.AtomicInteger;
                 import java.util.concurrent.atomic.AtomicReference;
 
-                import ${AnnotationProcessor.getClassPath("ObservableEmitter")};
-                import ${AnnotationProcessor.getClassPath("Observer")};
-                import ${AnnotationProcessor.getClassPath("Disposable")};
-                import ${AnnotationProcessor.getClassPath("Exceptions")};
-                import ${AnnotationProcessor.getClassPath("Cancellable")};
-                import ${AnnotationProcessor.getClassPath("CancellableDisposable")};
-                import ${AnnotationProcessor.getClassPath("DisposableHelper")};
-                import ${AnnotationProcessor.getClassPath("SimpleQueue")};
-                import ${AnnotationProcessor.getClassPath("SpscLinkedArrayQueue")};
-                import ${AnnotationProcessor.getClassPath("AtomicThrowable")};
-                import ${AnnotationProcessor.getClassPath("ExceptionHelper")};
-                import ${AnnotationProcessor.getClassPath("RxJavaPlugins")};
+                import ${getClassPath("ObservableEmitter")};
+                import ${getClassPath("Observer")};
+                import ${getClassPath("Disposable")};
+                import ${getClassPath("Exceptions")};
+                import ${getClassPath("Cancellable")};
+                import ${getClassPath("CancellableDisposable")};
+                import ${getClassPath("DisposableHelper")};
+                import ${getClassPath("SimpleQueue")};
+                import ${getClassPath("SpscLinkedArrayQueue")};
+                import ${getClassPath("AtomicThrowable")};
+                import ${getClassPath("ExceptionHelper")};
+                import ${getClassPath("RxJavaPlugins")};
                 
                 import okhttp3.Call;
                 import okhttp3.Request;
@@ -683,18 +701,18 @@ object ClassHelper {
                 import java.util.concurrent.atomic.AtomicInteger;
                 import java.util.concurrent.atomic.AtomicReference;
 
-                import ${AnnotationProcessor.getClassPath("ObservableEmitter")};
-                import ${AnnotationProcessor.getClassPath("Observer")};
-                import ${AnnotationProcessor.getClassPath("Disposable")};
-                import ${AnnotationProcessor.getClassPath("Exceptions")};
-                import ${AnnotationProcessor.getClassPath("Cancellable")};
-                import ${AnnotationProcessor.getClassPath("CancellableDisposable")};
-                import ${AnnotationProcessor.getClassPath("DisposableHelper")};
-                import ${AnnotationProcessor.getClassPath("SimpleQueue")};
-                import ${AnnotationProcessor.getClassPath("SpscLinkedArrayQueue")};
-                import ${AnnotationProcessor.getClassPath("AtomicThrowable")};
-                import ${AnnotationProcessor.getClassPath("ExceptionHelper")};
-                import ${AnnotationProcessor.getClassPath("RxJavaPlugins")};
+                import ${getClassPath("ObservableEmitter")};
+                import ${getClassPath("Observer")};
+                import ${getClassPath("Disposable")};
+                import ${getClassPath("Exceptions")};
+                import ${getClassPath("Cancellable")};
+                import ${getClassPath("CancellableDisposable")};
+                import ${getClassPath("DisposableHelper")};
+                import ${getClassPath("SimpleQueue")};
+                import ${getClassPath("SpscLinkedArrayQueue")};
+                import ${getClassPath("AtomicThrowable")};
+                import ${getClassPath("ExceptionHelper")};
+                import ${getClassPath("RxJavaPlugins")};
                 import okhttp3.Call;
                 import okhttp3.Request;
                 import okhttp3.Response;
