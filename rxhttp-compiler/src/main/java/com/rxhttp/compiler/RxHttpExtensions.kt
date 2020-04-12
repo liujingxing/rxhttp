@@ -19,10 +19,6 @@ class RxHttpExtensions {
     private val awaitFunList = ArrayList<FunSpec>()
     private val asFunList = ArrayList<FunSpec>()
 
-    private val schedulerName = AnnotationProcessor.getKClassName("Scheduler")
-    private val observableName = AnnotationProcessor.getKClassName("Observable")
-    private val consumerName = AnnotationProcessor.getKClassName("Consumer")
-
     //根据@Parser注解，生成asXxx()、awaitXxx()类型方法
     fun generateAsClassFun(typeElement: TypeElement, key: String) {
         val typeVariableNames = ArrayList<TypeVariableName>()
@@ -77,7 +73,7 @@ class RxHttpExtensions {
         val v = TypeVariableName("V")
 
         val progressName = ClassName("rxhttp.wrapper.entity", "Progress")
-        val observableTName = observableName.parameterizedBy(t)
+
         val parserName = ClassName("rxhttp.wrapper.parse", "Parser")
         val simpleParserName = ClassName("rxhttp.wrapper.parse", "SimpleParser")
         val parserTName = parserName.parameterizedBy(t)
@@ -92,23 +88,29 @@ class RxHttpExtensions {
         val awaitName = ClassName("rxhttp", "await")
         val launchName = ClassName("kotlinx.coroutines", "launch")
         val rxhttpFormParam = ClassName("rxhttp.wrapper.param", "RxHttpFormParam");
-
-        val observeOnScheduler = ParameterSpec.builder("observeOnScheduler", schedulerName.copy(nullable = true))
-            .defaultValue("null")
-            .build()
+        val deprecatedAnno = AnnotationSpec.builder(Deprecated::class.java)
+            .addMember("\"Will be removed in a future release\"").build()
 
         val progressLambdaName = LambdaTypeName.get(parameters = *arrayOf(progressName),
             returnType = Unit::class.asClassName())
 
         val fileBuilder = FileSpec.builder("rxhttp.wrapper.param", "RxHttp")
+        if (isDependenceRxJava()) {
+            val schedulerName = getKClassName("Scheduler")
+            val observableName = getKClassName("Observable")
+            val consumerName = getKClassName("Consumer")
+            val observableTName = observableName.parameterizedBy(t)
+            val observeOnScheduler = ParameterSpec.builder("observeOnScheduler", schedulerName.copy(nullable = true))
+                .defaultValue("null")
+                .build()
 
-        fileBuilder.addImport("kotlinx.coroutines", "suspendCancellableCoroutine")
-        fileBuilder.addImport("kotlin.coroutines",  "resume", "resumeWithException")
-        fileBuilder.addFunction(FunSpec.builder("await")
-            .addModifiers(KModifier.SUSPEND)
-            .receiver(observableTName)
-            .addTypeVariable(t)
-            .addStatement("""
+            fileBuilder.addImport("kotlinx.coroutines", "suspendCancellableCoroutine")
+            fileBuilder.addImport("kotlin.coroutines", "resume", "resumeWithException")
+            fileBuilder.addFunction(FunSpec.builder("await")
+                .addModifiers(KModifier.SUSPEND)
+                .receiver(observableTName)
+                .addTypeVariable(t)
+                .addStatement("""
                 return suspendCancellableCoroutine { continuation ->
                     val subscribe = subscribe({                      
                         continuation.resume(it)                     
@@ -121,41 +123,81 @@ class RxHttpExtensions {
                     }                                               
                 }                                                   
             """.trimIndent())
-            .returns(t)
-            .build())
+                .returns(t)
+                .build())
 
-        fileBuilder.addFunction(FunSpec.builder("asDownload")
-            .receiver(baseRxHttpName)
-            .addParameter("destPath", String::class)
-            .addParameter(observeOnScheduler)
-            .addParameter("progress", progressLambdaName)
-            .addStatement("return asDownload(destPath, Consumer { progress(it) }, observeOnScheduler)")
-            .build())
+            fileBuilder.addFunction(FunSpec.builder("asDownload")
+                .receiver(baseRxHttpName)
+                .addParameter("destPath", String::class)
+                .addParameter(observeOnScheduler)
+                .addParameter("progress", progressLambdaName)
+                .addStatement("return asDownload(destPath, Consumer { progress(it) }, observeOnScheduler)")
+                .build())
 
-        fileBuilder.addFunction(FunSpec.builder("asList")
-            .addModifiers(KModifier.INLINE)
-            .receiver(baseRxHttpName)
-            .addTypeVariable(t.copy(reified = true))
-            .addStatement("return asClass<List<T>>()")
-            .build())
+            fileBuilder.addFunction(FunSpec.builder("asList")
+                .addModifiers(KModifier.INLINE)
+                .receiver(baseRxHttpName)
+                .addTypeVariable(t.copy(reified = true))
+                .addStatement("return asClass<List<T>>()")
+                .build())
 
-        fileBuilder.addFunction(FunSpec.builder("asMap")
-            .addModifiers(KModifier.INLINE)
-            .receiver(baseRxHttpName)
-            .addTypeVariable(k.copy(reified = true))
-            .addTypeVariable(v.copy(reified = true))
-            .addStatement("return asClass<Map<K,V>>()")
-            .build())
+            fileBuilder.addFunction(FunSpec.builder("asMap")
+                .addModifiers(KModifier.INLINE)
+                .receiver(baseRxHttpName)
+                .addTypeVariable(k.copy(reified = true))
+                .addTypeVariable(v.copy(reified = true))
+                .addStatement("return asClass<Map<K,V>>()")
+                .build())
 
-        fileBuilder.addFunction(FunSpec.builder("asClass")
-            .addModifiers(KModifier.INLINE)
-            .receiver(baseRxHttpName)
-            .addTypeVariable(t.copy(reified = true))
-            .addStatement("return asParser(object : %T<T>() {})", simpleParserName)
-            .build())
+            fileBuilder.addFunction(FunSpec.builder("asClass")
+                .addModifiers(KModifier.INLINE)
+                .receiver(baseRxHttpName)
+                .addTypeVariable(t.copy(reified = true))
+                .addStatement("return asParser(object : %T<T>() {})", simpleParserName)
+                .build())
 
-        asFunList.forEach {
-            fileBuilder.addFunction(it)
+            asFunList.forEach {
+                fileBuilder.addFunction(it)
+            }
+
+            fileBuilder.addFunction(
+                FunSpec.builder("upload")
+                    .addKdoc("""
+                    调用此方法监听上传进度                                                    
+                    @param observeOnScheduler  用于控制下游回调所在线程(包括进度回调)
+                    @param progress 进度回调                                      
+                """.trimIndent())
+                    .receiver(rxhttpFormParam)
+                    .addParameter(observeOnScheduler)
+                    .addParameter("progress", progressLambdaName)
+                    .addStatement("return upload(%T{ progress(it) }, observeOnScheduler)", consumerName)
+                    .build())
+
+            fileBuilder.addFunction(
+                FunSpec.builder("asUpload")
+                    .addKdoc("please use [upload] + asXxx method instead")
+                    .addAnnotation(deprecatedAnno)
+                    .receiver(rxhttpFormParam)
+                    .addModifiers(KModifier.INLINE)
+                    .addTypeVariable(anyT.copy(reified = true))
+                    .addParameter(observeOnScheduler)
+                    .addParameter("progress", progressLambdaName, KModifier.NOINLINE)
+                    .addStatement("return asUpload(object: %T<T>() {}, observeOnScheduler, progress)", simpleParserName)
+                    .build())
+
+            fileBuilder.addFunction(
+                FunSpec.builder("asUpload")
+                    .addKdoc("please use [upload] + asXxx method instead")
+                    .addAnnotation(deprecatedAnno)
+                    .receiver(rxhttpFormParam)
+                    .addTypeVariable(anyT)
+                    .addParameter(parser)
+                    .addParameter(observeOnScheduler)
+                    .addParameter("progress", progressLambdaName)
+                    .addStatement("return asUpload(parser, %T{ progress(it) }, observeOnScheduler)", consumerName)
+                    .returns(observableTName)
+                    .build())
+
         }
 
         awaitFunList.forEach {
@@ -182,47 +224,6 @@ class RxHttpExtensions {
                 .build())
 
         fileBuilder.addFunction(
-            FunSpec.builder("upload")
-                .addKdoc("""
-                    调用此方法监听上传进度                                                    
-                    @param observeOnScheduler  用于控制下游回调所在线程(包括进度回调)
-                    @param progress 进度回调                                      
-                """.trimIndent())
-                .receiver(rxhttpFormParam)
-                .addParameter(observeOnScheduler)
-                .addParameter("progress", progressLambdaName)
-                .addStatement("return upload(%T{ progress(it) }, observeOnScheduler)", consumerName)
-                .build())
-
-        val deprecatedAnno = AnnotationSpec.builder(Deprecated::class.java)
-            .addMember("\"Will be removed in a future release\"").build()
-
-        fileBuilder.addFunction(
-            FunSpec.builder("asUpload")
-                .addKdoc("please use [upload] + asXxx method instead")
-                .addAnnotation(deprecatedAnno)
-                .receiver(rxhttpFormParam)
-                .addModifiers(KModifier.INLINE)
-                .addTypeVariable(anyT.copy(reified = true))
-                .addParameter(observeOnScheduler)
-                .addParameter("progress", progressLambdaName, KModifier.NOINLINE)
-                .addStatement("return asUpload(object: %T<T>() {}, observeOnScheduler, progress)", simpleParserName)
-                .build())
-
-        fileBuilder.addFunction(
-            FunSpec.builder("asUpload")
-                .addKdoc("please use [upload] + asXxx method instead")
-                .addAnnotation(deprecatedAnno)
-                .receiver(rxhttpFormParam)
-                .addTypeVariable(anyT)
-                .addParameter(parser)
-                .addParameter(observeOnScheduler)
-                .addParameter("progress", progressLambdaName)
-                .addStatement("return asUpload(parser, %T{ progress(it) }, observeOnScheduler)", consumerName)
-                .returns(observableTName)
-                .build())
-
-        fileBuilder.addFunction(
             FunSpec.builder("awaitUpload")
                 .addKdoc("please use [upload] + awaitXxx method instead")
                 .addAnnotation(deprecatedAnno)
@@ -231,7 +232,7 @@ class RxHttpExtensions {
                 .addTypeVariable(anyT.copy(reified = true))
                 .addParameter(coroutine)
                 .addParameter("progress", progressLambdaName, KModifier.NOINLINE)
-                .addStatement("return awaitUpload(object: SimpleParser<T>() {}, coroutine, progress)")
+                .addStatement("return awaitUpload(object: %T<T>() {}, coroutine, progress)", simpleParserName)
                 .returns(t)
                 .build())
 

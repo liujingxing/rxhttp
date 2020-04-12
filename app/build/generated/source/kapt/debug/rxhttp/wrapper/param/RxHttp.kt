@@ -46,19 +46,6 @@ inline fun <reified T> BaseRxHttp.asClass() = asParser(object : SimpleParser<T>(
 
 inline fun <reified T : Any> BaseRxHttp.asResponse() = asParser(object: ResponseParser<T>() {})
 
-suspend inline fun <reified T : Any> IRxHttp.awaitResponse() = await(object: ResponseParser<T>() {})
-
-/**
- * 调用此方法监听上传进度                                                    
- * @param coroutine  CoroutineScope对象，用于开启协程回调进度，进度回调所在线程取决于协程所在线程
- * @param progress 进度回调  
- * 注意：此方法仅在协程环境下才生效                                         
- */
-fun RxHttpFormParam.upload(coroutine: CoroutineScope? = null, progress: (Progress) -> Unit) =
-    param.setProgressCallback(ProgressCallback { currentProgress, currentSize, totalSize ->
-    val p = Progress(currentProgress, currentSize, totalSize)
-    coroutine?.launch { progress(p) } ?: progress(p)
-})
 /**
  * 调用此方法监听上传进度                                                    
  * @param observeOnScheduler  用于控制下游回调所在线程(包括进度回调)
@@ -85,6 +72,19 @@ fun <T : Any> RxHttpFormParam.asUpload(
   progress: (Progress) -> Unit
 ): Observable<T> = asUpload(parser, Consumer{ progress(it) }, observeOnScheduler)
 
+suspend inline fun <reified T : Any> IRxHttp.awaitResponse() = await(object: ResponseParser<T>() {})
+
+/**
+ * 调用此方法监听上传进度                                                    
+ * @param coroutine  CoroutineScope对象，用于开启协程回调进度，进度回调所在线程取决于协程所在线程
+ * @param progress 进度回调  
+ * 注意：此方法仅在协程环境下才生效                                         
+ */
+fun RxHttpFormParam.upload(coroutine: CoroutineScope? = null, progress: (Progress) -> Unit) =
+    param.setProgressCallback(ProgressCallback { currentProgress, currentSize, totalSize ->
+    val p = Progress(currentProgress, currentSize, totalSize)
+    coroutine?.launch { progress(p) } ?: progress(p)
+})
 /**
  * please use [upload] + awaitXxx method instead
  */

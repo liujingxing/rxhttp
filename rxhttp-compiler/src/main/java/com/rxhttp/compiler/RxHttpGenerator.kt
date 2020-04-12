@@ -15,10 +15,6 @@ import kotlin.Long
 import kotlin.String
 
 class RxHttpGenerator {
-    private val schedulerName = AnnotationProcessor.getClassName("Scheduler")
-    private val observableName = AnnotationProcessor.getClassName("Observable")
-    private val schedulersName = AnnotationProcessor.getClassName("Schedulers")
-    private val consumerName = AnnotationProcessor.getClassName("Consumer")
     private var mParamsAnnotatedClass: ParamsAnnotatedClass? = null
     private var mParserAnnotatedClass: ParserAnnotatedClass? = null
     private var mDomainAnnotatedClass: DomainAnnotatedClass? = null
@@ -65,11 +61,9 @@ class RxHttpGenerator {
         val progressName = ClassName.get("rxhttp.wrapper.entity", "Progress")
         val progressTName = ClassName.get("rxhttp.wrapper.entity", "ProgressT")
         val progressTTName = ParameterizedTypeName.get(progressTName, t)
-        val observableStringName = ParameterizedTypeName.get(observableName, typeName)
-        val consumerProgressName = ParameterizedTypeName.get(consumerName, progressName)
+
         val parserName = ClassName.get("rxhttp.wrapper.parse", "Parser")
         val parserTName = ParameterizedTypeName.get(parserName, t)
-        val observableTName = ParameterizedTypeName.get(observableName, t)
         val simpleParserName = ClassName.get("rxhttp.wrapper.parse", "SimpleParser")
         val upFileName = ClassName.get("rxhttp.wrapper.entity", "UpFile")
         val listUpFileName = ParameterizedTypeName.get(ClassName.get(MutableList::class.java), upFileName)
@@ -205,10 +199,6 @@ class RxHttpGenerator {
                 .addStatement("return formatArgs == null || formatArgs.length == 0 ? url : String.format(url, formatArgs)")
                 .returns(String::class.java)
                 .build())
-        val schedulerField = FieldSpec.builder(schedulerName, "scheduler", Modifier.PROTECTED)
-            .initializer("\$T.io()", schedulersName)
-            .addJavadoc("The request is executed on the IO thread by default\n")
-            .build()
         val converterSpec = FieldSpec.builder(converterName, "converter", Modifier.PROTECTED)
             .initializer("\$T.getConverter()", rxHttpPluginsName)
             .build()
@@ -219,7 +209,7 @@ class RxHttpGenerator {
             .addMember("value", "\"unchecked\"")
             .build()
         val baseRxHttpName = ClassName.get("rxhttp.wrapper.param", "BaseRxHttp")
-        val rxHttp = TypeSpec.classBuilder(CLASSNAME)
+        val rxHttpBuilder = TypeSpec.classBuilder(CLASSNAME)
             .addJavadoc("""
                 Github
                 https://github.com/liujingxing/RxHttp
@@ -230,20 +220,28 @@ class RxHttpGenerator {
             .addModifiers(Modifier.PUBLIC)
             .addAnnotation(build)
             .addField(p, "param", Modifier.PROTECTED)
-            .addField(schedulerField)
-            .addField(converterSpec)
+
+        if (isDependenceRxJava()) {
+            val schedulerName = getClassName("Scheduler")
+            val schedulersName = getClassName("Schedulers")
+            val schedulerField = FieldSpec.builder(schedulerName, "scheduler", Modifier.PROTECTED)
+                .initializer("\$T.io()", schedulersName)
+                .addJavadoc("The request is executed on the IO thread by default\n")
+                .build()
+            rxHttpBuilder.addField(schedulerField)
+        }
+        rxHttpBuilder.addField(converterSpec)
             .addField(breakDownloadOffSize)
             .superclass(baseRxHttpName)
             .addTypeVariable(p)
             .addTypeVariable(r)
             .addMethods(methodList)
-            .build()
 
         // Write file
-        JavaFile.builder(packageName, rxHttp)
+        JavaFile.builder(packageName, rxHttpBuilder.build())
             .build().writeTo(filer)
-        methodList.clear()
 
+        methodList.clear()
         methodList.add(
             MethodSpec.constructorBuilder()
                 .addModifiers(Modifier.PUBLIC)
@@ -571,35 +569,43 @@ class RxHttpGenerator {
                 .returns(rxHttpFormName)
                 .build())
 
-        methodList.add(
-            MethodSpec.methodBuilder("upload")
-                .addModifiers(Modifier.PUBLIC)
-                .addParameter(consumerProgressName, "progressConsumer")
-                .addStatement("return upload(progressConsumer, null)")
-                .returns(rxHttpFormName)
-                .build())
+        if (isDependenceRxJava()) {
+            val observableName = getClassName("Observable")
+            val schedulerName = getClassName("Scheduler")
+            val consumerName = getClassName("Consumer")
+            val observableStringName = ParameterizedTypeName.get(observableName, typeName)
+            val consumerProgressName = ParameterizedTypeName.get(consumerName, progressName)
+            val observableTName = ParameterizedTypeName.get(observableName, t)
 
-        methodList.add(
-            MethodSpec.methodBuilder("upload")
-                .addJavadoc("监听上传进度")
-                .addJavadoc("\n@param progressConsumer   进度回调")
-                .addJavadoc("\n@param observeOnScheduler 用于控制下游回调所在线程(包括进度回调) ，仅当 progressConsumer 不为 null 时生效")
-                .addModifiers(Modifier.PUBLIC)
-                .addParameter(consumerProgressName, "progressConsumer")
-                .addParameter(schedulerName, "observeOnScheduler")
-                .addStatement("this.progressConsumer = progressConsumer")
-                .addStatement("this.observeOnScheduler = observeOnScheduler")
-                .addStatement("return this")
-                .returns(rxHttpFormName)
-                .build())
+            methodList.add(
+                MethodSpec.methodBuilder("upload")
+                    .addModifiers(Modifier.PUBLIC)
+                    .addParameter(consumerProgressName, "progressConsumer")
+                    .addStatement("return upload(progressConsumer, null)")
+                    .returns(rxHttpFormName)
+                    .build())
 
-        methodList.add(
-            MethodSpec.methodBuilder("asParser")
-                .addModifiers(Modifier.PUBLIC)
-                .addAnnotation(Override::class.java)
-                .addTypeVariable(t)
-                .addParameter(parserTName, "parser")
-                .addStatement("""
+            methodList.add(
+                MethodSpec.methodBuilder("upload")
+                    .addJavadoc("监听上传进度")
+                    .addJavadoc("\n@param progressConsumer   进度回调")
+                    .addJavadoc("\n@param observeOnScheduler 用于控制下游回调所在线程(包括进度回调) ，仅当 progressConsumer 不为 null 时生效")
+                    .addModifiers(Modifier.PUBLIC)
+                    .addParameter(consumerProgressName, "progressConsumer")
+                    .addParameter(schedulerName, "observeOnScheduler")
+                    .addStatement("this.progressConsumer = progressConsumer")
+                    .addStatement("this.observeOnScheduler = observeOnScheduler")
+                    .addStatement("return this")
+                    .returns(rxHttpFormName)
+                    .build())
+
+            methodList.add(
+                MethodSpec.methodBuilder("asParser")
+                    .addModifiers(Modifier.PUBLIC)
+                    .addAnnotation(Override::class.java)
+                    .addTypeVariable(t)
+                    .addParameter(parserTName, "parser")
+                    .addStatement("""
                         if (progressConsumer == null) {
                         return super.asParser(parser);
                     }
@@ -614,55 +620,47 @@ class RxHttpGenerator {
                         .filter(progress -> progress instanceof ProgressT)
                         .map(progress -> ((${"$"}T) progress).getResult())
                 """.trimIndent(), progressTTName)
-                .returns(observableTName)
-                .build())
+                    .returns(observableTName)
+                    .build())
 
-        methodList.add(
-            MethodSpec.methodBuilder("asUpload")
-                .addAnnotation(Deprecated::class.java)
-                .addJavadoc("Will be removed in a future release")
-                .addJavadoc("\nPlease use {@link RxHttpFormParam#upload(Consumer, Scheduler)} + asXxx method instead")
-                .addModifiers(Modifier.PUBLIC)
-                .addParameter(consumerProgressName, "progressConsumer")
-                .addStatement("return asUpload(\$T.get(String.class), progressConsumer, null)", simpleParserName)
-                .returns(observableStringName)
-                .build())
+            methodList.add(
+                MethodSpec.methodBuilder("asUpload")
+                    .addAnnotation(Deprecated::class.java)
+                    .addJavadoc("Will be removed in a future release")
+                    .addJavadoc("\nPlease use {@link RxHttpFormParam#upload(Consumer, Scheduler)} + asXxx method instead")
+                    .addModifiers(Modifier.PUBLIC)
+                    .addParameter(consumerProgressName, "progressConsumer")
+                    .addStatement("return asUpload(\$T.get(String.class), progressConsumer, null)", simpleParserName)
+                    .returns(observableStringName)
+                    .build())
 
-        methodList.add(
-            MethodSpec.methodBuilder("asUpload")
-                .addAnnotation(Deprecated::class.java)
-                .addJavadoc("Will be removed in a future release")
-                .addJavadoc("\nPlease use {@link RxHttpFormParam#upload(Consumer, Scheduler)} + asXxx method instead")
-                .addModifiers(Modifier.PUBLIC)
-                .addParameter(consumerProgressName, "progressConsumer")
-                .addParameter(schedulerName, "observeOnScheduler")
-                .addStatement("return asUpload(\$T.get(String.class), progressConsumer, observeOnScheduler)", simpleParserName)
-                .returns(observableStringName)
-                .build())
+            methodList.add(
+                MethodSpec.methodBuilder("asUpload")
+                    .addAnnotation(Deprecated::class.java)
+                    .addJavadoc("Will be removed in a future release")
+                    .addJavadoc("\nPlease use {@link RxHttpFormParam#upload(Consumer, Scheduler)} + asXxx method instead")
+                    .addModifiers(Modifier.PUBLIC)
+                    .addParameter(consumerProgressName, "progressConsumer")
+                    .addParameter(schedulerName, "observeOnScheduler")
+                    .addStatement("return asUpload(\$T.get(String.class), progressConsumer, observeOnScheduler)", simpleParserName)
+                    .returns(observableStringName)
+                    .build())
 
-        methodList.add(
-            MethodSpec.methodBuilder("asUpload")
-                .addAnnotation(Deprecated::class.java)
-                .addJavadoc("Will be removed in a future release")
-                .addJavadoc("\nPlease use {@link RxHttpFormParam#upload(Consumer, Scheduler)} + asXxx method instead")
-                .addModifiers(Modifier.PUBLIC)
-                .addTypeVariable(t)
-                .addParameter(parserTName, "parser")
-                .addParameter(consumerProgressName, "progressConsumer")
-                .addParameter(schedulerName, "observeOnScheduler")
-                .addStatement("upload(progressConsumer, observeOnScheduler)")
-                .addStatement("return asParser(parser)")
-                .returns(observableTName)
-                .build())
-
-        val observeOnSchedulerField = FieldSpec
-            .builder(schedulerName, "observeOnScheduler", Modifier.PRIVATE)
-            .addJavadoc("用于控制下游回调所在线程(包括进度回调)，仅当{@link progressConsumer}不为 null 时生效")
-            .build()
-        val progressConsumerField = FieldSpec
-            .builder(consumerProgressName, "progressConsumer", Modifier.PRIVATE)
-            .addJavadoc("用于监听上传进度回调")
-            .build()
+            methodList.add(
+                MethodSpec.methodBuilder("asUpload")
+                    .addAnnotation(Deprecated::class.java)
+                    .addJavadoc("Will be removed in a future release")
+                    .addJavadoc("\nPlease use {@link RxHttpFormParam#upload(Consumer, Scheduler)} + asXxx method instead")
+                    .addModifiers(Modifier.PUBLIC)
+                    .addTypeVariable(t)
+                    .addParameter(parserTName, "parser")
+                    .addParameter(consumerProgressName, "progressConsumer")
+                    .addParameter(schedulerName, "observeOnScheduler")
+                    .addStatement("upload(progressConsumer, observeOnScheduler)")
+                    .addStatement("return asParser(parser)")
+                    .returns(observableTName)
+                    .build())
+        }
         val rxHttpFormSpec = TypeSpec.classBuilder("RxHttpFormParam")
             .addJavadoc("""
                 Github
@@ -673,11 +671,24 @@ class RxHttpGenerator {
             """.trimIndent())
             .addModifiers(Modifier.PUBLIC)
             .superclass(rxHttpForm)
-            .addField(observeOnSchedulerField)
-            .addField(progressConsumerField)
             .addMethods(methodList)
-            .build()
-        JavaFile.builder(packageName, rxHttpFormSpec)
+
+        if (isDependenceRxJava()) {
+            val schedulerName = getClassName("Scheduler")
+            val consumerName = getClassName("Consumer")
+            val consumerProgressName = ParameterizedTypeName.get(consumerName, progressName)
+            val observeOnSchedulerField = FieldSpec
+                .builder(schedulerName, "observeOnScheduler", Modifier.PRIVATE)
+                .addJavadoc("用于控制下游回调所在线程(包括进度回调)，仅当{@link progressConsumer}不为 null 时生效")
+                .build()
+            val progressConsumerField = FieldSpec
+                .builder(consumerProgressName, "progressConsumer", Modifier.PRIVATE)
+                .addJavadoc("用于监听上传进度回调")
+                .build()
+            rxHttpFormSpec.addField(observeOnSchedulerField)
+                .addField(progressConsumerField)
+        }
+        JavaFile.builder(packageName, rxHttpFormSpec.build())
             .build().writeTo(filer)
 
 
