@@ -13,11 +13,8 @@ import javax.lang.model.type.TypeMirror
 
 class ParserAnnotatedClass {
 
-    private val mElementMap: MutableMap<String, TypeElement> = LinkedHashMap()
-    private val mTypeMap: MutableMap<String, List<TypeMirror>> = LinkedHashMap()
-    private val schedulerName = AnnotationProcessor.getClassName("Scheduler")
-    private val observableName = AnnotationProcessor.getClassName("Observable")
-    private val consumerName = AnnotationProcessor.getClassName("Consumer")
+    private val mElementMap = LinkedHashMap<String, TypeElement>()
+    private val mTypeMap = LinkedHashMap<String, List<TypeMirror>>()
 
     fun add(typeElement: TypeElement) {
         val annotation = typeElement.getAnnotation(Parser::class.java)
@@ -37,8 +34,6 @@ class ParserAnnotatedClass {
 
     fun getMethodList(filer: Filer): List<MethodSpec> {
         val t = TypeVariableName.get("T")
-        val k = TypeVariableName.get("K")
-        val v = TypeVariableName.get("V")
         val callName = ClassName.get("okhttp3", "Call")
         val okHttpClientName = ClassName.get("okhttp3", "OkHttpClient")
         val responseName = ClassName.get("okhttp3", "Response")
@@ -48,13 +43,9 @@ class ParserAnnotatedClass {
         val progressName = ClassName.get("rxhttp.wrapper.entity", "Progress")
         val progressTName = ClassName.get("rxhttp.wrapper.entity", "ProgressT")
         val typeName = TypeName.get(String::class.java)
-        val progressTStringName: TypeName = ParameterizedTypeName.get(progressTName, typeName)
-        val observableTName: TypeName = ParameterizedTypeName.get(observableName, t)
-        val observableStringName: TypeName = ParameterizedTypeName.get(observableName, typeName)
-        val consumerProgressName: TypeName = ParameterizedTypeName.get(consumerName, progressName)
-        val parserTName: TypeName = ParameterizedTypeName.get(parserName, t)
-        val methodList: MutableList<MethodSpec> = ArrayList()
-        var method: MethodSpec.Builder
+        val progressTStringName = ParameterizedTypeName.get(progressTName, typeName)
+        val parserTName = ParameterizedTypeName.get(parserName, t)
+        val methodList = ArrayList<MethodSpec>()
 
         methodList.add(
             MethodSpec.methodBuilder("execute")
@@ -106,72 +97,79 @@ class ParserAnnotatedClass {
                 .addStatement("addDefaultDomainIfAbsent(param)")
                 .build())
 
+        if (isDependenceRxJava()) {
+            val schedulerName = getClassName("Scheduler")
+            val observableName = getClassName("Observable")
+            val consumerName = getClassName("Consumer")
+            methodList.add(
+                MethodSpec.methodBuilder("subscribeOn")
+                    .addModifiers(Modifier.PUBLIC)
+                    .addParameter(schedulerName, "scheduler")
+                    .addStatement("this.scheduler=scheduler")
+                    .addStatement("return (R)this")
+                    .returns(RxHttpGenerator.r)
+                    .build())
 
-        methodList.add(
-            MethodSpec.methodBuilder("subscribeOn")
-                .addModifiers(Modifier.PUBLIC)
-                .addParameter(schedulerName, "scheduler")
-                .addStatement("this.scheduler=scheduler")
-                .addStatement("return (R)this")
-                .returns(RxHttpGenerator.r)
-                .build())
+            methodList.add(
+                MethodSpec.methodBuilder("subscribeOnCurrent")
+                    .addJavadoc("设置在当前线程发请求\n")
+                    .addModifiers(Modifier.PUBLIC)
+                    .addStatement("this.scheduler=null")
+                    .addStatement("return (R)this")
+                    .returns(RxHttpGenerator.r)
+                    .build())
 
-        methodList.add(
-            MethodSpec.methodBuilder("subscribeOnCurrent")
-                .addJavadoc("设置在当前线程发请求\n")
-                .addModifiers(Modifier.PUBLIC)
-                .addStatement("this.scheduler=null")
-                .addStatement("return (R)this")
-                .returns(RxHttpGenerator.r)
-                .build())
+            methodList.add(
+                MethodSpec.methodBuilder("subscribeOnIo")
+                    .addModifiers(Modifier.PUBLIC)
+                    .addStatement("this.scheduler=Schedulers.io()")
+                    .addStatement("return (R)this")
+                    .returns(RxHttpGenerator.r)
+                    .build())
 
-        methodList.add(
-            MethodSpec.methodBuilder("subscribeOnIo")
-                .addModifiers(Modifier.PUBLIC)
-                .addStatement("this.scheduler=Schedulers.io()")
-                .addStatement("return (R)this")
-                .returns(RxHttpGenerator.r)
-                .build())
+            methodList.add(
+                MethodSpec.methodBuilder("subscribeOnComputation")
+                    .addModifiers(Modifier.PUBLIC)
+                    .addStatement("this.scheduler=Schedulers.computation()")
+                    .addStatement("return (R)this")
+                    .returns(RxHttpGenerator.r)
+                    .build())
 
-        methodList.add(
-            MethodSpec.methodBuilder("subscribeOnComputation")
-                .addModifiers(Modifier.PUBLIC)
-                .addStatement("this.scheduler=Schedulers.computation()")
-                .addStatement("return (R)this")
-                .returns(RxHttpGenerator.r)
-                .build())
+            methodList.add(
+                MethodSpec.methodBuilder("subscribeOnNewThread")
+                    .addModifiers(Modifier.PUBLIC)
+                    .addStatement("this.scheduler=Schedulers.newThread()")
+                    .addStatement("return (R)this")
+                    .returns(RxHttpGenerator.r)
+                    .build())
 
-        methodList.add(
-            MethodSpec.methodBuilder("subscribeOnNewThread")
-                .addModifiers(Modifier.PUBLIC)
-                .addStatement("this.scheduler=Schedulers.newThread()")
-                .addStatement("return (R)this")
-                .returns(RxHttpGenerator.r)
-                .build())
+            methodList.add(
+                MethodSpec.methodBuilder("subscribeOnSingle")
+                    .addModifiers(Modifier.PUBLIC)
+                    .addStatement("this.scheduler=Schedulers.single()")
+                    .addStatement("return (R)this")
+                    .returns(RxHttpGenerator.r)
+                    .build())
 
-        methodList.add(
-            MethodSpec.methodBuilder("subscribeOnSingle")
-                .addModifiers(Modifier.PUBLIC)
-                .addStatement("this.scheduler=Schedulers.single()")
-                .addStatement("return (R)this")
-                .returns(RxHttpGenerator.r)
-                .build())
+            methodList.add(
+                MethodSpec.methodBuilder("subscribeOnTrampoline")
+                    .addModifiers(Modifier.PUBLIC)
+                    .addStatement("this.scheduler=Schedulers.trampoline()")
+                    .addStatement("return (R)this")
+                    .returns(RxHttpGenerator.r)
+                    .build())
 
-        methodList.add(
-            MethodSpec.methodBuilder("subscribeOnTrampoline")
-                .addModifiers(Modifier.PUBLIC)
-                .addStatement("this.scheduler=Schedulers.trampoline()")
-                .addStatement("return (R)this")
-                .returns(RxHttpGenerator.r)
-                .build())
+            val observableTName = ParameterizedTypeName.get(observableName, t)
+            val observableStringName = ParameterizedTypeName.get(observableName, typeName)
+            val consumerProgressName = ParameterizedTypeName.get(consumerName, progressName)
 
-        methodList.add(
-            MethodSpec.methodBuilder("asParser")
-                .addAnnotation(Override::class.java)
-                .addModifiers(Modifier.PUBLIC)
-                .addTypeVariable(t)
-                .addParameter(parserTName, "parser")
-                .addStatement("""
+            methodList.add(
+                MethodSpec.methodBuilder("asParser")
+                    .addAnnotation(Override::class.java)
+                    .addModifiers(Modifier.PUBLIC)
+                    .addTypeVariable(t)
+                    .addParameter(parserTName, "parser")
+                    .addStatement("""
                         doOnStart();
                     Observable<T> observable = new ObservableHttp<T>(param, parser);
                     if (scheduler != null) {
@@ -179,17 +177,17 @@ class ParserAnnotatedClass {
                     }
                     return observable
                 """.trimIndent())
-                .returns(observableTName)
-                .build())
+                    .returns(observableTName)
+                    .build())
 
-        methodList.add(
-            MethodSpec.methodBuilder("asDownload")
-                .addAnnotation(Override::class.java)
-                .addModifiers(Modifier.PUBLIC)
-                .addParameter(String::class.java, "destPath")
-                .addParameter(consumerProgressName, "progressConsumer")
-                .addParameter(schedulerName, "observeOnScheduler")
-                .addStatement("""
+            methodList.add(
+                MethodSpec.methodBuilder("asDownload")
+                    .addAnnotation(Override::class.java)
+                    .addModifiers(Modifier.PUBLIC)
+                    .addParameter(String::class.java, "destPath")
+                    .addParameter(consumerProgressName, "progressConsumer")
+                    .addParameter(schedulerName, "observeOnScheduler")
+                    .addStatement("""
                         doOnStart();
                     Observable<Progress> observable = new ObservableDownload(param, destPath, breakDownloadOffSize);
                     if (scheduler != null)
@@ -201,8 +199,10 @@ class ParserAnnotatedClass {
                         .filter(progress -> progress instanceof ProgressT)
                         .map(progress -> ((${"$"}T) progress).getResult())
                 """.trimIndent(), progressTStringName)
-                .returns(observableStringName)
-                .build())
+                    .returns(observableStringName)
+                    .build())
+        }
+
 
         val rxHttpExtensions = RxHttpExtensions()
 
@@ -222,13 +222,15 @@ class ParserAnnotatedClass {
             }
             if (returnType == null) continue
             rxHttpExtensions.generateAsClassFun(typeElement, parserAlias)
-            methodList.add(generateAsXxxMethod(typeElement, parserAlias, returnType, null))
-            val typeMirrors = mTypeMap[parserAlias]!!
-            for (mirror in typeMirrors) {  //遍历Parser注解里面的wrappers数组
-                val name = mirror.toString()
-                val simpleName = name.substring(name.lastIndexOf(".") + 1)
-                val methodName = parserAlias + simpleName
-                methodList.add(generateAsXxxMethod(typeElement, methodName, returnType, mirror))
+            if (isDependenceRxJava()) {
+                methodList.add(generateAsXxxMethod(typeElement, parserAlias, returnType, null))
+                val typeMirrors = mTypeMap[parserAlias]!!
+                for (mirror in typeMirrors) {  //遍历Parser注解里面的wrappers数组
+                    val name = mirror.toString()
+                    val simpleName = name.substring(name.lastIndexOf(".") + 1)
+                    val methodName = parserAlias + simpleName
+                    methodList.add(generateAsXxxMethod(typeElement, methodName, returnType, mirror))
+                }
             }
         }
         rxHttpExtensions.generateClassFile(filer)
@@ -309,7 +311,8 @@ class ParserAnnotatedClass {
                 ParameterizedTypeName.get(className, typeName)
             }
         }
-        val returnType: TypeName = ParameterizedTypeName.get(observableName, typeName)
+        val observableName = getClassName("Observable");
+        val returnType = ParameterizedTypeName.get(observableName, typeName)
         val builder = MethodSpec.methodBuilder("as$methodName")
             .addModifiers(Modifier.PUBLIC)
         if (mirror != null) {
