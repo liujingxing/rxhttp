@@ -15,11 +15,11 @@ android {
         multiDexEnabled true
 
         //Java平台需要传入platform参数，传入java即可，与Android 平台的区别是少了RxHttp#asBitmap方法
-//        javaCompileOptions {
-//            annotationProcessorOptions {
-//                arguments = [platform: 'java']
-//            }
-//        }
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = [rxhttp: 'rxjava2']
+            }
+        }
     }
     buildTypes {
         release {
@@ -52,6 +52,8 @@ dependencies {
     //管理RxJava及生命周期，Activity/Fragment 销毁，自动关闭未完成的请求
     implementation 'com.rxjava.rxlife:rxlife-x:2.0.0'
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
+//    implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
+//    implementation 'io.reactivex.rxjava3:rxjava:3.0.2'
 
     implementation project(":rxhttp")
     kapt project(':rxhttp-compiler')

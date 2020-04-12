@@ -15,9 +15,9 @@ class ParserAnnotatedClass {
 
     private val mElementMap: MutableMap<String, TypeElement> = LinkedHashMap()
     private val mTypeMap: MutableMap<String, List<TypeMirror>> = LinkedHashMap()
-    private val schedulerName = ClassName.get("io.reactivex", "Scheduler")
-    private val observableName = ClassName.get("io.reactivex", "Observable")
-    private val consumerName = ClassName.get("io.reactivex.functions", "Consumer")
+    private val schedulerName = AnnotationProcessor.getClassName("Scheduler")
+    private val observableName = AnnotationProcessor.getClassName("Observable")
+    private val consumerName = AnnotationProcessor.getClassName("Consumer")
 
     fun add(typeElement: TypeElement) {
         val annotation = typeElement.getAnnotation(Parser::class.java)
