@@ -7,7 +7,6 @@ import java.util.concurrent.Callable;
 import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.exceptions.Exceptions;
-import io.reactivex.internal.functions.ObjectHelper;
 import io.reactivex.internal.observers.DeferredScalarDisposable;
 import io.reactivex.plugins.RxJavaPlugins;
 import okhttp3.Call;
@@ -53,7 +52,7 @@ final class ObservableHttp<T> extends ObservableErrorHandler<T> implements Calla
         }
         T value;
         try {
-            value = ObjectHelper.requireNonNull(execute(param), "Callable returned null");
+            value = requireNonNull(execute(param), "Callable returned null");
         } catch (Throwable e) {
             LogUtil.log(param.getUrl(), e);
             Exceptions.throwIfFatal(e);
@@ -69,7 +68,7 @@ final class ObservableHttp<T> extends ObservableErrorHandler<T> implements Calla
 
     @Override
     public T call() throws Exception {
-        return ObjectHelper.requireNonNull(execute(param), "The callable returned a null value");
+        return requireNonNull(execute(param), "The callable returned a null value");
     }
 
 
@@ -114,6 +113,13 @@ final class ObservableHttp<T> extends ObservableErrorHandler<T> implements Calla
             if (mode == cacheMode) return true;
         }
         return false;
+    }
+    
+    private <T> T requireNonNull(T object, String message) {
+        if (object == null) {
+            throw new NullPointerException(message);
+        }
+        return object;
     }
 
     @Nullable

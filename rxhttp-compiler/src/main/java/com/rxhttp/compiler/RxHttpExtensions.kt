@@ -19,9 +19,9 @@ class RxHttpExtensions {
     private val awaitFunList = ArrayList<FunSpec>()
     private val asFunList = ArrayList<FunSpec>()
 
-    private val schedulerName = ClassName("io.reactivex", "Scheduler")
-    private val observableName = ClassName("io.reactivex", "Observable")
-    private val consumerName = ClassName("io.reactivex.functions", "Consumer")
+    private val schedulerName = AnnotationProcessor.getKClassName("Scheduler")
+    private val observableName = AnnotationProcessor.getKClassName("Observable")
+    private val consumerName = AnnotationProcessor.getKClassName("Consumer")
 
     //根据@Parser注解，生成asXxx()、awaitXxx()类型方法
     fun generateAsClassFun(typeElement: TypeElement, key: String) {

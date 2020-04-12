@@ -22,9 +22,9 @@ object ClassHelper {
             import java.util.List;
             import java.util.Map;
 
-            import io.reactivex.Observable;
-            import io.reactivex.Scheduler;
-            import io.reactivex.functions.Consumer;
+            import ${AnnotationProcessor.getClassPath("Observable")};
+            import ${AnnotationProcessor.getClassPath("Scheduler")};
+            import ${AnnotationProcessor.getClassPath("Consumer")};
             import okhttp3.Headers;
             import okhttp3.Response;
             import rxhttp.IRxHttp;
@@ -138,9 +138,9 @@ object ClassHelper {
         generatorClass(filer, "ObservableErrorHandler", """
                 package rxhttp.wrapper.param;
 
-                import io.reactivex.Observable;
-                import io.reactivex.functions.Consumer;
-                import io.reactivex.plugins.RxJavaPlugins;
+                import ${AnnotationProcessor.getClassPath("Observable")};
+                import ${AnnotationProcessor.getClassPath("Consumer")};
+                import ${AnnotationProcessor.getClassPath("RxJavaPlugins")};
                 import rxhttp.wrapper.utils.LogUtil;
 
                 /**
@@ -174,12 +174,11 @@ object ClassHelper {
                 import java.io.IOException;
                 import java.util.concurrent.Callable;
 
-                import io.reactivex.Observable;
-                import io.reactivex.Observer;
-                import io.reactivex.exceptions.Exceptions;
-                import io.reactivex.internal.functions.ObjectHelper;
-                import io.reactivex.internal.observers.DeferredScalarDisposable;
-                import io.reactivex.plugins.RxJavaPlugins;
+                import ${AnnotationProcessor.getClassPath("Observable")};
+                import ${AnnotationProcessor.getClassPath("Observer")};
+                import ${AnnotationProcessor.getClassPath("Exceptions")};
+                import ${AnnotationProcessor.getClassPath("DeferredScalarDisposable")};
+                import ${AnnotationProcessor.getClassPath("RxJavaPlugins")};
                 import okhttp3.Call;
                 import okhttp3.Request;
                 import okhttp3.Response;
@@ -223,7 +222,7 @@ object ClassHelper {
                         }
                         T value;
                         try {
-                            value = ObjectHelper.requireNonNull(execute(param), "Callable returned null");
+                            value = requireNonNull(execute(param), "Callable returned null");
                         } catch (Throwable e) {
                             LogUtil.log(param.getUrl(), e);
                             Exceptions.throwIfFatal(e);
@@ -239,7 +238,7 @@ object ClassHelper {
 
                     @Override
                     public T call() throws Exception {
-                        return ObjectHelper.requireNonNull(execute(param), "The callable returned a null value");
+                        return requireNonNull(execute(param), "The callable returned a null value");
                     }
 
 
@@ -284,6 +283,13 @@ object ClassHelper {
                             if (mode == cacheMode) return true;
                         }
                         return false;
+                    }
+                    
+                    private <T> T requireNonNull(T object, String message) {
+                        if (object == null) {
+                            throw new NullPointerException(message);
+                        }
+                        return object;
                     }
 
                     @Nullable
@@ -336,17 +342,19 @@ object ClassHelper {
                 import java.util.concurrent.atomic.AtomicInteger;
                 import java.util.concurrent.atomic.AtomicReference;
 
-                import io.reactivex.ObservableEmitter;
-                import io.reactivex.Observer;
-                import io.reactivex.disposables.Disposable;
-                import io.reactivex.exceptions.Exceptions;
-                import io.reactivex.functions.Cancellable;
-                import io.reactivex.internal.disposables.CancellableDisposable;
-                import io.reactivex.internal.disposables.DisposableHelper;
-                import io.reactivex.internal.fuseable.SimpleQueue;
-                import io.reactivex.internal.queue.SpscLinkedArrayQueue;
-                import io.reactivex.internal.util.AtomicThrowable;
-                import io.reactivex.plugins.RxJavaPlugins;
+                import ${AnnotationProcessor.getClassPath("ObservableEmitter")};
+                import ${AnnotationProcessor.getClassPath("Observer")};
+                import ${AnnotationProcessor.getClassPath("Disposable")};
+                import ${AnnotationProcessor.getClassPath("Exceptions")};
+                import ${AnnotationProcessor.getClassPath("Cancellable")};
+                import ${AnnotationProcessor.getClassPath("CancellableDisposable")};
+                import ${AnnotationProcessor.getClassPath("DisposableHelper")};
+                import ${AnnotationProcessor.getClassPath("SimpleQueue")};
+                import ${AnnotationProcessor.getClassPath("SpscLinkedArrayQueue")};
+                import ${AnnotationProcessor.getClassPath("AtomicThrowable")};
+                import ${AnnotationProcessor.getClassPath("ExceptionHelper")};
+                import ${AnnotationProcessor.getClassPath("RxJavaPlugins")};
+                
                 import okhttp3.Call;
                 import okhttp3.Request;
                 import okhttp3.Response;
@@ -571,7 +579,7 @@ object ClassHelper {
                             if (t == null) {
                                 t = new NullPointerException("onError called with null. Null values are generally not allowed in 2.x operators and sources.");
                             }
-                            if (error.addThrowable(t)) {
+                            if (ExceptionHelper.addThrowable(error, t)) {
                                 done = true;
                                 drain();
                                 return true;
@@ -675,17 +683,18 @@ object ClassHelper {
                 import java.util.concurrent.atomic.AtomicInteger;
                 import java.util.concurrent.atomic.AtomicReference;
 
-                import io.reactivex.ObservableEmitter;
-                import io.reactivex.Observer;
-                import io.reactivex.disposables.Disposable;
-                import io.reactivex.exceptions.Exceptions;
-                import io.reactivex.functions.Cancellable;
-                import io.reactivex.internal.disposables.CancellableDisposable;
-                import io.reactivex.internal.disposables.DisposableHelper;
-                import io.reactivex.internal.fuseable.SimpleQueue;
-                import io.reactivex.internal.queue.SpscLinkedArrayQueue;
-                import io.reactivex.internal.util.AtomicThrowable;
-                import io.reactivex.plugins.RxJavaPlugins;
+                import ${AnnotationProcessor.getClassPath("ObservableEmitter")};
+                import ${AnnotationProcessor.getClassPath("Observer")};
+                import ${AnnotationProcessor.getClassPath("Disposable")};
+                import ${AnnotationProcessor.getClassPath("Exceptions")};
+                import ${AnnotationProcessor.getClassPath("Cancellable")};
+                import ${AnnotationProcessor.getClassPath("CancellableDisposable")};
+                import ${AnnotationProcessor.getClassPath("DisposableHelper")};
+                import ${AnnotationProcessor.getClassPath("SimpleQueue")};
+                import ${AnnotationProcessor.getClassPath("SpscLinkedArrayQueue")};
+                import ${AnnotationProcessor.getClassPath("AtomicThrowable")};
+                import ${AnnotationProcessor.getClassPath("ExceptionHelper")};
+                import ${AnnotationProcessor.getClassPath("RxJavaPlugins")};
                 import okhttp3.Call;
                 import okhttp3.Request;
                 import okhttp3.Response;
@@ -927,7 +936,7 @@ object ClassHelper {
                             if (t == null) {
                                 t = new NullPointerException("onError called with null. Null values are generally not allowed in 2.x operators and sources.");
                             }
-                            if (error.addThrowable(t)) {
+                            if (ExceptionHelper.addThrowable(error, t)) {
                                 done = true;
                                 drain();
                                 return true;

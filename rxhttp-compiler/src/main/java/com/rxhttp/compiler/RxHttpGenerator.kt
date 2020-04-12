@@ -15,10 +15,10 @@ import kotlin.Long
 import kotlin.String
 
 class RxHttpGenerator {
-    private val schedulerName = ClassName.get("io.reactivex", "Scheduler")
-    private val observableName = ClassName.get("io.reactivex", "Observable")
-    private val schedulersName = ClassName.get("io.reactivex.schedulers", "Schedulers")
-    private val consumerName = ClassName.get("io.reactivex.functions", "Consumer")
+    private val schedulerName = AnnotationProcessor.getClassName("Scheduler")
+    private val observableName = AnnotationProcessor.getClassName("Observable")
+    private val schedulersName = AnnotationProcessor.getClassName("Schedulers")
+    private val consumerName = AnnotationProcessor.getClassName("Consumer")
     private var mParamsAnnotatedClass: ParamsAnnotatedClass? = null
     private var mParserAnnotatedClass: ParserAnnotatedClass? = null
     private var mDomainAnnotatedClass: DomainAnnotatedClass? = null
@@ -45,7 +45,7 @@ class RxHttpGenerator {
     }
 
     @Throws(IOException::class)
-    fun generateCode(elementUtils: Elements, filer: Filer, platform: String) {
+    fun generateCode(elementUtils: Elements, filer: Filer) {
         val httpSenderName = ClassName.get("rxhttp", "HttpSender")
         val rxHttpPluginsName = ClassName.get("rxhttp", "RxHttpPlugins")
         val okHttpClientName = ClassName.get("okhttp3", "OkHttpClient")
