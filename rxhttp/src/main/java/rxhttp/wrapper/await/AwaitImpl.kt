@@ -1,20 +1,29 @@
-package rxhttp
+package rxhttp.wrapper.await
 
-/**
- * User: ljx
- * Date: 2020/3/9
- * Time: 08:47
- */
 import kotlinx.coroutines.suspendCancellableCoroutine
-import okhttp3.Call
-import okhttp3.Callback
-import okhttp3.Response
+import okhttp3.*
+import rxhttp.HttpSender
+import rxhttp.IAwait
 import rxhttp.wrapper.parse.Parser
 import rxhttp.wrapper.utils.LogUtil
 import java.io.IOException
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
+/**
+ * IAwait接口真正实现类
+ * User: ljx
+ * Date: 2020/3/21
+ * Time: 17:06
+ */
+internal class AwaitImpl<T>(
+    private val parser: Parser<T>,
+    private val request: Request,
+    private val client: OkHttpClient = HttpSender.getOkHttpClient()
+) : IAwait<T> {
+
+    override suspend fun await(): T = HttpSender.newCall(client, request).await(parser)
+}
 
 /**
  * 所有的awaitXxx方法,最终都会调用本方法
@@ -42,4 +51,3 @@ suspend fun <T> Call.await(parser: Parser<T>): T {
         })
     }
 }
-

@@ -1,9 +1,6 @@
-package rxhttp
+package rxhttp.wrapper.await
 
-import kotlinx.coroutines.delay
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import rxhttp.wrapper.parse.Parser
+import rxhttp.IAwait
 
 /**
  * 失败重试
@@ -11,16 +8,16 @@ import rxhttp.wrapper.parse.Parser
  * Date: 2020/3/21
  * Time: 17:06
  */
-class RxHttpRetry(
-    iRxHttp: IRxHttp,
+internal class AwaitRetry<T>(
+    private val iAwait: IAwait<T>,
     private var times: Int = 0,
     private val period: Long = 0L,
     private val test: ((Throwable) -> Boolean)? = null
-) : RxHttpProxy(iRxHttp) {
+) : IAwait<T> {
 
-    override suspend fun <T> await(parser: Parser<T>, client: OkHttpClient, request: Request): T {
+    override suspend fun await(): T {
         return try {
-            iRxHttp.await(parser, client, request)
+            iAwait.await()
         } catch (e: Throwable) {
             val remaining = times  //剩余次数
             if (remaining != Int.MAX_VALUE) {
@@ -28,8 +25,8 @@ class RxHttpRetry(
             }
             val pass = test?.invoke(e) ?: true
             if (remaining > 0 && pass) {
-                delay(period)
-                await(parser, client, request) //递归，直到剩余次数为0
+                kotlinx.coroutines.delay(period)
+                await() //递归，直到剩余次数为0
             } else throw e
         }
     }

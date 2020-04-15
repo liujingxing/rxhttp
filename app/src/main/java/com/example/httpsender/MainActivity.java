@@ -2,7 +2,6 @@ package com.example.httpsender;
 
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.View;
@@ -38,18 +37,21 @@ public class MainActivity extends AppCompatActivity {
 
     @SuppressWarnings("deprecation")
     public void bitmap(View view) {
-        String imageUrl = "http://img2.shelinkme.cn/d3/photos/0/017/022/755_org.jpg@!normal_400_400?1558517697888";
-        RxHttp.get(imageUrl) //Get请求
-            .asBitmap()  //这里返回Observable<Bitmap> 对象
-            .as(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
-            .subscribe(bitmap -> {
-                mBinding.tvResult.setBackground(new BitmapDrawable(bitmap));
-                //成功回调
-            }, (OnError) error -> {
-                mBinding.tvResult.setText(error.getErrorMsg());
-                //失败回调
-                error.show("图片加载失败,请稍后再试!");
-            });
+
+        Presenter presenter = new Presenter(this);
+        presenter.testRetry();
+//        String imageUrl = "http://img2.shelinkme.cn/d3/photos/0/017/022/755_org.jpg@!normal_400_400?1558517697888";
+//        RxHttp.get(imageUrl) //Get请求
+//            .asBitmap()  //这里返回Observable<Bitmap> 对象
+//            .as(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
+//            .subscribe(bitmap -> {
+//                mBinding.tvResult.setBackground(new BitmapDrawable(bitmap));
+//                //成功回调
+//            }, (OnError) error -> {
+//                mBinding.tvResult.setText(error.getErrorMsg());
+//                //失败回调
+//                error.show("图片加载失败,请稍后再试!");
+//            });
     }
 
     //发送Get请求，获取文章列表
