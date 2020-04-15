@@ -2,17 +2,13 @@ package com.example.httpsender
 
 import android.util.Log
 import androidx.lifecycle.LifecycleOwner
-import com.example.httpsender.entity.Article
-import com.example.httpsender.entity.PageList
 import com.rxjava.rxlife.BaseScope
 import com.rxjava.rxlife.RxLifeScope
 import com.rxjava.rxlife.life
 import io.reactivex.Observable
 import kotlinx.coroutines.TimeoutCancellationException
-import rxhttp.retry
-import rxhttp.timeout
+import rxhttp.*
 import rxhttp.wrapper.param.RxHttp
-import rxhttp.wrapper.param.awaitResponse
 import java.util.concurrent.TimeUnit
 
 /**
@@ -28,12 +24,22 @@ class Presenter(owner: LifecycleOwner) : BaseScope(owner) {
             .subscribe { Log.e("LJX", "accept aLong=$it") }
     }
 
-    fun testRetry() = RxLifeScope().launch {
+    fun testRetry() = RxLifeScope().launch({
         val pageList = RxHttp.get("/article/list/0/json")
-            .timeout(100)
+            .toStr()
+            .map { it.toLong() }
+            .delay(100)
+            .startDelay(100)
+            .onErrorReturnItem(1)
+            .timeout(1000)
             .retry(2, 1000) {
                 it is TimeoutCancellationException
             }
-            .awaitResponse<PageList<Article>>()
-    }
+            .async(this)
+            .await()
+
+        Log.e("RxHttp", "pageList=$pageList")
+    }, {
+        Log.e("RxHttp", "it=$it")
+    })
 }
