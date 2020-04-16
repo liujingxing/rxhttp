@@ -15,6 +15,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import rxhttp.IRxHttp
 import rxhttp.await
+import rxhttp.toParser
 import rxhttp.wrapper.callback.ProgressCallback
 import rxhttp.wrapper.entity.Progress
 import rxhttp.wrapper.parse.Parser
@@ -73,6 +74,8 @@ fun <T : Any> RxHttpFormParam.asUpload(
 ): Observable<T> = asUpload(parser, Consumer{ progress(it) }, observeOnScheduler)
 
 suspend inline fun <reified T : Any> IRxHttp.awaitResponse() = await(object: ResponseParser<T>() {})
+
+inline fun <reified T : Any> IRxHttp.toResponse() = toParser(object: ResponseParser<T>() {})
 
 /**
  * 调用此方法监听上传进度                                                    
