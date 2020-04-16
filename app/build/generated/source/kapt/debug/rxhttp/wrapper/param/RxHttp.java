@@ -30,6 +30,7 @@ import okhttp3.Response;
 import rxhttp.HttpSender;
 import rxhttp.RxHttpPlugins;
 import rxhttp.wrapper.cahce.CacheMode;
+import rxhttp.wrapper.cahce.CacheStrategy;
 import rxhttp.wrapper.callback.Function;
 import rxhttp.wrapper.callback.IConverter;
 import rxhttp.wrapper.entity.ParameterizedTypeImpl;
@@ -326,6 +327,10 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
   public R cacheControl(CacheControl cacheControl) {
     param.cacheControl(cacheControl);
     return (R)this;
+  }
+
+  public CacheStrategy getCacheStrategy() {
+    return param.getCacheStrategy();
   }
 
   public R setCacheKey(String cacheKey) {
