@@ -26,7 +26,7 @@ import rxhttp.wrapper.parse.SimpleParser;
  * Date: 2020/4/11
  * Time: 18:15
  */
-public abstract class BaseRxHttp extends IRxHttp {
+public abstract class BaseRxHttp implements IRxHttp {
 
     public abstract <T> Observable<T> asParser(Parser<T> parser);
 

@@ -10,7 +10,9 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.X509TrustManager;
 
 import okhttp3.OkHttpClient;
+import rxhttp.RxHttpPlugins;
 import rxhttp.wrapper.annotation.Converter;
+import rxhttp.wrapper.cahce.CacheMode;
 import rxhttp.wrapper.callback.IConverter;
 import rxhttp.wrapper.converter.FastJsonConverter;
 import rxhttp.wrapper.converter.XmlConverter;
@@ -52,9 +54,9 @@ public class RxHttpManager {
         RxHttp.init(client, BuildConfig.DEBUG);
 
         //设置缓存策略，非必须
-//        File file = new File(context.getExternalCacheDir(), "RxHttpCache");
-//        RxHttpPlugins.setCache(file, 1000 * 100, CacheMode.REQUEST_NETWORK_FAILED_READ_CACHE);
-//        RxHttpPlugins.setExcludeCacheKeys("time"); //设置一些key，不参与cacheKey的组拼
+        File cacheFile = new File(context.getExternalCacheDir(), "RxHttpCache");
+        RxHttpPlugins.setCache(cacheFile, 1000 * 100, CacheMode.REQUEST_NETWORK_FAILED_READ_CACHE);
+        RxHttpPlugins.setExcludeCacheKeys("time"); //设置一些key，不参与cacheKey的组拼
 
         //设置数据解密/解码器，非必须
 //        RxHttp.setResultDecoder(s -> s);

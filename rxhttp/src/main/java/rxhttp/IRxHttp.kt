@@ -5,6 +5,7 @@ import okhttp3.Headers
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import rxhttp.wrapper.await.AwaitImpl
+import rxhttp.wrapper.cahce.CacheStrategy
 import rxhttp.wrapper.callback.ProgressCallbackImpl
 import rxhttp.wrapper.entity.Progress
 import rxhttp.wrapper.parse.*
@@ -14,13 +15,15 @@ import rxhttp.wrapper.parse.*
  * Date: 2020/3/21
  * Time: 23:56
  */
-abstract class IRxHttp {
+interface IRxHttp {
 
-    abstract fun buildRequest(): Request
+    fun buildRequest(): Request
 
     //断点下载进度偏移量，进在带进度断点下载时生效
-    open val breakDownloadOffSize = 0L
+    val breakDownloadOffSize: Long
+        get() = 0L
 
+    fun getCacheStrategy(): CacheStrategy
 }
 
 suspend fun IRxHttp.awaitBoolean() = await<Boolean>()
@@ -122,4 +125,4 @@ fun IRxHttp.toDownload(
 fun <T> IRxHttp.toParser(
     parser: Parser<T>,
     client: OkHttpClient = HttpSender.getOkHttpClient()
-): IAwait<T> = AwaitImpl(parser, buildRequest(), client)
+): IAwait<T> = AwaitImpl(parser, buildRequest(), client, getCacheStrategy())

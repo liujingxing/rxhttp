@@ -1,6 +1,7 @@
 package rxhttp.wrapper.param;
 
 import rxhttp.wrapper.cahce.CacheMode;
+import rxhttp.wrapper.cahce.CacheStrategy;
 
 /**
  * User: ljx
@@ -14,6 +15,8 @@ public interface ICache<P extends Param> {
     P setCacheValidTime(long cacheTime);
 
     P setCacheMode(CacheMode cacheMode);
+
+    CacheStrategy getCacheStrategy();
 
     String getCacheKey();
 
