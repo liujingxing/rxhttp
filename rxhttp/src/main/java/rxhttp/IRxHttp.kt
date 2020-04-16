@@ -5,7 +5,6 @@ import okhttp3.Headers
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import rxhttp.wrapper.await.AwaitImpl
-import rxhttp.wrapper.await.await
 import rxhttp.wrapper.callback.ProgressCallbackImpl
 import rxhttp.wrapper.entity.Progress
 import rxhttp.wrapper.parse.*
@@ -74,37 +73,37 @@ suspend fun IRxHttp.awaitDownload(
 suspend fun <T> IRxHttp.await(
     parser: Parser<T>,
     client: OkHttpClient = HttpSender.getOkHttpClient()
-) = HttpSender.newCall(client, buildRequest()).await(parser)
+) = toParser(parser, client).await()
 
-fun IRxHttp.toBoolean() = to<Boolean>()
+fun IRxHttp.toBoolean() = toClass<Boolean>()
 
-fun IRxHttp.toByte() = to<Byte>()
+fun IRxHttp.toByte() = toClass<Byte>()
 
-fun IRxHttp.toShort() = to<Short>()
+fun IRxHttp.toShort() = toClass<Short>()
 
-fun IRxHttp.toInt() = to<Int>()
+fun IRxHttp.toInt() = toClass<Int>()
 
-fun IRxHttp.toLong() = to<Long>()
+fun IRxHttp.toLong() = toClass<Long>()
 
-fun IRxHttp.toFloat() = to<Float>()
+fun IRxHttp.toFloat() = toClass<Float>()
 
-fun IRxHttp.toDouble() = to<Double>()
+fun IRxHttp.toDouble() = toClass<Double>()
 
-fun IRxHttp.toStr() = to<String>()
+fun IRxHttp.toStr() = toClass<String>()
 
-inline fun <reified T : Any> IRxHttp.toList() = to<List<T>>()
+inline fun <reified T : Any> IRxHttp.toList() = toClass<List<T>>()
 
-inline fun <reified K : Any, reified V : Any> IRxHttp.toMap() = to<Map<K, V>>()
+inline fun <reified K : Any, reified V : Any> IRxHttp.toMap() = toClass<Map<K, V>>()
 
-fun IRxHttp.toBitmap() = to(BitmapParser())
+fun IRxHttp.toBitmap() = toParser(BitmapParser())
 
 fun IRxHttp.toHeaders() = toOkResponse().map { it.headers() }
 
-fun IRxHttp.toOkResponse() = to(OkResponseParser())
+fun IRxHttp.toOkResponse() = toParser(OkResponseParser())
 
-inline fun <reified T : Any> IRxHttp.to() = to(object : SimpleParser<T>() {})
+inline fun <reified T : Any> IRxHttp.toClass() = toParser(object : SimpleParser<T>() {})
 
-fun IRxHttp.toDownload(destPath: String) = to(DownloadParser(destPath))
+fun IRxHttp.toDownload(destPath: String) = toParser(DownloadParser(destPath))
 
 /**
  * @param destPath 本地存储路径
@@ -117,10 +116,10 @@ fun IRxHttp.toDownload(
     progress: (Progress) -> Unit
 ): IAwait<String> {
     val clone = HttpSender.clone(ProgressCallbackImpl(coroutine, breakDownloadOffSize, progress))
-    return to(DownloadParser(destPath), clone)
+    return toParser(DownloadParser(destPath), clone)
 }
 
-fun <T> IRxHttp.to(
+fun <T> IRxHttp.toParser(
     parser: Parser<T>,
     client: OkHttpClient = HttpSender.getOkHttpClient()
 ): IAwait<T> = AwaitImpl(parser, buildRequest(), client)
