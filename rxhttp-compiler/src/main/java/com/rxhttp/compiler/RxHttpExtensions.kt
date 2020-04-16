@@ -44,7 +44,7 @@ class RxHttpExtensions {
                     .addTypeVariables(getTypeVariableNames(typeVariableNames))
                     .build())
 
-            //自定义解析器对应的awaitXxx方法里面的语句
+            //自定义awaitXxx方法
             val awaitName = ClassName("rxhttp", "await")
             awaitFunList.add(
                 FunSpec.builder("await$key")
@@ -54,13 +54,33 @@ class RxHttpExtensions {
                         awaitName, typeElement.asClassName())  //方法里面的表达式
                     .addTypeVariables(getTypeVariableNames(typeVariableNames))
                     .build())
-        } else {
+
+            //自定义toXxx方法
+            val toParserName = ClassName("rxhttp", "toParser")
+            awaitFunList.add(
+                FunSpec.builder("to$key")
+                    .addModifiers(KModifier.INLINE)
+                    .receiver(ClassName("rxhttp", "IRxHttp"))
+                    .addStatement("return %T(object: %T${getTypeVariableString(typeVariableNames)}() {})",
+                        toParserName, typeElement.asClassName())  //方法里面的表达式
+                    .addTypeVariables(getTypeVariableNames(typeVariableNames))
+                    .build())
+        } else {  //自定义解析器没有泛型时走这里
+            //自定义awaitXxx方法
             val awaitName = ClassName("rxhttp", "await")
             awaitFunList.add(
                 FunSpec.builder("await$key")
                     .addModifiers(KModifier.SUSPEND)
                     .receiver(ClassName("rxhttp", "IRxHttp"))
                     .addStatement("return %T(%T())", awaitName, typeElement.asClassName())  //方法里面的表达式
+                    .build())
+
+            //自定义toXxx方法
+            val toParserName = ClassName("rxhttp", "toParser")
+            awaitFunList.add(
+                FunSpec.builder("to$key")
+                    .receiver(ClassName("rxhttp", "IRxHttp"))
+                    .addStatement("return %T(%T())", toParserName, typeElement.asClassName())  //方法里面的表达式
                     .build())
         }
 
