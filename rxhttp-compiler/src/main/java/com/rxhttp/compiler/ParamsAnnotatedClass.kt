@@ -39,6 +39,7 @@ class ParamsAnnotatedClass {
         val jsonParamName = ClassName.get(RxHttpGenerator.packageName, "JsonParam")
         val jsonArrayParamName = ClassName.get(RxHttpGenerator.packageName, "JsonArrayParam")
         val cacheModeName = ClassName.get("rxhttp.wrapper.cahce", "CacheMode")
+        val cacheStrategyName = ClassName.get("rxhttp.wrapper.cahce", "CacheStrategy")
         val methodList = ArrayList<MethodSpec>()
         val methodMap = LinkedHashMap<String, String>()
         methodMap["get"] = "RxHttpNoBodyParam"
@@ -436,6 +437,13 @@ class ParamsAnnotatedClass {
                 .addStatement("param.cacheControl(cacheControl)")
                 .addStatement("return (R)this")
                 .returns(rxHttp)
+                .build())
+
+        methodList.add(
+            MethodSpec.methodBuilder("getCacheStrategy")
+                .addModifiers(Modifier.PUBLIC)
+                .addStatement("return param.getCacheStrategy()")
+                .returns(cacheStrategyName)
                 .build())
 
         methodList.add(

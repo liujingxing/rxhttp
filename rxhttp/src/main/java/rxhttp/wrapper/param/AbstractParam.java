@@ -146,34 +146,41 @@ public abstract class AbstractParam<P extends Param> implements Param<P> {
     }
 
     @Override
+    public final CacheStrategy getCacheStrategy() {
+        String cacheKey = getCacheKey();
+        mCacheStrategy.setCacheKey(cacheKey);
+        return mCacheStrategy;
+    }
+
+    @Override
     public String getCacheKey() {
         return mCacheStrategy.getCacheKey();
     }
 
     @Override
-    public P setCacheKey(String cacheKey) {
+    public final P setCacheKey(String cacheKey) {
         mCacheStrategy.setCacheKey(cacheKey);
         return (P) this;
     }
 
     @Override
-    public long getCacheValidTime() {
+    public final long getCacheValidTime() {
         return mCacheStrategy.getCacheValidTime();
     }
 
     @Override
-    public P setCacheValidTime(long cacheTime) {
+    public final P setCacheValidTime(long cacheTime) {
         mCacheStrategy.setCacheValidTime(cacheTime);
         return (P) this;
     }
 
     @Override
-    public CacheMode getCacheMode() {
+    public final CacheMode getCacheMode() {
         return mCacheStrategy.getCacheMode();
     }
 
     @Override
-    public P setCacheMode(CacheMode cacheMode) {
+    public final P setCacheMode(CacheMode cacheMode) {
         mCacheStrategy.setCacheMode(cacheMode);
         return (P) this;
     }
