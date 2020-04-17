@@ -2,6 +2,7 @@ package rxhttp.wrapper.parse
 
 import okhttp3.Response
 import java.io.IOException
+import java.lang.reflect.Type
 
 /**
  * 将Response对象解析成泛型T对象
@@ -11,7 +12,7 @@ import java.io.IOException
  */
 open class SimpleParser<T> : AbstractParser<T> {
     protected constructor() : super()
-    constructor(type: Class<T>) : super(type)
+    constructor(type: Type) : super(type)
 
     @Throws(IOException::class)
     override fun onParse(response: Response): T {
@@ -20,6 +21,6 @@ open class SimpleParser<T> : AbstractParser<T> {
 
     companion object {
         @JvmStatic
-        operator fun <T> get(type: Class<T>) = SimpleParser(type);
+        operator fun <T> get(type: Class<T>) = SimpleParser<T>(type)
     }
 }
