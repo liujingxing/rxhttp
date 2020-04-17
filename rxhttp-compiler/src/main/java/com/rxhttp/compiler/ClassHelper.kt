@@ -36,6 +36,7 @@ object ClassHelper {
 
             import android.graphics.Bitmap;
 
+            import java.lang.reflect.Type;
             import java.util.List;
             import java.util.Map;
 
@@ -46,11 +47,10 @@ object ClassHelper {
             import okhttp3.Response;
             import rxhttp.IRxHttp;
             import rxhttp.wrapper.annotations.Nullable;
+            import rxhttp.wrapper.entity.ParameterizedTypeImpl;
             import rxhttp.wrapper.entity.Progress;
             import rxhttp.wrapper.parse.BitmapParser;
             import rxhttp.wrapper.parse.DownloadParser;
-            import rxhttp.wrapper.parse.ListParser;
-            import rxhttp.wrapper.parse.MapParser;
             import rxhttp.wrapper.parse.OkResponseParser;
             import rxhttp.wrapper.parse.Parser;
             import rxhttp.wrapper.parse.SimpleParser;
@@ -117,11 +117,13 @@ object ClassHelper {
                 }
 
                 public final <K, V> Observable<Map<K, V>> asMap(Class<K> kType, Class<V> vType) {
-                    return asParser(new MapParser<>(kType, vType));
+                    Type tTypeMap = ParameterizedTypeImpl.getParameterized(Map.class, kType, vType);
+                    return asParser(new SimpleParser<Map<K, V>>(tTypeMap));
                 }
 
                 public final <T> Observable<List<T>> asList(Class<T> tType) {
-                    return asParser(new ListParser<>(tType));
+                    Type tTypeList = ParameterizedTypeImpl.get(List.class, tType);
+                    return asParser(new SimpleParser<List<T>>(tTypeList));
                 }
 
                 public final <T> Observable<Bitmap> asBitmap() {
