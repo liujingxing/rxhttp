@@ -58,8 +58,8 @@ dependencies {
     implementation project(":rxhttp")
     kapt project(':rxhttp-compiler')
 
-//    implementation "com.rxjava.rxhttp:rxhttp:${rxhttp_version}"
-//    kapt "com.rxjava.rxhttp:rxhttp-compiler:${rxhttp_version}"
+//    implementation "com.ljx.rxhttp:rxhttp:${rxhttp_version}"
+//    kapt "com.ljx.rxhttp:rxhttp-compiler:${rxhttp_version}"
 
     implementation "com.rxjava.rxhttp:converter-jackson:${rxhttp_converter_version}"
     implementation "com.rxjava.rxhttp:converter-fastjson:${rxhttp_converter_version}"

@@ -3,7 +3,7 @@ apply plugin: 'java-library'
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 //    compileOnly project(":rxhttp")
-    compileOnly "com.rxjava.rxhttp:rxhttp:${rxhttp_version}"
+    compileOnly "com.ljx.rxhttp:rxhttp:${rxhttp_version}"
     api 'org.simpleframework:simple-xml:2.7.1'
 }
 

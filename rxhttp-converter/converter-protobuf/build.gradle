@@ -4,7 +4,7 @@ apply plugin: 'java-library'
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 //    compileOnly project(":rxhttp")
-    compileOnly "com.rxjava.rxhttp:rxhttp:${rxhttp_version}"
+    compileOnly "com.ljx.rxhttp:rxhttp:${rxhttp_version}"
     api 'com.google.protobuf:protobuf-java:3.5.0'
 }
 
