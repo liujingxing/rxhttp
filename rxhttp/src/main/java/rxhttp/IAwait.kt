@@ -1,9 +1,6 @@
 package rxhttp
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.async
+import kotlinx.coroutines.*
 import rxhttp.wrapper.await.*
 
 /**
@@ -45,4 +42,16 @@ fun <T> IAwait<T>.delay(delay: Long): IAwait<T> = AwaitDelay(this, delay)
 
 fun <T> IAwait<T>.startDelay(delay: Long): IAwait<T> = AwaitStartDelay(this, delay)
 
-fun <T> IAwait<T>.async(coroutineScope: CoroutineScope): Deferred<T> = coroutineScope.async(SupervisorJob()) { await() }
+suspend fun <T> IAwait<T>.async() = supervisorScope { async { await() } }
+
+suspend fun <T> Deferred<T>.tryAwait() = tryAwait { await() }
+
+suspend fun <T> IAwait<T>.tryAwait() = tryAwait { await() }
+
+private suspend fun <T> tryAwait(block: suspend () -> T): T? {
+    return try {
+        block()
+    } catch (e: Throwable) {
+        null
+    }
+}
