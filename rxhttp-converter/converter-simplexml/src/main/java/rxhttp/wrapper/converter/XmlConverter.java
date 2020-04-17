@@ -7,8 +7,8 @@ import org.simpleframework.xml.core.Persister;
 import java.io.IOException;
 import java.lang.reflect.Type;
 
-import io.reactivex.annotations.NonNull;
 import okhttp3.ResponseBody;
+import rxhttp.wrapper.annotations.NonNull;
 import rxhttp.wrapper.callback.IConverter;
 
 /**
