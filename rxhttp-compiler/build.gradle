@@ -5,7 +5,7 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'com.squareup:javapoet:1.12.1'
     implementation 'com.squareup:kotlinpoet:1.5.0'
-    implementation 'com.rxjava.rxhttp:rxhttp-annotation:1.0.3'
+    implementation 'com.ljx.rxhttp:rxhttp-annotation:1.0.0'
 //    api project(":rxhttp-annotation")
 }
 
