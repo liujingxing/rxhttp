@@ -125,4 +125,4 @@ fun IRxHttp.toDownload(
 fun <T> IRxHttp.toParser(
     parser: Parser<T>,
     client: OkHttpClient = HttpSender.getOkHttpClient()
-): IAwait<T> = AwaitImpl(parser, buildRequest(), client, getCacheStrategy())
+): IAwait<T> = AwaitImpl(this, parser, client)

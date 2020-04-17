@@ -6,6 +6,7 @@ import kotlinx.coroutines.withContext
 import okhttp3.*
 import rxhttp.HttpSender
 import rxhttp.IAwait
+import rxhttp.IRxHttp
 import rxhttp.RxHttpPlugins
 import rxhttp.wrapper.annotations.Nullable
 import rxhttp.wrapper.cahce.CacheMode
@@ -25,21 +26,23 @@ import kotlin.coroutines.resumeWithException
  * Time: 17:06
  */
 internal class AwaitImpl<T>(
+    private val iRxHttp: IRxHttp,
     private val parser: Parser<T>,
-    private val request: Request,
-    private val client: OkHttpClient,
-    private val cacheStrategy: CacheStrategy,
-    private val cache: InternalCache = RxHttpPlugins.getCache()
+    private val client: OkHttpClient
 ) : IAwait<T> {
 
+    private val request: Request by lazy { iRxHttp.buildRequest() }
+    private val cache: InternalCache by lazy { RxHttpPlugins.getCache() }  //缓存读取
+    private val cacheStrategy: CacheStrategy by lazy { iRxHttp.getCacheStrategy() }  //缓存策略
+
     override suspend fun await(): T {
-        val cacheT = beforeReadCache()
+        val cacheT = beforeReadCache(request)
         if (cacheT != null) return cacheT
         val newCall = HttpSender.newCall(client, request)
         return await(newCall)
     }
 
-    private suspend fun beforeReadCache(): T? {
+    private suspend fun beforeReadCache(request: Request): T? {
         return if (cacheModeIs(CacheMode.ONLY_CACHE, CacheMode.READ_CACHE_FAILED_REQUEST_NETWORK)) {
             withContext(Dispatchers.IO) {
                 //读取缓存
@@ -96,7 +99,7 @@ internal class AwaitImpl<T>(
                     var networkResponse: Response? = null
                     if (cacheModeIs(CacheMode.REQUEST_NETWORK_FAILED_READ_CACHE)) {
                         //请求失败，读取缓存
-                        networkResponse = getCacheResponse(request, cacheStrategy.cacheValidTime)
+                        networkResponse = getCacheResponse(call.request(), cacheStrategy.cacheValidTime)
                     }
                     if (networkResponse == null) {
                         LogUtil.log(call.request().url().toString(), e)
