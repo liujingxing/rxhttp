@@ -236,11 +236,13 @@ class RxHttpExtensions {
                 .addParameter(coroutine)
                 .addParameter("progress", progressLambdaName)
                 .addCode("""
-                    return param.setProgressCallback(%T { currentProgress, currentSize, totalSize ->
+                    param.setProgressCallback(%T { currentProgress, currentSize, totalSize ->
                         val p = Progress(currentProgress, currentSize, totalSize)
                         coroutine?.%T { progress(p) } ?: progress(p)
                     })
+                    return this
                     """.trimIndent(), progressCallbackName, launchName)
+                .returns(rxhttpFormParam)
                 .build())
 
         fileBuilder.addFunction(
