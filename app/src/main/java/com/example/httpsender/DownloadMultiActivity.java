@@ -18,8 +18,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.disposables.Disposable;
 import rxhttp.wrapper.param.RxHttp;
 
 /**
@@ -167,7 +167,7 @@ public class DownloadMultiActivity extends AppCompatActivity implements OnItemCl
                 if (waitTask.size() > 0)
                     download(waitTask.remove(0));
             })
-            .as(RxLife.as(this)) //加入感知生命周期的观察者
+            .to(RxLife.as(this)) //加入感知生命周期的观察者
             .subscribe(s -> { //s为String类型
                 Tip.show("下载完成" + s);
                 data.setState(4);

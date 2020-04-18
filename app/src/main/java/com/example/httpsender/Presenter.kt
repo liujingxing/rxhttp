@@ -7,9 +7,7 @@ import com.example.httpsender.entity.PageList
 import com.rxjava.rxlife.BaseScope
 import com.rxjava.rxlife.RxLifeScope
 import com.rxjava.rxlife.life
-import io.reactivex.Observable
-import kotlinx.coroutines.TimeoutCancellationException
-import rxhttp.*
+import io.reactivex.rxjava3.core.Observable
 import rxhttp.wrapper.cahce.CacheMode
 import rxhttp.wrapper.param.RxHttp
 import rxhttp.wrapper.param.toResponse
@@ -29,21 +27,26 @@ class Presenter(owner: LifecycleOwner) : BaseScope(owner) {
     }
 
     fun testRetry() = RxLifeScope().launch({
-        val pageList = RxHttp.get("/article/list/0/json")
+        val pageList = RxHttp.postForm("/article/query/0/json")
+            .add("k", "性能优化")
             .setCacheMode(CacheMode.ONLY_NETWORK)
             .toResponse<PageList<Article>>()
-            .delay(100)
-            .startDelay(100)
-            .onErrorReturnItem(PageList())
-            .timeout(1000)
-            .retry(2, 1000) {
-                it is TimeoutCancellationException
-            }
-            .async()
-            .tryAwait()
+//            .delay(100)
+//            .startDelay(100)
+//            .onErrorReturnItem(PageList())
+//            .timeout(1000)
+//            .retry(2, 1000) {
+//                it is TimeoutCancellationException
+//            }
+//            .async()
+            .await()
 
-        Log.e("RxHttp", "pageList=$pageList")
+        Log.e("RxHttp", "onNext = $pageList")
     }, {
-        Log.e("RxHttp", "it=$it")
+        Log.e("RxHttp", "onError = $it")
+    }, {
+        Log.e("RxHttp", "onStart")
+    }, {
+        Log.e("RxHttp", "onFinally")
     })
 }
