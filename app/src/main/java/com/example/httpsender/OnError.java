@@ -3,7 +3,7 @@ package com.example.httpsender;
 
 import com.example.httpsender.entity.ErrorInfo;
 
-import io.reactivex.functions.Consumer;
+import io.reactivex.rxjava3.functions.Consumer;
 
 
 /**

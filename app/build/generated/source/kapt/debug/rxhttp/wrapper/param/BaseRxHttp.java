@@ -6,9 +6,9 @@ import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 
-import io.reactivex.Observable;
-import io.reactivex.Scheduler;
-import io.reactivex.functions.Consumer;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Scheduler;
+import io.reactivex.rxjava3.functions.Consumer;
 import okhttp3.Headers;
 import okhttp3.Response;
 import rxhttp.IRxHttp;

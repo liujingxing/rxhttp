@@ -21,7 +21,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import rxhttp.wrapper.param.RxHttp;
 
 public class MainActivity extends AppCompatActivity {
@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
 //        String imageUrl = "http://img2.shelinkme.cn/d3/photos/0/017/022/755_org.jpg@!normal_400_400?1558517697888";
 //        RxHttp.get(imageUrl) //Get请求
 //            .asBitmap()  //这里返回Observable<Bitmap> 对象
-//            .as(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
+//            .to(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
 //            .subscribe(bitmap -> {
 //                mBinding.tvResult.setBackground(new BitmapDrawable(bitmap));
 //                //成功回调
@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
     public void sendGet(View view) {
         RxHttp.get("/article/list/0/json")
             .asResponsePageList(Article.class)
-            .as(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
+            .to(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
             .subscribe(pageList -> {
                 mBinding.tvResult.setText(new Gson().toJson(pageList));
                 //成功回调
@@ -74,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
         RxHttp.postForm("/article/query/0/json")
             .add("k", "性能优化")
             .asResponsePageList(Article.class)
-            .as(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
+            .to(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
             .subscribe(pageList -> {
                 mBinding.tvResult.setText(new Gson().toJson(pageList));
                 //成功回调
@@ -122,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
             .add("location", new Location(120.6788, 30.7866))  //添加位置对象
             .addJsonElement("address", address) //通过字符串添加一个对象
             .asString()
-            .as(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
+            .to(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
             .subscribe(s -> {
                 mBinding.tvResult.setText(s);
                 //成功回调
@@ -165,7 +165,7 @@ public class MainActivity extends AppCompatActivity {
             .addJsonElement("{\"name\":\"王五\"}")
             .addAll(names)
             .asString()
-            .as(RxLife.asOnMain(this))
+            .to(RxLife.asOnMain(this))
             .subscribe(s -> {
                 mBinding.tvResult.setText(s);
             }, (OnError) error -> {
@@ -180,7 +180,7 @@ public class MainActivity extends AppCompatActivity {
         RxHttp.get("http://webservices.nextbus.com/service/publicXMLFeed?command=routeConfig&a=sf-muni")
             .setXmlConverter()
             .asClass(NewsDataXml.class)
-            .as(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
+            .to(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
             .subscribe(dataXml -> {
                 mBinding.tvResult.setText(new Gson().toJson(dataXml));
                 //成功回调
@@ -196,7 +196,7 @@ public class MainActivity extends AppCompatActivity {
         RxHttp.get("/article/list/0/json")
             .setFastJsonConverter()
             .asResponsePageList(Article.class)
-            .as(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
+            .to(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
             .subscribe(pageList -> {
                 mBinding.tvResult.setText(new Gson().toJson(pageList));
                 //成功回调
@@ -213,7 +213,7 @@ public class MainActivity extends AppCompatActivity {
         RxHttp.get("/miaolive/Miaolive.apk")
             .setDomainToUpdateIfAbsent() //使用指定的域名
             .asDownload(destPath)
-            .as(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
+            .to(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
             .subscribe(s -> {
                 //下载成功,回调文件下载路径
             }, (OnError) error -> {
@@ -235,7 +235,7 @@ public class MainActivity extends AppCompatActivity {
                 long totalSize = progress.getTotalSize();     //要下载的总字节大小
                 mBinding.tvResult.append("\n" + progress.toString());
             }, AndroidSchedulers.mainThread()) //指定回调(进度/成功/失败)线程,不指定,默认在请求所在线程回调
-            .as(RxLife.as(this)) //感知生命周期
+            .to(RxLife.to(this)) //感知生命周期
             .subscribe(s -> {
                 //下载完成，处理相关逻辑
                 mBinding.tvResult.append("\n下载成功 : " + s);
@@ -254,7 +254,7 @@ public class MainActivity extends AppCompatActivity {
             .setDomainToUpdateIfAbsent() //使用指定的域名
             .setRangeHeader(length)  //设置开始下载位置，结束位置默认为文件末尾
             .asDownload(destPath) //注意这里使用DownloadParser解析器，并传入本地路径
-            .as(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
+            .to(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
             .subscribe(s -> {
                 //下载成功,回调文件下载路径
             }, (OnError) error -> {
@@ -277,7 +277,7 @@ public class MainActivity extends AppCompatActivity {
                 long totalSize = progress.getTotalSize();     //要下载的总字节大小
                 mBinding.tvResult.append("\n" + progress.toString());
             }, AndroidSchedulers.mainThread()) //指定回调(进度/成功/失败)线程,不指定,默认在请求所在线程回调
-            .as(RxLife.as(this))              //加入感知生命周期的观察者
+            .to(RxLife.to(this))              //加入感知生命周期的观察者
             .subscribe(s -> {
                 //下载成功
                 mBinding.tvResult.append("\n下载成功 : " + s);
@@ -294,7 +294,7 @@ public class MainActivity extends AppCompatActivity {
         RxHttp.postForm("http://t.xinhuo.com/index.php/Api/Pic/uploadPic")
             .addFile("uploaded_file", new File(Environment.getExternalStorageDirectory(), "1.jpg"))
             .asString() //from操作符，是异步操作
-            .as(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
+            .to(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
             .subscribe(s -> {
                 mBinding.tvResult.append("\n");
                 mBinding.tvResult.append(s);
@@ -319,7 +319,7 @@ public class MainActivity extends AppCompatActivity {
                 mBinding.tvResult.append("\n" + progress.toString());
             }, AndroidSchedulers.mainThread()) //指定回调(进度/成功/失败)线程,不指定,默认在请求所在线程回调
             .asString()
-            .as(RxLife.as(this))               //加入感知生命周期的观察者
+            .to(RxLife.to(this))               //加入感知生命周期的观察者
             .subscribe(s -> {
                 //上传成功
                 mBinding.tvResult.append("\n上传成功 : " + s);
