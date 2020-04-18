@@ -1,6 +1,7 @@
 package com.example.httpsender.entity;
 
-import io.reactivex.disposables.Disposable;
+
+import io.reactivex.rxjava3.disposables.Disposable;
 
 /**
  * User: ljx

@@ -7,7 +7,7 @@ import com.example.httpsender.entity.Article
 import com.example.httpsender.entity.PageList
 import com.rxjava.rxlife.ScopeViewModel
 import com.rxjava.rxlife.lifeOnMain
-import io.reactivex.Observable
+import io.reactivex.rxjava3.core.Observable
 import kotlinx.coroutines.TimeoutCancellationException
 import rxhttp.retry
 import rxhttp.timeout

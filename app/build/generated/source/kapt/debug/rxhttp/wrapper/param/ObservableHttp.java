@@ -4,11 +4,11 @@ package rxhttp.wrapper.param;
 import java.io.IOException;
 import java.util.concurrent.Callable;
 
-import io.reactivex.Observable;
-import io.reactivex.Observer;
-import io.reactivex.exceptions.Exceptions;
-import io.reactivex.internal.observers.DeferredScalarDisposable;
-import io.reactivex.plugins.RxJavaPlugins;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Observer;
+import io.reactivex.rxjava3.exceptions.Exceptions;
+import io.reactivex.rxjava3.internal.observers.DeferredScalarDisposable;
+import io.reactivex.rxjava3.plugins.RxJavaPlugins;
 import okhttp3.Call;
 import okhttp3.Request;
 import okhttp3.Response;

@@ -1,8 +1,8 @@
 package rxhttp.wrapper.param;
 
-import io.reactivex.Observable;
-import io.reactivex.Scheduler;
-import io.reactivex.functions.Consumer;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Scheduler;
+import io.reactivex.rxjava3.functions.Consumer;
 import java.io.File;
 import java.lang.Deprecated;
 import java.lang.Object;
