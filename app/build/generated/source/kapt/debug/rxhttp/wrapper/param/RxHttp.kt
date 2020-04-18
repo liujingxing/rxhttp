@@ -83,11 +83,15 @@ inline fun <reified T : Any> IRxHttp.toResponse() = toParser(object: ResponsePar
  * @param progress 进度回调  
  * 注意：此方法仅在协程环境下才生效                                         
  */
-fun RxHttpFormParam.upload(coroutine: CoroutineScope? = null, progress: (Progress) -> Unit) =
-    param.setProgressCallback(ProgressCallback { currentProgress, currentSize, totalSize ->
-    val p = Progress(currentProgress, currentSize, totalSize)
-    coroutine?.launch { progress(p) } ?: progress(p)
-})
+fun RxHttpFormParam.upload(coroutine: CoroutineScope? = null, progress: (Progress) -> Unit):
+    RxHttpFormParam {
+  param.setProgressCallback(ProgressCallback { currentProgress, currentSize, totalSize ->
+      val p = Progress(currentProgress, currentSize, totalSize)
+      coroutine?.launch { progress(p) } ?: progress(p)
+  })
+  return this
+}
+
 /**
  * please use [upload] + awaitXxx method instead
  */
