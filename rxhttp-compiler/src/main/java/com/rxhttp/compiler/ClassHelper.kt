@@ -21,6 +21,7 @@ object ClassHelper {
                 import rxhttp.IRxHttp;
 
                 /**
+                 * 本类存放asXxx方法，如果依赖了RxJava的话
                  * User: ljx
                  * Date: 2020/4/11
                  * Time: 18:15
@@ -56,6 +57,7 @@ object ClassHelper {
             import rxhttp.wrapper.parse.SimpleParser;
 
             /**
+             * 本类存放asXxx方法，如果依赖了RxJava的话
              * User: ljx
              * Date: 2020/4/11
              * Time: 18:15
