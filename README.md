@@ -45,7 +45,7 @@ dependencies {
 
 1、kotlin用户，请使用kapt替代annotationProcessor
 
-2、RxHttp 2.2.0版本起，内部不在依赖RxJava相关库，如你需要使用asXxx方式发送请求，请告知RxHttp，如下：
+2、RxHttp 2.2.0版本起，内部不在依赖RxJava相关库，如需使用asXxx方式发送请求，请告知RxHttp，如下：
 
 ```java
 defaultConfig {
@@ -62,12 +62,12 @@ dependencies {
    //rxjava2
    implementation 'io.reactivex.rxjava2:rxjava:2.2.8'
    implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
-   implementation 'com.ljx.rxlife2:rxlife-rxjava:2.0.0'    //页面销毁，关闭请求，非必须
+   implementation 'com.ljx.rxlife2:rxlife-rxjava:2.0.0'    //管理RxJava2生命周期，页面销毁，关闭请求
 
    //rxjava3
    implementation 'io.reactivex.rxjava3:rxjava:3.0.2'
    implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
-   implementation 'com.ljx.rxlife3:rxlife-rxjava:3.0.0'    //页面销毁，关闭请求，非必须
+   implementation 'com.ljx.rxlife3:rxlife-rxjava:3.0.0'    //管理RxJava3生命周期，页面销毁，关闭请求
 }
 ```
 
