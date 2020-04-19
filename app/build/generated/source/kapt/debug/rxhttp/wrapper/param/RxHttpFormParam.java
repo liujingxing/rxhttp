@@ -14,7 +14,6 @@ import rxhttp.wrapper.entity.Progress;
 import rxhttp.wrapper.entity.ProgressT;
 import rxhttp.wrapper.entity.UpFile;
 import rxhttp.wrapper.parse.Parser;
-import rxhttp.wrapper.parse.SimpleParser;
 
 /**
  * Github
@@ -177,35 +176,5 @@ public class RxHttpFormParam extends RxHttp<FormParam, RxHttpFormParam> {
         return observable.doOnNext(progressConsumer)
             .filter(progress -> progress instanceof ProgressT)
             .map(progress -> ((ProgressT<T>) progress).getResult());
-  }
-
-  /**
-   * Will be removed in a future release
-   * Please use {@link RxHttpFormParam#upload(Consumer, Scheduler)} + asXxx method instead
-   */
-  @Deprecated
-  public Observable<String> asUpload(Consumer<Progress> progressConsumer) {
-    return asUpload(SimpleParser.get(String.class), progressConsumer, null);
-  }
-
-  /**
-   * Will be removed in a future release
-   * Please use {@link RxHttpFormParam#upload(Consumer, Scheduler)} + asXxx method instead
-   */
-  @Deprecated
-  public Observable<String> asUpload(Consumer<Progress> progressConsumer,
-      Scheduler observeOnScheduler) {
-    return asUpload(SimpleParser.get(String.class), progressConsumer, observeOnScheduler);
-  }
-
-  /**
-   * Will be removed in a future release
-   * Please use {@link RxHttpFormParam#upload(Consumer, Scheduler)} + asXxx method instead
-   */
-  @Deprecated
-  public <T> Observable<T> asUpload(Parser<T> parser, Consumer<Progress> progressConsumer,
-      Scheduler observeOnScheduler) {
-    upload(progressConsumer, observeOnScheduler);
-    return asParser(parser);
   }
 }

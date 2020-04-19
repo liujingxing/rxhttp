@@ -622,44 +622,6 @@ class RxHttpGenerator {
                 """.trimIndent(), progressTTName)
                     .returns(observableTName)
                     .build())
-
-            methodList.add(
-                MethodSpec.methodBuilder("asUpload")
-                    .addAnnotation(Deprecated::class.java)
-                    .addJavadoc("Will be removed in a future release")
-                    .addJavadoc("\nPlease use {@link RxHttpFormParam#upload(Consumer, Scheduler)} + asXxx method instead")
-                    .addModifiers(Modifier.PUBLIC)
-                    .addParameter(consumerProgressName, "progressConsumer")
-                    .addStatement("return asUpload(\$T.get(String.class), progressConsumer, null)", simpleParserName)
-                    .returns(observableStringName)
-                    .build())
-
-            methodList.add(
-                MethodSpec.methodBuilder("asUpload")
-                    .addAnnotation(Deprecated::class.java)
-                    .addJavadoc("Will be removed in a future release")
-                    .addJavadoc("\nPlease use {@link RxHttpFormParam#upload(Consumer, Scheduler)} + asXxx method instead")
-                    .addModifiers(Modifier.PUBLIC)
-                    .addParameter(consumerProgressName, "progressConsumer")
-                    .addParameter(schedulerName, "observeOnScheduler")
-                    .addStatement("return asUpload(\$T.get(String.class), progressConsumer, observeOnScheduler)", simpleParserName)
-                    .returns(observableStringName)
-                    .build())
-
-            methodList.add(
-                MethodSpec.methodBuilder("asUpload")
-                    .addAnnotation(Deprecated::class.java)
-                    .addJavadoc("Will be removed in a future release")
-                    .addJavadoc("\nPlease use {@link RxHttpFormParam#upload(Consumer, Scheduler)} + asXxx method instead")
-                    .addModifiers(Modifier.PUBLIC)
-                    .addTypeVariable(t)
-                    .addParameter(parserTName, "parser")
-                    .addParameter(consumerProgressName, "progressConsumer")
-                    .addParameter(schedulerName, "observeOnScheduler")
-                    .addStatement("upload(progressConsumer, observeOnScheduler)")
-                    .addStatement("return asParser(parser)")
-                    .returns(observableTName)
-                    .build())
         }
         val rxHttpFormSpec = TypeSpec.classBuilder("RxHttpFormParam")
             .addJavadoc("""
