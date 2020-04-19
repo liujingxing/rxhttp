@@ -5,8 +5,8 @@ import androidx.lifecycle.LifecycleOwner
 import com.example.httpsender.entity.Article
 import com.example.httpsender.entity.PageList
 import com.rxjava.rxlife.BaseScope
-import com.rxjava.rxlife.RxLifeScope
 import com.rxjava.rxlife.life
+import com.rxlife.coroutine.RxLifeScope
 import io.reactivex.rxjava3.core.Observable
 import rxhttp.wrapper.cahce.CacheMode
 import rxhttp.wrapper.param.RxHttp
