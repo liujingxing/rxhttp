@@ -94,22 +94,15 @@ class RxHttpExtensions {
 
         val progressName = ClassName("rxhttp.wrapper.entity", "Progress")
 
-        val parserName = ClassName("rxhttp.wrapper.parse", "Parser")
         val simpleParserName = ClassName("rxhttp.wrapper.parse", "SimpleParser")
-        val parserTName = parserName.parameterizedBy(t)
-        val anyT = TypeVariableName("T", anyTypeName)
-        val parser = ParameterSpec.builder("parser", parserTName).build()
 
         val coroutineScopeName = ClassName("kotlinx.coroutines", "CoroutineScope").copy(nullable = true)
         val coroutine = ParameterSpec.builder("coroutine", coroutineScopeName)
             .defaultValue("null")
             .build()
         val progressCallbackName = ClassName("rxhttp.wrapper.callback", "ProgressCallback")
-        val awaitName = ClassName("rxhttp", "await")
         val launchName = ClassName("kotlinx.coroutines", "launch")
         val rxhttpFormParam = ClassName("rxhttp.wrapper.param", "RxHttpFormParam");
-        val deprecatedAnno = AnnotationSpec.builder(Deprecated::class.java)
-            .addMember("\"Will be removed in a future release\"").build()
 
         val progressLambdaName = LambdaTypeName.get(parameters = *arrayOf(progressName),
             returnType = Unit::class.asClassName())
@@ -192,36 +185,6 @@ class RxHttpExtensions {
                     .addParameter("progress", progressLambdaName)
                     .addStatement("return upload(%T{ progress(it) }, observeOnScheduler)", consumerName)
                     .build())
-
-            fileBuilder.addFunction(
-                FunSpec.builder("asUpload")
-                    .addKdoc("please use [upload] + asXxx method instead")
-                    .addAnnotation(deprecatedAnno)
-                    .receiver(rxhttpFormParam)
-                    .addModifiers(KModifier.INLINE)
-                    .addTypeVariable(anyT.copy(reified = true))
-                    .addParameter(observeOnScheduler)
-                    .addParameter("progress", progressLambdaName, KModifier.NOINLINE)
-                    .addStatement("return asUpload(object: %T<T>() {}, observeOnScheduler, progress)", simpleParserName)
-                    .build())
-
-            fileBuilder.addFunction(
-                FunSpec.builder("asUpload")
-                    .addKdoc("please use [upload] + asXxx method instead")
-                    .addAnnotation(deprecatedAnno)
-                    .receiver(rxhttpFormParam)
-                    .addTypeVariable(anyT)
-                    .addParameter(parser)
-                    .addParameter(observeOnScheduler)
-                    .addParameter("progress", progressLambdaName)
-                    .addStatement("return asUpload(parser, %T{ progress(it) }, observeOnScheduler)", consumerName)
-                    .returns(observableTName)
-                    .build())
-
-        }
-
-        awaitFunList.forEach {
-            fileBuilder.addFunction(it)
         }
 
         fileBuilder.addFunction(
@@ -245,35 +208,9 @@ class RxHttpExtensions {
                 .returns(rxhttpFormParam)
                 .build())
 
-        fileBuilder.addFunction(
-            FunSpec.builder("awaitUpload")
-                .addKdoc("please use [upload] + awaitXxx method instead")
-                .addAnnotation(deprecatedAnno)
-                .receiver(rxhttpFormParam)
-                .addModifiers(KModifier.SUSPEND, KModifier.INLINE)
-                .addTypeVariable(anyT.copy(reified = true))
-                .addParameter(coroutine)
-                .addParameter("progress", progressLambdaName, KModifier.NOINLINE)
-                .addStatement("return awaitUpload(object: %T<T>() {}, coroutine, progress)", simpleParserName)
-                .returns(t)
-                .build())
-
-        fileBuilder.addFunction(
-            FunSpec.builder("awaitUpload")
-                .addKdoc("please use [upload] + awaitXxx method instead")
-                .addAnnotation(deprecatedAnno)
-                .receiver(rxhttpFormParam)
-                .addModifiers(KModifier.SUSPEND)
-                .addTypeVariable(anyT)
-                .addParameter(parser)
-                .addParameter(coroutine)
-                .addParameter("progress", progressLambdaName)
-                .addCode("""
-                    upload(coroutine, progress)
-                    return %T(parser)
-                    """.trimIndent(), awaitName)
-                .returns(t)
-                .build())
+        awaitFunList.forEach {
+            fileBuilder.addFunction(it)
+        }
 
         fileBuilder.build().writeTo(filer)
     }
