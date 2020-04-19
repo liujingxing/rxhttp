@@ -39,17 +39,6 @@ public class RxHttpPlugins {
         mOnParamAssembly = onParamAssembly;
     }
 
-    //设置转换器,可用于对Http返回的String 字符串解密
-
-    /**
-     * @param decoder 数据转换器
-     * @deprecated please user {@link #setResultDecoder(Function)} instead
-     */
-    @Deprecated
-    public static void setOnConverter(@Nullable Function<? super String, String> decoder) {
-        setResultDecoder(decoder);
-    }
-
     //设置解码/解密器,可用于对Http返回的String 字符串解码/解密
     public static void setResultDecoder(@Nullable Function<? super String, String> decoder) {
         RxHttpPlugins.decoder = decoder;
