@@ -24,16 +24,6 @@ public class ParseException extends IOException {
     private Headers responseHeaders; //响应头
     private String requestResult; //请求结果
 
-    @Deprecated
-    public ParseException(String message, Response response) {
-        this("-1", message, response, null);
-    }
-
-    @Deprecated
-    public ParseException(String message, Response response, String result) {
-        this("-1", message, response, result);
-    }
-
     public ParseException(@NonNull String code, String message, Response response) {
         this(code, message, response, null);
     }
