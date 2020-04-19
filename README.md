@@ -25,17 +25,28 @@
 ```java
 dependencies {
 
-   implementation 'com.rxjava.rxhttp:rxhttp:2.1.1' //必须
-   annotationProcessor 'com.rxjava.rxhttp:rxhttp-compiler:2.1.1' //注解处理器，生成RxHttp类,必须
-   implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'  //切换主线程，Android工程必须
+   //必须
+   implementation 'com.ljx.rxhttp:rxhttp:2.2.0'
+   annotationProcessor 'com.ljx.rxhttp:rxhttp-compiler:2.2.0' //生成RxHttp类
 
-   implementation 'com.rxjava.rxlife:rxlife-x:2.0.0'  //页面销毁，关闭请求，非必须
+   //以下均为非必须
+   implementation 'com.ljx.rxlife:rxlife-coroutine:2.0.0'   //使用RxLifeScope自动管理协程
+
+   //rxjava2
+   implementation 'io.reactivex.rxjava2:rxjava:2.2.8'
+   implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
+   implementation 'com.rxjava.rxlife:rxlife-x:2.0.0'    //页面销毁，关闭请求，非必须
+
+   //rxjava3
+   implementation 'io.reactivex.rxjava3:rxjava:3.0.2'
+   implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
+   implementation 'com.ljx.rxlife3:rxlife:3.0.0'    //页面销毁，关闭请求，非必须
 
    //Converter 根据自己需求选择  非必须  RxHttp默认内置了GsonConverter
-   implementation 'com.rxjava.rxhttp:converter-jackson:2.1.1'
-   implementation 'com.rxjava.rxhttp:converter-fastjson:2.1.1'
-   implementation 'com.rxjava.rxhttp:converter-protobuf:2.1.1'
-   implementation 'com.rxjava.rxhttp:converter-simplexml:2.1.1'
+   implementation 'com.ljx.rxhttp:converter-jackson:2.2.0'
+   implementation 'com.ljx.rxhttp:converter-fastjson:2.2.0'
+   implementation 'com.ljx.rxhttp:converter-protobuf:2.2.0'
+   implementation 'com.ljx.rxhttp:converter-simplexml:2.2.0'
 }
 ```
 `注：kotlin用户，请使用kapt替代annotationProcessor`
@@ -50,6 +61,7 @@ dependencies {
 
 ## 准备工作
 
+### 1、Java8
 **RxHttp 要求项目使用Java 8，请在 app 的 build.gradle 添加以下代码**
 
 ```java
@@ -57,13 +69,25 @@ compileOptions {
     sourceCompatibility JavaVersion.VERSION_1_8
     targetCompatibility JavaVersion.VERSION_1_8
 }
-
-//kotlin
-kotlinOptions {
-    jvmTarget = '1.8'
-}
 ```
 此时rebuild一下项目，就能看到RxHttp类了，到这，准备工作完毕，即可直接调用RxHttp发送请求了。
+
+### 2、RxJava
+RxHttp 2.2.0版本起，内部不在依赖RxJava相关库，如你需要使用asXxx方式发送请求，请使用以下方式告诉RxHttp
+
+```java
+android {
+    defaultConfig {
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = [rxhttp_rxjava: 'rxjava3']  //可传入rxjava2、rxjava3
+            }
+        }
+    }
+}
+```
+并自行依赖RxJava相关库
+
 
 ## 上手教程
 
@@ -87,7 +111,7 @@ RxHttp最低要求为API 15，但是由于内部依赖OkHttp 3.14.1版本, 最�
 如果你要的项目要兼容到API 15，请将RxHttp内部的OkHttp剔除，并引入低版本的OkHttp，如下：
 
 ```
-implementation('com.rxjava.rxhttp:rxhttp:x.x.x') { //xxx为RxHttp最新版本
+implementation('com.ljx.rxhttp:rxhttp:x.x.x') { //xxx为RxHttp最新版本
     exclude group: "com.squareup.okhttp3"
 }
 implementation 'com.squareup.okhttp3:okhttp:3.12.6' //此版本最低要求 API 9
