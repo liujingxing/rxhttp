@@ -44,6 +44,7 @@ fun initRxJavaVersion(version: String?) {
         rxJavaClassList["SpscLinkedArrayQueue"] = "io.reactivex.internal.queue"
         rxJavaClassList["AtomicThrowable"] = "io.reactivex.internal.util"
         rxJavaClassList["ExceptionHelper"] = "io.reactivex.internal.util"
+        rxJavaClassList["Disposable"] = "io.reactivex.disposables"
 
     } else if (version == "rxjava3") {
         rxJavaClassList["Scheduler"] = "io.reactivex.rxjava3.core"
@@ -63,6 +64,7 @@ fun initRxJavaVersion(version: String?) {
         rxJavaClassList["SpscLinkedArrayQueue"] = "io.reactivex.rxjava3.internal.queue"
         rxJavaClassList["AtomicThrowable"] = "io.reactivex.rxjava3.internal.util"
         rxJavaClassList["ExceptionHelper"] = "io.reactivex.rxjava3.internal.util"
+        rxJavaClassList["Disposable"] = "io.reactivex.rxjava3.disposables"
     }
 
 }
