@@ -30,9 +30,9 @@ dependencies {
    annotationProcessor 'com.ljx.rxhttp:rxhttp-compiler:2.2.0' //生成RxHttp类
 
    //以下均为非必须
-   implementation 'com.ljx.rxlife:rxlife-coroutine:2.0.0' //管理协程生命周期，页面销毁，关闭请求
-   implementation 'com.rxjava.rxlife:rxlife-x:2.0.1'      //管理RxJava2生命周期，页面销毁，关闭请求
-   implementation 'com.ljx.rxlife3:rxlife:3.0.0'          //管理RxJava3生命周期，页面销毁，关闭请求
+   implementation 'com.ljx.rxlife:rxlife-coroutine:2.0.0'  //管理协程生命周期，页面销毁，关闭请求
+   implementation 'com.ljx.rxlife2:rxlife-rxjava:2.0.0'    //管理RxJava2生命周期，页面销毁，关闭请求
+   implementation 'com.ljx.rxlife3:rxlife-rxjava:3.0.0'    //管理RxJava3生命周期，页面销毁，关闭请求
 
    //Converter 根据自己需求选择  非必须  RxHttp默认内置了GsonConverter
    implementation 'com.ljx.rxhttp:converter-jackson:2.2.0'
@@ -61,12 +61,12 @@ dependencies {
    //rxjava2
    implementation 'io.reactivex.rxjava2:rxjava:2.2.8'
    implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
-   implementation 'com.rxjava.rxlife:rxlife-x:2.0.1'    //页面销毁，关闭请求，非必须
+   implementation 'com.ljx.rxlife2:rxlife-rxjava:2.0.0'    //页面销毁，关闭请求，非必须
 
    //rxjava3
    implementation 'io.reactivex.rxjava3:rxjava:3.0.2'
    implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
-   implementation 'com.ljx.rxlife3:rxlife:3.0.0'    //页面销毁，关闭请求，非必须
+   implementation 'com.ljx.rxlife3:rxlife-rxjava:3.0.0'    //页面销毁，关闭请求，非必须
 }
 ```
 
