@@ -42,6 +42,7 @@ dependencies {
 }
 ```
 **注意**
+
 1、kotlin用户，请使用kapt替代annotationProcessor
 
 2、RxHttp 2.2.0版本起，内部不在依赖RxJava相关库，如你需要使用asXxx方式发送请求，请告知RxHttp，如下：
@@ -81,7 +82,7 @@ dependencies {
 
 ## 准备工作
 
-**RxHttp 要求项目使用Java 8，请在 app 的 build.gradle 添加以下代码**
+**RxHttp 要求项目使用Java 8 以上，请在 app 的 build.gradle 添加以下代码**
 
 ```java
 compileOptions {
