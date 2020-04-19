@@ -1,4 +1,4 @@
-[ ![Download](https://api.bintray.com/packages/32774707/maven/rxhttp/images/download.svg) ](https://bintray.com/32774707/maven/rxhttp/_latestVersion)
+[ ![Download](https://api.bintray.com/packages/32774707/maven/rxhttp2/images/download.svg) ](https://bintray.com/32774707/maven/rxhttp2/_latestVersion)
 
 # RxHttp主要优势
 
@@ -30,17 +30,9 @@ dependencies {
    annotationProcessor 'com.ljx.rxhttp:rxhttp-compiler:2.2.0' //生成RxHttp类
 
    //以下均为非必须
-   implementation 'com.ljx.rxlife:rxlife-coroutine:2.0.0'   //使用RxLifeScope自动管理协程
-
-   //rxjava2
-   implementation 'io.reactivex.rxjava2:rxjava:2.2.8'
-   implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
-   implementation 'com.rxjava.rxlife:rxlife-x:2.0.0'    //页面销毁，关闭请求，非必须
-
-   //rxjava3
-   implementation 'io.reactivex.rxjava3:rxjava:3.0.2'
-   implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
-   implementation 'com.ljx.rxlife3:rxlife:3.0.0'    //页面销毁，关闭请求，非必须
+   implementation 'com.ljx.rxlife:rxlife-coroutine:2.0.0' //管理协程生命周期，页面销毁，关闭请求
+   implementation 'com.rxjava.rxlife:rxlife-x:2.0.1'      //管理RxJava2生命周期，页面销毁，关闭请求
+   implementation 'com.ljx.rxlife3:rxlife:3.0.0'          //管理RxJava3生命周期，页面销毁，关闭请求
 
    //Converter 根据自己需求选择  非必须  RxHttp默认内置了GsonConverter
    implementation 'com.ljx.rxhttp:converter-jackson:2.2.0'
@@ -49,7 +41,35 @@ dependencies {
    implementation 'com.ljx.rxhttp:converter-simplexml:2.2.0'
 }
 ```
-`注：kotlin用户，请使用kapt替代annotationProcessor`
+**注意**
+1、kotlin用户，请使用kapt替代annotationProcessor
+
+2、RxHttp 2.2.0版本起，内部不在依赖RxJava相关库，如你需要使用asXxx方式发送请求，请告知RxHttp，如下：
+
+```java
+defaultConfig {
+    javaCompileOptions {
+        annotationProcessorOptions {
+            arguments = [rxhttp_rxjava: 'rxjava3']  //可传入rxjava2、rxjava3
+        }
+    }
+}
+```
+并自行依赖RxJava相关库，如下：
+```java
+dependencies {
+   //rxjava2
+   implementation 'io.reactivex.rxjava2:rxjava:2.2.8'
+   implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
+   implementation 'com.rxjava.rxlife:rxlife-x:2.0.1'    //页面销毁，关闭请求，非必须
+
+   //rxjava3
+   implementation 'io.reactivex.rxjava3:rxjava:3.0.2'
+   implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
+   implementation 'com.ljx.rxlife3:rxlife:3.0.0'    //页面销毁，关闭请求，非必须
+}
+```
+
 
 ***RxHttp&RxLife 交流群：378530627***
 
@@ -61,7 +81,6 @@ dependencies {
 
 ## 准备工作
 
-### 1、Java8
 **RxHttp 要求项目使用Java 8，请在 app 的 build.gradle 添加以下代码**
 
 ```java
@@ -71,22 +90,6 @@ compileOptions {
 }
 ```
 此时rebuild一下项目，就能看到RxHttp类了，到这，准备工作完毕，即可直接调用RxHttp发送请求了。
-
-### 2、RxJava
-RxHttp 2.2.0版本起，内部不在依赖RxJava相关库，如你需要使用asXxx方式发送请求，请使用以下方式告诉RxHttp
-
-```java
-android {
-    defaultConfig {
-        javaCompileOptions {
-            annotationProcessorOptions {
-                arguments = [rxhttp_rxjava: 'rxjava3']  //可传入rxjava2、rxjava3
-            }
-        }
-    }
-}
-```
-并自行依赖RxJava相关库
 
 
 ## 上手教程
