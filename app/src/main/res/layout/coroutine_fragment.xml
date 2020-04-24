@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="click"
+            type="android.view.View.OnClickListener" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingStart="10dp"
+        android:paddingTop="20dp"
+        android:paddingEnd="10dp"
+        android:paddingBottom="20dp"
+        tools:context=".MainActivity">
+
+        <ScrollView
+            android:id="@+id/left_scroll_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <LinearLayout
+                android:id="@+id/ll_bt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:orientation="vertical">
+
+                <Button
+                    android:id="@+id/bitmap"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="@{v->click.onClick(v)}"
+                    android:text="请求Bitmap"
+                    android:textAllCaps="false" />
+
+                <Button
+                    android:id="@+id/sendGet"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Get请求"
+                    android:onClick="@{v->click.onClick(v)}"
+                    android:textAllCaps="false" />
+
+                <Button
+                    android:id="@+id/sendPostForm"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="@{v->click.onClick(v)}"
+                    android:text="Post 表单请求"
+                    android:textAllCaps="false" />
+
+                <Button
+                    android:id="@+id/sendPostJson"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="@{v->click.onClick(v)}"
+                    android:text="Post Json请求"
+                    android:textAllCaps="false" />
+
+                <Button
+                    android:id="@+id/sendPostJsonArray"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="@{v->click.onClick(v)}"
+                    android:text="Post JsonArray请求"
+                    android:textAllCaps="false" />
+
+                <Button
+                    android:id="@+id/xmlConverter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="@{v->click.onClick(v)}"
+                    android:text="XmlConverter 解析"
+                    android:textAllCaps="false" />
+
+                <Button
+                    android:id="@+id/fastJsonConverter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="@{v->click.onClick(v)}"
+                    android:text="FastJsonConverter 解析"
+                    android:textAllCaps="false" />
+
+                <Button
+                    android:id="@+id/download"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="@{v->click.onClick(v)}"
+                    android:text="下载文件" />
+
+                <Button
+                    android:id="@+id/downloadAndProgress"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="@{v->click.onClick(v)}"
+                    android:text="带进度下载文件" />
+
+                <Button
+                    android:id="@+id/breakpointDownload"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="@{v->click.onClick(v)}"
+                    android:text="断点下载" />
+
+                <Button
+                    android:id="@+id/breakpointDownloadAndProgress"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="@{v->click.onClick(v)}"
+                    android:text="带进度断点下载" />
+
+
+                <Button
+                    android:id="@+id/upload"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="@{v->click.onClick(v)}"
+                    android:text="上传文件" />
+
+                <Button
+                    android:id="@+id/uploadAndProgress"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="@{v->click.onClick(v)}"
+                    android:text="带进度上传文件" />
+
+                <Button
+                    android:id="@+id/multitaskDownload"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="@{v->click.onClick(v)}"
+                    android:text="多任务下载" />
+            </LinearLayout>
+        </ScrollView>
+
+        <ScrollView
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="#CCCCCC"
+            app:layout_constraintBottom_toTopOf="@+id/bt_clear"
+            app:layout_constraintLeft_toRightOf="@+id/left_scroll_view"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/left_scroll_view">
+
+            <TextView
+                android:id="@+id/tv_result"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                android:scrollbars="vertical"
+                android:textColor="@android:color/black" />
+        </ScrollView>
+
+        <Button
+            android:id="@+id/bt_clear"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="10dp"
+            android:layout_marginBottom="20dp"
+            android:onClick="@{v->click.onClick(v)}"
+            android:text="清空日志"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintRight_toRightOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
