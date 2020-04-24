@@ -81,7 +81,7 @@ dependencies {
 
 ## 准备工作
 
-**RxHttp 要求项目使用Java 8 以上，请在 app 的 build.gradle 添加以下代码**
+**RxHttp 要求项目使用Java 8 或更高版本，请在 app 的 build.gradle 添加以下代码**
 
 ```java
 compileOptions {
