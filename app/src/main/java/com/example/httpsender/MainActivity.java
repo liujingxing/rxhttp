@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
 //        String imageUrl = "http://img2.shelinkme.cn/d3/photos/0/017/022/755_org.jpg@!normal_400_400?1558517697888";
 //        RxHttp.get(imageUrl) //Get请求
 //            .asBitmap()  //这里返回Observable<Bitmap> 对象
-//            .to(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
+//            .to(RxLife.toMain(this))  //感知生命周期，并在主线程回调
 //            .subscribe(bitmap -> {
 //                mBinding.tvResult.setBackground(new BitmapDrawable(bitmap));
 //                //成功回调
@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
     public void sendGet(View view) {
         RxHttp.get("/article/list/0/json")
             .asResponsePageList(Article.class)
-            .to(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
+            .to(RxLife.toMain(this))  //感知生命周期，并在主线程回调
             .subscribe(pageList -> {
                 mBinding.tvResult.setText(new Gson().toJson(pageList));
                 //成功回调
@@ -74,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
         RxHttp.postForm("/article/query/0/json")
             .add("k", "性能优化")
             .asResponsePageList(Article.class)
-            .to(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
+            .to(RxLife.toMain(this))  //感知生命周期，并在主线程回调
             .subscribe(pageList -> {
                 mBinding.tvResult.setText(new Gson().toJson(pageList));
                 //成功回调
@@ -122,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
             .add("location", new Location(120.6788, 30.7866))  //添加位置对象
             .addJsonElement("address", address) //通过字符串添加一个对象
             .asString()
-            .to(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
+            .to(RxLife.toMain(this))  //感知生命周期，并在主线程回调
             .subscribe(s -> {
                 mBinding.tvResult.setText(s);
                 //成功回调
@@ -165,7 +165,7 @@ public class MainActivity extends AppCompatActivity {
             .addJsonElement("{\"name\":\"王五\"}")
             .addAll(names)
             .asString()
-            .to(RxLife.asOnMain(this))
+            .to(RxLife.toMain(this))
             .subscribe(s -> {
                 mBinding.tvResult.setText(s);
             }, (OnError) error -> {
@@ -180,7 +180,7 @@ public class MainActivity extends AppCompatActivity {
         RxHttp.get("http://webservices.nextbus.com/service/publicXMLFeed?command=routeConfig&a=sf-muni")
             .setXmlConverter()
             .asClass(NewsDataXml.class)
-            .to(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
+            .to(RxLife.toMain(this))  //感知生命周期，并在主线程回调
             .subscribe(dataXml -> {
                 mBinding.tvResult.setText(new Gson().toJson(dataXml));
                 //成功回调
@@ -196,7 +196,7 @@ public class MainActivity extends AppCompatActivity {
         RxHttp.get("/article/list/0/json")
             .setFastJsonConverter()
             .asResponsePageList(Article.class)
-            .to(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
+            .to(RxLife.toMain(this))  //感知生命周期，并在主线程回调
             .subscribe(pageList -> {
                 mBinding.tvResult.setText(new Gson().toJson(pageList));
                 //成功回调
@@ -213,7 +213,7 @@ public class MainActivity extends AppCompatActivity {
         RxHttp.get("/miaolive/Miaolive.apk")
             .setDomainToUpdateIfAbsent() //使用指定的域名
             .asDownload(destPath)
-            .to(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
+            .to(RxLife.toMain(this))  //感知生命周期，并在主线程回调
             .subscribe(s -> {
                 //下载成功,回调文件下载路径
             }, (OnError) error -> {
@@ -254,7 +254,7 @@ public class MainActivity extends AppCompatActivity {
             .setDomainToUpdateIfAbsent() //使用指定的域名
             .setRangeHeader(length)  //设置开始下载位置，结束位置默认为文件末尾
             .asDownload(destPath) //注意这里使用DownloadParser解析器，并传入本地路径
-            .to(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
+            .to(RxLife.toMain(this))  //感知生命周期，并在主线程回调
             .subscribe(s -> {
                 //下载成功,回调文件下载路径
             }, (OnError) error -> {
@@ -294,7 +294,7 @@ public class MainActivity extends AppCompatActivity {
         RxHttp.postForm("http://t.xinhuo.com/index.php/Api/Pic/uploadPic")
             .addFile("uploaded_file", new File(Environment.getExternalStorageDirectory(), "1.jpg"))
             .asString() //from操作符，是异步操作
-            .to(RxLife.asOnMain(this))  //感知生命周期，并在主线程回调
+            .to(RxLife.toMain(this))  //感知生命周期，并在主线程回调
             .subscribe(s -> {
                 mBinding.tvResult.append("\n");
                 mBinding.tvResult.append(s);
