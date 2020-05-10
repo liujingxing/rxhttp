@@ -25,8 +25,8 @@
 ```java
 dependencies {
    //必须
-   implementation 'com.ljx.rxhttp:rxhttp:2.2.0'
-   annotationProcessor 'com.ljx.rxhttp:rxhttp-compiler:2.2.0' //生成RxHttp类
+   implementation 'com.ljx.rxhttp:rxhttp:2.2.1'
+   annotationProcessor 'com.ljx.rxhttp:rxhttp-compiler:2.2.1' //生成RxHttp类
 
    //以下均为非必须
    implementation 'com.ljx.rxlife:rxlife-coroutine:2.0.0'  //管理协程生命周期，页面销毁，关闭请求
@@ -34,10 +34,10 @@ dependencies {
    implementation 'com.ljx.rxlife3:rxlife-rxjava:3.0.0'    //管理RxJava3生命周期，页面销毁，关闭请求
 
    //Converter 根据自己需求选择 RxHttp默认内置了GsonConverter
-   implementation 'com.ljx.rxhttp:converter-jackson:2.2.0'
-   implementation 'com.ljx.rxhttp:converter-fastjson:2.2.0'
-   implementation 'com.ljx.rxhttp:converter-protobuf:2.2.0'
-   implementation 'com.ljx.rxhttp:converter-simplexml:2.2.0'
+   implementation 'com.ljx.rxhttp:converter-jackson:2.2.1'
+   implementation 'com.ljx.rxhttp:converter-fastjson:2.2.1'
+   implementation 'com.ljx.rxhttp:converter-protobuf:2.2.1'
+   implementation 'com.ljx.rxhttp:converter-simplexml:2.2.1'
 }
 ```
 **注意**
