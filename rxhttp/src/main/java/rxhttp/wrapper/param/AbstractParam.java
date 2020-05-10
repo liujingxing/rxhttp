@@ -2,6 +2,8 @@ package rxhttp.wrapper.param;
 
 
 import java.io.IOException;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import okhttp3.CacheControl;
 import okhttp3.Headers;
@@ -98,6 +100,22 @@ public abstract class AbstractParam<P extends Param> implements Param<P> {
     @Override
     public final P addHeader(String line) {
         getHeadersBuilder().add(line);
+        return (P) this;
+    }
+
+    @Override
+    public P addAllHeader(Map<String, String> headers) {
+        if (headers != null) {
+            for (Entry<String, String> entry : headers.entrySet()) {
+                addHeader(entry.getKey(), entry.getValue());
+            }
+        }
+        return (P) this;
+    }
+
+    @Override
+    public P addAllHeader(Headers headers) {
+        getHeadersBuilder().addAll(headers);
         return (P) this;
     }
 

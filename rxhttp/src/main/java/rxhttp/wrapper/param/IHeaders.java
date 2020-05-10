@@ -1,5 +1,7 @@
 package rxhttp.wrapper.param;
 
+import java.util.Map;
+
 import okhttp3.Headers;
 
 /**
@@ -20,6 +22,10 @@ public interface IHeaders<P extends Param> {
     P addHeader(String key, String value);
 
     P addHeader(String line);
+
+    P addAllHeader(Map<String, String> headers);
+
+    P addAllHeader(Headers headers);
 
     P setHeader(String key, String value);
 

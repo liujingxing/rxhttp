@@ -21,6 +21,7 @@ import java.lang.String;
 import java.lang.SuppressWarnings;
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Map;
 import okhttp3.CacheControl;
 import okhttp3.Call;
 import okhttp3.Headers;
@@ -234,6 +235,16 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
     if(isAdd) {
       param.addHeader(key,value);
     }
+    return (R)this;
+  }
+
+  public R addAllHeader(Map<String, String> headers) {
+    param.addAllHeader(headers);
+    return (R)this;
+  }
+
+  public R addAllHeader(Headers headers) {
+    param.addAllHeader(headers);
     return (R)this;
   }
 
