@@ -40,6 +40,8 @@ class ParamsAnnotatedClass {
         val jsonArrayParamName = ClassName.get(RxHttpGenerator.packageName, "JsonArrayParam")
         val cacheModeName = ClassName.get("rxhttp.wrapper.cahce", "CacheMode")
         val cacheStrategyName = ClassName.get("rxhttp.wrapper.cahce", "CacheStrategy")
+        val stringName = TypeName.get(String::class.java)
+        val mapStringName = ParameterizedTypeName.get(ClassName.get(MutableMap::class.java), stringName, stringName)
         val methodList = ArrayList<MethodSpec>()
         val methodMap = LinkedHashMap<String, String>()
         methodMap["get"] = "RxHttpNoBodyParam"
@@ -264,6 +266,24 @@ class ParamsAnnotatedClass {
                 .beginControlFlow("if(isAdd)")
                 .addStatement("param.addHeader(key,value)")
                 .endControlFlow()
+                .addStatement("return (R)this")
+                .returns(rxHttp)
+                .build())
+
+        methodList.add(
+            MethodSpec.methodBuilder("addAllHeader")
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(mapStringName, "headers")
+                .addStatement("param.addAllHeader(headers)")
+                .addStatement("return (R)this")
+                .returns(rxHttp)
+                .build())
+
+        methodList.add(
+            MethodSpec.methodBuilder("addAllHeader")
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(headerName, "headers")
+                .addStatement("param.addAllHeader(headers)")
                 .addStatement("return (R)this")
                 .returns(rxHttp)
                 .build())
