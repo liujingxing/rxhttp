@@ -380,6 +380,7 @@ class ParamsAnnotatedClass {
         methodList.add(
             MethodSpec.methodBuilder("getUrl")
                 .addModifiers(Modifier.PUBLIC)
+                .addStatement("addDefaultDomainIfAbsent(param)")
                 .addStatement("return param.getUrl()")
                 .returns(String::class.java)
                 .build())

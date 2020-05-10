@@ -304,6 +304,7 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
   }
 
   public String getUrl() {
+    addDefaultDomainIfAbsent(param);
     return param.getUrl();
   }
 
