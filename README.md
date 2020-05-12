@@ -54,7 +54,7 @@ compileOptions {
 }
 ```
 
-2、RxHttp 2.2.0版本起，内部不在依赖RxJava相关库，采用外挂的方法替代，如下：
+2、RxHttp 2.2.0版本起，内部不在依赖RxJava相关库，采用外挂的方法替代，如你需要结合RxJava发送请求，请单独配置，如下：
 
 ```java
 defaultConfig {
@@ -79,7 +79,7 @@ dependencies {
 }
 ```
 
-最后，**rebuild一下(此步骤是必须的)** ，就会自动生成RxHttp类，到这，准备工作完毕。
+最后，***rebuild一下(此步骤是必须的)*** ，就会自动生成RxHttp类，到这，准备工作完毕。
 
 
 ## 上手教程
