@@ -54,12 +54,13 @@ compileOptions {
 }
 ```
 
-2、RxHttp 2.2.0版本起，内部不在依赖RxJava相关库，如需使用asXxx方式发送请求，请告知RxHttp，如下：
+2、RxHttp 2.2.0版本起，内部不在依赖RxJava相关库，采用外挂的方法替代，如下：
 
 ```java
 defaultConfig {
     javaCompileOptions {
         annotationProcessorOptions {
+            //手动告知RxHttp要使用的RxJava版本，才会生成asXxx方法
             arguments = [rxhttp_rxjava: 'rxjava3']  //可传入rxjava2、rxjava3
         }
     }
