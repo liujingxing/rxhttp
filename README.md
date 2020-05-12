@@ -20,9 +20,10 @@
 
   ***9. 支持全局加解密、添加公共参数及头部、网络缓存，均支持对某个请求单独设置***
 
-***RxHttp&RxLife 交流群：378530627***
 
 [遇到问题，点击这里，99%的问题都能自己解决](https://github.com/liujingxing/okhttp-RxHttp/wiki/FAQ)
+
+***RxHttp&RxLife 交流群：378530627***
 
 **Gradle依赖**
 
@@ -63,7 +64,7 @@ defaultConfig {
         }
     }
 }
-并自行依赖RxJava相关库，RxJava2/Rxjava3二选一，如下：
+//并自行依赖RxJava相关库，RxJava2/Rxjava3二选一，如下：
 dependencies {
    //rxjava2
    implementation 'io.reactivex.rxjava2:rxjava:2.2.8'
@@ -77,7 +78,7 @@ dependencies {
 }
 ```
 
-此时rebuild一下(此步骤是必须的)，就能看到RxHttp类了，到这，准备工作完毕，即可直接调用RxHttp发送请求了。
+最后，**rebuild一下(此步骤是必须的)** ，就会自动生成RxHttp类，到这，准备工作完毕。
 
 
 ## 上手教程
