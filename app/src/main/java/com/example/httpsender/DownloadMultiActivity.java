@@ -6,7 +6,6 @@ import android.view.MenuItem;
 import android.view.View;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.httpsender.DownloadMultiAdapter.OnItemClickListener;
@@ -28,7 +27,7 @@ import rxhttp.wrapper.param.RxHttp;
  * Date: 2019-06-07
  * Time: 11:02
  */
-public class DownloadMultiActivity extends AppCompatActivity implements OnItemClickListener<DownloadInfo> {
+public class DownloadMultiActivity extends ToolBarActivity implements OnItemClickListener<DownloadInfo> {
 
     public static final int MAX_TASK_COUNT = 3;  //最大并发数
 
@@ -155,7 +154,7 @@ public class DownloadMultiActivity extends AppCompatActivity implements OnItemCl
         long length = new File(destPath).length();
         Disposable disposable = RxHttp.get(data.getUrl())
             .setRangeHeader(length, -1, true)  //设置开始下载位置，结束位置默认为文件末尾
-            .asDownload(destPath,  progress -> { //如果需要衔接上次的下载进度，则需要传入上次已下载的字节数length
+            .asDownload(destPath, progress -> { //如果需要衔接上次的下载进度，则需要传入上次已下载的字节数length
                 //下载进度回调,0-100，仅在进度有更新时才会回调
                 data.setProgress(progress.getProgress());//当前进度 0-100
                 data.setCurrentSize(progress.getCurrentSize());//当前已下载的字节大小
