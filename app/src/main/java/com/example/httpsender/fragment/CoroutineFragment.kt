@@ -17,6 +17,7 @@ import com.example.httpsender.databinding.CoroutineFragmentBinding
 import com.example.httpsender.entity.*
 import com.example.httpsender.kt.errorMsg
 import com.example.httpsender.kt.show
+import com.example.httpsender.kt.startActivity
 import com.google.gson.Gson
 import rxhttp.toBitmap
 import rxhttp.toClass
@@ -297,11 +298,6 @@ class CoroutineFragment : Fragment(), View.OnClickListener {
         it.show("上传失败,请稍后再试!")
     })
 
-    //多任务下载
-    private fun multitaskDownload(view: View) {
-        startActivity(Intent(requireContext(), DownloadMultiActivity::class.java))
-    }
-
     private fun clearLog(view: View) {
         mBinding.tvResult.text = ""
         mBinding.tvResult.setBackgroundColor(Color.TRANSPARENT)
@@ -322,7 +318,7 @@ class CoroutineFragment : Fragment(), View.OnClickListener {
             R.id.breakpointDownloadAndProgress -> breakpointDownloadAndProgress(v)
             R.id.upload -> upload(v)
             R.id.uploadAndProgress -> uploadAndProgress(v)
-            R.id.multitaskDownload -> multitaskDownload(v)
+            R.id.multitaskDownload -> startActivity(DownloadMultiActivity::class)
             R.id.bt_clear -> clearLog(v)
         }
     }
