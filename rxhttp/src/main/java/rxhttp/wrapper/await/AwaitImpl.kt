@@ -5,6 +5,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import okhttp3.*
 import rxhttp.*
+import rxhttp.wrapper.OkHttpCompat
 import rxhttp.wrapper.annotations.Nullable
 import rxhttp.wrapper.cahce.CacheMode
 import rxhttp.wrapper.cahce.CacheStrategy
