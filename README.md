@@ -86,7 +86,7 @@ dependencies {
 # API兼容
 
 RxHttp最低要求为API 15，但是由于`OkHttp 3.14.x`以上版本, 最低要求为API 21，
-如果你要的项目要兼容到API 15，请依赖`OkHttp 3.12.x` 版本，并告知rxhttp你依赖的okhttp版本，如下：
+如果你想要兼容到API 15，请依赖`OkHttp 3.12.x` 版本，并告知rxhttp你依赖的okhttp版本，如下：
 
 ```java
 defaultConfig {
