@@ -18,6 +18,10 @@ public class PostEncryptFormParam extends FormParam {
         super(url, Method.POST);
     }
 
+    public PostEncryptFormParam(String url, Method method) {
+        super(url, method);
+    }
+
     public PostEncryptFormParam test() {
         return this;
     }
