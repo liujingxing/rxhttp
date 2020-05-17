@@ -31,6 +31,7 @@ class AnnotationProcessor : AbstractProcessor() {
     private lateinit var filer: Filer
     private lateinit var elementUtils: Elements
     private var processed = false
+    private lateinit var okHttpVersion: String
 
     @Synchronized
     override fun init(processingEnvironment: ProcessingEnvironment) {
@@ -40,6 +41,7 @@ class AnnotationProcessor : AbstractProcessor() {
         filer = processingEnvironment.filer
         elementUtils = processingEnvironment.elementUtils
         val map = processingEnvironment.options
+        okHttpVersion = map["rxhttp_okhttp"] ?: "4.6.0"
         initRxJavaVersion(map["rxhttp_rxjava"])
     }
 
@@ -109,7 +111,7 @@ class AnnotationProcessor : AbstractProcessor() {
             rxHttpGenerator.setAnnotatedClass(domainAnnotatedClass)
 
             // Generate code
-            rxHttpGenerator.generateCode(elementUtils, filer)
+            rxHttpGenerator.generateCode(elementUtils, filer, okHttpVersion)
             processed = true
         } catch (e: ProcessingException) {
             error(e.element, e.message)

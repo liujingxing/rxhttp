@@ -1,6 +1,7 @@
 package rxhttp.wrapper.parse
 
 import okhttp3.Response
+import rxhttp.OkHttpCompat
 import rxhttp.RxHttpPlugins
 import rxhttp.wrapper.callback.IConverter
 import rxhttp.wrapper.exception.ExceptionHelper
@@ -53,10 +54,10 @@ interface Parser<T> {
     }
 
     fun isOnResultDecoder(response: Response): Boolean {
-        return "false" != response.request().header(Param.DATA_DECRYPT)
+        return "false" != OkHttpCompat.request(response).header(Param.DATA_DECRYPT)
     }
 
     fun getConverter(response: Response): IConverter? {
-        return response.request().tag(IConverter::class.java)
+        return OkHttpCompat.request(response).tag(IConverter::class.java)
     }
 }
