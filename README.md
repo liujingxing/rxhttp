@@ -20,20 +20,13 @@
 
   ***9. 支持全局加解密、添加公共参数及头部、网络缓存，均支持对某个请求单独设置***
 
-
-[遇到问题，点击这里，99%的问题都能自己解决](https://github.com/liujingxing/okhttp-RxHttp/wiki/FAQ)
-
-***RxHttp&RxLife 交流群：378530627***
-
 **Gradle依赖**
 
 ```java
 //以下三个为必须，其它均为非必须
 implementation 'com.ljx.rxhttp:rxhttp:2.2.2'
-//rxhttp v2.2.2版本起，需要手动依赖okhttp
-implementation 'com.squareup.okhttp3:okhttp:4.6.0'
-//生成RxHttp类，kotlin用户，请使用kapt替代annotationProcessor
-annotationProcessor 'com.ljx.rxhttp:rxhttp-compiler:2.2.2'
+implementation 'com.squareup.okhttp3:okhttp:4.6.0'  //rxhttp v2.2.2版本起，需要手动依赖okhttp
+annotationProcessor 'com.ljx.rxhttp:rxhttp-compiler:2.2.2' //生成RxHttp类，kotlin用户，请使用kapt替代annotationProcessor
 
 implementation 'com.ljx.rxlife:rxlife-coroutine:2.0.0'  //管理协程生命周期，页面销毁，关闭请求
 implementation 'com.ljx.rxlife2:rxlife-rxjava:2.0.0'    //管理RxJava2生命周期，页面销毁，关闭请求
@@ -45,6 +38,10 @@ implementation 'com.ljx.rxhttp:converter-fastjson:2.2.2'
 implementation 'com.ljx.rxhttp:converter-protobuf:2.2.2'
 implementation 'com.ljx.rxhttp:converter-simplexml:2.2.2'
 ```
+[遇到问题，点击这里，99%的问题都能自己解决](https://github.com/liujingxing/okhttp-RxHttp/wiki/FAQ)
+
+***RxHttp&RxLife 交流群：378530627***
+
 # 准备工作
 
 1、RxHttp 要求项目使用Java 8 或更高版本，请在 app 的 build.gradle 添加以下代码
@@ -93,7 +90,7 @@ defaultConfig {
     javaCompileOptions {
         annotationProcessorOptions {
             //告知RxHttp你依赖的okhttp版本
-            arguments = [rxhttp_okhttp: '3.12.6']  //可传入3.12.0 - 4.6.0任一版本(4.3.0除外)
+            arguments = [rxhttp_okhttp: '3.12.6']  //可传入3.12.0至4.6.0任一版本(4.3.0除外)
         }
     }
 }
