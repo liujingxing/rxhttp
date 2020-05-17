@@ -1,7 +1,7 @@
 package rxhttp.wrapper.parse
 
 import okhttp3.Response
-import rxhttp.OkHttpCompat
+import rxhttp.wrapper.OkHttpCompat
 import rxhttp.RxHttpPlugins
 import rxhttp.wrapper.callback.IConverter
 import rxhttp.wrapper.exception.ExceptionHelper
