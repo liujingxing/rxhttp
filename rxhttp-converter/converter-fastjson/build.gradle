@@ -4,6 +4,7 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 //    compileOnly project(":rxhttp")
     compileOnly "com.ljx.rxhttp:rxhttp:${rxhttp_version}"
+    compileOnly "com.squareup.okhttp3:okhttp:${okhttp_version}"
     api 'com.alibaba:fastjson:1.2.61'
 }
 
