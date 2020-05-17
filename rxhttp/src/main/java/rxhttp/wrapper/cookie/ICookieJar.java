@@ -1,5 +1,7 @@
 package rxhttp.wrapper.cookie;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.List;
 
 import okhttp3.Cookie;
@@ -14,12 +16,12 @@ import okhttp3.HttpUrl;
 public interface ICookieJar extends CookieJar {
 
     @Override
-    default void saveFromResponse(HttpUrl url, List<Cookie> cookies) {
+    default void saveFromResponse(@NotNull HttpUrl url, @NotNull List<Cookie> cookies) {
         saveCookie(url, cookies);
     }
 
     @Override
-    default List<Cookie> loadForRequest(HttpUrl url) {
+    default List<Cookie> loadForRequest(@NotNull HttpUrl url) {
         return loadCookie(url);
     }
 

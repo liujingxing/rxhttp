@@ -4,10 +4,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import okhttp3.*
-import rxhttp.HttpSender
-import rxhttp.IAwait
-import rxhttp.IRxHttp
-import rxhttp.RxHttpPlugins
+import rxhttp.*
 import rxhttp.wrapper.annotations.Nullable
 import rxhttp.wrapper.cahce.CacheMode
 import rxhttp.wrapper.cahce.CacheStrategy
@@ -69,7 +66,7 @@ internal class AwaitImpl<T>(
     private fun getCacheResponse(request: Request, validTime: Long): Response? {
         val cacheResponse = cache[request, cacheStrategy.cacheKey]
         if (cacheResponse != null) {
-            val receivedTime = cacheResponse.receivedResponseAtMillis()
+            val receivedTime = OkHttpCompat.receivedResponseAtMillis(cacheResponse)
             return if (validTime != -1L && System.currentTimeMillis() - receivedTime > validTime) null else cacheResponse //缓存过期，返回null
         }
         return null
@@ -102,7 +99,7 @@ internal class AwaitImpl<T>(
                         networkResponse = getCacheResponse(call.request(), cacheStrategy.cacheValidTime)
                     }
                     if (networkResponse == null) {
-                        LogUtil.log(call.request().url().toString(), e)
+                        LogUtil.log(OkHttpCompat.url(call.request()).toString(), e)
                         continuation.resumeWithException(e)
                     } else {
                         onSuccess(call, networkResponse)
@@ -113,7 +110,7 @@ internal class AwaitImpl<T>(
                     try {
                         continuation.resume(parser.onParse(response))
                     } catch (e: Throwable) {
-                        LogUtil.log(call.request().url().toString(), e)
+                        LogUtil.log(OkHttpCompat.url(call.request()).toString(), e)
                         continuation.resumeWithException(e)
                     }
                 }
