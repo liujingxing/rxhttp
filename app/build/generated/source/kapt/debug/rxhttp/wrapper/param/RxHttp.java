@@ -30,7 +30,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.internal.cache.DiskLruCache;
-import okhttp3.internal.concurrent.TaskRunner;
 import org.jetbrains.annotations.NotNull;
 import rxhttp.HttpSender;
 import rxhttp.RxHttpPlugins;
@@ -55,7 +54,7 @@ import rxhttp.wrapper.parse.Parser;
 public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
   static {
     DiskLruCacheFactory.factory = (fileSystem, directory, appVersion, valueCount, maxSize) -> {               
-        return new DiskLruCache(fileSystem, directory, appVersion, valueCount, maxSize, TaskRunner.INSTANCE); 
+        return DiskLruCache.create(fileSystem, directory, appVersion, valueCount, maxSize); 
     };
   }
 
