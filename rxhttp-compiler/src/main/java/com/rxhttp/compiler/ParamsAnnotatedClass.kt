@@ -5,10 +5,7 @@ import rxhttp.wrapper.annotation.Param
 import java.io.IOException
 import java.util.*
 import javax.annotation.processing.Filer
-import javax.lang.model.element.ElementKind
-import javax.lang.model.element.ExecutableElement
-import javax.lang.model.element.Modifier
-import javax.lang.model.element.TypeElement
+import javax.lang.model.element.*
 import javax.lang.model.type.TypeVariable
 
 class ParamsAnnotatedClass {
@@ -70,9 +67,9 @@ class ParamsAnnotatedClass {
                 .build())
         }
         for ((key, typeElement) in mElementMap) {
-            val typeParameters = typeElement.typeParameters
+            val typeParameters: MutableList<out TypeParameterElement> = typeElement.typeParameters
             val type = StringBuilder()
-            val rxHttpTypeNames: MutableList<TypeVariableName> = ArrayList()
+            val rxHttpTypeNames = ArrayList<TypeVariableName>()
             var i = 0
             val size = typeParameters.size
             while (i < size) {
@@ -92,16 +89,40 @@ class ParamsAnnotatedClass {
             } else {
                 rxHttpParamName
             }
-            methodList.add(
-                MethodSpec.methodBuilder(key)
-                    .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                    .addParameter(String::class.java, "url")
-                    .addTypeVariables(rxHttpTypeNames)
-                    .addParameter(ArrayTypeName.of(Any::class.java), "formatArgs")
-                    .varargs()
-                    .addStatement("return new \$T$type(new \$T$type(format(url, formatArgs)))", rxHttpParamName, param)
-                    .returns(methodReturnType)
-                    .build())
+            typeElement.enclosedElements.forEach {
+                //遍历方法，过滤出public构造方法
+                if (it is ExecutableElement
+                    && it.kind == ElementKind.CONSTRUCTOR
+                    && it.getModifiers().contains(Modifier.PUBLIC)
+                ) {
+                    val parameterSpecs = ArrayList<ParameterSpec>() //构造方法参数
+                    val methodBody = StringBuilder("return new \$T(new \$T(") //方法体
+                    for ((index, element) in it.parameters.withIndex()) {
+                        val parameterSpec = ParameterSpec.get(element)
+                        parameterSpecs.add(parameterSpec)
+                        if (index == 0 && parameterSpec.type.toString().contains("String")) {
+                            methodBody.append("format(" + parameterSpecs[0].name + ", formatArgs)")
+                            continue
+                        } else if (index > 0) {
+                            methodBody.append(", ")
+                        }
+                        methodBody.append(parameterSpec.name)
+                    }
+                    methodBody.append("))")
+                    val methodSpec = MethodSpec.methodBuilder(key)
+                        .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                        .addParameters(parameterSpecs)
+                        .addTypeVariables(rxHttpTypeNames)
+                        .returns(methodReturnType)
+
+                    if (parameterSpecs.size > 0 && parameterSpecs[0].type.toString().contains("String")) {
+                        methodSpec.addParameter(ArrayTypeName.of(Any::class.java), "formatArgs")
+                            .varargs()
+                    }
+                    methodSpec.addStatement(methodBody.toString(), rxHttpParamName, param)
+                    methodList.add(methodSpec.build())
+                }
+            }
             val superclass = typeElement.superclass
             var prefix = "((" + param.simpleName() + ")param)."
             val rxHttpParam = when (superclass.toString()) {

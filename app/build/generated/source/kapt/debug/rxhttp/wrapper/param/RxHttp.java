@@ -31,6 +31,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.internal.cache.DiskLruCache;
 import okhttp3.internal.concurrent.TaskRunner;
+import org.jetbrains.annotations.NotNull;
 import rxhttp.HttpSender;
 import rxhttp.RxHttpPlugins;
 import rxhttp.wrapper.cahce.CacheMode;
@@ -186,12 +187,18 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
     return with(Param.deleteJsonArray(format(url, formatArgs)));
   }
 
-  public static RxHttpPostEncryptJsonParam postEncryptJson(String url, Object... formatArgs) {
+  public static RxHttpPostEncryptJsonParam postEncryptJson(@NotNull String url,
+      Object... formatArgs) {
     return new RxHttpPostEncryptJsonParam(new PostEncryptJsonParam(format(url, formatArgs)));
   }
 
   public static RxHttpPostEncryptFormParam postEncryptForm(String url, Object... formatArgs) {
     return new RxHttpPostEncryptFormParam(new PostEncryptFormParam(format(url, formatArgs)));
+  }
+
+  public static RxHttpPostEncryptFormParam postEncryptForm(String url, Method method,
+      Object... formatArgs) {
+    return new RxHttpPostEncryptFormParam(new PostEncryptFormParam(format(url, formatArgs), method));
   }
 
   public static RxHttpGetEncryptParam getEncrypt(String url, Object... formatArgs) {
