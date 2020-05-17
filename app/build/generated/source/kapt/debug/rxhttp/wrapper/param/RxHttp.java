@@ -538,7 +538,7 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
   }
 
   /**
-   * 通过占位符，将参数与url拼接在一起，使用标准的占位符协议
+   * 通过占位符，将参数与url拼接在一起，使用标准的Java占位符协议
    */
   private static String format(String url, Object... formatArgs) {
     return formatArgs == null || formatArgs.length == 0 ? url : String.format(url, formatArgs);
