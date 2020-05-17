@@ -88,17 +88,18 @@ dependencies {
 RxHttp最低要求为API 15，但是由于`OkHttp 3.14.x`以上版本, 最低要求为API 21，
 如果你要的项目要兼容到API 15，请依赖`OkHttp 3.12.x` 版本，并告知rxhttp你依赖的okhttp版本，如下：
 
-```
+```java
 defaultConfig {
     javaCompileOptions {
         annotationProcessorOptions {
             //告知RxHttp你依赖的okhttp版本
-            arguments = [rxhttp_okhttp: '3.12.6']  //可传入3.12.x到4.6.0之间的任一版本
+            arguments = [rxhttp_okhttp: '3.12.6']  //可传入3.12.0 - 4.6.0任一版本(4.3.0除外)
         }
     }
 }
 implementation 'com.squareup.okhttp3:okhttp:3.12.6' //此版本最低要求 API 9
 ```
+***注：RxHttp目前对OkHttp 的 `v3.12.0 - v4.6.0`均已完成适配工作（v4.3.0除外，该版本有一bug，暂时无法适配）***
 
 # 上手教程
 
