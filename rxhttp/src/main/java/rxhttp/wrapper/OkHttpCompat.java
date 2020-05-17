@@ -1,4 +1,4 @@
-package rxhttp;
+package rxhttp.wrapper;
 
 import java.io.Closeable;
 

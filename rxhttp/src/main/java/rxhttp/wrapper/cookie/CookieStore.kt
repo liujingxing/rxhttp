@@ -5,7 +5,7 @@ import okhttp3.HttpUrl
 import okhttp3.internal.cache.DiskLruCache
 import okhttp3.internal.io.FileSystem
 import okio.Source
-import rxhttp.OkHttpCompat
+import rxhttp.wrapper.OkHttpCompat
 import rxhttp.wrapper.annotations.Nullable
 import rxhttp.wrapper.cahce.DiskLruCacheFactory
 import java.io.File
