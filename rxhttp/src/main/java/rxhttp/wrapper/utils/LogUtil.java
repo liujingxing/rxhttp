@@ -15,10 +15,12 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
+import okhttp3.internal.Version;
 import okio.Buffer;
 import okio.BufferedSource;
 import rxhttp.Platform;
 import rxhttp.RxHttpPlugins;
+import rxhttp.wrapper.RxHttpVersion;
 import rxhttp.wrapper.annotations.NonNull;
 import rxhttp.wrapper.exception.HttpStatusCodeException;
 import rxhttp.wrapper.exception.ParseException;
@@ -76,8 +78,12 @@ public class LogUtil {
             long tookMs = logTime != null ? logTime.tookMs() : 0;
             String result = downloadPath != null ? downloadPath : getResult(response.body(), onResultDecoder);
             StringBuilder builder = new StringBuilder()
-                .append("<------------------- request end Method=").append(request.method())
-                .append(" Code=").append(response.code()).append(" ------------------->");
+                .append("<------ ")
+                .append(RxHttpVersion.userAgent + " " + Version.userAgent)
+                .append(" request end Method=")
+                .append(request.method())
+                .append(" Code=").append(response.code())
+                .append(" ------>");
             if (tookMs > 0) {
                 builder.append("(").append(tookMs).append("ms)");
             }
@@ -94,8 +100,8 @@ public class LogUtil {
     public static void log(@NonNull Request request) {
         if (!isDebug) return;
         try {
-            String builder = "<------------------- request start Method=" +
-                request.method() + " ------------------->" +
+            String builder = "<------ " + RxHttpVersion.userAgent + " " + Version.userAgent + " request start Method=" +
+                request.method() + " ------>" +
                 request2Str(request);
             Platform.get().logd(TAG, builder);
         } catch (Exception e) {
