@@ -5,6 +5,7 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 //    compileOnly project(":rxhttp")
     compileOnly "com.ljx.rxhttp:rxhttp:${rxhttp_version}"
+    compileOnly "com.squareup.okhttp3:okhttp:${okhttp_version}"
     api 'com.google.protobuf:protobuf-java:3.5.0'
 }
 
