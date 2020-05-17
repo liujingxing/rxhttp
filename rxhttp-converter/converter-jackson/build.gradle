@@ -4,6 +4,7 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 //    compileOnly project(":rxhttp")
     compileOnly "com.ljx.rxhttp:rxhttp:${rxhttp_version}"
+    compileOnly "com.squareup.okhttp3:okhttp:${okhttp_version}"
     api 'com.fasterxml.jackson.core:jackson-core:2.9.8'
     api 'com.fasterxml.jackson.core:jackson-databind:2.9.8'
     api 'com.fasterxml.jackson.core:jackson-annotations:2.9.8'
