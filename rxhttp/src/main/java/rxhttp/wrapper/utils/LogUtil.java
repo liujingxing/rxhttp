@@ -15,11 +15,11 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
-import okhttp3.internal.Version;
 import okio.Buffer;
 import okio.BufferedSource;
 import rxhttp.Platform;
 import rxhttp.RxHttpPlugins;
+import rxhttp.wrapper.OkHttpCompat;
 import rxhttp.wrapper.RxHttpVersion;
 import rxhttp.wrapper.annotations.NonNull;
 import rxhttp.wrapper.exception.HttpStatusCodeException;
@@ -79,7 +79,7 @@ public class LogUtil {
             String result = downloadPath != null ? downloadPath : getResult(response.body(), onResultDecoder);
             StringBuilder builder = new StringBuilder()
                 .append("<------ ")
-                .append(RxHttpVersion.userAgent + " " + Version.userAgent)
+                .append(RxHttpVersion.userAgent + " " + OkHttpCompat.getOkHttpUserAgent())
                 .append(" request end Method=")
                 .append(request.method())
                 .append(" Code=").append(response.code())
@@ -100,7 +100,7 @@ public class LogUtil {
     public static void log(@NonNull Request request) {
         if (!isDebug) return;
         try {
-            String builder = "<------ " + RxHttpVersion.userAgent + " " + Version.userAgent + " request start Method=" +
+            String builder = "<------ " + RxHttpVersion.userAgent + " " + OkHttpCompat.getOkHttpUserAgent() + " request start Method=" +
                 request.method() + " ------>" +
                 request2Str(request);
             Platform.get().logd(TAG, builder);
