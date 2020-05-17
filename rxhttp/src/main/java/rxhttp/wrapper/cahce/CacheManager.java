@@ -26,8 +26,6 @@ import okhttp3.TlsVersion;
 import okhttp3.internal.Util;
 import okhttp3.internal.cache.CacheRequest;
 import okhttp3.internal.cache.DiskLruCache;
-import okhttp3.internal.http.ExchangeCodec;
-import okhttp3.internal.http.HttpHeaders;
 import okhttp3.internal.http.RealResponseBody;
 import okhttp3.internal.http.StatusLine;
 import okhttp3.internal.io.FileSystem;
@@ -97,11 +95,7 @@ public class CacheManager implements Closeable, Flushable {
      * @param maxSize   long
      */
     public CacheManager(File directory, long maxSize) {
-        this(directory, maxSize, FileSystem.SYSTEM);
-    }
-
-    CacheManager(File directory, long maxSize, FileSystem fileSystem) {
-        this.cache = DiskLruCache.create(fileSystem, directory, VERSION, ENTRY_COUNT, maxSize);
+        this.cache = DiskLruCacheFactory.newDiskLruCache(FileSystem.SYSTEM, directory, VERSION, ENTRY_COUNT, maxSize);
     }
 
 
@@ -206,8 +200,9 @@ public class CacheManager implements Closeable, Flushable {
 
             @Override
             public void close() throws IOException {
+                //这里本应传入ExchangeCodec.DISCARD_STREAM_TIMEOUT_MILLIS常量，但为兼容老版本，故直接传入常量对应的值
                 if (!cacheRequestClosed
-                    && !discard(this, ExchangeCodec.DISCARD_STREAM_TIMEOUT_MILLIS, MILLISECONDS)) {
+                    && !discard(this, 100, MILLISECONDS)) {
                     cacheRequestClosed = true;
                     cacheRequest.abort();
                 }
@@ -470,7 +465,7 @@ public class CacheManager implements Closeable, Flushable {
                 }
                 varyHeaders = varyHeadersBuilder.build();
 
-                StatusLine statusLine = StatusLine.parse(source.readUtf8LineStrict());
+                StatusLine statusLine = StatusLineUtil.parse(source.readUtf8LineStrict());
                 protocol = statusLine.protocol;
                 code = statusLine.code;
                 message = statusLine.message;
@@ -514,7 +509,7 @@ public class CacheManager implements Closeable, Flushable {
 
         Entry(Response response) {
             this.url = response.request().url().toString();
-            this.varyHeaders = HttpHeaders.varyHeaders(response);
+            this.varyHeaders = HeadersVary.varyHeaders(response);
             this.requestMethod = response.request().method();
             this.protocol = response.protocol();
             this.code = response.code();
@@ -613,7 +608,7 @@ public class CacheManager implements Closeable, Flushable {
         public boolean matches(Request request, Response response) {
             return url.equals(request.url().toString())
                 && requestMethod.equals(request.method())
-                && HttpHeaders.varyMatches(response, varyHeaders, request);
+                && HeadersVary.varyMatches(response, varyHeaders, request);
         }
 
         public Response response(Request request, DiskLruCache.Snapshot snapshot) {

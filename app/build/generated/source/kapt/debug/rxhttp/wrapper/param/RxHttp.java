@@ -29,10 +29,13 @@ import okhttp3.Headers.Builder;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import okhttp3.internal.cache.DiskLruCache;
+import okhttp3.internal.concurrent.TaskRunner;
 import rxhttp.HttpSender;
 import rxhttp.RxHttpPlugins;
 import rxhttp.wrapper.cahce.CacheMode;
 import rxhttp.wrapper.cahce.CacheStrategy;
+import rxhttp.wrapper.cahce.DiskLruCacheFactory;
 import rxhttp.wrapper.callback.Function;
 import rxhttp.wrapper.callback.IConverter;
 import rxhttp.wrapper.entity.ParameterizedTypeImpl;
@@ -49,6 +52,12 @@ import rxhttp.wrapper.parse.Parser;
  */
 @SuppressWarnings("unchecked")
 public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
+  static {
+    DiskLruCacheFactory.factory = (fileSystem, directory, appVersion, valueCount, maxSize) -> {               
+        return new DiskLruCache(fileSystem, directory, appVersion, valueCount, maxSize, TaskRunner.INSTANCE); 
+    };
+  }
+
   protected P param;
 
   /**
