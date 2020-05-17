@@ -72,11 +72,11 @@ class CookieStore @JvmOverloads constructor(
     override fun saveCookie(url: HttpUrl, cookies: MutableList<Cookie>) {
         val host = OkHttpCompat.host(url)
         memoryCache?.put(host, cookies)
-        val diskCache = mDiskCache
-        if (diskCache != null) { //开启了磁盘缓存，则将cookie写入磁盘
+        //开启了磁盘缓存，则将cookie写入磁盘
+        mDiskCache?.apply {
             var editor: DiskLruCache.Editor? = null
             try {
-                editor = diskCache.edit(md5(host))
+                editor = edit(md5(host))
                 if (editor == null) {
                     return
                 }
