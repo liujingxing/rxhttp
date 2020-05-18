@@ -40,6 +40,7 @@ import okio.Okio;
 import okio.Sink;
 import okio.Source;
 import okio.Timeout;
+import rxhttp.wrapper.OkHttpCompat;
 import rxhttp.wrapper.annotations.Nullable;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -465,7 +466,7 @@ public class CacheManager implements Closeable, Flushable {
                 }
                 varyHeaders = varyHeadersBuilder.build();
 
-                StatusLine statusLine = StatusLineUtil.parse(source.readUtf8LineStrict());
+                StatusLine statusLine = OkHttpCompat.parse(source.readUtf8LineStrict());
                 protocol = statusLine.protocol;
                 code = statusLine.code;
                 message = statusLine.message;
