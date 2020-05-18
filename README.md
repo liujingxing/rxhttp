@@ -89,7 +89,7 @@ RxHttp最低要求为API 15，但是由于`OkHttp 3.14.x`以上版本, 最低要
 defaultConfig {
     javaCompileOptions {
         annotationProcessorOptions {
-            //告知RxHttp你依赖的okhttp版本
+            //如你依赖的okhttp并非最新版本，都需要告知RxHttp你依赖的okhttp版本
             arguments = [rxhttp_okhttp: '3.12.6']  //可传入3.12.0至4.6.0任一版本(4.3.0除外)
         }
     }
