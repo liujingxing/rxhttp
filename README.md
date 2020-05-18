@@ -94,7 +94,9 @@ defaultConfig {
         }
     }
 }
-implementation 'com.squareup.okhttp3:okhttp:3.12.6' //此版本最低要求 API 9
+dependencies {
+   implementation 'com.squareup.okhttp3:okhttp:3.12.6' //此版本最低要求 API 9
+}
 ```
 ***注：RxHttp目前对OkHttp 的 `v3.12.0 - v4.6.0`均已完成适配工作（v4.3.0除外，该版本有一bug，暂时无法适配）***
 
