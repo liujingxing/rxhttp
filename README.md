@@ -24,19 +24,19 @@
 
 ```java
 //以下三个为必须，其它均为非必须
-implementation 'com.ljx.rxhttp:rxhttp:2.2.2'
+implementation 'com.ljx.rxhttp:rxhttp:2.2.3'
 implementation 'com.squareup.okhttp3:okhttp:4.6.0'  //rxhttp v2.2.2版本起，需要手动依赖okhttp
-annotationProcessor 'com.ljx.rxhttp:rxhttp-compiler:2.2.2' //生成RxHttp类，kotlin用户，请使用kapt替代annotationProcessor
+annotationProcessor 'com.ljx.rxhttp:rxhttp-compiler:2.2.3' //生成RxHttp类，kotlin用户，请使用kapt替代annotationProcessor
 
 implementation 'com.ljx.rxlife:rxlife-coroutine:2.0.0'  //管理协程生命周期，页面销毁，关闭请求
 implementation 'com.ljx.rxlife2:rxlife-rxjava:2.0.0'    //管理RxJava2生命周期，页面销毁，关闭请求
 implementation 'com.ljx.rxlife3:rxlife-rxjava:3.0.0'    //管理RxJava3生命周期，页面销毁，关闭请求
 
 //Converter 根据自己需求选择 RxHttp默认内置了GsonConverter
-implementation 'com.ljx.rxhttp:converter-jackson:2.2.2'
-implementation 'com.ljx.rxhttp:converter-fastjson:2.2.2'
-implementation 'com.ljx.rxhttp:converter-protobuf:2.2.2'
-implementation 'com.ljx.rxhttp:converter-simplexml:2.2.2'
+implementation 'com.ljx.rxhttp:converter-jackson:2.2.3'
+implementation 'com.ljx.rxhttp:converter-fastjson:2.2.3'
+implementation 'com.ljx.rxhttp:converter-protobuf:2.2.3'
+implementation 'com.ljx.rxhttp:converter-simplexml:2.2.3'
 ```
 [遇到问题，点击这里，99%的问题都能自己解决](https://github.com/liujingxing/okhttp-RxHttp/wiki/FAQ)
 
