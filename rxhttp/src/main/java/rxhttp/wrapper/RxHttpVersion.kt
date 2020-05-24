@@ -7,4 +7,4 @@ package rxhttp.wrapper
  * Date: 2020/5/17
  * Time: 18:29
  */
-const val userAgent = "rxhttp/2.2.3"
+const val userAgent = "rxhttp/2.2.4"
