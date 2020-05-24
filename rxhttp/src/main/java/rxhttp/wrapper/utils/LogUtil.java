@@ -5,6 +5,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import okhttp3.Headers;
@@ -24,6 +25,7 @@ import rxhttp.wrapper.RxHttpVersion;
 import rxhttp.wrapper.annotations.NonNull;
 import rxhttp.wrapper.exception.HttpStatusCodeException;
 import rxhttp.wrapper.exception.ParseException;
+import rxhttp.wrapper.progress.ProgressRequestBody;
 
 /**
  * User: ljx
@@ -143,6 +145,9 @@ public class LogUtil {
 
     private static String getRequestParams(Request request) throws IOException {
         RequestBody body = request.body();
+        if (body instanceof ProgressRequestBody) {
+            body = ((ProgressRequestBody) body).getRequestBody();
+        }
         Builder urlBuilder = request.url().newBuilder();
 
         if (body instanceof MultipartBody) {
@@ -204,7 +209,7 @@ public class LogUtil {
         Buffer buffer = source.buffer();
         String result;
         if (isPlaintext(buffer)) {
-            Charset UTF_8 = Charset.forName("UTF-8");
+            Charset UTF_8 = StandardCharsets.UTF_8;
             MediaType contentType = body.contentType();
             if (contentType != null) {
                 UTF_8 = contentType.charset(UTF_8);

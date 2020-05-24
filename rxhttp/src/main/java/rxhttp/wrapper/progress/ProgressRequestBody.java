@@ -34,6 +34,10 @@ public class ProgressRequestBody extends RequestBody {
         this.callback = callback;
     }
 
+    public RequestBody getRequestBody() {
+        return requestBody;
+    }
+
     /**
      * 重写调用实际的响应体的contentType
      *
