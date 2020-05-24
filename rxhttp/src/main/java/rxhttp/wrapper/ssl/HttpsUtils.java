@@ -1,4 +1,4 @@
-package com.example.httpsender.utils;
+package rxhttp.wrapper.ssl;
 
 
 import java.io.IOException;
@@ -12,18 +12,17 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 
-import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
 /**
- * 处理https证书问题，
+ * 处理https证书问题，此类出处为鸿洋的okhttputils
+ * 详细用法请查看：https://github.com/liujingxing/okhttp-RxHttp/wiki/%E5%85%B3%E4%BA%8EHttps
  * User: ljx
  * Date: 2020/05/01
  * Time: 11:13
@@ -34,13 +33,17 @@ public class HttpsUtils {
         public X509TrustManager trustManager;
     }
 
+    public static SSLParams getSslSocketFactory() {
+        return getSslSocketFactory(null, null, null);
+    }
+
     public static SSLParams getSslSocketFactory(InputStream[] certificates, InputStream bksFile, String password) {
         SSLParams sslParams = new SSLParams();
         try {
             TrustManager[] trustManagers = prepareTrustManager(certificates);
             KeyManager[] keyManagers = prepareKeyManager(bksFile, password);
             SSLContext sslContext = SSLContext.getInstance("TLS");
-            X509TrustManager trustManager = null;
+            X509TrustManager trustManager;
             if (trustManagers != null) {
                 trustManager = new MyTrustManager(chooseTrustManager(trustManagers));
             } else {
@@ -52,13 +55,6 @@ public class HttpsUtils {
             return sslParams;
         } catch (NoSuchAlgorithmException | KeyManagementException | KeyStoreException e) {
             throw new AssertionError(e);
-        }
-    }
-
-    private class UnSafeHostnameVerifier implements HostnameVerifier {
-        @Override
-        public boolean verify(String hostname, SSLSession session) {
-            return true;
         }
     }
 
@@ -102,14 +98,8 @@ public class HttpsUtils {
                 getInstance(TrustManagerFactory.getDefaultAlgorithm());
             trustManagerFactory.init(keyStore);
 
-            TrustManager[] trustManagers = trustManagerFactory.getTrustManagers();
-
-            return trustManagers;
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (CertificateException e) {
-            e.printStackTrace();
-        } catch (KeyStoreException e) {
+            return trustManagerFactory.getTrustManagers();
+        } catch (NoSuchAlgorithmException | CertificateException | KeyStoreException e) {
             e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
@@ -128,15 +118,7 @@ public class HttpsUtils {
             keyManagerFactory.init(clientKeyStore, password.toCharArray());
             return keyManagerFactory.getKeyManagers();
 
-        } catch (KeyStoreException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (UnrecoverableKeyException e) {
-            e.printStackTrace();
-        } catch (CertificateException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (KeyStoreException | UnrecoverableKeyException | NoSuchAlgorithmException | CertificateException | IOException e) {
             e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
