@@ -3,9 +3,6 @@ package rxhttp;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.X509TrustManager;
-
 import okhttp3.Call;
 import okhttp3.Dispatcher;
 import okhttp3.OkHttpClient;
@@ -18,8 +15,8 @@ import rxhttp.wrapper.param.Param;
 import rxhttp.wrapper.parse.DownloadParser;
 import rxhttp.wrapper.parse.Parser;
 import rxhttp.wrapper.progress.ProgressInterceptor;
-import rxhttp.wrapper.ssl.SSLSocketFactoryImpl;
-import rxhttp.wrapper.ssl.X509TrustManagerImpl;
+import rxhttp.wrapper.ssl.HttpsUtils;
+import rxhttp.wrapper.ssl.HttpsUtils.SSLParams;
 import rxhttp.wrapper.utils.LogUtil;
 
 
@@ -116,13 +113,12 @@ public final class HttpSender {
      * @return 返回默认的OkHttpClient对象
      */
     private static OkHttpClient getDefaultOkHttpClient() {
-        X509TrustManager trustAllCert = new X509TrustManagerImpl();
-        SSLSocketFactory sslSocketFactory = new SSLSocketFactoryImpl(trustAllCert);
+        SSLParams sslParams = HttpsUtils.getSslSocketFactory();
         return new OkHttpClient.Builder()
             .connectTimeout(10, TimeUnit.SECONDS)
             .readTimeout(10, TimeUnit.SECONDS)
             .writeTimeout(10, TimeUnit.SECONDS)
-            .sslSocketFactory(sslSocketFactory, trustAllCert) //添加信任证书
+            .sslSocketFactory(sslParams.sSLSocketFactory, sslParams.trustManager) //添加信任证书
             .hostnameVerifier((hostname, session) -> true) //忽略host验证
             .build();
     }

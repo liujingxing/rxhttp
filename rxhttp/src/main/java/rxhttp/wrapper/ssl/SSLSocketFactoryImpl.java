@@ -17,6 +17,10 @@ import javax.net.ssl.X509TrustManager;
 
 import rxhttp.Platform;
 
+/**
+ * @deprecated please use {@link HttpsUtils} instead
+ */
+@Deprecated
 public class SSLSocketFactoryImpl extends SSLSocketFactory {
     // Android 5.0+ (API level21) provides reasonable default settings
     // but it still allows SSLv3
