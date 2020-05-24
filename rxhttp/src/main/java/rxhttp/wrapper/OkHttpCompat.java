@@ -10,7 +10,6 @@ import okhttp3.HttpUrl;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.internal.Util;
-import okhttp3.internal.Version;
 import okhttp3.internal.http.StatusLine;
 
 /**
@@ -62,17 +61,30 @@ public class OkHttpCompat {
 
     public static String getOkHttpUserAgent() {
         if (OKHTTP_USER_AGENT != null) return OKHTTP_USER_AGENT;
-        Class<Version> versionClass = Version.class;
         try {
-            Field userAgent = versionClass.getDeclaredField("userAgent");
-            return OKHTTP_USER_AGENT = (String) userAgent.get(versionClass);
-        } catch (Exception ignore) {
+            //4.7.x以上版本获取userAgent方式
+            Class utilClass = Class.forName("okhttp3.internal.Util");
+            return OKHTTP_USER_AGENT = (String) utilClass.getDeclaredField("userAgent").get(utilClass);
+        } catch (ClassNotFoundException | NoSuchFieldException | IllegalAccessException ignored) {
 
         }
         try {
-            Method userAgent = versionClass.getDeclaredMethod("userAgent");
-            return OKHTTP_USER_AGENT = (String) userAgent.invoke(versionClass);
-        } catch (Exception ignore) {
+            Class<?> versionClass = Class.forName("okhttp3.internal.Version");
+            try {
+                //4.x.x以上版本获取userAgent方式
+                Field userAgent = versionClass.getDeclaredField("userAgent");
+                return OKHTTP_USER_AGENT = (String) userAgent.get(versionClass);
+            } catch (Exception ignore) {
+
+            }
+            try {
+                //4.x.x以下版本获取userAgent方式
+                Method userAgent = versionClass.getDeclaredMethod("userAgent");
+                return OKHTTP_USER_AGENT = (String) userAgent.invoke(versionClass);
+            } catch (Exception ignore) {
+            }
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
         }
         return OKHTTP_USER_AGENT = "okhttp/x.x.x";
     }
