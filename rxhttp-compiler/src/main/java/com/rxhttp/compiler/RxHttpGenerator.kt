@@ -124,6 +124,13 @@ class RxHttpGenerator {
                 .build())
 
         methodList.add(
+            MethodSpec.methodBuilder("isInit")
+                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                .addStatement("return \$T.isInit()", httpSenderName)
+                .returns(Boolean::class.java)
+                .build())
+
+        methodList.add(
             MethodSpec.methodBuilder("setResultDecoder")
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                 .addJavadoc("""

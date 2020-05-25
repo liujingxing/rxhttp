@@ -1,7 +1,5 @@
 package rxhttp;
 
-import android.util.Log;
-
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
@@ -37,8 +35,12 @@ public final class HttpSender {
         mOkHttpClient = okHttpClient;
     }
 
+    //判断是否已经初始化
+    public static boolean isInit() {
+        return mOkHttpClient != null;
+    }
+
     public static OkHttpClient getOkHttpClient() {
-        Log.e("LJX", "getOkHttpClient");
         if (mOkHttpClient == null)
             mOkHttpClient = getDefaultOkHttpClient();
         return mOkHttpClient;

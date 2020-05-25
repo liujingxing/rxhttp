@@ -88,6 +88,10 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
     HttpSender.init(okHttpClient,debug);
   }
 
+  public static boolean isInit() {
+    return HttpSender.isInit();
+  }
+
   /**
    * 设置统一数据解码/解密器，每次请求成功后会回调该接口并传入Http请求的结果
    * 通过该接口，可以统一对数据解密，并将解密后的数据返回即可
