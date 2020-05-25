@@ -1,19 +1,15 @@
 package rxhttp;
 
-import java.io.IOException;
+import android.util.Log;
+
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
 import okhttp3.Dispatcher;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.Response;
 import rxhttp.wrapper.annotations.NonNull;
 import rxhttp.wrapper.callback.ProgressCallback;
-import rxhttp.wrapper.param.FormParam;
-import rxhttp.wrapper.param.Param;
-import rxhttp.wrapper.parse.DownloadParser;
-import rxhttp.wrapper.parse.Parser;
 import rxhttp.wrapper.progress.ProgressInterceptor;
 import rxhttp.wrapper.ssl.HttpsUtils;
 import rxhttp.wrapper.ssl.HttpsUtils.SSLParams;
@@ -42,6 +38,7 @@ public final class HttpSender {
     }
 
     public static OkHttpClient getOkHttpClient() {
+        Log.e("LJX", "getOkHttpClient");
         if (mOkHttpClient == null)
             mOkHttpClient = getDefaultOkHttpClient();
         return mOkHttpClient;
@@ -56,39 +53,6 @@ public final class HttpSender {
     }
 
 
-    /**
-     * 同步发送一个请求
-     * <p>支持任意请求方式，如：Get、Head、Post、Put等
-     *
-     * @param param 请求参数
-     * @return Response
-     * @throws IOException 数据解析异常、网络异常等
-     */
-    public static Response execute(@NonNull Param param) throws IOException {
-        return newCall(param.buildRequest()).execute();
-    }
-
-    /**
-     * 同步发送一个请求
-     * <p>支持任意请求方式，如：Get、Head、Post、Put等
-     * <p>亦支持文件上传/下载(无进度回调)
-     * {@link DownloadParser} 文件下载(无进度回调)
-     * {@link FormParam} 文件上传(无进度回调)
-     *
-     * @param param  请求参数
-     * @param parser 数据解析器
-     * @param <T>    要转换的目标数据类型
-     * @return T
-     * @throws IOException 数据解析异常、网络异常等
-     */
-    public static <T> T execute(@NonNull Param param, @NonNull Parser<T> parser) throws IOException {
-        return parser.onParse(execute(param));
-    }
-
-    public static Call newCall(Request request) {
-        return newCall(getOkHttpClient(), request);
-    }
-
     //所有的请求，最终都会调此方法拿到Call对象，然后执行请求
     public static Call newCall(OkHttpClient client, Request request) {
         return client.newCall(request);
@@ -100,9 +64,9 @@ public final class HttpSender {
      * @param progressCallback 进度回调
      * @return 克隆的OkHttpClient对象
      */
-    public static OkHttpClient clone(@NonNull final ProgressCallback progressCallback) {
+    public static OkHttpClient clone(OkHttpClient client, @NonNull final ProgressCallback progressCallback) {
         //克隆一个OkHttpClient后,增加拦截器,拦截下载进度
-        return getOkHttpClient().newBuilder()
+        return client.newBuilder()
             .addNetworkInterceptor(new ProgressInterceptor(progressCallback))
             .build();
     }

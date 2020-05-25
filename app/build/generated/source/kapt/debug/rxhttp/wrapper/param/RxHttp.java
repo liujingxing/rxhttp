@@ -68,6 +68,8 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
 
   protected IConverter converter = RxHttpPlugins.getConverter();
 
+  protected OkHttpClient okClient = HttpSender.getOkHttpClient();
+
   private long breakDownloadOffSize = 0L;
 
   protected RxHttp(P param) {
@@ -110,8 +112,9 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
     RxHttpPlugins.setOnParamAssembly(onParamAssembly);
   }
 
-  public static OkHttpClient getOkHttpClient() {
-    return HttpSender.getOkHttpClient();
+  @Override
+  public OkHttpClient getOkHttpClient() {
+    return okClient;
   }
 
   public static void dispose(Disposable disposable) {
@@ -387,7 +390,7 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
 
   public Response execute() throws IOException {
     doOnStart();
-    return HttpSender.execute(param);
+    return newCall().execute();
   }
 
   public <T> T execute(Parser<T> parser) throws IOException {
@@ -457,7 +460,7 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
   @Override
   public <T> Observable<T> asParser(Parser<T> parser) {
         doOnStart();
-        Observable<T> observable = new ObservableHttp<T>(param, parser);
+        Observable<T> observable = new ObservableHttp<T>(okClient, param, parser);
         if (scheduler != null) {
             observable = observable.subscribeOn(scheduler);
         }
@@ -468,7 +471,7 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
   public Observable<String> asDownload(String destPath, Consumer<Progress> progressConsumer,
       Scheduler observeOnScheduler) {
         doOnStart();
-        Observable<Progress> observable = new ObservableDownload(param, destPath, breakDownloadOffSize);
+        Observable<Progress> observable = new ObservableDownload(okClient, param, destPath, breakDownloadOffSize);
         if (scheduler != null)
             observable = observable.subscribeOn(scheduler);
         if (observeOnScheduler != null) {
@@ -512,6 +515,13 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
    */
   private R setConverter(P param) {
     param.tag(IConverter.class,converter);
+    return (R)this;
+  }
+
+  public R setSimpleClient() {
+    if (RxHttpManager.simpleClient == null)
+        throw new IllegalArgumentException("OkHttpClient can not be null");;
+    this.okClient = RxHttpManager.simpleClient;
     return (R)this;
   }
 

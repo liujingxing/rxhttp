@@ -52,7 +52,7 @@ class ParserAnnotatedClass {
                 .addModifiers(Modifier.PUBLIC)
                 .addException(IOException::class.java)
                 .addStatement("doOnStart()")
-                .addStatement("return \$T.execute(param)", httpSenderName)
+                .addStatement("return newCall().execute()")
                 .returns(responseName)
                 .build())
 
@@ -171,7 +171,7 @@ class ParserAnnotatedClass {
                     .addParameter(parserTName, "parser")
                     .addStatement("""
                         doOnStart();
-                    Observable<T> observable = new ObservableHttp<T>(param, parser);
+                    Observable<T> observable = new ObservableHttp<T>(okClient, param, parser);
                     if (scheduler != null) {
                         observable = observable.subscribeOn(scheduler);
                     }
@@ -189,7 +189,7 @@ class ParserAnnotatedClass {
                     .addParameter(schedulerName, "observeOnScheduler")
                     .addStatement("""
                         doOnStart();
-                    Observable<Progress> observable = new ObservableDownload(param, destPath, breakDownloadOffSize);
+                    Observable<Progress> observable = new ObservableDownload(okClient, param, destPath, breakDownloadOffSize);
                     if (scheduler != null)
                         observable = observable.subscribeOn(scheduler);
                     if (observeOnScheduler != null) {

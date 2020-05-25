@@ -58,6 +58,7 @@ class CoroutineFragment : Fragment(), View.OnClickListener {
     //发送Get请求，获取文章列表
     private fun sendGet(view: View) = rxLifeScope.launch({
         val pageList = RxHttp.get("/article/list/0/json")
+            .setSimpleClient()
             .toResponse<PageList<Article>>()
             .await()
         mBinding.tvResult.text = Gson().toJson(pageList)
