@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 import okhttp3.OkHttpClient;
 import rxhttp.RxHttpPlugins;
 import rxhttp.wrapper.annotation.Converter;
+import rxhttp.wrapper.annotation.OkClient;
 import rxhttp.wrapper.cahce.CacheMode;
 import rxhttp.wrapper.callback.IConverter;
 import rxhttp.wrapper.converter.FastJsonConverter;
@@ -30,6 +31,9 @@ public class RxHttpManager {
     public static IConverter fastJsonConverter = FastJsonConverter.create();
     @Converter(name = "XmlConverter")
     public static IConverter xmlConverter = XmlConverter.create();
+
+    @OkClient(name = "SimpleClient")
+    public static OkHttpClient simpleClient = new OkHttpClient.Builder().build();
 
 
     public static void init(Application context) {

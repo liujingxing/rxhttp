@@ -10,6 +10,7 @@ import io.reactivex.rxjava3.exceptions.Exceptions;
 import io.reactivex.rxjava3.internal.observers.DeferredScalarDisposable;
 import io.reactivex.rxjava3.plugins.RxJavaPlugins;
 import okhttp3.Call;
+import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import rxhttp.HttpSender;
@@ -36,10 +37,12 @@ final class ObservableHttp<T> extends ObservableErrorHandler<T> implements Calla
     private Call mCall;
     private Request request;
     private InternalCache cache;
+    private OkHttpClient okClient;
 
-    ObservableHttp(@NonNull Param param, @NonNull Parser<T> parser) {
+    ObservableHttp(OkHttpClient okClient, @NonNull Param param, @NonNull Parser<T> parser) {
         this.param = param;
         this.parser = parser;
+        this.okClient = okClient;
         cache = RxHttpPlugins.getCache();
     }
 
@@ -87,7 +90,7 @@ final class ObservableHttp<T> extends ObservableErrorHandler<T> implements Calla
             if (cacheModeIs(CacheMode.ONLY_CACHE)) //仅读缓存模式下，缓存读取失败，直接抛出异常
                 throw new CacheReadFailedException("Cache read failed");
         }
-        Call call = mCall = HttpSender.newCall(request);
+        Call call = mCall = HttpSender.newCall(okClient, request);
         Response networkResponse = null;
         try {
             networkResponse = call.execute();
