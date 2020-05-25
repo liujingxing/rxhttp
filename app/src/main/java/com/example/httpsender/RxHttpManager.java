@@ -6,9 +6,6 @@ import android.app.Application;
 import java.io.File;
 import java.util.concurrent.TimeUnit;
 
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.X509TrustManager;
-
 import okhttp3.OkHttpClient;
 import rxhttp.RxHttpPlugins;
 import rxhttp.wrapper.annotation.Converter;
@@ -19,8 +16,8 @@ import rxhttp.wrapper.converter.XmlConverter;
 import rxhttp.wrapper.cookie.CookieStore;
 import rxhttp.wrapper.param.Method;
 import rxhttp.wrapper.param.RxHttp;
-import rxhttp.wrapper.ssl.SSLSocketFactoryImpl;
-import rxhttp.wrapper.ssl.X509TrustManagerImpl;
+import rxhttp.wrapper.ssl.HttpsUtils;
+import rxhttp.wrapper.ssl.HttpsUtils.SSLParams;
 
 /**
  * User: ljx
@@ -37,14 +34,13 @@ public class RxHttpManager {
 
     public static void init(Application context) {
         File file = new File(context.getExternalCacheDir(), "RxHttpCookie");
-        X509TrustManager trustAllCert = new X509TrustManagerImpl();
-        SSLSocketFactory sslSocketFactory = new SSLSocketFactoryImpl(trustAllCert);
+        SSLParams sslParams = HttpsUtils.getSslSocketFactory();
         OkHttpClient client = new OkHttpClient.Builder()
             .cookieJar(new CookieStore(file))
             .connectTimeout(10, TimeUnit.SECONDS)
             .readTimeout(10, TimeUnit.SECONDS)
             .writeTimeout(10, TimeUnit.SECONDS)
-            .sslSocketFactory(sslSocketFactory, trustAllCert) //添加信任证书
+            .sslSocketFactory(sslParams.sSLSocketFactory, sslParams.trustManager) //添加信任证书
             .hostnameVerifier((hostname, session) -> true) //忽略host验证
 //            .followRedirects(false)  //禁制OkHttp的重定向操作，我们自己处理重定向
 //            .addInterceptor(new RedirectInterceptor())
