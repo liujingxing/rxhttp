@@ -85,12 +85,21 @@ class AnnotationProcessor : AbstractProcessor() {
                 checkParserValidClass(typeElement)
                 parserAnnotatedClass.add(typeElement)
             }
+
             val converterAnnotatedClass = ConverterAnnotatedClass()
             roundEnv.getElementsAnnotatedWith(Converter::class.java).forEach {
                 val variableElement = it as VariableElement
                 checkConverterValidClass(variableElement)
                 converterAnnotatedClass.add(variableElement)
             }
+
+            val okClientAnnotatedClass = OkClientAnnotatedClass()
+            roundEnv.getElementsAnnotatedWith(OkClient::class.java).forEach {
+                val variableElement = it as VariableElement
+                checkOkClientValidClass(variableElement)
+                okClientAnnotatedClass.add(variableElement)
+            }
+
             val domainAnnotatedClass = DomainAnnotatedClass()
             roundEnv.getElementsAnnotatedWith(Domain::class.java).forEach {
                 val variableElement = it as VariableElement
@@ -109,6 +118,7 @@ class AnnotationProcessor : AbstractProcessor() {
             rxHttpGenerator.setAnnotatedClass(parserAnnotatedClass)
             rxHttpGenerator.setAnnotatedClass(converterAnnotatedClass)
             rxHttpGenerator.setAnnotatedClass(domainAnnotatedClass)
+            rxHttpGenerator.setAnnotatedClass(okClientAnnotatedClass)
 
             // Generate code
             rxHttpGenerator.generateCode(elementUtils, filer, okHttpVersion)
@@ -216,6 +226,25 @@ class AnnotationProcessor : AbstractProcessor() {
                         element.simpleName.toString())
                 }
             }
+        }
+    }
+
+    @Throws(ProcessingException::class)
+    private fun checkOkClientValidClass(element: VariableElement) {
+        if (!element.modifiers.contains(Modifier.PUBLIC)) {
+            throw ProcessingException(element,
+                "The variable %s is not public",
+                element.simpleName)
+        }
+        if (!element.modifiers.contains(Modifier.STATIC)) {
+            throw ProcessingException(element,
+                "The variable %s is not static",
+                element.simpleName.toString())
+        }
+        val classType = element.asType()
+        if ("okhttp3.OkHttpClient" != classType.toString()) {
+            throw ProcessingException(element,
+                "The variable %s is not a OkHttpClient", element.simpleName.toString())
         }
     }
 

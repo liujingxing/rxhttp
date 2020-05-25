@@ -17,6 +17,7 @@ import io.reactivex.rxjava3.internal.util.ExceptionHelper;
 import io.reactivex.rxjava3.plugins.RxJavaPlugins;
 
 import okhttp3.Call;
+import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import rxhttp.HttpSender;
@@ -31,10 +32,12 @@ final class ObservableUpload<T> extends ObservableErrorHandler<Progress> {
 
     private Call mCall;
     private Request mRequest;
+    private OkHttpClient okClient;
 
-    ObservableUpload(Param param, final Parser<T> parser) {
+    ObservableUpload(OkHttpClient okClient, Param param, final Parser<T> parser) {
         this.param = param;
         this.parser = parser;
+        this.okClient = okClient;
     }
 
     @Override
@@ -75,7 +78,7 @@ final class ObservableUpload<T> extends ObservableErrorHandler<Progress> {
         if (mRequest == null) { //防止失败重试时，重复构造okhttp3.Request对象
             mRequest = param.buildRequest();
         }
-        Call call = mCall = HttpSender.newCall(mRequest);
+        Call call = mCall = HttpSender.newCall(okClient, mRequest);
         Response response = call.execute();
         return parser.onParse(response);
     }

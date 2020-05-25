@@ -16,6 +16,7 @@ import io.reactivex.rxjava3.internal.util.AtomicThrowable;
 import io.reactivex.rxjava3.internal.util.ExceptionHelper;
 import io.reactivex.rxjava3.plugins.RxJavaPlugins;
 import okhttp3.Call;
+import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import rxhttp.HttpSender;
@@ -33,15 +34,13 @@ final class ObservableDownload extends ObservableErrorHandler<Progress> {
 
     private Call mCall;
     private Request mRequest;
+    private OkHttpClient okClient;
 
     private int lastProgress; //上次下载进度
 
-    ObservableDownload(Param param, final String destPath) {
-        this(param, destPath, 0);
-    }
-
-    ObservableDownload(Param param, String destPath, long offsetSize) {
+    ObservableDownload(OkHttpClient okClient, Param param, String destPath, long offsetSize) {
         this.param = param;
+        this.okClient = okClient;
         this.destPath = destPath;
         this.offsetSize = offsetSize;
     }
@@ -92,7 +91,7 @@ final class ObservableDownload extends ObservableErrorHandler<Progress> {
         if (mRequest == null) { //防止失败重试时，重复构造okhttp3.Request对象
             mRequest = param.buildRequest();
         }
-        Call call = mCall = HttpSender.newCall(HttpSender.clone(callback), mRequest);
+        Call call = mCall = HttpSender.newCall(HttpSender.clone(okClient, callback), mRequest);
         return call.execute();
     }
 

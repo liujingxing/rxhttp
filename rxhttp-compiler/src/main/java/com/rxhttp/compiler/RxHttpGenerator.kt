@@ -19,6 +19,7 @@ class RxHttpGenerator {
     private var mParserAnnotatedClass: ParserAnnotatedClass? = null
     private var mDomainAnnotatedClass: DomainAnnotatedClass? = null
     private var mConverterAnnotatedClass: ConverterAnnotatedClass? = null
+    private var mOkClientAnnotatedClass: OkClientAnnotatedClass? = null
     private var defaultDomain: VariableElement? = null
     fun setAnnotatedClass(annotatedClass: ParamsAnnotatedClass?) {
         mParamsAnnotatedClass = annotatedClass
@@ -26,6 +27,10 @@ class RxHttpGenerator {
 
     fun setAnnotatedClass(annotatedClass: ConverterAnnotatedClass?) {
         mConverterAnnotatedClass = annotatedClass
+    }
+
+    fun setAnnotatedClass(annotatedClass: OkClientAnnotatedClass?) {
+        mOkClientAnnotatedClass = annotatedClass
     }
 
     fun setAnnotatedClass(annotatedClass: DomainAnnotatedClass?) {
@@ -39,6 +44,8 @@ class RxHttpGenerator {
     fun setAnnotatedClass(defaultDomain: VariableElement?) {
         this.defaultDomain = defaultDomain
     }
+
+
 
     @Throws(IOException::class)
     fun generateCode(elementUtils: Elements, filer: Filer, okHttpVersion: String) {
@@ -153,8 +160,9 @@ class RxHttpGenerator {
 
         methodList.add(
             MethodSpec.methodBuilder("getOkHttpClient")
-                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                .addStatement("return \$T.getOkHttpClient()", httpSenderName)
+                .addAnnotation(Override::class.java)
+                .addModifiers(Modifier.PUBLIC)
+                .addStatement("return okClient")
                 .returns(okHttpClientName).build())
 
         if (isDependenceRxJava()) {
@@ -192,6 +200,7 @@ class RxHttpGenerator {
         methodList.addAll(mParamsAnnotatedClass!!.getMethodList(filer))
         methodList.addAll(mParserAnnotatedClass!!.getMethodList(filer))
         methodList.addAll(mConverterAnnotatedClass!!.methodList)
+        methodList.addAll(mOkClientAnnotatedClass!!.methodList)
         val method = MethodSpec.methodBuilder("addDefaultDomainIfAbsent")
             .addJavadoc("给Param设置默认域名(如何缺席的话)，此方法会在请求发起前，被RxHttp内部调用\n")
             .addModifiers(Modifier.PRIVATE)
@@ -219,6 +228,10 @@ class RxHttpGenerator {
                 .build())
         val converterSpec = FieldSpec.builder(converterName, "converter", Modifier.PROTECTED)
             .initializer("\$T.getConverter()", rxHttpPluginsName)
+            .build()
+
+        val okHttpClientSpec = FieldSpec.builder(okHttpClientName, "okClient", Modifier.PROTECTED)
+            .initializer("\$T.getOkHttpClient()", httpSenderName)
             .build()
         val breakDownloadOffSize = FieldSpec.builder(Long::class.javaPrimitiveType, "breakDownloadOffSize", Modifier.PRIVATE) //添加变量
             .initializer("0L")
@@ -282,6 +295,7 @@ class RxHttpGenerator {
             rxHttpBuilder.addField(schedulerField)
         }
         rxHttpBuilder.addField(converterSpec)
+            .addField(okHttpClientSpec)
             .addField(breakDownloadOffSize)
             .superclass(baseRxHttpName)
             .addTypeVariable(p)
@@ -661,7 +675,7 @@ class RxHttpGenerator {
                         return super.asParser(parser);
                     }
                     doOnStart();
-                    Observable<Progress> observable = new ObservableUpload<T>(param, parser);
+                    Observable<Progress> observable = new ObservableUpload<T>(okClient, param, parser);
                     if (scheduler != null)
                         observable = observable.subscribeOn(scheduler);
                     if (observeOnScheduler != null) {

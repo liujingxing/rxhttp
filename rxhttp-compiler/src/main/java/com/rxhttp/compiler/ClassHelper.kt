@@ -202,6 +202,7 @@ object ClassHelper {
                 import ${getClassPath("DeferredScalarDisposable")};
                 import ${getClassPath("RxJavaPlugins")};
                 import okhttp3.Call;
+                import okhttp3.OkHttpClient;
                 import okhttp3.Request;
                 import okhttp3.Response;
                 import rxhttp.HttpSender;
@@ -228,10 +229,12 @@ object ClassHelper {
                     private Call mCall;
                     private Request request;
                     private InternalCache cache;
+                    private OkHttpClient okClient;
 
-                    ObservableHttp(@NonNull Param param, @NonNull Parser<T> parser) {
+                    ObservableHttp(OkHttpClient okClient, @NonNull Param param, @NonNull Parser<T> parser) {
                         this.param = param;
                         this.parser = parser;
+                        this.okClient = okClient;
                         cache = RxHttpPlugins.getCache();
                     }
 
@@ -279,7 +282,7 @@ object ClassHelper {
                             if (cacheModeIs(CacheMode.ONLY_CACHE)) //仅读缓存模式下，缓存读取失败，直接抛出异常
                                 throw new CacheReadFailedException("Cache read failed");
                         }
-                        Call call = mCall = HttpSender.newCall(request);
+                        Call call = mCall = HttpSender.newCall(okClient, request);
                         Response networkResponse = null;
                         try {
                             networkResponse = call.execute();
@@ -378,6 +381,7 @@ object ClassHelper {
                 import ${getClassPath("RxJavaPlugins")};
                 
                 import okhttp3.Call;
+                import okhttp3.OkHttpClient;
                 import okhttp3.Request;
                 import okhttp3.Response;
                 import rxhttp.HttpSender;
@@ -392,10 +396,12 @@ object ClassHelper {
 
                     private Call mCall;
                     private Request mRequest;
+                    private OkHttpClient okClient;
 
-                    ObservableUpload(Param param, final Parser<T> parser) {
+                    ObservableUpload(OkHttpClient okClient, Param param, final Parser<T> parser) {
                         this.param = param;
                         this.parser = parser;
+                        this.okClient = okClient;
                     }
 
                     @Override
@@ -436,7 +442,7 @@ object ClassHelper {
                         if (mRequest == null) { //防止失败重试时，重复构造okhttp3.Request对象
                             mRequest = param.buildRequest();
                         }
-                        Call call = mCall = HttpSender.newCall(mRequest);
+                        Call call = mCall = HttpSender.newCall(okClient, mRequest);
                         Response response = call.execute();
                         return parser.onParse(response);
                     }
@@ -718,6 +724,7 @@ object ClassHelper {
                 import ${getClassPath("ExceptionHelper")};
                 import ${getClassPath("RxJavaPlugins")};
                 import okhttp3.Call;
+                import okhttp3.OkHttpClient;
                 import okhttp3.Request;
                 import okhttp3.Response;
                 import rxhttp.HttpSender;
@@ -735,15 +742,13 @@ object ClassHelper {
 
                     private Call mCall;
                     private Request mRequest;
+                    private OkHttpClient okClient;
 
                     private int lastProgress; //上次下载进度
 
-                    ObservableDownload(Param param, final String destPath) {
-                        this(param, destPath, 0);
-                    }
-
-                    ObservableDownload(Param param, String destPath, long offsetSize) {
+                    ObservableDownload(OkHttpClient okClient, Param param, String destPath, long offsetSize) {
                         this.param = param;
+                        this.okClient = okClient;
                         this.destPath = destPath;
                         this.offsetSize = offsetSize;
                     }
@@ -794,7 +799,7 @@ object ClassHelper {
                         if (mRequest == null) { //防止失败重试时，重复构造okhttp3.Request对象
                             mRequest = param.buildRequest();
                         }
-                        Call call = mCall = HttpSender.newCall(HttpSender.clone(callback), mRequest);
+                        Call call = mCall = HttpSender.newCall(HttpSender.clone(okClient, callback), mRequest);
                         return call.execute();
                     }
 
