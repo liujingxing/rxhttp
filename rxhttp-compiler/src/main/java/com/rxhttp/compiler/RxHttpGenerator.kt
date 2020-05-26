@@ -938,15 +938,11 @@ class RxHttpGenerator {
         JavaFile.builder(packageName, rxHttpJsonArraySpec)
             .build().writeTo(filer)
     }
-
-    companion object {
-        private const val CLASSNAME = "RxHttp"
-        const val packageName = "rxhttp.wrapper.param"
-        var RXHTTP = ClassName.get(packageName, CLASSNAME)
-        private val P = TypeVariableName.get("P")
-        private val paramName = ClassName.get(packageName, "Param")
-        private val rxHttpName = ClassName.get(packageName, CLASSNAME)
-        var p = TypeVariableName.get("P", paramName)
-        var r = TypeVariableName.get("R", rxHttpName)
-    }
 }
+
+private const val CLASSNAME = "RxHttp"
+const val packageName = "rxhttp.wrapper.param"
+var RXHTTP = ClassName.get(packageName, CLASSNAME)
+private val paramName = ClassName.get(packageName, "Param")
+var p = TypeVariableName.get("P", paramName)  //泛型P
+var r = TypeVariableName.get("R", RXHTTP)     //泛型R

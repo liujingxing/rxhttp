@@ -34,17 +34,19 @@ class ConverterAnnotatedClass {
                         ClassName.get(value.enclosingElement.asType()),
                         value.simpleName.toString())
                     .addStatement("return (R)this")
-                    .returns(RxHttpGenerator.r)
+                    .returns(r)
                     .build()
                 )
             }
-            methodList.add(MethodSpec.methodBuilder("setConverter")
-                .addJavadoc("给Param设置转换器，此方法会在请求发起前，被RxHttp内部调用\n")
-                .addModifiers(Modifier.PRIVATE)
-                .addParameter(RxHttpGenerator.p, "param")
-                .addStatement("param.tag(IConverter.class,converter)")
-                .addStatement("return (R)this")
-                .returns(RxHttpGenerator.r).build())
+            methodList.add(
+                MethodSpec.methodBuilder("setConverter")
+                    .addJavadoc("给Param设置转换器，此方法会在请求发起前，被RxHttp内部调用\n")
+                    .addModifiers(Modifier.PRIVATE)
+                    .addParameter(p, "param")
+                    .addStatement("param.tag(IConverter.class,converter)")
+                    .addStatement("return (R)this")
+                    .returns(r)
+                    .build())
             return methodList
         }
 }

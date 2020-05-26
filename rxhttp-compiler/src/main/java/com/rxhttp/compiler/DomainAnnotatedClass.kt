@@ -32,7 +32,7 @@ class DomainAnnotatedClass {
                         value.simpleName.toString())
                     .addStatement("param.setUrl(newUrl)")
                     .addStatement("return (R)this")
-                    .returns(RxHttpGenerator.r).build())
+                    .returns(r).build())
             }
 
             //对url添加域名方法
