@@ -15,7 +15,7 @@ class RxHttpExtensions {
     private val classTypeName = Class::class.asClassName()
     private val anyTypeName = Any::class.asTypeName()
 
-    private val baseRxHttpName = ClassName("rxhttp.wrapper.param", "BaseRxHttp")
+    private val baseRxHttpName = ClassName(rxHttpPackage, "BaseRxHttp")
     private val awaitFunList = ArrayList<FunSpec>()
     private val asFunList = ArrayList<FunSpec>()
 
@@ -102,12 +102,12 @@ class RxHttpExtensions {
             .build()
         val progressCallbackName = ClassName("rxhttp.wrapper.callback", "ProgressCallback")
         val launchName = ClassName("kotlinx.coroutines", "launch")
-        val rxhttpFormParam = ClassName("rxhttp.wrapper.param", "RxHttpFormParam");
+        val rxhttpFormParam = ClassName(rxHttpPackage, "RxHttpFormParam");
 
         val progressLambdaName = LambdaTypeName.get(parameters = *arrayOf(progressName),
             returnType = Unit::class.asClassName())
 
-        val fileBuilder = FileSpec.builder("rxhttp.wrapper.param", "RxHttp")
+        val fileBuilder = FileSpec.builder(rxHttpPackage, "RxHttp")
         if (isDependenceRxJava()) {
             val schedulerName = getKClassName("Scheduler")
             val observableName = getKClassName("Observable")

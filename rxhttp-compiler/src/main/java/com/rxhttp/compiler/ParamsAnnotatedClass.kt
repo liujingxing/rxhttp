@@ -63,7 +63,7 @@ class ParamsAnnotatedClass {
                 .addParameter(ArrayTypeName.of(Any::class.java), "formatArgs")
                 .varargs()
                 .addStatement("return with(\$T.\$L(format(url, formatArgs)))", paramName, key)
-                .returns(ClassName.get(packageName, value))
+                .returns(ClassName.get(rxHttpPackage, value))
                 .build())
         }
         for ((key, typeElement) in mElementMap) {
@@ -82,7 +82,7 @@ class ParamsAnnotatedClass {
             }
             val param = ClassName.get(typeElement)
             val rxHttpName = "RxHttp" + typeElement.simpleName
-            val rxHttpParamName = ClassName.get(packageName, rxHttpName)
+            val rxHttpParamName = ClassName.get(rxHttpPackage, rxHttpName)
             var methodReturnType: TypeName?
             methodReturnType = if (rxHttpTypeNames.size > 0) {
                 ParameterizedTypeName.get(rxHttpParamName, *rxHttpTypeNames.toTypedArray())
@@ -126,9 +126,9 @@ class ParamsAnnotatedClass {
             val superclass = typeElement.superclass
             var prefix = "((" + param.simpleName() + ")param)."
             val rxHttpParam = when (superclass.toString()) {
-                "rxhttp.wrapper.param.FormParam" -> ClassName.get(packageName, "RxHttpFormParam")
-                "rxhttp.wrapper.param.JsonParam" -> ClassName.get(packageName, "RxHttpJsonParam")
-                "rxhttp.wrapper.param.NoBodyParam" -> ClassName.get(packageName, "RxHttpNoBodyParam")
+                "rxhttp.wrapper.param.FormParam" -> ClassName.get(rxHttpPackage, "RxHttpFormParam")
+                "rxhttp.wrapper.param.JsonParam" -> ClassName.get(rxHttpPackage, "RxHttpJsonParam")
+                "rxhttp.wrapper.param.NoBodyParam" -> ClassName.get(rxHttpPackage, "RxHttpNoBodyParam")
                 else -> {
                     prefix = "param."
                     ParameterizedTypeName.get(RXHTTP, param, rxHttpParamName)
@@ -203,7 +203,7 @@ class ParamsAnnotatedClass {
                 .superclass(rxHttpParam)
                 .addMethods(rxHttpPostCustomMethod)
                 .build()
-            JavaFile.builder(packageName, rxHttpPostEncryptFormParamSpec)
+            JavaFile.builder(rxHttpPackage, rxHttpPostEncryptFormParamSpec)
                 .build().writeTo(filer)
         }
         methodList.add(
@@ -211,7 +211,7 @@ class ParamsAnnotatedClass {
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                 .addParameter(noBodyParamName, "noBodyParam")
                 .addStatement("return new \$L(noBodyParam)", "RxHttpNoBodyParam")
-                .returns(ClassName.get(packageName, "RxHttpNoBodyParam"))
+                .returns(ClassName.get(rxHttpPackage, "RxHttpNoBodyParam"))
                 .build())
 
         methodList.add(
@@ -219,7 +219,7 @@ class ParamsAnnotatedClass {
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                 .addParameter(formParamName, "formParam")
                 .addStatement("return new \$L(formParam)", "RxHttpFormParam")
-                .returns(ClassName.get(packageName, "RxHttpFormParam"))
+                .returns(ClassName.get(rxHttpPackage, "RxHttpFormParam"))
                 .build())
 
         methodList.add(
@@ -227,7 +227,7 @@ class ParamsAnnotatedClass {
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                 .addParameter(jsonParamName, "jsonParam")
                 .addStatement("return new \$L(jsonParam)", "RxHttpJsonParam")
-                .returns(ClassName.get(packageName, "RxHttpJsonParam"))
+                .returns(ClassName.get(rxHttpPackage, "RxHttpJsonParam"))
                 .build())
 
         methodList.add(
@@ -235,7 +235,7 @@ class ParamsAnnotatedClass {
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                 .addParameter(jsonArrayParamName, "jsonArrayParam")
                 .addStatement("return new \$L(jsonArrayParam)", "RxHttpJsonArrayParam")
-                .returns(ClassName.get(packageName, "RxHttpJsonArrayParam"))
+                .returns(ClassName.get(rxHttpPackage, "RxHttpJsonArrayParam"))
                 .build())
 
         methodList.add(

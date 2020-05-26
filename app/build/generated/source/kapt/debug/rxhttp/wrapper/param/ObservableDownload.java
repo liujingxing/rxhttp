@@ -24,6 +24,7 @@ import rxhttp.wrapper.annotations.NonNull;
 import rxhttp.wrapper.callback.ProgressCallback;
 import rxhttp.wrapper.entity.Progress;
 import rxhttp.wrapper.entity.ProgressT;
+import rxhttp.wrapper.param.Param;
 import rxhttp.wrapper.parse.DownloadParser;
 import rxhttp.wrapper.utils.LogUtil;
 
