@@ -20,6 +20,9 @@ import javax.lang.model.util.Elements
 import javax.lang.model.util.Types
 import javax.tools.Diagnostic
 
+
+lateinit var rxHttpPackage: String  //RxHttp相关类的包名
+
 /**
  * User: ljx
  * Date: 2019/3/21
@@ -42,6 +45,7 @@ class AnnotationProcessor : AbstractProcessor() {
         elementUtils = processingEnvironment.elementUtils
         val map = processingEnvironment.options
         okHttpVersion = map["rxhttp_okhttp"] ?: "4.6.0"
+        rxHttpPackage = map["rxhttp_package"] ?: "rxhttp.wrapper.param"
         initRxJavaVersion(map["rxhttp_rxjava"])
     }
 

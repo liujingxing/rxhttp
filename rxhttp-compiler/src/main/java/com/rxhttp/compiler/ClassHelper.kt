@@ -16,7 +16,7 @@ object ClassHelper {
     fun generatorBaseRxHttp(filer: Filer) {
         if (!isDependenceRxJava()) {
             generatorClass(filer,"BaseRxHttp","""
-                package rxhttp.wrapper.param;
+                package $rxHttpPackage;
 
                 import rxhttp.IRxHttp;
 
@@ -33,7 +33,7 @@ object ClassHelper {
             """.trimIndent())
         } else {
             generatorClass(filer, "BaseRxHttp", """
-            package rxhttp.wrapper.param;
+            package $rxHttpPackage;
 
             import android.graphics.Bitmap;
 
@@ -158,7 +158,7 @@ object ClassHelper {
     @JvmStatic
     fun generatorObservableErrorHandler(filer: Filer) {
         generatorClass(filer, "ObservableErrorHandler", """
-                package rxhttp.wrapper.param;
+                package $rxHttpPackage;
 
                 import ${getClassPath("Observable")};
                 import ${getClassPath("Consumer")};
@@ -190,7 +190,7 @@ object ClassHelper {
     @JvmStatic
     fun generatorObservableHttp(filer: Filer) {
         generatorClass(filer, "ObservableHttp", """
-                package rxhttp.wrapper.param;
+                package $rxHttpPackage;
 
 
                 import java.io.IOException;
@@ -362,7 +362,7 @@ object ClassHelper {
     @JvmStatic
     fun generatorObservableUpload(filer: Filer) {
         generatorClass(filer, "ObservableUpload", """
-                package rxhttp.wrapper.param;
+                package $rxHttpPackage;
 
                 import java.util.concurrent.atomic.AtomicInteger;
                 import java.util.concurrent.atomic.AtomicReference;
@@ -387,6 +387,8 @@ object ClassHelper {
                 import rxhttp.HttpSender;
                 import rxhttp.wrapper.entity.Progress;
                 import rxhttp.wrapper.entity.ProgressT;
+                import rxhttp.wrapper.param.IFile;
+                import rxhttp.wrapper.param.Param;
                 import rxhttp.wrapper.parse.Parser;
                 import rxhttp.wrapper.utils.LogUtil;
 
@@ -706,7 +708,7 @@ object ClassHelper {
     @JvmStatic
     fun generatorObservableDownload(filer: Filer) {
         generatorClass(filer, "ObservableDownload", """
-                package rxhttp.wrapper.param;
+                package $rxHttpPackage;
 
                 import java.util.concurrent.atomic.AtomicInteger;
                 import java.util.concurrent.atomic.AtomicReference;
@@ -732,6 +734,7 @@ object ClassHelper {
                 import rxhttp.wrapper.callback.ProgressCallback;
                 import rxhttp.wrapper.entity.Progress;
                 import rxhttp.wrapper.entity.ProgressT;
+                import rxhttp.wrapper.param.Param;
                 import rxhttp.wrapper.parse.DownloadParser;
                 import rxhttp.wrapper.utils.LogUtil;
 
@@ -1065,7 +1068,7 @@ object ClassHelper {
     fun generatorClass(filer: Filer, className: String, content: String) {
         var writer: BufferedWriter? = null
         try {
-            val sourceFile = filer.createSourceFile("rxhttp.wrapper.param.$className")
+            val sourceFile = filer.createSourceFile("$rxHttpPackage.$className")
             writer = BufferedWriter(sourceFile.openWriter())
             writer.write(content)
         } catch (e: Exception) {

@@ -78,13 +78,13 @@ class RxHttpGenerator {
         val subString = WildcardTypeName.subtypeOf(TypeName.get(String::class.java))
         val mapName = ParameterizedTypeName.get(ClassName.get(MutableMap::class.java), subString, subObject)
         val noBodyParamName = ClassName.get(packageName, "NoBodyParam")
-        val rxHttpNoBodyName = ClassName.get(packageName, "RxHttpNoBodyParam")
+        val rxHttpNoBodyName = ClassName.get(rxHttpPackage, "RxHttpNoBodyParam")
         val formParamName = ClassName.get(packageName, "FormParam")
-        val rxHttpFormName = ClassName.get(packageName, "RxHttpFormParam")
+        val rxHttpFormName = ClassName.get(rxHttpPackage, "RxHttpFormParam")
         val jsonParamName = ClassName.get(packageName, "JsonParam")
-        val rxHttpJsonName = ClassName.get(packageName, "RxHttpJsonParam")
+        val rxHttpJsonName = ClassName.get(rxHttpPackage, "RxHttpJsonParam")
         val jsonArrayParamName = ClassName.get(packageName, "JsonArrayParam")
-        val rxHttpJsonArrayName = ClassName.get(packageName, "RxHttpJsonArrayParam")
+        val rxHttpJsonArrayName = ClassName.get(rxHttpPackage, "RxHttpJsonArrayParam")
         val rxHttpNoBody = ParameterizedTypeName.get(RXHTTP, noBodyParamName, rxHttpNoBodyName)
         val rxHttpForm = ParameterizedTypeName.get(RXHTTP, formParamName, rxHttpFormName)
         val rxHttpJson = ParameterizedTypeName.get(RXHTTP, jsonParamName, rxHttpJsonName)
@@ -246,7 +246,7 @@ class RxHttpGenerator {
         val build = AnnotationSpec.builder(SuppressWarnings::class.java)
             .addMember("value", "\"unchecked\"")
             .build()
-        val baseRxHttpName = ClassName.get("rxhttp.wrapper.param", "BaseRxHttp")
+        val baseRxHttpName = ClassName.get(rxHttpPackage, "BaseRxHttp")
         val diskLruCacheFactoryName = ClassName.get("rxhttp.wrapper.cahce", "DiskLruCacheFactory")
         val diskLruCacheName = ClassName.get("okhttp3.internal.cache", "DiskLruCache")
         val taskRunnerName = ClassName.get("okhttp3.internal.concurrent", "TaskRunner")
@@ -310,7 +310,7 @@ class RxHttpGenerator {
             .addMethods(methodList)
 
         // Write file
-        JavaFile.builder(packageName, rxHttpBuilder.build())
+        JavaFile.builder(rxHttpPackage, rxHttpBuilder.build())
             .build().writeTo(filer)
 
         methodList.clear()
@@ -427,7 +427,7 @@ class RxHttpGenerator {
             .superclass(rxHttpNoBody)
             .addMethods(methodList)
             .build()
-        JavaFile.builder(packageName, rxHttpNoBodySpec)
+        JavaFile.builder(rxHttpPackage, rxHttpNoBodySpec)
             .build().writeTo(filer)
 
         methodList.clear()
@@ -722,7 +722,7 @@ class RxHttpGenerator {
             rxHttpFormSpec.addField(observeOnSchedulerField)
                 .addField(progressConsumerField)
         }
-        JavaFile.builder(packageName, rxHttpFormSpec.build())
+        JavaFile.builder(rxHttpPackage, rxHttpFormSpec.build())
             .build().writeTo(filer)
 
 
@@ -812,7 +812,7 @@ class RxHttpGenerator {
             .superclass(rxHttpJson)
             .addMethods(methodList)
             .build()
-        JavaFile.builder(packageName, rxHttpJsonSpec)
+        JavaFile.builder(rxHttpPackage, rxHttpJsonSpec)
             .build().writeTo(filer)
 
         methodList.clear()
@@ -935,14 +935,14 @@ class RxHttpGenerator {
             .superclass(rxHttpJsonArray)
             .addMethods(methodList)
             .build()
-        JavaFile.builder(packageName, rxHttpJsonArraySpec)
+        JavaFile.builder(rxHttpPackage, rxHttpJsonArraySpec)
             .build().writeTo(filer)
     }
 }
 
 private const val CLASSNAME = "RxHttp"
 const val packageName = "rxhttp.wrapper.param"
-var RXHTTP = ClassName.get(packageName, CLASSNAME)
+var RXHTTP = ClassName.get(rxHttpPackage, CLASSNAME)
 private val paramName = ClassName.get(packageName, "Param")
 var p = TypeVariableName.get("P", paramName)  //泛型P
 var r = TypeVariableName.get("R", RXHTTP)     //泛型R

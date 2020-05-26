@@ -23,6 +23,8 @@ import okhttp3.Response;
 import rxhttp.HttpSender;
 import rxhttp.wrapper.entity.Progress;
 import rxhttp.wrapper.entity.ProgressT;
+import rxhttp.wrapper.param.IFile;
+import rxhttp.wrapper.param.Param;
 import rxhttp.wrapper.parse.Parser;
 import rxhttp.wrapper.utils.LogUtil;
 
