@@ -23,18 +23,18 @@ class ParamsAnnotatedClass {
 
     @Throws(IOException::class)
     fun getMethodList(filer: Filer?): List<MethodSpec> {
-        val rxHttp = RxHttpGenerator.r
+        val rxHttp = r
         val t = TypeVariableName.get("T")
         val superT = WildcardTypeName.supertypeOf(t)
         val classTName = ParameterizedTypeName.get(ClassName.get(Class::class.java), superT)
         val headerName = ClassName.get("okhttp3", "Headers")
         val headerBuilderName = ClassName.get("okhttp3", "Headers.Builder")
         val cacheControlName = ClassName.get("okhttp3", "CacheControl")
-        val paramName = ClassName.get(RxHttpGenerator.packageName, "Param")
-        val noBodyParamName = ClassName.get(RxHttpGenerator.packageName, "NoBodyParam")
-        val formParamName = ClassName.get(RxHttpGenerator.packageName, "FormParam")
-        val jsonParamName = ClassName.get(RxHttpGenerator.packageName, "JsonParam")
-        val jsonArrayParamName = ClassName.get(RxHttpGenerator.packageName, "JsonArrayParam")
+        val paramName = ClassName.get(packageName, "Param")
+        val noBodyParamName = ClassName.get(packageName, "NoBodyParam")
+        val formParamName = ClassName.get(packageName, "FormParam")
+        val jsonParamName = ClassName.get(packageName, "JsonParam")
+        val jsonArrayParamName = ClassName.get(packageName, "JsonArrayParam")
         val cacheModeName = ClassName.get("rxhttp.wrapper.cahce", "CacheMode")
         val cacheStrategyName = ClassName.get("rxhttp.wrapper.cahce", "CacheStrategy")
         val stringName = TypeName.get(String::class.java)
@@ -63,7 +63,7 @@ class ParamsAnnotatedClass {
                 .addParameter(ArrayTypeName.of(Any::class.java), "formatArgs")
                 .varargs()
                 .addStatement("return with(\$T.\$L(format(url, formatArgs)))", paramName, key)
-                .returns(ClassName.get(RxHttpGenerator.packageName, value))
+                .returns(ClassName.get(packageName, value))
                 .build())
         }
         for ((key, typeElement) in mElementMap) {
@@ -82,7 +82,7 @@ class ParamsAnnotatedClass {
             }
             val param = ClassName.get(typeElement)
             val rxHttpName = "RxHttp" + typeElement.simpleName
-            val rxHttpParamName = ClassName.get(RxHttpGenerator.packageName, rxHttpName)
+            val rxHttpParamName = ClassName.get(packageName, rxHttpName)
             var methodReturnType: TypeName?
             methodReturnType = if (rxHttpTypeNames.size > 0) {
                 ParameterizedTypeName.get(rxHttpParamName, *rxHttpTypeNames.toTypedArray())
@@ -126,12 +126,12 @@ class ParamsAnnotatedClass {
             val superclass = typeElement.superclass
             var prefix = "((" + param.simpleName() + ")param)."
             val rxHttpParam = when (superclass.toString()) {
-                "rxhttp.wrapper.param.FormParam" -> ClassName.get(RxHttpGenerator.packageName, "RxHttpFormParam")
-                "rxhttp.wrapper.param.JsonParam" -> ClassName.get(RxHttpGenerator.packageName, "RxHttpJsonParam")
-                "rxhttp.wrapper.param.NoBodyParam" -> ClassName.get(RxHttpGenerator.packageName, "RxHttpNoBodyParam")
+                "rxhttp.wrapper.param.FormParam" -> ClassName.get(packageName, "RxHttpFormParam")
+                "rxhttp.wrapper.param.JsonParam" -> ClassName.get(packageName, "RxHttpJsonParam")
+                "rxhttp.wrapper.param.NoBodyParam" -> ClassName.get(packageName, "RxHttpNoBodyParam")
                 else -> {
                     prefix = "param."
-                    ParameterizedTypeName.get(RxHttpGenerator.RXHTTP, param, rxHttpParamName)
+                    ParameterizedTypeName.get(RXHTTP, param, rxHttpParamName)
                 }
             }
             val rxHttpPostCustomMethod = ArrayList<MethodSpec>()
@@ -203,7 +203,7 @@ class ParamsAnnotatedClass {
                 .superclass(rxHttpParam)
                 .addMethods(rxHttpPostCustomMethod)
                 .build()
-            JavaFile.builder(RxHttpGenerator.packageName, rxHttpPostEncryptFormParamSpec)
+            JavaFile.builder(packageName, rxHttpPostEncryptFormParamSpec)
                 .build().writeTo(filer)
         }
         methodList.add(
@@ -211,7 +211,7 @@ class ParamsAnnotatedClass {
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                 .addParameter(noBodyParamName, "noBodyParam")
                 .addStatement("return new \$L(noBodyParam)", "RxHttpNoBodyParam")
-                .returns(ClassName.get(RxHttpGenerator.packageName, "RxHttpNoBodyParam"))
+                .returns(ClassName.get(packageName, "RxHttpNoBodyParam"))
                 .build())
 
         methodList.add(
@@ -219,7 +219,7 @@ class ParamsAnnotatedClass {
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                 .addParameter(formParamName, "formParam")
                 .addStatement("return new \$L(formParam)", "RxHttpFormParam")
-                .returns(ClassName.get(RxHttpGenerator.packageName, "RxHttpFormParam"))
+                .returns(ClassName.get(packageName, "RxHttpFormParam"))
                 .build())
 
         methodList.add(
@@ -227,7 +227,7 @@ class ParamsAnnotatedClass {
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                 .addParameter(jsonParamName, "jsonParam")
                 .addStatement("return new \$L(jsonParam)", "RxHttpJsonParam")
-                .returns(ClassName.get(RxHttpGenerator.packageName, "RxHttpJsonParam"))
+                .returns(ClassName.get(packageName, "RxHttpJsonParam"))
                 .build())
 
         methodList.add(
@@ -235,7 +235,7 @@ class ParamsAnnotatedClass {
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                 .addParameter(jsonArrayParamName, "jsonArrayParam")
                 .addStatement("return new \$L(jsonArrayParam)", "RxHttpJsonArrayParam")
-                .returns(ClassName.get(RxHttpGenerator.packageName, "RxHttpJsonArrayParam"))
+                .returns(ClassName.get(packageName, "RxHttpJsonArrayParam"))
                 .build())
 
         methodList.add(

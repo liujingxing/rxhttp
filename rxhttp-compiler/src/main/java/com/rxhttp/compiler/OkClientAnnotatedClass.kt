@@ -35,7 +35,7 @@ class OkClientAnnotatedClass {
                         ClassName.get(value.enclosingElement.asType()),
                         value.simpleName.toString())
                     .addStatement("return (R)this")
-                    .returns(RxHttpGenerator.r)
+                    .returns(r)
                     .build()
                 )
             }

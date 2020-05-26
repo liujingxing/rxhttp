@@ -107,7 +107,7 @@ class ParserAnnotatedClass {
                     .addParameter(schedulerName, "scheduler")
                     .addStatement("this.scheduler=scheduler")
                     .addStatement("return (R)this")
-                    .returns(RxHttpGenerator.r)
+                    .returns(r)
                     .build())
 
             methodList.add(
@@ -116,7 +116,7 @@ class ParserAnnotatedClass {
                     .addModifiers(Modifier.PUBLIC)
                     .addStatement("this.scheduler=null")
                     .addStatement("return (R)this")
-                    .returns(RxHttpGenerator.r)
+                    .returns(r)
                     .build())
 
             methodList.add(
@@ -124,7 +124,7 @@ class ParserAnnotatedClass {
                     .addModifiers(Modifier.PUBLIC)
                     .addStatement("this.scheduler=Schedulers.io()")
                     .addStatement("return (R)this")
-                    .returns(RxHttpGenerator.r)
+                    .returns(r)
                     .build())
 
             methodList.add(
@@ -132,7 +132,7 @@ class ParserAnnotatedClass {
                     .addModifiers(Modifier.PUBLIC)
                     .addStatement("this.scheduler=Schedulers.computation()")
                     .addStatement("return (R)this")
-                    .returns(RxHttpGenerator.r)
+                    .returns(r)
                     .build())
 
             methodList.add(
@@ -140,7 +140,7 @@ class ParserAnnotatedClass {
                     .addModifiers(Modifier.PUBLIC)
                     .addStatement("this.scheduler=Schedulers.newThread()")
                     .addStatement("return (R)this")
-                    .returns(RxHttpGenerator.r)
+                    .returns(r)
                     .build())
 
             methodList.add(
@@ -148,7 +148,7 @@ class ParserAnnotatedClass {
                     .addModifiers(Modifier.PUBLIC)
                     .addStatement("this.scheduler=Schedulers.single()")
                     .addStatement("return (R)this")
-                    .returns(RxHttpGenerator.r)
+                    .returns(r)
                     .build())
 
             methodList.add(
@@ -156,7 +156,7 @@ class ParserAnnotatedClass {
                     .addModifiers(Modifier.PUBLIC)
                     .addStatement("this.scheduler=Schedulers.trampoline()")
                     .addStatement("return (R)this")
-                    .returns(RxHttpGenerator.r)
+                    .returns(r)
                     .build())
 
             val observableTName = ParameterizedTypeName.get(observableName, t)
