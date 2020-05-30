@@ -10,7 +10,7 @@ import rxhttp.wrapper.annotation.Domain;
  */
 public class Url {
 
-    @Domain(name = "Update")
+    @Domain(name = "Update",className = "Simple")
     public static String update = "http://update.9158.com";
 
     @DefaultDomain //设置为默认域名

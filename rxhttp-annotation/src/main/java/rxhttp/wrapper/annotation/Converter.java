@@ -10,4 +10,7 @@ import java.lang.annotation.Target;
 public @interface Converter {
 
     String name();
+
+    //通过该方法将生成RxXxxHttp类，通过该类发请求，将默认使用指定的IConverter对象
+    String className() default "";
 }

@@ -2,7 +2,6 @@ package com.rxhttp.compiler
 
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.MethodSpec
-import rxhttp.wrapper.annotation.Converter
 import rxhttp.wrapper.annotation.OkClient
 import java.util.*
 import javax.lang.model.element.Modifier
