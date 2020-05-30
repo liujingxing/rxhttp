@@ -13,7 +13,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import rxhttp.IRxHttp
-import rxhttp.await
 import rxhttp.toParser
 import rxhttp.wrapper.callback.ProgressCallback
 import rxhttp.wrapper.entity.Progress
@@ -67,7 +66,5 @@ fun RxHttpFormParam.upload(coroutine: CoroutineScope? = null, progress: (Progres
   })
   return this
 }
-
-suspend inline fun <reified T : Any> IRxHttp.awaitResponse() = await(object: ResponseParser<T>() {})
 
 inline fun <reified T : Any> IRxHttp.toResponse() = toParser(object: ResponseParser<T>() {})
