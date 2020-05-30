@@ -74,10 +74,12 @@ class AnnotationProcessor : AbstractProcessor() {
         }
         try {
             val rxHttpGenerator = RxHttpGenerator()
+            val rxHttpWrapper = RxHttpWrapper()
             val paramsAnnotatedClass = ParamsAnnotatedClass()
             roundEnv.getElementsAnnotatedWith(Param::class.java).forEach {
                 val typeElement = it as TypeElement
                 checkParamsValidClass(typeElement)
+                rxHttpWrapper.add(typeElement)
                 paramsAnnotatedClass.add(typeElement)
             }
 
@@ -93,6 +95,7 @@ class AnnotationProcessor : AbstractProcessor() {
                 val variableElement = it as VariableElement
                 checkConverterValidClass(variableElement)
                 converterAnnotatedClass.add(variableElement)
+                rxHttpWrapper.addAnnotation(it.getAnnotation(Converter::class.java), it)
             }
 
             val okClientAnnotatedClass = OkClientAnnotatedClass()
@@ -100,6 +103,7 @@ class AnnotationProcessor : AbstractProcessor() {
                 val variableElement = it as VariableElement
                 checkOkClientValidClass(variableElement)
                 okClientAnnotatedClass.add(variableElement)
+                rxHttpWrapper.addAnnotation(it.getAnnotation(OkClient::class.java), it)
             }
 
             val domainAnnotatedClass = DomainAnnotatedClass()
@@ -107,7 +111,9 @@ class AnnotationProcessor : AbstractProcessor() {
                 val variableElement = it as VariableElement
                 checkVariableValidClass(variableElement)
                 domainAnnotatedClass.add(variableElement)
+                rxHttpWrapper.addAnnotation(it.getAnnotation(Domain::class.java), it)
             }
+            rxHttpWrapper.generateRxWrapper(filer)
             val elementSet = roundEnv.getElementsAnnotatedWith(DefaultDomain::class.java)
             if (elementSet.size > 1)
                 throw ProcessingException(elementSet.iterator().next(), "@DefaultDomain annotations can only be used once")
