@@ -185,7 +185,7 @@ class RxHttpGenerator {
                 MethodSpec.methodBuilder("isDisposed")
                     .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                     .addParameter(disposableName,"disposable")
-                    .addStatement("return disposable != null && disposable.isDisposed()")
+                    .addStatement("return disposable == null || disposable.isDisposed()")
                     .returns(Boolean::class.java).build())
         }
 
