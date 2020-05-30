@@ -11,11 +11,9 @@ import java.io.IOException
 import java.util.*
 import javax.annotation.processing.*
 import javax.lang.model.SourceVersion
-import javax.lang.model.element.Element
-import javax.lang.model.element.Modifier
-import javax.lang.model.element.TypeElement
-import javax.lang.model.element.VariableElement
+import javax.lang.model.element.*
 import javax.lang.model.type.TypeKind
+import javax.lang.model.type.TypeMirror
 import javax.lang.model.util.Elements
 import javax.lang.model.util.Types
 import javax.tools.Diagnostic
@@ -177,9 +175,61 @@ class AnnotationProcessor : AbstractProcessor() {
                 "The class %s is abstract. You can't annotate abstract classes with @%",
                 element.simpleName.toString(), Parser::class.java.simpleName)
         }
+
+        val constructorFun = getConstructorFun(element)
+        if (element.typeParameters.size > 0) {
+            //有泛型的解析器不能声明为final类型
+            if (element.modifiers.contains(Modifier.FINAL)) {
+                throw ProcessingException(element,
+                    "This class %s cannot be declared final",
+                    element.simpleName.toString())
+            }
+            //有泛型的解析器必须要声明两个public或protected构造方法
+            if (constructorFun.size < 2) {
+                throw ProcessingException(element,
+                    "This class %s must declare two public or protected constructors",
+                    element.simpleName.toString())
+            }
+            var hasTypeArgConstructorFun = false
+            constructorFun.forEach {
+                if (it.parameters.size == 0
+                    && !it.modifiers.contains(Modifier.PROTECTED)
+                ) {
+                    //无参构造方法必须要声明为protected
+                    throw ProcessingException(element,
+                        "This class %s no-argument constructor must be declared protected",
+                        element.simpleName.toString())
+                }
+                if (it.parameters.size == element.typeParameters.size
+                    && it.modifiers.contains(Modifier.PUBLIC)
+                ) {
+                    var allTypeArg = true
+                    for (variableElement in it.parameters) {
+                        if (variableElement.asType().toString() != "java.lang.reflect.Type") {
+                            allTypeArg = false
+                            break
+                        }
+                    }
+                    hasTypeArgConstructorFun = allTypeArg
+                }
+            }
+            if (!hasTypeArgConstructorFun) {
+                val method = StringBuffer("public %s(")
+                for (i in element.typeParameters.indices) {
+                    method.append("java.lang.reflect.Type")
+                    if (i == element.typeParameters.size - 1) {
+                        method.append(")")
+                    } else method.append(", ")
+                }
+                throw ProcessingException(element,
+                    "This class %s must declare '$method' constructor",
+                    element.simpleName.toString(), element.simpleName.toString())
+            }
+        }
+
         var currentClass = element
         while (true) {
-            val interfaces = currentClass.interfaces
+            val interfaces: MutableList<out TypeMirror> = currentClass.interfaces
             //遍历实现的接口有没有Parser接口
             for (typeMirror in interfaces) {
                 if (typeMirror.toString().contains("rxhttp.wrapper.parse.Parser")) {
@@ -268,5 +318,19 @@ class AnnotationProcessor : AbstractProcessor() {
 
     private fun error(e: Element, msg: String?, vararg args: Any) {
         messager.printMessage(Diagnostic.Kind.ERROR, String.format(msg ?: "", *args), e)
+    }
+
+    //获取构造方法
+    private fun getConstructorFun(typeElement: TypeElement): MutableList<ExecutableElement> {
+        val funList = ArrayList<ExecutableElement>()
+        typeElement.enclosedElements.forEach {
+            if (it is ExecutableElement
+                && it.kind == ElementKind.CONSTRUCTOR
+                && (it.getModifiers().contains(Modifier.PUBLIC) || it.getModifiers().contains(Modifier.PROTECTED))
+            ) {
+                funList.add(it)
+            }
+        }
+        return funList
     }
 }
