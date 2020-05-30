@@ -126,7 +126,7 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
   }
 
   public static boolean isDisposed(Disposable disposable) {
-    return disposable != null && disposable.isDisposed();
+    return disposable == null || disposable.isDisposed();
   }
 
   public P getParam() {
