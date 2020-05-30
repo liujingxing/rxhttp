@@ -29,10 +29,10 @@ public class RxHttpManager {
 
     @Converter(name = "FastJsonConverter")
     public static IConverter fastJsonConverter = FastJsonConverter.create();
-    @Converter(name = "XmlConverter")
+    @Converter(name = "XmlConverter", className = "Simple")
     public static IConverter xmlConverter = XmlConverter.create();
 
-    @OkClient(name = "SimpleClient")
+    @OkClient(name = "SimpleClient", className = "Simple")
     public static OkHttpClient simpleClient = new OkHttpClient.Builder().build();
 
 
