@@ -3,6 +3,9 @@ package com.rxhttp.compiler
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import javax.annotation.processing.Filer
+import javax.lang.model.element.ElementKind
+import javax.lang.model.element.ExecutableElement
+import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
 
 /**
@@ -16,74 +19,87 @@ class RxHttpExtensions {
     private val anyTypeName = Any::class.asTypeName()
 
     private val baseRxHttpName = ClassName(rxHttpPackage, "BaseRxHttp")
-    private val awaitFunList = ArrayList<FunSpec>()
+    private val toFunList = ArrayList<FunSpec>()
     private val asFunList = ArrayList<FunSpec>()
 
     //根据@Parser注解，生成asXxx()、awaitXxx()类型方法
-    fun generateAsClassFun(typeElement: TypeElement, key: String) {
-        val typeVariableNames = ArrayList<TypeVariableName>()
-        val parameterSpecs = ArrayList<ParameterSpec>()
+    fun generateRxHttpExtendFun(typeElement: TypeElement, key: String) {
 
+        val typeVariableNames = ArrayList<TypeVariableName>()
+        //遍历获取泛型类型
         typeElement.typeParameters.forEach {
-            val typeVariableName = it.asTypeVariableName()
-            typeVariableNames.add(typeVariableName)
-            val parameterSpec = ParameterSpec.builder(
-                it.asType().toString().toLowerCase() + "Type",
-                classTypeName.parameterizedBy(typeVariableName)).build()
-            parameterSpecs.add(parameterSpec)
+            typeVariableNames.add(it.asTypeVariableName())
         }
 
-        //自定义解析器对应的asXxx方法里面的语句
-        if (typeVariableNames.size > 0) {  //自定义的解析器泛型数量
+        for (executableElement in getConstructorFun(typeElement)) {
+
+            if (executableElement.parameters.size == typeVariableNames.size
+                && executableElement.modifiers.contains(Modifier.PUBLIC)
+            ) {
+                var allTypeArg = true
+                for (variableElement in executableElement.parameters) {
+                    if (variableElement.asType().toString() != "java.lang.reflect.Type") {
+                        allTypeArg = false
+                        break
+                    }
+                }
+                if (allTypeArg) continue
+            }
+
+            //根据构造方法参数，获取asXxx方法需要的参数
+            val parameterList = ArrayList<ParameterSpec>()
+            var typeIndex = 0
+            executableElement.parameters.forEach {
+                if (it.asType().toString() == "java.lang.reflect.Type"
+                    && typeIndex < typeVariableNames.size
+                ) {
+                    //Type类型参数转Class<T>类型
+                    val parameterSpec = ParameterSpec.builder(
+                        it.simpleName.toString(),
+                        classTypeName.parameterizedBy(typeVariableNames[typeIndex++])
+                    ).build()
+                    parameterList.add(parameterSpec)
+                } else {
+                    parameterList.add(ParameterSpec.get(it))
+                }
+            }
+
+            val modifiers = ArrayList<KModifier>()
+            if (typeVariableNames.size > 0) {
+                modifiers.add(KModifier.INLINE)
+            }
+
+            var funBody = if (typeVariableNames.size == 0 || executableElement.modifiers.contains(Modifier.PUBLIC)) {
+                "return asParser(%T${getTypeVariableString(typeVariableNames)}(${getParamsName(parameterList)}))"
+            } else {
+                "return asParser(object: %T${getTypeVariableString(typeVariableNames)}(${getParamsName(parameterList)}) {})"
+            }
+
             asFunList.add(
                 FunSpec.builder("as$key")
-                    .addModifiers(KModifier.INLINE)
+                    .addModifiers(modifiers)
                     .receiver(baseRxHttpName)
-                    .addStatement("return asParser(object: %T${getTypeVariableString(typeVariableNames)}() {})",
-                        typeElement.asClassName()) //方法里面的表达式
+                    .addParameters(parameterList)
+                    .addStatement(funBody, typeElement.asClassName()) //方法里面的表达式
                     .addTypeVariables(getTypeVariableNames(typeVariableNames))
                     .build())
 
-            //自定义awaitXxx方法
-            val awaitName = ClassName("rxhttp", "await")
-            awaitFunList.add(
-                FunSpec.builder("await$key")
-                    .addModifiers(KModifier.SUSPEND, KModifier.INLINE)
-                    .receiver(ClassName("rxhttp", "IRxHttp"))
-                    .addStatement("return %T(object: %T${getTypeVariableString(typeVariableNames)}() {})",
-                        awaitName, typeElement.asClassName())  //方法里面的表达式
-                    .addTypeVariables(getTypeVariableNames(typeVariableNames))
-                    .build())
+            funBody = if (typeVariableNames.size == 0 || executableElement.modifiers.contains(Modifier.PUBLIC)) {
+                "return %T(%T${getTypeVariableString(typeVariableNames)}(${getParamsName(parameterList)}))"
+            } else {
+                "return %T(object: %T${getTypeVariableString(typeVariableNames)}(${getParamsName(parameterList)}) {})"
+            }
 
-            //自定义toXxx方法
             val toParserName = ClassName("rxhttp", "toParser")
-            awaitFunList.add(
+            toFunList.add(
                 FunSpec.builder("to$key")
-                    .addModifiers(KModifier.INLINE)
+                    .addModifiers(modifiers)
                     .receiver(ClassName("rxhttp", "IRxHttp"))
-                    .addStatement("return %T(object: %T${getTypeVariableString(typeVariableNames)}() {})",
-                        toParserName, typeElement.asClassName())  //方法里面的表达式
+                    .addParameters(parameterList)
+                    .addStatement(funBody, toParserName, typeElement.asClassName())  //方法里面的表达式
                     .addTypeVariables(getTypeVariableNames(typeVariableNames))
-                    .build())
-        } else {  //自定义解析器没有泛型时走这里
-            //自定义awaitXxx方法
-            val awaitName = ClassName("rxhttp", "await")
-            awaitFunList.add(
-                FunSpec.builder("await$key")
-                    .addModifiers(KModifier.SUSPEND)
-                    .receiver(ClassName("rxhttp", "IRxHttp"))
-                    .addStatement("return %T(%T())", awaitName, typeElement.asClassName())  //方法里面的表达式
-                    .build())
-
-            //自定义toXxx方法
-            val toParserName = ClassName("rxhttp", "toParser")
-            awaitFunList.add(
-                FunSpec.builder("to$key")
-                    .receiver(ClassName("rxhttp", "IRxHttp"))
-                    .addStatement("return %T(%T())", toParserName, typeElement.asClassName())  //方法里面的表达式
                     .build())
         }
-
     }
 
 
@@ -208,11 +224,35 @@ class RxHttpExtensions {
                 .returns(rxhttpFormParam)
                 .build())
 
-        awaitFunList.forEach {
+        toFunList.forEach {
             fileBuilder.addFunction(it)
         }
 
         fileBuilder.build().writeTo(filer)
+    }
+
+
+    //获取构造方法
+    private fun getConstructorFun(typeElement: TypeElement): MutableList<ExecutableElement> {
+        val funList = ArrayList<ExecutableElement>()
+        typeElement.enclosedElements.forEach {
+            if (it is ExecutableElement
+                && it.kind == ElementKind.CONSTRUCTOR
+                && (it.getModifiers().contains(Modifier.PUBLIC) || it.getModifiers().contains(Modifier.PROTECTED))
+            ) {
+                funList.add(it)
+            }
+        }
+        return funList
+    }
+
+    private fun getParamsName(variableElements: MutableList<ParameterSpec>): String {
+        val paramsName = StringBuilder()
+        for ((index, element) in variableElements.withIndex()) {
+            if (index > 0) paramsName.append(", ")
+            paramsName.append(element.name)
+        }
+        return paramsName.toString()
     }
 
     //获取泛型字符串 比如:<T> 、<K,V>等等
