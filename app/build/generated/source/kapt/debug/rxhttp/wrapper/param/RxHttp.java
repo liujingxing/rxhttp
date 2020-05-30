@@ -486,18 +486,18 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
             .map(progress -> ((ProgressT<String>) progress).getResult());
   }
 
-  public <T> Observable<T> asResponse(Class<T> tType) {
-    return asParser(new ResponseParser<T>(tType));
+  public <T> Observable<T> asResponse(Class<T> type) {
+    return asParser(new ResponseParser<T>(type));
   }
 
-  public <T> Observable<List<T>> asResponseList(Class<T> tType) {
-    Type tTypeList = ParameterizedTypeImpl.get(List.class, tType);
-    return asParser(new ResponseParser<List<T>>(tTypeList));
+  public <T> Observable<List<T>> asResponseList(Class<T> type) {
+    Type typeList = ParameterizedTypeImpl.get(List.class, type);
+    return asParser(new ResponseParser<List<T>>(typeList));
   }
 
-  public <T> Observable<PageList<T>> asResponsePageList(Class<T> tType) {
-    Type tTypePageList = ParameterizedTypeImpl.get(PageList.class, tType);
-    return asParser(new ResponseParser<PageList<T>>(tTypePageList));
+  public <T> Observable<PageList<T>> asResponsePageList(Class<T> type) {
+    Type typePageList = ParameterizedTypeImpl.get(PageList.class, type);
+    return asParser(new ResponseParser<PageList<T>>(typePageList));
   }
 
   public R setFastJsonConverter() {
