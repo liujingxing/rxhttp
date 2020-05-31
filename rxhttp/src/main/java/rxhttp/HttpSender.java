@@ -63,6 +63,7 @@ public final class HttpSender {
     /**
      * 克隆一个OkHttpClient对象,用于监听下载进度
      *
+     * @param client           OkHttpClient
      * @param progressCallback 进度回调
      * @return 克隆的OkHttpClient对象
      */

@@ -7,8 +7,8 @@ dependencies {
     implementation 'com.squareup:kotlinpoet:1.5.0'
     compileOnly "net.ltgt.gradle.incap:incap:0.2"
     kapt "net.ltgt.gradle.incap:incap-processor:0.2"
-//    implementation 'com.ljx.rxhttp:rxhttp-annotation:1.0.0'
-    api project(":rxhttp-annotation")
+    implementation 'com.ljx.rxhttp:rxhttp-annotation:1.0.1'
+//    api project(":rxhttp-annotation")
 }
 
 sourceCompatibility = "8"
