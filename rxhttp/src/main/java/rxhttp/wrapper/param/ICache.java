@@ -8,7 +8,7 @@ import rxhttp.wrapper.cahce.CacheStrategy;
  * Date: 2019-12-15
  * Time: 14:08
  */
-public interface ICache<P extends Param> {
+public interface ICache<P extends Param<P>> {
 
     P setCacheKey(String cacheKey);
 

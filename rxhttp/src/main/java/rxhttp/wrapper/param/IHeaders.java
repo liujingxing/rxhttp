@@ -9,7 +9,7 @@ import okhttp3.Headers;
  * Date: 2019/1/22
  * Time: 13:58
  */
-public interface IHeaders<P extends Param> {
+public interface IHeaders<P extends Param<P>> {
 
     Headers getHeaders();
 
