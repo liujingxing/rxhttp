@@ -23,5 +23,8 @@
 
 #RxHttp
 -keep class rxhttp.**{*;}
+#OkHttp
+-keep class okhttp3.**{*;}
+-keep class okio.**{*;}
 #RxLife
 -keep class com.rxjava.rxlife.**{*;}
