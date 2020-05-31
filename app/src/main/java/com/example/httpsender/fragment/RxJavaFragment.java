@@ -32,6 +32,7 @@ import java.util.List;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import rxhttp.wrapper.param.RxHttp;
+import rxhttp.wrapper.param.RxSimpleHttp;
 
 /**
  * 使用RxJava+OkHttp发请求
@@ -224,8 +225,7 @@ public class RxJavaFragment extends Fragment implements OnClickListener {
     //文件下载，不带进度
     public void download(View view) {
         String destPath = requireContext().getExternalCacheDir() + "/" + System.currentTimeMillis() + ".apk";
-        RxHttp.get("/miaolive/Miaolive.apk")
-            .setDomainToUpdateIfAbsent() //使用指定的域名
+        RxSimpleHttp.get("/miaolive/Miaolive.apk")
             .asDownload(destPath)
             .to(RxLife.toMain(this))  //感知生命周期，并在主线程回调
             .subscribe(s -> {
@@ -240,8 +240,7 @@ public class RxJavaFragment extends Fragment implements OnClickListener {
     public void downloadAndProgress(View view) {
         //文件存储路径
         String destPath = requireContext().getExternalCacheDir() + "/" + System.currentTimeMillis() + ".apk";
-        RxHttp.get("/miaolive/Miaolive.apk")
-            .setDomainToUpdateIfAbsent()//使用指定的域名
+        RxSimpleHttp.get("/miaolive/Miaolive.apk")
             .asDownload(destPath, progress -> {
                 //下载进度回调,0-100，仅在进度有更新时才会回调，最多回调101次，最后一次回调文件存储路径
                 int currentProgress = progress.getProgress(); //当前进度 0-100
