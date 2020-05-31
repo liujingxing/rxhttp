@@ -12,6 +12,7 @@ import io.reactivex.rxjava3.functions.Consumer;
 import okhttp3.Headers;
 import okhttp3.Response;
 import rxhttp.IRxHttp;
+import rxhttp.wrapper.OkHttpCompat;
 import rxhttp.wrapper.annotations.Nullable;
 import rxhttp.wrapper.entity.ParameterizedTypeImpl;
 import rxhttp.wrapper.entity.Progress;
@@ -101,8 +102,15 @@ public abstract class BaseRxHttp implements IRxHttp {
         return asParser(new OkResponseParser());
     }
 
-    public final Observable<Headers> asHeaders() {
-        return asOkResponse().map(Response::headers);
+    public final Observable<Headers> asHeaders() {               
+        return asOkResponse()                                    
+            .map(response -> {                                   
+                try {                                            
+                    return response.headers();                   
+                } finally {                                      
+                    OkHttpCompat.closeQuietly(response);  
+                }                                                
+            });                                                  
     }
 
     public final Observable<String> asDownload(String destPath) {
