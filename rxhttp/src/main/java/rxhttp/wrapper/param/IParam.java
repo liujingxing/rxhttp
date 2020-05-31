@@ -13,7 +13,7 @@ import rxhttp.wrapper.annotations.Nullable;
  * Time: 10:25
  */
 @SuppressWarnings("unchecked")
-public interface IParam<P extends Param> {
+public interface IParam<P extends Param<P>> {
 
     P setUrl(@NonNull String url);
 
