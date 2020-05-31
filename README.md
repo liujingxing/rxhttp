@@ -136,7 +136,11 @@ wiki详细文档：https://github.com/liujingxing/okhttp-RxHttp/wiki  (此文档
 RxHttp作为开源库，可混淆，也可不混淆，如果不希望被混淆，请在proguard-rules.pro文件添加以下代码
 
 ```java
+#RxHttp
 -keep class rxhttp.**{*;}
+#OkHttp
+-keep class okhttp3.**{*;}
+-keep class okio.**{*;}
 ```
 
 # 小技巧
