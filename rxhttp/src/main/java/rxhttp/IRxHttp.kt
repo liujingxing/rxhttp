@@ -103,7 +103,14 @@ inline fun <reified K : Any, reified V : Any> IRxHttp.toMap() = toClass<Map<K, V
 
 fun IRxHttp.toBitmap() = toParser(BitmapParser())
 
-fun IRxHttp.toHeaders() = toOkResponse().map { OkHttpCompat.headers(it) }
+fun IRxHttp.toHeaders() = toOkResponse()
+    .map {
+        try {
+            OkHttpCompat.headers(it)
+        } finally {
+            OkHttpCompat.closeQuietly(it)
+        }
+    }
 
 fun IRxHttp.toOkResponse() = toParser(OkResponseParser())
 
