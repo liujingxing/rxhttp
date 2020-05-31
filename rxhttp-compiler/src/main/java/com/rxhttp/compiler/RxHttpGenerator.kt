@@ -48,7 +48,7 @@ class RxHttpGenerator {
 
 
     @Throws(IOException::class)
-    fun generateCode(elementUtils: Elements, filer: Filer, okHttpVersion: String) {
+    fun generateCode(filer: Filer, okHttpVersion: String) {
         val httpSenderName = ClassName.get("rxhttp", "HttpSender")
         val rxHttpPluginsName = ClassName.get("rxhttp", "RxHttpPlugins")
         val okHttpClientName = ClassName.get("okhttp3", "OkHttpClient")
@@ -64,14 +64,12 @@ class RxHttpGenerator {
         val listName = ParameterizedTypeName.get(ClassName.get(MutableList::class.java), subObject)
         val listObjectName = ParameterizedTypeName.get(ClassName.get(MutableList::class.java), objectName)
         val t = TypeVariableName.get("T")
-        val typeName = TypeName.get(String::class.java)
         val progressName = ClassName.get("rxhttp.wrapper.entity", "Progress")
         val progressTName = ClassName.get("rxhttp.wrapper.entity", "ProgressT")
         val progressTTName = ParameterizedTypeName.get(progressTName, t)
 
         val parserName = ClassName.get("rxhttp.wrapper.parse", "Parser")
         val parserTName = ParameterizedTypeName.get(parserName, t)
-        val simpleParserName = ClassName.get("rxhttp.wrapper.parse", "SimpleParser")
         val upFileName = ClassName.get("rxhttp.wrapper.entity", "UpFile")
         val listUpFileName = ParameterizedTypeName.get(ClassName.get(MutableList::class.java), upFileName)
         val listFileName = ParameterizedTypeName.get(ClassName.get(MutableList::class.java), ClassName.get(File::class.java))
@@ -645,7 +643,6 @@ class RxHttpGenerator {
             val observableName = getClassName("Observable")
             val schedulerName = getClassName("Scheduler")
             val consumerName = getClassName("Consumer")
-            val observableStringName = ParameterizedTypeName.get(observableName, typeName)
             val consumerProgressName = ParameterizedTypeName.get(consumerName, progressName)
             val observableTName = ParameterizedTypeName.get(observableName, t)
 
