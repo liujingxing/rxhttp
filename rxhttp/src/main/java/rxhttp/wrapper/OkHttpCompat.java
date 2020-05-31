@@ -22,6 +22,11 @@ public class OkHttpCompat {
 
     private static String OKHTTP_USER_AGENT;
 
+    public static void closeQuietly(Response response) {
+        if (response == null) return;
+        closeQuietly(response.body());
+    }
+
     public static void closeQuietly(Closeable closeable) {
         if (closeable == null) return;
         Util.closeQuietly(closeable);
