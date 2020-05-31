@@ -14,7 +14,7 @@ import rxhttp.wrapper.annotations.NonNull;
  * Time: 11:54
  */
 @SuppressWarnings("unchecked")
-public interface IJsonArray<P extends Param> extends IJsonObject<P> {
+public interface IJsonArray<P extends Param<P>> extends IJsonObject<P> {
 
     /**
      * 添加一个对象，JsonArray类型请求，所有add系列方法内部最终都会调用此方法

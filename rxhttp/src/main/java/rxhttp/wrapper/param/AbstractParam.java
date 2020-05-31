@@ -27,7 +27,7 @@ import rxhttp.wrapper.utils.LogUtil;
  * Time: 14:35
  */
 @SuppressWarnings("unchecked")
-public abstract class AbstractParam<P extends Param> implements Param<P> {
+public abstract class AbstractParam<P extends Param<P>> implements Param<P> {
 
     private String mUrl;    //链接地址
     private Method mMethod;  //请求方法

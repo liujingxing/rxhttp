@@ -7,7 +7,7 @@ import rxhttp.wrapper.annotations.NonNull;
  * Date: 2019/1/19
  * Time: 10:25
  */
-public interface Param<P extends Param> extends IParam<P>, IHeaders<P>, ICache<P>, IRequest {
+public interface Param<P extends Param<P>> extends IParam<P>, IHeaders<P>, ICache<P>, IRequest {
 
     String DATA_DECRYPT = "data-decrypt";
 

@@ -15,7 +15,7 @@ import rxhttp.wrapper.annotations.NonNull;
  * Time: 11:54
  */
 @SuppressWarnings("unchecked")
-public interface IJsonObject<P extends Param> {
+public interface IJsonObject<P extends Param<P>> {
 
     MediaType MEDIA_TYPE_JSON = MediaType.parse("application/json; charset=utf-8");
 
