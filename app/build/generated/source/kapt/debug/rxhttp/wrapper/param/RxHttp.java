@@ -500,17 +500,17 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
     return asParser(new ResponseParser<PageList<T>>(typePageList));
   }
 
-  public R setFastJsonConverter() {
-    if (RxHttpManager.fastJsonConverter == null)
-        throw new IllegalArgumentException("converter can not be null");;
-    this.converter = RxHttpManager.fastJsonConverter;
-    return (R)this;
-  }
-
   public R setXmlConverter() {
     if (RxHttpManager.xmlConverter == null)
         throw new IllegalArgumentException("converter can not be null");;
     this.converter = RxHttpManager.xmlConverter;
+    return (R)this;
+  }
+
+  public R setFastJsonConverter() {
+    if (RxHttpManager.fastJsonConverter == null)
+        throw new IllegalArgumentException("converter can not be null");;
+    this.converter = RxHttpManager.fastJsonConverter;
     return (R)this;
   }
 
