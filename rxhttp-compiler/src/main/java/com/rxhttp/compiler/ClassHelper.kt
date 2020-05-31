@@ -15,7 +15,7 @@ object ClassHelper {
     @JvmStatic
     fun generatorBaseRxHttp(filer: Filer) {
         if (!isDependenceRxJava()) {
-            generatorClass(filer,"BaseRxHttp","""
+            generatorClass(filer, "BaseRxHttp", """
                 package $rxHttpPackage;
 
                 import rxhttp.IRxHttp;
@@ -1089,95 +1089,4 @@ object ClassHelper {
             }
         }
     }
-
-
-    @JvmStatic
-    fun generatorBaseHttpKt(filer: Filer) {
-//        val baseRxHttpName = ClassName("rxhttp.wrapper.param", "BaseRxHttp");
-//        val t = TypeVariableName("T")
-//        val typeName = String::class.asTypeName()
-//        val classTName = Class::class.asClassName().parameterizedBy(t)
-//        val schedulerName = ClassName("io.reactivex", "Scheduler")
-//        val progressName = ClassName("rxhttp.wrapper.entity", "Progress")
-//        val consumerName = ClassName("io.reactivex.functions", "Consumer")
-//        val consumerProgressName = consumerName.parameterizedBy(progressName)
-//        val observableName = ClassName("io.reactivex", "Observable")
-//        val observableTName = observableName.parameterizedBy(t)
-//        val observableStringName = observableName.parameterizedBy(typeName)
-//        val parserName = ClassName("rxhttp.wrapper.parse", "Parser")
-//        val simpleParserName = ClassName("rxhttp.wrapper.parse", "SimpleParser")
-//        val bitmapParserName = ClassName("rxhttp.wrapper.parse", "BitmapParser")
-//        val downloadParserName = ClassName("rxhttp.wrapper.parse", "DownloadParser")
-//        val parserTName = parserName.parameterizedBy(t)
-//        val parser = ParameterSpec.builder("parser", parserTName).build()
-//        val observeOnScheduler = ParameterSpec.builder("observeOnScheduler", schedulerName.copy(nullable = true))
-//            .defaultValue("null").build()
-//
-//        val funList = ArrayList<FunSpec>()
-//
-//        funList.add(FunSpec.builder("asParser")
-//            .addModifiers(KModifier.ABSTRACT)
-//            .addTypeVariable(t)
-//            .addParameter("parser", parserTName)
-//            .returns(observableTName)
-//            .build())
-//
-//        funList.add(FunSpec.builder("asDownload")
-//            .addModifiers(KModifier.ABSTRACT)
-//            .addParameter("destPath", String::class)
-//            .addParameter("progressConsumer", consumerProgressName)
-//            .addParameter(observeOnScheduler)
-//            .returns(observableStringName)
-//            .build())
-//
-//        funList.add(FunSpec.builder("asClass")
-//            .addTypeVariable(t)
-//            .addParameter("tType", classTName)
-//            .addStatement("return asParser(%T(tType))", simpleParserName)
-//            .build())
-//
-//        funList.add(FunSpec.builder("asString")
-//            .addTypeVariable(t)
-//            .addStatement("return asClass<String>()")
-//            .build())
-//
-//        funList.add(FunSpec.builder("asBitmap")
-//            .addStatement("return asParser(%T())", bitmapParserName)
-//            .build())
-//
-//        funList.add(FunSpec.builder("asDownload")
-//            .addParameter("destPath", String::class)
-//            .addStatement("return asParser(%T(destPath))", downloadParserName)
-//            .build())
-//
-//
-//        val iRxHttpName = ClassName("rxhttp", "IRxHttp")
-//        val typeSpec = TypeSpec.classBuilder("BaseRxHttp")
-//            .addModifiers(KModifier.ABSTRACT)
-//            .addFunctions(funList)
-//            .superclass(iRxHttpName)
-//            .build()
-//
-//        funList.clear()
-//        funList.add(FunSpec.builder("asClass")
-//            .addModifiers(KModifier.INLINE)
-//            .receiver(baseRxHttpName)
-//            .addTypeVariable(t.copy(reified = true))
-//            .addStatement("return asParser(object : %T<T>() {})", simpleParserName)
-//            .build())
-//
-//        funList.add(FunSpec.builder("asList")
-//            .addModifiers(KModifier.INLINE)
-//            .receiver(baseRxHttpName)
-//            .addTypeVariable(t.copy(reified = true))
-//            .addStatement("return asClass<List<T>>()")
-//            .build())
-//
-//        FileSpec.builder("rxhttp.wrapper.param", "BaseRxHttp")
-//            .addType(typeSpec)
-//            .addFunctions(funList)
-//            .build()
-//            .writeTo(filer)
-    }
-
 }
