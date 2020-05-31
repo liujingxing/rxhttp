@@ -27,10 +27,10 @@ import rxhttp.wrapper.ssl.HttpsUtils.SSLParams;
  */
 public class RxHttpManager {
 
-    @Converter(name = "FastJsonConverter")
-    public static IConverter fastJsonConverter = FastJsonConverter.create();
-    @Converter(name = "XmlConverter", className = "Simple")
+    @Converter(name = "XmlConverter")
     public static IConverter xmlConverter = XmlConverter.create();
+    @Converter(name = "FastJsonConverter", className = "Simple")
+    public static IConverter fastJsonConverter = FastJsonConverter.create();
 
     @OkClient(name = "SimpleClient", className = "Simple")
     public static OkHttpClient simpleClient = new OkHttpClient.Builder().build();
