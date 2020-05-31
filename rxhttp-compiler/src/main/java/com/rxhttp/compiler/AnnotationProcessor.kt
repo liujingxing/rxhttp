@@ -6,6 +6,8 @@ import com.rxhttp.compiler.ClassHelper.generatorObservableErrorHandler
 import com.rxhttp.compiler.ClassHelper.generatorObservableHttp
 import com.rxhttp.compiler.ClassHelper.generatorObservableUpload
 import com.rxhttp.compiler.exception.ProcessingException
+import net.ltgt.gradle.incap.IncrementalAnnotationProcessor
+import net.ltgt.gradle.incap.IncrementalAnnotationProcessorType.AGGREGATING
 import rxhttp.wrapper.annotation.*
 import java.io.IOException
 import java.util.*
@@ -26,6 +28,8 @@ lateinit var rxHttpPackage: String  //RxHttp相关类的包名
  * Date: 2019/3/21
  * Time: 20:36
  */
+@SupportedOptions(value = ["rxhttp_okhttp", "rxhttp_rxjava", "rxhttp_package"])
+@IncrementalAnnotationProcessor(AGGREGATING)
 class AnnotationProcessor : AbstractProcessor() {
     private lateinit var typeUtils: Types
     private lateinit var messager: Messager
@@ -49,12 +53,13 @@ class AnnotationProcessor : AbstractProcessor() {
 
     override fun getSupportedAnnotationTypes(): Set<String> {
         val annotations: MutableSet<String> = LinkedHashSet()
+        annotations.add(Override::class.java.canonicalName)
         annotations.add(Param::class.java.canonicalName)
         annotations.add(Parser::class.java.canonicalName)
         annotations.add(Converter::class.java.canonicalName)
         annotations.add(Domain::class.java.canonicalName)
         annotations.add(DefaultDomain::class.java.canonicalName)
-        annotations.add(Override::class.java.canonicalName)
+        annotations.add(OkClient::class.java.canonicalName)
         return annotations
     }
 
@@ -63,7 +68,7 @@ class AnnotationProcessor : AbstractProcessor() {
     }
 
     override fun process(annotations: Set<TypeElement>, roundEnv: RoundEnvironment): Boolean {
-        messager.printMessage(Diagnostic.Kind.WARNING, "process start annotations$annotations this=$this")
+//        messager.printMessage(Diagnostic.Kind.WARNING, "process start annotations$annotations this=$this")
         if (annotations.isEmpty() || processed) return true
         generatorBaseRxHttp(filer)
         if (isDependenceRxJava()) {  //是否依赖了RxJava
