@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.lang.reflect.Type;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
@@ -30,10 +30,8 @@ import rxhttp.wrapper.utils.GsonUtil;
 public class GsonConverter implements IConverter {
 
     private static final MediaType MEDIA_TYPE = MediaType.get("application/json; charset=UTF-8");
-    private static final Charset UTF_8 = Charset.forName("UTF-8");
 
     private final Gson gson;
-
 
     public static GsonConverter create() {
         return create(GsonUtil.buildGson());
@@ -70,7 +68,7 @@ public class GsonConverter implements IConverter {
         TypeToken<T> typeToken = (TypeToken<T>) TypeToken.get(value.getClass());
         TypeAdapter<T> adapter = this.gson.getAdapter(typeToken);
         Buffer buffer = new Buffer();
-        Writer writer = new OutputStreamWriter(buffer.outputStream(), UTF_8);
+        Writer writer = new OutputStreamWriter(buffer.outputStream(), StandardCharsets.UTF_8);
         JsonWriter jsonWriter = gson.newJsonWriter(writer);
         adapter.write(jsonWriter, value);
         jsonWriter.close();
