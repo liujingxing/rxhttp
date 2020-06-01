@@ -26,7 +26,7 @@
 
 [遇到问题，点击这里，99%的问题都能自己解决](https://github.com/liujingxing/okhttp-RxHttp/wiki/FAQ)
 
-**必须**
+## 必须
 ```java
 //使用kapt依赖rxhttp-compiler，需要导入kapt插件
 apply plugin: 'kotlin-kapt'
@@ -48,7 +48,7 @@ android {
 }
 dependencies {
     implementation 'com.ljx.rxhttp:rxhttp:2.2.5'
-    implementation 'com.squareup.okhttp3:okhttp:4.7.2'  //rxhttp v2.2.2版本起，需要手动依赖okhttp
+    implementation 'com.squareup.okhttp3:okhttp:4.7.2' //rxhttp v2.2.2版本起，需要手动依赖okhttp
     kapt 'com.ljx.rxhttp:rxhttp-compiler:2.2.5' //生成RxHttp类，非kotlin项目，请使用annotationProcessor代替kapt
 }
 ```
@@ -57,7 +57,7 @@ dependencies {
 
 最后，***rebuild一下(此步骤是必须的)*** ，就会自动生成RxHttp类，更多配置，请继续往下看
   
-**非必须** 
+## 非必须
 ```java
 android {
     defaultConfig {
@@ -73,17 +73,17 @@ android {
 }
 // RxJava2/Rxjava3二选一
 dependencies {
-
-    implementation 'com.ljx.rxlife:rxlife-coroutine:2.0.0'  //管理协程生命周期，页面销毁，关闭请求
+    implementation 'com.ljx.rxlife:rxlife-coroutine:2.0.0' //管理协程生命周期，页面销毁，关闭请求
+    
     //rxjava2
     implementation 'io.reactivex.rxjava2:rxjava:2.2.8'
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
-    implementation 'com.ljx.rxlife2:rxlife-rxjava:2.0.0'    //管理RxJava2生命周期，页面销毁，关闭请求
+    implementation 'com.ljx.rxlife2:rxlife-rxjava:2.0.0' //管理RxJava2生命周期，页面销毁，关闭请求
 
     //rxjava3
     implementation 'io.reactivex.rxjava3:rxjava:3.0.2'
     implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
-    implementation 'com.ljx.rxlife3:rxlife-rxjava:3.0.0'    //管理RxJava3生命周期，页面销毁，关闭请求
+    implementation 'com.ljx.rxlife3:rxlife-rxjava:3.0.0' //管理RxJava3生命周期，页面销毁，关闭请求
 
     //Converter 根据自己需求选择 RxHttp默认内置了GsonConverter
     implementation 'com.ljx.rxhttp:converter-jackson:2.2.5'
