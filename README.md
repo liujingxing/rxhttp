@@ -22,7 +22,7 @@
 
 # 请求三部曲
 
-![image](https://github.com/liujingxing/RxHttp/blob/master/screen/rxhttp_trilogy.png)
+![image](https://github.com/liujingxing/okhttp-RxHttp/blob/master/screen/rxhttp_trilogy.jpg)
   
 # 上手准备
 
