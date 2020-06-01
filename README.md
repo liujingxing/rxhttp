@@ -19,100 +19,79 @@
   ***8. 支持在Activity/Fragment/View/ViewModel/任意类中，自动关闭请求***
 
   ***9. 支持全局加解密、添加公共参数及头部、网络缓存，均支持对某个请求单独设置***
-
-**Gradle依赖**
-
-```java
-//以下三个为必须，其它均为非必须
-implementation 'com.ljx.rxhttp:rxhttp:2.2.5'
-implementation 'com.squareup.okhttp3:okhttp:4.7.2'  //rxhttp v2.2.2版本起，需要手动依赖okhttp
-annotationProcessor 'com.ljx.rxhttp:rxhttp-compiler:2.2.5' //生成RxHttp类，kotlin用户，请使用kapt替代annotationProcessor
-
-implementation 'com.ljx.rxlife:rxlife-coroutine:2.0.0'  //管理协程生命周期，页面销毁，关闭请求
-implementation 'com.ljx.rxlife2:rxlife-rxjava:2.0.0'    //管理RxJava2生命周期，页面销毁，关闭请求
-implementation 'com.ljx.rxlife3:rxlife-rxjava:3.0.0'    //管理RxJava3生命周期，页面销毁，关闭请求
-
-//Converter 根据自己需求选择 RxHttp默认内置了GsonConverter
-implementation 'com.ljx.rxhttp:converter-jackson:2.2.5'
-implementation 'com.ljx.rxhttp:converter-fastjson:2.2.5'
-implementation 'com.ljx.rxhttp:converter-protobuf:2.2.5'
-implementation 'com.ljx.rxhttp:converter-simplexml:2.2.5'
-```
-[遇到问题，点击这里，99%的问题都能自己解决](https://github.com/liujingxing/okhttp-RxHttp/wiki/FAQ)
+  
+# 上手准备
 
 ***RxHttp&RxLife 交流群：378530627***
 
-# 上手准备(必看)
+[遇到问题，点击这里，99%的问题都能自己解决](https://github.com/liujingxing/okhttp-RxHttp/wiki/FAQ)
 
-1、RxHttp 要求项目使用Java 8 或更高版本，请在 app 的 build.gradle 添加以下代码
-
+**必须**
 ```java
-compileOptions {
-    sourceCompatibility JavaVersion.VERSION_1_8
-    targetCompatibility JavaVersion.VERSION_1_8
-}
-```
+//使用kapt依赖rxhttp-compiler，需要导入kapt插件
+apply plugin: 'kotlin-kapt'
 
-2、OkHttp兼容问题
-
-RxHttp目前对OkHttp 的 `v3.12.0 - v4.7.x`均已完成适配工作（v4.3.0除外，该版本有一bug，暂时无法适配），
-在你依赖okhttp时，需要告诉rxhttp你依赖的okhttp版本号，如下：
-
-```java
-defaultConfig {
-    javaCompileOptions {
-        annotationProcessorOptions {
+android {
+    defaultConfig {
+        javaCompileOptions {
             //告知RxHttp你依赖的okhttp版本
-            arguments = [rxhttp_okhttp: '4.7.2']  //可传入3.12.x至4.7.x任一版本(4.3.0除外)
+            annotationProcessorOptions {
+                arguments = [rxhttp_okhttp: 4.7.2]
+            }
         }
+    }
+    //java 8或更高
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 }
 dependencies {
-   implementation 'com.squareup.okhttp3:okhttp:4.7.2'
+    implementation 'com.ljx.rxhttp:rxhttp:2.2.5'
+    implementation 'com.squareup.okhttp3:okhttp:4.7.2'  //rxhttp v2.2.2版本起，需要手动依赖okhttp
+    kapt 'com.ljx.rxhttp:rxhttp-compiler:2.2.5' //生成RxHttp类，非kotlin项目，请使用annotationProcessor代替kapt
 }
 ```
 
 ***注:`OkHttp 3.14.x`以上版本, 最低要求为API 21，如你想要兼容21以下，请依赖`OkHttp 3.12.x`，该版本最低要求 API 9***
 
-3、RxJava兼容问题
-
-RxHttp 2.2.0版本起，内部不在依赖RxJava相关库，采用外挂的方法替代，如你需要结合RxJava发送请求，请单独配置，如下：
-
+最后，***rebuild一下(此步骤是必须的)*** ，就会自动生成RxHttp类，更多配置，请继续往下看
+  
+**非必须** 
 ```java
-defaultConfig {
-    javaCompileOptions {
-        annotationProcessorOptions {
-            //手动告知RxHttp要使用的RxJava版本，才会生成asXxx方法
-            arguments = [rxhttp_rxjava: 'rxjava3']  //可传入rxjava2、rxjava3
+android {
+    defaultConfig {
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = [
+                        rxhttp_rxjava: 'rxjava3'， //告知RxHttp你依赖的rxjava版本
+                        rxhttp_package: 'rxhttp'   //指定RxHttp相关类的生成路径，即包名
+                ]
+            }
         }
     }
 }
-//并自行依赖RxJava相关库，RxJava2/Rxjava3二选一，如下：
+// RxJava2/Rxjava3二选一
 dependencies {
-   //rxjava2
-   implementation 'io.reactivex.rxjava2:rxjava:2.2.8'
-   implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
-   implementation 'com.ljx.rxlife2:rxlife-rxjava:2.0.0'    //管理RxJava2生命周期，页面销毁，关闭请求
 
-   //rxjava3
-   implementation 'io.reactivex.rxjava3:rxjava:3.0.2'
-   implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
-   implementation 'com.ljx.rxlife3:rxlife-rxjava:3.0.0'    //管理RxJava3生命周期，页面销毁，关闭请求
+    implementation 'com.ljx.rxlife:rxlife-coroutine:2.0.0'  //管理协程生命周期，页面销毁，关闭请求
+    //rxjava2
+    implementation 'io.reactivex.rxjava2:rxjava:2.2.8'
+    implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
+    implementation 'com.ljx.rxlife2:rxlife-rxjava:2.0.0'    //管理RxJava2生命周期，页面销毁，关闭请求
+
+    //rxjava3
+    implementation 'io.reactivex.rxjava3:rxjava:3.0.2'
+    implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
+    implementation 'com.ljx.rxlife3:rxlife-rxjava:3.0.0'    //管理RxJava3生命周期，页面销毁，关闭请求
+
+    //Converter 根据自己需求选择 RxHttp默认内置了GsonConverter
+    implementation 'com.ljx.rxhttp:converter-jackson:2.2.5'
+    implementation 'com.ljx.rxhttp:converter-fastjson:2.2.5'
+    implementation 'com.ljx.rxhttp:converter-protobuf:2.2.5'
+    implementation 'com.ljx.rxhttp:converter-simplexml:2.2.5'
 }
 ```
-
-***注: 如你需要同时指定okhttp及rxjava版本，只需用逗号隔开即可，如下：***
-```java
-annotationProcessorOptions {
-    arguments = [
-        rxhttp_okhttp: '4.7.2',
-        rxhttp_rxjava: 'rxjava3'
-    ]
-}
-```
-
-最后，***rebuild一下(此步骤是必须的)*** ，就会自动生成RxHttp类，到这，准备工作完毕。
-
 
 # 上手教程
 
