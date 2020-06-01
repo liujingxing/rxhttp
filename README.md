@@ -68,7 +68,7 @@ android {
         javaCompileOptions {
             annotationProcessorOptions {
                 arguments = [
-                        rxhttp_rxjava: 'rxjava3'， //告知RxHttp你依赖的rxjava版本
+                        rxhttp_rxjava: 'rxjava3'， //告知RxHttp你依赖的rxjava版本，可传入rxjava2、rxjava3
                         rxhttp_package: 'rxhttp'   //指定RxHttp相关类的生成路径，即包名
                 ]
             }
@@ -116,7 +116,7 @@ wiki详细文档：https://github.com/liujingxing/okhttp-RxHttp/wiki  (此文档
 
 # 混淆
 
-RxHttp作为开源库，可混淆，也可不混淆，如果不希望被混淆，请在proguard-rules.pro文件添加以下代码
+如开启混淆，请在proguard-rules.pro文件添加以下代码
 
 ```bash
 # RxHttp
