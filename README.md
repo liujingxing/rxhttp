@@ -19,6 +19,10 @@
   ***8. 支持在Activity/Fragment/View/ViewModel/任意类中，自动关闭请求***
 
   ***9. 支持全局加解密、添加公共参数及头部、网络缓存，均支持对某个请求单独设置***
+
+# 请求三部曲
+
+![image](https://github.com/liujingxing/RxHttp/blob/master/screen/rxhttp_trilogy.png)
   
 # 上手准备
 
