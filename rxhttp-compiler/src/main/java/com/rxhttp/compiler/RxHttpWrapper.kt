@@ -18,7 +18,7 @@ import kotlin.collections.ArrayList
  */
 class RxHttpWrapper {
 
-    private val classMap = LinkedHashMap<String, MutableList<Annotation>>()
+    private val classMap = LinkedHashMap<String, Wrapper>()
 
     private val mElementMap = LinkedHashMap<String, TypeElement>()
 
@@ -32,60 +32,66 @@ class RxHttpWrapper {
         mElementMap[name] = typeElement
     }
 
-    fun addAnnotation(okClient: OkClient, element: Element) {
-        var annotationList = classMap[okClient.className]
-        if (annotationList == null) {
-            annotationList = ArrayList()
-            classMap[okClient.className] = annotationList
+    fun addOkClient(variableElement: VariableElement) {
+        val okClient = variableElement.getAnnotation(OkClient::class.java)
+        if (okClient.className.isEmpty()) return
+        var wrapper = classMap[okClient.className]
+        if (wrapper == null) {
+            wrapper = Wrapper()
+            classMap[okClient.className] = wrapper
         }
-        annotationList.forEach {
-            if (it is OkClient)
-                throw ProcessingException(element,
-                    "@OkClient annotation className cannot be the same")
+        if (wrapper.okClientName != null) {
+            throw ProcessingException(variableElement,
+                "@OkClient annotation className cannot be the same")
         }
-        annotationList.add(okClient)
+        wrapper.okClientName = okClient.name
     }
 
-    fun addAnnotation(converter: Converter, element: Element) {
+
+    fun addConverter(variableElement: VariableElement) {
+        val converter = variableElement.getAnnotation(Converter::class.java)
         if (converter.className.isEmpty()) return
-        var annotationList = classMap[converter.className]
-        if (annotationList == null) {
-            annotationList = ArrayList()
-            classMap[converter.className] = annotationList
+        var wrapper = classMap[converter.className]
+        if (wrapper == null) {
+            wrapper = Wrapper()
+            classMap[converter.className] = wrapper
         }
-        annotationList.forEach {
-            if (it is Converter)
-                throw ProcessingException(element,
-                    "@Converter annotation className cannot be the same")
+        if (wrapper.converterName != null) {
+            throw ProcessingException(variableElement,
+                "@Converter annotation className cannot be the same")
         }
-        annotationList.add(converter)
+        wrapper.converterName = converter.name
     }
 
-    fun addAnnotation(domain: Domain, element: Element) {
-        var annotationList = classMap[domain.className]
-        if (annotationList == null) {
-            annotationList = ArrayList()
-            classMap[domain.className] = annotationList
+    fun addDomain(variableElement: VariableElement) {
+        val domain = variableElement.getAnnotation(Domain::class.java)
+        if (domain.className.isEmpty()) return
+        var wrapper = classMap[domain.className]
+        if (wrapper == null) {
+            wrapper = Wrapper()
+            classMap[domain.className] = wrapper
         }
-        annotationList.forEach {
-            if (it is Domain)
-                throw ProcessingException(element,
-                    "@Domain annotation className cannot be the same")
+        if (wrapper.domainName != null) {
+            throw ProcessingException(variableElement,
+                "@Domain annotation className cannot be the same")
         }
-        annotationList.add(domain)
+        wrapper.domainName = if (domain.name.isEmpty()) variableElement.simpleName.toString() else domain.name
     }
 
     fun generateRxWrapper(filer: Filer) {
         val requestFunList = generateRequestFunList()
 
-        for ((className, annotationList) in classMap) {
+        //生成多个RxHttp的包装类
+        for ((className, wrapper) in classMap) {
             val funBody = CodeBlock.builder()
-            annotationList.forEach {
-                when (it) {
-                    is OkClient -> funBody.addStatement("rxHttp.set${it.name}()")
-                    is Converter -> funBody.addStatement("rxHttp.set${it.name}()")
-                    is Domain -> funBody.addStatement("rxHttp.setDomainTo${it.name}IfAbsent()")
-                }
+            if (wrapper.converterName != null) {
+                funBody.addStatement("rxHttp.set${wrapper.converterName}()")
+            }
+            if (wrapper.okClientName != null) {
+                funBody.addStatement("rxHttp.set${wrapper.okClientName}()")
+            }
+            if (wrapper.domainName != null) {
+                funBody.addStatement("rxHttp.setDomainTo${wrapper.domainName}IfAbsent()")
             }
             val methodList = ArrayList<MethodSpec>()
             methodList.add(
@@ -210,5 +216,11 @@ class RxHttpWrapper {
             }
         }
         return funList
+    }
+
+    class Wrapper {
+        var domainName: String? = null
+        var converterName: String? = null
+        var okClientName: String? = null
     }
 }

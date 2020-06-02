@@ -100,7 +100,7 @@ class AnnotationProcessor : AbstractProcessor() {
                 val variableElement = it as VariableElement
                 checkConverterValidClass(variableElement)
                 converterAnnotatedClass.add(variableElement)
-                rxHttpWrapper.addAnnotation(it.getAnnotation(Converter::class.java), it)
+                rxHttpWrapper.addConverter(variableElement)
             }
 
             val okClientAnnotatedClass = OkClientAnnotatedClass()
@@ -108,7 +108,7 @@ class AnnotationProcessor : AbstractProcessor() {
                 val variableElement = it as VariableElement
                 checkOkClientValidClass(variableElement)
                 okClientAnnotatedClass.add(variableElement)
-                rxHttpWrapper.addAnnotation(it.getAnnotation(OkClient::class.java), it)
+                rxHttpWrapper.addOkClient(variableElement)
             }
 
             val domainAnnotatedClass = DomainAnnotatedClass()
@@ -116,7 +116,7 @@ class AnnotationProcessor : AbstractProcessor() {
                 val variableElement = it as VariableElement
                 checkVariableValidClass(variableElement)
                 domainAnnotatedClass.add(variableElement)
-                rxHttpWrapper.addAnnotation(it.getAnnotation(Domain::class.java), it)
+                rxHttpWrapper.addDomain(variableElement)
             }
             rxHttpWrapper.generateRxWrapper(filer)
             val elementSet = roundEnv.getElementsAnnotatedWith(DefaultDomain::class.java)
