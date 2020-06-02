@@ -40,7 +40,7 @@ android {
         javaCompileOptions {
             //告知RxHttp你依赖的okhttp版本
             annotationProcessorOptions {
-                arguments = [rxhttp_okhttp: 4.7.2]
+                arguments = [rxhttp_okhttp: '4.7.2']
             }
         }
     }
