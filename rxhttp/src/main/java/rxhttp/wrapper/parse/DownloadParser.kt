@@ -1,6 +1,7 @@
 package rxhttp.wrapper.parse
 
 import okhttp3.Response
+import rxhttp.wrapper.OkHttpCompat
 import rxhttp.wrapper.exception.ExceptionHelper
 import rxhttp.wrapper.utils.IOUtil
 import rxhttp.wrapper.utils.LogUtil
@@ -25,7 +26,7 @@ class DownloadParser(
     override fun onParse(response: Response): String {
         val body = ExceptionHelper.throwIfFatal(response)
         LogUtil.log(response, false, mDestPath)
-        val append = response.header("Content-Range") != null
+        val append = OkHttpCompat.header(response, "Content-Range") != null
         IOUtil.write(body.byteStream(), mDestPath, append) //将输入流写出到文件
         return mDestPath
     }
