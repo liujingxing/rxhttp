@@ -75,11 +75,11 @@ android {
         }
     }
 }
-// RxJava2/Rxjava3二选一
+
 dependencies {
     implementation 'com.ljx.rxlife:rxlife-coroutine:2.0.0' //管理协程生命周期，页面销毁，关闭请求
     
-    //rxjava2
+    //rxjava2   (RxJava2/Rxjava3二选一)
     implementation 'io.reactivex.rxjava2:rxjava:2.2.8'
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
     implementation 'com.ljx.rxlife2:rxlife-rxjava:2.0.0' //管理RxJava2生命周期，页面销毁，关闭请求
@@ -96,6 +96,8 @@ dependencies {
     implementation 'com.ljx.rxhttp:converter-simplexml:2.2.7'
 }
 ```
+
+***注：asXxx方法内部是通过RxJava实现的，而RxHttp 2.2.0版本起，内部已剔除RxJava，如需使用，请自行配置***
 
 # 上手教程
 
