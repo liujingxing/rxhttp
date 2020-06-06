@@ -58,25 +58,18 @@ dependencies {
 }
 ```
 
-
 最后，***rebuild一下(此步骤是必须的)*** ，就会自动生成RxHttp类，更多配置，请继续往下看
   
 ## 非必须
-***注：asXxx方法内部是通过RxJava实现的，而RxHttp 2.2.0版本起，内部已剔除RxJava，如需使用，请自行配置***
+***asXxx方法内部是通过RxJava实现的，而RxHttp 2.2.0版本起，内部已剔除RxJava，如需使用，请自行依赖RxJava并告知RxHttp依赖的Rxjava版本***
 ```java
-android {
-    defaultConfig {
-        javaCompileOptions {
-            annotationProcessorOptions {
-                arguments = [
-                        rxhttp_rxjava: 'rxjava3'， //告知RxHttp你依赖的rxjava版本，可传入rxjava2、rxjava3
-                        rxhttp_package: 'rxhttp'   //指定RxHttp相关类的生成路径，即包名
-                ]
-            }
-        }
-    }
+// android/defaultConfig/javaCompileOptions下，跟配置okhttp版本号一样
+annotationProcessorOptions {
+    arguments = [
+            rxhttp_rxjava: 'rxjava3'， //告知RxHttp你依赖的rxjava版本，可传入rxjava2、rxjava3
+            rxhttp_package: 'rxhttp'   //指定RxHttp相关类的生成路径，即包名
+    ]
 }
-
 dependencies {
     implementation 'com.ljx.rxlife:rxlife-coroutine:2.0.0' //管理协程生命周期，页面销毁，关闭请求
     
