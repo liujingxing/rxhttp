@@ -38,7 +38,7 @@ apply plugin: 'kotlin-kapt'
 android {
     defaultConfig {
         javaCompileOptions {
-            //告知RxHttp你依赖的okhttp版本
+            //告知RxHttp你依赖的okhttp版本，目前已适配 v3.12.0 - v4.7.2版本
             annotationProcessorOptions {
                 arguments = [rxhttp_okhttp: '4.7.2']
             }
