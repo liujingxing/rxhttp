@@ -44,6 +44,10 @@ public class OkHttpCompat {
         return response.headers();
     }
 
+    public static String header(Response response, String name) {
+        return response.header(name);
+    }
+
     public static long receivedResponseAtMillis(Response response) {
         return response.receivedResponseAtMillis();
     }
