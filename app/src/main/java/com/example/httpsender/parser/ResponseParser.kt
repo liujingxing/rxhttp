@@ -33,7 +33,7 @@ open class ResponseParser<T> : AbstractParser<T> {
      *
      * 用法
      * Java: .asParser(new ResponseParser<>(Student.class))   或者  .asResponse(Student.class)
-     * Kotlin: .asParser(ResponseParser(Student::class.java)) 或者  .asResponse(Student::class.java)
+     * Kotlin: .asParser(ResponseParser(Student::class.java)) 或者  .asResponse<Student>()
      */
     constructor(type: Type) : super(type)
 
