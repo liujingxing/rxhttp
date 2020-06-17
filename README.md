@@ -43,7 +43,7 @@ android {
         javaCompileOptions {
             annotationProcessorOptions {
                 arguments = [
-                    //必须，告知RxHttp你依赖的okhttp版本，目前已适配 v3.12.0 - v4.7.2版本
+                    //必须，告知RxHttp你依赖的okhttp版本，目前已适配 v3.12.0 - v4.7.2版本  (v4.3.0除外)
                     rxhttp_okhttp: '4.7.2'，
                     //使用asXxx方法时必须，告知RxHttp你依赖的rxjava版本，可传入rxjava2、rxjava3
                     rxhttp_rxjava: 'rxjava3'， 
@@ -84,7 +84,7 @@ dependencies {
 }
 ```
 
-最后，***rebuild一下(此步骤是必须的)*** ，就会自动生成RxHttp类，更多配置，请继续往下看
+最后，***rebuild一下(此步骤是必须的)*** ，就会自动生成RxHttp类
   
 
 # 上手教程
