@@ -184,8 +184,8 @@ class ParserAnnotatedClass {
                     .addAnnotation(Override::class.java)
                     .addModifiers(Modifier.PUBLIC)
                     .addParameter(String::class.java, "destPath")
-                    .addParameter(consumerProgressName, "progressConsumer")
                     .addParameter(schedulerName, "observeOnScheduler")
+                    .addParameter(consumerProgressName, "progressConsumer")
                     .addStatement("""
                         doOnStart();
                     Observable<Progress> observable = new ObservableDownload(okClient, param, destPath, breakDownloadOffSize);
