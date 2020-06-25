@@ -472,8 +472,8 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
   }
 
   @Override
-  public Observable<String> asDownload(String destPath, Consumer<Progress> progressConsumer,
-      Scheduler observeOnScheduler) {
+  public Observable<String> asDownload(String destPath, Scheduler observeOnScheduler,
+      Consumer<Progress> progressConsumer) {
         doOnStart();
         Observable<Progress> observable = new ObservableDownload(okClient, param, destPath, breakDownloadOffSize);
         if (scheduler != null)

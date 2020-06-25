@@ -155,14 +155,6 @@ class RxHttpExtensions {
                 .returns(t)
                 .build())
 
-            fileBuilder.addFunction(FunSpec.builder("asDownload")
-                .receiver(baseRxHttpName)
-                .addParameter("destPath", String::class)
-                .addParameter(observeOnScheduler)
-                .addParameter("progress", progressLambdaName)
-                .addStatement("return asDownload(destPath, Consumer { progress(it) }, observeOnScheduler)")
-                .build())
-
             fileBuilder.addFunction(FunSpec.builder("asList")
                 .addModifiers(KModifier.INLINE)
                 .receiver(baseRxHttpName)
