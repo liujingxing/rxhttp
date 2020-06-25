@@ -5,9 +5,9 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import kotlin.text.Charsets;
 import okhttp3.Headers;
 import okhttp3.HttpUrl.Builder;
 import okhttp3.MediaType;
@@ -209,10 +209,13 @@ public class LogUtil {
         Buffer buffer = source.buffer();
         String result;
         if (isPlaintext(buffer)) {
-            Charset UTF_8 = StandardCharsets.UTF_8;
+            Charset UTF_8 = null;
             MediaType contentType = body.contentType();
             if (contentType != null) {
-                UTF_8 = contentType.charset(UTF_8);
+                UTF_8 = contentType.charset();
+            }
+            if (UTF_8 == null) {
+                UTF_8 = Charsets.UTF_8;
             }
             result = buffer.clone().readString(UTF_8);
             if (onResultDecoder) {
