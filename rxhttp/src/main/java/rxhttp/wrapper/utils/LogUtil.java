@@ -66,7 +66,7 @@ public class LogUtil {
                     .append(URLDecoder.decode(url));
             }
             Platform.get().loge(TAG, builder.toString());
-        } catch (Exception e) {
+        } catch (Throwable e) {
             Platform.get().logd(TAG, "Request error Log printing failed", e);
         }
     }
@@ -93,7 +93,7 @@ public class LogUtil {
                 .append("\n\n").append(response.headers())
                 .append("\n").append(result);
             Platform.get().logi(TAG, builder.toString());
-        } catch (Exception e) {
+        } catch (Throwable e) {
             Platform.get().logd(TAG, "Request end Log printing failed", e);
         }
     }
@@ -106,7 +106,7 @@ public class LogUtil {
                 request.method() + " ------>" +
                 request2Str(request);
             Platform.get().logd(TAG, builder);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             Platform.get().logd(TAG, "Request start log printing failed", e);
         }
     }
@@ -116,13 +116,13 @@ public class LogUtil {
         String result;
         try {
             result = getRequestParams(request);
-        } catch (IOException e) {
+        } catch (Throwable e) {
             e.printStackTrace();
             result = request.url().toString();
         }
         try {
             return URLDecoder.decode(result);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             return result;
         }
     }
