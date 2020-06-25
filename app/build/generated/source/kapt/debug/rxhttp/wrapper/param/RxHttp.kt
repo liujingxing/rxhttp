@@ -5,7 +5,6 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.functions.Consumer
 import kotlin.Any
-import kotlin.String
 import kotlin.Unit
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -29,12 +28,6 @@ suspend fun <T> Observable<T>.await(): T = suspendCancellableCoroutine { continu
         subscribe.dispose()                         
     }                                               
 }                                                   
-
-fun BaseRxHttp.asDownload(
-  destPath: String,
-  observeOnScheduler: Scheduler? = null,
-  progress: (Progress) -> Unit
-) = asDownload(destPath, Consumer { progress(it) }, observeOnScheduler)
 
 inline fun <reified T> BaseRxHttp.asList() = asClass<List<T>>()
 

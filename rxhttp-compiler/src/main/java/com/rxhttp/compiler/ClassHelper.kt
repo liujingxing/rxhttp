@@ -66,10 +66,20 @@ object ClassHelper {
             public abstract class BaseRxHttp implements IRxHttp {
 
                 public abstract <T> Observable<T> asParser(Parser<T> parser);
-
+                                                              
                 public abstract Observable<String> asDownload(String destPath,
-                                                              Consumer<Progress> progressConsumer,
-                                                              @Nullable Scheduler observeOnScheduler);
+                                                              @Nullable Scheduler observeOnScheduler,
+                                                              Consumer<Progress> progressConsumer);      
+
+                /**
+                 * @deprecated please user {@link BaseRxHttp#asDownload(String,Scheduler,Consumer)} instead
+                 */
+                @Deprecated
+                public Observable<String> asDownload(String destPath,
+                                                     Consumer<Progress> progressConsumer,
+                                                     @Nullable Scheduler observeOnScheduler) {
+                    return asDownload(destPath, observeOnScheduler, progressConsumer);                                          
+                }
 
                 /**
                  * @deprecated please user {@link BaseRxHttp#asClass(Class)} instead
