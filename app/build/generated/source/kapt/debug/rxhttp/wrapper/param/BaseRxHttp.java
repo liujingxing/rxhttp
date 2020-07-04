@@ -129,7 +129,7 @@ public abstract class BaseRxHttp implements IRxHttp {
 
     public final Observable<String> asDownload(String destPath,
                                                Consumer<Progress> progressConsumer) {
-        return asDownload(destPath, progressConsumer, null);
+        return asDownload(destPath, null, progressConsumer);
     }
 
 }
