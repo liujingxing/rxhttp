@@ -8,6 +8,7 @@ import rxhttp.wrapper.OkHttpCompat
 import rxhttp.wrapper.await.AwaitImpl
 import rxhttp.wrapper.cahce.CacheStrategy
 import rxhttp.wrapper.callback.ProgressCallbackImpl
+import rxhttp.wrapper.callback.SuspendProgressCallbackImpl
 import rxhttp.wrapper.entity.Progress
 import rxhttp.wrapper.parse.*
 
@@ -57,20 +58,28 @@ suspend fun IRxHttp.awaitOkResponse() = await(OkResponseParser())
 
 suspend inline fun <reified T : Any> IRxHttp.await() = await(object : SimpleParser<T>() {})
 
-suspend fun IRxHttp.awaitDownload(destPath: String) = await(DownloadParser(destPath))
-
 /**
  * @param destPath 本地存储路径
- * @param coroutine 用于开启一个协程，来控制进度回调所在的线程
  * @param progress 进度回调
  */
 suspend fun IRxHttp.awaitDownload(
     destPath: String,
-    coroutine: CoroutineScope? = null,
-    progress: (Progress) -> Unit
+    progress: ((Progress) -> Unit)? = null
 ): String {
-    val clone = HttpSender.clone(getOkHttpClient(), ProgressCallbackImpl(coroutine, breakDownloadOffSize, progress))
-    return await(DownloadParser(destPath), clone)
+    return toDownload(destPath, progress).await()
+}
+
+/**
+ * @param destPath 本地存储路径
+ * @param coroutine 用于开启一个协程，来控制进度回调所在的线程
+ * @param progress 在suspend方法中回调，回调线程取决于协程所在线程
+ */
+suspend fun IRxHttp.awaitDownload(
+    destPath: String,
+    coroutine: CoroutineScope,
+    progress: suspend (Progress) -> Unit
+): String {
+    return toDownload(destPath, coroutine, progress).await()
 }
 
 /**
@@ -116,19 +125,32 @@ fun IRxHttp.toOkResponse() = toParser(OkResponseParser())
 
 inline fun <reified T : Any> IRxHttp.toClass() = toParser(object : SimpleParser<T>() {})
 
-fun IRxHttp.toDownload(destPath: String) = toParser(DownloadParser(destPath))
+/**
+ * @param destPath 本地存储路径
+ * @param progress 进度回调，在子线程回调
+ */
+fun IRxHttp.toDownload(
+    destPath: String,
+    progress: ((Progress) -> Unit)? = null
+): IAwait<String> {
+    val okHttpClient = if (progress == null)
+        getOkHttpClient()
+    else
+        HttpSender.clone(getOkHttpClient(), ProgressCallbackImpl(breakDownloadOffSize, progress))
+    return toParser(DownloadParser(destPath), okHttpClient)
+}
 
 /**
  * @param destPath 本地存储路径
  * @param coroutine 用于开启一个协程，来控制进度回调所在的线程
- * @param progress 进度回调
+ * @param progress 在suspend方法中回调，回调线程取决于协程所在线程
  */
 fun IRxHttp.toDownload(
     destPath: String,
-    coroutine: CoroutineScope? = null,
-    progress: (Progress) -> Unit
+    coroutine: CoroutineScope,
+    progress: suspend (Progress) -> Unit
 ): IAwait<String> {
-    val clone = HttpSender.clone(getOkHttpClient(), ProgressCallbackImpl(coroutine, breakDownloadOffSize, progress))
+    val clone = HttpSender.clone(getOkHttpClient(), SuspendProgressCallbackImpl(coroutine, breakDownloadOffSize, progress))
     return toParser(DownloadParser(destPath), clone)
 }
 
