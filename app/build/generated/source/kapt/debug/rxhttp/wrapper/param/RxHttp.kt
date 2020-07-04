@@ -2,8 +2,6 @@ package rxhttp.wrapper.param
 
 import com.example.httpsender.parser.ResponseParser
 import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.core.Scheduler
-import io.reactivex.rxjava3.functions.Consumer
 import kotlin.Any
 import kotlin.Unit
 import kotlin.coroutines.resume
@@ -39,23 +37,15 @@ inline fun <reified T : Any> BaseRxHttp.asResponse() = asParser(object: Response
 
 /**
  * 调用此方法监听上传进度                                                    
- * @param observeOnScheduler  用于控制下游回调所在线程(包括进度回调)
- * @param progress 进度回调                                      
- */
-fun RxHttpFormParam.upload(observeOnScheduler: Scheduler? = null, progress: (Progress) -> Unit) =
-    upload(Consumer{ progress(it) }, observeOnScheduler)
-
-/**
- * 调用此方法监听上传进度                                                    
  * @param coroutine  CoroutineScope对象，用于开启协程回调进度，进度回调所在线程取决于协程所在线程
  * @param progress 进度回调  
  * 注意：此方法仅在协程环境下才生效                                         
  */
-fun RxHttpFormParam.upload(coroutine: CoroutineScope? = null, progress: (Progress) -> Unit):
+fun RxHttpFormParam.upload(coroutine: CoroutineScope, progress: suspend (Progress) -> Unit):
     RxHttpFormParam {
   param.setProgressCallback(ProgressCallback { currentProgress, currentSize, totalSize ->
       val p = Progress(currentProgress, currentSize, totalSize)
-      coroutine?.launch { progress(p) } ?: progress(p)
+      coroutine.launch { progress(p) }
   })
   return this
 }

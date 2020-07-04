@@ -656,12 +656,23 @@ class RxHttpGenerator {
 
             methodList.add(
                 MethodSpec.methodBuilder("upload")
+                    .addAnnotation(Deprecated::class.java)
+                    .addJavadoc("@deprecated please user {@link #upload(Scheduler,Consumer)} instead\n")
+                    .addModifiers(Modifier.PUBLIC)
+                    .addParameter(consumerProgressName, "progressConsumer")
+                    .addParameter(schedulerName, "observeOnScheduler")
+                    .addStatement("return upload(observeOnScheduler, progressConsumer)")
+                    .returns(rxHttpFormName)
+                    .build())
+
+            methodList.add(
+                MethodSpec.methodBuilder("upload")
                     .addJavadoc("监听上传进度")
                     .addJavadoc("\n@param progressConsumer   进度回调")
                     .addJavadoc("\n@param observeOnScheduler 用于控制下游回调所在线程(包括进度回调) ，仅当 progressConsumer 不为 null 时生效")
                     .addModifiers(Modifier.PUBLIC)
-                    .addParameter(consumerProgressName, "progressConsumer")
                     .addParameter(schedulerName, "observeOnScheduler")
+                    .addParameter(consumerProgressName, "progressConsumer")
                     .addStatement("this.progressConsumer = progressConsumer")
                     .addStatement("this.observeOnScheduler = observeOnScheduler")
                     .addStatement("return this")
