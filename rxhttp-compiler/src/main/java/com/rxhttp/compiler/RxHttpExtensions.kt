@@ -108,19 +108,14 @@ class RxHttpExtensions {
         val k = TypeVariableName("K")
         val v = TypeVariableName("V")
 
-        val progressName = ClassName("rxhttp.wrapper.entity", "Progress")
-
-        val simpleParserName = ClassName("rxhttp.wrapper.parse", "SimpleParser")
-
-        val coroutineScopeName = ClassName("kotlinx.coroutines", "CoroutineScope").copy(nullable = true)
-        val coroutine = ParameterSpec.builder("coroutine", coroutineScopeName)
-            .defaultValue("null")
-            .build()
-        val progressCallbackName = ClassName("rxhttp.wrapper.callback", "ProgressCallback")
         val launchName = ClassName("kotlinx.coroutines", "launch")
+        val progressName = ClassName("rxhttp.wrapper.entity", "Progress")
+        val simpleParserName = ClassName("rxhttp.wrapper.parse", "SimpleParser")
+        val coroutineScopeName = ClassName("kotlinx.coroutines", "CoroutineScope")
+        val progressCallbackName = ClassName("rxhttp.wrapper.callback", "ProgressCallback")
         val rxhttpFormParam = ClassName(rxHttpPackage, "RxHttpFormParam");
 
-        val progressLambdaName = LambdaTypeName.get(parameters = *arrayOf(progressName),
+        val progressLambdaName: LambdaTypeName = LambdaTypeName.get(parameters = *arrayOf(progressName),
             returnType = Unit::class.asClassName())
 
         val fileBuilder = FileSpec.builder(rxHttpPackage, "RxHttp")
@@ -180,19 +175,6 @@ class RxHttpExtensions {
             asFunList.forEach {
                 fileBuilder.addFunction(it)
             }
-
-            fileBuilder.addFunction(
-                FunSpec.builder("upload")
-                    .addKdoc("""
-                    调用此方法监听上传进度                                                    
-                    @param observeOnScheduler  用于控制下游回调所在线程(包括进度回调)
-                    @param progress 进度回调                                      
-                """.trimIndent())
-                    .receiver(rxhttpFormParam)
-                    .addParameter(observeOnScheduler)
-                    .addParameter("progress", progressLambdaName)
-                    .addStatement("return upload(%T{ progress(it) }, observeOnScheduler)", consumerName)
-                    .build())
         }
 
         fileBuilder.addFunction(
@@ -204,12 +186,12 @@ class RxHttpExtensions {
                     注意：此方法仅在协程环境下才生效                                         
                 """.trimIndent())
                 .receiver(rxhttpFormParam)
-                .addParameter(coroutine)
-                .addParameter("progress", progressLambdaName)
+                .addParameter("coroutine", coroutineScopeName)
+                .addParameter("progress", progressLambdaName.copy(suspending = true))
                 .addCode("""
                     param.setProgressCallback(%T { currentProgress, currentSize, totalSize ->
                         val p = Progress(currentProgress, currentSize, totalSize)
-                        coroutine?.%T { progress(p) } ?: progress(p)
+                        coroutine.%T { progress(p) }
                     })
                     return this
                     """.trimIndent(), progressCallbackName, launchName)
