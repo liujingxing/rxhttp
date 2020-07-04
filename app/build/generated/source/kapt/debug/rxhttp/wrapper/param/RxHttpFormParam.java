@@ -151,11 +151,19 @@ public class RxHttpFormParam extends RxHttp<FormParam, RxHttpFormParam> {
   }
 
   /**
+   * @deprecated please user {@link #upload(Scheduler,Consumer)} instead
+   */
+  @Deprecated
+  public RxHttpFormParam upload(Consumer<Progress> progressConsumer, Scheduler observeOnScheduler) {
+    return upload(observeOnScheduler, progressConsumer);
+  }
+
+  /**
    * 监听上传进度
    * @param progressConsumer   进度回调
    * @param observeOnScheduler 用于控制下游回调所在线程(包括进度回调) ，仅当 progressConsumer 不为 null 时生效
    */
-  public RxHttpFormParam upload(Consumer<Progress> progressConsumer, Scheduler observeOnScheduler) {
+  public RxHttpFormParam upload(Scheduler observeOnScheduler, Consumer<Progress> progressConsumer) {
     this.progressConsumer = progressConsumer;
     this.observeOnScheduler = observeOnScheduler;
     return this;
