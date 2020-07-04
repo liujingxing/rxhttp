@@ -71,16 +71,16 @@ public class OkHttpCompat {
     public static String getOkHttpUserAgent() {
         if (OKHTTP_USER_AGENT != null) return OKHTTP_USER_AGENT;
         try {
-            //4.7.x以上版本获取userAgent方式
-            Class utilClass = Class.forName("okhttp3.internal.Util");
+            //4.7.x及以上版本获取userAgent方式
+            Class<?> utilClass = Class.forName("okhttp3.internal.Util");
             return OKHTTP_USER_AGENT = (String) utilClass.getDeclaredField("userAgent").get(utilClass);
-        } catch (ClassNotFoundException | NoSuchFieldException | IllegalAccessException ignored) {
-
+        } catch (ClassNotFoundException | NoSuchFieldException | IllegalAccessException e) {
+            e.printStackTrace();
         }
         try {
             Class<?> versionClass = Class.forName("okhttp3.internal.Version");
             try {
-                //4.x.x以上版本获取userAgent方式
+                //4.x.x及以上版本获取userAgent方式
                 Field userAgent = versionClass.getDeclaredField("userAgent");
                 return OKHTTP_USER_AGENT = (String) userAgent.get(versionClass);
             } catch (Exception ignore) {
