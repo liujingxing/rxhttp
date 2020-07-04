@@ -1,5 +1,19 @@
 apply plugin: 'kotlin'
 
+sourceSets {
+    main.java.srcDirs += "$buildDir/generated/sources/java-templates/java/main"
+}
+
+compileKotlin {
+    dependsOn 'copyJavaTemplates'
+}
+
+task copyJavaTemplates(type: Copy) {
+    from 'src/main/java-templates'
+    into "$buildDir/generated/sources/java-templates/java/main"
+    expand('projectVersion': "${rxhttp_next_version}")
+    filteringCharset = 'UTF-8'
+}
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])

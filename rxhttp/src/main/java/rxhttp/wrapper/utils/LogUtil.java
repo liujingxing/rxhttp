@@ -21,7 +21,7 @@ import okio.BufferedSource;
 import rxhttp.Platform;
 import rxhttp.RxHttpPlugins;
 import rxhttp.wrapper.OkHttpCompat;
-import rxhttp.wrapper.RxHttpVersion;
+import rxhttp.internal.RxHttpVersion;
 import rxhttp.wrapper.annotations.NonNull;
 import rxhttp.wrapper.exception.HttpStatusCodeException;
 import rxhttp.wrapper.exception.ParseException;
