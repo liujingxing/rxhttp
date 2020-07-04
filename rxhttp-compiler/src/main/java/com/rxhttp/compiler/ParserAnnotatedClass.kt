@@ -5,7 +5,10 @@ import rxhttp.wrapper.annotation.Parser
 import java.io.IOException
 import java.util.*
 import javax.annotation.processing.Filer
-import javax.lang.model.element.*
+import javax.lang.model.element.ElementKind
+import javax.lang.model.element.ExecutableElement
+import javax.lang.model.element.Modifier
+import javax.lang.model.element.TypeElement
 import javax.lang.model.type.MirroredTypesException
 import javax.lang.model.type.TypeMirror
 import kotlin.collections.ArrayList
@@ -182,6 +185,13 @@ class ParserAnnotatedClass {
             methodList.add(
                 MethodSpec.methodBuilder("asDownload")
                     .addAnnotation(Override::class.java)
+                    .addJavadoc("""
+                         监听下载进度时，调用此方法                                                                 
+                         @param destPath           文件存储路径                                              
+                         @param observeOnScheduler 控制回调所在线程，传入null，则默认在请求所在线程(子线程)回调                   
+                         @param progressConsumer   进度回调                                                
+                         @return Observable
+                    """.trimIndent())
                     .addModifiers(Modifier.PUBLIC)
                     .addParameter(String::class.java, "destPath")
                     .addParameter(schedulerName, "observeOnScheduler")
