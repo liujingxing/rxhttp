@@ -241,13 +241,14 @@ public class RxJavaFragment extends Fragment implements OnClickListener {
         //文件存储路径
         String destPath = requireContext().getExternalCacheDir() + "/" + System.currentTimeMillis() + ".apk";
         RxSimpleHttp.get("/miaolive/Miaolive.apk")
-            .asDownload(destPath, progress -> {
+            //第二个参数指定回调(进度/成功/失败)线程,不指定,默认在请求所在线程回调
+            .asDownload(destPath, AndroidSchedulers.mainThread(), progress -> {
                 //下载进度回调,0-100，仅在进度有更新时才会回调，最多回调101次，最后一次回调文件存储路径
                 int currentProgress = progress.getProgress(); //当前进度 0-100
                 long currentSize = progress.getCurrentSize(); //当前已下载的字节大小
                 long totalSize = progress.getTotalSize();     //要下载的总字节大小
                 mBinding.tvResult.append("\n" + progress.toString());
-            }, AndroidSchedulers.mainThread()) //指定回调(进度/成功/失败)线程,不指定,默认在请求所在线程回调
+            })
             .to(RxLife.to(this)) //感知生命周期
             .subscribe(s -> {
                 //下载完成，处理相关逻辑
@@ -282,14 +283,15 @@ public class RxJavaFragment extends Fragment implements OnClickListener {
         long length = new File(destPath).length();
         RxHttp.get("/miaolive/Miaolive.apk")
             .setDomainToUpdateIfAbsent()//使用指定的域名
-            .setRangeHeader(length, -1, true)  //设置开始下载位置，结束位置默认为文件末尾
-            .asDownload(destPath, progress -> { //如果需要衔接上次的下载进度，则需要传入上次已下载的字节数length
+            .setRangeHeader(length, -1, true)  //设置开始下载位置，结束位置默认为文件末尾，最后一个参数代表是否需要衔接上次的下载进度
+            //指定回调(进度/成功/失败)线程,不指定,默认在请求所在线程回调
+            .asDownload(destPath, AndroidSchedulers.mainThread(), progress -> {
                 //下载进度回调,0-100，仅在进度有更新时才会回调
                 int currentProgress = progress.getProgress(); //当前进度 0-100
                 long currentSize = progress.getCurrentSize(); //当前已下载的字节大小
                 long totalSize = progress.getTotalSize();     //要下载的总字节大小
                 mBinding.tvResult.append("\n" + progress.toString());
-            }, AndroidSchedulers.mainThread()) //指定回调(进度/成功/失败)线程,不指定,默认在请求所在线程回调
+            })
             .to(RxLife.to(this))              //加入感知生命周期的观察者
             .subscribe(s -> {
                 //下载成功
