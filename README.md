@@ -60,9 +60,9 @@ android {
 }
 dependencies {
     //以下3个为必须，
-    implementation 'com.ljx.rxhttp:rxhttp:2.2.7'
+    implementation 'com.ljx.rxhttp:rxhttp:2.2.8'
     implementation 'com.squareup.okhttp3:okhttp:4.7.2' //rxhttp v2.2.2版本起，需要手动依赖okhttp
-    kapt 'com.ljx.rxhttp:rxhttp-compiler:2.2.7' //生成RxHttp类，非kotlin项目，请使用annotationProcessor代替kapt
+    kapt 'com.ljx.rxhttp:rxhttp-compiler:2.2.8' //生成RxHttp类，非kotlin项目，请使用annotationProcessor代替kapt
     
     implementation 'com.ljx.rxlife:rxlife-coroutine:2.0.0' //管理协程生命周期，页面销毁，关闭请求
     
@@ -77,10 +77,10 @@ dependencies {
     implementation 'com.ljx.rxlife3:rxlife-rxjava:3.0.0' //管理RxJava3生命周期，页面销毁，关闭请求
 
     //非必须，根据自己需求选择 RxHttp默认内置了GsonConverter
-    implementation 'com.ljx.rxhttp:converter-jackson:2.2.7'
-    implementation 'com.ljx.rxhttp:converter-fastjson:2.2.7'
-    implementation 'com.ljx.rxhttp:converter-protobuf:2.2.7'
-    implementation 'com.ljx.rxhttp:converter-simplexml:2.2.7'
+    implementation 'com.ljx.rxhttp:converter-jackson:2.2.8'
+    implementation 'com.ljx.rxhttp:converter-fastjson:2.2.8'
+    implementation 'com.ljx.rxhttp:converter-protobuf:2.2.8'
+    implementation 'com.ljx.rxhttp:converter-simplexml:2.2.8'
 }
 ```
 
@@ -107,7 +107,7 @@ wiki详细文档：https://github.com/liujingxing/okhttp-RxHttp/wiki  (此文档
 
 # 混淆
 
-如开启混淆，请在proguard-rules.pro文件添加以下代码
+`RxHttp v2.2.8`版本起，无需添加混淆规则(内部自带混淆规则)，v2.2.8以下版本，在proguard-rules.pro文件添加以下代码
 
 ```bash
 # okhttp 4.7.0及以上版本混淆规则
