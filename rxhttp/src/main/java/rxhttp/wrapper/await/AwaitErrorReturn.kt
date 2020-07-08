@@ -10,7 +10,7 @@ import rxhttp.IAwait
  */
 internal class AwaitErrorReturn<T>(
     private val iAwait: IAwait<T>,
-    private val map: (Throwable) -> T
+    private val map: suspend (Throwable) -> T
 ) : IAwait<T> {
 
     override suspend fun await(): T = try {

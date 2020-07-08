@@ -12,7 +12,7 @@ internal class AwaitRetry<T>(
     private val iAwait: IAwait<T>,
     private var times: Int = 0,
     private val period: Long = 0L,
-    private val test: ((Throwable) -> Boolean)? = null
+    private val test: (suspend (Throwable) -> Boolean)? = null
 ) : IAwait<T> {
 
     override suspend fun await(): T {

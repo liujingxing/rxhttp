@@ -10,7 +10,7 @@ import rxhttp.IAwait
  */
 internal class AwaitMap<T, R>(
     private val iAwait: IAwait<T>,
-    private val map: (T) -> R
+    private val map: suspend (T) -> R
 ) : IAwait<R> {
 
     override suspend fun await(): R {

@@ -24,7 +24,7 @@ interface IAwait<T> {
 fun <T> IAwait<T>.retry(
     times: Int = Int.MAX_VALUE,
     period: Long = 0,
-    test: ((Throwable) -> Boolean)? = null
+    test: (suspend (Throwable) -> Boolean)? = null
 ): IAwait<T> = AwaitRetry(this, times, period, test)
 
 /**
@@ -34,11 +34,11 @@ fun <T> IAwait<T>.retry(
  */
 fun <T> IAwait<T>.timeout(timeMillis: Long): IAwait<T> = AwaitTimeout(this, timeMillis)
 
-fun <T> IAwait<T>.onErrorReturn(map: (Throwable) -> T): IAwait<T> = AwaitErrorReturn(this, map)
+fun <T> IAwait<T>.onErrorReturn(map: suspend (Throwable) -> T): IAwait<T> = AwaitErrorReturn(this, map)
 
 fun <T> IAwait<T>.onErrorReturnItem(t: T): IAwait<T> = onErrorReturn { t }
 
-fun <T, R> IAwait<T>.map(map: (T) -> R): IAwait<R> = AwaitMap(this, map)
+fun <T, R> IAwait<T>.map(map: suspend (T) -> R): IAwait<R> = AwaitMap(this, map)
 
 fun <T> IAwait<T>.delay(delay: Long): IAwait<T> = AwaitDelay(this, delay)
 
