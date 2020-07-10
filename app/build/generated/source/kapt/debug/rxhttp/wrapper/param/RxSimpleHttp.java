@@ -17,7 +17,6 @@ public class RxSimpleHttp {
    * 本类所有方法都会调用本方法
    */
   private static <R extends RxHttp> void wrapper(R rxHttp) {
-    rxHttp.setFastJsonConverter();
     rxHttp.setSimpleClient();
     rxHttp.setDomainToUpdateIfAbsent();
   }

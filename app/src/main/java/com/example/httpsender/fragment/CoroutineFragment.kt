@@ -23,6 +23,7 @@ import rxhttp.toClass
 import rxhttp.toDownload
 import rxhttp.toStr
 import rxhttp.wrapper.param.RxHttp
+import rxhttp.wrapper.param.RxSimpleHttp
 import rxhttp.wrapper.param.toResponse
 import rxhttp.wrapper.param.upload
 import java.io.File
@@ -192,8 +193,8 @@ class CoroutineFragment : Fragment(), View.OnClickListener {
     //文件下载，不带进度
     private fun download(view: View) = rxLifeScope.launch({
         val destPath = requireContext().externalCacheDir.toString() + "/" + System.currentTimeMillis() + ".apk"
-        val result = RxHttp.get("/miaolive/Miaolive.apk")
-            .setDomainToUpdateIfAbsent() //使用指定的域名
+        //下载使用非默认域名，故这里使用RxSimpleHttp类发送请求，RxSimpleHttp类是通过注解生成的
+        val result = RxSimpleHttp.get("/miaolive/Miaolive.apk")
             .toDownload(destPath)
             .await()
         mBinding.tvResult.text = "下载完成,路径$result"
@@ -207,8 +208,8 @@ class CoroutineFragment : Fragment(), View.OnClickListener {
     private fun downloadAndProgress(view: View) = rxLifeScope.launch({
         //文件存储路径
         val destPath = requireContext().externalCacheDir.toString() + "/" + System.currentTimeMillis() + ".apk"
-        val result = RxHttp.get("/miaolive/Miaolive.apk")
-            .setDomainToUpdateIfAbsent() //使用指定的域名
+        //下载使用非默认域名，故这里使用RxSimpleHttp类发送请求，RxSimpleHttp类是通过注解生成的
+        val result = RxSimpleHttp.get("/miaolive/Miaolive.apk")
             .toDownload(destPath, this) {
                 //下载进度回调,0-100，仅在进度有更新时才会回调，最多回调101次，最后一次回调文件存储路径
                 val currentProgress = it.progress //当前进度 0-100
@@ -228,8 +229,8 @@ class CoroutineFragment : Fragment(), View.OnClickListener {
     private fun breakpointDownload(view: View) = rxLifeScope.launch({
         val destPath = requireContext().externalCacheDir.toString() + "/" + "Miaobo.apk"
         val length = File(destPath).length()
-        val result = RxHttp.get("/miaolive/Miaolive.apk")
-            .setDomainToUpdateIfAbsent() //使用指定的域名
+        //下载使用非默认域名，故这里使用RxSimpleHttp类发送请求，RxSimpleHttp类是通过注解生成的
+        val result = RxSimpleHttp.get("/miaolive/Miaolive.apk")
             .setRangeHeader(length) //设置开始下载位置，结束位置默认为文件末尾
             .toDownload(destPath) //注意这里使用DownloadParser解析器，并传入本地路径
             .await()
@@ -244,8 +245,8 @@ class CoroutineFragment : Fragment(), View.OnClickListener {
     private fun breakpointDownloadAndProgress(view: View) = rxLifeScope.launch({
         val destPath = requireContext().externalCacheDir.toString() + "/" + "Miaobo.apk"
         val length = File(destPath).length()
-        val result = RxHttp.get("/miaolive/Miaolive.apk")
-            .setDomainToUpdateIfAbsent() //使用指定的域名
+        //下载使用非默认域名，故这里使用RxSimpleHttp类发送请求，RxSimpleHttp类是通过注解生成的
+        val result = RxSimpleHttp.get("/miaolive/Miaolive.apk")
             .setRangeHeader(length, true) //设置开始下载位置，结束位置默认为文件末尾
             .toDownload(destPath, this) {
                 //下载进度回调,0-100，仅在进度有更新时才会回调，最多回调101次，最后一次回调文件存储路径

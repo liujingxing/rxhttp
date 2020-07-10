@@ -264,8 +264,8 @@ public class RxJavaFragment extends Fragment implements OnClickListener {
     public void breakpointDownload(View view) {
         String destPath = requireContext().getExternalCacheDir() + "/" + "Miaobo.apk";
         long length = new File(destPath).length();
-        RxHttp.get("/miaolive/Miaolive.apk")
-            .setDomainToUpdateIfAbsent() //使用指定的域名
+        //下载使用非默认域名，故这里使用RxSimpleHttp类发送请求，RxSimpleHttp类是通过注解生成的
+        RxSimpleHttp.get("/miaolive/Miaolive.apk")
             .setRangeHeader(length)  //设置开始下载位置，结束位置默认为文件末尾
             .asDownload(destPath) //注意这里使用DownloadParser解析器，并传入本地路径
             .to(RxLife.toMain(this))  //感知生命周期，并在主线程回调
@@ -281,8 +281,8 @@ public class RxJavaFragment extends Fragment implements OnClickListener {
     public void breakpointDownloadAndProgress(View view) {
         String destPath = requireContext().getExternalCacheDir() + "/" + "Miaobo.apk";
         long length = new File(destPath).length();
-        RxHttp.get("/miaolive/Miaolive.apk")
-            .setDomainToUpdateIfAbsent()//使用指定的域名
+        //下载使用非默认域名，故这里使用RxSimpleHttp类发送请求，RxSimpleHttp类是通过注解生成的
+        RxSimpleHttp.get("/miaolive/Miaolive.apk")
             .setRangeHeader(length, -1, true)  //设置开始下载位置，结束位置默认为文件末尾，最后一个参数代表是否需要衔接上次的下载进度
             //指定回调(进度/成功/失败)线程,不指定,默认在请求所在线程回调
             .asDownload(destPath, AndroidSchedulers.mainThread(), progress -> {
