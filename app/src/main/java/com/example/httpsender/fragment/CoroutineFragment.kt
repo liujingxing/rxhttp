@@ -51,7 +51,7 @@ class CoroutineFragment : Fragment(), View.OnClickListener {
     }, {
         mBinding.tvResult.text = it.errorMsg
         //失败回调
-        it.show("图片加载失败,请稍后再试!")
+        it.show()
     })
 
     //发送Get请求，获取文章列表
@@ -64,7 +64,7 @@ class CoroutineFragment : Fragment(), View.OnClickListener {
     }, {
         mBinding.tvResult.text = it.errorMsg
         //失败回调
-        it.show("发送失败,请稍后再试!")
+        it.show()
     })
 
     //发送Post表单请求,根据关键字查询文章
@@ -77,7 +77,7 @@ class CoroutineFragment : Fragment(), View.OnClickListener {
     }, {
         mBinding.tvResult.text = it.errorMsg
         //失败回调
-        it.show("发送失败,请稍后再试!")
+        it.show()
     })
 
     //发送Post Json请求，此接口不通，仅用于调试参数
@@ -121,7 +121,7 @@ class CoroutineFragment : Fragment(), View.OnClickListener {
     }, {
         mBinding.tvResult.text = it.errorMsg
         //失败回调
-        it.show("发送失败,请稍后再试!")
+        it.show()
     })
 
     //发送Post JsonArray请求，此接口不通，仅用于调试参数
@@ -160,7 +160,7 @@ class CoroutineFragment : Fragment(), View.OnClickListener {
     }, {
         mBinding.tvResult.text = it.errorMsg
         //失败回调
-        it.show("发送失败,请稍后再试!")
+        it.show()
     })
 
     //使用XmlConverter解析数据，此接口返回数据太多，会有点慢
@@ -173,7 +173,7 @@ class CoroutineFragment : Fragment(), View.OnClickListener {
     }, {
         mBinding.tvResult.text = it.errorMsg
         //失败回调
-        it.show("发送失败,请稍后再试!")
+        it.show()
     })
 
     //使用XmlConverter解析数据
@@ -186,7 +186,7 @@ class CoroutineFragment : Fragment(), View.OnClickListener {
     }, {
         mBinding.tvResult.text = it.errorMsg
         //失败回调
-        it.show("发送失败,请稍后再试!")
+        it.show()
     })
 
     //文件下载，不带进度
@@ -200,7 +200,7 @@ class CoroutineFragment : Fragment(), View.OnClickListener {
     }, {
         mBinding.tvResult.text = it.errorMsg
         //失败回调
-        it.show("发送失败,请稍后再试!")
+        it.show()
     })
 
     //文件下载，带进度
@@ -221,7 +221,7 @@ class CoroutineFragment : Fragment(), View.OnClickListener {
     }, {
         mBinding.tvResult.append(it.errorMsg)
         //失败回调
-        it.show("发送失败,请稍后再试!")
+        it.show()
     })
 
     //断点下载
@@ -237,7 +237,7 @@ class CoroutineFragment : Fragment(), View.OnClickListener {
     }, {
         mBinding.tvResult.append(it.errorMsg)
         //失败回调
-        it.show("发送失败,请稍后再试!")
+        it.show()
     })
 
     //断点下载，带进度
@@ -259,7 +259,7 @@ class CoroutineFragment : Fragment(), View.OnClickListener {
     }, {
         mBinding.tvResult.append(it.errorMsg)
         //失败回调
-        it.show("发送失败,请稍后再试!")
+        it.show()
     })
 
     //文件上传，不带进度
@@ -274,7 +274,7 @@ class CoroutineFragment : Fragment(), View.OnClickListener {
         mBinding.tvResult.append("\n")
         mBinding.tvResult.append(it.errorMsg)
         //失败回调
-        it.show("上传失败,请稍后再试!")
+        it.show()
     })
 
     //上传文件，带进度
@@ -295,7 +295,7 @@ class CoroutineFragment : Fragment(), View.OnClickListener {
         mBinding.tvResult.append("\n")
         mBinding.tvResult.append(it.errorMsg)
         //失败回调
-        it.show("上传失败,请稍后再试!")
+        it.show()
     })
 
     private fun clearLog(view: View) {

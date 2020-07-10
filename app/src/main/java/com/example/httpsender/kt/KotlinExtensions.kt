@@ -19,15 +19,7 @@ import java.util.concurrent.TimeoutException
  * Time: 21:04
  */
 fun Throwable.show() {
-    (errorMsg ?: message)?.show()
-}
-
-fun Throwable.show(standbyMsg: String) {
-    (errorMsg ?: standbyMsg).show()
-}
-
-fun Throwable.show(standbyMsg: Int) {
-    (errorMsg ?: AppHolder.getInstance().getString(standbyMsg)).show()
+    errorMsg.show()
 }
 
 fun String.show() {
@@ -55,7 +47,7 @@ val Throwable.errorCode: Int
     }
 
 
-val Throwable.errorMsg: String?
+val Throwable.errorMsg: String
     get() {
         var errorMsg = handleNetworkException(this)  //网络异常
         if (this is HttpStatusCodeException) {               //请求失败异常
@@ -68,7 +60,7 @@ val Throwable.errorMsg: String?
         } else if (this is ParseException) {       // ParseException异常表明请求成功，但是数据不正确
             errorMsg = this.message ?: errorCode   //errorMsg为空，显示errorCode
         }
-        return errorMsg
+        return errorMsg ?: message ?: this.toString()
     }
 
 //处理网络异常
