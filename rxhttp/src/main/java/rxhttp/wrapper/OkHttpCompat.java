@@ -74,8 +74,7 @@ public class OkHttpCompat {
             //4.7.x及以上版本获取userAgent方式
             Class<?> utilClass = Class.forName("okhttp3.internal.Util");
             return OKHTTP_USER_AGENT = (String) utilClass.getDeclaredField("userAgent").get(utilClass);
-        } catch (Throwable e) {
-            e.printStackTrace();
+        } catch (Throwable ignore) {
         }
         try {
             Class<?> versionClass = Class.forName("okhttp3.internal.Version");
