@@ -326,13 +326,13 @@ public class RxJavaFragment extends Fragment implements OnClickListener {
     public void uploadAndProgress(View v) {
         RxHttp.postForm("http://t.xinhuo.com/index.php/Api/Pic/uploadPic")
             .addFile("uploaded_file", new File(Environment.getExternalStorageDirectory(), "1.jpg"))
-            .upload(progress -> {
+            .upload(AndroidSchedulers.mainThread(), progress -> {
                 //上传进度回调,0-100，仅在进度有更新时才会回调
                 int currentProgress = progress.getProgress(); //当前进度 0-100
                 long currentSize = progress.getCurrentSize(); //当前已上传的字节大小
                 long totalSize = progress.getTotalSize();     //要上传的总字节大小
                 mBinding.tvResult.append("\n" + progress.toString());
-            }, AndroidSchedulers.mainThread()) //指定回调(进度/成功/失败)线程,不指定,默认在请求所在线程回调
+            }) //指定回调(进度/成功/失败)线程,不指定,默认在请求所在线程回调
             .asString()
             .to(RxLife.to(this))               //加入感知生命周期的观察者
             .subscribe(s -> {
