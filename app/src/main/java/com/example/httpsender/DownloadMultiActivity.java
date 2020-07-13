@@ -6,20 +6,14 @@ import android.view.MenuItem;
 import android.view.View;
 
 import androidx.annotation.Nullable;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.httpsender.DownloadMultiAdapter.OnItemClickListener;
-import com.example.httpsender.entity.DownloadInfo;
-import com.rxjava.rxlife.RxLife;
+import com.example.httpsender.entity.DownloadTask;
+import com.example.httpsender.vm.MultiTaskDownloader;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
-import io.reactivex.rxjava3.disposables.Disposable;
-import rxhttp.wrapper.param.RxHttp;
 
 /**
  * 多任务下载
@@ -27,7 +21,7 @@ import rxhttp.wrapper.param.RxHttp;
  * Date: 2019-06-07
  * Time: 11:02
  */
-public class DownloadMultiActivity extends ToolBarActivity implements OnItemClickListener<DownloadInfo> {
+public class DownloadMultiActivity extends ToolBarActivity implements OnItemClickListener<DownloadTask> {
 
     public static final int MAX_TASK_COUNT = 3;  //最大并发数
 
@@ -40,38 +34,31 @@ public class DownloadMultiActivity extends ToolBarActivity implements OnItemClic
         "http://s9.pstatp.com/package/apk/aweme/app_aweGW_v6.6.0_2905d5c.apk"//抖音
     };
 
-    private List<DownloadInfo> waitTask = new ArrayList<>(); //等待下载的任务
-    private List<DownloadInfo> downloadingTask = new ArrayList<>(); //等待下载的任务
-
-    private List<DownloadInfo> downloadInfos = new ArrayList<>();
+    private MultiTaskDownloader mMultiTaskDownloader;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.download_multi_activity);
 
+        ArrayList<DownloadTask> allTask = new ArrayList<>();  //所有下载任务
         for (int i = 0; i < 20; i++) {
-            DownloadInfo downloadInfo = new DownloadInfo(downloadUrl[i % downloadUrl.length]);
-            downloadInfo.setTaskId(i);
-            downloadInfos.add(downloadInfo);
+            DownloadTask task = new DownloadTask(downloadUrl[i % downloadUrl.length]);
+            task.setTaskId(i);
+            allTask.add(task);
         }
-        mAdapter = new DownloadMultiAdapter(downloadInfos);
+        mAdapter = new DownloadMultiAdapter(allTask);
         mAdapter.setOnItemClickListener(this);
         mAdapter.setHasStableIds(true);
 
         RecyclerView recyclerView = findViewById(R.id.recycler_view);
         recyclerView.setAdapter(mAdapter);
-    }
 
-    public static long lastChangedTime;
-
-    //500毫秒刷新一次列表
-    private void notifyDataSetChanged(boolean force) {
-        long time = System.currentTimeMillis();
-        if (time - lastChangedTime > 500 || force) {
+        mMultiTaskDownloader = new ViewModelProvider(this).get(MultiTaskDownloader.class);
+        mMultiTaskDownloader.addTasks(allTask);
+        mMultiTaskDownloader.getAllLiveTask().observe(this, tasks -> {
             mAdapter.notifyDataSetChanged();
-            lastChangedTime = time;
-        }
+        });
     }
 
     @Override
@@ -84,100 +71,45 @@ public class DownloadMultiActivity extends ToolBarActivity implements OnItemClic
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.download_all) {
             if ("全部下载".contentEquals(item.getTitle())) {
-                for (DownloadInfo info : downloadInfos) {
-                    download(info);
-                }
+                mMultiTaskDownloader.startAllDownloadTask();
                 item.setTitle("全部取消");
             } else if ("全部取消".contentEquals(item.getTitle())) {
-                Iterator<DownloadInfo> iterator = waitTask.iterator();
-                while (iterator.hasNext()) {
-                    DownloadInfo next = iterator.next();
-                    next.setState(6);
-                    iterator.remove();
-                }
-
-                iterator = downloadingTask.iterator();
-                while (iterator.hasNext()) {
-                    DownloadInfo next = iterator.next();
-                    iterator.remove();
-                    Disposable disposable = next.getDisposable();
-                    if (disposable != null && !disposable.isDisposed()) {
-                        disposable.dispose();
-                    }
-                    next.setState(6);
-                }
+                mMultiTaskDownloader.cancelAllTask();
                 item.setTitle("全部下载");
-                notifyDataSetChanged(true);
             }
-
         }
         return super.onOptionsItemSelected(item);
     }
 
     @Override
-    public void onItemClick(View view, DownloadInfo data, int position) {
+    public void onItemClick(View view, DownloadTask task, int position) {
         switch (view.getId()) {
             case R.id.bt_pause:
-                int state = data.getState();
+                //0=未开始 1=等待中 2=下载中 3=暂停中 4=已完成  5=下载失败 6=已取消
+                int state = task.getState();
                 if (state == 0) {
-                    download(data);
+                    //未开始->开始下载
+                    mMultiTaskDownloader.download(task);
                 } else if (state == 1) {
-                    waitTask.remove(data);
-                    data.setState(6);
+                    //等待中->取消下载
+                    mMultiTaskDownloader.removeWaitTask(task);
                 } else if (state == 2) {
-                    Disposable disposable = data.getDisposable();
-                    if (disposable != null && !disposable.isDisposed()) {
-                        disposable.dispose();
-                        data.setState(3);
-                        notifyDataSetChanged(true);
-                    }
+                    //下载中->暂停下载
+                    mMultiTaskDownloader.pauseTask(task);
                 } else if (state == 3) {
-                    download(data);
+                    //暂停下载->继续下载
+                    mMultiTaskDownloader.download(task);
                 } else if (state == 4) {
+                    //任务已完成
                     Tip.show("该任务已完成");
                 } else if (state == 5) {
+                    //任务下载失败
                     Tip.show("该任务下载失败");
                 } else if (state == 6) {
-                    download(data);
+                    //已取消->重新开始下载
+                    mMultiTaskDownloader.download(task);
                 }
                 break;
         }
-    }
-
-    private void download(DownloadInfo data) {
-        if (downloadingTask.size() >= MAX_TASK_COUNT) {
-            data.setState(1);
-            waitTask.add(data);
-            return;
-        }
-        String destPath = getExternalCacheDir() + "/" + data.getTaskId() + ".apk";
-        long length = new File(destPath).length();
-        Disposable disposable = RxHttp.get(data.getUrl())
-            .setRangeHeader(length, -1, true)  //设置开始下载位置，结束位置默认为文件末尾
-            .asDownload(destPath, AndroidSchedulers.mainThread(), progress -> { //如果需要衔接上次的下载进度，则需要传入上次已下载的字节数length
-                //下载进度回调,0-100，仅在进度有更新时才会回调
-                data.setProgress(progress.getProgress());//当前进度 0-100
-                data.setCurrentSize(progress.getCurrentSize());//当前已下载的字节大小
-                data.setTotalSize(progress.getTotalSize()); //要下载的总字节大小
-                notifyDataSetChanged(false);
-            })
-            .doFinally(() -> {//不管任务成功还是失败，如果还有在等待的任务，都开启下一个任务
-                downloadingTask.remove(data);
-                if (waitTask.size() > 0)
-                    download(waitTask.remove(0));
-            })
-            .to(RxLife.to(this)) //加入感知生命周期的观察者
-            .subscribe(s -> { //s为String类型
-                Tip.show("下载完成" + s);
-                data.setState(4);
-                notifyDataSetChanged(true);
-                //下载成功，处理相关逻辑
-            }, (OnError) error -> {
-                data.setState(5);
-                //下载失败，处理相关逻辑
-            });
-        data.setState(2);
-        downloadingTask.add(data);
-        data.setDisposable(disposable);
     }
 }
