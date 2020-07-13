@@ -8,7 +8,7 @@ import io.reactivex.rxjava3.disposables.Disposable;
  * Date: 2019-06-08
  * Time: 10:09
  */
-public class DownloadInfo {
+public class DownloadTask {
 
     private int taskId;
 
@@ -51,7 +51,7 @@ public class DownloadInfo {
         return mDisposable != null && !mDisposable.isDisposed();
     }
 
-    public DownloadInfo(String url) {
+    public DownloadTask(String url) {
         this.url = url;
     }
 

@@ -1,8 +1,6 @@
 package com.example.httpsender;
 
 import android.annotation.SuppressLint;
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,8 +8,11 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.httpsender.DownloadMultiAdapter.MyViewHolder;
-import com.example.httpsender.entity.DownloadInfo;
+import com.example.httpsender.entity.DownloadTask;
 
 import java.text.DecimalFormat;
 import java.util.List;
@@ -23,12 +24,12 @@ import java.util.List;
  */
 public class DownloadMultiAdapter extends RecyclerView.Adapter<MyViewHolder> {
 
-    private OnItemClickListener<DownloadInfo> mOnItemClickListener;
+    private OnItemClickListener<DownloadTask> mOnItemClickListener;
 
-    private List<DownloadInfo> mDownloadInfos;
+    private List<DownloadTask> mDownloadTasks;
 
-    public DownloadMultiAdapter(List<DownloadInfo> downloadInfos) {
-        mDownloadInfos = downloadInfos;
+    public DownloadMultiAdapter(List<DownloadTask> downloadTasks) {
+        mDownloadTasks = downloadTasks;
     }
 
     @NonNull
@@ -41,7 +42,7 @@ public class DownloadMultiAdapter extends RecyclerView.Adapter<MyViewHolder> {
     @SuppressLint("DefaultLocale")
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder viewHolder, int i) {
-        DownloadInfo data = mDownloadInfos.get(i);
+        DownloadTask data = mDownloadTasks.get(i);
         viewHolder.progressBar.setProgress(data.getProgress());
         viewHolder.tvProgress.setText(String.format("%d%%", data.getProgress()));
         viewHolder.btPause.setOnClickListener(v -> {
@@ -79,15 +80,15 @@ public class DownloadMultiAdapter extends RecyclerView.Adapter<MyViewHolder> {
 
     @Override
     public int getItemCount() {
-        return mDownloadInfos.size();
+        return mDownloadTasks.size();
     }
 
     @Override
     public long getItemId(int position) {
-        return mDownloadInfos.get(position).hashCode();
+        return mDownloadTasks.get(position).hashCode();
     }
 
-    class MyViewHolder extends RecyclerView.ViewHolder {
+    static class MyViewHolder extends RecyclerView.ViewHolder {
 
         ProgressBar progressBar;
         TextView tvProgress;
@@ -107,7 +108,7 @@ public class DownloadMultiAdapter extends RecyclerView.Adapter<MyViewHolder> {
     }
 
 
-    public void setOnItemClickListener(OnItemClickListener<DownloadInfo> onItemClickListener) {
+    public void setOnItemClickListener(OnItemClickListener<DownloadTask> onItemClickListener) {
         mOnItemClickListener = onItemClickListener;
     }
 
