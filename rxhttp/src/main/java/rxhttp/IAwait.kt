@@ -4,6 +4,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import rxhttp.wrapper.await.*
+import kotlin.coroutines.CoroutineContext
 
 /**
  * User: ljx
@@ -26,6 +27,60 @@ fun <T> IAwait<T>.retry(
     period: Long = 0,
     test: (suspend (Throwable) -> Boolean)? = null
 ): IAwait<T> = AwaitRetry(this, times, period, test)
+
+fun <T> IAwait<T>.flowOn(context: CoroutineContext): IAwait<T> = AwaitFlowOn(this, context)
+
+fun <T> IAwait<out Iterable<T>>.distinct(): IAwait<List<T>> = AwaitDistinct(this)
+
+fun <T, K> IAwait<out Iterable<T>>.distinctBy(selector: (T) -> K): IAwait<List<T>> = AwaitDistinctBy(this, selector)
+
+fun <T : Comparable<T>> IAwait<out MutableList<T>>.sort(): IAwait<MutableList<T>> = AwaitSort(this)
+
+fun <T : Comparable<T>> IAwait<out MutableList<T>>.sortDescending(): IAwait<MutableList<T>> = sortWith(reverseOrder())
+
+fun <T> IAwait<out MutableList<T>>.sortBy(
+    vararg selectors: (T) -> Comparable<*>?
+): IAwait<MutableList<T>> = sortWith(compareBy(*selectors))
+
+inline fun <T, R : Comparable<R>> IAwait<out MutableList<T>>.sortBy(
+    crossinline selector: (T) -> R?
+): IAwait<MutableList<T>> = sortWith(compareBy(selector))
+
+inline fun <T, R : Comparable<R>> IAwait<out MutableList<T>>.sortByDescending(
+    crossinline selector: (T) -> R?
+): IAwait<MutableList<T>> = sortWith(compareByDescending(selector))
+
+fun <T> IAwait<out MutableList<T>>.sortWith(
+    comparator: (T, T) -> Int
+): IAwait<MutableList<T>> = sortWith(Comparator { t1, t2 -> comparator(t1, t2) })
+
+fun <T> IAwait<out MutableList<T>>.sortWith(
+    comparator: Comparator<in T>
+): IAwait<MutableList<T>> = AwaitSortWith(this, comparator)
+
+fun <T : Comparable<T>> IAwait<out Iterable<T>>.sorted(): IAwait<List<T>> = AwaitSorted(this)
+
+fun <T : Comparable<T>> IAwait<out Iterable<T>>.sortedDescending(): IAwait<List<T>> = sortedWith(reverseOrder())
+
+fun <T> IAwait<out Iterable<T>>.sortedBy(
+    vararg selectors: (T) -> Comparable<*>?
+): IAwait<List<T>> = sortedWith(compareBy(*selectors))
+
+inline fun <T, R : Comparable<R>> IAwait<out Iterable<T>>.sortedBy(
+    crossinline selector: (T) -> R?
+): IAwait<List<T>> = sortedWith(compareBy(selector))
+
+inline fun <T, R : Comparable<R>> IAwait<out Iterable<T>>.sortedByDescending(
+    crossinline selector: (T) -> R?
+): IAwait<List<T>> = sortedWith(compareByDescending(selector))
+
+fun <T> IAwait<out Iterable<T>>.sortedWith(
+    comparator: (T, T) -> Int
+): IAwait<List<T>> = sortedWith(Comparator { t1, t2 -> comparator(t1, t2) })
+
+fun <T> IAwait<out Iterable<T>>.sortedWith(
+    comparator: Comparator<in T>
+): IAwait<List<T>> = AwaitSortedWith(this, comparator)
 
 /**
  * 为单个请求设置超时时长，该方法仅在使用协程时才有效
