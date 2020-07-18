@@ -30,6 +30,20 @@ fun <T> IAwait<T>.retry(
 
 fun <T> IAwait<T>.flowOn(context: CoroutineContext): IAwait<T> = AwaitFlowOn(this, context)
 
+fun <T> IAwait<out MutableList<T>>.insert(element: T) = insert(-1, element)
+
+fun <T> IAwait<out MutableList<T>>.insert(
+    index: Int,
+    element: T
+): IAwait<MutableList<T>> = AwaitInsert(this, index, element)
+
+fun <T> IAwait<out MutableList<T>>.insertAll(elements: Collection<T>) = insertAll(-1, elements)
+
+fun <T> IAwait<out MutableList<T>>.insertAll(
+    index: Int,
+    elements: Collection<T>
+): IAwait<MutableList<T>> = AwaitInsertAll(this, index, elements)
+
 fun <T> IAwait<out Iterable<T>>.distinct(): IAwait<List<T>> = AwaitDistinct(this)
 
 fun <T, K> IAwait<out Iterable<T>>.distinctBy(selector: (T) -> K): IAwait<List<T>> = AwaitDistinctBy(this, selector)
