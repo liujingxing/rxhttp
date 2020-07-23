@@ -1,9 +1,6 @@
 package rxhttp
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.async
-import rxhttp.wrapper.await.*
+import kotlinx.coroutines.*
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -16,6 +13,15 @@ interface IAwait<T> {
     suspend fun await(): T
 }
 
+inline fun <T, R> IAwait<T>.newAwait(
+    crossinline block: suspend (IAwait<T>) -> R
+): IAwait<R> = object : IAwait<R> {
+
+    override suspend fun await(): R {
+        return block(this@newAwait)
+    }
+}
+
 /**
  * 失败重试，该方法仅在使用协程时才有效
  * @param times  重试次数, 默认Int.MAX_VALUE 代表不断重试
@@ -26,20 +32,44 @@ fun <T> IAwait<T>.retry(
     times: Int = Int.MAX_VALUE,
     period: Long = 0,
     test: (suspend (Throwable) -> Boolean)? = null
-): IAwait<T> = AwaitRetry(this, times, period, test)
+): IAwait<T> = object : IAwait<T> {
+
+    var retryTime = times
+
+    override suspend fun await(): T {
+        return try {
+            this@retry.await()
+        } catch (e: Throwable) {
+            val remaining = retryTime  //剩余次数
+            if (remaining != Int.MAX_VALUE) {
+                retryTime = remaining - 1
+            }
+            val pass = test?.invoke(e) ?: true
+            if (remaining > 0 && pass) {
+                kotlinx.coroutines.delay(period)
+                await() //递归，直到剩余次数为0
+            } else throw e
+        }
+    }
+}
 
 /**
  * 控制上游线程，可调用多次
  * @param context 协程上下文
  */
-fun <T> IAwait<T>.flowOn(context: CoroutineContext): IAwait<T> = AwaitFlowOn(this, context)
+fun <T> IAwait<T>.flowOn(
+    context: CoroutineContext
+): IAwait<T> = newAwait { withContext(context) { it.await() } }
+
 
 /**
  * 往集合尾部插入一条数据
  */
 fun <T> IAwait<out MutableList<T>>.insert(
     element: T
-): IAwait<MutableList<T>> = insert(-1, element)
+): IAwait<MutableList<T>> = newAwait {
+    it.await().apply { add(element) }
+}
 
 /**
  * 往集合指定位置插入一条数据
@@ -47,14 +77,14 @@ fun <T> IAwait<out MutableList<T>>.insert(
 fun <T> IAwait<out MutableList<T>>.insert(
     index: Int,
     element: T
-): IAwait<MutableList<T>> = AwaitInsert(this, index, element)
+): IAwait<MutableList<T>> = newAwait { it.await().apply { add(index, element) } }
 
 /**
  *  往集合尾部插入多条数据
  */
 fun <T> IAwait<out MutableList<T>>.insertAll(
     elements: Collection<T>
-): IAwait<MutableList<T>> = insertAll(-1, elements)
+): IAwait<MutableList<T>> = newAwait { it.await().apply { addAll(elements) } }
 
 /**
  * 往集合指定位置插入多条数据
@@ -62,27 +92,31 @@ fun <T> IAwait<out MutableList<T>>.insertAll(
 fun <T> IAwait<out MutableList<T>>.insertAll(
     index: Int,
     elements: Collection<T>
-): IAwait<MutableList<T>> = AwaitInsertAll(this, index, elements)
+): IAwait<MutableList<T>> = newAwait { it.await().apply { addAll(index, elements) } }
 
 /**
  * 集合去重，根据对象的哈希值去重
  */
-fun <T> IAwait<out Iterable<T>>.distinct(): IAwait<List<T>> = AwaitDistinct(this)
+fun <T> IAwait<out Iterable<T>>.distinct(): IAwait<List<T>> = newAwait { it.await().distinct() }
 
 /**
  * 集合去重，根据表达式返回值的哈希值去重
  */
-fun <T, K> IAwait<out Iterable<T>>.distinctBy(selector: (T) -> K): IAwait<List<T>> = AwaitDistinctBy(this, selector)
+inline fun <T, K> IAwait<out Iterable<T>>.distinctBy(
+    crossinline selector: (T) -> K
+): IAwait<List<T>> = newAwait { it.await().distinctBy(selector) }
 
 /**
  * 顺序、排序对象需要继承Comparable接口，实现排序规则，返回原集合
  */
-fun <T : Comparable<T>> IAwait<out MutableList<T>>.sort(): IAwait<MutableList<T>> = AwaitSort(this)
+fun <T : Comparable<T>> IAwait<out MutableList<T>>.sort()
+    : IAwait<MutableList<T>> = newAwait { it.await().apply { sort() } }
 
 /**
  * 倒序、排序对象需要继承Comparable接口，实现排序规则，返回原集合
  */
-fun <T : Comparable<T>> IAwait<out MutableList<T>>.sortDescending(): IAwait<MutableList<T>> = sortWith(reverseOrder())
+fun <T : Comparable<T>> IAwait<out MutableList<T>>.sortDescending()
+    : IAwait<MutableList<T>> = sortWith(reverseOrder())
 
 /**
  * 顺序、多维度排序，返回原集合
@@ -108,8 +142,8 @@ inline fun <T> IAwait<out MutableList<T>>.sortByDescending(
 /**
  * 顺序、根据传入的表达式返回值进行排序，返回原集合
  */
-fun <T> IAwait<out MutableList<T>>.sortWith(
-    comparator: (T, T) -> Int
+inline fun <T> IAwait<out MutableList<T>>.sortWith(
+    crossinline comparator: (T, T) -> Int
 ): IAwait<MutableList<T>> = sortWith(Comparator { t1, t2 -> comparator(t1, t2) })
 
 /**
@@ -117,12 +151,13 @@ fun <T> IAwait<out MutableList<T>>.sortWith(
  */
 fun <T> IAwait<out MutableList<T>>.sortWith(
     comparator: Comparator<in T>
-): IAwait<MutableList<T>> = AwaitSortWith(this, comparator)
+): IAwait<MutableList<T>> = newAwait { it.await().apply { sortWith(comparator) } }
 
 /**
  * 顺序、排序对象需要继承Comparable接口，实现排序规则，返回新的集合
  */
-fun <T : Comparable<T>> IAwait<out Iterable<T>>.sorted(): IAwait<List<T>> = AwaitSorted(this)
+fun <T : Comparable<T>> IAwait<out Iterable<T>>.sorted()
+    : IAwait<List<T>> = newAwait { it.await().sorted() }
 
 /**
  * 顺序、排序对象需要继承Comparable接口，实现排序规则，返回新的集合
@@ -153,8 +188,8 @@ inline fun <T> IAwait<out Iterable<T>>.sortedByDescending(
 /**
  * 顺序、根据传入的表达式返回值进行排序，返回新的集合
  */
-fun <T> IAwait<out Iterable<T>>.sortedWith(
-    comparator: (T, T) -> Int
+inline fun <T> IAwait<out Iterable<T>>.sortedWith(
+    crossinline comparator: (T, T) -> Int
 ): IAwait<List<T>> = sortedWith(Comparator { t1, t2 -> comparator(t1, t2) })
 
 /**
@@ -162,24 +197,43 @@ fun <T> IAwait<out Iterable<T>>.sortedWith(
  */
 fun <T> IAwait<out Iterable<T>>.sortedWith(
     comparator: Comparator<in T>
-): IAwait<List<T>> = AwaitSortedWith(this, comparator)
+): IAwait<List<T>> = newAwait { it.await().sortedWith(comparator) }
 
 /**
  * 为单个请求设置超时时长，该方法仅在使用协程时才有效
  * @param timeMillis 时长 单位: milliseconds
  * 注意: 要保证 timeMillis < OkHttp全局超时(连接+读+写)之和，否则无效
  */
-fun <T> IAwait<T>.timeout(timeMillis: Long): IAwait<T> = AwaitTimeout(this, timeMillis)
-
-fun <T> IAwait<T>.onErrorReturn(map: suspend (Throwable) -> T): IAwait<T> = AwaitErrorReturn(this, map)
+fun <T> IAwait<T>.timeout(
+    timeMillis: Long
+): IAwait<T> = newAwait { withTimeout(timeMillis) { it.await() } }
 
 fun <T> IAwait<T>.onErrorReturnItem(t: T): IAwait<T> = onErrorReturn { t }
 
-fun <T, R> IAwait<T>.map(map: suspend (T) -> R): IAwait<R> = AwaitMap(this, map)
+inline fun <T> IAwait<T>.onErrorReturn(
+    crossinline map: suspend (Throwable) -> T
+): IAwait<T> = newAwait {
+    try {
+        it.await()
+    } catch (e: Throwable) {
+        map(e)
+    }
+}
 
-fun <T> IAwait<T>.delay(delay: Long): IAwait<T> = AwaitDelay(this, delay)
+inline fun <T, R> IAwait<T>.map(
+    crossinline map: suspend (T) -> R
+): IAwait<R> = newAwait { map(it.await()) }
 
-fun <T> IAwait<T>.startDelay(delay: Long): IAwait<T> = AwaitStartDelay(this, delay)
+fun <T> IAwait<T>.delay(delay: Long): IAwait<T> = newAwait {
+    val t = it.await()
+    kotlinx.coroutines.delay(delay)
+    t
+}
+
+fun <T> IAwait<T>.startDelay(delay: Long): IAwait<T> = newAwait {
+    kotlinx.coroutines.delay(delay)
+    it.await()
+}
 
 suspend fun <T> IAwait<T>.async(scope: CoroutineScope) = scope.async { await() }
 
@@ -187,7 +241,7 @@ suspend fun <T> Deferred<T>.tryAwait() = tryAwait { await() }
 
 suspend fun <T> IAwait<T>.tryAwait() = tryAwait { await() }
 
-private suspend fun <T> tryAwait(block: suspend () -> T): T? {
+private inline fun <T> tryAwait(block: () -> T): T? {
     return try {
         block()
     } catch (e: Throwable) {
