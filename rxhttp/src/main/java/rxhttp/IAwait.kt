@@ -94,6 +94,22 @@ fun <T> IAwait<out MutableList<T>>.insertAll(
     elements: Collection<T>
 ): IAwait<MutableList<T>> = newAwait { it.await().apply { addAll(index, elements) } }
 
+
+inline fun <T> IAwait<out Iterable<T>>.filter(
+    crossinline predicate: (T) -> Boolean
+): IAwait<List<T>> = newAwait {
+    it.await().filter(predicate)
+}
+
+
+inline fun <T, C : MutableCollection<in T>> IAwait<out Iterable<T>>.filterTo(
+    destination: C,
+    crossinline predicate: (T) -> Boolean
+): IAwait<C> = newAwait {
+    it.await().filterTo(destination, predicate)
+    destination
+}
+
 /**
  * 集合去重，根据对象的哈希值去重
  */
@@ -105,6 +121,25 @@ fun <T> IAwait<out Iterable<T>>.distinct(): IAwait<List<T>> = newAwait { it.awai
 inline fun <T, K> IAwait<out Iterable<T>>.distinctBy(
     crossinline selector: (T) -> K
 ): IAwait<List<T>> = newAwait { it.await().distinctBy(selector) }
+
+
+
+inline fun <T, K, C : MutableList<T>> IAwait<out Iterable<T>>.distinctTo(
+    destination: C,
+    crossinline selector: (T) -> K
+): IAwait<C> = newAwait {
+    val set = HashSet<K>()
+    for (e in destination) {
+        val key = selector(e)
+        set.add(key)
+    }
+    for (e in it.await()) {
+        val key = selector(e)
+        if (set.add(key))
+            destination.add(e)
+    }
+    destination
+}
 
 /**
  * 顺序、排序对象需要继承Comparable接口，实现排序规则，返回原集合
