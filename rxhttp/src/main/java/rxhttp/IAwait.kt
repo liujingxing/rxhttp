@@ -14,11 +14,11 @@ interface IAwait<T> {
 }
 
 inline fun <T, R> IAwait<T>.newAwait(
-    crossinline block: suspend (IAwait<T>) -> R
+    crossinline block: suspend IAwait<T>.() -> R
 ): IAwait<R> = object : IAwait<R> {
 
     override suspend fun await(): R {
-        return block(this@newAwait)
+        return this@newAwait.block()
     }
 }
 
@@ -59,7 +59,9 @@ fun <T> IAwait<T>.retry(
  */
 fun <T> IAwait<T>.flowOn(
     context: CoroutineContext
-): IAwait<T> = newAwait { withContext(context) { it.await() } }
+): IAwait<T> = newAwait {
+    withContext(context) { await() }
+}
 
 
 /**
@@ -68,7 +70,7 @@ fun <T> IAwait<T>.flowOn(
 fun <T> IAwait<out MutableList<T>>.insert(
     element: T
 ): IAwait<MutableList<T>> = newAwait {
-    it.await().apply { add(element) }
+    await().apply { add(element) }
 }
 
 /**
@@ -77,14 +79,18 @@ fun <T> IAwait<out MutableList<T>>.insert(
 fun <T> IAwait<out MutableList<T>>.insert(
     index: Int,
     element: T
-): IAwait<MutableList<T>> = newAwait { it.await().apply { add(index, element) } }
+): IAwait<MutableList<T>> = newAwait {
+    await().apply { add(index, element) }
+}
 
 /**
  *  往集合尾部插入多条数据
  */
 fun <T> IAwait<out MutableList<T>>.insertAll(
     elements: Collection<T>
-): IAwait<MutableList<T>> = newAwait { it.await().apply { addAll(elements) } }
+): IAwait<MutableList<T>> = newAwait {
+    await().apply { addAll(elements) }
+}
 
 /**
  * 往集合指定位置插入多条数据
@@ -92,13 +98,15 @@ fun <T> IAwait<out MutableList<T>>.insertAll(
 fun <T> IAwait<out MutableList<T>>.insertAll(
     index: Int,
     elements: Collection<T>
-): IAwait<MutableList<T>> = newAwait { it.await().apply { addAll(index, elements) } }
+): IAwait<MutableList<T>> = newAwait {
+    await().apply { addAll(index, elements) }
+}
 
 
 inline fun <T> IAwait<out Iterable<T>>.filter(
     crossinline predicate: (T) -> Boolean
 ): IAwait<List<T>> = newAwait {
-    it.await().filter(predicate)
+    await().filter(predicate)
 }
 
 
@@ -106,22 +114,25 @@ inline fun <T, C : MutableCollection<in T>> IAwait<out Iterable<T>>.filterTo(
     destination: C,
     crossinline predicate: (T) -> Boolean
 ): IAwait<C> = newAwait {
-    it.await().filterTo(destination, predicate)
+    await().filterTo(destination, predicate)
     destination
 }
 
 /**
  * 集合去重，根据对象的哈希值去重
  */
-fun <T> IAwait<out Iterable<T>>.distinct(): IAwait<List<T>> = newAwait { it.await().distinct() }
+fun <T> IAwait<out Iterable<T>>.distinct(): IAwait<List<T>> = newAwait {
+    await().distinct()
+}
 
 /**
  * 集合去重，根据表达式返回值的哈希值去重
  */
 inline fun <T, K> IAwait<out Iterable<T>>.distinctBy(
     crossinline selector: (T) -> K
-): IAwait<List<T>> = newAwait { it.await().distinctBy(selector) }
-
+): IAwait<List<T>> = newAwait {
+    await().distinctBy(selector)
+}
 
 
 inline fun <T, K, C : MutableList<T>> IAwait<out Iterable<T>>.distinctTo(
@@ -133,7 +144,7 @@ inline fun <T, K, C : MutableList<T>> IAwait<out Iterable<T>>.distinctTo(
         val key = selector(e)
         set.add(key)
     }
-    for (e in it.await()) {
+    for (e in await()) {
         val key = selector(e)
         if (set.add(key))
             destination.add(e)
@@ -144,8 +155,9 @@ inline fun <T, K, C : MutableList<T>> IAwait<out Iterable<T>>.distinctTo(
 /**
  * 顺序、排序对象需要继承Comparable接口，实现排序规则，返回原集合
  */
-fun <T : Comparable<T>> IAwait<out MutableList<T>>.sort()
-    : IAwait<MutableList<T>> = newAwait { it.await().apply { sort() } }
+fun <T : Comparable<T>> IAwait<out MutableList<T>>.sort(): IAwait<MutableList<T>> = newAwait {
+    await().apply { sort() }
+}
 
 /**
  * 倒序、排序对象需要继承Comparable接口，实现排序规则，返回原集合
@@ -186,13 +198,17 @@ inline fun <T> IAwait<out MutableList<T>>.sortWith(
  */
 fun <T> IAwait<out MutableList<T>>.sortWith(
     comparator: Comparator<in T>
-): IAwait<MutableList<T>> = newAwait { it.await().apply { sortWith(comparator) } }
+): IAwait<MutableList<T>> = newAwait {
+    await().apply { sortWith(comparator) }
+}
 
 /**
  * 顺序、排序对象需要继承Comparable接口，实现排序规则，返回新的集合
  */
 fun <T : Comparable<T>> IAwait<out Iterable<T>>.sorted()
-    : IAwait<List<T>> = newAwait { it.await().sorted() }
+    : IAwait<List<T>> = newAwait {
+    await().sorted()
+}
 
 /**
  * 顺序、排序对象需要继承Comparable接口，实现排序规则，返回新的集合
@@ -232,7 +248,9 @@ inline fun <T> IAwait<out Iterable<T>>.sortedWith(
  */
 fun <T> IAwait<out Iterable<T>>.sortedWith(
     comparator: Comparator<in T>
-): IAwait<List<T>> = newAwait { it.await().sortedWith(comparator) }
+): IAwait<List<T>> = newAwait {
+    await().sortedWith(comparator)
+}
 
 /**
  * 为单个请求设置超时时长，该方法仅在使用协程时才有效
@@ -241,7 +259,9 @@ fun <T> IAwait<out Iterable<T>>.sortedWith(
  */
 fun <T> IAwait<T>.timeout(
     timeMillis: Long
-): IAwait<T> = newAwait { withTimeout(timeMillis) { it.await() } }
+): IAwait<T> = newAwait {
+    withTimeout(timeMillis) { await() }
+}
 
 fun <T> IAwait<T>.onErrorReturnItem(t: T): IAwait<T> = onErrorReturn { t }
 
@@ -249,7 +269,7 @@ inline fun <T> IAwait<T>.onErrorReturn(
     crossinline map: suspend (Throwable) -> T
 ): IAwait<T> = newAwait {
     try {
-        it.await()
+        await()
     } catch (e: Throwable) {
         map(e)
     }
@@ -257,17 +277,17 @@ inline fun <T> IAwait<T>.onErrorReturn(
 
 inline fun <T, R> IAwait<T>.map(
     crossinline map: suspend (T) -> R
-): IAwait<R> = newAwait { map(it.await()) }
+): IAwait<R> = newAwait { map(await()) }
 
 fun <T> IAwait<T>.delay(delay: Long): IAwait<T> = newAwait {
-    val t = it.await()
+    val t = await()
     kotlinx.coroutines.delay(delay)
     t
 }
 
 fun <T> IAwait<T>.startDelay(delay: Long): IAwait<T> = newAwait {
     kotlinx.coroutines.delay(delay)
-    it.await()
+    await()
 }
 
 suspend fun <T> IAwait<T>.async(scope: CoroutineScope) = scope.async { await() }
