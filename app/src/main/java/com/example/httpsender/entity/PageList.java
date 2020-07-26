@@ -1,7 +1,7 @@
 package com.example.httpsender.entity;
 
 
-import java.util.List;
+import java.util.ArrayList;
 
 /**
  * User: ljx
@@ -13,7 +13,7 @@ public class PageList<T> {
     private int     curPage; //当前页数
     private int     pageCount; //总页数
     private int     total; //总条数
-    private List<T> datas;
+    private ArrayList<T> datas;
 
     public int getCurPage() {
         return curPage;
@@ -27,7 +27,7 @@ public class PageList<T> {
         return total;
     }
 
-    public List<T> getDatas() {
+    public ArrayList<T> getDatas() {
         return datas;
     }
 
@@ -43,7 +43,7 @@ public class PageList<T> {
         this.total = total;
     }
 
-    public void setDatas(List<T> datas) {
+    public void setDatas(ArrayList<T> datas) {
         this.datas = datas;
     }
 }
