@@ -1,6 +1,8 @@
 package rxhttp
 
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -63,6 +65,9 @@ fun <T> IAwait<T>.flowOn(
     withContext(context) { await() }
 }
 
+fun <T> IAwait<T>.asFlow(): Flow<T> = flow {
+    emit(await())
+}
 
 /**
  * 往集合尾部插入一条数据
