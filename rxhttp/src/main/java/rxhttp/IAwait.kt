@@ -139,6 +139,19 @@ inline fun <T, K> IAwait<out Iterable<T>>.distinctBy(
     await().distinctBy(selector)
 }
 
+fun <T, C : MutableList<T>> IAwait<out Iterable<T>>.distinctTo(
+    destination: C
+): IAwait<C> = newAwait {
+    val set = HashSet<T>()
+    for (e in destination) {
+        set.add(e)
+    }
+    for (e in await()) {
+        if (set.add(e))
+            destination.add(e)
+    }
+    destination
+}
 
 inline fun <T, K, C : MutableList<T>> IAwait<out Iterable<T>>.distinctTo(
     destination: C,
