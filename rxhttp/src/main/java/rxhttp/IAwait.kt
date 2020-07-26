@@ -242,8 +242,7 @@ fun <T> IAwait<out MutableList<T>>.sortWith(
  *
  * The sort is _stable_. It means that equal elements preserve their order relative to each other after sorting.
  */
-fun <T : Comparable<T>> IAwait<out Iterable<T>>.sorted()
-    : IAwait<List<T>> = newAwait {
+fun <T : Comparable<T>> IAwait<out Iterable<T>>.sorted(): IAwait<List<T>> = newAwait {
     await().sorted()
 }
 
@@ -252,7 +251,8 @@ fun <T : Comparable<T>> IAwait<out Iterable<T>>.sorted()
  *
  * The sort is _stable_. It means that equal elements preserve their order relative to each other after sorting.
  */
-fun <T : Comparable<T>> IAwait<out Iterable<T>>.sortedDescending(): IAwait<List<T>> = sortedWith(reverseOrder())
+fun <T : Comparable<T>> IAwait<out Iterable<T>>.sortedDescending()
+    : IAwait<List<T>> = sortedWith(reverseOrder())
 
 fun <T> IAwait<out Iterable<T>>.sortedBy(
     vararg selectors: (T) -> Comparable<*>?
@@ -316,7 +316,9 @@ inline fun <T> IAwait<T>.onErrorReturn(
  */
 inline fun <T, R> IAwait<T>.map(
     crossinline map: suspend (T) -> R
-): IAwait<R> = newAwait { map(await()) }
+): IAwait<R> = newAwait {
+    map(await())
+}
 
 /**
  * Delay return by [timeMillis] millisecond after await.
