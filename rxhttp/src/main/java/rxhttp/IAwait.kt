@@ -227,7 +227,7 @@ fun <T> IAwait<out MutableList<T>>.sortWith(
 }
 
 /**
- * Returns a IAwait containing a list of all elements sorted according to their natural sort order.
+ * Returns a IAwait containing a new list of all elements sorted according to their natural sort order.
  *
  * The sort is _stable_. It means that equal elements preserve their order relative to each other after sorting.
  */
@@ -236,7 +236,7 @@ fun <T : Comparable<T>> IAwait<out Iterable<T>>.sorted(): IAwait<List<T>> = newA
 }
 
 /**
- * Returns a IAwait containing a list of all elements sorted descending according to their natural sort order.
+ * Returns a IAwait containing a new list of all elements sorted descending according to their natural sort order.
  *
  * The sort is _stable_. It means that equal elements preserve their order relative to each other after sorting.
  */
@@ -260,7 +260,7 @@ inline fun <T> IAwait<out Iterable<T>>.sortedWith(
 ): IAwait<List<T>> = sortedWith(Comparator { t1, t2 -> comparator(t1, t2) })
 
 /**
- * Returns a IAwait containing a list of all elements sorted according to the specified [comparator].
+ * Returns a IAwait containing a new list of all elements sorted according to the specified [comparator].
  *
  * The sort is _stable_. It means that equal elements preserve their order relative to each other after sorting.
  */
