@@ -32,7 +32,7 @@ inline fun <T, R> IAwait<T>.newAwait(
 fun <T> IAwait<T>.retry(
     times: Int = Int.MAX_VALUE,
     period: Long = 0,
-    test: (suspend (Throwable) -> Boolean)? = null
+    test: suspend (Throwable) -> Boolean = { true }
 ): IAwait<T> = object : IAwait<T> {
 
     var retryTime = times
@@ -41,14 +41,14 @@ fun <T> IAwait<T>.retry(
         return try {
             this@retry.await()
         } catch (e: Throwable) {
-            val remaining = retryTime  //剩余次数
+            val remaining = retryTime  //Remaining retries
             if (remaining != Int.MAX_VALUE) {
                 retryTime = remaining - 1
             }
-            val pass = test?.invoke(e) ?: true
+            val pass = test(e)
             if (remaining > 0 && pass) {
                 kotlinx.coroutines.delay(period)
-                await() //递归，直到剩余次数为0
+                await()
             } else throw e
         }
     }
