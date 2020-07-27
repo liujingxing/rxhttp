@@ -18,7 +18,7 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
 /**
- * IAwait接口真正实现类
+ * The IAwait interface really implements the class
  * User: ljx
  * Date: 2020/3/21
  * Time: 17:06
@@ -73,10 +73,7 @@ internal class AwaitImpl<T>(
         return null
     }
 
-    /**
-     * 所有的awaitXxx方法,最终都会调用本方法
-     */
-    suspend fun await(call: Call): T {
+    private suspend fun await(call: Call): T {
         return suspendCancellableCoroutine { continuation ->
             continuation.invokeOnCancellation {
                 call.cancel()  //当前线程同关闭协程时的线程 如：A线程关闭协程，这当前就在A线程调用
