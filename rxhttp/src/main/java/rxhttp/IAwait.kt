@@ -125,16 +125,9 @@ fun <T> IAwait<out MutableList<T>>.insertAll(
     await().apply { addAll(index, elements) }
 }
 
-
-/**
- * Returns a IAwait containing a list containing only elements matching the given [predicate].
- */
 inline fun <T> IAwait<out Iterable<T>>.filter(
     crossinline predicate: (T) -> Boolean
-): IAwait<List<T>> = newAwait {
-    await().filter(predicate)
-}
-
+): IAwait<ArrayList<T>> = filterTo(ArrayList(), predicate)
 
 /**
  * Appends all elements matching the given [predicate] to the given [destination].
