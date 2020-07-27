@@ -144,9 +144,7 @@ inline fun <T, C : MutableCollection<in T>> IAwait<out Iterable<T>>.filterTo(
  *
  * The elements in the resulting list are in the same order as they were in the source collection.
  */
-fun <T> IAwait<out Iterable<T>>.distinct(): IAwait<List<T>> = newAwait {
-    await().distinct()
-}
+fun <T> IAwait<out Iterable<T>>.distinct(): IAwait<ArrayList<T>> = distinctTo(ArrayList()) { it }
 
 /**
  * Returns a IAwait containing a list containing only elements from the given collection
@@ -156,9 +154,7 @@ fun <T> IAwait<out Iterable<T>>.distinct(): IAwait<List<T>> = newAwait {
  */
 inline fun <T, K> IAwait<out Iterable<T>>.distinctBy(
     crossinline selector: (T) -> K
-): IAwait<List<T>> = newAwait {
-    await().distinctBy(selector)
-}
+): IAwait<ArrayList<T>> = distinctTo(ArrayList(), selector)
 
 fun <T, C : MutableList<T>> IAwait<out Iterable<T>>.distinctTo(
     destination: C
