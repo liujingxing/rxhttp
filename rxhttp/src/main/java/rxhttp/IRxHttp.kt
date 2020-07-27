@@ -108,6 +108,8 @@ fun IRxHttp.toStr() = toClass<String>()
 
 inline fun <reified T : Any> IRxHttp.toList() = toClass<List<T>>()
 
+inline fun <reified T : Any> IRxHttp.toMutableList() = toClass<MutableList<T>>()
+
 inline fun <reified K : Any, reified V : Any> IRxHttp.toMap() = toClass<Map<K, V>>()
 
 fun IRxHttp.toBitmap() = toParser(BitmapParser())
