@@ -62,14 +62,17 @@ fun <T> IAwait<T>.retry(
  * For example:
  *
  * ```
- * val t = RxHttp.get("...")
- *     .toClass<T>()
- *     .map { ... } // Will be executed in IO
- *     .flowOn(Dispatchers.IO)
- *     .filter { ... } // Will be executed in Default
- *     .flowOn(Dispatchers.Default)
- *     .flowOn(Dispatchers.IO)
- *     .await() // Will be executed in the Main
+ * lifecycleScope.launch {
+ *     val t = RxHttp.get("...")
+ *         .toClass<T>()
+ *         .map { ... }    // Will be executed in IO
+ *         .flowOn(Dispatchers.IO)
+ *         .filter { ... } // Will be executed in Default
+ *         .flowOn(Dispatchers.Default)
+ *         .flowOn(Dispatchers.IO)
+ *         .filter { ... } // Will be executed in the Main
+ *         .await()        // Will be executed in the Main
+ * }
  * ```
  */
 fun <T> IAwait<T>.flowOn(
