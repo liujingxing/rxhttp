@@ -345,6 +345,8 @@ fun <T> IAwait<T>.startDelay(timeMillis: Long): IAwait<T> = newAwait {
  */
 suspend fun <T> IAwait<T>.async(scope: CoroutineScope): Deferred<T> = scope.async { await() }
 
+suspend fun <T> IAwait<T>.awaitResult(): Result<T> = runCatching { await() }
+
 /**
  * Try to get the return value and return null when an error occurs.
  */
