@@ -4,10 +4,12 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import java.util.Map;
 import java.util.Map.Entry;
 
 import okhttp3.MediaType;
 import rxhttp.wrapper.annotations.NonNull;
+import rxhttp.wrapper.utils.JsonUtil;
 
 /**
  * User: ljx
@@ -39,7 +41,8 @@ public interface IJsonObject<P extends Param<P>> {
      * @return P
      */
     default P addAll(@NonNull JsonObject jsonObject) {
-        for (Entry<String, JsonElement> next : jsonObject.entrySet()) {
+        Map<String, Object> map = JsonUtil.toMap(jsonObject);
+        for (Entry<String, Object> next : map.entrySet()) {
             add(next.getKey(), next.getValue());
         }
         return (P) this;
@@ -53,6 +56,7 @@ public interface IJsonObject<P extends Param<P>> {
      * @return P
      */
     default P addJsonElement(String key, @NonNull String jsonElement) {
-        return add(key, new JsonParser().parse(jsonElement));
+        JsonElement element = new JsonParser().parse(jsonElement);
+        return add(key, JsonUtil.toAny(element));
     }
 }

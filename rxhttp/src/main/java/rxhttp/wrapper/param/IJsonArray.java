@@ -7,6 +7,7 @@ import com.google.gson.JsonParser;
 import java.util.List;
 
 import rxhttp.wrapper.annotations.NonNull;
+import rxhttp.wrapper.utils.JsonUtil;
 
 /**
  * User: ljx
@@ -45,13 +46,13 @@ public interface IJsonArray<P extends Param<P>> extends IJsonObject<P> {
      */
     @Override
     default P addAll(@NonNull String jsonElement) {
-        JsonElement parse = new JsonParser().parse(jsonElement);
-        if (parse.isJsonArray()) {
-            return addAll(parse.getAsJsonArray());
-        } else if (parse.isJsonObject()) {
-            return addAll(parse.getAsJsonObject());
+        JsonElement element = new JsonParser().parse(jsonElement);
+        if (element.isJsonArray()) {
+            return addAll(element.getAsJsonArray());
+        } else if (element.isJsonObject()) {
+            return addAll(element.getAsJsonObject());
         }
-        return add(parse);
+        return add(JsonUtil.toAny(element));
     }
 
     /**
@@ -61,8 +62,9 @@ public interface IJsonArray<P extends Param<P>> extends IJsonObject<P> {
      * @return P
      */
     default P addAll(@NonNull JsonArray jsonArray) {
-        for (JsonElement next : jsonArray) {
-            add(next);
+        List<Object> list = JsonUtil.toList(jsonArray);
+        for (Object o : list) {
+            add(o);
         }
         return (P) this;
     }
@@ -74,6 +76,7 @@ public interface IJsonArray<P extends Param<P>> extends IJsonObject<P> {
      * @return P
      */
     default P addJsonElement(@NonNull String jsonElement) {
-        return add(new JsonParser().parse(jsonElement));
+        JsonElement element = new JsonParser().parse(jsonElement);
+        return add(JsonUtil.toAny(element));
     }
 }
