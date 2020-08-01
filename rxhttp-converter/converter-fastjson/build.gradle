@@ -5,7 +5,7 @@ dependencies {
 //    compileOnly project(":rxhttp")
     compileOnly "com.ljx.rxhttp:rxhttp:${rxhttp_version}"
     compileOnly "com.squareup.okhttp3:okhttp:${okhttp_version}"
-    api 'com.alibaba:fastjson:1.2.61'
+    api 'com.alibaba:fastjson:1.2.73'
 }
 
 sourceCompatibility = "8"
