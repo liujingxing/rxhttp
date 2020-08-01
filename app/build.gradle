@@ -74,15 +74,15 @@ dependencies {
     implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
     implementation 'io.reactivex.rxjava3:rxjava:3.0.2'
 
-    implementation "com.ljx.rxhttp:converter-jackson:${rxhttp_converter_version}"
-    implementation "com.ljx.rxhttp:converter-fastjson:${rxhttp_converter_version}"
-    implementation "com.ljx.rxhttp:converter-protobuf:${rxhttp_converter_version}"
-    implementation "com.ljx.rxhttp:converter-simplexml:${rxhttp_converter_version}"
+//    implementation "com.ljx.rxhttp:converter-jackson:${rxhttp_converter_version}"
+//    implementation "com.ljx.rxhttp:converter-fastjson:${rxhttp_converter_version}"
+//    implementation "com.ljx.rxhttp:converter-protobuf:${rxhttp_converter_version}"
+//    implementation "com.ljx.rxhttp:converter-simplexml:${rxhttp_converter_version}"
 
-//    implementation project(':rxhttp-converter:converter-fastjson')
-//    implementation project(':rxhttp-converter:converter-simplexml')
-//    implementation project(':rxhttp-converter:converter-protobuf')
-//    implementation project(':rxhttp-converter:converter-jackson')
+    implementation project(':rxhttp-converter:converter-fastjson')
+    implementation project(':rxhttp-converter:converter-simplexml')
+    implementation project(':rxhttp-converter:converter-protobuf')
+    implementation project(':rxhttp-converter:converter-jackson')
 
     testImplementation 'junit:junit:4.13'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
