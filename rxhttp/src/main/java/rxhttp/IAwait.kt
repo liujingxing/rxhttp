@@ -286,6 +286,12 @@ fun <T> IAwait<out Iterable<T>>.take(
     await().take(count)
 }
 
+fun <T> IAwait<out Iterable<T>>.toMutableList(): IAwait<MutableList<T>> = newAwait {
+    val list = await()
+    if (list is MutableList<T>) list
+    else list.toMutableList()
+}
+
 /**
  * Set the timeout for the request
  * @param timeMillis timeout time in milliseconds.
