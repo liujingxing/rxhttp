@@ -280,6 +280,12 @@ fun <T> IAwait<out List<T>>.subList(
     await().subList(fromIndex, toIndex)
 }
 
+fun <T> IAwait<out Iterable<T>>.take(
+    count: Int
+): IAwait<List<T>> = newAwait {
+    await().take(count)
+}
+
 /**
  * Set the timeout for the request
  * @param timeMillis timeout time in milliseconds.
