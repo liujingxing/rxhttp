@@ -5,7 +5,7 @@ dependencies {
 //    compileOnly project(":rxhttp")
     compileOnly "com.ljx.rxhttp:rxhttp:${rxhttp_version}"
     compileOnly "com.squareup.okhttp3:okhttp:${okhttp_version}"
-    api 'org.simpleframework:simple-xml:2.7.1'
+    api "org.simpleframework:simple-xml:${simple_xml_version}"
 }
 
 sourceCompatibility = "8"
