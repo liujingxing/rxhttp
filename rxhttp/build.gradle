@@ -6,6 +6,7 @@ sourceSets {
 
 compileKotlin {
     dependsOn 'copyJavaTemplates'
+    kotlinOptions.freeCompilerArgs = ["-Xallow-result-return-type"]
 }
 
 task copyJavaTemplates(type: Copy) {
