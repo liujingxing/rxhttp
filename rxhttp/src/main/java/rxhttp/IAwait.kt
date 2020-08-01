@@ -273,6 +273,13 @@ fun <T> IAwait<out Iterable<T>>.sortedWith(
     await().sortedWith(comparator)
 }
 
+
+fun <T> IAwait<out List<T>>.subList(
+    fromIndex: Int = 0, toIndex: Int
+): IAwait<List<T>> = newAwait {
+    await().subList(fromIndex, toIndex)
+}
+
 /**
  * Set the timeout for the request
  * @param timeMillis timeout time in milliseconds.
