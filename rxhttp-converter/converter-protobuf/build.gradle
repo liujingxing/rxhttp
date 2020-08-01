@@ -6,7 +6,7 @@ dependencies {
 //    compileOnly project(":rxhttp")
     compileOnly "com.ljx.rxhttp:rxhttp:${rxhttp_version}"
     compileOnly "com.squareup.okhttp3:okhttp:${okhttp_version}"
-    api 'com.google.protobuf:protobuf-java:3.5.0'
+    api 'com.google.protobuf:protobuf-java:3.10.0'
 }
 
 sourceCompatibility = "8"
