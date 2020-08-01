@@ -287,9 +287,10 @@ fun <T> IAwait<out Iterable<T>>.take(
 }
 
 fun <T> IAwait<out Iterable<T>>.toMutableList(): IAwait<MutableList<T>> = newAwait {
-    val list = await()
-    if (list is MutableList<T>) list
-    else list.toMutableList()
+    await().let {
+        if (it is MutableList<T>) it
+        else it.toMutableList()
+    }
 }
 
 /**
