@@ -27,6 +27,10 @@ suspend fun <T> Observable<T>.await(): T = suspendCancellableCoroutine { continu
     }                                               
 }                                                   
 
+inline fun <reified T> IRxHttp.executeList() = executeClass<List<T>>()
+
+inline fun <reified T> IRxHttp.executeClass() = object : SimpleParser<T>() {}.onParse(execute())
+
 inline fun <reified T> BaseRxHttp.asList() = asClass<List<T>>()
 
 inline fun <reified K, reified V> BaseRxHttp.asMap() = asClass<Map<K,V>>()

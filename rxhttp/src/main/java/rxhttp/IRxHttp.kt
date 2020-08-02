@@ -4,6 +4,7 @@ import kotlinx.coroutines.CoroutineScope
 import okhttp3.Headers
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.Response
 import rxhttp.wrapper.OkHttpCompat
 import rxhttp.wrapper.await.AwaitImpl
 import rxhttp.wrapper.cahce.CacheStrategy
@@ -11,6 +12,7 @@ import rxhttp.wrapper.callback.ProgressCallbackImpl
 import rxhttp.wrapper.callback.SuspendProgressCallbackImpl
 import rxhttp.wrapper.entity.Progress
 import rxhttp.wrapper.parse.*
+import java.io.IOException
 
 /**
  * User: ljx
@@ -18,6 +20,9 @@ import rxhttp.wrapper.parse.*
  * Time: 23:56
  */
 interface IRxHttp {
+
+    @Throws(IOException::class)
+    fun execute(): Response
 
     fun buildRequest(): Request
 
