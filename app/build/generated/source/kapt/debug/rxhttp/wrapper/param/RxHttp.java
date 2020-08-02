@@ -43,6 +43,7 @@ import rxhttp.wrapper.entity.ParameterizedTypeImpl;
 import rxhttp.wrapper.entity.Progress;
 import rxhttp.wrapper.entity.ProgressT;
 import rxhttp.wrapper.parse.Parser;
+import rxhttp.wrapper.parse.SimpleParser;
 
 /**
  * Github
@@ -199,6 +200,14 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
     return new RxHttpPostEncryptJsonParam(new PostEncryptJsonParam(format(url, formatArgs)));
   }
 
+  public static RxHttpGetEncryptParam getEncrypt(String url, Object... formatArgs) {
+    return new RxHttpGetEncryptParam(new GetEncryptParam(format(url, formatArgs)));
+  }
+
+  public static RxHttpPostEncryptJsonParam1 postEncryptJson1(String url, Object... formatArgs) {
+    return new RxHttpPostEncryptJsonParam1(new PostEncryptJsonParam1(format(url, formatArgs)));
+  }
+
   public static RxHttpPostEncryptFormParam postEncryptForm(String url, Object... formatArgs) {
     return new RxHttpPostEncryptFormParam(new PostEncryptFormParam(format(url, formatArgs)));
   }
@@ -206,14 +215,6 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
   public static RxHttpPostEncryptFormParam postEncryptForm(String url, Method method,
       Object... formatArgs) {
     return new RxHttpPostEncryptFormParam(new PostEncryptFormParam(format(url, formatArgs), method));
-  }
-
-  public static RxHttpGetEncryptParam getEncrypt(String url, Object... formatArgs) {
-    return new RxHttpGetEncryptParam(new GetEncryptParam(format(url, formatArgs)));
-  }
-
-  public static RxHttpPostEncryptJsonParam1 postEncryptJson1(String url, Object... formatArgs) {
-    return new RxHttpPostEncryptJsonParam1(new PostEncryptJsonParam1(format(url, formatArgs)));
   }
 
   public static RxHttpNoBodyParam with(NoBodyParam noBodyParam) {
@@ -392,13 +393,26 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
     return (R)this;
   }
 
+  @Override
   public Response execute() throws IOException {
-    doOnStart();
     return newCall().execute();
   }
 
   public <T> T execute(Parser<T> parser) throws IOException {
     return parser.onParse(execute());
+  }
+
+  public String executeString() throws IOException {
+    return executeClass(String.class);
+  }
+
+  public <T> List<T> executeList(Class<T> type) throws IOException {
+    Type tTypeList = ParameterizedTypeImpl.get(List.class, type);
+    return execute(new SimpleParser<List<T>>(tTypeList));
+  }
+
+  public <T> T executeClass(Class<T> type) throws IOException {
+    return execute(new SimpleParser<T>(type));
   }
 
   public Call newCall() {

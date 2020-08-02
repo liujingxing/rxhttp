@@ -36,6 +36,11 @@ class ParserAnnotatedClass {
 
     fun getMethodList(filer: Filer): List<MethodSpec> {
         val t = TypeVariableName.get("T")
+        val classTName = ParameterizedTypeName.get(
+            ClassName.get(Class::class.java), t)
+
+        val listTName = ParameterizedTypeName.get(
+            ClassName.get(List::class.java), t)
         val callName = ClassName.get("okhttp3", "Call")
         val okHttpClientName = ClassName.get("okhttp3", "OkHttpClient")
         val responseName = ClassName.get("okhttp3", "Response")
@@ -47,13 +52,14 @@ class ParserAnnotatedClass {
         val typeName = TypeName.get(String::class.java)
         val progressTStringName = ParameterizedTypeName.get(progressTName, typeName)
         val parserTName = ParameterizedTypeName.get(parserName, t)
+        val simpleParserName = ClassName.get("rxhttp.wrapper.parse", "SimpleParser")
         val methodList = ArrayList<MethodSpec>()
 
         methodList.add(
             MethodSpec.methodBuilder("execute")
+                .addAnnotation(Override::class.java)
                 .addModifiers(Modifier.PUBLIC)
                 .addException(IOException::class.java)
-                .addStatement("doOnStart()")
                 .addStatement("return newCall().execute()")
                 .returns(responseName)
                 .build())
@@ -64,7 +70,36 @@ class ParserAnnotatedClass {
                 .addTypeVariable(t)
                 .addException(IOException::class.java)
                 .addParameter(parserTName, "parser")
-                .addStatement("return parser.onParse(execute())", httpSenderName)
+                .addStatement("return parser.onParse(execute())")
+                .returns(t)
+                .build())
+
+        methodList.add(
+            MethodSpec.methodBuilder("executeString")
+                .addModifiers(Modifier.PUBLIC)
+                .addException(IOException::class.java)
+                .addStatement("return executeClass(String.class)")
+                .returns(typeName)
+                .build())
+
+        methodList.add(
+            MethodSpec.methodBuilder("executeList")
+                .addModifiers(Modifier.PUBLIC)
+                .addTypeVariable(t)
+                .addException(IOException::class.java)
+                .addParameter(classTName, "type")
+                .addStatement("Type tTypeList = ParameterizedTypeImpl.get(List.class, type)")
+                .addStatement("return execute(new \$T<List<T>>(tTypeList))", simpleParserName)
+                .returns(listTName)
+                .build())
+
+        methodList.add(
+            MethodSpec.methodBuilder("executeClass")
+                .addModifiers(Modifier.PUBLIC)
+                .addTypeVariable(t)
+                .addException(IOException::class.java)
+                .addParameter(classTName, "type")
+                .addStatement("return execute(new \$T<T>(type))", simpleParserName)
                 .returns(t)
                 .build())
 
