@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 
 import okhttp3.ResponseBody;
+import rxhttp.RxHttpPlugins;
 import rxhttp.wrapper.annotations.NonNull;
 import rxhttp.wrapper.callback.IConverter;
 
@@ -50,7 +51,13 @@ public class XmlConverter implements IConverter {
         if (!(type instanceof Class)) return null;
         Class<T> cls = (Class<T>) type;
         try {
-            T read = serializer.read(cls, body.charStream(), strict);
+            T read;
+            if (onResultDecoder) {
+                String result = RxHttpPlugins.onResultDecoder(body.string());
+                read = serializer.read(cls, result, strict);
+            } else {
+                read = serializer.read(cls, body.charStream(), strict);
+            }
             if (read == null) {
                 throw new IllegalStateException("Could not deserialize body as " + cls);
             }

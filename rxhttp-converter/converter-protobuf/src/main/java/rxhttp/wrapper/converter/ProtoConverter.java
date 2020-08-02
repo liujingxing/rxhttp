@@ -30,6 +30,7 @@ public class ProtoConverter implements IConverter {
         this.registry = registry;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T> T convert(ResponseBody body, Type type, boolean onResultDecoder) throws IOException {
         if (!(type instanceof Class<?>)) {
