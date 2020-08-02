@@ -139,6 +139,15 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
     return (R)this;
   }
 
+  /**
+   * For example:
+   *                                          
+   * ```                                                  
+   * RxHttp.get("/service/%1$s/...?pageSize=%2$s", 1, 20)   
+   *     .asString()                                      
+   *     .subscribe()                                     
+   * ```                                                  
+   */
   public static RxHttpNoBodyParam get(String url, Object... formatArgs) {
     return with(Param.get(format(url, formatArgs)));
   }
@@ -200,14 +209,6 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
     return new RxHttpPostEncryptJsonParam(new PostEncryptJsonParam(format(url, formatArgs)));
   }
 
-  public static RxHttpGetEncryptParam getEncrypt(String url, Object... formatArgs) {
-    return new RxHttpGetEncryptParam(new GetEncryptParam(format(url, formatArgs)));
-  }
-
-  public static RxHttpPostEncryptJsonParam1 postEncryptJson1(String url, Object... formatArgs) {
-    return new RxHttpPostEncryptJsonParam1(new PostEncryptJsonParam1(format(url, formatArgs)));
-  }
-
   public static RxHttpPostEncryptFormParam postEncryptForm(String url, Object... formatArgs) {
     return new RxHttpPostEncryptFormParam(new PostEncryptFormParam(format(url, formatArgs)));
   }
@@ -215,6 +216,14 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
   public static RxHttpPostEncryptFormParam postEncryptForm(String url, Method method,
       Object... formatArgs) {
     return new RxHttpPostEncryptFormParam(new PostEncryptFormParam(format(url, formatArgs), method));
+  }
+
+  public static RxHttpGetEncryptParam getEncrypt(String url, Object... formatArgs) {
+    return new RxHttpGetEncryptParam(new GetEncryptParam(format(url, formatArgs)));
+  }
+
+  public static RxHttpPostEncryptJsonParam1 postEncryptJson1(String url, Object... formatArgs) {
+    return new RxHttpPostEncryptJsonParam1(new PostEncryptJsonParam1(format(url, formatArgs)));
   }
 
   public static RxHttpNoBodyParam with(NoBodyParam noBodyParam) {
