@@ -49,10 +49,10 @@ public class GsonConverter implements IConverter {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> T convert(ResponseBody body, @NonNull Type type, boolean onResultDecoder) throws IOException {
+    public <T> T convert(ResponseBody body, @NonNull Type type, boolean needDecodeResult) throws IOException {
         try {
             String result = body.string();
-            if (onResultDecoder) {
+            if (needDecodeResult) {
                 result = RxHttpPlugins.onResultDecoder(result);
             }
             if (type == String.class) return (T) result;
