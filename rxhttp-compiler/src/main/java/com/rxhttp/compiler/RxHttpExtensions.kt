@@ -19,6 +19,7 @@ class RxHttpExtensions {
     private val anyTypeName = Any::class.asTypeName()
 
     private val baseRxHttpName = ClassName(rxHttpPackage, "BaseRxHttp")
+    private val iRxHttpName = ClassName("rxhttp", "IRxHttp")
     private val toFunList = ArrayList<FunSpec>()
     private val asFunList = ArrayList<FunSpec>()
 
@@ -148,6 +149,20 @@ class RxHttpExtensions {
                 }                                                   
             """.trimIndent())
                 .returns(t)
+                .build())
+
+            fileBuilder.addFunction(FunSpec.builder("executeList")
+                .addModifiers(KModifier.INLINE)
+                .receiver(iRxHttpName)
+                .addTypeVariable(t.copy(reified = true))
+                .addStatement("return executeClass<List<T>>()")
+                .build())
+
+            fileBuilder.addFunction(FunSpec.builder("executeClass")
+                .addModifiers(KModifier.INLINE)
+                .receiver(iRxHttpName)
+                .addTypeVariable(t.copy(reified = true))
+                .addStatement("return object : SimpleParser<T>() {}.onParse(execute())")
                 .build())
 
             fileBuilder.addFunction(FunSpec.builder("asList")
