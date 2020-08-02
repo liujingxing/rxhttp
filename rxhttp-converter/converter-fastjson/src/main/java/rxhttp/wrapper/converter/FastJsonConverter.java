@@ -10,6 +10,7 @@ import java.lang.reflect.Type;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
+import rxhttp.RxHttpPlugins;
 import rxhttp.wrapper.annotations.NonNull;
 import rxhttp.wrapper.callback.IConverter;
 
@@ -51,7 +52,11 @@ public class FastJsonConverter implements IConverter {
     @Override
     public <T> T convert(ResponseBody body, Type type,boolean onResultDecoder) throws IOException {
         try {
-            return JSON.parseObject(body.string(), type, parserConfig);
+            String result = body.string();
+            if (onResultDecoder) {
+                result = RxHttpPlugins.onResultDecoder(result);
+            }
+            return JSON.parseObject(result, type, parserConfig);
         } finally {
             body.close();
         }
