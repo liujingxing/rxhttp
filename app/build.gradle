@@ -59,13 +59,13 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:2.2.0"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0"
 
-    implementation project(":rxhttp")
-    kapt project(':rxhttp-compiler')
+//    implementation project(":rxhttp")
+//    kapt project(':rxhttp-compiler')
 
     implementation "com.squareup.okhttp3:okhttp:${okhttp_version}"
 
-//    implementation "com.ljx.rxhttp:rxhttp:${rxhttp_version}"
-//    kapt "com.ljx.rxhttp:rxhttp-compiler:${rxhttp_version}"
+    implementation "com.ljx.rxhttp:rxhttp:${rxhttp_version}"
+    kapt "com.ljx.rxhttp:rxhttp-compiler:${rxhttp_version}"
 
     implementation 'com.ljx.rxlife:rxlife-coroutine:2.0.0'
 
@@ -74,15 +74,15 @@ dependencies {
     implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
     implementation 'io.reactivex.rxjava3:rxjava:3.0.2'
 
-//    implementation "com.ljx.rxhttp:converter-jackson:${rxhttp_converter_version}"
-//    implementation "com.ljx.rxhttp:converter-fastjson:${rxhttp_converter_version}"
-//    implementation "com.ljx.rxhttp:converter-protobuf:${rxhttp_converter_version}"
-//    implementation "com.ljx.rxhttp:converter-simplexml:${rxhttp_converter_version}"
+    implementation "com.ljx.rxhttp:converter-jackson:${rxhttp_converter_version}"
+    implementation "com.ljx.rxhttp:converter-fastjson:${rxhttp_converter_version}"
+    implementation "com.ljx.rxhttp:converter-protobuf:${rxhttp_converter_version}"
+    implementation "com.ljx.rxhttp:converter-simplexml:${rxhttp_converter_version}"
 
-    implementation project(':rxhttp-converter:converter-fastjson')
-    implementation project(':rxhttp-converter:converter-simplexml')
-    implementation project(':rxhttp-converter:converter-protobuf')
-    implementation project(':rxhttp-converter:converter-jackson')
+//    implementation project(':rxhttp-converter:converter-fastjson')
+//    implementation project(':rxhttp-converter:converter-simplexml')
+//    implementation project(':rxhttp-converter:converter-protobuf')
+//    implementation project(':rxhttp-converter:converter-jackson')
 
     testImplementation 'junit:junit:4.13'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
