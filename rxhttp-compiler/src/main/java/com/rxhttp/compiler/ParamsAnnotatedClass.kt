@@ -59,8 +59,24 @@ class ParamsAnnotatedClass {
         methodMap["patchJsonArray"] = "RxHttpJsonArrayParam"
         methodMap["deleteJsonArray"] = "RxHttpJsonArrayParam"
         var method: MethodSpec.Builder
+        val codeBlock = CodeBlock.builder()
+            .add("""
+                    For example:
+                                                             
+                    ```                                                  
+                    RxHttp.get("/service/%1${'$'}L/...?pageSize=%2${'$'}L", 1, 20)   
+                        .asString()                                      
+                        .subscribe()                                     
+                    ```                                                  
+                """.trimIndent(), "${'$'}s", "${'$'}s")
+            .build()
+
         for ((key, value) in methodMap) {
-            methodList.add(MethodSpec.methodBuilder(key)
+            val methodBuilder = MethodSpec.methodBuilder(key)
+            if (key == "get") {
+                methodBuilder.addJavadoc(codeBlock)
+            }
+            methodList.add(methodBuilder
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                 .addParameter(String::class.java, "url")
                 .addParameter(ArrayTypeName.of(Any::class.java), "formatArgs")
