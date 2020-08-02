@@ -40,12 +40,12 @@ public class JacksonConverter implements IConverter {
     }
 
     @Override
-    public <T> T convert(ResponseBody body, Type type, boolean onResultDecoder) throws IOException {
+    public <T> T convert(ResponseBody body, Type type, boolean needDecodeResult) throws IOException {
         JavaType javaType = mapper.getTypeFactory().constructType(type);
         ObjectReader reader = mapper.readerFor(javaType);
         try {
             String result = body.string();
-            if (onResultDecoder) {
+            if (needDecodeResult) {
                 result = RxHttpPlugins.onResultDecoder(result);
             }
             return reader.readValue(result);

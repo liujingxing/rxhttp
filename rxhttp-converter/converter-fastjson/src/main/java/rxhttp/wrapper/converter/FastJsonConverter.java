@@ -50,10 +50,10 @@ public class FastJsonConverter implements IConverter {
     }
 
     @Override
-    public <T> T convert(ResponseBody body, Type type,boolean onResultDecoder) throws IOException {
+    public <T> T convert(ResponseBody body, Type type, boolean needDecodeResult) throws IOException {
         try {
             String result = body.string();
-            if (onResultDecoder) {
+            if (needDecodeResult) {
                 result = RxHttpPlugins.onResultDecoder(result);
             }
             return JSON.parseObject(result, type, parserConfig);
