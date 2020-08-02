@@ -67,7 +67,7 @@ dependencies {
     implementation 'com.ljx.rxlife:rxlife-coroutine:2.0.0' //管理协程生命周期，页面销毁，关闭请求
     
     //rxjava2   (RxJava2/Rxjava3二选一，使用asXxx方法时必须)
-    implementation 'io.reactivex.rxjava2:rxjava:2.3.1'
+    implementation 'io.reactivex.rxjava2:rxjava:2.2.8'
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
     implementation 'com.ljx.rxlife2:rxlife-rxjava:2.0.0' //管理RxJava2生命周期，页面销毁，关闭请求
 
