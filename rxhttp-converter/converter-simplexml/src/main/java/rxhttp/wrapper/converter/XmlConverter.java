@@ -47,12 +47,12 @@ public class XmlConverter implements IConverter {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> T convert(@NonNull ResponseBody body, @NonNull Type type, boolean onResultDecoder) throws IOException {
+    public <T> T convert(@NonNull ResponseBody body, @NonNull Type type, boolean needDecodeResult) throws IOException {
         if (!(type instanceof Class)) return null;
         Class<T> cls = (Class<T>) type;
         try {
             T read;
-            if (onResultDecoder) {
+            if (needDecodeResult) {
                 String result = RxHttpPlugins.onResultDecoder(body.string());
                 read = serializer.read(cls, result, strict);
             } else {
