@@ -162,7 +162,7 @@ class RxHttpExtensions {
                 .addModifiers(KModifier.INLINE)
                 .receiver(iRxHttpName)
                 .addTypeVariable(t.copy(reified = true))
-                .addStatement("return object : SimpleParser<T>() {}.onParse(execute())")
+                .addStatement("return object : %T<T>() {}.onParse(execute())", simpleParserName)
                 .build())
 
             fileBuilder.addFunction(FunSpec.builder("asList")
