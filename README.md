@@ -60,7 +60,7 @@ android {
 }
 dependencies {
     //以下3个为必须，
-    implementation 'com.ljx.rxhttp:rxhttp:2.3.2'
+    implementation 'com.ljx.rxhttp:rxhttp:2.3.3'
     implementation 'com.squareup.okhttp3:okhttp:4.7.2' //rxhttp v2.2.2版本起，需要手动依赖okhttp
     kapt 'com.ljx.rxhttp:rxhttp-compiler:2.3.3' //生成RxHttp类，非kotlin项目，请使用annotationProcessor代替kapt
     
