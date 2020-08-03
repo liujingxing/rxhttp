@@ -53,6 +53,7 @@ class ParserAnnotatedClass {
         val progressTStringName = ParameterizedTypeName.get(progressTName, typeName)
         val parserTName = ParameterizedTypeName.get(parserName, t)
         val simpleParserName = ClassName.get("rxhttp.wrapper.parse", "SimpleParser")
+        val type = ClassName.get("java.lang.reflect", "Type")
         val parameterizedType = ClassName.get("rxhttp.wrapper.entity", "ParameterizedTypeImpl")
         val methodList = ArrayList<MethodSpec>()
 
@@ -89,7 +90,7 @@ class ParserAnnotatedClass {
                 .addTypeVariable(t)
                 .addException(IOException::class.java)
                 .addParameter(classTName, "type")
-                .addStatement("Type tTypeList = \$T.get(List.class, type)", parameterizedType)
+                .addStatement("\$T tTypeList = \$T.get(List.class, type)", type, parameterizedType)
                 .addStatement("return execute(new \$T<List<T>>(tTypeList))", simpleParserName)
                 .returns(listTName)
                 .build())
