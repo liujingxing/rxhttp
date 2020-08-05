@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.httpsender.DownloadMultiAdapter.MyViewHolder;
 import com.example.httpsender.entity.DownloadTask;
+import com.example.httpsender.vm.MultiTaskDownloader;
 
 import java.text.DecimalFormat;
 import java.util.List;
@@ -53,29 +54,28 @@ public class DownloadMultiAdapter extends RecyclerView.Adapter<MyViewHolder> {
         viewHolder.tvSize.setText(String.format("%sM/%sM", currentSize, totalSize));
 
         int state = data.getState();
-        if (state == 0) {
+        if (state == MultiTaskDownloader.IDLE) {
             viewHolder.tvWaiting.setText("未开始");
             viewHolder.btPause.setText("开始");
-        } else if (state == 1) {
+        } else if (state == MultiTaskDownloader.WAITING) {
             viewHolder.tvWaiting.setText("等待中..");
             viewHolder.btPause.setText("取消");
-        } else if (state == 2) {
+        } else if (state == MultiTaskDownloader.DOWNLOADING) {
             viewHolder.tvWaiting.setText("下载中..");
             viewHolder.btPause.setText("暂停");
-        } else if (state == 3) {
+        } else if (state == MultiTaskDownloader.PAUSED) {
             viewHolder.tvWaiting.setText("已暂停");
             viewHolder.btPause.setText("继续");
-        } else if (state == 4) {
+        } else if (state == MultiTaskDownloader.COMPLETED) {
             viewHolder.tvWaiting.setText("已完成");
             viewHolder.btPause.setText("已完成");
-        } else if (state == 5) {
+        } else if (state == MultiTaskDownloader.FAIL) {
             viewHolder.tvWaiting.setText("下载失败");
-            viewHolder.btPause.setText("下载失败");
-        } else if (state == 6) {
+            viewHolder.btPause.setText("重新下载");
+        } else if (state == MultiTaskDownloader.CANCEL) {
             viewHolder.tvWaiting.setText("已取消");
             viewHolder.btPause.setText("重新下载");
         }
-
     }
 
     @Override
