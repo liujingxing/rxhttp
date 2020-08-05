@@ -4,6 +4,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.List;
 
 import okhttp3.Headers;
 import okhttp3.HttpUrl;
@@ -34,6 +35,10 @@ public class OkHttpCompat {
 
     public static Request request(Response response) {
         return response.request();
+    }
+
+    public static List<String> pathSegments(Response response) {
+        return response.request().url().pathSegments();
     }
 
     public static HttpUrl url(Request request) {
