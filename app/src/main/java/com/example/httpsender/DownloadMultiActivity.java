@@ -23,7 +23,6 @@ import java.util.ArrayList;
  */
 public class DownloadMultiActivity extends ToolBarActivity implements OnItemClickListener<DownloadTask> {
 
-    public static final int MAX_TASK_COUNT = 3;  //最大并发数
 
     private DownloadMultiAdapter mAdapter;
 
@@ -85,29 +84,19 @@ public class DownloadMultiActivity extends ToolBarActivity implements OnItemClic
     public void onItemClick(View view, DownloadTask task, int position) {
         switch (view.getId()) {
             case R.id.bt_pause:
-                //0=未开始 1=等待中 2=下载中 3=暂停中 4=已完成  5=下载失败 6=已取消
-                int state = task.getState();
-                if (state == 0) {
-                    //未开始->开始下载
+                int curState = task.getState();  //任务当前状态
+                if (curState == MultiTaskDownloader.IDLE         //未开始->开始下载
+                    || curState == MultiTaskDownloader.PAUSED    //暂停下载->继续下载
+                    || curState == MultiTaskDownloader.CANCEL    //已取消->重新开始下载
+                    || curState == MultiTaskDownloader.FAIL      //下载失败->重新下载
+                ) {
                     mMultiTaskDownloader.download(task);
-                } else if (state == 1) {
-                    //等待中->取消下载
+                } else if (curState == MultiTaskDownloader.WAITING) {       //等待中->取消下载
                     mMultiTaskDownloader.removeWaitTask(task);
-                } else if (state == 2) {
-                    //下载中->暂停下载
+                } else if (curState == MultiTaskDownloader.DOWNLOADING) {   //下载中->暂停下载
                     mMultiTaskDownloader.pauseTask(task);
-                } else if (state == 3) {
-                    //暂停下载->继续下载
-                    mMultiTaskDownloader.download(task);
-                } else if (state == 4) {
-                    //任务已完成
+                } else if (curState == MultiTaskDownloader.COMPLETED) {   //任务已完成
                     Tip.show("该任务已完成");
-                } else if (state == 5) {
-                    //任务下载失败
-                    Tip.show("该任务下载失败");
-                } else if (state == 6) {
-                    //已取消->重新开始下载
-                    mMultiTaskDownloader.download(task);
                 }
                 break;
         }
