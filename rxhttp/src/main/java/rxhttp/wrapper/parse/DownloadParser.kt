@@ -8,27 +8,34 @@ import rxhttp.wrapper.utils.LogUtil
 import java.io.IOException
 
 /**
- * 文件下载解析器
+ * File downloader
  * User: ljx
  * Date: 2018/10/23
  * Time: 13:49
  */
 class DownloadParser(
-    private val mDestPath: String   //destPath 目标路径
+    private val localPath: String
 ) : Parser<String> {
 
     /**
-     * @param response Http请求执行结果
-     * @return 下载成功后的文件路径
-     * @throws IOException 网络异常等,RxJava的观察者会捕获此异常
+     * When the download is complete, return to the local file path
      */
     @Throws(IOException::class)
     override fun onParse(response: Response): String {
+        val localPath = localPath.replaceSuffix(response)
         val body = ExceptionHelper.throwIfFatal(response)
-        LogUtil.log(response, false, mDestPath)
+        LogUtil.log(response, false, localPath)
         val append = OkHttpCompat.header(response, "Content-Range") != null
-        IOUtil.write(body.byteStream(), mDestPath, append) //将输入流写出到文件
-        return mDestPath
+        IOUtil.write(body.byteStream(), localPath, append) //将输入流写出到文件
+        return localPath
     }
 
+    private fun String.replaceSuffix(response: Response): String {
+        return if (endsWith("/%s", true)
+            || endsWith("/%1\$s", true)) {
+            format(OkHttpCompat.pathSegments(response).last())
+        } else {
+            this
+        }
+    }
 }
