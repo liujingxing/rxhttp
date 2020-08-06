@@ -11,15 +11,19 @@ import io.reactivex.rxjava3.disposables.Disposable;
 public class DownloadTask {
 
     private int taskId;
-
     private String url;
-    private int progress;
+    private String localPath;
 
+    private int progress;
     private long currentSize;
     private long totalSize;
 
     private Disposable mDisposable;
 
+
+    public DownloadTask(String url) {
+        this.url = url;
+    }
 
     private int state; //0=未开始 1=等待中 2=下载中 3=暂停中 4=已完成  5=下载失败 6=已取消
 
@@ -51,16 +55,20 @@ public class DownloadTask {
         return mDisposable != null && !mDisposable.isDisposed();
     }
 
-    public DownloadTask(String url) {
-        this.url = url;
-    }
-
     public String getUrl() {
         return url;
     }
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public String getLocalPath() {
+        return localPath;
+    }
+
+    public void setLocalPath(String localPath) {
+        this.localPath = localPath;
     }
 
     public int getProgress() {
