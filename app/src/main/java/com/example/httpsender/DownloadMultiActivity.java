@@ -44,6 +44,7 @@ public class DownloadMultiActivity extends ToolBarActivity implements OnItemClic
         for (int i = 0; i < 20; i++) {
             DownloadTask task = new DownloadTask(downloadUrl[i % downloadUrl.length]);
             task.setTaskId(i);
+            task.setLocalPath(getExternalCacheDir() + "/" + i + ".apk");
             allTask.add(task);
         }
         mAdapter = new DownloadMultiAdapter(allTask);
