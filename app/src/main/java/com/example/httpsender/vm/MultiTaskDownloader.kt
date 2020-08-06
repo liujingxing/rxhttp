@@ -48,40 +48,40 @@ class MultiTaskDownloader(application: Application) : ScopeViewModel(application
         allTaskList.forEach { download(it) }
     }
 
-    fun download(data: DownloadTask) {
+    fun download(task: DownloadTask) {
         if (downloadingTask.size >= MAX_TASK_COUNT) {
-            data.state = WAITING
-            waitTask.offer(data)
+            task.state = WAITING
+            waitTask.offer(task)
             return
         }
-        val destPath: String = getApplication<Application>().externalCacheDir.toString() + "/" + data.taskId + ".apk"
+        val destPath = task.localPath
         val length = File(destPath).length()
-        val disposable = RxHttp.get(data.url)
+        val disposable = RxHttp.get(task.url)
             .setRangeHeader(length, -1, true) //设置开始下载位置，结束位置默认为文件末尾
             .asDownload(destPath, AndroidSchedulers.mainThread()) {   //如果需要衔接上次的下载进度，则需要传入上次已下载的字节数length
                 //下载进度回调,0-100，仅在进度有更新时才会回调
-                data.progress = it.progress //当前进度 0-100
-                data.currentSize = it.currentSize //当前已下载的字节大小
-                data.totalSize = it.totalSize //要下载的总字节大小
+                task.progress = it.progress //当前进度 0-100
+                task.currentSize = it.currentSize //当前已下载的字节大小
+                task.totalSize = it.totalSize //要下载的总字节大小
                 updateTask()
             }
             .doFinally {
                 updateTask()
                 //不管任务成功还是失败，如果还有在等待的任务，都开启下一个任务
-                downloadingTask.remove(data)
+                downloadingTask.remove(task)
                 waitTask.poll()?.let { download(it) }
             }
             .to(RxLife.to(this)) //加入感知生命周期的观察者
             .subscribe({
                 Tip.show("下载完成")
-                data.state = COMPLETED
+                task.state = COMPLETED
             }, {
                 Tip.show("下载失败")
-                data.state = FAIL
+                task.state = FAIL
             })
-        data.state = DOWNLOADING
-        data.disposable = disposable
-        downloadingTask.add(data)
+        task.state = DOWNLOADING
+        task.disposable = disposable
+        downloadingTask.add(task)
     }
 
     //关闭所有任务
