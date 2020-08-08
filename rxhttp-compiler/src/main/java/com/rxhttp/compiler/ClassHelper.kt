@@ -13,7 +13,7 @@ import javax.annotation.processing.Filer
 object ClassHelper {
 
     @JvmStatic
-    fun generatorBaseRxHttp(filer: Filer) {
+    fun generatorBaseRxHttp(filer: Filer, isAndroid: Boolean) {
         if (!isDependenceRxJava()) {
             generatorClass(filer, "BaseRxHttp", """
                 package $rxHttpPackage;
@@ -35,7 +35,7 @@ object ClassHelper {
             generatorClass(filer, "BaseRxHttp", """
             package $rxHttpPackage;
 
-            import android.graphics.Bitmap;
+            ${if(isAndroid) "import android.graphics.Bitmap;" else "" }
 
             import java.lang.reflect.Type;
             import java.util.List;
@@ -51,7 +51,7 @@ object ClassHelper {
             import rxhttp.wrapper.annotations.Nullable;
             import rxhttp.wrapper.entity.ParameterizedTypeImpl;
             import rxhttp.wrapper.entity.Progress;
-            import rxhttp.wrapper.parse.BitmapParser;
+            ${if(isAndroid) "import rxhttp.wrapper.parse.BitmapParser;" else "" }
             import rxhttp.wrapper.parse.DownloadParser;
             import rxhttp.wrapper.parse.OkResponseParser;
             import rxhttp.wrapper.parse.Parser;
@@ -147,9 +147,9 @@ object ClassHelper {
                     return asParser(new SimpleParser<List<T>>(tTypeList));
                 }
 
-                public final <T> Observable<Bitmap> asBitmap() {
+                ${if(isAndroid) """public final <T> Observable<Bitmap> asBitmap() {
                     return asParser(new BitmapParser());
-                }
+                }""" else ""}
 
                 public final Observable<Response> asOkResponse() {
                     return asParser(new OkResponseParser());
