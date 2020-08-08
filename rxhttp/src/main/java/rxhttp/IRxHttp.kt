@@ -140,10 +140,10 @@ fun IRxHttp.toDownload(
     destPath: String,
     progress: ((Progress) -> Unit)? = null
 ): IAwait<String> {
-    val okHttpClient = if (progress == null)
-        getOkHttpClient()
-    else
-        HttpSender.clone(getOkHttpClient(), ProgressCallbackImpl(breakDownloadOffSize, progress))
+    var okHttpClient = getOkHttpClient()
+    if (progress != null) {
+        okHttpClient = HttpSender.clone(okHttpClient, ProgressCallbackImpl(breakDownloadOffSize, progress))
+    }
     return toParser(DownloadParser(destPath), okHttpClient)
 }
 
