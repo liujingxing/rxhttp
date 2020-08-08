@@ -44,6 +44,8 @@ public class MoshiConverter implements IConverter {
 
     /**
      * Create an instance using a default {@link Moshi} instance for conversion.
+     *
+     * @return MoshiConverter
      */
     public static MoshiConverter create() {
         return create(new Moshi.Builder().build());
@@ -51,6 +53,9 @@ public class MoshiConverter implements IConverter {
 
     /**
      * Create an instance using {@code moshi} for conversion.
+     *
+     * @param moshi Moshi
+     * @return MoshiConverter
      */
     public static MoshiConverter create(Moshi moshi) {
         if (moshi == null) throw new NullPointerException("moshi == null");
@@ -59,6 +64,8 @@ public class MoshiConverter implements IConverter {
 
     /**
      * Return a new factory which uses {@linkplain JsonAdapter#lenient() lenient} adapters.
+     *
+     * @return MoshiConverter
      */
     public MoshiConverter asLenient() {
         return new MoshiConverter(moshi, true, failOnUnknown, serializeNulls);
@@ -66,6 +73,8 @@ public class MoshiConverter implements IConverter {
 
     /**
      * Return a new factory which uses {@link JsonAdapter#failOnUnknown()} adapters.
+     *
+     * @return MoshiConverter
      */
     public MoshiConverter failOnUnknown() {
         return new MoshiConverter(moshi, lenient, true, serializeNulls);
@@ -73,6 +82,8 @@ public class MoshiConverter implements IConverter {
 
     /**
      * Return a new factory which includes null values into the serialized JSON.
+     *
+     * @return MoshiConverter
      */
     public MoshiConverter withNullSerialization() {
         return new MoshiConverter(moshi, lenient, failOnUnknown, true);
