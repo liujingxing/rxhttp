@@ -30,7 +30,7 @@ lateinit var rxHttpPackage: String  //RxHttp相关类的包名
  */
 @SupportedOptions(value = ["rxhttp_okhttp", "rxhttp_rxjava", "rxhttp_package"])
 @IncrementalAnnotationProcessor(AGGREGATING)
-class AnnotationProcessor : AbstractProcessor() {
+open class AnnotationProcessor : AbstractProcessor() {
     private lateinit var typeUtils: Types
     private lateinit var messager: Messager
     private lateinit var filer: Filer
@@ -48,7 +48,7 @@ class AnnotationProcessor : AbstractProcessor() {
         val map = processingEnvironment.options
         okHttpVersion = map["rxhttp_okhttp"] ?: "4.6.0"
         rxHttpPackage = map["rxhttp_package"] ?: "rxhttp.wrapper.param"
-        initRxJavaVersion(map["rxhttp_rxjava"])
+        initRxJavaVersion(getRxJavaVersion(map))
     }
 
     override fun getSupportedAnnotationTypes(): Set<String> {
@@ -63,6 +63,12 @@ class AnnotationProcessor : AbstractProcessor() {
         return annotations
     }
 
+    open fun getRxJavaVersion(map: Map<String, String>): String? {
+        return map["rxhttp_rxjava"]
+    }
+
+    open fun isAndroidPlatform() = true
+
     override fun getSupportedSourceVersion(): SourceVersion {
         return SourceVersion.latestSupported()
     }
@@ -70,7 +76,7 @@ class AnnotationProcessor : AbstractProcessor() {
     override fun process(annotations: Set<TypeElement>, roundEnv: RoundEnvironment): Boolean {
 //        messager.printMessage(Diagnostic.Kind.WARNING, "process start annotations$annotations this=$this")
         if (annotations.isEmpty() || processed) return true
-        generatorBaseRxHttp(filer)
+        generatorBaseRxHttp(filer, isAndroidPlatform())
         if (isDependenceRxJava()) {  //是否依赖了RxJava
             generatorObservableErrorHandler(filer)
             generatorObservableHttp(filer)

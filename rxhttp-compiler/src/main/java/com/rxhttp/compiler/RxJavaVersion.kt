@@ -26,7 +26,7 @@ fun isDependenceRxJava() = rxJavaVersion == "rxjava2" || rxJavaVersion == "rxjav
 fun initRxJavaVersion(version: String?) {
     rxJavaVersion = version
 
-    if (version == "rxjava2") {
+    if (version.equals("rxjava2", true)) {
         rxJavaClassList["Scheduler"] = "io.reactivex"
         rxJavaClassList["Observable"] = "io.reactivex"
         rxJavaClassList["Consumer"] = "io.reactivex.functions"
@@ -46,7 +46,7 @@ fun initRxJavaVersion(version: String?) {
         rxJavaClassList["ExceptionHelper"] = "io.reactivex.internal.util"
         rxJavaClassList["Disposable"] = "io.reactivex.disposables"
 
-    } else if (version == "rxjava3") {
+    } else if (version.equals("rxjava3", true)) {
         rxJavaClassList["Scheduler"] = "io.reactivex.rxjava3.core"
         rxJavaClassList["Observable"] = "io.reactivex.rxjava3.core"
         rxJavaClassList["Consumer"] = "io.reactivex.rxjava3.functions"
