@@ -82,6 +82,7 @@ dependencies {
 //    implementation project(':rxhttp-converter:converter-fastjson')
 //    implementation project(':rxhttp-converter:converter-simplexml')
 //    implementation project(':rxhttp-converter:converter-protobuf')
+    implementation project(':rxhttp-converter:converter-moshi')
 //    implementation project(':rxhttp-converter:converter-jackson')
 
     testImplementation 'junit:junit:4.13'
