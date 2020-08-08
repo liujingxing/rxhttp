@@ -1,0 +1,12 @@
+apply plugin: 'java-library'
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    compileOnly "com.ljx.rxhttp:rxhttp:${rxhttp_version}"
+    compileOnly "com.squareup.okhttp3:okhttp:${okhttp_version}"
+    api 'com.squareup.moshi:moshi:1.9.3'
+}
+
+sourceCompatibility = "8"
+targetCompatibility = "8"
+
