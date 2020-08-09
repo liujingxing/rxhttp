@@ -27,7 +27,7 @@ interface IRxHttp {
 
     fun buildRequest(): Request
 
-    //断点下载进度偏移量，进在带进度断点下载时生效
+    //Breakpoint download progress offset
     val breakDownloadOffSize: Long
         get() = 0L
 
@@ -64,34 +64,19 @@ suspend fun IRxHttp.awaitOkResponse(): Response = await(OkResponseParser())
 
 suspend inline fun <reified T : Any> IRxHttp.await(): T = await(object : SimpleParser<T>() {})
 
-/**
- * @param destPath 本地存储路径
- * @param progress 进度回调
- */
+suspend fun <T> IRxHttp.await(parser: Parser<T>): T = toParser(parser).await()
+
 suspend fun IRxHttp.awaitDownload(
     destPath: String,
     progress: ((Progress) -> Unit)? = null
-): String {
-    return toDownload(destPath, progress).await()
-}
+): String = toDownload(destPath, progress).await()
 
-/**
- * @param destPath 本地存储路径
- * @param coroutine 用于开启一个协程，来控制进度回调所在的线程
- * @param progress 在suspend方法中回调，回调线程取决于协程所在线程
- */
 suspend fun IRxHttp.awaitDownload(
     destPath: String,
     coroutine: CoroutineScope,
     progress: suspend (Progress) -> Unit
-): String {
-    return toDownload(destPath, coroutine, progress).await()
-}
+): String = toDownload(destPath, coroutine, progress).await()
 
-/**
- * 以上await方法，最终都会调用本方法
- */
-suspend fun <T> IRxHttp.await(parser: Parser<T>): T = toParser(parser).await()
 
 fun IRxHttp.toBoolean(): IAwait<Boolean> = toClass()
 
@@ -131,8 +116,8 @@ fun IRxHttp.toOkResponse(): IAwait<Response> = toParser(OkResponseParser())
 inline fun <reified T : Any> IRxHttp.toClass(): IAwait<T> = toParser(object : SimpleParser<T>() {})
 
 /**
- * @param destPath 本地存储路径
- * @param progress 进度回调，在子线程回调
+ * @param destPath Local storage path
+ * @param progress Progress callback in IO thread callback
  */
 fun IRxHttp.toDownload(
     destPath: String,
@@ -146,9 +131,9 @@ fun IRxHttp.toDownload(
 }
 
 /**
- * @param destPath 本地存储路径
- * @param coroutine 用于开启一个协程，来控制进度回调所在的线程
- * @param progress 在suspend方法中回调，回调线程取决于协程所在线程
+ * @param destPath Local storage path
+ * @param coroutine Use to open a coroutine to control the thread on which the progress callback
+ * @param progress Progress callback in suspend method, The callback thread depends on the coroutine thread
  */
 fun IRxHttp.toDownload(
     destPath: String,
