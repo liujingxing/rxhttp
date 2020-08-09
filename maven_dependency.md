@@ -1,7 +1,21 @@
 ```xml
 <dependencies>
 
-    <!-- RxJava2/RxJava3 二选一 -->
+    <!--必须-->
+    <dependency>
+        <groupId>com.squareup.okhttp3</groupId>
+        <artifactId>okhttp</artifactId>
+        <version>4.8.1</version>
+    </dependency>
+
+    <!--必须-->
+    <dependency>
+        <groupId>com.ljx.rxhttp</groupId>
+        <artifactId>rxhttp</artifactId>
+        <version>2.3.3-beta2</version>
+    </dependency>
+
+    <!-- 非必须 RxJava2/RxJava3 二选一或都不选 -->
     <!-- <dependency>
         <groupId>io.reactivex.rxjava2</groupId>
         <artifactId>rxjava</artifactId>
@@ -12,18 +26,6 @@
         <groupId>io.reactivex.rxjava3</groupId>
         <artifactId>rxjava</artifactId>
         <version>3.0.2</version>
-    </dependency>
-
-    <dependency>
-        <groupId>com.squareup.okhttp3</groupId>
-        <artifactId>okhttp</artifactId>
-        <version>4.8.1</version>
-    </dependency>
-
-    <dependency>
-        <groupId>com.ljx.rxhttp</groupId>
-        <artifactId>rxhttp</artifactId>
-        <version>2.3.3-beta2</version>
     </dependency>
 
 </dependencies>
@@ -37,6 +39,7 @@
             <configuration>
                 <source>1.8</source>
                 <target>1.8</target>
+                <!--必须-->
                 <annotationProcessorPaths>
                     <path>
                         <groupId>com.ljx.rxhttp</groupId>
@@ -45,6 +48,7 @@
                     </path>
                 </annotationProcessorPaths>
 
+                <!--RxJava注解处理器，非必须-->
                 <annotationProcessors>
                     <!--以下两个注解处理器，分别对应RxJava2/RxJava3，二选一即可 -->
                     <!-- <annotationProcessor>
