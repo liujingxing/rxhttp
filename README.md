@@ -28,6 +28,8 @@
 
 ***RxHttp&RxLife 交流群：378530627***
 
+***[Maven依赖点击这里](https://github.com/liujingxing/okhttp-RxHttp/blob/master/maven_dependency.md)***
+
 [遇到问题，点击这里，99%的问题都能自己解决](https://github.com/liujingxing/okhttp-RxHttp/wiki/FAQ)
 
 ***1、`OkHttp 3.14.x`以上版本, 最低要求为API 21，如你想要兼容21以下，请依赖`OkHttp 3.12.x`，该版本最低要求 API 9***
