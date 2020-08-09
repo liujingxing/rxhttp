@@ -1,5 +1,6 @@
 package rxhttp
 
+import android.graphics.Bitmap
 import kotlinx.coroutines.CoroutineScope
 import okhttp3.Headers
 import okhttp3.OkHttpClient
@@ -35,33 +36,33 @@ interface IRxHttp {
     fun getOkHttpClient(): OkHttpClient
 }
 
-suspend fun IRxHttp.awaitBoolean() = await<Boolean>()
+suspend fun IRxHttp.awaitBoolean(): Boolean = await()
 
-suspend fun IRxHttp.awaitByte() = await<Byte>()
+suspend fun IRxHttp.awaitByte(): Byte = await()
 
-suspend fun IRxHttp.awaitShort() = await<Short>()
+suspend fun IRxHttp.awaitShort(): Short = await()
 
-suspend fun IRxHttp.awaitInt() = await<Int>()
+suspend fun IRxHttp.awaitInt(): Int = await()
 
-suspend fun IRxHttp.awaitLong() = await<Long>()
+suspend fun IRxHttp.awaitLong(): Long = await()
 
-suspend fun IRxHttp.awaitFloat() = await<Float>()
+suspend fun IRxHttp.awaitFloat(): Float = await()
 
-suspend fun IRxHttp.awaitDouble() = await<Double>()
+suspend fun IRxHttp.awaitDouble(): Double = await()
 
-suspend fun IRxHttp.awaitString() = await<String>()
+suspend fun IRxHttp.awaitString(): String = await()
 
-suspend inline fun <reified T : Any> IRxHttp.awaitList() = await<List<T>>()
+suspend inline fun <reified T : Any> IRxHttp.awaitList(): List<T> = await()
 
-suspend inline fun <reified K : Any, reified V : Any> IRxHttp.awaitMap() = await<Map<K, V>>()
+suspend inline fun <reified K : Any, reified V : Any> IRxHttp.awaitMap(): Map<K, V> = await()
 
-suspend fun IRxHttp.awaitBitmap() = await(BitmapParser())
+suspend fun IRxHttp.awaitBitmap(): Bitmap = await(BitmapParser())
 
 suspend fun IRxHttp.awaitHeaders(): Headers = OkHttpCompat.headers(awaitOkResponse())
 
-suspend fun IRxHttp.awaitOkResponse() = await(OkResponseParser())
+suspend fun IRxHttp.awaitOkResponse(): Response = await(OkResponseParser())
 
-suspend inline fun <reified T : Any> IRxHttp.await() = await(object : SimpleParser<T>() {})
+suspend inline fun <reified T : Any> IRxHttp.await(): T = await(object : SimpleParser<T>() {})
 
 /**
  * @param destPath 本地存储路径
@@ -90,36 +91,33 @@ suspend fun IRxHttp.awaitDownload(
 /**
  * 以上await方法，最终都会调用本方法
  */
-suspend fun <T> IRxHttp.await(
-    parser: Parser<T>,
-    client: OkHttpClient = getOkHttpClient()
-) = toParser(parser, client).await()
+suspend fun <T> IRxHttp.await(parser: Parser<T>): T = toParser(parser).await()
 
-fun IRxHttp.toBoolean() = toClass<Boolean>()
+fun IRxHttp.toBoolean(): IAwait<Boolean> = toClass()
 
-fun IRxHttp.toByte() = toClass<Byte>()
+fun IRxHttp.toByte(): IAwait<Byte> = toClass()
 
-fun IRxHttp.toShort() = toClass<Short>()
+fun IRxHttp.toShort(): IAwait<Short> = toClass()
 
-fun IRxHttp.toInt() = toClass<Int>()
+fun IRxHttp.toInt(): IAwait<Int> = toClass()
 
-fun IRxHttp.toLong() = toClass<Long>()
+fun IRxHttp.toLong(): IAwait<Long> = toClass()
 
-fun IRxHttp.toFloat() = toClass<Float>()
+fun IRxHttp.toFloat(): IAwait<Float> = toClass()
 
-fun IRxHttp.toDouble() = toClass<Double>()
+fun IRxHttp.toDouble(): IAwait<Double> = toClass()
 
-fun IRxHttp.toStr() = toClass<String>()
+fun IRxHttp.toStr(): IAwait<String> = toClass()
 
-inline fun <reified T : Any> IRxHttp.toList() = toClass<List<T>>()
+inline fun <reified T : Any> IRxHttp.toList(): IAwait<List<T>> = toClass()
 
-inline fun <reified T : Any> IRxHttp.toMutableList() = toClass<MutableList<T>>()
+inline fun <reified T : Any> IRxHttp.toMutableList(): IAwait<MutableList<T>> = toClass()
 
-inline fun <reified K : Any, reified V : Any> IRxHttp.toMap() = toClass<Map<K, V>>()
+inline fun <reified K : Any, reified V : Any> IRxHttp.toMap(): IAwait<Map<K, V>> = toClass()
 
-fun IRxHttp.toBitmap() = toParser(BitmapParser())
+fun IRxHttp.toBitmap(): IAwait<Bitmap> = toParser(BitmapParser())
 
-fun IRxHttp.toHeaders() = toOkResponse()
+fun IRxHttp.toHeaders(): IAwait<Headers> = toOkResponse()
     .map {
         try {
             OkHttpCompat.headers(it)
@@ -128,9 +126,9 @@ fun IRxHttp.toHeaders() = toOkResponse()
         }
     }
 
-fun IRxHttp.toOkResponse() = toParser(OkResponseParser())
+fun IRxHttp.toOkResponse(): IAwait<Response> = toParser(OkResponseParser())
 
-inline fun <reified T : Any> IRxHttp.toClass() = toParser(object : SimpleParser<T>() {})
+inline fun <reified T : Any> IRxHttp.toClass(): IAwait<T> = toParser(object : SimpleParser<T>() {})
 
 /**
  * @param destPath 本地存储路径
