@@ -210,7 +210,7 @@ class ParserAnnotatedClass {
                     .addParameter(parserTName, "parser")
                     .addStatement("""
                         doOnStart();
-                    Observable<T> observable = new ObservableHttp<T>(okClient, param, parser);
+                    Observable<T> observable = new ObservableHttp<T>(getOkHttpClient(), param, parser);
                     if (scheduler != null) {
                         observable = observable.subscribeOn(scheduler);
                     }
@@ -235,7 +235,7 @@ class ParserAnnotatedClass {
                     .addParameter(consumerProgressName, "progressConsumer")
                     .addStatement("""
                         doOnStart();
-                    Observable<Progress> observable = new ObservableDownload(okClient, param, destPath, breakDownloadOffSize);
+                    Observable<Progress> observable = new ObservableDownload(getOkHttpClient(), param, destPath, breakDownloadOffSize);
                     if (scheduler != null)
                         observable = observable.subscribeOn(scheduler);
                     if (observeOnScheduler != null) {

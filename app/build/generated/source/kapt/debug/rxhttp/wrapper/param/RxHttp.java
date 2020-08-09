@@ -22,6 +22,7 @@ import java.lang.SuppressWarnings;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import okhttp3.CacheControl;
 import okhttp3.Call;
 import okhttp3.Headers;
@@ -62,14 +63,20 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
 
   protected P param;
 
+  private int connectTimeoutMillis;
+
+  private int readTimeoutMillis;
+
+  private int writeTimeoutMillis;
+
+  private OkHttpClient okClient = HttpSender.getOkHttpClient();
+
   /**
    * The request is executed on the IO thread by default
    */
   protected Scheduler scheduler = Schedulers.io();
 
   protected IConverter converter = RxHttpPlugins.getConverter();
-
-  protected OkHttpClient okClient = HttpSender.getOkHttpClient();
 
   private long breakDownloadOffSize = 0L;
 
@@ -117,9 +124,39 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
     RxHttpPlugins.setOnParamAssembly(onParamAssembly);
   }
 
+  public R connectTimeout(int connectTimeout) {
+    connectTimeoutMillis = connectTimeout;
+    return (R)this;
+  }
+
+  public R readTimeout(int readTimeout) {
+    readTimeoutMillis = readTimeout;
+    return (R)this;
+  }
+
+  public R writeTimeout(int writeTimeout) {
+    writeTimeoutMillis = writeTimeout;
+    return (R)this;
+  }
+
   @Override
   public OkHttpClient getOkHttpClient() {
-    return okClient;
+        final OkHttpClient okHttpClient = okClient;
+        OkHttpClient.Builder builder = null;
+        if (connectTimeoutMillis != 0) {
+          if (builder == null) builder = okHttpClient.newBuilder();
+          builder.connectTimeout(connectTimeoutMillis, TimeUnit.MILLISECONDS);
+        }
+        if (readTimeoutMillis != 0) {
+          if (builder == null) builder = okHttpClient.newBuilder();
+          builder.readTimeout(readTimeoutMillis, TimeUnit.MILLISECONDS);
+        }
+
+        if (writeTimeoutMillis != 0) {
+          if (builder == null) builder = okHttpClient.newBuilder();
+          builder.writeTimeout(writeTimeoutMillis, TimeUnit.MILLISECONDS);
+        }
+        return builder != null ? builder.build() : okHttpClient;
   }
 
   public static void dispose(Disposable disposable) {
@@ -487,7 +524,7 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
   @Override
   public <T> Observable<T> asParser(Parser<T> parser) {
         doOnStart();
-        Observable<T> observable = new ObservableHttp<T>(okClient, param, parser);
+        Observable<T> observable = new ObservableHttp<T>(getOkHttpClient(), param, parser);
         if (scheduler != null) {
             observable = observable.subscribeOn(scheduler);
         }
@@ -505,7 +542,7 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
   public Observable<String> asDownload(String destPath, Scheduler observeOnScheduler,
       Consumer<Progress> progressConsumer) {
         doOnStart();
-        Observable<Progress> observable = new ObservableDownload(okClient, param, destPath, breakDownloadOffSize);
+        Observable<Progress> observable = new ObservableDownload(getOkHttpClient(), param, destPath, breakDownloadOffSize);
         if (scheduler != null)
             observable = observable.subscribeOn(scheduler);
         if (observeOnScheduler != null) {

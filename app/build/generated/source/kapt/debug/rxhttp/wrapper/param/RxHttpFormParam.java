@@ -175,7 +175,7 @@ public class RxHttpFormParam extends RxHttp<FormParam, RxHttpFormParam> {
             return super.asParser(parser);
         }
         doOnStart();
-        Observable<Progress> observable = new ObservableUpload<T>(okClient, param, parser);
+        Observable<Progress> observable = new ObservableUpload<T>(getOkHttpClient(), param, parser);
         if (scheduler != null)
             observable = observable.subscribeOn(scheduler);
         if (observeOnScheduler != null) {
