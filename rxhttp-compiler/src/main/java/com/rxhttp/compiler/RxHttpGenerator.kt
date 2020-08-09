@@ -8,9 +8,9 @@ import java.util.*
 import javax.annotation.processing.Filer
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.VariableElement
-import javax.lang.model.util.Elements
 import kotlin.Any
 import kotlin.Boolean
+import kotlin.Int
 import kotlin.Long
 import kotlin.String
 
@@ -58,6 +58,7 @@ class RxHttpGenerator {
         val jsonArrayName = ClassName.get("com.google.gson", "JsonArray")
         val stringName = ClassName.get(String::class.java)
         val objectName = ClassName.get(Any::class.java)
+        val timeUnitName = ClassName.get("java.util.concurrent", "TimeUnit")
         val mapKVName = ParameterizedTypeName.get(functionsName, paramName, paramName)
         val mapStringName = ParameterizedTypeName.get(functionsName, stringName, stringName)
         val subObject = WildcardTypeName.subtypeOf(TypeName.get(Any::class.java))
@@ -162,12 +163,55 @@ class RxHttpGenerator {
                 .returns(Void.TYPE)
                 .build())
 
+        methodList.add(
+            MethodSpec.methodBuilder("connectTimeout")
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(Int::class.javaPrimitiveType, "connectTimeout")
+                .addStatement("connectTimeoutMillis = connectTimeout")
+                .addStatement("return (R)this")
+                .returns(r)
+                .build())
+
+        methodList.add(
+            MethodSpec.methodBuilder("readTimeout")
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(Int::class.javaPrimitiveType, "readTimeout")
+                .addStatement("readTimeoutMillis = readTimeout")
+                .addStatement("return (R)this")
+                .returns(r)
+                .build())
+
+        methodList.add(
+            MethodSpec.methodBuilder("writeTimeout")
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(Int::class.javaPrimitiveType, "writeTimeout")
+                .addStatement("writeTimeoutMillis = writeTimeout")
+                .addStatement("return (R)this")
+                .returns(r)
+                .build())
 
         methodList.add(
             MethodSpec.methodBuilder("getOkHttpClient")
                 .addAnnotation(Override::class.java)
                 .addModifiers(Modifier.PUBLIC)
-                .addStatement("return okClient")
+                .addStatement("""
+                            final OkHttpClient okHttpClient = okClient;
+                        OkHttpClient.Builder builder = null;
+                        if (connectTimeoutMillis != 0) {
+                          if (builder == null) builder = okHttpClient.newBuilder();
+                          builder.connectTimeout(connectTimeoutMillis, ${'$'}T.MILLISECONDS);
+                        }
+                        if (readTimeoutMillis != 0) {
+                          if (builder == null) builder = okHttpClient.newBuilder();
+                          builder.readTimeout(readTimeoutMillis, ${'$'}T.MILLISECONDS);
+                        }
+
+                        if (writeTimeoutMillis != 0) {
+                          if (builder == null) builder = okHttpClient.newBuilder();
+                          builder.writeTimeout(writeTimeoutMillis, ${'$'}T.MILLISECONDS);
+                        }
+                        return builder != null ? builder.build() : okHttpClient
+                """.trimIndent(), timeUnitName, timeUnitName, timeUnitName)
                 .returns(okHttpClientName).build())
 
         if (isDependenceRxJava()) {
@@ -235,7 +279,7 @@ class RxHttpGenerator {
             .initializer("\$T.getConverter()", rxHttpPluginsName)
             .build()
 
-        val okHttpClientSpec = FieldSpec.builder(okHttpClientName, "okClient", Modifier.PROTECTED)
+        val okHttpClientSpec = FieldSpec.builder(okHttpClientName, "okClient", Modifier.PRIVATE)
             .initializer("\$T.getOkHttpClient()", httpSenderName)
             .build()
         val breakDownloadOffSize = FieldSpec.builder(Long::class.javaPrimitiveType, "breakDownloadOffSize", Modifier.PRIVATE) //添加变量
@@ -289,6 +333,10 @@ class RxHttpGenerator {
             .addAnnotation(build)
             .addStaticBlock(staticCodeBlock)
             .addField(p, "param", Modifier.PROTECTED)
+            .addField(Int::class.javaPrimitiveType, "connectTimeoutMillis", Modifier.PRIVATE)
+            .addField(Int::class.javaPrimitiveType, "readTimeoutMillis", Modifier.PRIVATE)
+            .addField(Int::class.javaPrimitiveType, "writeTimeoutMillis", Modifier.PRIVATE)
+            .addField(okHttpClientSpec)
 
         if (isDependenceRxJava()) {
             val schedulerName = getClassName("Scheduler")
@@ -300,7 +348,6 @@ class RxHttpGenerator {
             rxHttpBuilder.addField(schedulerField)
         }
         rxHttpBuilder.addField(converterSpec)
-            .addField(okHttpClientSpec)
             .addField(breakDownloadOffSize)
             .superclass(baseRxHttpName)
             .addTypeVariable(p)
@@ -690,7 +737,7 @@ class RxHttpGenerator {
                         return super.asParser(parser);
                     }
                     doOnStart();
-                    Observable<Progress> observable = new ObservableUpload<T>(okClient, param, parser);
+                    Observable<Progress> observable = new ObservableUpload<T>(getOkHttpClient(), param, parser);
                     if (scheduler != null)
                         observable = observable.subscribeOn(scheduler);
                     if (observeOnScheduler != null) {
