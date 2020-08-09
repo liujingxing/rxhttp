@@ -4,7 +4,7 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     compileOnly "com.ljx.rxhttp:rxhttp:${rxhttp_version}"
     compileOnly "com.squareup.okhttp3:okhttp:${okhttp_version}"
-    api 'com.squareup.moshi:moshi:1.9.3'
+    api "com.squareup.moshi:moshi:${moshi_version}"
 }
 
 sourceCompatibility = "8"
