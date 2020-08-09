@@ -267,7 +267,7 @@ class RxHttpGenerator {
 
         methodList.add(
             MethodSpec.methodBuilder("format")
-                .addJavadoc("通过占位符，将参数与url拼接在一起，使用标准的Java占位符协议")
+                .addJavadoc("Returns a formatted string using the specified format string and arguments.")
                 .addModifiers(Modifier.PRIVATE, Modifier.STATIC)
                 .addParameter(String::class.java, "url")
                 .addParameter(ArrayTypeName.of(Any::class.java), "formatArgs")
