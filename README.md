@@ -79,8 +79,9 @@ dependencies {
     implementation 'com.ljx.rxlife3:rxlife-rxjava:3.0.0' //管理RxJava3生命周期，页面销毁，关闭请求
 
     //非必须，根据自己需求选择 RxHttp默认内置了GsonConverter
-    implementation 'com.ljx.rxhttp:converter-jackson:2.3.4'
     implementation 'com.ljx.rxhttp:converter-fastjson:2.3.4'
+    implementation 'com.ljx.rxhttp:converter-jackson:2.3.4'
+    implementation 'com.ljx.rxhttp:converter-moshi:2.3.4'
     implementation 'com.ljx.rxhttp:converter-protobuf:2.3.4'
     implementation 'com.ljx.rxhttp:converter-simplexml:2.3.4'
 }
