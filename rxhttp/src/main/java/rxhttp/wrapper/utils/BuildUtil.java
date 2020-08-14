@@ -129,7 +129,12 @@ public class BuildUtil {
         if (fileList != null) {
             //遍历文件
             for (UpFile file : fileList) {
-                if (!file.exists() || !file.isFile()) continue;
+                if (!file.exists()) {
+                    throw new IllegalArgumentException("File '" + file.getAbsolutePath() + "' does not exist");
+                }
+                if (!file.isFile()) {
+                    throw new IllegalArgumentException("File '" + file.getAbsolutePath() + "' is not a file");
+                }
                 RequestBody requestBody = RequestBody.create(getMediaType(file.getName()), file);
                 builder.addFormDataPart(file.getKey(), file.getValue(), requestBody);
             }
