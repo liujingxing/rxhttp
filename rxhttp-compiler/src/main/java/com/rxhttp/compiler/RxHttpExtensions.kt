@@ -61,7 +61,12 @@ class RxHttpExtensions {
                     ).build()
                     parameterList.add(parameterSpec)
                 } else {
-                    parameterList.add(ParameterSpec.get(it))
+                    val name = it.simpleName.toString()
+                    val type = it.asType().asTypeName().toKClassTypeName()
+                    val parameterSpec = ParameterSpec.builder(name, type)
+                        .jvmModifiers(it.modifiers)
+                        .build()
+                    parameterList.add(parameterSpec)
                 }
             }
 
