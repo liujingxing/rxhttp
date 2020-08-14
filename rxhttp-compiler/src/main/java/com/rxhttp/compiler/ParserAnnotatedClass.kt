@@ -36,11 +36,10 @@ class ParserAnnotatedClass {
 
     fun getMethodList(filer: Filer): List<MethodSpec> {
         val t = TypeVariableName.get("T")
-        val classTName = ParameterizedTypeName.get(
-            ClassName.get(Class::class.java), t)
+        val className = ClassName.get(Class::class.java)
+        val classTName = ParameterizedTypeName.get(className, t)
 
-        val listTName = ParameterizedTypeName.get(
-            ClassName.get(List::class.java), t)
+        val listTName = ParameterizedTypeName.get(ClassName.get(List::class.java), t)
         val callName = ClassName.get("okhttp3", "Call")
         val okHttpClientName = ClassName.get("okhttp3", "OkHttpClient")
         val responseName = ClassName.get("okhttp3", "Response")
@@ -279,7 +278,7 @@ class ParserAnnotatedClass {
                         ) {
                             //Type类型参数转Class<T>类型
                             val classTypeName = ParameterizedTypeName.get(
-                                ClassName.get(Class::class.java), typeVariableNames[typeIndex++])
+                                className, typeVariableNames[typeIndex++])
                             val parameterSpec = ParameterSpec
                                 .builder(classTypeName, variableNames.simpleName.toString())
                                 .build()
