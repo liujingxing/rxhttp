@@ -34,7 +34,8 @@ class RxHttpExtensions {
 
         for (executableElement in getConstructorFun(typeElement)) {
 
-            if (executableElement.parameters.size == typeVariableNames.size
+            if (typeVariableNames.size > 0
+                && executableElement.parameters.size == typeVariableNames.size
                 && executableElement.modifiers.contains(Modifier.PUBLIC)
             ) {
                 var allTypeArg = true
