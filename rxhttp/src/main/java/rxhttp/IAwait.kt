@@ -356,7 +356,13 @@ fun <T> IAwait<T>.startDelay(timeMillis: Long): IAwait<T> = newAwait {
 /**
  * Creates a coroutine and returns its future result as an implementation of [Deferred].
  */
-suspend fun <T> IAwait<T>.async(scope: CoroutineScope): Deferred<T> = scope.async { await() }
+suspend fun <T> IAwait<T>.async(
+    scope: CoroutineScope,
+    context: CoroutineContext = SupervisorJob(),
+    start: CoroutineStart = CoroutineStart.DEFAULT
+): Deferred<T> = scope.async(context, start) {
+    await()
+}
 
 suspend fun <T> IAwait<T>.awaitResult(): Result<T> = runCatching { await() }
 
