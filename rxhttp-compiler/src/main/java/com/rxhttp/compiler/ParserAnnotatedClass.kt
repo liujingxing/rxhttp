@@ -325,8 +325,8 @@ class ParserAnnotatedClass {
                             val onParserFunReturnWrapperType = if (onParserFunReturnType is ParameterizedTypeName) {
                                 //返回类型有n个泛型，需要对每个泛型再次包装
                                 val typeNames = ArrayList<TypeName>()
-                                for (type in onParserFunReturnType.typeArguments) {
-                                    typeNames.add(ParameterizedTypeName.get(wrapperClass, type))
+                                for (typeArg in onParserFunReturnType.typeArguments) {
+                                    typeNames.add(ParameterizedTypeName.get(wrapperClass, typeArg))
                                 }
                                 ParameterizedTypeName.get(onParserFunReturnType.rawType, *typeNames.toTypedArray())
                             } else {
@@ -340,8 +340,6 @@ class ParserAnnotatedClass {
                             methodName = "as$parserAlias${simpleName}"
 
                             //3、asXxx方法体
-                            val parameterizedType = ClassName.get("rxhttp.wrapper.entity", "ParameterizedTypeImpl")
-                            val type = ClassName.get("java.lang.reflect", "Type")
                             val funBody = CodeBlock.builder()
                             val paramsName = StringBuilder()
                             //遍历参数，取出参数名
