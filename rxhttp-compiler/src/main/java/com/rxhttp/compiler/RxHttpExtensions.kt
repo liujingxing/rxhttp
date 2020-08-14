@@ -82,14 +82,16 @@ class RxHttpExtensions {
                 "return asParser(object: %T${getTypeVariableString(typeVariableNames)}(${getParamsName(parameterList)}) {})"
             }
 
-            asFunList.add(
-                FunSpec.builder("as$key")
-                    .addModifiers(modifiers)
-                    .receiver(baseRxHttpName)
-                    .addParameters(parameterList)
-                    .addStatement(funBody, typeElement.asClassName()) //方法里面的表达式
-                    .addTypeVariables(getTypeVariableNames(typeVariableNames))
-                    .build())
+            if (typeVariableNames.size > 0) {  //对声明了泛型的解析器，生成kotlin编写的asXxx方法
+                asFunList.add(
+                    FunSpec.builder("as$key")
+                        .addModifiers(modifiers)
+                        .receiver(baseRxHttpName)
+                        .addParameters(parameterList)
+                        .addStatement(funBody, typeElement.asClassName()) //方法里面的表达式
+                        .addTypeVariables(getTypeVariableNames(typeVariableNames))
+                        .build())
+            }
 
             funBody = if (typeVariableNames.size == 0 || executableElement.modifiers.contains(Modifier.PUBLIC)) {
                 "return %T(%T${getTypeVariableString(typeVariableNames)}(${getParamsName(parameterList)}))"
