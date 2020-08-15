@@ -129,35 +129,6 @@ class RxHttpExtensions {
 
         val fileBuilder = FileSpec.builder(rxHttpPackage, "RxHttp")
         if (isDependenceRxJava()) {
-            val schedulerName = getKClassName("Scheduler")
-            val observableName = getKClassName("Observable")
-            val consumerName = getKClassName("Consumer")
-            val observableTName = observableName.parameterizedBy(t)
-            val observeOnScheduler = ParameterSpec.builder("observeOnScheduler", schedulerName.copy(nullable = true))
-                .defaultValue("null")
-                .build()
-
-            fileBuilder.addImport("kotlinx.coroutines", "suspendCancellableCoroutine")
-            fileBuilder.addImport("kotlin.coroutines", "resume", "resumeWithException")
-            fileBuilder.addFunction(FunSpec.builder("await")
-                .addModifiers(KModifier.SUSPEND)
-                .receiver(observableTName)
-                .addTypeVariable(t)
-                .addStatement("""
-                return suspendCancellableCoroutine { continuation ->
-                    val subscribe = subscribe({                      
-                        continuation.resume(it)                     
-                    }, {                                             
-                        continuation.resumeWithException(it)        
-                    })                                              
-                                                                    
-                    continuation.invokeOnCancellation {              
-                        subscribe.dispose()                         
-                    }                                               
-                }                                                   
-            """.trimIndent())
-                .returns(t)
-                .build())
 
             fileBuilder.addFunction(FunSpec.builder("executeList")
                 .addModifiers(KModifier.INLINE)
