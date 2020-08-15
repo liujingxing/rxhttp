@@ -10,6 +10,7 @@ import java.lang.reflect.Type;
 import rxhttp.wrapper.entity.ParameterizedTypeImpl;
 import rxhttp.wrapper.exception.ParseException;
 import rxhttp.wrapper.parse.AbstractParser;
+import rxhttp.wrapper.utils.Converter;
 
 /**
  * 输入T,输出T,并对code统一判断
@@ -48,7 +49,7 @@ public class ResponseParser<T> extends AbstractParser<T> {
     @Override
     public T onParse(@NotNull okhttp3.Response response) throws IOException {
         final Type type = ParameterizedTypeImpl.get(Response.class, mType); //获取泛型类型
-        Response<T> data = convert(response, type);
+        Response<T> data = Converter.convert(response, type);
         T t = data.getData(); //获取data字段
         if (t == null && mType == String.class) {
             /*

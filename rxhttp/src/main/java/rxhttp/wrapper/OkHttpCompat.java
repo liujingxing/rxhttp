@@ -12,6 +12,8 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.internal.Util;
 import okhttp3.internal.http.StatusLine;
+import rxhttp.wrapper.callback.IConverter;
+import rxhttp.wrapper.param.Param;
 
 /**
  * 此类的作用在于兼用OkHttp版本  注意: 本类一定要用Java语言编写，kotlin将无法兼容新老版本
@@ -22,6 +24,14 @@ import okhttp3.internal.http.StatusLine;
 public class OkHttpCompat {
 
     private static String OKHTTP_USER_AGENT;
+
+    public static IConverter getConverter(Response response) {
+        return response.request().tag(IConverter.class);
+    }
+
+    public static boolean isOnResultDecoder(Response response) {
+        return "false".equals(response.request().header(Param.DATA_DECRYPT));
+    }
 
     public static void closeQuietly(Response response) {
         if (response == null) return;

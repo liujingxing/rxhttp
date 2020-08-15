@@ -1,6 +1,7 @@
 package rxhttp.wrapper.parse
 
 import okhttp3.Response
+import rxhttp.wrapper.utils.convert
 import java.io.IOException
 import java.lang.reflect.Type
 
@@ -16,7 +17,7 @@ open class SimpleParser<T> : AbstractParser<T> {
 
     @Throws(IOException::class)
     override fun onParse(response: Response): T {
-        return convert(response, mType)
+        return response.convert(mType)
     }
 
     companion object {
