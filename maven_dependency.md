@@ -18,7 +18,7 @@
     <dependency>
         <groupId>com.ljx.rxhttp</groupId>
         <artifactId>rxhttp</artifactId>
-        <version>2.3.4</version>
+        <version>2.3.5</version>
     </dependency>
 
     <!-- 非必须 RxJava2/RxJava3 二选一或都不选 -->
@@ -50,7 +50,7 @@
                     <path>
                         <groupId>com.ljx.rxhttp</groupId>
                         <artifactId>rxhttp-compiler</artifactId>
-                        <version>2.3.4</version>
+                        <version>2.3.5</version>
                     </path>
                 </annotationProcessorPaths>
 
