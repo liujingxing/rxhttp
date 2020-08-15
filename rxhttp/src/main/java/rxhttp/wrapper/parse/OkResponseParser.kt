@@ -17,7 +17,7 @@ class OkResponseParser : Parser<Response> {
     @Throws(IOException::class)
     override fun onParse(response: Response): Response {
         ExceptionHelper.throwIfFatal(response)
-        LogUtil.log(response, OkHttpCompat.isOnResultDecoder(response), null)
+        LogUtil.log(response, OkHttpCompat.needDecodeResult(response), null)
         return response
     }
 }
