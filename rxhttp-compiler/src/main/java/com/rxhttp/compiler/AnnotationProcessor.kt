@@ -201,36 +201,22 @@ open class AnnotationProcessor : AbstractProcessor() {
                     "This class %s cannot be declared final",
                     element.simpleName.toString())
             }
-            //有泛型的解析器必须要声明两个public或protected构造方法
-            if (constructorFun.size < 2) {
+            //1、查找无参构造方法
+            val noArgumentConstructorFun = constructorFun.findNoArgumentConstructorFun()
+                ?: throw ProcessingException(element,
+                    "This class must be declared 'protected %s()' constructor method",
+                    element.simpleName.toString())
+            if (!noArgumentConstructorFun.modifiers.contains(Modifier.PROTECTED)) {
+                //无参构造方法必须要声明为protected
                 throw ProcessingException(element,
-                    "This class %s must declare two public or protected constructors",
+                    "This class %s no-argument constructor must be declared protected",
                     element.simpleName.toString())
             }
-            var hasTypeArgConstructorFun = false
-            constructorFun.forEach {
-                if (it.parameters.size == 0
-                    && !it.modifiers.contains(Modifier.PROTECTED)
-                ) {
-                    //无参构造方法必须要声明为protected
-                    throw ProcessingException(element,
-                        "This class %s no-argument constructor must be declared protected",
-                        element.simpleName.toString())
-                }
-                if (it.parameters.size == element.typeParameters.size
-                    && it.modifiers.contains(Modifier.PUBLIC)
-                ) {
-                    var allTypeArg = true
-                    for (variableElement in it.parameters) {
-                        if (variableElement.asType().toString() != "java.lang.reflect.Type") {
-                            allTypeArg = false
-                            break
-                        }
-                    }
-                    hasTypeArgConstructorFun = allTypeArg
-                }
-            }
-            if (!hasTypeArgConstructorFun) {
+
+            //2、查找 java.lang.reflect.Type 类型参数构造方法
+            val typeArgumentConstructorFun = constructorFun
+                .findTypeArgumentConstructorFun(element.typeParameters.size)
+            if (typeArgumentConstructorFun == null) {
                 val method = StringBuffer("public %s(")
                 for (i in element.typeParameters.indices) {
                     method.append("java.lang.reflect.Type")
@@ -239,7 +225,7 @@ open class AnnotationProcessor : AbstractProcessor() {
                     } else method.append(", ")
                 }
                 throw ProcessingException(element,
-                    "This class %s must declare '$method' constructor",
+                    "This class %s must declare '$method' constructor method",
                     element.simpleName.toString(), element.simpleName.toString())
             }
         }
