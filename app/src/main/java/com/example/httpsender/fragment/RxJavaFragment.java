@@ -70,7 +70,7 @@ public class RxJavaFragment extends Fragment implements OnClickListener {
 
     //发送Get请求，获取文章列表
     public void sendGet(View view) {
-        RxSimpleHttp.get("/article/list/0/json")
+        RxHttp.get("/article/list/0/json")
             .asResponsePageList(Article.class)
             .to(RxLife.toMain(this))  //感知生命周期，并在主线程回调
             .subscribe(pageList -> {
