@@ -144,8 +144,9 @@ open class AnnotationProcessor : AbstractProcessor() {
             processed = true
         } catch (e: ProcessingException) {
             error(e.element, e.message)
-        } catch (e: IOException) {
+        } catch (e: Throwable) {
             e.printStackTrace()
+            messager.printMessage(Diagnostic.Kind.ERROR, e.message)
         }
         return true
     }
