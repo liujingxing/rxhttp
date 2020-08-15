@@ -3,6 +3,7 @@ package com.rxhttp.compiler
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import javax.lang.model.element.ExecutableElement
+import javax.lang.model.element.Modifier
 import javax.lang.model.type.TypeVariable
 
 //将Java的基本类型/常用类型转换为kotlin中对应的类型
@@ -96,4 +97,27 @@ internal fun ExecutableElement.toFunSpecBuilder(): FunSpec.Builder {
     }
 
     return funBuilder
+}
+
+fun MutableList<ExecutableElement>.findNoArgumentConstructorFun(): ExecutableElement? {
+    forEach {
+        if (it.parameters.size == 0) return it
+    }
+    return null
+}
+
+fun MutableList<ExecutableElement>.findTypeArgumentConstructorFun(typeParametersSize: Int): ExecutableElement? {
+    for (it in this) {
+        if (!it.modifiers.contains(Modifier.PUBLIC)) continue
+        //构造方法个数小于泛型个数，则遍历下一个
+        if (it.parameters.size < typeParametersSize) continue
+        for (i in 0 until typeParametersSize) {
+            //参数非java.lang.reflect.Type，返回null
+            if (it.parameters[i].asType().toString() != "java.lang.reflect.Type") {
+                return null
+            }
+        }
+        return it
+    }
+    return null
 }
