@@ -29,8 +29,8 @@ public class OkHttpCompat {
         return response.request().tag(IConverter.class);
     }
 
-    public static boolean isOnResultDecoder(Response response) {
-        return "false".equals(response.request().header(Param.DATA_DECRYPT));
+    public static boolean needDecodeResult(Response response) {
+        return !"false".equals(response.request().header(Param.DATA_DECRYPT));
     }
 
     public static void closeQuietly(Response response) {

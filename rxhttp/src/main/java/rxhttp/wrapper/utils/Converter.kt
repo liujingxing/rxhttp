@@ -15,8 +15,8 @@ import java.lang.reflect.Type
 @Throws(IOException::class)
 fun <R> Response.convert(type: Type): R {
     val body = ExceptionHelper.throwIfFatal(this)
-    val onResultDecoder = OkHttpCompat.isOnResultDecoder(this)
-    LogUtil.log(this, onResultDecoder, null)
+    val needDecodeResult = OkHttpCompat.needDecodeResult(this)
+    LogUtil.log(this, needDecodeResult, null)
     val converter = OkHttpCompat.getConverter(this)
-    return converter!!.convert(body, type, onResultDecoder)
+    return converter!!.convert(body, type, needDecodeResult)
 }
