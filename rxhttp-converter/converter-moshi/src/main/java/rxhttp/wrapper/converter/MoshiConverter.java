@@ -89,6 +89,7 @@ public class MoshiConverter implements IConverter {
         return new MoshiConverter(moshi, lenient, failOnUnknown, true);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T> T convert(ResponseBody body, Type type, boolean needDecodeResult) throws IOException {
         JsonAdapter<T> adapter = moshi.adapter(type);
@@ -104,6 +105,9 @@ public class MoshiConverter implements IConverter {
         BufferedSource source;
         if (needDecodeResult) {
             String decodeResult = RxHttpPlugins.onResultDecoder(body.string());
+            if (type == String.class) {
+                return (T) decodeResult;
+            }
             source = new Buffer().writeUtf8(decodeResult);
         } else {
             source = body.source();
