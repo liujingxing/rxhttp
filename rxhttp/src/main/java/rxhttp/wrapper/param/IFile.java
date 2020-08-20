@@ -59,14 +59,6 @@ public interface IFile<P extends Param<P>> {
      */
     P addFile(@NonNull UpFile upFile);
 
-    /**
-     * 根据key 移除已添加的文件
-     *
-     * @param key String
-     * @return Param
-     */
-    P removeFile(String key);
-
     P setUploadMaxLength(long maxLength);
 
     /**

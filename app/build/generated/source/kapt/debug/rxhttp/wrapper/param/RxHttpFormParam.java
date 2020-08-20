@@ -131,11 +131,6 @@ public class RxHttpFormParam extends RxHttp<FormParam, RxHttpFormParam> {
     return this;
   }
 
-  public RxHttpFormParam removeFile(String key) {
-    param.removeFile(key);
-    return this;
-  }
-
   public RxHttpFormParam setMultiForm() {
     param.setMultiForm();
     return this;

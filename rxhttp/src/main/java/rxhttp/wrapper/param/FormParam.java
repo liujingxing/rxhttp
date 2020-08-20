@@ -1,10 +1,12 @@
 package rxhttp.wrapper.param;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import okhttp3.MultipartBody.Part;
 import okhttp3.RequestBody;
 import rxhttp.wrapper.annotations.NonNull;
 import rxhttp.wrapper.annotations.Nullable;
@@ -25,10 +27,10 @@ import rxhttp.wrapper.utils.CacheUtil;
  * Date: 2019-09-09
  * Time: 21:08
  */
-public class FormParam extends AbstractParam<FormParam> implements IUploadLengthLimit, IFile<FormParam> {
+public class FormParam extends AbstractParam<FormParam> implements IFile<FormParam> {
 
     private ProgressCallback mCallback; //上传进度回调
-    private List<UpFile> mFileList;  //附件集合
+    private List<Part> mPartList;  //附件集合
     private List<KeyValuePair> mKeyValuePairs; //请求参数
 
     private long uploadMaxLength = Integer.MAX_VALUE;//文件上传最大长度
@@ -114,41 +116,18 @@ public class FormParam extends AbstractParam<FormParam> implements IUploadLength
     }
 
     @Override
-    public FormParam addFile(@NonNull UpFile upFile) {
-        List<UpFile> fileList = mFileList;
-        if (fileList == null)
-            fileList = mFileList = new ArrayList<>();
-        fileList.add(upFile);
+    public FormParam addFile(@NonNull UpFile file) {
+        List<Part> partList = mPartList;
+        if (partList == null)
+            partList = mPartList = new ArrayList<>();
+        if (!file.exists())
+            throw new IllegalArgumentException("File '" + file.getAbsolutePath() + "' does not exist");
+        if (!file.isFile())
+            throw new IllegalArgumentException("File '" + file.getAbsolutePath() + "' is not a file");
+
+        RequestBody requestBody = RequestBody.create(BuildUtil.getMediaType(file.getName()), file);
+        partList.add(Part.createFormData(file.getKey(), file.getValue(), requestBody));
         return this;
-    }
-
-    @Override
-    public FormParam removeFile(String key) {
-        final List<UpFile> fileList = mFileList;
-        if (fileList == null || key == null) return this;
-        Iterator<UpFile> it = fileList.iterator();
-        while (it.hasNext()) {
-            UpFile upFile = it.next();
-            if (key.equals(upFile.getKey())) {
-                it.remove();
-            }
-        }
-        return this;
-    }
-
-    private boolean hasFile() {
-        final List list = mFileList;
-        return list != null && list.size() > 0;
-    }
-
-    private long getTotalFileLength() {
-        if (mFileList == null) return 0;
-        long totalLength = 0;
-        for (UpFile upFile : mFileList) {
-            if (upFile == null) continue;
-            totalLength += upFile.length();
-        }
-        return totalLength;
     }
 
     @Override
@@ -167,14 +146,6 @@ public class FormParam extends AbstractParam<FormParam> implements IUploadLength
         return this;
     }
 
-    @Override
-    public void checkLength() {
-        long totalFileLength = getTotalFileLength();
-        if (totalFileLength > uploadMaxLength)
-            throw new IllegalArgumentException("The current total file length is " + totalFileLength + " byte, " +
-                "this length cannot be greater than " + uploadMaxLength + " byte");
-    }
-
     /**
      * 设置上传进度监听器
      *
@@ -190,9 +161,17 @@ public class FormParam extends AbstractParam<FormParam> implements IUploadLength
     @Override
     public RequestBody getRequestBody() {
         final List<KeyValuePair> keyValuePairs = mKeyValuePairs;
-        RequestBody requestBody = isMultiForm || hasFile() ?
-            BuildUtil.buildFormRequestBody(keyValuePairs, mFileList)
+        RequestBody requestBody = isMultiForm() ?
+            BuildUtil.buildFormRequestBody(keyValuePairs, mPartList)
             : BuildUtil.buildFormRequestBody(keyValuePairs);
+        try {
+            long contentLength = requestBody.contentLength();
+            if (contentLength > uploadMaxLength)
+                throw new IllegalArgumentException("The contentLength cannot be greater than " + uploadMaxLength + " bytes, " +
+                    "the current contentLength is " + contentLength + " bytes");
+        } catch (IOException e) {
+            throw new IllegalArgumentException(e);
+        }
         final ProgressCallback callback = mCallback;
         if (callback != null) {
             //如果设置了进度回调，则对RequestBody进行装饰
@@ -205,8 +184,8 @@ public class FormParam extends AbstractParam<FormParam> implements IUploadLength
         return mCallback;
     }
 
-    public List<UpFile> getFileList() {
-        return mFileList;
+    public List<Part> getPartList() {
+        return mPartList;
     }
 
     public List<KeyValuePair> getKeyValuePairs() {
@@ -214,7 +193,9 @@ public class FormParam extends AbstractParam<FormParam> implements IUploadLength
     }
 
     public boolean isMultiForm() {
-        return isMultiForm;
+        if (isMultiForm) return true;
+        final List<?> list = mPartList;
+        return list != null && !list.isEmpty();
     }
 
     @Override

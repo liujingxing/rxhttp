@@ -11,6 +11,7 @@ import okhttp3.Headers;
 import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
+import okhttp3.MultipartBody.Part;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import rxhttp.wrapper.annotations.NonNull;
@@ -112,31 +113,23 @@ public class BuildUtil {
     /**
      * 构建一个表单(带文件)
      *
-     * @param map      map参数集合
-     * @param fileList 文件列表
+     * @param keyValuePairs map参数集合
+     * @param partList      文件列表
      * @return RequestBody
      */
-    public static RequestBody buildFormRequestBody(List<KeyValuePair> map,
-                                                   List<UpFile> fileList) {
+    public static RequestBody buildFormRequestBody(List<KeyValuePair> keyValuePairs, List<Part> partList) {
         MultipartBody.Builder builder = new MultipartBody.Builder();
         builder.setType(MultipartBody.FORM);
-        if (map != null) {
+        if (keyValuePairs != null) {
             //遍历参数
-            for (KeyValuePair entry : map) {
+            for (KeyValuePair entry : keyValuePairs) {
                 builder.addFormDataPart(entry.getKey(), entry.getValue().toString());
             }
         }
-        if (fileList != null) {
+        if (partList != null) {
             //遍历文件
-            for (UpFile file : fileList) {
-                if (!file.exists()) {
-                    throw new IllegalArgumentException("File '" + file.getAbsolutePath() + "' does not exist");
-                }
-                if (!file.isFile()) {
-                    throw new IllegalArgumentException("File '" + file.getAbsolutePath() + "' is not a file");
-                }
-                RequestBody requestBody = RequestBody.create(getMediaType(file.getName()), file);
-                builder.addFormDataPart(file.getKey(), file.getValue(), requestBody);
+            for (Part part : partList) {
+                builder.addPart(part);
             }
         }
         return builder.build();
@@ -192,7 +185,7 @@ public class BuildUtil {
         return builder.build();
     }
 
-    private static MediaType getMediaType(String fName) {
+    public static MediaType getMediaType(String fName) {
         String contentType = URLConnection.guessContentTypeFromName(fName);
         if (contentType == null || contentType.isEmpty()) {
             contentType = "application/octet-stream";
