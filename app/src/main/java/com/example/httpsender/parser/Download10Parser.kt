@@ -31,10 +31,9 @@ class Download10Parser(
         val body = ExceptionHelper.throwIfFatal(response)
         LogUtil.log(response, false, uri.toString())
         val append = response.header("Content-Range") != null
-        val outputStream = if (append)
-            context.contentResolver.openOutputStream(uri, "wa")
-        else
-            context.contentResolver.openOutputStream(uri)
+        val outputStream = context.contentResolver.run {
+            openOutputStream(uri, if (append) "wa" else "w")
+        }
         IOUtil.write(body.byteStream(), outputStream) //将输入流写出到文件
         return uri.toString()
     }
