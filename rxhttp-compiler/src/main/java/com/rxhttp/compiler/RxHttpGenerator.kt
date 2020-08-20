@@ -661,15 +661,6 @@ class RxHttpGenerator {
                 .build())
 
         methodList.add(
-            MethodSpec.methodBuilder("removeFile")
-                .addModifiers(Modifier.PUBLIC)
-                .addParameter(String::class.java, "key")
-                .addStatement("param.removeFile(key)")
-                .addStatement("return this")
-                .returns(rxHttpFormName)
-                .build())
-
-        methodList.add(
             MethodSpec.methodBuilder("setMultiForm")
                 .addModifiers(Modifier.PUBLIC)
                 .addStatement("param.setMultiForm()")
