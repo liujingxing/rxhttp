@@ -159,11 +159,8 @@ public class FormParam extends AbstractParam<FormParam> implements IFile<FormPar
     }
 
     @Override
-    public RequestBody getRequestBody() {
-        final List<KeyValuePair> keyValuePairs = mKeyValuePairs;
-        RequestBody requestBody = isMultiForm() ?
-            BuildUtil.buildFormRequestBody(keyValuePairs, mPartList)
-            : BuildUtil.buildFormRequestBody(keyValuePairs);
+    public final RequestBody getRequestBody() {
+        RequestBody requestBody = buildRequestBody(isMultiForm(), mKeyValuePairs, mPartList);
         try {
             long contentLength = requestBody.contentLength();
             if (contentLength > uploadMaxLength)
@@ -178,6 +175,15 @@ public class FormParam extends AbstractParam<FormParam> implements IFile<FormPar
             return new ProgressRequestBody(requestBody, callback);
         }
         return requestBody;
+    }
+
+    protected RequestBody buildRequestBody(
+        boolean isMultiForm,
+        List<KeyValuePair> keyValuePairs,
+        List<Part> partList
+    ) {
+        return isMultiForm ? BuildUtil.buildFormRequestBody(keyValuePairs, partList)
+            : BuildUtil.buildFormRequestBody(keyValuePairs);
     }
 
     public ProgressCallback getCallback() {
