@@ -36,7 +36,7 @@ public class RxHttpJsonArrayParam extends RxHttp<JsonArrayParam, RxHttpJsonArray
     return this;
   }
 
-  public RxHttpJsonArrayParam addAll(Map<? extends String, ?> map) {
+  public RxHttpJsonArrayParam addAll(Map<String, ?> map) {
     param.addAll(map);
     return this;
   }

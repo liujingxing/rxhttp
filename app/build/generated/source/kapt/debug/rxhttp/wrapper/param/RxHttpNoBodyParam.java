@@ -34,7 +34,7 @@ public class RxHttpNoBodyParam extends RxHttp<NoBodyParam, RxHttpNoBodyParam> {
     return this;
   }
 
-  public RxHttpNoBodyParam addAll(Map<? extends String, ?> map) {
+  public RxHttpNoBodyParam addAll(Map<String, ?> map) {
     param.addAll(map);
     return this;
   }
