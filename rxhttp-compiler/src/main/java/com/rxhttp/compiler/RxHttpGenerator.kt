@@ -89,6 +89,11 @@ class RxHttpGenerator {
         val rxHttpForm = ParameterizedTypeName.get(RXHTTP, formParamName, rxHttpFormName)
         val rxHttpJson = ParameterizedTypeName.get(RXHTTP, jsonParamName, rxHttpJsonName)
         val rxHttpJsonArray = ParameterizedTypeName.get(RXHTTP, jsonArrayParamName, rxHttpJsonArrayName)
+
+        val partName = ClassName.get("okhttp3.MultipartBody", "Part")
+        val requestBodyName = ClassName.get("okhttp3", "RequestBody")
+        val headersName = ClassName.get("okhttp3", "Headers")
+
         val methodList = ArrayList<MethodSpec>() //方法集合
 
         methodList.add(
@@ -657,6 +662,45 @@ class RxHttpGenerator {
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(listUpFileName, "fileList")
                 .addStatement("param.addFile(fileList)")
+                .addStatement("return this")
+                .returns(rxHttpFormName)
+                .build())
+
+        methodList.add(
+            MethodSpec.methodBuilder("addPart")
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(partName, "part")
+                .addStatement("param.addPart(part)")
+                .addStatement("return this")
+                .returns(rxHttpFormName)
+                .build())
+
+        methodList.add(
+            MethodSpec.methodBuilder("addPart")
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(requestBodyName, "requestBody")
+                .addStatement("param.addPart(requestBody)")
+                .addStatement("return this")
+                .returns(rxHttpFormName)
+                .build())
+
+        methodList.add(
+            MethodSpec.methodBuilder("addPart")
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(headersName, "headers")
+                .addParameter(requestBodyName, "requestBody")
+                .addStatement("param.addPart(headers, requestBody)")
+                .addStatement("return this")
+                .returns(rxHttpFormName)
+                .build())
+
+        methodList.add(
+            MethodSpec.methodBuilder("addFormDataPart")
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(stringName, "name")
+                .addParameter(stringName, "fileName")
+                .addParameter(requestBodyName, "requestBody")
+                .addStatement("param.addFormDataPart(name, fileName, requestBody)")
                 .addStatement("return this")
                 .returns(rxHttpFormName)
                 .build())
