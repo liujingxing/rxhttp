@@ -12,7 +12,6 @@ import rxhttp.wrapper.annotations.NonNull;
 import rxhttp.wrapper.annotations.Nullable;
 import rxhttp.wrapper.callback.ProgressCallback;
 import rxhttp.wrapper.entity.KeyValuePair;
-import rxhttp.wrapper.entity.UpFile;
 import rxhttp.wrapper.progress.ProgressRequestBody;
 import rxhttp.wrapper.utils.BuildUtil;
 import rxhttp.wrapper.utils.CacheUtil;
@@ -27,7 +26,7 @@ import rxhttp.wrapper.utils.CacheUtil;
  * Date: 2019-09-09
  * Time: 21:08
  */
-public class FormParam extends AbstractParam<FormParam> implements IFile<FormParam> {
+public class FormParam extends AbstractParam<FormParam> implements IPart<FormParam> {
 
     private ProgressCallback mCallback; //上传进度回调
     private List<Part> mPartList;  //附件集合
@@ -116,17 +115,11 @@ public class FormParam extends AbstractParam<FormParam> implements IFile<FormPar
     }
 
     @Override
-    public FormParam addFile(@NonNull UpFile file) {
+    public FormParam addPart(Part part) {
         List<Part> partList = mPartList;
         if (partList == null)
             partList = mPartList = new ArrayList<>();
-        if (!file.exists())
-            throw new IllegalArgumentException("File '" + file.getAbsolutePath() + "' does not exist");
-        if (!file.isFile())
-            throw new IllegalArgumentException("File '" + file.getAbsolutePath() + "' is not a file");
-
-        RequestBody requestBody = RequestBody.create(BuildUtil.getMediaType(file.getName()), file);
-        partList.add(Part.createFormData(file.getKey(), file.getValue(), requestBody));
+        partList.add(part);
         return this;
     }
 
