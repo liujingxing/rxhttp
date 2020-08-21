@@ -54,7 +54,7 @@ public class RxHttpFormParam extends RxHttp<FormParam, RxHttpFormParam> {
     return this;
   }
 
-  public RxHttpFormParam addAll(Map<? extends String, ?> map) {
+  public RxHttpFormParam addAll(Map<String, ?> map) {
     param.addAll(map);
     return this;
   }
@@ -121,12 +121,12 @@ public class RxHttpFormParam extends RxHttp<FormParam, RxHttpFormParam> {
     return this;
   }
 
-  public RxHttpFormParam addFile(String key, List<File> fileList) {
+  public RxHttpFormParam addFile(String key, List<? extends File> fileList) {
     param.addFile(key,fileList);
     return this;
   }
 
-  public RxHttpFormParam addFile(List<UpFile> fileList) {
+  public RxHttpFormParam addFile(List<? extends UpFile> fileList) {
     param.addFile(fileList);
     return this;
   }
