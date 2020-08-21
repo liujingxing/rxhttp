@@ -10,6 +10,9 @@ import java.lang.Override;
 import java.lang.String;
 import java.util.List;
 import java.util.Map;
+import okhttp3.Headers;
+import okhttp3.MultipartBody.Part;
+import okhttp3.RequestBody;
 import rxhttp.wrapper.entity.Progress;
 import rxhttp.wrapper.entity.ProgressT;
 import rxhttp.wrapper.entity.UpFile;
@@ -128,6 +131,26 @@ public class RxHttpFormParam extends RxHttp<FormParam, RxHttpFormParam> {
 
   public RxHttpFormParam addFile(List<? extends UpFile> fileList) {
     param.addFile(fileList);
+    return this;
+  }
+
+  public RxHttpFormParam addPart(Part part) {
+    param.addPart(part);
+    return this;
+  }
+
+  public RxHttpFormParam addPart(RequestBody requestBody) {
+    param.addPart(requestBody);
+    return this;
+  }
+
+  public RxHttpFormParam addPart(Headers headers, RequestBody requestBody) {
+    param.addPart(headers, requestBody);
+    return this;
+  }
+
+  public RxHttpFormParam addFormDataPart(String name, String fileName, RequestBody requestBody) {
+    param.addFormDataPart(name, fileName, requestBody);
     return this;
   }
 
