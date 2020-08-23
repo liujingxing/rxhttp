@@ -49,7 +49,7 @@ android {
                     rxhttp_okhttp: '4.8.1'，
                     //使用asXxx方法时必须，告知RxHttp你依赖的rxjava版本，可传入rxjava2、rxjava3
                     rxhttp_rxjava: 'rxjava3'， 
-                    rxhttp_package: 'rxhttp'   //非必须，指定RxHttp相关类的生成路径，即包名
+                    rxhttp_package: 'rxhttp'   //非必须，指定RxHttp类包名
                 ]
             }
         }
