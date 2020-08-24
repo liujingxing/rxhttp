@@ -21,18 +21,19 @@ import rxhttp.wrapper.ssl.HttpsUtils;
 import rxhttp.wrapper.ssl.HttpsUtils.SSLParams;
 
 /**
+ * 本类所有配置都是非必须的，根据自己需求选择就好
  * User: ljx
  * Date: 2019-11-26
  * Time: 20:44
  */
 public class RxHttpManager {
 
-    @Converter(name = "XmlConverter")
+    @Converter(name = "XmlConverter")  //非必须
     public static IConverter xmlConverter = XmlConverter.create();
-    @Converter(name = "FastJsonConverter")
+    @Converter(name = "FastJsonConverter")  //非必须
     public static IConverter fastJsonConverter = FastJsonConverter.create();
 
-    @OkClient(name = "SimpleClient", className = "Simple")
+    @OkClient(name = "SimpleClient", className = "Simple")  //非必须
     public static OkHttpClient simpleClient = new OkHttpClient.Builder().build();
 
 
