@@ -1,8 +1,9 @@
 package rxhttp.wrapper.await
 
 import kotlinx.coroutines.suspendCancellableCoroutine
-import okhttp3.*
-import rxhttp.HttpSender
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.Response
 import rxhttp.IAwait
 import rxhttp.IRxHttp
 import rxhttp.newAwait
@@ -20,13 +21,13 @@ import kotlin.coroutines.resumeWithException
  */
 internal class AwaitOkResponse(
     private val iRxHttp: IRxHttp,
-    private val client: OkHttpClient
 ) : IAwait<Response> {
 
-    internal val request: Request by lazy { iRxHttp.buildRequest() }
+    internal val originalCall: Call by lazy { iRxHttp.newCall() }
 
     override suspend fun await(): Response {
-        return HttpSender.newCall(client, request).awaitResponse()
+        val call = originalCall.run { if (isExecuted()) clone() else this }
+        return call.awaitResponse()
     }
 }
 

@@ -139,7 +139,6 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
     return (R)this;
   }
 
-  @Override
   public OkHttpClient getOkHttpClient() {
         final OkHttpClient okHttpClient = okClient;
         OkHttpClient.Builder builder = null;
@@ -439,7 +438,6 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
     return (R)this;
   }
 
-  @Override
   public Response execute() throws IOException {
     return newCall().execute();
   }
@@ -469,7 +467,6 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
     return HttpSender.newCall(okHttp, buildRequest());
   }
 
-  @Override
   public final Request buildRequest() {
     doOnStart();
     return param.buildRequest();

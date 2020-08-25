@@ -13,7 +13,8 @@ import rxhttp.wrapper.parse.SimpleParser
 
 inline fun <reified T> IRxHttp.executeList() = executeClass<List<T>>()
 
-inline fun <reified T> IRxHttp.executeClass() = object : SimpleParser<T>() {}.onParse(execute())
+inline fun <reified T> IRxHttp.executeClass() = object : SimpleParser<T>()
+    {}.onParse(newCall().execute())
 
 inline fun <reified T> BaseRxHttp.asList() = asClass<List<T>>()
 
