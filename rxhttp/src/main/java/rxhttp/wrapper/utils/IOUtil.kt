@@ -87,8 +87,8 @@ object IOUtil {
     @JvmStatic
     @JvmOverloads
     @Throws(IOException::class)
-    fun write(inStream: InputStream, path: String, append: Boolean = false): Boolean {
-        return write(inStream, File(path), append)
+    fun write(inStream: InputStream, path: String, append: Boolean = false, progress: ((Long) -> Unit)? = null): Boolean {
+        return write(inStream, File(path), append, progress)
     }
 
     /**
@@ -103,25 +103,30 @@ object IOUtil {
     @JvmStatic
     @JvmOverloads
     @Throws(IOException::class)
-    fun write(inStream: InputStream, dstFile: File, append: Boolean = false): Boolean {
+    fun write(inStream: InputStream, dstFile: File, append: Boolean = false, progress: ((Long) -> Unit)? = null): Boolean {
         val parentFile = dstFile.parentFile
         if (!parentFile.exists() && !parentFile.mkdirs()) {
             throw IOException("Directory $parentFile create fail")
         }
-        return write(inStream, FileOutputStream(dstFile, append))
+        return write(inStream, FileOutputStream(dstFile, append), progress)
     }
 
     @JvmStatic
     @Throws(IOException::class)
-    fun write(inStream: InputStream?, outStream: OutputStream?): Boolean {
+    fun write(inStream: InputStream?, outStream: OutputStream?, progress: ((Long) -> Unit)? = null): Boolean {
         if (inStream == null || outStream == null) {
             throw IllegalArgumentException("inStream or outStream can not be null")
         }
         return try {
             val bytes = ByteArray(LENGTH_BYTE)
+            var totalReadLength: Long = 0
             var readLength: Int
             while (inStream.read(bytes, 0, bytes.size).also { readLength = it } != -1) {
                 outStream.write(bytes, 0, readLength)
+                progress?.apply {
+                    totalReadLength += readLength;
+                    invoke(totalReadLength)
+                }
             }
             true
         } finally {

@@ -21,10 +21,8 @@ import okhttp3.Request;
 import okhttp3.Response;
 import rxhttp.HttpSender;
 import rxhttp.wrapper.annotations.NonNull;
-import rxhttp.wrapper.callback.ProgressCallback;
 import rxhttp.wrapper.entity.Progress;
 import rxhttp.wrapper.entity.ProgressT;
-import rxhttp.wrapper.param.Param;
 import rxhttp.wrapper.parse.DownloadParser;
 import rxhttp.wrapper.utils.LogUtil;
 
@@ -56,10 +54,11 @@ final class ObservableDownload extends ObservableErrorHandler<Progress> {
             }
         };
         observer.onSubscribe(emitter);
-
+    
         try {
             ProgressT<String> completeProgress = new ProgressT<>();  //下载完成回调
-            Response response = execute(param, (progress, currentSize, totalSize) -> {
+            Response response = execute(param);
+            String filePath = new DownloadParser(destPath, (progress, currentSize, totalSize) -> {
                 //这里最多回调100次,仅在进度有更新时,才会回调
                 Progress p = new Progress(progress, currentSize, totalSize);
                 if (offsetSize > 0) {
@@ -76,8 +75,7 @@ final class ObservableDownload extends ObservableErrorHandler<Progress> {
                 } else {
                     emitter.onNext(p);
                 }
-            });
-            String filePath = new DownloadParser(destPath).onParse(response);
+            }).onParse(response);
             completeProgress.setResult(filePath);
             emitter.onNext(completeProgress); //最后一次回调文件下载路径
             emitter.onComplete();
@@ -87,12 +85,12 @@ final class ObservableDownload extends ObservableErrorHandler<Progress> {
             emitter.onError(e);
         }
     }
-
-    private Response execute(@NonNull Param param, @NonNull ProgressCallback callback) throws Exception {
+    
+    private Response execute(@NonNull Param param) throws Exception {
         if (mRequest == null) { //防止失败重试时，重复构造okhttp3.Request对象
             mRequest = param.buildRequest();
         }
-        Call call = mCall = HttpSender.newCall(HttpSender.clone(okClient, callback), mRequest);
+        Call call = mCall = HttpSender.newCall(okClient, mRequest);
         return call.execute();
     }
 
