@@ -132,7 +132,7 @@ public abstract class BaseRxHttp implements IRxHttp {
     }
 
     public final Observable<String> asDownload(String destPath) {
-        return asParser(new DownloadParser(destPath));
+        return asParser(new DownloadParser(destPath, null));
     }
 
     public final Observable<String> asDownload(String destPath,
