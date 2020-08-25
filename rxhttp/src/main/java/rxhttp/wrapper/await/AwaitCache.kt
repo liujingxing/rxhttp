@@ -23,7 +23,7 @@ internal class AwaitCache(
     private val iRxHttp: IRxHttp
 ) : IAwait<Response> {
 
-    internal val request: Request by lazy { iAwait.request }
+    internal val request: Request by lazy { iAwait.originalCall.request() }
     private val cache: InternalCache by lazy { RxHttpPlugins.getCache() }  //缓存读取
     private val cacheStrategy: CacheStrategy by lazy { iRxHttp.getCacheStrategy() }  //缓存策略
 

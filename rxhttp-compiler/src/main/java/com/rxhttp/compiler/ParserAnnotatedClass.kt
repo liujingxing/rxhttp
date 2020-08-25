@@ -58,7 +58,6 @@ class ParserAnnotatedClass {
 
         methodList.add(
             MethodSpec.methodBuilder("execute")
-                .addAnnotation(Override::class.java)
                 .addModifiers(Modifier.PUBLIC)
                 .addException(IOException::class.java)
                 .addStatement("return newCall().execute()")
@@ -121,7 +120,6 @@ class ParserAnnotatedClass {
 
         methodList.add(
             MethodSpec.methodBuilder("buildRequest")
-                .addAnnotation(Override::class.java)
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                 .addStatement("doOnStart()")
                 .addStatement("return param.buildRequest()")

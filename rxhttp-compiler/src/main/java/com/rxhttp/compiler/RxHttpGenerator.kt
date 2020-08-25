@@ -198,7 +198,6 @@ class RxHttpGenerator {
 
         methodList.add(
             MethodSpec.methodBuilder("getOkHttpClient")
-                .addAnnotation(Override::class.java)
                 .addModifiers(Modifier.PUBLIC)
                 .addStatement("""
                             final OkHttpClient okHttpClient = okClient;
