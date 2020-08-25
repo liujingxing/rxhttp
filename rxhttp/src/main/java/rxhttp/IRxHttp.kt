@@ -123,11 +123,7 @@ fun IRxHttp.toDownload(
     destPath: String,
     progress: ((Progress) -> Unit)? = null
 ): IAwait<String> {
-    var okHttpClient = getOkHttpClient()
-    if (progress != null) {
-        okHttpClient = HttpSender.clone(okHttpClient, ProgressCallbackImpl(breakDownloadOffSize, progress))
-    }
-    return toParser(DownloadParser(destPath), okHttpClient)
+    return toParser(DownloadParser(destPath, ProgressCallbackImpl(breakDownloadOffSize, progress)))
 }
 
 /**
@@ -140,8 +136,7 @@ fun IRxHttp.toDownload(
     coroutine: CoroutineScope,
     progress: suspend (Progress) -> Unit
 ): IAwait<String> {
-    val clone = HttpSender.clone(getOkHttpClient(), SuspendProgressCallbackImpl(coroutine, breakDownloadOffSize, progress))
-    return toParser(DownloadParser(destPath), clone)
+    return toParser(DownloadParser(destPath, SuspendProgressCallbackImpl(coroutine, breakDownloadOffSize, progress)))
 }
 
 fun <T> IRxHttp.toParser(
