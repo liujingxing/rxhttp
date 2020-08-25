@@ -2,12 +2,15 @@ package rxhttp
 
 import android.graphics.Bitmap
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import okhttp3.Headers
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
 import rxhttp.wrapper.OkHttpCompat
-import rxhttp.wrapper.await.AwaitImpl
+import rxhttp.wrapper.await.AwaitOkResponse
+import rxhttp.wrapper.await.cache
+import rxhttp.wrapper.await.toParser
 import rxhttp.wrapper.cahce.CacheStrategy
 import rxhttp.wrapper.callback.ProgressCallbackImpl
 import rxhttp.wrapper.callback.SuspendProgressCallbackImpl
@@ -141,5 +144,9 @@ fun IRxHttp.toDownload(
 
 fun <T> IRxHttp.toParser(
     parser: Parser<T>,
-    client: OkHttpClient = getOkHttpClient()
-): IAwait<T> = AwaitImpl(this, parser, client)
+): IAwait<T> =
+    AwaitOkResponse(this, getOkHttpClient())
+        .cache(this)
+        .toParser(parser)
+        .flowOn(Dispatchers.IO)
+
