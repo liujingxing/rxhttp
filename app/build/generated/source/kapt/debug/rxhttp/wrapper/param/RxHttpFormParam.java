@@ -189,18 +189,18 @@ public class RxHttpFormParam extends RxHttp<FormParam, RxHttpFormParam> {
 
   @Override
   public <T> Observable<T> asParser(Parser<T> parser) {
-        if (progressConsumer == null) {
-            return super.asParser(parser);
-        }
-        doOnStart();
-        Observable<Progress> observable = new ObservableUpload<T>(getOkHttpClient(), param, parser);
-        if (scheduler != null)
-            observable = observable.subscribeOn(scheduler);
-        if (observeOnScheduler != null) {
-            observable = observable.observeOn(observeOnScheduler);
-        }
-        return observable.doOnNext(progressConsumer)
-            .filter(progress -> progress instanceof ProgressT)
-            .map(progress -> ((ProgressT<T>) progress).getResult());
+    if (progressConsumer == null) {                                                              
+        return super.asParser(parser);                                                           
+    }                                                                                            
+    doOnStart();                                                                                 
+    Observable<Progress> observable = new ObservableUpload<T>(getOkHttpClient(), param, parser); 
+    if (scheduler != null)                                                                       
+        observable = observable.subscribeOn(scheduler);                                          
+    if (observeOnScheduler != null) {                                                            
+        observable = observable.observeOn(observeOnScheduler);                                   
+    }                                                                                            
+    return observable.doOnNext(progressConsumer)                                                 
+        .filter(progress -> progress instanceof ProgressT)                                       
+        .map(progress -> ((ProgressT<T>) progress).getResult());                                      
   }
 }

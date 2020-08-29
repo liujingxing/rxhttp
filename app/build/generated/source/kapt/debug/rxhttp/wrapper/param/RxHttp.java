@@ -520,12 +520,12 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
 
   @Override
   public <T> Observable<T> asParser(Parser<T> parser) {
-        doOnStart();
-        Observable<T> observable = new ObservableHttp<T>(getOkHttpClient(), param, parser);
-        if (scheduler != null) {
-            observable = observable.subscribeOn(scheduler);
-        }
-        return observable;
+    doOnStart();
+    Observable<T> observable = new ObservableHttp<T>(getOkHttpClient(), param, parser);
+    if (scheduler != null) {
+        observable = observable.subscribeOn(scheduler);
+    }
+    return observable;
   }
 
   /**
@@ -538,16 +538,16 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
   @Override
   public Observable<String> asDownload(String destPath, Scheduler observeOnScheduler,
       Consumer<Progress> progressConsumer) {
-        doOnStart();
-        Observable<Progress> observable = new ObservableDownload(getOkHttpClient(), param, destPath, breakDownloadOffSize);
-        if (scheduler != null)
-            observable = observable.subscribeOn(scheduler);
-        if (observeOnScheduler != null) {
-            observable = observable.observeOn(observeOnScheduler);
-        }
-        return observable.doOnNext(progressConsumer)
-            .filter(progress -> progress instanceof ProgressT)
-            .map(progress -> ((ProgressT<String>) progress).getResult());
+    doOnStart();
+    Observable<Progress> observable = new ObservableDownload(getOkHttpClient(), param, destPath, breakDownloadOffSize);
+    if (scheduler != null)
+        observable = observable.subscribeOn(scheduler);
+    if (observeOnScheduler != null) {
+        observable = observable.observeOn(observeOnScheduler);
+    }
+    return observable.doOnNext(progressConsumer)
+        .filter(progress -> progress instanceof ProgressT)
+        .map(progress -> ((ProgressT<String>) progress).getResult());
   }
 
   public <T> Observable<T> asResponse(Class<T> type) {

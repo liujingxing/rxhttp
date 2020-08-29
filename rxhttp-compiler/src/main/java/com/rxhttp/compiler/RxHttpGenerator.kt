@@ -231,7 +231,7 @@ class RxHttpGenerator {
             methodList.add(
                 MethodSpec.methodBuilder("isDisposed")
                     .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                    .addParameter(disposableName,"disposable")
+                    .addParameter(disposableName, "disposable")
                     .addStatement("return disposable == null || disposable.isDisposed()")
                     .returns(Boolean::class.java).build())
         }
@@ -767,21 +767,21 @@ class RxHttpGenerator {
                     .addAnnotation(Override::class.java)
                     .addTypeVariable(t)
                     .addParameter(parserTName, "parser")
-                    .addStatement("""
-                        if (progressConsumer == null) {
-                        return super.asParser(parser);
-                    }
-                    doOnStart();
-                    Observable<Progress> observable = new ObservableUpload<T>(getOkHttpClient(), param, parser);
-                    if (scheduler != null)
-                        observable = observable.subscribeOn(scheduler);
-                    if (observeOnScheduler != null) {
-                        observable = observable.observeOn(observeOnScheduler);
-                    }
-                    return observable.doOnNext(progressConsumer)
-                        .filter(progress -> progress instanceof ProgressT)
-                        .map(progress -> ((${"$"}T) progress).getResult())
-                """.trimIndent(), progressTTName)
+                    .addCode("""
+                        if (progressConsumer == null) {                                                              
+                            return super.asParser(parser);                                                           
+                        }                                                                                            
+                        doOnStart();                                                                                 
+                        Observable<Progress> observable = new ObservableUpload<T>(getOkHttpClient(), param, parser); 
+                        if (scheduler != null)                                                                       
+                            observable = observable.subscribeOn(scheduler);                                          
+                        if (observeOnScheduler != null) {                                                            
+                            observable = observable.observeOn(observeOnScheduler);                                   
+                        }                                                                                            
+                        return observable.doOnNext(progressConsumer)                                                 
+                            .filter(progress -> progress instanceof ProgressT)                                       
+                            .map(progress -> ((${"$"}T) progress).getResult());                                      
+                    """.trimIndent(), progressTTName)
                     .returns(observableTName)
                     .build())
         }
