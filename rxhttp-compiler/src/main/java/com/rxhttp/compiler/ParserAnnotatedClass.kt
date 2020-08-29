@@ -205,14 +205,14 @@ class ParserAnnotatedClass {
                     .addModifiers(Modifier.PUBLIC)
                     .addTypeVariable(t)
                     .addParameter(parserTName, "parser")
-                    .addStatement("""
+                    .addCode("""
                         doOnStart();
-                    Observable<T> observable = new ObservableHttp<T>(getOkHttpClient(), param, parser);
-                    if (scheduler != null) {
-                        observable = observable.subscribeOn(scheduler);
-                    }
-                    return observable
-                """.trimIndent())
+                        Observable<T> observable = new ObservableHttp<T>(getOkHttpClient(), param, parser);
+                        if (scheduler != null) {
+                            observable = observable.subscribeOn(scheduler);
+                        }
+                        return observable;
+                    """.trimIndent())
                     .returns(observableTName)
                     .build())
 
@@ -230,18 +230,18 @@ class ParserAnnotatedClass {
                     .addParameter(String::class.java, "destPath")
                     .addParameter(schedulerName, "observeOnScheduler")
                     .addParameter(consumerProgressName, "progressConsumer")
-                    .addStatement("""
+                    .addCode("""
                         doOnStart();
-                    Observable<Progress> observable = new ObservableDownload(getOkHttpClient(), param, destPath, breakDownloadOffSize);
-                    if (scheduler != null)
-                        observable = observable.subscribeOn(scheduler);
-                    if (observeOnScheduler != null) {
-                        observable = observable.observeOn(observeOnScheduler);
-                    }
-                    return observable.doOnNext(progressConsumer)
-                        .filter(progress -> progress instanceof ProgressT)
-                        .map(progress -> ((${"$"}T) progress).getResult())
-                """.trimIndent(), progressTStringName)
+                        Observable<Progress> observable = new ObservableDownload(getOkHttpClient(), param, destPath, breakDownloadOffSize);
+                        if (scheduler != null)
+                            observable = observable.subscribeOn(scheduler);
+                        if (observeOnScheduler != null) {
+                            observable = observable.observeOn(observeOnScheduler);
+                        }
+                        return observable.doOnNext(progressConsumer)
+                            .filter(progress -> progress instanceof ProgressT)
+                            .map(progress -> ((${"$"}T) progress).getResult());
+                    """.trimIndent(), progressTStringName)
                     .returns(observableStringName)
                     .build())
         }
