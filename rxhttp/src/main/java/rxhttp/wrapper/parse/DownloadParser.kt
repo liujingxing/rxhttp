@@ -19,7 +19,7 @@ class DownloadParser(
     private val callback: ProgressCallback?
 ) : Parser<String> {
 
-    var lastProgress = 0
+    private var lastProgress = 0
 
     /**
      * When the download is complete, return to the local file path
