@@ -23,24 +23,21 @@ internal class AwaitOkResponse(
     private val iRxHttp: IRxHttp,
 ) : IAwait<Response> {
 
-    internal val originalCall: Call by lazy { iRxHttp.newCall() }
-
     override suspend fun await(): Response {
-        val call = originalCall.run { if (isExecuted()) clone() else this }
-        return call.awaitResponse()
+        return iRxHttp.newCall().awaitResponse()
     }
 }
 
-internal fun AwaitOkResponse.cache(iRxHttp: IRxHttp): AwaitCache {
+internal fun IAwait<Response>.cache(iRxHttp: IRxHttp): AwaitCache {
     return AwaitCache(this, iRxHttp)
 }
 
 @Suppress("BlockingMethodInNonBlockingContext")
-internal fun <T> AwaitCache.toParser(parser: Parser<T>): IAwait<T> = newAwait {
+internal fun <T> IAwait<Response>.toParser(parser: Parser<T>, iRxHttp: IRxHttp): IAwait<T> = newAwait {
     try {
         parser.onParse(await())
     } catch (e: Throwable) {
-        LogUtil.log(OkHttpCompat.url(request).toString(), e)
+        LogUtil.log(OkHttpCompat.url(iRxHttp.buildRequest()).toString(), e)
         throw e
     }
 }

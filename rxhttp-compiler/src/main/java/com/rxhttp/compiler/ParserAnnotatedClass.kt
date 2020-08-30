@@ -48,6 +48,8 @@ class ParserAnnotatedClass {
         val parserName = ClassName.get("rxhttp.wrapper.parse", "Parser")
         val progressName = ClassName.get("rxhttp.wrapper.entity", "Progress")
         val progressTName = ClassName.get("rxhttp.wrapper.entity", "ProgressT")
+        val logUtilName = ClassName.get("rxhttp.wrapper.utils", "LogUtil")
+        val logTimeName = ClassName.get("rxhttp.wrapper.utils", "LogTime")
         val typeName = TypeName.get(String::class.java)
         val progressTStringName = ParameterizedTypeName.get(progressTName, typeName)
         val parserTName = ParameterizedTypeName.get(parserName, t)
@@ -121,8 +123,19 @@ class ParserAnnotatedClass {
         methodList.add(
             MethodSpec.methodBuilder("buildRequest")
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .addStatement("doOnStart()")
-                .addStatement("return param.buildRequest()")
+                .addCode(
+                    """
+                    if (request == null) {
+                        doOnStart();
+                        request = param.buildRequest();
+                    }
+                    if (${"$"}T.isDebug()) {
+                        request = request.newBuilder()
+                            .tag(LogTime.class, new ${"$"}T())
+                            .build();
+                    }
+                    return request;
+                """.trimIndent(), logUtilName, logTimeName)
                 .returns(requestName)
                 .build())
 

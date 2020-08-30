@@ -13,6 +13,7 @@ import kotlin.Boolean
 import kotlin.Int
 import kotlin.Long
 import kotlin.String
+import kotlin.Throws
 
 class RxHttpGenerator {
     private var mParamsAnnotatedClass: ParamsAnnotatedClass? = null
@@ -44,7 +45,6 @@ class RxHttpGenerator {
     fun setAnnotatedClass(defaultDomain: VariableElement?) {
         this.defaultDomain = defaultDomain
     }
-
 
 
     @Throws(IOException::class)
@@ -93,6 +93,7 @@ class RxHttpGenerator {
         val partName = ClassName.get("okhttp3.MultipartBody", "Part")
         val requestBodyName = ClassName.get("okhttp3", "RequestBody")
         val headersName = ClassName.get("okhttp3", "Headers")
+        val requestName = ClassName.get("okhttp3", "Request")
 
         val methodList = ArrayList<MethodSpec>() //方法集合
 
@@ -354,6 +355,7 @@ class RxHttpGenerator {
         }
         rxHttpBuilder.addField(converterSpec)
             .addField(breakDownloadOffSize)
+            .addField(requestName, "request", Modifier.PUBLIC)
             .superclass(baseRxHttpName)
             .addTypeVariable(p)
             .addTypeVariable(r)

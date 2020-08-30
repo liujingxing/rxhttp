@@ -3,7 +3,10 @@ package rxhttp
 import android.graphics.Bitmap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import okhttp3.*
+import okhttp3.Call
+import okhttp3.Headers
+import okhttp3.Request
+import okhttp3.Response
 import rxhttp.wrapper.OkHttpCompat
 import rxhttp.wrapper.await.AwaitOkResponse
 import rxhttp.wrapper.await.cache
@@ -22,6 +25,8 @@ import rxhttp.wrapper.parse.*
 interface IRxHttp {
 
     fun newCall(): Call
+
+    fun buildRequest(): Request
 
     //Breakpoint download progress offset
     val breakDownloadOffSize: Long
@@ -138,6 +143,6 @@ fun <T> IRxHttp.toParser(
 ): IAwait<T> =
     AwaitOkResponse(this)
         .cache(this)
-        .toParser(parser)
+        .toParser(parser, this)
         .flowOn(Dispatchers.IO)
 
