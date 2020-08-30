@@ -45,6 +45,8 @@ import rxhttp.wrapper.entity.Progress;
 import rxhttp.wrapper.entity.ProgressT;
 import rxhttp.wrapper.parse.Parser;
 import rxhttp.wrapper.parse.SimpleParser;
+import rxhttp.wrapper.utils.LogTime;
+import rxhttp.wrapper.utils.LogUtil;
 
 /**
  * Github
@@ -79,6 +81,8 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
   protected IConverter converter = RxHttpPlugins.getConverter();
 
   private long breakDownloadOffSize = 0L;
+
+  public Request request;
 
   protected RxHttp(P param) {
     this.param = param;
@@ -468,8 +472,16 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
   }
 
   public final Request buildRequest() {
-    doOnStart();
-    return param.buildRequest();
+    if (request == null) {
+        doOnStart();
+        request = param.buildRequest();
+    }
+    if (LogUtil.isDebug()) {
+        request = request.newBuilder()
+            .tag(LogTime.class, new LogTime())
+            .build();
+    }
+    return request;
   }
 
   /**

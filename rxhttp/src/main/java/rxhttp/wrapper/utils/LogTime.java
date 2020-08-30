@@ -7,7 +7,7 @@ import java.util.concurrent.TimeUnit;
  * Date: 2019-11-30
  * Time: 18:37
  */
-class LogTime {
+public class LogTime {
 
     private long startNs;
 
