@@ -43,7 +43,7 @@ public class LogUtil {
         isDebug = debug;
     }
 
-    public static boolean isIsDebug() {
+    public static boolean isDebug() {
         return isDebug;
     }
 
