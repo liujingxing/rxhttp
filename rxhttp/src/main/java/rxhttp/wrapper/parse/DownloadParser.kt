@@ -14,9 +14,10 @@ import java.io.IOException
  * Date: 2018/10/23
  * Time: 13:49
  */
-class DownloadParser(
+class DownloadParser @JvmOverloads constructor(
     private val localPath: String,
-    private val callback: ProgressCallback?
+    var callback: ProgressCallback? = null,
+    var offsetSize: Long = 0
 ) : Parser<String> {
 
     private var lastProgress = 0
@@ -30,15 +31,16 @@ class DownloadParser(
         val body = ExceptionHelper.throwIfFatal(response)
         LogUtil.log(response, false, localPath)
         val append = OkHttpCompat.header(response, "Content-Range") != null
-        val contentLength = getContentLength(response)
+        val contentLength = getContentLength(response) + offsetSize
         //将输入流写出到文件
         IOUtil.write(body.byteStream(), localPath, append) {
             callback?.apply {
+                val currentSize = it + offsetSize
                 //当前进度 = 当前已读取的字节 / 总字节
-                val currentProgress = ((it * 100f / contentLength)).toInt()
+                val currentProgress = ((currentSize * 100f / contentLength)).toInt()
                 if (currentProgress > lastProgress) {
                     lastProgress = currentProgress
-                    callback.onProgress(currentProgress, it, contentLength)
+                    onProgress(currentProgress, currentSize, contentLength)
                 }
             }
         }
