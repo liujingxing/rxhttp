@@ -124,7 +124,7 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
    * 设置统一公共参数回调接口,通过该接口,可添加公共参数/请求头，每次请求前会回调该接口
    * 若部分接口不需要添加公共参数,发请求前，调用{@link #setAssemblyEnabled(boolean)}方法设置false即可
    */
-  public static void setOnParamAssembly(Function<Param, Param> onParamAssembly) {
+  public static void setOnParamAssembly(Function<Param<?>, Param<?>> onParamAssembly) {
     RxHttpPlugins.setOnParamAssembly(onParamAssembly);
   }
 

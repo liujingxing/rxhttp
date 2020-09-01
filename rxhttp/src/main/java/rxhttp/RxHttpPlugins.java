@@ -25,8 +25,8 @@ import rxhttp.wrapper.param.Param;
  */
 public class RxHttpPlugins {
 
-    private static Function<? super Param, ? extends Param> mOnParamAssembly;
-    private static Function<? super String, String> decoder;
+    private static Function<? super Param<?>, ? extends Param<?>> mOnParamAssembly;
+    private static Function<String, String> decoder;
     private static IConverter converter = GsonConverter.create();
 
     private static List<String> excludeCacheKeys = Collections.emptyList();
@@ -35,12 +35,12 @@ public class RxHttpPlugins {
     private static CacheStrategy cacheStrategy = new CacheStrategy(CacheMode.ONLY_NETWORK);
 
     //设置公共参数装饰
-    public static void setOnParamAssembly(@Nullable Function<? super Param, ? extends Param> onParamAssembly) {
+    public static void setOnParamAssembly(@Nullable Function<? super Param<?>, ? extends Param<?>> onParamAssembly) {
         mOnParamAssembly = onParamAssembly;
     }
 
     //设置解码/解密器,可用于对Http返回的String 字符串解码/解密
-    public static void setResultDecoder(@Nullable Function<? super String, String> decoder) {
+    public static void setResultDecoder(@Nullable Function<String, String> decoder) {
         RxHttpPlugins.decoder = decoder;
     }
 
@@ -61,11 +61,11 @@ public class RxHttpPlugins {
      * @param source Param
      * @return 装饰后的参数
      */
-    public static Param onParamAssembly(Param source) {
+    public static Param<?> onParamAssembly(Param<?> source) {
         if (source == null || !source.isAssemblyEnabled()) return source;
-        Function<? super Param, ? extends Param> f = mOnParamAssembly;
+        Function<? super Param<?>, ? extends Param<?>> f = mOnParamAssembly;
         if (f != null) {
-            Param p = apply(f, source);
+            Param<?> p = apply(f, source);
             if (p == null) {
                 throw new NullPointerException("onParamAssembly return must not be null");
             }
@@ -81,7 +81,7 @@ public class RxHttpPlugins {
      * @return 解码/解密后字符串
      */
     public static String onResultDecoder(String source) {
-        Function<? super String, String> f = decoder;
+        Function<String, String> f = decoder;
         if (f != null) {
             return apply(f, source);
         }
