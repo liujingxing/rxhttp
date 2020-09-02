@@ -7,19 +7,24 @@ package rxhttp.wrapper.entity;
  * <p>
  * It is NOT thread safe.
  */
-public class ProgressT<T> extends Progress {
+public class ProgressT<T> extends Progress{
 
-    private T mResult; //http返回结果,上传/下载完成时调用
+    private T result; //http返回结果,上传/下载完成时调用
 
     public ProgressT() {
     }
 
+    public ProgressT(T result) {
+        this.result = result;
+    }
+
+
     public T getResult() {
-        return mResult;
+        return result;
     }
 
     public void setResult(T result) {
-        mResult = result;
+        this.result = result;
     }
 
     @Override
@@ -28,7 +33,7 @@ public class ProgressT<T> extends Progress {
             "progress=" + getProgress() +
             ", currentSize=" + getCurrentSize() +
             ", totalSize=" + getTotalSize() +
-            ", mResult=" + mResult +
+            ", result=" + result +
             '}';
     }
 }
