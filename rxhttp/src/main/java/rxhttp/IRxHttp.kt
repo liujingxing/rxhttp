@@ -7,8 +7,7 @@ import okhttp3.Headers
 import okhttp3.Request
 import okhttp3.Response
 import rxhttp.wrapper.OkHttpCompat
-import rxhttp.wrapper.await.AwaitOkResponse
-import rxhttp.wrapper.await.toParser
+import rxhttp.wrapper.await.AwaitImpl
 import rxhttp.wrapper.cahce.CacheStrategy
 import rxhttp.wrapper.callback.ProgressCallbackImpl
 import rxhttp.wrapper.callback.SuspendProgressCallbackImpl
@@ -138,7 +137,5 @@ fun IRxHttp.toDownload(
 
 fun <T> IRxHttp.toParser(
     parser: Parser<T>,
-): IAwait<T> =
-    AwaitOkResponse(this)
-        .toParser(parser, this)
+): IAwait<T> = AwaitImpl(this, parser)
 
