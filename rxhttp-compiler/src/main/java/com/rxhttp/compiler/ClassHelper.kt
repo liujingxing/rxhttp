@@ -35,7 +35,7 @@ object ClassHelper {
             generatorClass(filer, "BaseRxHttp", """
             package $rxHttpPackage;
 
-            ${if(isAndroid) "import android.graphics.Bitmap;" else "" }
+            ${if (isAndroid) "import android.graphics.Bitmap;" else ""}
 
             import java.lang.reflect.Type;
             import java.util.List;
@@ -52,7 +52,7 @@ object ClassHelper {
             import rxhttp.wrapper.annotations.Nullable;
             import rxhttp.wrapper.entity.ParameterizedTypeImpl;
             import rxhttp.wrapper.entity.Progress;
-            ${if(isAndroid) "import rxhttp.wrapper.parse.BitmapParser;" else "" }
+            ${if (isAndroid) "import rxhttp.wrapper.parse.BitmapParser;" else ""}
             import rxhttp.wrapper.parse.DownloadParser;
             import rxhttp.wrapper.parse.OkResponseParser;
             import rxhttp.wrapper.parse.Parser;
@@ -143,9 +143,11 @@ object ClassHelper {
                     return asParser(new SimpleParser<List<T>>(tTypeList));
                 }
 
-                ${if(isAndroid) """public final <T> Observable<Bitmap> asBitmap() {
+                ${
+                if (isAndroid) """public final <T> Observable<Bitmap> asBitmap() {
                     return asParser(new BitmapParser());
-                }""" else ""}
+                }""" else ""
+                }
 
                 public final Observable<Response> asOkResponse() {
                     return asParser(new OkResponseParser());
@@ -175,6 +177,870 @@ object ClassHelper {
 
         """.trimIndent())
         }
+    }
+
+    @JvmStatic
+    fun generatorObservableCallEnqueue(filer: Filer) {
+        generatorClass(filer, "ObservableCallEnqueue", """
+            package $rxHttpPackage;
+
+
+            import org.jetbrains.annotations.NotNull;
+
+            import java.io.IOException;
+
+            import ${getClassPath("Observable")};
+            import ${getClassPath("Observer")};
+            import ${getClassPath("Scheduler")};
+            import ${getClassPath("Disposable")};
+            import ${getClassPath("Exceptions")};
+            import ${getClassPath("Consumer")};
+            import ${getClassPath("RxJavaPlugins")};
+            
+            import okhttp3.Call;
+            import okhttp3.Callback;
+            import okhttp3.Response;
+            import rxhttp.IRxHttp;
+            import rxhttp.wrapper.callback.ProgressCallback;
+            import rxhttp.wrapper.entity.Progress;
+            import rxhttp.wrapper.entity.ProgressT;
+            import rxhttp.wrapper.param.FormParam;
+            import rxhttp.wrapper.param.RxHttpFormParam;
+            import rxhttp.wrapper.parse.DownloadParser;
+            import rxhttp.wrapper.parse.Parser;
+            import rxhttp.wrapper.utils.LogUtil;
+
+            /**
+             * User: ljx
+             * Date: 2018/04/20
+             * Time: 11:15
+             */
+            public final class ObservableCallEnqueue extends Observable<Progress> {
+
+                private IRxHttp iRxHttp;
+                private boolean callbackUploadProgress;
+
+                public ObservableCallEnqueue(IRxHttp iRxHttp) {
+                    this(iRxHttp, false);
+                }
+
+                public ObservableCallEnqueue(IRxHttp iRxHttp, boolean callbackUploadProgress) {
+                    this.iRxHttp = iRxHttp;
+                    this.callbackUploadProgress = callbackUploadProgress;
+                }
+
+                @Override
+                public void subscribeActual(Observer<? super Progress> observer) {
+                    HttpDisposable d = new HttpDisposable(observer, iRxHttp, callbackUploadProgress);
+                    observer.onSubscribe(d);
+                    if (d.isDisposed()) {
+                        return;
+                    }
+                    d.run();
+                }
+
+
+                private static class HttpDisposable implements Disposable, Callback, ProgressCallback {
+
+                    private volatile boolean disposed;
+
+                    private final Call call;
+                    private final Observer<? super Progress> downstream;
+
+                    /**
+                     * Constructs a DeferredScalarDisposable by wrapping the Observer.
+                     *
+                     * @param downstream the Observer to wrap, not null (not verified)
+                     */
+                    HttpDisposable(Observer<? super Progress> downstream, IRxHttp iRxHttp, boolean callbackUploadProgress) {
+                        if (iRxHttp instanceof RxHttpFormParam && callbackUploadProgress) {
+                            RxHttpFormParam formParam = (RxHttpFormParam) iRxHttp;
+                            FormParam param = formParam.getParam();
+                            param.setProgressCallback(this);
+                        }
+                        this.downstream = downstream;
+                        this.call = iRxHttp.newCall();
+                    }
+
+                    @Override
+                    public void onProgress(int progress, long currentSize, long totalSize) {
+                        if (!disposed) {
+                            Progress p = new Progress(progress, currentSize, totalSize);
+                            downstream.onNext(p);
+                        }
+                    }
+
+                    @Override
+                    public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                        if (!disposed) {
+                            downstream.onNext(new ProgressT<>(response));
+                        }
+                        if (!disposed) {
+                            downstream.onComplete();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                        LogUtil.log(call.request().url().toString(), e);
+                        Exceptions.throwIfFatal(e);
+                        if (!disposed) {
+                            downstream.onError(e);
+                        } else {
+                            RxJavaPlugins.onError(e);
+                        }
+                    }
+
+                    @Override
+                    public void dispose() {
+                        disposed = true;
+                        call.cancel();
+                    }
+
+                    @Override
+                    public boolean isDisposed() {
+                        return disposed;
+                    }
+
+                    public void run() {
+                        call.enqueue(this);
+                    }
+                }
+                
+                public <T> Observable<T> asParser(Parser<T> parser) {
+                    return asParser(parser, null, null);
+                }
+
+                public <T> Observable<T> asParser(Parser<T> parser, Consumer<Progress> progressConsumer) {
+                    return asParser(parser, progressConsumer, null);
+                }
+
+                public <T> Observable<T> asParser(Parser<T> parser, Consumer<Progress> progressConsumer, Scheduler scheduler) {
+                    return new ObservableParser<>(this, parser, progressConsumer, scheduler);
+                }
+            }
+
+        """.trimIndent())
+    }
+
+    @JvmStatic
+    fun generatorObservableCallExecute(filer: Filer) {
+        generatorClass(filer, "ObservableCallExecute", """
+            package $rxHttpPackage;
+
+            import ${getClassPath("Observable")};
+            import ${getClassPath("Observer")};
+            import ${getClassPath("Exceptions")};
+            import ${getClassPath("RxJavaPlugins")};
+            import ${getClassPath("Scheduler")};
+            import ${getClassPath("Disposable")};
+            import ${getClassPath("Consumer")};
+            
+            import okhttp3.Call;
+            import okhttp3.Response;
+            import rxhttp.IRxHttp;
+            import rxhttp.wrapper.callback.ProgressCallback;
+            import rxhttp.wrapper.entity.Progress;
+            import rxhttp.wrapper.entity.ProgressT;
+            import rxhttp.wrapper.param.FormParam;
+            import rxhttp.wrapper.param.RxHttpFormParam;
+            import rxhttp.wrapper.parse.DownloadParser;
+            import rxhttp.wrapper.parse.Parser;
+            import rxhttp.wrapper.utils.LogUtil;
+
+            /**
+             * User: ljx
+             * Date: 2018/04/20
+             * Time: 11:15
+             */
+            public final class ObservableCallExecute extends Observable<Progress> {
+
+                private IRxHttp iRxHttp;
+                private boolean callbackUploadProgress;
+
+                public ObservableCallExecute(IRxHttp iRxHttp) {
+                    this(iRxHttp, false);
+                }
+
+                public ObservableCallExecute(IRxHttp iRxHttp, boolean callbackUploadProgress) {
+                    this.iRxHttp = iRxHttp;
+                    this.callbackUploadProgress = callbackUploadProgress;
+                }
+
+                @Override
+                public void subscribeActual(Observer<? super Progress> observer) {
+                    HttpDisposable d = new HttpDisposable(observer, iRxHttp, callbackUploadProgress);
+                    observer.onSubscribe(d);
+                    if (d.isDisposed()) {
+                        return;
+                    }
+                    d.run();
+                }
+
+                private static class HttpDisposable implements Disposable, ProgressCallback {
+
+                    private boolean fusionMode;
+                    private volatile boolean disposed;
+
+                    private final Call call;
+                    private final Observer<? super Progress> downstream;
+
+                    /**
+                     * Constructs a DeferredScalarDisposable by wrapping the Observer.
+                     *
+                     * @param downstream the Observer to wrap, not null (not verified)
+                     */
+                    HttpDisposable(Observer<? super Progress> downstream, IRxHttp iRxHttp, boolean callbackUploadProgress) {
+                        if (iRxHttp instanceof RxHttpFormParam && callbackUploadProgress) {
+                            RxHttpFormParam formParam = (RxHttpFormParam) iRxHttp;
+                            FormParam param = formParam.getParam();
+                            param.setProgressCallback(this);
+                        }
+                        this.downstream = downstream;
+                        this.call = iRxHttp.newCall();
+                    }
+
+                    @Override
+                    public void onProgress(int progress, long currentSize, long totalSize) {
+                        if (!disposed) {
+                            Progress p = new Progress(progress, currentSize, totalSize);
+                            downstream.onNext(p);
+                        }
+                    }
+
+                    public void run() {
+                        Response value;
+                        try {
+                            value = call.execute();
+                        } catch (Throwable e) {
+                            LogUtil.log(call.request().url().toString(), e);
+                            Exceptions.throwIfFatal(e);
+                            if (!disposed) {
+                                downstream.onError(e);
+                            } else {
+                                RxJavaPlugins.onError(e);
+                            }
+                            return;
+                        }
+                        if (!disposed) {
+                            downstream.onNext(new ProgressT<>(value));
+                        }
+                        if (!disposed) {
+                            downstream.onComplete();
+                        }
+                    }
+
+                    @Override
+                    public void dispose() {
+                        disposed = true;
+                        call.cancel();
+                    }
+
+                    @Override
+                    public boolean isDisposed() {
+                        return disposed;
+                    }
+                }
+
+                public <T> Observable<T> asParser(Parser<T> parser) {
+                    return asParser(parser, null, null);
+                }
+
+                public <T> Observable<T> asParser(Parser<T> parser, Consumer<Progress> progressConsumer) {
+                    return asParser(parser, progressConsumer, null);
+                }
+
+                public <T> Observable<T> asParser(Parser<T> parser, Consumer<Progress> progressConsumer, Scheduler scheduler) {
+                    return new ObservableParser<>(this, parser, progressConsumer, scheduler);
+                }
+            }
+
+        """.trimIndent())
+    }
+
+    @JvmStatic
+    fun generatorObservableCache(filer: Filer) {
+        generatorClass(filer, "ObservableCache", """
+            package $rxHttpPackage;
+
+            import $rxHttpPackage.ObservableCallEnqueue.IFusion;
+
+            import java.io.IOException;
+
+            import ${getClassPath("Observable")};
+            import ${getClassPath("ObservableSource")};
+            import ${getClassPath("Observer")};
+            import ${getClassPath("Exceptions")};
+            import ${getClassPath("RxJavaPlugins")};
+            import ${getClassPath("Scheduler")};
+            import ${getClassPath("Disposable")};
+            import ${getClassPath("Consumer")};
+            import ${getClassPath("CompositeException")};
+            import ${getClassPath("DisposableHelper")};
+            
+            import okhttp3.Request;
+            import okhttp3.Response;
+            import rxhttp.IRxHttp;
+            import rxhttp.RxHttpPlugins;
+            import rxhttp.wrapper.annotations.Nullable;
+            import rxhttp.wrapper.annotations.NonNull;
+            import rxhttp.wrapper.cahce.CacheMode;
+            import rxhttp.wrapper.cahce.CacheStrategy;
+            import rxhttp.wrapper.cahce.InternalCache;
+            import rxhttp.wrapper.entity.Progress;
+            import rxhttp.wrapper.entity.ProgressT;
+            import rxhttp.wrapper.exception.CacheReadFailedException;
+            import rxhttp.wrapper.parse.DownloadParser;
+            import rxhttp.wrapper.parse.Parser;
+
+            public final class ObservableCache extends Observable<Progress> {
+
+                private final IRxHttp iRxHttp;
+                private final ObservableSource<Progress> source;
+
+                private InternalCache cache;
+                private CacheStrategy cacheStrategy;
+
+                public ObservableCache(ObservableSource<Progress> source, IRxHttp iRxHttp) {
+                    this.source = source;
+                    this.iRxHttp = iRxHttp;
+                    cache = RxHttpPlugins.getCache();
+                }
+
+                @Override
+                protected void subscribeActual(@NonNull Observer<? super Progress> observer) {
+                    source.subscribe(new CacheObserver(observer));
+                }
+
+
+                private class CacheObserver implements Observer<Progress>, Disposable {
+
+
+                    final Observer<? super Progress> downstream;
+
+                    /**
+                     * The upstream subscription.
+                     */
+                    protected Disposable upstream;
+
+
+                    /**
+                     * Construct a BasicFuseableObserver by wrapping the given subscriber.
+                     *
+                     * @param downstream the subscriber, not null (not verified)
+                     */
+                    public CacheObserver(Observer<? super Progress> downstream) {
+                        this.downstream = downstream;
+                    }
+
+
+                    @Override
+                    public void onSubscribe(@NonNull Disposable d) {
+                        if (DisposableHelper.validate(this.upstream, d)) {
+                            IFusion iFusion = null;
+                            this.upstream = d;
+                            if (d instanceof IFusion) {
+                                iFusion = (IFusion) d;
+                                iFusion.requestFusion();
+                            }
+                            downstream.onSubscribe(this);
+
+                            if (!isDisposed() && iFusion != null) {
+                                Request request = iRxHttp.buildRequest();
+                                try {
+                                    Response response = beforeReadCache(request);
+                                    if (response != null) {
+                                        downstream.onNext(new ProgressT<>(response));
+                                        downstream.onComplete();
+                                        return;
+                                    }
+                                } catch (IOException e) {
+                                    Exceptions.throwIfFatal(e);
+                                    if (!d.isDisposed()) {
+                                        downstream.onError(e);
+                                    } else {
+                                        RxJavaPlugins.onError(e);
+                                    }
+                                    return;
+                                }
+                                iFusion.run();
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onNext(@NonNull Progress progress) {
+                        if (progress instanceof ProgressT) {
+                            if (!cacheModeIs(CacheMode.ONLY_NETWORK)) {
+                                ProgressT<Response> progressT = (ProgressT<Response>) progress;
+                                //非ONLY_NETWORK模式下,请求成功，写入缓存
+                                try {
+                                    Response response = cache.put(progressT.getResult(), cacheStrategy.getCacheKey());
+                                    progressT.setResult(response);
+                                } catch (IOException e) {
+                                    fail(e);
+                                    return;
+                                }
+                            }
+                        }
+                        downstream.onNext(progress);
+                    }
+
+
+                    @Override
+                    public void onError(Throwable t) {
+                        if (cacheModeIs(CacheMode.REQUEST_NETWORK_FAILED_READ_CACHE)) {
+                            Response networkResponse;
+                            Request request = iRxHttp.buildRequest();
+                            //请求失败，读取缓存
+                            try {
+                                networkResponse = getCacheResponse(request, cacheStrategy.getCacheValidTime());
+                            } catch (IOException e) {
+                                downstream.onError(new CompositeException(t, e));
+                                return;
+                            }
+                            if (networkResponse != null) {
+                                downstream.onNext(new ProgressT<>(networkResponse));
+                                downstream.onComplete();
+                                return;
+                            }
+                        }
+                        downstream.onError(t);
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        downstream.onComplete();
+                    }
+
+                    @Override
+                    public void dispose() {
+                        upstream.dispose();
+                    }
+
+                    @Override
+                    public boolean isDisposed() {
+                        return upstream.isDisposed();
+                    }
+
+                    private void fail(Throwable t) {
+                        Exceptions.throwIfFatal(t);
+                        upstream.dispose();
+                        onError(t);
+                    }
+                }
+
+
+                private CacheStrategy getCacheStrategy() {
+                    if (cacheStrategy == null) {
+                        cacheStrategy = iRxHttp.getCacheStrategy();
+                    }
+                    return cacheStrategy;
+                }
+
+                private Response beforeReadCache(Request request) throws IOException {
+                    if (cacheModeIs(CacheMode.ONLY_CACHE, CacheMode.READ_CACHE_FAILED_REQUEST_NETWORK)) {
+                        //读取缓存
+                        Response cacheResponse = getCacheResponse(request, getCacheStrategy().getCacheValidTime());
+                        if (cacheResponse != null) {
+                            return cacheResponse;
+                        }
+                        if (cacheModeIs(CacheMode.ONLY_CACHE)) //仅读缓存模式下，缓存读取失败，直接抛出异常
+                            throw new CacheReadFailedException("Cache read failed");
+                    }
+                    return null;
+                }
+
+                private boolean cacheModeIs(CacheMode... cacheModes) {
+                    if (cacheModes == null || cache == null) return false;
+                    CacheMode cacheMode = getCacheStrategy().getCacheMode();
+                    for (CacheMode mode : cacheModes) {
+                        if (mode == cacheMode) return true;
+                    }
+                    return false;
+                }
+
+                @Nullable
+                private Response getCacheResponse(Request request, long validTime) throws IOException {
+                    if (cache == null) return null;
+                    Response cacheResponse = cache.get(request, getCacheStrategy().getCacheKey());
+                    if (cacheResponse != null) {
+                        long receivedTime = cacheResponse.receivedResponseAtMillis();
+                        if (validTime != -1 && System.currentTimeMillis() - receivedTime > validTime)
+                            return null; //缓存过期，返回null
+                        return cacheResponse;
+                    }
+                    return null;
+                }
+
+                public Observable<String> asDownload(String localPath, long offsetSize) {
+                    return asDownload(localPath, offsetSize, null, null);
+                }
+
+                public Observable<String> asDownload(String localPath, long offsetSize, Consumer<Progress> progressConsumer, Scheduler scheduler) {
+                    DownloadParser downloadParser = new DownloadParser(localPath);
+                    downloadParser.setOffsetSize(offsetSize);
+                    return asParser(downloadParser, scheduler, progressConsumer);
+                }
+
+                public <T> Observable<T> asParser(Parser<T> parser, Consumer<Progress> progressConsumer) {
+                    return asParser(parser, null, progressConsumer);
+                }
+
+                public <T> Observable<T> asParser(Parser<T> parser, Scheduler scheduler, Consumer<Progress> progressConsumer) {
+                    return new ObservableParser<>(this, parser, progressConsumer, scheduler);
+                }
+            }
+
+        """.trimIndent())
+    }
+
+
+    @JvmStatic
+    fun generatorObservableParser(filer: Filer) {
+        generatorClass(filer, "ObservableParser", """
+            package $rxHttpPackage;
+
+            import java.util.Objects;
+            import java.util.concurrent.atomic.AtomicInteger;
+
+            import ${getClassPath("Observable")};
+            import ${getClassPath("ObservableSource")};
+            import ${getClassPath("Observer")};
+            import ${getClassPath("Exceptions")};
+            import ${getClassPath("RxJavaPlugins")};
+            import ${getClassPath("Scheduler")};
+            import ${getClassPath("Disposable")};
+            import ${getClassPath("Consumer")};
+            import ${getClassPath("CompositeException")};
+            import ${getClassPath("DisposableHelper")};
+            
+            import ${getClassPath("Scheduler")}.Worker;
+            import ${getClassPath("SimpleQueue")};
+            import ${getClassPath("SpscLinkedArrayQueue")};
+            
+            import okhttp3.Response;
+            import rxhttp.wrapper.annotations.NonNull;
+            import rxhttp.wrapper.annotations.Nullable;
+            import rxhttp.wrapper.callback.ProgressCallback;
+            import rxhttp.wrapper.entity.Progress;
+            import rxhttp.wrapper.entity.ProgressT;
+            import rxhttp.wrapper.parse.DownloadParser;
+            import rxhttp.wrapper.parse.Parser;
+
+            public final class ObservableParser<T> extends Observable<T> {
+
+                private final Parser<T> parser;
+                private final ObservableSource<Progress> source;
+                private final Scheduler scheduler;
+                private final Consumer<Progress> progressConsumer;
+
+                public ObservableParser(@NonNull ObservableSource<Progress> source, @NonNull Parser<T> parser,
+                                        @Nullable Consumer<Progress> progressConsumer, @Nullable Scheduler scheduler) {
+                    this.source = source;
+                    this.parser = parser;
+                    this.scheduler = scheduler;
+                    this.progressConsumer = progressConsumer;
+                }
+
+                @Override
+                protected void subscribeActual(@NonNull Observer<? super T> observer) {
+                    if (scheduler == null) {
+                        source.subscribe(new SyncParserObserver<>(observer, parser, progressConsumer));
+                    } else {
+                        Worker worker = scheduler.createWorker();
+                        source.subscribe(new AsyncParserObserver<>(observer, worker, progressConsumer, parser));
+                    }
+                }
+
+                private static final class SyncParserObserver<T> implements Observer<Progress>, Disposable, ProgressCallback {
+                    private final Parser<T> parser;
+
+                    private Disposable upstream;
+                    private final Observer<? super T> downstream;
+                    private final Consumer<Progress> progressConsumer;
+                    private boolean done;
+
+                    SyncParserObserver(Observer<? super T> actual, Parser<T> parser, Consumer<Progress> progressConsumer) {
+                        this.downstream = actual;
+                        this.parser = parser;
+                        this.progressConsumer = progressConsumer;
+
+                        if (progressConsumer != null && parser instanceof DownloadParser) {
+                            ((DownloadParser) parser).setCallback(this);
+                        }
+                    }
+
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        if (DisposableHelper.validate(this.upstream, d)) {
+                            this.upstream = d;
+                            downstream.onSubscribe(this);
+                        }
+                    }
+
+                    //download progress callback
+                    @Override
+                    public void onProgress(int progress, long currentSize, long totalSize) {
+                        if (done) {
+                            return;
+                        }
+                        Progress p = new Progress(progress, currentSize, totalSize);
+                        try {
+                            progressConsumer.accept(p);
+                        } catch (Throwable t) {
+                            fail(t);
+                        }
+                    }
+
+                    @SuppressWarnings("unchecked")
+                    @Override
+                    public void onNext(Progress progress) {
+                        if (done) {
+                            return;
+                        }
+                        if (progress instanceof ProgressT) {
+                            ProgressT<Response> p = (ProgressT<Response>) progress;
+                            T v;
+                            try {
+                                v = Objects.requireNonNull(parser.onParse(p.getResult()), "The onParse function returned a null value.");
+                            } catch (Throwable t) {
+                                fail(t);
+                                return;
+                            }
+                            downstream.onNext(v);
+                        } else {
+                            try {
+                                progressConsumer.accept(progress);
+                            } catch (Throwable t) {
+                                fail(t);
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable t) {
+                        if (done) {
+                            RxJavaPlugins.onError(t);
+                            return;
+                        }
+                        done = true;
+                        downstream.onError(t);
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        if (done) {
+                            return;
+                        }
+                        done = true;
+                        downstream.onComplete();
+                    }
+
+                    @Override
+                    public void dispose() {
+                        upstream.dispose();
+                    }
+
+                    @Override
+                    public boolean isDisposed() {
+                        return upstream.isDisposed();
+                    }
+
+                    private void fail(Throwable t) {
+                        Exceptions.throwIfFatal(t);
+                        upstream.dispose();
+                        onError(t);
+                    }
+                }
+
+
+                private static final class AsyncParserObserver<T> extends AtomicInteger
+                    implements Observer<Progress>, Disposable, ProgressCallback, Runnable {
+
+                    private final Parser<T> parser;
+                    private final Observer<? super T> downstream;
+
+                    private Disposable upstream;
+                    private Throwable error;
+
+                    private volatile boolean done;
+                    private volatile boolean disposed;
+                    private final SimpleQueue<Progress> queue;
+                    private final Scheduler.Worker worker;
+
+                    private final Consumer<Progress> progressConsumer;
+
+                    AsyncParserObserver(Observer<? super T> actual, Scheduler.Worker worker, Consumer<Progress> progressConsumer, Parser<T> parser) {
+                        this.downstream = actual;
+                        this.parser = parser;
+                        this.worker = worker;
+                        this.progressConsumer = progressConsumer;
+                        queue = new SpscLinkedArrayQueue<>(128);
+
+                        if (progressConsumer != null && parser instanceof DownloadParser) {
+                            ((DownloadParser) parser).setCallback(this);
+                        }
+                    }
+
+                    @Override
+                    public void onSubscribe(@NonNull Disposable d) {
+                        if (DisposableHelper.validate(this.upstream, d)) {
+                            this.upstream = d;
+                            downstream.onSubscribe(this);
+                        }
+                    }
+
+                    //download progress callback
+                    @Override
+                    public void onProgress(int progress, long currentSize, long totalSize) {
+                        if (done) {
+                            return;
+                        }
+                        Progress p = new Progress(progress, currentSize, totalSize);
+                        queue.offer(p);
+                        schedule();
+                    }
+
+                    @SuppressWarnings("unchecked")
+                    @Override
+                    public void onNext(Progress progress) {
+                        if (done) {
+                            return;
+                        }
+                        ProgressT<T> p = null;
+                        if (progress instanceof ProgressT) {
+                            ProgressT<Response> progressT = (ProgressT<Response>) progress;
+                            try {
+                                T t = parser.onParse(progressT.getResult());
+                                p = new ProgressT<>(t);
+                            } catch (Throwable t) {
+                                onError(t);
+                                return;
+                            }
+                        }
+                        if (p != null) {
+                            queue.offer(p);
+                        } else {
+                            queue.offer(progress);
+                        }
+                        schedule();
+                    }
+
+                    @Override
+                    public void onError(Throwable t) {
+                        if (done) {
+                            RxJavaPlugins.onError(t);
+                            return;
+                        }
+                        error = t;
+                        done = true;
+                        schedule();
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        if (done) {
+                            return;
+                        }
+                        done = true;
+                        schedule();
+                    }
+
+
+                    void schedule() {
+                        if (getAndIncrement() == 0) {
+                            worker.schedule(this);
+                        }
+                    }
+
+                    @SuppressWarnings("unchecked")
+                    @Override
+                    public void run() {
+                        int missed = 1;
+
+                        final SimpleQueue<Progress> q = queue;
+                        final Observer<? super T> a = downstream;
+                        while (!checkTerminated(done, q.isEmpty(), a)) {
+                            for (; ; ) {
+                                boolean d = done;
+                                Progress p;
+                                try {
+                                    p = q.poll();
+
+                                    boolean empty = p == null;
+
+                                    if (checkTerminated(d, empty, a)) {
+                                        return;
+                                    }
+                                    if (empty) {
+                                        break;
+                                    }
+                                    if (p instanceof ProgressT) {
+                                        a.onNext(((ProgressT<T>) p).getResult());
+                                    } else {
+                                        progressConsumer.accept(p);
+                                    }
+                                } catch (Throwable ex) {
+                                    Exceptions.throwIfFatal(ex);
+                                    disposed = true;
+                                    upstream.dispose();
+                                    q.clear();
+                                    a.onError(ex);
+                                    worker.dispose();
+                                    return;
+                                }
+                            }
+                            missed = addAndGet(-missed);
+                            if (missed == 0) {
+                                break;
+                            }
+                        }
+                    }
+
+                    boolean checkTerminated(boolean d, boolean empty, Observer<? super T> a) {
+                        if (isDisposed()) {
+                            queue.clear();
+                            return true;
+                        }
+                        if (d) {
+                            Throwable e = error;
+                            if (e != null) {
+                                disposed = true;
+                                queue.clear();
+                                a.onError(e);
+                                worker.dispose();
+                                return true;
+                            } else if (empty) {
+                                disposed = true;
+                                a.onComplete();
+                                worker.dispose();
+                                return true;
+                            }
+                        }
+                        return false;
+                    }
+
+                    @Override
+                    public void dispose() {
+                        if (!disposed) {
+                            disposed = true;
+                            upstream.dispose();
+                            worker.dispose();
+                            if (getAndIncrement() == 0) {
+                                queue.clear();
+                            }
+                        }
+                    }
+
+                    @Override
+                    public boolean isDisposed() {
+                        return disposed;
+                    }
+                }
+            }
+
+        """.trimIndent())
     }
 
     @JvmStatic

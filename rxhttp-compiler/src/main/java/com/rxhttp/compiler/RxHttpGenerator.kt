@@ -762,8 +762,6 @@ class RxHttpGenerator {
                     .returns(rxHttpFormName)
                     .build())
 
-            val schedulersName = getClassName("Schedulers")
-
             methodList.add(
                 MethodSpec.methodBuilder("asParser")
                     .addModifiers(Modifier.PUBLIC)
@@ -771,20 +769,17 @@ class RxHttpGenerator {
                     .addTypeVariable(t)
                     .addParameter(parserTName, "parser")
                     .addCode("""
-                        if (progressConsumer == null) {                                                              
-                            return super.asParser(parser);                                                           
-                        }                                                                                            
-                        doOnStart();                                                                                 
-                        Observable<Progress> observable = new ObservableUpload<T>(getOkHttpClient(), param, parser); 
-                        if (isAsync)                                                                       
-                            observable = observable.subscribeOn(${'$'}T.io());                                          
-                        if (observeOnScheduler != null) {                                                            
-                            observable = observable.observeOn(observeOnScheduler);                                   
-                        }                                                                                            
-                        return observable.doOnNext(progressConsumer)                                                 
-                            .filter(progress -> progress instanceof ProgressT)                                       
-                            .map(progress -> ((${"$"}T) progress).getResult());                                      
-                    """.trimIndent(), schedulersName,progressTTName)
+                        if (progressConsumer == null) {                                             
+                          return super.asParser(parser);                                            
+                        }                                                                           
+                        if (isAsync) {                                                              
+                          return new ObservableCallEnqueue(this, true)                              
+                              .asParser(parser, progressConsumer, observeOnScheduler);              
+                        } else {                                                                    
+                          return new ObservableCallExecute(this, true)                              
+                              .asParser(parser, progressConsumer, observeOnScheduler);              
+                        }                                                                                                                
+                    """.trimIndent())
                     .returns(observableTName)
                     .build())
         }
