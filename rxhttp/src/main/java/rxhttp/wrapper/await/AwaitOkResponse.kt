@@ -29,7 +29,10 @@ internal class AwaitOkResponse(
 }
 
 @Suppress("BlockingMethodInNonBlockingContext")
-internal fun <T> IAwait<Response>.toParser(parser: Parser<T>, iRxHttp: IRxHttp): IAwait<T> = newAwait {
+internal fun <T> IAwait<Response>.toParser(
+    parser: Parser<T>,
+    iRxHttp: IRxHttp
+): IAwait<T> = newAwait {
     try {
         parser.onParse(await())
     } catch (e: Throwable) {
