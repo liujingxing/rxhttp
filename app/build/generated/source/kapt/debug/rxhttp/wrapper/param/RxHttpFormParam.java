@@ -3,7 +3,6 @@ package rxhttp.wrapper.param;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Scheduler;
 import io.reactivex.rxjava3.functions.Consumer;
-import io.reactivex.rxjava3.schedulers.Schedulers;
 import java.io.File;
 import java.lang.Deprecated;
 import java.lang.Object;
@@ -15,7 +14,6 @@ import okhttp3.Headers;
 import okhttp3.MultipartBody.Part;
 import okhttp3.RequestBody;
 import rxhttp.wrapper.entity.Progress;
-import rxhttp.wrapper.entity.ProgressT;
 import rxhttp.wrapper.entity.UpFile;
 import rxhttp.wrapper.parse.Parser;
 
@@ -182,18 +180,15 @@ public class RxHttpFormParam extends RxHttp<FormParam, RxHttpFormParam> {
 
   @Override
   public <T> Observable<T> asParser(Parser<T> parser) {
-    if (progressConsumer == null) {                                                              
-        return super.asParser(parser);                                                           
-    }                                                                                            
-    doOnStart();                                                                                 
-    Observable<Progress> observable = new ObservableUpload<T>(getOkHttpClient(), param, parser); 
-    if (isAsync)                                                                       
-        observable = observable.subscribeOn(Schedulers.io());                                          
-    if (observeOnScheduler != null) {                                                            
-        observable = observable.observeOn(observeOnScheduler);                                   
-    }                                                                                            
-    return observable.doOnNext(progressConsumer)                                                 
-        .filter(progress -> progress instanceof ProgressT)                                       
-        .map(progress -> ((ProgressT<T>) progress).getResult());                                      
+    if (progressConsumer == null) {                                             
+      return super.asParser(parser);                                            
+    }                                                                           
+    if (isAsync) {                                                              
+      return new ObservableCallEnqueue(this, true)                              
+          .asParser(parser, progressConsumer, observeOnScheduler);              
+    } else {                                                                    
+      return new ObservableCallExecute(this, true)                              
+          .asParser(parser, progressConsumer, observeOnScheduler);              
+    }                                                                                                                
   }
 }

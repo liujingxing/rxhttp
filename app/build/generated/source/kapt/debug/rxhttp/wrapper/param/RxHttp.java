@@ -12,7 +12,6 @@ import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Scheduler;
 import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.functions.Consumer;
-import io.reactivex.rxjava3.schedulers.Schedulers;
 import java.io.IOException;
 import java.lang.Class;
 import java.lang.Deprecated;
@@ -43,8 +42,8 @@ import rxhttp.wrapper.callback.Function;
 import rxhttp.wrapper.callback.IConverter;
 import rxhttp.wrapper.entity.ParameterizedTypeImpl;
 import rxhttp.wrapper.entity.Progress;
-import rxhttp.wrapper.entity.ProgressT;
 import rxhttp.wrapper.intercept.CacheInterceptor;
+import rxhttp.wrapper.parse.DownloadParser;
 import rxhttp.wrapper.parse.Parser;
 import rxhttp.wrapper.parse.SimpleParser;
 import rxhttp.wrapper.utils.LogTime;
@@ -519,12 +518,13 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
 
   @Override
   public <T> Observable<T> asParser(Parser<T> parser) {
-    doOnStart();
-    Observable<T> observable = new ObservableHttp<T>(getOkHttpClient(), param, parser);
-    if (isAsync) {
-        observable = observable.subscribeOn(Schedulers.io());
-    }
-    return observable;
+    if (isAsync) {                          
+      return new ObservableCallEnqueue(this)
+          .asParser(parser);                
+    } else {                                
+      return new ObservableCallExecute(this)
+          .asParser(parser);                
+    }                                       
   }
 
   /**
@@ -537,16 +537,16 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
   @Override
   public Observable<String> asDownload(String destPath, Scheduler observeOnScheduler,
       Consumer<Progress> progressConsumer) {
-    doOnStart();
-    Observable<Progress> observable = new ObservableDownload(getOkHttpClient(), param, destPath, breakDownloadOffSize);
-    if (isAsync) 
-        observable = observable.subscribeOn(Schedulers.io());
-    if (observeOnScheduler != null) {
-        observable = observable.observeOn(observeOnScheduler);
-    }
-    return observable.doOnNext(progressConsumer)
-        .filter(progress -> progress instanceof ProgressT)
-        .map(progress -> ((ProgressT<String>) progress).getResult());
+    DownloadParser parser = new DownloadParser(destPath);         
+    parser.setOffsetSize(breakDownloadOffSize);                   
+                                                                  
+    if (isAsync) {                                                
+      return new ObservableCallEnqueue(this)                      
+          .asParser(parser, progressConsumer, observeOnScheduler);
+    } else {                                                      
+      return new ObservableCallExecute(this)                      
+          .asParser(parser, progressConsumer, observeOnScheduler);
+    }                                                             
   }
 
   public <T> Observable<T> asResponse(Class<T> type) {

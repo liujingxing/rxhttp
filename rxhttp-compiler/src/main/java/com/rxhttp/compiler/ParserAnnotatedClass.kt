@@ -169,7 +169,7 @@ class ParserAnnotatedClass {
             val observableTName = ParameterizedTypeName.get(observableName, t)
             val observableStringName = ParameterizedTypeName.get(observableName, typeName)
             val consumerProgressName = ParameterizedTypeName.get(consumerName, progressName)
-            val schedulersName = getClassName("Schedulers")
+            val downloadParser = ClassName.get("rxhttp.wrapper.parse", "DownloadParser")
 
             methodList.add(
                 MethodSpec.methodBuilder("asParser")
@@ -178,13 +178,14 @@ class ParserAnnotatedClass {
                     .addTypeVariable(t)
                     .addParameter(parserTName, "parser")
                     .addCode("""
-                        doOnStart();
-                        Observable<T> observable = new ObservableHttp<T>(getOkHttpClient(), param, parser);
-                        if (isAsync) {
-                            observable = observable.subscribeOn(${'$'}T.io());
-                        }
-                        return observable;
-                    """.trimIndent(), schedulersName)
+                        if (isAsync) {                          
+                          return new ObservableCallEnqueue(this)
+                              .asParser(parser);                
+                        } else {                                
+                          return new ObservableCallExecute(this)
+                              .asParser(parser);                
+                        }                                       
+                    """.trimIndent())
                     .returns(observableTName)
                     .build())
 
@@ -203,17 +204,17 @@ class ParserAnnotatedClass {
                     .addParameter(schedulerName, "observeOnScheduler")
                     .addParameter(consumerProgressName, "progressConsumer")
                     .addCode("""
-                        doOnStart();
-                        Observable<Progress> observable = new ObservableDownload(getOkHttpClient(), param, destPath, breakDownloadOffSize);
-                        if (isAsync) 
-                            observable = observable.subscribeOn(${'$'}T.io());
-                        if (observeOnScheduler != null) {
-                            observable = observable.observeOn(observeOnScheduler);
-                        }
-                        return observable.doOnNext(progressConsumer)
-                            .filter(progress -> progress instanceof ProgressT)
-                            .map(progress -> ((${"$"}T) progress).getResult());
-                    """.trimIndent(), schedulersName, progressTStringName)
+                        DownloadParser parser = new ${'$'}T(destPath);         
+                        parser.setOffsetSize(breakDownloadOffSize);                   
+                                                                                      
+                        if (isAsync) {                                                
+                          return new ObservableCallEnqueue(this)                      
+                              .asParser(parser, progressConsumer, observeOnScheduler);
+                        } else {                                                      
+                          return new ObservableCallExecute(this)                      
+                              .asParser(parser, progressConsumer, observeOnScheduler);
+                        }                                                             
+                    """.trimIndent(), downloadParser)
                     .returns(observableStringName)
                     .build())
         }
