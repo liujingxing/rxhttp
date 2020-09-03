@@ -339,6 +339,12 @@ class RxHttpGenerator {
                 """.trimIndent(), diskLruCacheFactoryName, diskLruCacheName, taskRunnerName)
             }
         }
+
+        val isAsyncField = FieldSpec
+            .builder(Boolean::class.javaPrimitiveType, "isAsync", Modifier.PROTECTED)
+            .initializer("true")
+            .build()
+
         val rxHttpBuilder = TypeSpec.classBuilder(CLASSNAME)
             .addJavadoc("""
                 Github
@@ -356,17 +362,8 @@ class RxHttpGenerator {
             .addField(Int::class.javaPrimitiveType, "writeTimeoutMillis", Modifier.PRIVATE)
             .addField(okHttpClientName, "realOkClient", Modifier.PRIVATE)
             .addField(okHttpClientSpec)
-
-        if (isDependenceRxJava()) {
-            val schedulerName = getClassName("Scheduler")
-            val schedulersName = getClassName("Schedulers")
-            val schedulerField = FieldSpec.builder(schedulerName, "scheduler", Modifier.PROTECTED)
-                .initializer("\$T.io()", schedulersName)
-                .addJavadoc("The request is executed on the IO thread by default\n")
-                .build()
-            rxHttpBuilder.addField(schedulerField)
-        }
-        rxHttpBuilder.addField(converterSpec)
+            .addField(isAsyncField)
+            .addField(converterSpec)
             .addField(breakDownloadOffSize)
             .addField(requestName, "request", Modifier.PUBLIC)
             .superclass(baseRxHttpName)
@@ -765,6 +762,8 @@ class RxHttpGenerator {
                     .returns(rxHttpFormName)
                     .build())
 
+            val schedulersName = getClassName("Schedulers")
+
             methodList.add(
                 MethodSpec.methodBuilder("asParser")
                     .addModifiers(Modifier.PUBLIC)
@@ -777,15 +776,15 @@ class RxHttpGenerator {
                         }                                                                                            
                         doOnStart();                                                                                 
                         Observable<Progress> observable = new ObservableUpload<T>(getOkHttpClient(), param, parser); 
-                        if (scheduler != null)                                                                       
-                            observable = observable.subscribeOn(scheduler);                                          
+                        if (isAsync)                                                                       
+                            observable = observable.subscribeOn(${'$'}T.io());                                          
                         if (observeOnScheduler != null) {                                                            
                             observable = observable.observeOn(observeOnScheduler);                                   
                         }                                                                                            
                         return observable.doOnNext(progressConsumer)                                                 
                             .filter(progress -> progress instanceof ProgressT)                                       
                             .map(progress -> ((${"$"}T) progress).getResult());                                      
-                    """.trimIndent(), progressTTName)
+                    """.trimIndent(), schedulersName,progressTTName)
                     .returns(observableTName)
                     .build())
         }
