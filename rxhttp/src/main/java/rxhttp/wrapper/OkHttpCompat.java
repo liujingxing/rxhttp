@@ -10,6 +10,7 @@ import okhttp3.Headers;
 import okhttp3.HttpUrl;
 import okhttp3.Request;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 import okhttp3.internal.Util;
 import okhttp3.internal.http.StatusLine;
 import rxhttp.wrapper.callback.IConverter;
@@ -65,6 +66,32 @@ public class OkHttpCompat {
 
     public static long receivedResponseAtMillis(Response response) {
         return response.receivedResponseAtMillis();
+    }
+
+    //从响应头 Content-Range 中，取 contentLength
+    public static long getContentLength(Response response) {
+        long contentLength = -1;
+        ResponseBody body = response.body();
+        if (body != null) {
+            if ((contentLength = body.contentLength()) != -1) {
+                return contentLength;
+            }
+        }
+        String headerValue = response.header("Content-Range");
+        if (headerValue != null) {
+            //响应头Content-Range格式 : bytes 100001-20000000/20000001
+            try {
+                int divideIndex = headerValue.indexOf("/"); //斜杠下标
+                int blankIndex = headerValue.indexOf(" ");
+                String fromToValue = headerValue.substring(blankIndex + 1, divideIndex);
+                String[] split = fromToValue.split("-");
+                long start = Long.parseLong(split[0]); //开始下载位置
+                long end = Long.parseLong(split[1]);   //结束下载位置
+                contentLength = end - start + 1;       //要下载的总长度
+            } catch (Exception ignore) {
+            }
+        }
+        return contentLength;
     }
 
     //解析http状态行

@@ -204,9 +204,7 @@ class ParserAnnotatedClass {
                     .addParameter(schedulerName, "observeOnScheduler")
                     .addParameter(consumerProgressName, "progressConsumer")
                     .addCode("""
-                        DownloadParser parser = new ${'$'}T(destPath);         
-                        parser.setOffsetSize(breakDownloadOffSize);                   
-                                                                                      
+                        DownloadParser parser = new ${'$'}T(destPath, breakDownloadOffSize);         
                         if (isAsync) {                                                
                           return new ObservableCallEnqueue(this)                      
                               .asParser(parser, progressConsumer, observeOnScheduler);

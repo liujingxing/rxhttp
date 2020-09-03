@@ -537,9 +537,7 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
   @Override
   public Observable<String> asDownload(String destPath, Scheduler observeOnScheduler,
       Consumer<Progress> progressConsumer) {
-    DownloadParser parser = new DownloadParser(destPath);         
-    parser.setOffsetSize(breakDownloadOffSize);                   
-                                                                  
+    DownloadParser parser = new DownloadParser(destPath, breakDownloadOffSize);         
     if (isAsync) {                                                
       return new ObservableCallEnqueue(this)                      
           .asParser(parser, progressConsumer, observeOnScheduler);
