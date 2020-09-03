@@ -3,6 +3,7 @@ package com.rxhttp.compiler
 import com.squareup.javapoet.*
 import rxhttp.wrapper.annotation.Parser
 import java.io.IOException
+import java.lang.Deprecated
 import java.util.*
 import javax.annotation.processing.Filer
 import javax.lang.model.element.ElementKind
@@ -11,7 +12,9 @@ import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.MirroredTypesException
 import javax.lang.model.type.TypeMirror
+import kotlin.String
 import kotlin.collections.ArrayList
+import kotlin.require
 
 class ParserAnnotatedClass {
 
@@ -150,60 +153,21 @@ class ParserAnnotatedClass {
             val schedulerName = getClassName("Scheduler")
             val observableName = getClassName("Observable")
             val consumerName = getClassName("Consumer")
-            methodList.add(
-                MethodSpec.methodBuilder("subscribeOn")
-                    .addModifiers(Modifier.PUBLIC)
-                    .addParameter(schedulerName, "scheduler")
-                    .addStatement("this.scheduler=scheduler")
-                    .addStatement("return (R)this")
-                    .returns(r)
-                    .build())
 
             methodList.add(
                 MethodSpec.methodBuilder("subscribeOnCurrent")
-                    .addJavadoc("设置在当前线程发请求\n")
+                    .addAnnotation(Deprecated::class.java)
+                    .addJavadoc("@deprecated please user {@link #setSync()} instead\n")
                     .addModifiers(Modifier.PUBLIC)
-                    .addStatement("this.scheduler=null")
-                    .addStatement("return (R)this")
+                    .addStatement("return setSync()")
                     .returns(r)
                     .build())
 
             methodList.add(
-                MethodSpec.methodBuilder("subscribeOnIo")
+                MethodSpec.methodBuilder("setSync")
+                    .addJavadoc("sync request \n")
                     .addModifiers(Modifier.PUBLIC)
-                    .addStatement("this.scheduler=Schedulers.io()")
-                    .addStatement("return (R)this")
-                    .returns(r)
-                    .build())
-
-            methodList.add(
-                MethodSpec.methodBuilder("subscribeOnComputation")
-                    .addModifiers(Modifier.PUBLIC)
-                    .addStatement("this.scheduler=Schedulers.computation()")
-                    .addStatement("return (R)this")
-                    .returns(r)
-                    .build())
-
-            methodList.add(
-                MethodSpec.methodBuilder("subscribeOnNewThread")
-                    .addModifiers(Modifier.PUBLIC)
-                    .addStatement("this.scheduler=Schedulers.newThread()")
-                    .addStatement("return (R)this")
-                    .returns(r)
-                    .build())
-
-            methodList.add(
-                MethodSpec.methodBuilder("subscribeOnSingle")
-                    .addModifiers(Modifier.PUBLIC)
-                    .addStatement("this.scheduler=Schedulers.single()")
-                    .addStatement("return (R)this")
-                    .returns(r)
-                    .build())
-
-            methodList.add(
-                MethodSpec.methodBuilder("subscribeOnTrampoline")
-                    .addModifiers(Modifier.PUBLIC)
-                    .addStatement("this.scheduler=Schedulers.trampoline()")
+                    .addStatement("isAsync = false")
                     .addStatement("return (R)this")
                     .returns(r)
                     .build())
@@ -211,6 +175,7 @@ class ParserAnnotatedClass {
             val observableTName = ParameterizedTypeName.get(observableName, t)
             val observableStringName = ParameterizedTypeName.get(observableName, typeName)
             val consumerProgressName = ParameterizedTypeName.get(consumerName, progressName)
+            val schedulersName = getClassName("Schedulers")
 
             methodList.add(
                 MethodSpec.methodBuilder("asParser")
@@ -221,11 +186,11 @@ class ParserAnnotatedClass {
                     .addCode("""
                         doOnStart();
                         Observable<T> observable = new ObservableHttp<T>(getOkHttpClient(), param, parser);
-                        if (scheduler != null) {
-                            observable = observable.subscribeOn(scheduler);
+                        if (isAsync) {
+                            observable = observable.subscribeOn(${'$'}T.io());
                         }
                         return observable;
-                    """.trimIndent())
+                    """.trimIndent(), schedulersName)
                     .returns(observableTName)
                     .build())
 
@@ -246,15 +211,15 @@ class ParserAnnotatedClass {
                     .addCode("""
                         doOnStart();
                         Observable<Progress> observable = new ObservableDownload(getOkHttpClient(), param, destPath, breakDownloadOffSize);
-                        if (scheduler != null)
-                            observable = observable.subscribeOn(scheduler);
+                        if (isAsync) 
+                            observable = observable.subscribeOn(${'$'}T.io());
                         if (observeOnScheduler != null) {
                             observable = observable.observeOn(observeOnScheduler);
                         }
                         return observable.doOnNext(progressConsumer)
                             .filter(progress -> progress instanceof ProgressT)
                             .map(progress -> ((${"$"}T) progress).getResult());
-                    """.trimIndent(), progressTStringName)
+                    """.trimIndent(), schedulersName, progressTStringName)
                     .returns(observableStringName)
                     .build())
         }

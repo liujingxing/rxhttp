@@ -3,6 +3,7 @@ package rxhttp.wrapper.param;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Scheduler;
 import io.reactivex.rxjava3.functions.Consumer;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 import java.io.File;
 import java.lang.Deprecated;
 import java.lang.Object;
@@ -186,8 +187,8 @@ public class RxHttpFormParam extends RxHttp<FormParam, RxHttpFormParam> {
     }                                                                                            
     doOnStart();                                                                                 
     Observable<Progress> observable = new ObservableUpload<T>(getOkHttpClient(), param, parser); 
-    if (scheduler != null)                                                                       
-        observable = observable.subscribeOn(scheduler);                                          
+    if (isAsync)                                                                       
+        observable = observable.subscribeOn(Schedulers.io());                                          
     if (observeOnScheduler != null) {                                                            
         observable = observable.observeOn(observeOnScheduler);                                   
     }                                                                                            
