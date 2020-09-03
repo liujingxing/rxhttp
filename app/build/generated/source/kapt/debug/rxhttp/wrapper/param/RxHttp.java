@@ -43,6 +43,7 @@ import rxhttp.wrapper.callback.IConverter;
 import rxhttp.wrapper.entity.ParameterizedTypeImpl;
 import rxhttp.wrapper.entity.Progress;
 import rxhttp.wrapper.entity.ProgressT;
+import rxhttp.wrapper.intercept.CacheInterceptor;
 import rxhttp.wrapper.parse.Parser;
 import rxhttp.wrapper.parse.SimpleParser;
 import rxhttp.wrapper.utils.LogTime;
@@ -70,6 +71,8 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
   private int readTimeoutMillis;
 
   private int writeTimeoutMillis;
+
+  private OkHttpClient realOkClient;
 
   private OkHttpClient okClient = HttpSender.getOkHttpClient();
 
@@ -144,22 +147,32 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
   }
 
   public OkHttpClient getOkHttpClient() {
-        final OkHttpClient okHttpClient = okClient;
-        OkHttpClient.Builder builder = null;
-        if (connectTimeoutMillis != 0) {
-          if (builder == null) builder = okHttpClient.newBuilder();
-          builder.connectTimeout(connectTimeoutMillis, TimeUnit.MILLISECONDS);
-        }
-        if (readTimeoutMillis != 0) {
-          if (builder == null) builder = okHttpClient.newBuilder();
-          builder.readTimeout(readTimeoutMillis, TimeUnit.MILLISECONDS);
-        }
+    if (realOkClient != null) return realOkClient;
+    final OkHttpClient okHttpClient = okClient;
+    OkHttpClient.Builder builder = null;
 
-        if (writeTimeoutMillis != 0) {
-          if (builder == null) builder = okHttpClient.newBuilder();
-          builder.writeTimeout(writeTimeoutMillis, TimeUnit.MILLISECONDS);
-        }
-        return builder != null ? builder.build() : okHttpClient;
+    if (connectTimeoutMillis != 0) {
+      if (builder == null) builder = okHttpClient.newBuilder();
+      builder.connectTimeout(connectTimeoutMillis, TimeUnit.MILLISECONDS);
+    }
+
+    if (readTimeoutMillis != 0) {
+      if (builder == null) builder = okHttpClient.newBuilder();
+      builder.readTimeout(readTimeoutMillis, TimeUnit.MILLISECONDS);
+    }
+
+    if (writeTimeoutMillis != 0) {
+      if (builder == null) builder = okHttpClient.newBuilder();
+      builder.writeTimeout(writeTimeoutMillis, TimeUnit.MILLISECONDS);
+    }
+
+    if (param.getCacheMode() != CacheMode.ONLY_NETWORK) {                      
+      if (builder == null) builder = okHttpClient.newBuilder();              
+      builder.addInterceptor(new CacheInterceptor(param.getCacheStrategy()));
+    }
+                                                                            
+    realOkClient = builder != null ? builder.build() : okHttpClient;
+    return realOkClient;
   }
 
   public static void dispose(Disposable disposable) {
