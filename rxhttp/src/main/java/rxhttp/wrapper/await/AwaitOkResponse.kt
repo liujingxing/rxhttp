@@ -28,10 +28,6 @@ internal class AwaitOkResponse(
     }
 }
 
-internal fun IAwait<Response>.cache(iRxHttp: IRxHttp): AwaitCache {
-    return AwaitCache(this, iRxHttp)
-}
-
 @Suppress("BlockingMethodInNonBlockingContext")
 internal fun <T> IAwait<Response>.toParser(parser: Parser<T>, iRxHttp: IRxHttp): IAwait<T> = newAwait {
     try {

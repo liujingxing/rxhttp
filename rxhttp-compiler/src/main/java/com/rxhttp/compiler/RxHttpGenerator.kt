@@ -51,7 +51,6 @@ class RxHttpGenerator {
     fun generateCode(filer: Filer, okHttpVersion: String) {
         val httpSenderName = ClassName.get("rxhttp", "HttpSender")
         val rxHttpPluginsName = ClassName.get("rxhttp", "RxHttpPlugins")
-        val okHttpClientName = ClassName.get("okhttp3", "OkHttpClient")
         val converterName = ClassName.get("rxhttp.wrapper.callback", "IConverter")
         val functionsName = ClassName.get("rxhttp.wrapper.callback", "Function")
         val jsonObjectName = ClassName.get("com.google.gson", "JsonObject")
@@ -91,10 +90,12 @@ class RxHttpGenerator {
         val rxHttpJson = ParameterizedTypeName.get(RXHTTP, jsonParamName, rxHttpJsonName)
         val rxHttpJsonArray = ParameterizedTypeName.get(RXHTTP, jsonArrayParamName, rxHttpJsonArrayName)
 
+        val okHttpClientName = ClassName.get("okhttp3", "OkHttpClient")
         val partName = ClassName.get("okhttp3.MultipartBody", "Part")
         val requestBodyName = ClassName.get("okhttp3", "RequestBody")
         val headersName = ClassName.get("okhttp3", "Headers")
         val requestName = ClassName.get("okhttp3", "Request")
+        val cacheInterceptorName = ClassName.get("rxhttp.wrapper.intercept", "CacheInterceptor")
 
         val methodList = ArrayList<MethodSpec>() //方法集合
 
@@ -201,24 +202,34 @@ class RxHttpGenerator {
         methodList.add(
             MethodSpec.methodBuilder("getOkHttpClient")
                 .addModifiers(Modifier.PUBLIC)
-                .addStatement("""
-                            final OkHttpClient okHttpClient = okClient;
-                        OkHttpClient.Builder builder = null;
-                        if (connectTimeoutMillis != 0) {
-                          if (builder == null) builder = okHttpClient.newBuilder();
-                          builder.connectTimeout(connectTimeoutMillis, ${'$'}T.MILLISECONDS);
-                        }
-                        if (readTimeoutMillis != 0) {
-                          if (builder == null) builder = okHttpClient.newBuilder();
-                          builder.readTimeout(readTimeoutMillis, ${'$'}T.MILLISECONDS);
-                        }
+                .addCode("""
+                    if (realOkClient != null) return realOkClient;
+                    final OkHttpClient okHttpClient = okClient;
+                    OkHttpClient.Builder builder = null;
+                    
+                    if (connectTimeoutMillis != 0) {
+                      if (builder == null) builder = okHttpClient.newBuilder();
+                      builder.connectTimeout(connectTimeoutMillis, ${'$'}T.MILLISECONDS);
+                    }
+                    
+                    if (readTimeoutMillis != 0) {
+                      if (builder == null) builder = okHttpClient.newBuilder();
+                      builder.readTimeout(readTimeoutMillis, ${'$'}T.MILLISECONDS);
+                    }
 
-                        if (writeTimeoutMillis != 0) {
-                          if (builder == null) builder = okHttpClient.newBuilder();
-                          builder.writeTimeout(writeTimeoutMillis, ${'$'}T.MILLISECONDS);
-                        }
-                        return builder != null ? builder.build() : okHttpClient
-                """.trimIndent(), timeUnitName, timeUnitName, timeUnitName)
+                    if (writeTimeoutMillis != 0) {
+                      if (builder == null) builder = okHttpClient.newBuilder();
+                      builder.writeTimeout(writeTimeoutMillis, ${'$'}T.MILLISECONDS);
+                    }
+                    
+                    if (param.getCacheMode() != CacheMode.ONLY_NETWORK) {                      
+                      if (builder == null) builder = okHttpClient.newBuilder();              
+                      builder.addInterceptor(new ${'$'}T(param.getCacheStrategy()));
+                    }
+                                                                                            
+                    realOkClient = builder != null ? builder.build() : okHttpClient;
+                    return realOkClient;
+                """.trimIndent(), timeUnitName, timeUnitName, timeUnitName, cacheInterceptorName)
                 .returns(okHttpClientName).build())
 
         if (isDependenceRxJava()) {
@@ -343,6 +354,7 @@ class RxHttpGenerator {
             .addField(Int::class.javaPrimitiveType, "connectTimeoutMillis", Modifier.PRIVATE)
             .addField(Int::class.javaPrimitiveType, "readTimeoutMillis", Modifier.PRIVATE)
             .addField(Int::class.javaPrimitiveType, "writeTimeoutMillis", Modifier.PRIVATE)
+            .addField(okHttpClientName, "realOkClient", Modifier.PRIVATE)
             .addField(okHttpClientSpec)
 
         if (isDependenceRxJava()) {
