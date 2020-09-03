@@ -1,9 +1,8 @@
-package rxhttp.wrapper.await
+package rxhttp.wrapper.intercept
 
+import okhttp3.Interceptor
 import okhttp3.Request
 import okhttp3.Response
-import rxhttp.IAwait
-import rxhttp.IRxHttp
 import rxhttp.RxHttpPlugins
 import rxhttp.wrapper.OkHttpCompat
 import rxhttp.wrapper.annotations.Nullable
@@ -15,25 +14,22 @@ import java.io.IOException
 
 /**
  * User: ljx
- * Date: 2020/3/21
- * Time: 17:06
+ * Date: 2020/9/3
+ * Time: 17:58
  */
-internal class AwaitCache(
-    private val iAwait: IAwait<Response>,
-    private val iRxHttp: IRxHttp
-) : IAwait<Response> {
+class CacheInterceptor(
+    private val cacheStrategy: CacheStrategy
+) : Interceptor {
 
-    private val request: Request by lazy { iRxHttp.buildRequest() }
     private val cache: InternalCache by lazy { RxHttpPlugins.getCache() }  //缓存读取
-    private val cacheStrategy: CacheStrategy by lazy { iRxHttp.getCacheStrategy() }  //缓存策略
 
-    @Suppress("BlockingMethodInNonBlockingContext")
-    override suspend fun await(): Response {
+    override fun intercept(chain: Interceptor.Chain): Response {
+        val request = chain.request()
         val cacheResponse = beforeReadCache(request)
         if (cacheResponse != null) return cacheResponse  //缓存有效，直接返回
         try {
             //发起请求
-            val response = iAwait.await()
+            val response = chain.proceed(request)
             return if (!cacheModeIs(CacheMode.ONLY_NETWORK)) {
                 //非ONLY_NETWORK模式下,请求成功，写入缓存
                 cache.put(response, cacheStrategy.cacheKey)
