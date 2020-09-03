@@ -44,6 +44,7 @@ object ClassHelper {
             import ${getClassPath("Observable")};
             import ${getClassPath("Scheduler")};
             import ${getClassPath("Consumer")};
+            import ${getClassPath("RxJavaPlugins")};
             import okhttp3.Headers;
             import okhttp3.Response;
             import rxhttp.IRxHttp;
@@ -56,6 +57,7 @@ object ClassHelper {
             import rxhttp.wrapper.parse.OkResponseParser;
             import rxhttp.wrapper.parse.Parser;
             import rxhttp.wrapper.parse.SimpleParser;
+            import rxhttp.wrapper.utils.LogUtil;
 
             /**
              * 本类存放asXxx方法，如果依赖了RxJava的话
@@ -64,6 +66,18 @@ object ClassHelper {
              * Time: 18:15
              */
             public abstract class BaseRxHttp implements IRxHttp {
+
+                static {                   
+                    Consumer<? super Throwable> errorHandler = RxJavaPlugins.getErrorHandler();
+                    if (errorHandler == null) {                                                
+                        /*                                                                     
+                        RxJava2的一个重要的设计理念是：不吃掉任何一个异常, 即抛出的异常无人处理，便会导致程序崩溃                      
+                        这就会导致一个问题，当RxJava2“downStream”取消订阅后，“upStream”仍有可能抛出异常，                
+                        这时由于已经取消订阅，“downStream”无法处理异常，此时的异常无人处理，便会导致程序崩溃                       
+                        */                                                                     
+                        RxJavaPlugins.setErrorHandler(LogUtil::log);                           
+                    }                                                                          
+                }                                                                              
 
                 public abstract <T> Observable<T> asParser(Parser<T> parser);
                 
@@ -182,38 +196,6 @@ object ClassHelper {
     }
 
     @JvmStatic
-    fun generatorObservableErrorHandler(filer: Filer) {
-        generatorClass(filer, "ObservableErrorHandler", """
-                package $rxHttpPackage;
-
-                import ${getClassPath("Observable")};
-                import ${getClassPath("Consumer")};
-                import ${getClassPath("RxJavaPlugins")};
-                import rxhttp.wrapper.utils.LogUtil;
-
-                /**
-                 * User: ljx
-                 * Date: 2020/4/11
-                 * Time: 16:19
-                 */
-                public abstract class ObservableErrorHandler<T> extends Observable<T> {
-                    static {
-                        Consumer<? super Throwable> errorHandler = RxJavaPlugins.getErrorHandler();
-                        if (errorHandler == null) {
-                            /*
-                            RxJava2的一个重要的设计理念是：不吃掉任何一个异常, 即抛出的异常无人处理，便会导致程序崩溃
-                            这就会导致一个问题，当RxJava2“downStream”取消订阅后，“upStream”仍有可能抛出异常，
-                            这时由于已经取消订阅，“downStream”无法处理异常，此时的异常无人处理，便会导致程序崩溃
-                            */
-                            RxJavaPlugins.setErrorHandler(LogUtil::log);
-                        }
-                    }
-                }
-
-            """.trimIndent())
-    }
-
-    @JvmStatic
     fun generatorObservableHttp(filer: Filer) {
         generatorClass(filer, "ObservableHttp", """
                 package $rxHttpPackage;
@@ -248,7 +230,7 @@ object ClassHelper {
                  * Date: 2018/04/20
                  * Time: 11:15
                  */
-                final class ObservableHttp<T> extends ObservableErrorHandler<T> implements Callable<T> {
+                final class ObservableHttp<T> extends Observable<T> implements Callable<T> {
                     private final Param param;
                     private final Parser<T> parser;
 
@@ -393,6 +375,7 @@ object ClassHelper {
                 import java.util.concurrent.atomic.AtomicInteger;
                 import java.util.concurrent.atomic.AtomicReference;
 
+                import ${getClassPath("Observable")};
                 import ${getClassPath("ObservableEmitter")};
                 import ${getClassPath("Observer")};
                 import ${getClassPath("Disposable")};
@@ -418,7 +401,7 @@ object ClassHelper {
                 import rxhttp.wrapper.parse.Parser;
                 import rxhttp.wrapper.utils.LogUtil;
 
-                final class ObservableUpload<T> extends ObservableErrorHandler<Progress> {
+                final class ObservableUpload<T> extends Observable<Progress> {
                     private final Param param;
                     private final Parser<T> parser;
 
@@ -738,7 +721,8 @@ object ClassHelper {
 
                 import java.util.concurrent.atomic.AtomicInteger;
                 import java.util.concurrent.atomic.AtomicReference;
-
+                
+                import ${getClassPath("Observable")};
                 import ${getClassPath("ObservableEmitter")};
                 import ${getClassPath("Observer")};
                 import ${getClassPath("Disposable")};
@@ -762,7 +746,7 @@ object ClassHelper {
                 import rxhttp.wrapper.parse.DownloadParser;
                 import rxhttp.wrapper.utils.LogUtil;
 
-                final class ObservableDownload extends ObservableErrorHandler<Progress> {
+                final class ObservableDownload extends Observable<Progress> {
                     private final Param param;
                     private final String destPath;
                     private final long offsetSize;
