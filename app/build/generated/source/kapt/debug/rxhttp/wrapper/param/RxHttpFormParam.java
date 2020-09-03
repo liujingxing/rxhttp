@@ -165,15 +165,7 @@ public class RxHttpFormParam extends RxHttp<FormParam, RxHttpFormParam> {
   }
 
   public RxHttpFormParam upload(Consumer<Progress> progressConsumer) {
-    return upload(progressConsumer, null);
-  }
-
-  /**
-   * @deprecated please user {@link #upload(Scheduler,Consumer)} instead
-   */
-  @Deprecated
-  public RxHttpFormParam upload(Consumer<Progress> progressConsumer, Scheduler observeOnScheduler) {
-    return upload(observeOnScheduler, progressConsumer);
+    return upload(null, progressConsumer);
   }
 
   /**
