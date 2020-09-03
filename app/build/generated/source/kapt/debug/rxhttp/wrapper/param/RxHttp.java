@@ -15,6 +15,7 @@ import io.reactivex.rxjava3.functions.Consumer;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import java.io.IOException;
 import java.lang.Class;
+import java.lang.Deprecated;
 import java.lang.Object;
 import java.lang.Override;
 import java.lang.String;
@@ -76,10 +77,7 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
 
   private OkHttpClient okClient = HttpSender.getOkHttpClient();
 
-  /**
-   * The request is executed on the IO thread by default
-   */
-  protected Scheduler scheduler = Schedulers.io();
+  protected boolean isAsync = true;
 
   protected IConverter converter = RxHttpPlugins.getConverter();
 
@@ -505,41 +503,19 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
     addDefaultDomainIfAbsent(param);
   }
 
-  public R subscribeOn(Scheduler scheduler) {
-    this.scheduler=scheduler;
-    return (R)this;
+  /**
+   * @deprecated please user {@link #setSync()} instead
+   */
+  @Deprecated
+  public R subscribeOnCurrent() {
+    return setSync();
   }
 
   /**
-   * 设置在当前线程发请求
+   * sync request 
    */
-  public R subscribeOnCurrent() {
-    this.scheduler=null;
-    return (R)this;
-  }
-
-  public R subscribeOnIo() {
-    this.scheduler=Schedulers.io();
-    return (R)this;
-  }
-
-  public R subscribeOnComputation() {
-    this.scheduler=Schedulers.computation();
-    return (R)this;
-  }
-
-  public R subscribeOnNewThread() {
-    this.scheduler=Schedulers.newThread();
-    return (R)this;
-  }
-
-  public R subscribeOnSingle() {
-    this.scheduler=Schedulers.single();
-    return (R)this;
-  }
-
-  public R subscribeOnTrampoline() {
-    this.scheduler=Schedulers.trampoline();
+  public R setSync() {
+    isAsync = false;
     return (R)this;
   }
 
@@ -547,8 +523,8 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
   public <T> Observable<T> asParser(Parser<T> parser) {
     doOnStart();
     Observable<T> observable = new ObservableHttp<T>(getOkHttpClient(), param, parser);
-    if (scheduler != null) {
-        observable = observable.subscribeOn(scheduler);
+    if (isAsync) {
+        observable = observable.subscribeOn(Schedulers.io());
     }
     return observable;
   }
@@ -565,8 +541,8 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
       Consumer<Progress> progressConsumer) {
     doOnStart();
     Observable<Progress> observable = new ObservableDownload(getOkHttpClient(), param, destPath, breakDownloadOffSize);
-    if (scheduler != null)
-        observable = observable.subscribeOn(scheduler);
+    if (isAsync) 
+        observable = observable.subscribeOn(Schedulers.io());
     if (observeOnScheduler != null) {
         observable = observable.observeOn(observeOnScheduler);
     }
