@@ -30,7 +30,7 @@ import rxhttp.wrapper.utils.LogUtil;
  * Date: 2018/04/20
  * Time: 11:15
  */
-final class ObservableHttp<T> extends ObservableErrorHandler<T> implements Callable<T> {
+final class ObservableHttp<T> extends Observable<T> implements Callable<T> {
     private final Param param;
     private final Parser<T> parser;
 
