@@ -3,6 +3,7 @@ package rxhttp.wrapper.param;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
+import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.ObservableEmitter;
 import io.reactivex.rxjava3.core.Observer;
 import io.reactivex.rxjava3.disposables.Disposable;
@@ -26,7 +27,7 @@ import rxhttp.wrapper.entity.ProgressT;
 import rxhttp.wrapper.parse.DownloadParser;
 import rxhttp.wrapper.utils.LogUtil;
 
-final class ObservableDownload extends ObservableErrorHandler<Progress> {
+final class ObservableDownload extends Observable<Progress> {
     private final Param param;
     private final String destPath;
     private final long offsetSize;

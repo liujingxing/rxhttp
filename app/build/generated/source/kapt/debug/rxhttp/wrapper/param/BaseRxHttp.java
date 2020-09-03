@@ -9,6 +9,7 @@ import java.util.Map;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Scheduler;
 import io.reactivex.rxjava3.functions.Consumer;
+import io.reactivex.rxjava3.plugins.RxJavaPlugins;
 import okhttp3.Headers;
 import okhttp3.Response;
 import rxhttp.IRxHttp;
@@ -21,6 +22,7 @@ import rxhttp.wrapper.parse.DownloadParser;
 import rxhttp.wrapper.parse.OkResponseParser;
 import rxhttp.wrapper.parse.Parser;
 import rxhttp.wrapper.parse.SimpleParser;
+import rxhttp.wrapper.utils.LogUtil;
 
 /**
  * 本类存放asXxx方法，如果依赖了RxJava的话
@@ -29,6 +31,18 @@ import rxhttp.wrapper.parse.SimpleParser;
  * Time: 18:15
  */
 public abstract class BaseRxHttp implements IRxHttp {
+
+    static {                   
+        Consumer<? super Throwable> errorHandler = RxJavaPlugins.getErrorHandler();
+        if (errorHandler == null) {                                                
+            /*                                                                     
+            RxJava2的一个重要的设计理念是：不吃掉任何一个异常, 即抛出的异常无人处理，便会导致程序崩溃                      
+            这就会导致一个问题，当RxJava2“downStream”取消订阅后，“upStream”仍有可能抛出异常，                
+            这时由于已经取消订阅，“downStream”无法处理异常，此时的异常无人处理，便会导致程序崩溃                       
+            */                                                                     
+            RxJavaPlugins.setErrorHandler(LogUtil::log);                           
+        }                                                                          
+    }                                                                              
 
     public abstract <T> Observable<T> asParser(Parser<T> parser);
     

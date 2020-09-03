@@ -2,14 +2,12 @@ package com.rxhttp.compiler
 
 import com.rxhttp.compiler.ClassHelper.generatorBaseRxHttp
 import com.rxhttp.compiler.ClassHelper.generatorObservableDownload
-import com.rxhttp.compiler.ClassHelper.generatorObservableErrorHandler
 import com.rxhttp.compiler.ClassHelper.generatorObservableHttp
 import com.rxhttp.compiler.ClassHelper.generatorObservableUpload
 import com.rxhttp.compiler.exception.ProcessingException
 import net.ltgt.gradle.incap.IncrementalAnnotationProcessor
 import net.ltgt.gradle.incap.IncrementalAnnotationProcessorType.AGGREGATING
 import rxhttp.wrapper.annotation.*
-import java.io.IOException
 import java.util.*
 import javax.annotation.processing.*
 import javax.lang.model.SourceVersion
@@ -78,7 +76,6 @@ open class AnnotationProcessor : AbstractProcessor() {
         if (annotations.isEmpty() || processed) return true
         generatorBaseRxHttp(filer, isAndroidPlatform())
         if (isDependenceRxJava()) {  //是否依赖了RxJava
-            generatorObservableErrorHandler(filer)
             generatorObservableHttp(filer)
             generatorObservableUpload(filer)
             generatorObservableDownload(filer)
