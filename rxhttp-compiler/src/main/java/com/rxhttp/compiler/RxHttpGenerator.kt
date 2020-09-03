@@ -735,18 +735,7 @@ class RxHttpGenerator {
                 MethodSpec.methodBuilder("upload")
                     .addModifiers(Modifier.PUBLIC)
                     .addParameter(consumerProgressName, "progressConsumer")
-                    .addStatement("return upload(progressConsumer, null)")
-                    .returns(rxHttpFormName)
-                    .build())
-
-            methodList.add(
-                MethodSpec.methodBuilder("upload")
-                    .addAnnotation(Deprecated::class.java)
-                    .addJavadoc("@deprecated please user {@link #upload(Scheduler,Consumer)} instead\n")
-                    .addModifiers(Modifier.PUBLIC)
-                    .addParameter(consumerProgressName, "progressConsumer")
-                    .addParameter(schedulerName, "observeOnScheduler")
-                    .addStatement("return upload(observeOnScheduler, progressConsumer)")
+                    .addStatement("return upload(null, progressConsumer)")
                     .returns(rxHttpFormName)
                     .build())
 

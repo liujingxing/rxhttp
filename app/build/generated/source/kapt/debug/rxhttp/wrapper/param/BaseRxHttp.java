@@ -58,24 +58,6 @@ public abstract class BaseRxHttp implements IRxHttp {
                                                   @Nullable Scheduler observeOnScheduler,
                                                   Consumer<Progress> progressConsumer);      
 
-    /**
-     * @deprecated please user {@link BaseRxHttp#asDownload(String,Scheduler,Consumer)} instead
-     */
-    @Deprecated
-    public final Observable<String> asDownload(String destPath,
-                                         Consumer<Progress> progressConsumer,
-                                         @Nullable Scheduler observeOnScheduler) {
-        return asDownload(destPath, observeOnScheduler, progressConsumer);                                          
-    }
-
-    /**
-     * @deprecated please user {@link BaseRxHttp#asClass(Class)} instead
-     */
-    @Deprecated
-    public final <T> Observable<T> asObject(Class<T> type) {
-        return asClass(type);
-    }
-
     public final <T> Observable<T> asClass(Class<T> type) {
         return asParser(new SimpleParser<>(type));
     }
