@@ -16,8 +16,8 @@ import java.io.IOException
  */
 class DownloadParser @JvmOverloads constructor(
     private val localPath: String,
+    var offsetSize: Long = 0,
     var callback: ProgressCallback? = null,
-    var offsetSize: Long = 0
 ) : Parser<String> {
 
     private var lastProgress = 0
@@ -31,7 +31,7 @@ class DownloadParser @JvmOverloads constructor(
         val body = ExceptionHelper.throwIfFatal(response)
         LogUtil.log(response, false, localPath)
         val append = OkHttpCompat.header(response, "Content-Range") != null
-        val contentLength = getContentLength(response) + offsetSize
+        val contentLength = OkHttpCompat.getContentLength(response) + offsetSize
         //将输入流写出到文件
         IOUtil.write(body.byteStream(), localPath, append) {
             callback?.apply {
@@ -54,29 +54,5 @@ class DownloadParser @JvmOverloads constructor(
         } else {
             this
         }
-    }
-
-
-    //从响应头 Content-Range 中，取 contentLength
-    private fun getContentLength(response: Response): Long {
-        var contentLength: Long = response.body?.contentLength() ?: -1
-        if (contentLength != -1L) {
-            return contentLength
-        }
-        val headerValue = response.header("Content-Range")
-        if (headerValue != null) {
-            //响应头Content-Range格式 : bytes 100001-20000000/20000001
-            try {
-                val divideIndex = headerValue.indexOf("/") //斜杠下标
-                val blankIndex = headerValue.indexOf(" ")
-                val fromToValue = headerValue.substring(blankIndex + 1, divideIndex)
-                val split = fromToValue.split("-".toRegex()).toTypedArray()
-                val start = split[0].toLong() //开始下载位置
-                val end = split[1].toLong() //结束下载位置
-                contentLength = end - start + 1 //要下载的总长度
-            } catch (ignore: Exception) {
-            }
-        }
-        return contentLength
     }
 }

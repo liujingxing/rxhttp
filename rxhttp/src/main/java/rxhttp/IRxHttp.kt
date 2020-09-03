@@ -2,13 +2,12 @@ package rxhttp
 
 import android.graphics.Bitmap
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import okhttp3.Call
 import okhttp3.Headers
 import okhttp3.Response
 import rxhttp.wrapper.OkHttpCompat
 import rxhttp.wrapper.await.AwaitImpl
-import rxhttp.wrapper.callback.ProgressCallbackImpl
-import rxhttp.wrapper.callback.SuspendProgressCallbackImpl
 import rxhttp.wrapper.entity.Progress
 import rxhttp.wrapper.parse.*
 
@@ -113,7 +112,10 @@ fun IRxHttp.toDownload(
     destPath: String,
     progress: ((Progress) -> Unit)? = null
 ): IAwait<String> {
-    return toParser(DownloadParser(destPath, ProgressCallbackImpl(breakDownloadOffSize, progress)))
+    return toParser(DownloadParser(destPath, breakDownloadOffSize) { pro, currentSize, totalSize ->
+        val p = Progress(pro, currentSize, totalSize)
+        progress?.invoke(p)
+    })
 }
 
 /**
@@ -126,7 +128,10 @@ fun IRxHttp.toDownload(
     coroutine: CoroutineScope,
     progress: suspend (Progress) -> Unit
 ): IAwait<String> {
-    return toParser(DownloadParser(destPath, SuspendProgressCallbackImpl(coroutine, breakDownloadOffSize, progress)))
+    return toParser(DownloadParser(destPath, breakDownloadOffSize) { pro, currentSize, totalSize ->
+        val p = Progress(pro, currentSize, totalSize)
+        coroutine.launch { progress(p) }
+    })
 }
 
 fun <T> IRxHttp.toParser(
