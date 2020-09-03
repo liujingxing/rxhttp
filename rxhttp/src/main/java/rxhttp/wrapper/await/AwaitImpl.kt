@@ -19,29 +19,17 @@ import kotlin.coroutines.resumeWithException
  * Date: 2020/3/21
  * Time: 17:06
  */
-internal class AwaitOkResponse(
+internal class AwaitImpl<T>(
     private val iRxHttp: IRxHttp,
-) : IAwait<Response> {
+    private val parser: Parser<T>,
+) : IAwait<T> {
 
-    override suspend fun await(): Response {
-        return iRxHttp.newCall().awaitResponse()
+    override suspend fun await(): T {
+        return iRxHttp.newCall().awaitResponse(parser)
     }
 }
 
-@Suppress("BlockingMethodInNonBlockingContext")
-internal fun <T> IAwait<Response>.toParser(
-    parser: Parser<T>,
-    iRxHttp: IRxHttp
-): IAwait<T> = newAwait {
-    try {
-        parser.onParse(await())
-    } catch (e: Throwable) {
-        LogUtil.log(OkHttpCompat.url(iRxHttp.buildRequest()).toString(), e)
-        throw e
-    }
-}
-
-internal suspend fun Call.awaitResponse(): Response {
+internal suspend fun <T> Call.awaitResponse(parser: Parser<T>): T {
     return suspendCancellableCoroutine { continuation ->
         continuation.invokeOnCancellation {
             cancel()
@@ -49,11 +37,20 @@ internal suspend fun Call.awaitResponse(): Response {
         enqueue(object : Callback {
 
             override fun onResponse(call: Call, response: Response) {
-                continuation.resume(response)
+                try {
+                    continuation.resume(parser.onParse(response))
+                } catch (t: Throwable) {
+                    onError(call, t)
+                }
             }
 
             override fun onFailure(call: Call, e: IOException) {
-                continuation.resumeWithException(e)
+                onError(call, e)
+            }
+
+            private fun onError(call: Call, t: Throwable) {
+                LogUtil.log(OkHttpCompat.url(call.request()).toString(), t)
+                continuation.resumeWithException(t)
             }
         })
     }
