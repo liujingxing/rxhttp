@@ -8,6 +8,7 @@ import okhttp3.Headers
 import okhttp3.Response
 import rxhttp.wrapper.OkHttpCompat
 import rxhttp.wrapper.await.AwaitImpl
+import rxhttp.wrapper.callback.ProgressCallback
 import rxhttp.wrapper.entity.Progress
 import rxhttp.wrapper.parse.*
 
@@ -109,10 +110,13 @@ fun IRxHttp.toDownload(
     destPath: String,
     progress: ((Progress) -> Unit)? = null
 ): IAwait<String> {
-    return toParser(DownloadParser(destPath) { pro, currentSize, totalSize ->
-        val p = Progress(pro, currentSize, totalSize)
-        progress?.invoke(p)
-    })
+    val parser = DownloadParser(destPath).apply {
+        callback = ProgressCallback { pro, currentSize, totalSize ->
+            val p = Progress(pro, currentSize, totalSize)
+            progress?.invoke(p)
+        }
+    }
+    return toParser(parser)
 }
 
 /**
@@ -125,10 +129,13 @@ fun IRxHttp.toDownload(
     coroutine: CoroutineScope,
     progress: suspend (Progress) -> Unit
 ): IAwait<String> {
-    return toParser(DownloadParser(destPath) { pro, currentSize, totalSize ->
-        val p = Progress(pro, currentSize, totalSize)
-        coroutine.launch { progress(p) }
-    })
+    val parser = DownloadParser(destPath).apply {
+        callback = ProgressCallback { pro, currentSize, totalSize ->
+            val p = Progress(pro, currentSize, totalSize)
+            coroutine.launch { progress(p) }
+        }
+    }
+    return toParser(parser)
 }
 
 fun <T> IRxHttp.toParser(
