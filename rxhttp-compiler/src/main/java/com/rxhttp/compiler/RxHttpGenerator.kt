@@ -300,9 +300,6 @@ class RxHttpGenerator {
         val okHttpClientSpec = FieldSpec.builder(okHttpClientName, "okClient", Modifier.PRIVATE)
             .initializer("\$T.getOkHttpClient()", httpSenderName)
             .build()
-        val breakDownloadOffSize = FieldSpec.builder(Long::class.javaPrimitiveType, "breakDownloadOffSize", Modifier.PRIVATE) //添加变量
-            .initializer("0L")
-            .build()
         val build = AnnotationSpec.builder(SuppressWarnings::class.java)
             .addMember("value", "\"unchecked\"")
             .build()
@@ -364,7 +361,6 @@ class RxHttpGenerator {
             .addField(okHttpClientSpec)
             .addField(isAsyncField)
             .addField(converterSpec)
-            .addField(breakDownloadOffSize)
             .addField(requestName, "request", Modifier.PUBLIC)
             .superclass(baseRxHttpName)
             .addTypeVariable(p)

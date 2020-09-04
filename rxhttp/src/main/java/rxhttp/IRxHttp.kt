@@ -20,9 +20,6 @@ interface IRxHttp {
 
     fun newCall(): Call
 
-    //Breakpoint download progress offset
-    val breakDownloadOffSize: Long
-        get() = 0L
 }
 
 suspend fun IRxHttp.awaitBoolean(): Boolean = await()
@@ -112,7 +109,7 @@ fun IRxHttp.toDownload(
     destPath: String,
     progress: ((Progress) -> Unit)? = null
 ): IAwait<String> {
-    return toParser(DownloadParser(destPath, breakDownloadOffSize) { pro, currentSize, totalSize ->
+    return toParser(DownloadParser(destPath) { pro, currentSize, totalSize ->
         val p = Progress(pro, currentSize, totalSize)
         progress?.invoke(p)
     })
@@ -128,7 +125,7 @@ fun IRxHttp.toDownload(
     coroutine: CoroutineScope,
     progress: suspend (Progress) -> Unit
 ): IAwait<String> {
-    return toParser(DownloadParser(destPath, breakDownloadOffSize) { pro, currentSize, totalSize ->
+    return toParser(DownloadParser(destPath) { pro, currentSize, totalSize ->
         val p = Progress(pro, currentSize, totalSize)
         coroutine.launch { progress(p) }
     })
