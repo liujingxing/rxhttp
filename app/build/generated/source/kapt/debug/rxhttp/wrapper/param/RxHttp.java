@@ -40,6 +40,7 @@ import rxhttp.wrapper.cahce.CacheStrategy;
 import rxhttp.wrapper.cahce.DiskLruCacheFactory;
 import rxhttp.wrapper.callback.Function;
 import rxhttp.wrapper.callback.IConverter;
+import rxhttp.wrapper.entity.DownloadOffSize;
 import rxhttp.wrapper.entity.ParameterizedTypeImpl;
 import rxhttp.wrapper.entity.Progress;
 import rxhttp.wrapper.intercept.CacheInterceptor;
@@ -79,8 +80,6 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
   protected boolean isAsync = true;
 
   protected IConverter converter = RxHttpPlugins.getConverter();
-
-  private long breakDownloadOffSize = 0L;
 
   public Request request;
 
@@ -355,14 +354,10 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
    * @param connectLastProgress 是否衔接上次的下载进度，该参数仅在带进度断点下载时生效
    */
   public R setRangeHeader(long startIndex, long endIndex, boolean connectLastProgress) {
-    param.setRangeHeader(startIndex,endIndex);
-    if(connectLastProgress) breakDownloadOffSize = startIndex;
-    return (R)this;
-  }
-
-  @Override
-  public long getBreakDownloadOffSize() {
-    return breakDownloadOffSize;
+    param.setRangeHeader(startIndex, endIndex);                         
+    if (connectLastProgress)                                            
+      param.tag(DownloadOffSize.class, new DownloadOffSize(startIndex));
+    return (R) this;                                                    
   }
 
   public R removeAllHeader(String key) {
@@ -537,7 +532,7 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
   @Override
   public Observable<String> asDownload(String destPath, Scheduler observeOnScheduler,
       Consumer<Progress> progressConsumer) {
-    DownloadParser parser = new DownloadParser(destPath, breakDownloadOffSize);         
+    DownloadParser parser = new DownloadParser(destPath);         
     if (isAsync) {                                                
       return new ObservableCallEnqueue(this)                      
           .asParser(parser, progressConsumer, observeOnScheduler);
