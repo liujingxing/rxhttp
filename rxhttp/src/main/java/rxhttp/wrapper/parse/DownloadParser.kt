@@ -29,7 +29,7 @@ class DownloadParser @JvmOverloads constructor(
     override fun onParse(response: Response): String {
         val localPath = localPath.replaceSuffix(response)
         val body = ExceptionHelper.throwIfFatal(response)
-        LogUtil.log(response, false, localPath)
+        LogUtil.log(response, localPath)
         val append = OkHttpCompat.header(response, "Content-Range") != null
         val contentLength = OkHttpCompat.getContentLength(response) + offsetSize
         //将输入流写出到文件
