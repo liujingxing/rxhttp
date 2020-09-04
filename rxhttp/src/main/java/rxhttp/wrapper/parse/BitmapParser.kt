@@ -23,7 +23,7 @@ class BitmapParser : Parser<Bitmap> {
     override fun onParse(response: Response): Bitmap {
         val body = ExceptionHelper.throwIfFatal(response)
         body.use {
-            LogUtil.log(response, false, null)
+            LogUtil.log(response, null)
             return BitmapFactory.decodeStream(it.byteStream())
         }
     }
