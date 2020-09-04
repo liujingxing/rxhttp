@@ -40,6 +40,7 @@ class ParamsAnnotatedClass {
         val jsonArrayParamName = ClassName.get(packageName, "JsonArrayParam")
         val cacheModeName = ClassName.get("rxhttp.wrapper.cahce", "CacheMode")
         val cacheStrategyName = ClassName.get("rxhttp.wrapper.cahce", "CacheStrategy")
+        val downloadOffSizeName = ClassName.get("rxhttp.wrapper.entity", "DownloadOffSize")
         val stringName = TypeName.get(String::class.java)
         val mapStringName = ParameterizedTypeName.get(ClassName.get(MutableMap::class.java), stringName, stringName)
         val methodList = ArrayList<MethodSpec>()
@@ -367,18 +368,13 @@ class ParamsAnnotatedClass {
                 .addParameter(Long::class.javaPrimitiveType, "startIndex")
                 .addParameter(Long::class.javaPrimitiveType, "endIndex")
                 .addParameter(Boolean::class.javaPrimitiveType, "connectLastProgress")
-                .addStatement("param.setRangeHeader(startIndex,endIndex)")
-                .addStatement("if(connectLastProgress) breakDownloadOffSize = startIndex")
-                .addStatement("return (R)this")
+                .addCode("""
+                    param.setRangeHeader(startIndex, endIndex);                         
+                    if (connectLastProgress)                                            
+                      param.tag(DownloadOffSize.class, new ${'$'}T(startIndex));
+                    return (R) this;                                                    
+                """.trimIndent(), downloadOffSizeName)
                 .returns(rxHttp).build())
-
-        methodList.add(
-            MethodSpec.methodBuilder("getBreakDownloadOffSize")
-                .addAnnotation(Override::class.java)
-                .addModifiers(Modifier.PUBLIC)
-                .addStatement("return breakDownloadOffSize")
-                .returns(Long::class.javaPrimitiveType)
-                .build())
 
         methodList.add(
             MethodSpec.methodBuilder("removeAllHeader")

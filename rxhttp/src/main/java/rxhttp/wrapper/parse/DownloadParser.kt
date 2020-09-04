@@ -16,7 +16,6 @@ import java.io.IOException
  */
 class DownloadParser @JvmOverloads constructor(
     private val localPath: String,
-    var offsetSize: Long = 0,
     var callback: ProgressCallback? = null,
 ) : Parser<String> {
 
@@ -27,6 +26,7 @@ class DownloadParser @JvmOverloads constructor(
      */
     @Throws(IOException::class)
     override fun onParse(response: Response): String {
+        val offsetSize = OkHttpCompat.getDownloadOffSize(response)?.offSize ?: 0
         val localPath = localPath.replaceSuffix(response)
         val body = ExceptionHelper.throwIfFatal(response)
         LogUtil.log(response, localPath)

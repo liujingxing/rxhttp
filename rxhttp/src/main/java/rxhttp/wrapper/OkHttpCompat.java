@@ -14,7 +14,9 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 import okhttp3.internal.Util;
 import okhttp3.internal.http.StatusLine;
+import rxhttp.wrapper.annotations.Nullable;
 import rxhttp.wrapper.callback.IConverter;
+import rxhttp.wrapper.entity.DownloadOffSize;
 import rxhttp.wrapper.param.Param;
 
 /**
@@ -29,6 +31,11 @@ public class OkHttpCompat {
 
     public static IConverter getConverter(Response response) {
         return response.request().tag(IConverter.class);
+    }
+
+    @Nullable
+    public static DownloadOffSize getDownloadOffSize(Response response) {
+        return response.request().tag(DownloadOffSize.class);
     }
 
     public static boolean needDecodeResult(Response response) {
