@@ -20,8 +20,8 @@ import okio.Buffer;
 import okio.BufferedSource;
 import rxhttp.Platform;
 import rxhttp.RxHttpPlugins;
-import rxhttp.wrapper.OkHttpCompat;
 import rxhttp.internal.RxHttpVersion;
+import rxhttp.wrapper.OkHttpCompat;
 import rxhttp.wrapper.annotations.NonNull;
 import rxhttp.wrapper.exception.HttpStatusCodeException;
 import rxhttp.wrapper.exception.ParseException;
@@ -72,16 +72,18 @@ public class LogUtil {
     }
 
     //打印Http返回的正常结果
-    public static void log(@NonNull Response response, boolean onResultDecoder, String downloadPath) {
+    public static void log(@NonNull Response response, String body) {
         if (!isDebug) return;
         try {
             Request request = response.request();
             LogTime logTime = request.tag(LogTime.class);
             long tookMs = logTime != null ? logTime.tookMs() : 0;
-            String result = downloadPath != null ? downloadPath : getResult(response.body(), onResultDecoder);
+            String result = body != null ? body :
+                getResult(OkHttpCompat.requireBody(response), OkHttpCompat.needDecodeResult(response));
             StringBuilder builder = new StringBuilder()
                 .append("<------ ")
-                .append(RxHttpVersion.userAgent + " " + OkHttpCompat.getOkHttpUserAgent())
+                .append(RxHttpVersion.userAgent + " ")
+                .append(OkHttpCompat.getOkHttpUserAgent())
                 .append(" request end Method=")
                 .append(request.method())
                 .append(" Code=").append(response.code())

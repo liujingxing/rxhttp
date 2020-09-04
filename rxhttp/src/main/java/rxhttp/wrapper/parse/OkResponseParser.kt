@@ -1,7 +1,6 @@
 package rxhttp.wrapper.parse
 
 import okhttp3.Response
-import rxhttp.wrapper.OkHttpCompat
 import rxhttp.wrapper.exception.ExceptionHelper
 import rxhttp.wrapper.utils.LogUtil
 import java.io.IOException
@@ -17,7 +16,7 @@ class OkResponseParser : Parser<Response> {
     @Throws(IOException::class)
     override fun onParse(response: Response): Response {
         ExceptionHelper.throwIfFatal(response)
-        LogUtil.log(response, OkHttpCompat.needDecodeResult(response), null)
+        LogUtil.log(response, null)
         return response
     }
 }

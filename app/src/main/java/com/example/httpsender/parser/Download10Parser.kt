@@ -29,7 +29,7 @@ class Download10Parser(
     @Throws(IOException::class)
     override fun onParse(response: Response): String {
         val body = ExceptionHelper.throwIfFatal(response)
-        LogUtil.log(response, false, uri.toString())
+        LogUtil.log(response, uri.toString())
         val append = response.header("Content-Range") != null
         val outputStream = context.contentResolver.run {
             openOutputStream(uri, if (append) "wa" else "w")

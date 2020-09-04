@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Objects;
 
 import okhttp3.Headers;
 import okhttp3.HttpUrl;
@@ -58,6 +59,11 @@ public class OkHttpCompat {
 
     public static Headers headers(Response response) {
         return response.headers();
+    }
+
+    public static ResponseBody requireBody(Response response) {
+        ResponseBody body = response.body();
+        return Objects.requireNonNull(body, "response with no body");
     }
 
     public static String header(Response response, String name) {
