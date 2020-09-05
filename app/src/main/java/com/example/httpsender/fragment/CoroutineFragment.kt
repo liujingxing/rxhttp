@@ -18,6 +18,7 @@ import com.example.httpsender.kt.errorMsg
 import com.example.httpsender.kt.show
 import com.example.httpsender.kt.startActivity
 import com.google.gson.Gson
+import kotlinx.coroutines.Dispatchers
 import rxhttp.toBitmap
 import rxhttp.toClass
 import rxhttp.toDownload
@@ -209,7 +210,7 @@ class CoroutineFragment : Fragment(), View.OnClickListener {
         val destPath = requireContext().externalCacheDir.toString() + "/" + System.currentTimeMillis() + ".apk"
         //下载使用非默认域名，故这里使用RxSimpleHttp类发送请求，RxSimpleHttp类是通过注解生成的
         val result = RxSimpleHttp.get("/miaolive/Miaolive.apk")
-            .toDownload(destPath, this) {
+            .toDownload(destPath, Dispatchers.Main) {
                 //下载进度回调,0-100，仅在进度有更新时才会回调，最多回调101次，最后一次回调文件存储路径
                 val currentProgress = it.progress //当前进度 0-100
                 val currentSize = it.currentSize //当前已下载的字节大小
@@ -247,7 +248,7 @@ class CoroutineFragment : Fragment(), View.OnClickListener {
         //下载使用非默认域名，故这里使用RxSimpleHttp类发送请求，RxSimpleHttp类是通过注解生成的
         val result = RxSimpleHttp.get("/miaolive/Miaolive.apk")
             .setRangeHeader(length, true) //设置开始下载位置，结束位置默认为文件末尾
-            .toDownload(destPath, this) {
+            .toDownload(destPath, Dispatchers.Main) {
                 //下载进度回调,0-100，仅在进度有更新时才会回调，最多回调101次，最后一次回调文件存储路径
                 val currentProgress = it.progress //当前进度 0-100
                 val currentSize = it.currentSize //当前已下载的字节大小

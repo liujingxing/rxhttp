@@ -1,16 +1,17 @@
 package rxhttp
 
 import android.graphics.Bitmap
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
 import okhttp3.Call
 import okhttp3.Headers
 import okhttp3.Response
 import rxhttp.wrapper.OkHttpCompat
 import rxhttp.wrapper.await.AwaitImpl
-import rxhttp.wrapper.callback.ProgressCallback
+import rxhttp.wrapper.await.AwaitResponse
+import rxhttp.wrapper.await.download
 import rxhttp.wrapper.entity.Progress
 import rxhttp.wrapper.parse.*
+import kotlin.coroutines.CoroutineContext
 
 /**
  * User: ljx
@@ -54,16 +55,14 @@ suspend inline fun <reified T : Any> IRxHttp.await(): T = await(object : SimpleP
 suspend fun <T> IRxHttp.await(parser: Parser<T>): T = toParser(parser).await()
 
 suspend fun IRxHttp.awaitDownload(
-    destPath: String,
-    progress: ((Progress) -> Unit)? = null
-): String = toDownload(destPath, progress).await()
+    destPath: String
+): String = toDownload(destPath).await()
 
 suspend fun IRxHttp.awaitDownload(
     destPath: String,
-    coroutine: CoroutineScope,
+    context: CoroutineContext? = null,
     progress: suspend (Progress) -> Unit
-): String = toDownload(destPath, coroutine, progress).await()
-
+): String = toDownload(destPath, context, progress).await()
 
 fun IRxHttp.toBoolean(): IAwait<Boolean> = toClass()
 
@@ -102,41 +101,23 @@ fun IRxHttp.toOkResponse(): IAwait<Response> = toParser(OkResponseParser())
 
 inline fun <reified T : Any> IRxHttp.toClass(): IAwait<T> = toParser(object : SimpleParser<T>() {})
 
-/**
- * @param destPath Local storage path
- * @param progress Progress callback in IO thread callback
- */
+
 fun IRxHttp.toDownload(
-    destPath: String,
-    progress: ((Progress) -> Unit)? = null
-): IAwait<String> {
-    val parser = DownloadParser(destPath).apply {
-        callback = ProgressCallback { pro, currentSize, totalSize ->
-            val p = Progress(pro, currentSize, totalSize)
-            progress?.invoke(p)
-        }
-    }
-    return toParser(parser)
-}
+    destPath: String
+): IAwait<String> = toParser(DownloadParser(destPath))
 
 /**
  * @param destPath Local storage path
- * @param coroutine Use to open a coroutine to control the thread on which the progress callback
+ * @param context Use to control the thread on which the progress callback
  * @param progress Progress callback in suspend method, The callback thread depends on the coroutine thread
  */
 fun IRxHttp.toDownload(
     destPath: String,
-    coroutine: CoroutineScope,
+    context: CoroutineContext? = null,
     progress: suspend (Progress) -> Unit
-): IAwait<String> {
-    val parser = DownloadParser(destPath).apply {
-        callback = ProgressCallback { pro, currentSize, totalSize ->
-            val p = Progress(pro, currentSize, totalSize)
-            coroutine.launch { progress(p) }
-        }
-    }
-    return toParser(parser)
-}
+): IAwait<String> = AwaitResponse(this)
+    .download(destPath, context, progress)
+    .flowOn(Dispatchers.IO)
 
 fun <T> IRxHttp.toParser(
     parser: Parser<T>,
