@@ -2,6 +2,9 @@ package rxhttp
 
 import android.graphics.Bitmap
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import okhttp3.Call
 import okhttp3.Headers
 import okhttp3.Response
@@ -118,6 +121,15 @@ fun IRxHttp.toDownload(
 ): IAwait<String> = AwaitResponse(this)
     .download(destPath, context, progress)
     .flowOn(Dispatchers.IO)
+
+fun IRxHttp.toDownloadFlow(
+    destPath: String,
+): Flow<Progress> =
+    flow {
+        AwaitResponse(this@toDownloadFlow)
+            .download(destPath) { emit(it) }
+            .await()
+    }.flowOn(Dispatchers.IO)
 
 fun <T> IRxHttp.toParser(
     parser: Parser<T>,
