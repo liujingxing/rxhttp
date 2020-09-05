@@ -180,15 +180,20 @@ public class RxHttpFormParam extends RxHttp<FormParam, RxHttpFormParam> {
 
   @Override
   public <T> Observable<T> asParser(Parser<T> parser) {
+    return asParser(parser, observeOnScheduler, progressConsumer);
+  }
+
+  public <T> Observable<T> asParser(Parser<T> parser, Scheduler scheduler,
+      Consumer<Progress> progressConsumer) {
     if (progressConsumer == null) {                                             
-      return super.asParser(parser);                                            
-    }                                                                           
-    if (isAsync) {                                                              
-      return new ObservableCallEnqueue(this, true)                              
-          .asParser(parser, progressConsumer, observeOnScheduler);              
-    } else {                                                                    
-      return new ObservableCallExecute(this, true)                              
-          .asParser(parser, progressConsumer, observeOnScheduler);              
-    }                                                                                                                
+      return super.asParser(parser, scheduler, null);                                            
+    }  
+    ObservableCall observableCall;                                      
+    if (isAsync) {                                                      
+      observableCall = new ObservableCallEnqueue(this, true);                 
+    } else {                                                            
+      observableCall = new ObservableCallExecute(this, true);                 
+    }                                                                   
+    return observableCall.asParser(parser, scheduler, progressConsumer);
   }
 }

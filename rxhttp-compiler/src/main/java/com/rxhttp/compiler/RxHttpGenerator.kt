@@ -764,17 +764,28 @@ class RxHttpGenerator {
                     .addAnnotation(Override::class.java)
                     .addTypeVariable(t)
                     .addParameter(parserTName, "parser")
+                    .addStatement("return asParser(parser, observeOnScheduler, progressConsumer)")
+                    .returns(observableTName)
+                    .build())
+
+            methodList.add(
+                MethodSpec.methodBuilder("asParser")
+                    .addModifiers(Modifier.PUBLIC)
+                    .addTypeVariable(t)
+                    .addParameter(parserTName, "parser")
+                    .addParameter(schedulerName, "scheduler")
+                    .addParameter(consumerProgressName, "progressConsumer")
                     .addCode("""
                         if (progressConsumer == null) {                                             
-                          return super.asParser(parser);                                            
-                        }                                                                           
-                        if (isAsync) {                                                              
-                          return new ObservableCallEnqueue(this, true)                              
-                              .asParser(parser, progressConsumer, observeOnScheduler);              
-                        } else {                                                                    
-                          return new ObservableCallExecute(this, true)                              
-                              .asParser(parser, progressConsumer, observeOnScheduler);              
-                        }                                                                                                                
+                          return super.asParser(parser, scheduler, null);                                            
+                        }  
+                        ObservableCall observableCall;                                      
+                        if (isAsync) {                                                      
+                          observableCall = new ObservableCallEnqueue(this, true);                 
+                        } else {                                                            
+                          observableCall = new ObservableCallExecute(this, true);                 
+                        }                                                                   
+                        return observableCall.asParser(parser, scheduler, progressConsumer);
                     """.trimIndent())
                     .returns(observableTName)
                     .build())

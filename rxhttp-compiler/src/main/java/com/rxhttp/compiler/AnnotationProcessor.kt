@@ -1,6 +1,7 @@
 package com.rxhttp.compiler
 
 import com.rxhttp.compiler.ClassHelper.generatorBaseRxHttp
+import com.rxhttp.compiler.ClassHelper.generatorObservableCall
 import com.rxhttp.compiler.ClassHelper.generatorObservableCallEnqueue
 import com.rxhttp.compiler.ClassHelper.generatorObservableCallExecute
 import com.rxhttp.compiler.ClassHelper.generatorObservableParser
@@ -80,6 +81,7 @@ open class AnnotationProcessor : AbstractProcessor() {
 //            generatorObservableUpload(filer)
 //            generatorObservableDownload(filer)
 
+            generatorObservableCall(filer)
             generatorObservableCallEnqueue(filer)
             generatorObservableCallExecute(filer)
             generatorObservableParser(filer)
