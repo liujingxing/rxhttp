@@ -9,7 +9,7 @@ import java.io.*
  * Date: 2016/11/15
  * Time: 15:31
  */
-object IOUtil {
+internal object IOUtil {
     private const val LENGTH_BYTE = 8 * 1024 //一次性读写的字节个数，用于字节读取
 
     @JvmStatic
@@ -119,6 +119,32 @@ object IOUtil {
         }
         return try {
             val bytes = ByteArray(LENGTH_BYTE)
+            var totalReadLength: Long = 0
+            var readLength: Int
+            while (inStream.read(bytes, 0, bytes.size).also { readLength = it } != -1) {
+                outStream.write(bytes, 0, readLength)
+                progress?.apply {
+                    totalReadLength += readLength;
+                    invoke(totalReadLength)
+                }
+            }
+            true
+        } finally {
+            close(inStream, outStream)
+        }
+    }
+
+    @Throws(IOException::class)
+    suspend fun suspendWrite(
+        inStream: InputStream?,
+        outStream: OutputStream?,
+        progress: (suspend (Long) -> Unit)? = null
+    ): Boolean {
+        if (inStream == null || outStream == null) {
+            throw IllegalArgumentException("inStream or outStream can not be null")
+        }
+        return try {
+            val bytes = ByteArray(8 * 1024)
             var totalReadLength: Long = 0
             var readLength: Int
             while (inStream.read(bytes, 0, bytes.size).also { readLength = it } != -1) {

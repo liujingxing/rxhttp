@@ -6,6 +6,8 @@ import rxhttp.IRxHttp
 import rxhttp.newAwait
 import rxhttp.wrapper.entity.Progress
 import rxhttp.wrapper.parse.SuspendDownloadParser
+import rxhttp.wrapper.parse.SuspendStreamParser
+import java.io.OutputStream
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -29,6 +31,15 @@ internal fun IAwait<Response>.download(
     progress: suspend (Progress) -> Unit,
 ): IAwait<String> = newAwait {
     SuspendDownloadParser(localPath, context, progress).onParse(await())
+}
+
+@Suppress("BlockingMethodInNonBlockingContext")
+internal fun IAwait<Response>.download(
+    os: OutputStream,
+    context: CoroutineContext? = null,
+    progress: suspend (Progress) -> Unit,
+): IAwait<String> = newAwait {
+    SuspendStreamParser(os, context, progress).onParse(await())
 }
 
 
