@@ -9,7 +9,7 @@ import java.io.*
  * Date: 2016/11/15
  * Time: 15:31
  */
-internal object IOUtil {
+object IOUtil {
     private const val LENGTH_BYTE = 8 * 1024 //一次性读写的字节个数，用于字节读取
 
     @JvmStatic
