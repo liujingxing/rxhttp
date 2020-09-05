@@ -13,6 +13,7 @@ import io.reactivex.rxjava3.core.Scheduler;
 import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.functions.Consumer;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.lang.Class;
 import java.lang.Deprecated;
 import java.lang.Object;
@@ -47,6 +48,7 @@ import rxhttp.wrapper.intercept.CacheInterceptor;
 import rxhttp.wrapper.parse.DownloadParser;
 import rxhttp.wrapper.parse.Parser;
 import rxhttp.wrapper.parse.SimpleParser;
+import rxhttp.wrapper.parse.StreamParser;
 import rxhttp.wrapper.utils.LogTime;
 import rxhttp.wrapper.utils.LogUtil;
 
@@ -533,6 +535,18 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
   public Observable<String> asDownload(String destPath, Scheduler observeOnScheduler,
       Consumer<Progress> progressConsumer) {
     DownloadParser parser = new DownloadParser(destPath);         
+    if (isAsync) {                                                
+      return new ObservableCallEnqueue(this)                      
+          .asParser(parser, progressConsumer, observeOnScheduler);
+    } else {                                                      
+      return new ObservableCallExecute(this)                      
+          .asParser(parser, progressConsumer, observeOnScheduler);
+    }                                                             
+  }
+
+  public Observable<String> asDownload(OutputStream os, Scheduler observeOnScheduler,
+      Consumer<Progress> progressConsumer) {
+    StreamParser parser = new StreamParser(os);         
     if (isAsync) {                                                
       return new ObservableCallEnqueue(this)                      
           .asParser(parser, progressConsumer, observeOnScheduler);
