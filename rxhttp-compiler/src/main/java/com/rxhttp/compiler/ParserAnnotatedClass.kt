@@ -3,6 +3,7 @@ package com.rxhttp.compiler
 import com.squareup.javapoet.*
 import rxhttp.wrapper.annotation.Parser
 import java.io.IOException
+import java.io.OutputStream
 import java.lang.Deprecated
 import java.util.*
 import javax.annotation.processing.Filer
@@ -170,6 +171,7 @@ class ParserAnnotatedClass {
             val observableStringName = ParameterizedTypeName.get(observableName, typeName)
             val consumerProgressName = ParameterizedTypeName.get(consumerName, progressName)
             val downloadParser = ClassName.get("rxhttp.wrapper.parse", "DownloadParser")
+            val streamParser = ClassName.get("rxhttp.wrapper.parse", "StreamParser")
 
             methodList.add(
                 MethodSpec.methodBuilder("asParser")
@@ -213,6 +215,25 @@ class ParserAnnotatedClass {
                               .asParser(parser, progressConsumer, observeOnScheduler);
                         }                                                             
                     """.trimIndent(), downloadParser)
+                    .returns(observableStringName)
+                    .build())
+
+            methodList.add(
+                MethodSpec.methodBuilder("asDownload")
+                    .addModifiers(Modifier.PUBLIC)
+                    .addParameter(OutputStream::class.java, "os")
+                    .addParameter(schedulerName, "observeOnScheduler")
+                    .addParameter(consumerProgressName, "progressConsumer")
+                    .addCode("""
+                        StreamParser parser = new ${'$'}T(os);         
+                        if (isAsync) {                                                
+                          return new ObservableCallEnqueue(this)                      
+                              .asParser(parser, progressConsumer, observeOnScheduler);
+                        } else {                                                      
+                          return new ObservableCallExecute(this)                      
+                              .asParser(parser, progressConsumer, observeOnScheduler);
+                        }                                                             
+                    """.trimIndent(), streamParser)
                     .returns(observableStringName)
                     .build())
         }

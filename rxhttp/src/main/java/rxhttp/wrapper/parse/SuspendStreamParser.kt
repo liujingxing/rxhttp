@@ -7,7 +7,9 @@ import rxhttp.wrapper.entity.Progress
 import rxhttp.wrapper.exception.ExceptionHelper
 import rxhttp.wrapper.utils.IOUtil
 import rxhttp.wrapper.utils.LogUtil
-import java.io.*
+import java.io.IOException
+import java.io.InputStream
+import java.io.OutputStream
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -16,8 +18,8 @@ import kotlin.coroutines.CoroutineContext
  * Time: 14:09
  */
 @Suppress("BlockingMethodInNonBlockingContext")
-class SuspendDownloadParser(
-    private val localPath: String,
+class SuspendStreamParser(
+    private val outputStream: OutputStream,
     private val context: CoroutineContext? = null,
     private val progress: suspend (Progress) -> Unit,
 ) {
@@ -27,23 +29,14 @@ class SuspendDownloadParser(
     @Throws(IOException::class)
     suspend fun onParse(response: Response): String {
         val body = ExceptionHelper.throwIfFatal(response)
-        LogUtil.log(response, localPath)
+        LogUtil.log(response, "")
 
         val contentLength = OkHttpCompat.getContentLength(response)
         val offsetSize = OkHttpCompat.getDownloadOffSize(response)?.offSize ?: 0
-        val append = OkHttpCompat.header(response, "Content-Range") != null
-
-        //创建文件
-        val dstFile = File(localPath).apply {
-            val parentFile = parentFile
-            if (!parentFile.exists() && !parentFile.mkdirs()) {
-                throw IOException("Directory $parentFile create fail")
-            }
-        }
 
         //将输入流写出到文件
-        write(body.byteStream(), FileOutputStream(dstFile, append), contentLength, offsetSize)
-        return localPath
+        write(body.byteStream(), outputStream, contentLength, offsetSize)
+        return ""
     }
 
     private suspend fun write(
