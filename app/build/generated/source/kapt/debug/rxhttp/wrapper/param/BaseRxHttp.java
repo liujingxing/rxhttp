@@ -1,7 +1,7 @@
 package rxhttp.wrapper.param;
 
 import android.graphics.Bitmap;
-
+import java.io.OutputStream;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
@@ -14,7 +14,6 @@ import okhttp3.Headers;
 import okhttp3.Response;
 import rxhttp.IRxHttp;
 import rxhttp.wrapper.OkHttpCompat;
-import rxhttp.wrapper.annotations.Nullable;
 import rxhttp.wrapper.entity.ParameterizedTypeImpl;
 import rxhttp.wrapper.entity.Progress;
 import rxhttp.wrapper.parse.BitmapParser;
@@ -22,6 +21,7 @@ import rxhttp.wrapper.parse.DownloadParser;
 import rxhttp.wrapper.parse.OkResponseParser;
 import rxhttp.wrapper.parse.Parser;
 import rxhttp.wrapper.parse.SimpleParser;
+import rxhttp.wrapper.parse.StreamParser;
 import rxhttp.wrapper.utils.LogUtil;
 
 /**
@@ -44,19 +44,23 @@ public abstract class BaseRxHttp implements IRxHttp {
         }                                                                          
     }                                                                              
 
-    public abstract <T> Observable<T> asParser(Parser<T> parser);
+    public abstract <T> Observable<T> asParser(Parser<T> parser, Scheduler scheduler, Consumer<Progress> progressConsumer);
     
-    /**                                                           
-     * 监听下载进度时，调用此方法                                              
-     *                                                                                                          
-     * @param destPath           文件存储路径                                                                         
-     * @param observeOnScheduler 控制回调所在线程，传入null，则默认在请求所在线程(子线程)回调                                              
-     * @param progressConsumer   进度回调                                                                           
-     * @return Observable                                                                                       
-     */                                                                                                          
-    public abstract Observable<String> asDownload(String destPath,
-                                                  @Nullable Scheduler observeOnScheduler,
-                                                  Consumer<Progress> progressConsumer);      
+    public <T> Observable<T> asParser(Parser<T> parser) {
+        return asParser(parser, null, null);
+    }
+    
+    public final Observable<String> asDownload(String destPath, Scheduler scheduler,
+                                         Consumer<Progress> progressConsumer) {
+        DownloadParser parser = new DownloadParser(destPath);
+        return asParser(parser, scheduler, progressConsumer);
+    }
+    
+    public final Observable<String> asDownload(OutputStream os, Scheduler scheduler,
+                                         Consumer<Progress> progressConsumer) {
+        StreamParser parser = new StreamParser(os);
+        return asParser(parser, scheduler, progressConsumer);
+    }    
 
     public final <T> Observable<T> asClass(Class<T> type) {
         return asParser(new SimpleParser<>(type));

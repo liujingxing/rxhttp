@@ -35,7 +35,7 @@ public final class ObservableParser<T> extends Observable<T> {
     private final Consumer<Progress> progressConsumer;
 
     public ObservableParser(@NonNull ObservableSource<Progress> source, @NonNull Parser<T> parser,
-                            @Nullable Consumer<Progress> progressConsumer, @Nullable Scheduler scheduler) {
+                            @Nullable Scheduler scheduler, @Nullable Consumer<Progress> progressConsumer) {
         this.source = source;
         this.parser = parser;
         this.scheduler = scheduler;

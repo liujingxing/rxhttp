@@ -45,17 +45,14 @@ class ParserAnnotatedClass {
 
         val listTName = ParameterizedTypeName.get(ClassName.get(List::class.java), t)
         val callName = ClassName.get("okhttp3", "Call")
-        val okHttpClientName = ClassName.get("okhttp3", "OkHttpClient")
         val responseName = ClassName.get("okhttp3", "Response")
         val httpSenderName = ClassName.get("rxhttp", "HttpSender")
         val requestName = ClassName.get("okhttp3", "Request")
         val parserName = ClassName.get("rxhttp.wrapper.parse", "Parser")
         val progressName = ClassName.get("rxhttp.wrapper.entity", "Progress")
-        val progressTName = ClassName.get("rxhttp.wrapper.entity", "ProgressT")
         val logUtilName = ClassName.get("rxhttp.wrapper.utils", "LogUtil")
         val logTimeName = ClassName.get("rxhttp.wrapper.utils", "LogTime")
         val typeName = TypeName.get(String::class.java)
-        val progressTStringName = ParameterizedTypeName.get(progressTName, typeName)
         val parserTName = ParameterizedTypeName.get(parserName, t)
         val simpleParserName = ClassName.get("rxhttp.wrapper.parse", "SimpleParser")
         val type = ClassName.get("java.lang.reflect", "Type")
@@ -168,73 +165,25 @@ class ParserAnnotatedClass {
                     .build())
 
             val observableTName = ParameterizedTypeName.get(observableName, t)
-            val observableStringName = ParameterizedTypeName.get(observableName, typeName)
             val consumerProgressName = ParameterizedTypeName.get(consumerName, progressName)
-            val downloadParser = ClassName.get("rxhttp.wrapper.parse", "DownloadParser")
-            val streamParser = ClassName.get("rxhttp.wrapper.parse", "StreamParser")
 
             methodList.add(
                 MethodSpec.methodBuilder("asParser")
-                    .addAnnotation(Override::class.java)
                     .addModifiers(Modifier.PUBLIC)
                     .addTypeVariable(t)
                     .addParameter(parserTName, "parser")
+                    .addParameter(schedulerName, "scheduler")
+                    .addParameter(consumerProgressName, "progressConsumer")
                     .addCode("""
-                        if (isAsync) {                          
-                          return new ObservableCallEnqueue(this)
-                              .asParser(parser);                
-                        } else {                                
-                          return new ObservableCallExecute(this)
-                              .asParser(parser);                
-                        }                                       
+                        ObservableCall observableCall;                                      
+                        if (isAsync) {                                                      
+                          observableCall = new ObservableCallEnqueue(this);                 
+                        } else {                                                            
+                          observableCall = new ObservableCallExecute(this);                 
+                        }                                                                   
+                        return observableCall.asParser(parser, scheduler, progressConsumer);
                     """.trimIndent())
                     .returns(observableTName)
-                    .build())
-
-            methodList.add(
-                MethodSpec.methodBuilder("asDownload")
-                    .addAnnotation(Override::class.java)
-                    .addJavadoc("""
-                         监听下载进度时，调用此方法                                                                 
-                         @param destPath           文件存储路径                                              
-                         @param observeOnScheduler 控制回调所在线程，传入null，则默认在请求所在线程(子线程)回调                   
-                         @param progressConsumer   进度回调                                                
-                         @return Observable
-                    """.trimIndent())
-                    .addModifiers(Modifier.PUBLIC)
-                    .addParameter(String::class.java, "destPath")
-                    .addParameter(schedulerName, "observeOnScheduler")
-                    .addParameter(consumerProgressName, "progressConsumer")
-                    .addCode("""
-                        DownloadParser parser = new ${'$'}T(destPath);         
-                        if (isAsync) {                                                
-                          return new ObservableCallEnqueue(this)                      
-                              .asParser(parser, progressConsumer, observeOnScheduler);
-                        } else {                                                      
-                          return new ObservableCallExecute(this)                      
-                              .asParser(parser, progressConsumer, observeOnScheduler);
-                        }                                                             
-                    """.trimIndent(), downloadParser)
-                    .returns(observableStringName)
-                    .build())
-
-            methodList.add(
-                MethodSpec.methodBuilder("asDownload")
-                    .addModifiers(Modifier.PUBLIC)
-                    .addParameter(OutputStream::class.java, "os")
-                    .addParameter(schedulerName, "observeOnScheduler")
-                    .addParameter(consumerProgressName, "progressConsumer")
-                    .addCode("""
-                        StreamParser parser = new ${'$'}T(os);         
-                        if (isAsync) {                                                
-                          return new ObservableCallEnqueue(this)                      
-                              .asParser(parser, progressConsumer, observeOnScheduler);
-                        } else {                                                      
-                          return new ObservableCallExecute(this)                      
-                              .asParser(parser, progressConsumer, observeOnScheduler);
-                        }                                                             
-                    """.trimIndent(), streamParser)
-                    .returns(observableStringName)
                     .build())
         }
 
