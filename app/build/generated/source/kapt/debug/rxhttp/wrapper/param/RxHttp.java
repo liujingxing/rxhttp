@@ -13,11 +13,9 @@ import io.reactivex.rxjava3.core.Scheduler;
 import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.functions.Consumer;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.lang.Class;
 import java.lang.Deprecated;
 import java.lang.Object;
-import java.lang.Override;
 import java.lang.String;
 import java.lang.SuppressWarnings;
 import java.lang.reflect.Type;
@@ -45,10 +43,8 @@ import rxhttp.wrapper.entity.DownloadOffSize;
 import rxhttp.wrapper.entity.ParameterizedTypeImpl;
 import rxhttp.wrapper.entity.Progress;
 import rxhttp.wrapper.intercept.CacheInterceptor;
-import rxhttp.wrapper.parse.DownloadParser;
 import rxhttp.wrapper.parse.Parser;
 import rxhttp.wrapper.parse.SimpleParser;
-import rxhttp.wrapper.parse.StreamParser;
 import rxhttp.wrapper.utils.LogTime;
 import rxhttp.wrapper.utils.LogUtil;
 
@@ -513,47 +509,15 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
     return (R)this;
   }
 
-  @Override
-  public <T> Observable<T> asParser(Parser<T> parser) {
-    if (isAsync) {                          
-      return new ObservableCallEnqueue(this)
-          .asParser(parser);                
-    } else {                                
-      return new ObservableCallExecute(this)
-          .asParser(parser);                
-    }                                       
-  }
-
-  /**
-   * 监听下载进度时，调用此方法                                                                 
-   * @param destPath           文件存储路径                                              
-   * @param observeOnScheduler 控制回调所在线程，传入null，则默认在请求所在线程(子线程)回调                   
-   * @param progressConsumer   进度回调                                                
-   * @return Observable
-   */
-  @Override
-  public Observable<String> asDownload(String destPath, Scheduler observeOnScheduler,
+  public <T> Observable<T> asParser(Parser<T> parser, Scheduler scheduler,
       Consumer<Progress> progressConsumer) {
-    DownloadParser parser = new DownloadParser(destPath);         
-    if (isAsync) {                                                
-      return new ObservableCallEnqueue(this)                      
-          .asParser(parser, progressConsumer, observeOnScheduler);
-    } else {                                                      
-      return new ObservableCallExecute(this)                      
-          .asParser(parser, progressConsumer, observeOnScheduler);
-    }                                                             
-  }
-
-  public Observable<String> asDownload(OutputStream os, Scheduler observeOnScheduler,
-      Consumer<Progress> progressConsumer) {
-    StreamParser parser = new StreamParser(os);         
-    if (isAsync) {                                                
-      return new ObservableCallEnqueue(this)                      
-          .asParser(parser, progressConsumer, observeOnScheduler);
-    } else {                                                      
-      return new ObservableCallExecute(this)                      
-          .asParser(parser, progressConsumer, observeOnScheduler);
-    }                                                             
+    ObservableCall observableCall;                                      
+    if (isAsync) {                                                      
+      observableCall = new ObservableCallEnqueue(this);                 
+    } else {                                                            
+      observableCall = new ObservableCallExecute(this);                 
+    }                                                                   
+    return observableCall.asParser(parser, scheduler, progressConsumer);
   }
 
   public <T> Observable<T> asResponse(Class<T> type) {

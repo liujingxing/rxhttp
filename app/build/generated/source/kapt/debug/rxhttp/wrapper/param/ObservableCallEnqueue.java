@@ -1,18 +1,11 @@
 package rxhttp.wrapper.param;
 
-
-import org.jetbrains.annotations.NotNull;
-
 import java.io.IOException;
 
-import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Observer;
-import io.reactivex.rxjava3.core.Scheduler;
 import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.exceptions.Exceptions;
-import io.reactivex.rxjava3.functions.Consumer;
 import io.reactivex.rxjava3.plugins.RxJavaPlugins;
-
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
@@ -20,10 +13,6 @@ import rxhttp.IRxHttp;
 import rxhttp.wrapper.callback.ProgressCallback;
 import rxhttp.wrapper.entity.Progress;
 import rxhttp.wrapper.entity.ProgressT;
-import rxhttp.wrapper.param.FormParam;
-import rxhttp.wrapper.param.RxHttpFormParam;
-import rxhttp.wrapper.parse.DownloadParser;
-import rxhttp.wrapper.parse.Parser;
 import rxhttp.wrapper.utils.LogUtil;
 
 /**
@@ -31,7 +20,7 @@ import rxhttp.wrapper.utils.LogUtil;
  * Date: 2018/04/20
  * Time: 11:15
  */
-public final class ObservableCallEnqueue extends Observable<Progress> {
+public final class ObservableCallEnqueue extends ObservableCall {
 
     private IRxHttp iRxHttp;
     private boolean callbackUploadProgress;
@@ -87,7 +76,7 @@ public final class ObservableCallEnqueue extends Observable<Progress> {
         }
 
         @Override
-        public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+        public void onResponse(Call call, Response response) throws IOException {
             if (!disposed) {
                 downstream.onNext(new ProgressT<>(response));
             }
@@ -97,7 +86,7 @@ public final class ObservableCallEnqueue extends Observable<Progress> {
         }
 
         @Override
-        public void onFailure(@NotNull Call call, @NotNull IOException e) {
+        public void onFailure(Call call, IOException e) {
             LogUtil.log(call.request().url().toString(), e);
             Exceptions.throwIfFatal(e);
             if (!disposed) {
@@ -121,17 +110,5 @@ public final class ObservableCallEnqueue extends Observable<Progress> {
         public void run() {
             call.enqueue(this);
         }
-    }
-    
-    public <T> Observable<T> asParser(Parser<T> parser) {
-        return asParser(parser, null, null);
-    }
-
-    public <T> Observable<T> asParser(Parser<T> parser, Consumer<Progress> progressConsumer) {
-        return asParser(parser, progressConsumer, null);
-    }
-
-    public <T> Observable<T> asParser(Parser<T> parser, Consumer<Progress> progressConsumer, Scheduler scheduler) {
-        return new ObservableParser<>(this, parser, progressConsumer, scheduler);
     }
 }

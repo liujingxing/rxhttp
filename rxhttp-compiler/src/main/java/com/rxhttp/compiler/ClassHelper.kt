@@ -36,7 +36,7 @@ object ClassHelper {
             package $rxHttpPackage;
 
             ${if (isAndroid) "import android.graphics.Bitmap;" else ""}
-
+            import java.io.OutputStream;
             import java.lang.reflect.Type;
             import java.util.List;
             import java.util.Map;
@@ -49,7 +49,6 @@ object ClassHelper {
             import okhttp3.Response;
             import rxhttp.IRxHttp;
             import rxhttp.wrapper.OkHttpCompat;
-            import rxhttp.wrapper.annotations.Nullable;
             import rxhttp.wrapper.entity.ParameterizedTypeImpl;
             import rxhttp.wrapper.entity.Progress;
             ${if (isAndroid) "import rxhttp.wrapper.parse.BitmapParser;" else ""}
@@ -57,6 +56,7 @@ object ClassHelper {
             import rxhttp.wrapper.parse.OkResponseParser;
             import rxhttp.wrapper.parse.Parser;
             import rxhttp.wrapper.parse.SimpleParser;
+            import rxhttp.wrapper.parse.StreamParser;
             import rxhttp.wrapper.utils.LogUtil;
 
             /**
@@ -79,19 +79,23 @@ object ClassHelper {
                     }                                                                          
                 }                                                                              
 
-                public abstract <T> Observable<T> asParser(Parser<T> parser);
+                public abstract <T> Observable<T> asParser(Parser<T> parser, Scheduler scheduler, Consumer<Progress> progressConsumer);
                 
-                /**                                                           
-                 * 监听下载进度时，调用此方法                                              
-                 *                                                                                                          
-                 * @param destPath           文件存储路径                                                                         
-                 * @param observeOnScheduler 控制回调所在线程，传入null，则默认在请求所在线程(子线程)回调                                              
-                 * @param progressConsumer   进度回调                                                                           
-                 * @return Observable                                                                                       
-                 */                                                                                                          
-                public abstract Observable<String> asDownload(String destPath,
-                                                              @Nullable Scheduler observeOnScheduler,
-                                                              Consumer<Progress> progressConsumer);      
+                public <T> Observable<T> asParser(Parser<T> parser) {
+                    return asParser(parser, null, null);
+                }
+                
+                public final Observable<String> asDownload(String destPath, Scheduler scheduler,
+                                                     Consumer<Progress> progressConsumer) {
+                    DownloadParser parser = new DownloadParser(destPath);
+                    return asParser(parser, scheduler, progressConsumer);
+                }
+                
+                public final Observable<String> asDownload(OutputStream os, Scheduler scheduler,
+                                                     Consumer<Progress> progressConsumer) {
+                    StreamParser parser = new StreamParser(os);
+                    return asParser(parser, scheduler, progressConsumer);
+                }    
 
                 public final <T> Observable<T> asClass(Class<T> type) {
                     return asParser(new SimpleParser<>(type));
@@ -183,20 +187,13 @@ object ClassHelper {
     fun generatorObservableCallEnqueue(filer: Filer) {
         generatorClass(filer, "ObservableCallEnqueue", """
             package $rxHttpPackage;
-
-
-            import org.jetbrains.annotations.NotNull;
-
+ 
             import java.io.IOException;
-
-            import ${getClassPath("Observable")};
+            
             import ${getClassPath("Observer")};
-            import ${getClassPath("Scheduler")};
             import ${getClassPath("Disposable")};
             import ${getClassPath("Exceptions")};
-            import ${getClassPath("Consumer")};
             import ${getClassPath("RxJavaPlugins")};
-            
             import okhttp3.Call;
             import okhttp3.Callback;
             import okhttp3.Response;
@@ -204,10 +201,6 @@ object ClassHelper {
             import rxhttp.wrapper.callback.ProgressCallback;
             import rxhttp.wrapper.entity.Progress;
             import rxhttp.wrapper.entity.ProgressT;
-            import rxhttp.wrapper.param.FormParam;
-            import rxhttp.wrapper.param.RxHttpFormParam;
-            import rxhttp.wrapper.parse.DownloadParser;
-            import rxhttp.wrapper.parse.Parser;
             import rxhttp.wrapper.utils.LogUtil;
 
             /**
@@ -215,7 +208,7 @@ object ClassHelper {
              * Date: 2018/04/20
              * Time: 11:15
              */
-            public final class ObservableCallEnqueue extends Observable<Progress> {
+            public final class ObservableCallEnqueue extends ObservableCall {
 
                 private IRxHttp iRxHttp;
                 private boolean callbackUploadProgress;
@@ -271,7 +264,7 @@ object ClassHelper {
                     }
 
                     @Override
-                    public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                    public void onResponse(Call call, Response response) throws IOException {
                         if (!disposed) {
                             downstream.onNext(new ProgressT<>(response));
                         }
@@ -281,7 +274,7 @@ object ClassHelper {
                     }
 
                     @Override
-                    public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                    public void onFailure(Call call, IOException e) {
                         LogUtil.log(call.request().url().toString(), e);
                         Exceptions.throwIfFatal(e);
                         if (!disposed) {
@@ -306,18 +299,6 @@ object ClassHelper {
                         call.enqueue(this);
                     }
                 }
-                
-                public <T> Observable<T> asParser(Parser<T> parser) {
-                    return asParser(parser, null, null);
-                }
-
-                public <T> Observable<T> asParser(Parser<T> parser, Consumer<Progress> progressConsumer) {
-                    return asParser(parser, progressConsumer, null);
-                }
-
-                public <T> Observable<T> asParser(Parser<T> parser, Consumer<Progress> progressConsumer, Scheduler scheduler) {
-                    return new ObservableParser<>(this, parser, progressConsumer, scheduler);
-                }
             }
 
         """.trimIndent())
@@ -328,24 +309,16 @@ object ClassHelper {
         generatorClass(filer, "ObservableCallExecute", """
             package $rxHttpPackage;
 
-            import ${getClassPath("Observable")};
             import ${getClassPath("Observer")};
+            import ${getClassPath("Disposable")};
             import ${getClassPath("Exceptions")};
             import ${getClassPath("RxJavaPlugins")};
-            import ${getClassPath("Scheduler")};
-            import ${getClassPath("Disposable")};
-            import ${getClassPath("Consumer")};
-            
             import okhttp3.Call;
             import okhttp3.Response;
             import rxhttp.IRxHttp;
             import rxhttp.wrapper.callback.ProgressCallback;
             import rxhttp.wrapper.entity.Progress;
             import rxhttp.wrapper.entity.ProgressT;
-            import rxhttp.wrapper.param.FormParam;
-            import rxhttp.wrapper.param.RxHttpFormParam;
-            import rxhttp.wrapper.parse.DownloadParser;
-            import rxhttp.wrapper.parse.Parser;
             import rxhttp.wrapper.utils.LogUtil;
 
             /**
@@ -353,7 +326,7 @@ object ClassHelper {
              * Date: 2018/04/20
              * Time: 11:15
              */
-            public final class ObservableCallExecute extends Observable<Progress> {
+            public final class ObservableCallExecute extends ObservableCall {
 
                 private IRxHttp iRxHttp;
                 private boolean callbackUploadProgress;
@@ -441,254 +414,39 @@ object ClassHelper {
                         return disposed;
                     }
                 }
-
-                public <T> Observable<T> asParser(Parser<T> parser) {
-                    return asParser(parser, null, null);
-                }
-
-                public <T> Observable<T> asParser(Parser<T> parser, Consumer<Progress> progressConsumer) {
-                    return asParser(parser, progressConsumer, null);
-                }
-
-                public <T> Observable<T> asParser(Parser<T> parser, Consumer<Progress> progressConsumer, Scheduler scheduler) {
-                    return new ObservableParser<>(this, parser, progressConsumer, scheduler);
-                }
             }
 
         """.trimIndent())
     }
 
     @JvmStatic
-    fun generatorObservableCache(filer: Filer) {
-        generatorClass(filer, "ObservableCache", """
+    fun generatorObservableCall(filer: Filer) {
+        generatorClass(filer, "ObservableCall", """
             package $rxHttpPackage;
 
-            import $rxHttpPackage.ObservableCallEnqueue.IFusion;
-
-            import java.io.IOException;
-
             import ${getClassPath("Observable")};
-            import ${getClassPath("ObservableSource")};
-            import ${getClassPath("Observer")};
-            import ${getClassPath("Exceptions")};
-            import ${getClassPath("RxJavaPlugins")};
             import ${getClassPath("Scheduler")};
-            import ${getClassPath("Disposable")};
             import ${getClassPath("Consumer")};
-            import ${getClassPath("CompositeException")};
-            import ${getClassPath("DisposableHelper")};
-            
-            import okhttp3.Request;
-            import okhttp3.Response;
-            import rxhttp.IRxHttp;
-            import rxhttp.RxHttpPlugins;
-            import rxhttp.wrapper.annotations.Nullable;
-            import rxhttp.wrapper.annotations.NonNull;
-            import rxhttp.wrapper.cahce.CacheMode;
-            import rxhttp.wrapper.cahce.CacheStrategy;
-            import rxhttp.wrapper.cahce.InternalCache;
             import rxhttp.wrapper.entity.Progress;
-            import rxhttp.wrapper.entity.ProgressT;
-            import rxhttp.wrapper.exception.CacheReadFailedException;
-            import rxhttp.wrapper.parse.DownloadParser;
             import rxhttp.wrapper.parse.Parser;
-
-            public final class ObservableCache extends Observable<Progress> {
-
-                private final IRxHttp iRxHttp;
-                private final ObservableSource<Progress> source;
-
-                private InternalCache cache;
-                private CacheStrategy cacheStrategy;
-
-                public ObservableCache(ObservableSource<Progress> source, IRxHttp iRxHttp) {
-                    this.source = source;
-                    this.iRxHttp = iRxHttp;
-                    cache = RxHttpPlugins.getCache();
+            
+            /**
+             * User: ljx
+             * Date: 2020/9/5
+             * Time: 21:59
+             */
+            public abstract class ObservableCall extends Observable<Progress> {
+            
+                public <T> Observable<T> asParser(Parser<T> parser) {
+                    return asParser(parser, null, null);
                 }
-
-                @Override
-                protected void subscribeActual(@NonNull Observer<? super Progress> observer) {
-                    source.subscribe(new CacheObserver(observer));
-                }
-
-
-                private class CacheObserver implements Observer<Progress>, Disposable {
-
-
-                    final Observer<? super Progress> downstream;
-
-                    /**
-                     * The upstream subscription.
-                     */
-                    protected Disposable upstream;
-
-
-                    /**
-                     * Construct a BasicFuseableObserver by wrapping the given subscriber.
-                     *
-                     * @param downstream the subscriber, not null (not verified)
-                     */
-                    public CacheObserver(Observer<? super Progress> downstream) {
-                        this.downstream = downstream;
-                    }
-
-
-                    @Override
-                    public void onSubscribe(@NonNull Disposable d) {
-                        if (DisposableHelper.validate(this.upstream, d)) {
-                            IFusion iFusion = null;
-                            this.upstream = d;
-                            if (d instanceof IFusion) {
-                                iFusion = (IFusion) d;
-                                iFusion.requestFusion();
-                            }
-                            downstream.onSubscribe(this);
-
-                            if (!isDisposed() && iFusion != null) {
-                                Request request = iRxHttp.buildRequest();
-                                try {
-                                    Response response = beforeReadCache(request);
-                                    if (response != null) {
-                                        downstream.onNext(new ProgressT<>(response));
-                                        downstream.onComplete();
-                                        return;
-                                    }
-                                } catch (IOException e) {
-                                    Exceptions.throwIfFatal(e);
-                                    if (!d.isDisposed()) {
-                                        downstream.onError(e);
-                                    } else {
-                                        RxJavaPlugins.onError(e);
-                                    }
-                                    return;
-                                }
-                                iFusion.run();
-                            }
-                        }
-                    }
-
-                    @Override
-                    public void onNext(@NonNull Progress progress) {
-                        if (progress instanceof ProgressT) {
-                            if (!cacheModeIs(CacheMode.ONLY_NETWORK)) {
-                                ProgressT<Response> progressT = (ProgressT<Response>) progress;
-                                //非ONLY_NETWORK模式下,请求成功，写入缓存
-                                try {
-                                    Response response = cache.put(progressT.getResult(), cacheStrategy.getCacheKey());
-                                    progressT.setResult(response);
-                                } catch (IOException e) {
-                                    fail(e);
-                                    return;
-                                }
-                            }
-                        }
-                        downstream.onNext(progress);
-                    }
-
-
-                    @Override
-                    public void onError(Throwable t) {
-                        if (cacheModeIs(CacheMode.REQUEST_NETWORK_FAILED_READ_CACHE)) {
-                            Response networkResponse;
-                            Request request = iRxHttp.buildRequest();
-                            //请求失败，读取缓存
-                            try {
-                                networkResponse = getCacheResponse(request, cacheStrategy.getCacheValidTime());
-                            } catch (IOException e) {
-                                downstream.onError(new CompositeException(t, e));
-                                return;
-                            }
-                            if (networkResponse != null) {
-                                downstream.onNext(new ProgressT<>(networkResponse));
-                                downstream.onComplete();
-                                return;
-                            }
-                        }
-                        downstream.onError(t);
-                    }
-
-                    @Override
-                    public void onComplete() {
-                        downstream.onComplete();
-                    }
-
-                    @Override
-                    public void dispose() {
-                        upstream.dispose();
-                    }
-
-                    @Override
-                    public boolean isDisposed() {
-                        return upstream.isDisposed();
-                    }
-
-                    private void fail(Throwable t) {
-                        Exceptions.throwIfFatal(t);
-                        upstream.dispose();
-                        onError(t);
-                    }
-                }
-
-
-                private CacheStrategy getCacheStrategy() {
-                    if (cacheStrategy == null) {
-                        cacheStrategy = iRxHttp.getCacheStrategy();
-                    }
-                    return cacheStrategy;
-                }
-
-                private Response beforeReadCache(Request request) throws IOException {
-                    if (cacheModeIs(CacheMode.ONLY_CACHE, CacheMode.READ_CACHE_FAILED_REQUEST_NETWORK)) {
-                        //读取缓存
-                        Response cacheResponse = getCacheResponse(request, getCacheStrategy().getCacheValidTime());
-                        if (cacheResponse != null) {
-                            return cacheResponse;
-                        }
-                        if (cacheModeIs(CacheMode.ONLY_CACHE)) //仅读缓存模式下，缓存读取失败，直接抛出异常
-                            throw new CacheReadFailedException("Cache read failed");
-                    }
-                    return null;
-                }
-
-                private boolean cacheModeIs(CacheMode... cacheModes) {
-                    if (cacheModes == null || cache == null) return false;
-                    CacheMode cacheMode = getCacheStrategy().getCacheMode();
-                    for (CacheMode mode : cacheModes) {
-                        if (mode == cacheMode) return true;
-                    }
-                    return false;
-                }
-
-                @Nullable
-                private Response getCacheResponse(Request request, long validTime) throws IOException {
-                    if (cache == null) return null;
-                    Response cacheResponse = cache.get(request, getCacheStrategy().getCacheKey());
-                    if (cacheResponse != null) {
-                        long receivedTime = cacheResponse.receivedResponseAtMillis();
-                        if (validTime != -1 && System.currentTimeMillis() - receivedTime > validTime)
-                            return null; //缓存过期，返回null
-                        return cacheResponse;
-                    }
-                    return null;
-                }
-
-                public Observable<String> asDownload(String localPath, long offsetSize) {
-                    return asDownload(localPath, offsetSize, null, null);
-                }
-
-                public Observable<String> asDownload(String localPath, long offsetSize, Consumer<Progress> progressConsumer, Scheduler scheduler) {
-                    DownloadParser downloadParser = new DownloadParser(localPath);
-                    downloadParser.setOffsetSize(offsetSize);
-                    return asParser(downloadParser, scheduler, progressConsumer);
-                }
-
+            
                 public <T> Observable<T> asParser(Parser<T> parser, Consumer<Progress> progressConsumer) {
                     return asParser(parser, null, progressConsumer);
                 }
-
+            
                 public <T> Observable<T> asParser(Parser<T> parser, Scheduler scheduler, Consumer<Progress> progressConsumer) {
-                    return new ObservableParser<>(this, parser, progressConsumer, scheduler);
+                    return new ObservableParser<>(this, parser, scheduler, progressConsumer);
                 }
             }
 
@@ -736,7 +494,7 @@ object ClassHelper {
                 private final Consumer<Progress> progressConsumer;
 
                 public ObservableParser(@NonNull ObservableSource<Progress> source, @NonNull Parser<T> parser,
-                                        @Nullable Consumer<Progress> progressConsumer, @Nullable Scheduler scheduler) {
+                                        @Nullable Scheduler scheduler, @Nullable Consumer<Progress> progressConsumer) {
                     this.source = source;
                     this.parser = parser;
                     this.scheduler = scheduler;

@@ -1,23 +1,15 @@
 package rxhttp.wrapper.param;
 
-import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Observer;
+import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.exceptions.Exceptions;
 import io.reactivex.rxjava3.plugins.RxJavaPlugins;
-import io.reactivex.rxjava3.core.Scheduler;
-import io.reactivex.rxjava3.disposables.Disposable;
-import io.reactivex.rxjava3.functions.Consumer;
-
 import okhttp3.Call;
 import okhttp3.Response;
 import rxhttp.IRxHttp;
 import rxhttp.wrapper.callback.ProgressCallback;
 import rxhttp.wrapper.entity.Progress;
 import rxhttp.wrapper.entity.ProgressT;
-import rxhttp.wrapper.param.FormParam;
-import rxhttp.wrapper.param.RxHttpFormParam;
-import rxhttp.wrapper.parse.DownloadParser;
-import rxhttp.wrapper.parse.Parser;
 import rxhttp.wrapper.utils.LogUtil;
 
 /**
@@ -25,7 +17,7 @@ import rxhttp.wrapper.utils.LogUtil;
  * Date: 2018/04/20
  * Time: 11:15
  */
-public final class ObservableCallExecute extends Observable<Progress> {
+public final class ObservableCallExecute extends ObservableCall {
 
     private IRxHttp iRxHttp;
     private boolean callbackUploadProgress;
@@ -112,17 +104,5 @@ public final class ObservableCallExecute extends Observable<Progress> {
         public boolean isDisposed() {
             return disposed;
         }
-    }
-
-    public <T> Observable<T> asParser(Parser<T> parser) {
-        return asParser(parser, null, null);
-    }
-
-    public <T> Observable<T> asParser(Parser<T> parser, Consumer<Progress> progressConsumer) {
-        return asParser(parser, progressConsumer, null);
-    }
-
-    public <T> Observable<T> asParser(Parser<T> parser, Consumer<Progress> progressConsumer, Scheduler scheduler) {
-        return new ObservableParser<>(this, parser, progressConsumer, scheduler);
     }
 }
