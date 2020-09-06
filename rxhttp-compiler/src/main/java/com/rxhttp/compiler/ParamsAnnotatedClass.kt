@@ -141,6 +141,7 @@ class ParamsAnnotatedClass {
             val rxHttpParam = when (superclass.toString()) {
                 "rxhttp.wrapper.param.FormParam" -> ClassName.get(rxHttpPackage, "RxHttpFormParam")
                 "rxhttp.wrapper.param.JsonParam" -> ClassName.get(rxHttpPackage, "RxHttpJsonParam")
+                "rxhttp.wrapper.param.JsonArrayParam" -> ClassName.get(rxHttpPackage, "RxHttpJsonArrayParam")
                 "rxhttp.wrapper.param.NoBodyParam" -> ClassName.get(rxHttpPackage, "RxHttpNoBodyParam")
                 else -> {
                     prefix = "param."
