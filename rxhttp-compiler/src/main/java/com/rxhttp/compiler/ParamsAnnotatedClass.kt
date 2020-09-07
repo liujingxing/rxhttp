@@ -144,8 +144,15 @@ class ParamsAnnotatedClass {
                 "rxhttp.wrapper.param.JsonArrayParam" -> ClassName.get(rxHttpPackage, "RxHttpJsonArrayParam")
                 "rxhttp.wrapper.param.NoBodyParam" -> ClassName.get(rxHttpPackage, "RxHttpNoBodyParam")
                 else -> {
-                    prefix = "param."
-                    ParameterizedTypeName.get(RXHTTP, param, rxHttpParamName)
+                    val typeName = TypeName.get(superclass)
+                    if ((typeName as? ParameterizedTypeName)?.rawType?.toString() == "rxhttp.wrapper.param.BodyParam") {
+                        prefix = "param."
+                        val rxHttpBodyParam = ClassName.get(rxHttpPackage, "RxHttpBodyParam")
+                        ParameterizedTypeName.get(rxHttpBodyParam, param, rxHttpParamName)
+                    } else {
+                        prefix = "param."
+                        ParameterizedTypeName.get(RXHTTP, param, rxHttpParamName)
+                    }
                 }
             }
             val rxHttpPostCustomMethod = ArrayList<MethodSpec>()
