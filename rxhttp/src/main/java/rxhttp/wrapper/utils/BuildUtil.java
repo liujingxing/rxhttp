@@ -28,7 +28,7 @@ public class BuildUtil {
 
     public static Request buildRequest(@NonNull IRequest r, @NonNull Request.Builder builder) {
         builder.url(r.getHttpUrl())
-            .method(r.getMethod().name(), r.getRequestBody());
+            .method(r.getMethod().name(), r.buildRequestBody());
         Headers headers = r.getHeaders();
         if (headers != null) {
             builder.headers(headers);

@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.List;
 
 import rxhttp.wrapper.annotations.NonNull;
-import rxhttp.wrapper.callback.ProgressCallback;
 import rxhttp.wrapper.entity.UpFile;
 
 /**
@@ -58,14 +57,4 @@ public interface IFile<P extends Param<P>> {
      * @return Param
      */
     P addFile(@NonNull UpFile upFile);
-
-    P setUploadMaxLength(long maxLength);
-
-    /**
-     * <p>设置上传进度监听器
-     *
-     * @param callback 进度回调对象
-     * @return Param
-     */
-    P setProgressCallback(ProgressCallback callback);
 }

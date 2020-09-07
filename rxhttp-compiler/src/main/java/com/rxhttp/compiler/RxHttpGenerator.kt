@@ -86,9 +86,9 @@ class RxHttpGenerator {
         val jsonArrayParamName = ClassName.get(packageName, "JsonArrayParam")
         val rxHttpJsonArrayName = ClassName.get(rxHttpPackage, "RxHttpJsonArrayParam")
         val rxHttpNoBody = ParameterizedTypeName.get(RXHTTP, noBodyParamName, rxHttpNoBodyName)
-        val rxHttpForm = ParameterizedTypeName.get(RXHTTP, formParamName, rxHttpFormName)
-        val rxHttpJson = ParameterizedTypeName.get(RXHTTP, jsonParamName, rxHttpJsonName)
-        val rxHttpJsonArray = ParameterizedTypeName.get(RXHTTP, jsonArrayParamName, rxHttpJsonArrayName)
+        val rxHttpForm = ParameterizedTypeName.get(RXHTTP_BODY_PARAM, formParamName, rxHttpFormName)
+        val rxHttpJson = ParameterizedTypeName.get(RXHTTP_BODY_PARAM, jsonParamName, rxHttpJsonName)
+        val rxHttpJsonArray = ParameterizedTypeName.get(RXHTTP_BODY_PARAM, jsonArrayParamName, rxHttpJsonArrayName)
 
         val okHttpClientName = ClassName.get("okhttp3", "OkHttpClient")
         val partName = ClassName.get("okhttp3.MultipartBody", "Part")
@@ -720,43 +720,12 @@ class RxHttpGenerator {
                 .returns(rxHttpFormName)
                 .build())
 
-        methodList.add(
-            MethodSpec.methodBuilder("setUploadMaxLength")
-                .addModifiers(Modifier.PUBLIC)
-                .addParameter(Long::class.javaPrimitiveType, "maxLength")
-                .addStatement("param.setUploadMaxLength(maxLength)")
-                .addStatement("return this")
-                .returns(rxHttpFormName)
-                .build())
-
         if (isDependenceRxJava()) {
             val observableName = getClassName("Observable")
             val schedulerName = getClassName("Scheduler")
             val consumerName = getClassName("Consumer")
             val consumerProgressName = ParameterizedTypeName.get(consumerName, progressName)
             val observableTName = ParameterizedTypeName.get(observableName, t)
-
-            methodList.add(
-                MethodSpec.methodBuilder("upload")
-                    .addModifiers(Modifier.PUBLIC)
-                    .addParameter(consumerProgressName, "progressConsumer")
-                    .addStatement("return upload(null, progressConsumer)")
-                    .returns(rxHttpFormName)
-                    .build())
-
-            methodList.add(
-                MethodSpec.methodBuilder("upload")
-                    .addJavadoc("监听上传进度")
-                    .addJavadoc("\n@param progressConsumer   进度回调")
-                    .addJavadoc("\n@param observeOnScheduler 用于控制下游回调所在线程(包括进度回调) ，仅当 progressConsumer 不为 null 时生效")
-                    .addModifiers(Modifier.PUBLIC)
-                    .addParameter(schedulerName, "observeOnScheduler")
-                    .addParameter(consumerProgressName, "progressConsumer")
-                    .addStatement("this.progressConsumer = progressConsumer")
-                    .addStatement("this.observeOnScheduler = observeOnScheduler")
-                    .addStatement("return this")
-                    .returns(rxHttpFormName)
-                    .build())
 
             methodList.add(
                 MethodSpec.methodBuilder("asParser")
@@ -802,24 +771,8 @@ class RxHttpGenerator {
             .superclass(rxHttpForm)
             .addMethods(methodList)
 
-        if (isDependenceRxJava()) {
-            val schedulerName = getClassName("Scheduler")
-            val consumerName = getClassName("Consumer")
-            val consumerProgressName = ParameterizedTypeName.get(consumerName, progressName)
-            val observeOnSchedulerField = FieldSpec
-                .builder(schedulerName, "observeOnScheduler", Modifier.PRIVATE)
-                .addJavadoc("用于控制下游回调所在线程(包括进度回调)，仅当{@link progressConsumer}不为 null 时生效")
-                .build()
-            val progressConsumerField = FieldSpec
-                .builder(consumerProgressName, "progressConsumer", Modifier.PRIVATE)
-                .addJavadoc("用于监听上传进度回调")
-                .build()
-            rxHttpFormSpec.addField(observeOnSchedulerField)
-                .addField(progressConsumerField)
-        }
         JavaFile.builder(rxHttpPackage, rxHttpFormSpec.build())
             .build().writeTo(filer)
-
 
         methodList.clear()
 
@@ -1038,6 +991,7 @@ class RxHttpGenerator {
 private const val CLASSNAME = "RxHttp"
 const val packageName = "rxhttp.wrapper.param"
 var RXHTTP = ClassName.get(rxHttpPackage, CLASSNAME)
+var RXHTTP_BODY_PARAM = ClassName.get(rxHttpPackage, "RxHttpBodyParam")
 private val paramName = ClassName.get(packageName, "Param")
 var p = TypeVariableName.get("P", paramName)  //泛型P
 var r = TypeVariableName.get("R", RXHTTP)     //泛型R

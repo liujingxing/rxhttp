@@ -5,6 +5,7 @@ import com.rxhttp.compiler.ClassHelper.generatorObservableCall
 import com.rxhttp.compiler.ClassHelper.generatorObservableCallEnqueue
 import com.rxhttp.compiler.ClassHelper.generatorObservableCallExecute
 import com.rxhttp.compiler.ClassHelper.generatorObservableParser
+import com.rxhttp.compiler.ClassHelper.generatorRxHttpBodyParam
 import com.rxhttp.compiler.exception.ProcessingException
 import net.ltgt.gradle.incap.IncrementalAnnotationProcessor
 import net.ltgt.gradle.incap.IncrementalAnnotationProcessorType.AGGREGATING
@@ -85,6 +86,7 @@ open class AnnotationProcessor : AbstractProcessor() {
             generatorObservableCallEnqueue(filer)
             generatorObservableCallExecute(filer)
             generatorObservableParser(filer)
+            generatorRxHttpBodyParam(filer)
         }
         try {
             val rxHttpGenerator = RxHttpGenerator()

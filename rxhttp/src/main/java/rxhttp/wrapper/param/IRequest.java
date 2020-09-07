@@ -42,6 +42,10 @@ public interface IRequest {
      * POST、PUT、PATCH、PROPPATCH、REPORT请求必须要有请求体
      * 其它请求可有可无
      */
+    default RequestBody buildRequestBody() {
+        return getRequestBody();
+    }
+
     RequestBody getRequestBody();
 
     /**
