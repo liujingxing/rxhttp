@@ -1,21 +1,15 @@
 package rxhttp.wrapper.param;
 
-import io.reactivex.rxjava3.core.Observable;
-import io.reactivex.rxjava3.core.Scheduler;
-import io.reactivex.rxjava3.functions.Consumer;
 import java.io.File;
 import java.lang.Deprecated;
 import java.lang.Object;
-import java.lang.Override;
 import java.lang.String;
 import java.util.List;
 import java.util.Map;
 import okhttp3.Headers;
 import okhttp3.MultipartBody.Part;
 import okhttp3.RequestBody;
-import rxhttp.wrapper.entity.Progress;
 import rxhttp.wrapper.entity.UpFile;
-import rxhttp.wrapper.parse.Parser;
 
 /**
  * Github
@@ -146,20 +140,5 @@ public class RxHttpFormParam extends RxHttpBodyParam<FormParam, RxHttpFormParam>
   public RxHttpFormParam setMultiForm() {
     param.setMultiForm();
     return this;
-  }
-
-  @Override
-  public final <T> Observable<T> asParser(Parser<T> parser, Scheduler scheduler,
-      Consumer<Progress> progressConsumer) {
-    if (progressConsumer == null) {                                             
-      return super.asParser(parser, scheduler, null);                                            
-    }  
-    ObservableCall observableCall;                                      
-    if (isAsync) {                                                      
-      observableCall = new ObservableCallEnqueue(this, true);                 
-    } else {                                                            
-      observableCall = new ObservableCallExecute(this, true);                 
-    }                                                                   
-    return observableCall.asParser(parser, scheduler, progressConsumer);
   }
 }

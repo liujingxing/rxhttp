@@ -50,4 +50,19 @@ public class RxHttpBodyParam<P extends BodyParam<P>, R extends RxHttpBodyParam<P
   public final <T> Observable<T> asParser(Parser<T> parser) {
     return asParser(parser, observeOnScheduler, progressConsumer);
   }
+  
+  @Override
+  public final <T> Observable<T> asParser(Parser<T> parser, Scheduler scheduler,
+      Consumer<Progress> progressConsumer) {
+    if (progressConsumer == null) {                                             
+      return super.asParser(parser, scheduler, null);                                            
+    }  
+    ObservableCall observableCall;                                      
+    if (isAsync) {                                                      
+      observableCall = new ObservableCallEnqueue(this, true);                 
+    } else {                                                            
+      observableCall = new ObservableCallExecute(this, true);                 
+    }                                                                   
+    return observableCall.asParser(parser, scheduler, progressConsumer);
+  }
 }
