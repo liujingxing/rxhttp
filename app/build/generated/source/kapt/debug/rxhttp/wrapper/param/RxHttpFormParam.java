@@ -5,7 +5,6 @@ import java.lang.Deprecated;
 import java.lang.Object;
 import java.lang.String;
 import java.util.List;
-import java.util.Map;
 import okhttp3.Headers;
 import okhttp3.MultipartBody.Part;
 import okhttp3.RequestBody;
@@ -23,25 +22,8 @@ public class RxHttpFormParam extends RxHttpBodyParam<FormParam, RxHttpFormParam>
     super(param);
   }
 
-  public RxHttpFormParam add(String key, Object value) {
-    param.add(key,value);
-    return this;
-  }
-
   public RxHttpFormParam addEncoded(String key, Object value) {
     param.addEncoded(key,value);
-    return this;
-  }
-
-  public RxHttpFormParam add(String key, Object value, boolean isAdd) {
-    if(isAdd) {
-      param.add(key,value);
-    }
-    return this;
-  }
-
-  public RxHttpFormParam addAll(Map<String, ?> map) {
-    param.addAll(map);
     return this;
   }
 

@@ -5,7 +5,6 @@ import com.google.gson.JsonObject;
 import java.lang.Object;
 import java.lang.String;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Github
@@ -21,23 +20,6 @@ public class RxHttpJsonArrayParam extends RxHttpBodyParam<JsonArrayParam, RxHttp
 
   public RxHttpJsonArrayParam add(Object object) {
     param.add(object);
-    return this;
-  }
-
-  public RxHttpJsonArrayParam add(String key, Object value) {
-    param.add(key,value);
-    return this;
-  }
-
-  public RxHttpJsonArrayParam add(String key, Object value, boolean isAdd) {
-    if(isAdd) {
-      param.add(key,value);
-    }
-    return this;
-  }
-
-  public RxHttpJsonArrayParam addAll(Map<String, ?> map) {
-    param.addAll(map);
     return this;
   }
 
