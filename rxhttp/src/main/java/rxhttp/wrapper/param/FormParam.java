@@ -1,6 +1,5 @@
 package rxhttp.wrapper.param;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -10,9 +9,7 @@ import okhttp3.MultipartBody.Part;
 import okhttp3.RequestBody;
 import rxhttp.wrapper.annotations.NonNull;
 import rxhttp.wrapper.annotations.Nullable;
-import rxhttp.wrapper.callback.ProgressCallback;
 import rxhttp.wrapper.entity.KeyValuePair;
-import rxhttp.wrapper.progress.ProgressRequestBody;
 import rxhttp.wrapper.utils.BuildUtil;
 import rxhttp.wrapper.utils.CacheUtil;
 
@@ -26,18 +23,16 @@ import rxhttp.wrapper.utils.CacheUtil;
  * Date: 2019-09-09
  * Time: 21:08
  */
-public class FormParam extends AbstractParam<FormParam> implements IPart<FormParam> {
+public class FormParam extends BodyParam<FormParam> implements IPart<FormParam> {
 
-    private ProgressCallback mCallback; //上传进度回调
-    private List<Part> mPartList;  //附件集合
-    private List<KeyValuePair> mKeyValuePairs; //请求参数
-
-    private long uploadMaxLength = Integer.MAX_VALUE;//文件上传最大长度
     private boolean isMultiForm;
 
+    private List<Part> mPartList;  //Part List
+    private List<KeyValuePair> mKeyValuePairs; //Param list
+
     /**
-     * @param url    请求路径
-     * @param method Method#POST  Method#PUT  Method#DELETE  Method#PATCH
+     * @param url    request url
+     * @param method {@link Method#POST}、{@link Method#PUT}、{@link Method#DELETE}、{@link Method#PATCH}
      */
     public FormParam(String url, Method method) {
         super(url, method);
@@ -117,70 +112,24 @@ public class FormParam extends AbstractParam<FormParam> implements IPart<FormPar
     @Override
     public FormParam addPart(Part part) {
         List<Part> partList = mPartList;
-        if (partList == null)
+        if (partList == null) {
+            isMultiForm = true;
             partList = mPartList = new ArrayList<>();
+        }
         partList.add(part);
         return this;
     }
 
-    @Override
-    public FormParam setUploadMaxLength(long maxLength) {
-        uploadMaxLength = maxLength;
-        return this;
-    }
-
-    /**
-     * 设置提交方式为{multipart/form-data}
-     *
-     * @return FormParam
-     */
+    //set content-type to multipart/form-data
     public FormParam setMultiForm() {
         isMultiForm = true;
         return this;
     }
 
-    /**
-     * 设置上传进度监听器
-     *
-     * @param callback 进度回调对象
-     * @return FormParam
-     */
     @Override
-    public final FormParam setProgressCallback(ProgressCallback callback) {
-        mCallback = callback;
-        return this;
-    }
-
-    @Override
-    public final RequestBody getRequestBody() {
-        RequestBody requestBody = buildRequestBody(isMultiForm(), mKeyValuePairs, mPartList);
-        try {
-            long contentLength = requestBody.contentLength();
-            if (contentLength > uploadMaxLength)
-                throw new IllegalArgumentException("The contentLength cannot be greater than " + uploadMaxLength + " bytes, " +
-                    "the current contentLength is " + contentLength + " bytes");
-        } catch (IOException e) {
-            throw new IllegalArgumentException(e);
-        }
-        final ProgressCallback callback = mCallback;
-        if (callback != null) {
-            //如果设置了进度回调，则对RequestBody进行装饰
-            return new ProgressRequestBody(requestBody, callback);
-        }
-        return requestBody;
-    }
-
-    protected RequestBody buildRequestBody(
-        boolean isMultiForm,
-        List<KeyValuePair> keyValuePairs,
-        List<Part> partList
-    ) {
-        return isMultiForm ? BuildUtil.buildFormRequestBody(keyValuePairs, partList)
-            : BuildUtil.buildFormRequestBody(keyValuePairs);
-    }
-
-    public ProgressCallback getCallback() {
-        return mCallback;
+    public RequestBody getRequestBody() {
+        return isMultiForm() ? BuildUtil.buildFormRequestBody(mKeyValuePairs, mPartList)
+            : BuildUtil.buildFormRequestBody(mKeyValuePairs);
     }
 
     public List<Part> getPartList() {
@@ -192,9 +141,7 @@ public class FormParam extends AbstractParam<FormParam> implements IPart<FormPar
     }
 
     public boolean isMultiForm() {
-        if (isMultiForm) return true;
-        final List<?> list = mPartList;
-        return list != null && !list.isEmpty();
+        return isMultiForm;
     }
 
     @Override

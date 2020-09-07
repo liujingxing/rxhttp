@@ -18,13 +18,13 @@ import rxhttp.wrapper.utils.GsonUtil;
  * Date: 2019-09-09
  * Time: 21:08
  */
-public class JsonArrayParam extends AbstractParam<JsonArrayParam> implements IJsonArray<JsonArrayParam> {
+public class JsonArrayParam extends BodyParam<JsonArrayParam> implements IJsonArray<JsonArrayParam> {
 
     private List<Object> mList;
 
     /**
-     * @param url    请求路径
-     * @param method Method#POST  Method#PUT  Method#DELETE  Method#PATCH
+     * @param url    request url
+     * @param method {@link Method#POST}、{@link Method#PUT}、{@link Method#DELETE}、{@link Method#PATCH}
      */
     public JsonArrayParam(String url, Method method) {
         super(url, method);

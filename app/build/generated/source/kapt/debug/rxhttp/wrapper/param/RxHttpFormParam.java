@@ -24,17 +24,7 @@ import rxhttp.wrapper.parse.Parser;
  * https://github.com/liujingxing/okhttp-RxHttp/wiki/FAQ
  * https://github.com/liujingxing/okhttp-RxHttp/wiki/更新日志
  */
-public class RxHttpFormParam extends RxHttp<FormParam, RxHttpFormParam> {
-  /**
-   * 用于控制下游回调所在线程(包括进度回调)，仅当{@link progressConsumer}不为 null 时生效
-   */
-  private Scheduler observeOnScheduler;
-
-  /**
-   * 用于监听上传进度回调
-   */
-  private Consumer<Progress> progressConsumer;
-
+public class RxHttpFormParam extends RxHttpBodyParam<FormParam, RxHttpFormParam> {
   public RxHttpFormParam(FormParam param) {
     super(param);
   }
@@ -155,26 +145,6 @@ public class RxHttpFormParam extends RxHttp<FormParam, RxHttpFormParam> {
 
   public RxHttpFormParam setMultiForm() {
     param.setMultiForm();
-    return this;
-  }
-
-  public RxHttpFormParam setUploadMaxLength(long maxLength) {
-    param.setUploadMaxLength(maxLength);
-    return this;
-  }
-
-  public RxHttpFormParam upload(Consumer<Progress> progressConsumer) {
-    return upload(null, progressConsumer);
-  }
-
-  /**
-   * 监听上传进度
-   * @param progressConsumer   进度回调
-   * @param observeOnScheduler 用于控制下游回调所在线程(包括进度回调) ，仅当 progressConsumer 不为 null 时生效
-   */
-  public RxHttpFormParam upload(Scheduler observeOnScheduler, Consumer<Progress> progressConsumer) {
-    this.progressConsumer = progressConsumer;
-    this.observeOnScheduler = observeOnScheduler;
     return this;
   }
 

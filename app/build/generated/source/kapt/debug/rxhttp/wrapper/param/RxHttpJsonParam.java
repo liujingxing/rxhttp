@@ -12,7 +12,7 @@ import java.util.Map;
  * https://github.com/liujingxing/okhttp-RxHttp/wiki/FAQ
  * https://github.com/liujingxing/okhttp-RxHttp/wiki/更新日志
  */
-public class RxHttpJsonParam extends RxHttp<JsonParam, RxHttpJsonParam> {
+public class RxHttpJsonParam extends RxHttpBodyParam<JsonParam, RxHttpJsonParam> {
   public RxHttpJsonParam(JsonParam param) {
     super(param);
   }
