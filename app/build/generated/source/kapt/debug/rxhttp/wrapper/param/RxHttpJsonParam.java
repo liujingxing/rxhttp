@@ -1,9 +1,7 @@
 package rxhttp.wrapper.param;
 
 import com.google.gson.JsonObject;
-import java.lang.Object;
 import java.lang.String;
-import java.util.Map;
 
 /**
  * Github
@@ -15,23 +13,6 @@ import java.util.Map;
 public class RxHttpJsonParam extends RxHttpBodyParam<JsonParam, RxHttpJsonParam> {
   public RxHttpJsonParam(JsonParam param) {
     super(param);
-  }
-
-  public RxHttpJsonParam add(String key, Object value) {
-    param.add(key,value);
-    return this;
-  }
-
-  public RxHttpJsonParam add(String key, Object value, boolean isAdd) {
-    if(isAdd) {
-      param.add(key,value);
-    }
-    return this;
-  }
-
-  public RxHttpJsonParam addAll(Map<String, ?> map) {
-    param.addAll(map);
-    return this;
   }
 
   /**
