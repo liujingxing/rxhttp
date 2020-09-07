@@ -2,11 +2,10 @@ package rxhttp.wrapper.parse
 
 import okhttp3.Response
 import rxhttp.wrapper.OkHttpCompat
-import rxhttp.wrapper.exception.ExceptionHelper
-import rxhttp.wrapper.utils.LogUtil
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.io.OutputStream
 
 /**
  * File downloader
@@ -16,21 +15,10 @@ import java.io.IOException
  */
 class DownloadParser(
     private val localPath: String,
-) : IOParser<String>() {
+) : StreamParser() {
 
-    /**
-     * When the download is complete, return to the local file path
-     */
-    @Throws(IOException::class)
-    override fun onParse(response: Response): String {
+    override fun getOutputStream(response: Response): OutputStream {
         val localPath = localPath.replaceSuffix(response)
-        val body = ExceptionHelper.throwIfFatal(response)
-        LogUtil.log(response, localPath)
-
-        val contentLength = OkHttpCompat.getContentLength(response)
-        val offsetSize = OkHttpCompat.getDownloadOffSize(response)?.offSize ?: 0
-        val append = OkHttpCompat.header(response, "Content-Range") != null
-
         //创建文件
         val dstFile = File(localPath).apply {
             val parentFile = parentFile
@@ -38,13 +26,10 @@ class DownloadParser(
                 throw IOException("Directory $parentFile create fail")
             }
         }
-
-       //将输入流写出到文件
-        write(body.byteStream(), FileOutputStream(dstFile, append), contentLength, offsetSize)
-        return localPath
+        val append = OkHttpCompat.header(response, "Content-Range") != null
+        return FileOutputStream(dstFile, append)
     }
 }
-
 
 private fun String.replaceSuffix(response: Response): String {
     return if (endsWith("/%s", true)
