@@ -77,6 +77,7 @@ open class AnnotationProcessor : AbstractProcessor() {
 //        messager.printMessage(Diagnostic.Kind.WARNING, "process start annotations$annotations this=$this")
         if (annotations.isEmpty() || processed) return true
         generatorBaseRxHttp(filer, isAndroidPlatform())
+        generatorRxHttpBodyParam(filer)
         if (isDependenceRxJava()) {  //是否依赖了RxJava
 //            generatorObservableHttp(filer)
 //            generatorObservableUpload(filer)
@@ -86,7 +87,6 @@ open class AnnotationProcessor : AbstractProcessor() {
             generatorObservableCallEnqueue(filer)
             generatorObservableCallExecute(filer)
             generatorObservableParser(filer)
-            generatorRxHttpBodyParam(filer)
         }
         try {
             val rxHttpGenerator = RxHttpGenerator()
