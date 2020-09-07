@@ -719,36 +719,6 @@ class RxHttpGenerator {
                 .returns(rxHttpFormName)
                 .build())
 
-        if (isDependenceRxJava()) {
-            val observableName = getClassName("Observable")
-            val schedulerName = getClassName("Scheduler")
-            val consumerName = getClassName("Consumer")
-            val consumerProgressName = ParameterizedTypeName.get(consumerName, progressName)
-            val observableTName = ParameterizedTypeName.get(observableName, t)
-
-            methodList.add(
-                MethodSpec.methodBuilder("asParser")
-                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                    .addAnnotation(Override::class.java)
-                    .addTypeVariable(t)
-                    .addParameter(parserTName, "parser")
-                    .addParameter(schedulerName, "scheduler")
-                    .addParameter(consumerProgressName, "progressConsumer")
-                    .addCode("""
-                        if (progressConsumer == null) {                                             
-                          return super.asParser(parser, scheduler, null);                                            
-                        }  
-                        ObservableCall observableCall;                                      
-                        if (isAsync) {                                                      
-                          observableCall = new ObservableCallEnqueue(this, true);                 
-                        } else {                                                            
-                          observableCall = new ObservableCallExecute(this, true);                 
-                        }                                                                   
-                        return observableCall.asParser(parser, scheduler, progressConsumer);
-                    """.trimIndent())
-                    .returns(observableTName)
-                    .build())
-        }
         val rxHttpFormSpec = TypeSpec.classBuilder("RxHttpFormParam")
             .addJavadoc("""
                 Github
