@@ -11,7 +11,6 @@ import javax.lang.model.element.VariableElement
 import kotlin.Any
 import kotlin.Boolean
 import kotlin.Int
-import kotlin.Long
 import kotlin.String
 import kotlin.Throws
 
@@ -729,17 +728,8 @@ class RxHttpGenerator {
 
             methodList.add(
                 MethodSpec.methodBuilder("asParser")
-                    .addModifiers(Modifier.PUBLIC)
+                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                     .addAnnotation(Override::class.java)
-                    .addTypeVariable(t)
-                    .addParameter(parserTName, "parser")
-                    .addStatement("return asParser(parser, observeOnScheduler, progressConsumer)")
-                    .returns(observableTName)
-                    .build())
-
-            methodList.add(
-                MethodSpec.methodBuilder("asParser")
-                    .addModifiers(Modifier.PUBLIC)
                     .addTypeVariable(t)
                     .addParameter(parserTName, "parser")
                     .addParameter(schedulerName, "scheduler")
