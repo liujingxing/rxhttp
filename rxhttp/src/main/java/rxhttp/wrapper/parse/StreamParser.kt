@@ -11,16 +11,18 @@ import java.io.OutputStream
  * Date: 2020/9/4
  * Time: 21:39
  */
-class StreamParser(
-    private val outputStream: OutputStream,
+open class StreamParser(
+    private val outputStream: OutputStream? = null
 ) : IOParser<String>() {
 
     override fun onParse(response: Response): String {
-        val offsetSize = OkHttpCompat.getDownloadOffSize(response)?.offSize ?: 0
         val body = ExceptionHelper.throwIfFatal(response)
         LogUtil.log(response, "")
         val contentLength = OkHttpCompat.getContentLength(response)
-        write(body.byteStream(), outputStream, contentLength, offsetSize)
+        val offsetSize = OkHttpCompat.getDownloadOffSize(response)?.offSize ?: 0
+        write(body.byteStream(), getOutputStream(response), contentLength, offsetSize)
         return ""
     }
+
+    protected open fun getOutputStream(response: Response) = outputStream
 }
