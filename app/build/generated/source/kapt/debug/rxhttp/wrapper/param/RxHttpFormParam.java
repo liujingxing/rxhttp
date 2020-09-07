@@ -149,11 +149,7 @@ public class RxHttpFormParam extends RxHttpBodyParam<FormParam, RxHttpFormParam>
   }
 
   @Override
-  public <T> Observable<T> asParser(Parser<T> parser) {
-    return asParser(parser, observeOnScheduler, progressConsumer);
-  }
-
-  public <T> Observable<T> asParser(Parser<T> parser, Scheduler scheduler,
+  public final <T> Observable<T> asParser(Parser<T> parser, Scheduler scheduler,
       Consumer<Progress> progressConsumer) {
     if (progressConsumer == null) {                                             
       return super.asParser(parser, scheduler, null);                                            

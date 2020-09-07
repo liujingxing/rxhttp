@@ -829,10 +829,12 @@ object ClassHelper {
             generatorClass(filer, "RxHttpBodyParam", """
                 package $rxHttpPackage;
                 
+                import ${getClassPath("Observable")};
                 import ${getClassPath("Scheduler")};
                 import ${getClassPath("Consumer")};
                 import rxhttp.wrapper.entity.Progress;
                 import rxhttp.wrapper.param.BodyParam;
+                import rxhttp.wrapper.parse.Parser;
                 
                 /**
                  * Github
@@ -845,10 +847,10 @@ object ClassHelper {
                 public class RxHttpBodyParam<P extends BodyParam<P>, R extends RxHttpBodyParam<P, R>> extends RxHttp<P, R> {
                 
                   //Controls the downstream callback thread
-                  protected Scheduler observeOnScheduler;
+                  private Scheduler observeOnScheduler;
                 
                   //Upload progress callback
-                  protected Consumer<Progress> progressConsumer;
+                  private Consumer<Progress> progressConsumer;
                 
                   protected RxHttpBodyParam(P param) {
                     super(param);
@@ -871,6 +873,11 @@ object ClassHelper {
                     this.progressConsumer = progressConsumer;
                     this.observeOnScheduler = observeOnScheduler;
                     return (R) this;
+                  }
+                  
+                  @Override
+                  public final <T> Observable<T> asParser(Parser<T> parser) {
+                    return asParser(parser, observeOnScheduler, progressConsumer);
                   }
                 }
 
