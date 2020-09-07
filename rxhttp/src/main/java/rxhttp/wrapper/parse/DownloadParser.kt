@@ -14,11 +14,16 @@ import java.io.OutputStream
  * Time: 13:49
  */
 class DownloadParser(
-    private val localPath: String,
+    private var localPath: String,
 ) : StreamParser() {
 
+    override fun onParse(response: Response): String {
+        super.onParse(response)
+        return localPath
+    }
+
     override fun getOutputStream(response: Response): OutputStream {
-        val localPath = localPath.replaceSuffix(response)
+        localPath = localPath.replaceSuffix(response)
         //创建文件
         val dstFile = File(localPath).apply {
             val parentFile = parentFile
