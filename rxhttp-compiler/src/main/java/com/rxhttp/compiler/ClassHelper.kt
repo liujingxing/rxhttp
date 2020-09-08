@@ -492,7 +492,7 @@ object ClassHelper {
             import rxhttp.wrapper.callback.ProgressCallback;
             import rxhttp.wrapper.entity.Progress;
             import rxhttp.wrapper.entity.ProgressT;
-            import rxhttp.wrapper.parse.IOParser;
+            import rxhttp.wrapper.parse.StreamParser;
             import rxhttp.wrapper.parse.Parser;
 
             public final class ObservableParser<T> extends Observable<T> {
@@ -533,8 +533,8 @@ object ClassHelper {
                         this.parser = parser;
                         this.progressConsumer = progressConsumer;
 
-                        if (progressConsumer != null && parser instanceof IOParser) {
-                            ((IOParser) parser).setCallback(this);
+                        if (progressConsumer != null && parser instanceof StreamParser) {
+                            ((StreamParser) parser).setCallback(this);
                         }
                     }
 
@@ -644,8 +644,8 @@ object ClassHelper {
                         this.progressConsumer = progressConsumer;
                         queue = new SpscLinkedArrayQueue<>(128);
 
-                        if (progressConsumer != null && parser instanceof IOParser) {
-                            ((IOParser) parser).setCallback(this);
+                        if (progressConsumer != null && parser instanceof StreamParser) {
+                            ((StreamParser) parser).setCallback(this);
                         }
                     }
 
