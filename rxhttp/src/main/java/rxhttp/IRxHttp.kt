@@ -12,6 +12,7 @@ import rxhttp.wrapper.OkHttpCompat
 import rxhttp.wrapper.await.AwaitImpl
 import rxhttp.wrapper.await.AwaitResponse
 import rxhttp.wrapper.await.download
+import rxhttp.wrapper.callback.FileOutputStreamFactory
 import rxhttp.wrapper.entity.Progress
 import rxhttp.wrapper.parse.*
 import java.io.OutputStream
@@ -108,7 +109,7 @@ inline fun <reified T : Any> IRxHttp.toClass(): IAwait<T> = toParser(object : Si
 
 fun IRxHttp.toDownload(
     destPath: String
-): IAwait<String> = toParser(DownloadParser(destPath))
+): IAwait<String> = toParser(StreamParser(FileOutputStreamFactory(destPath)))
 
 /**
  * @param destPath Local storage path
