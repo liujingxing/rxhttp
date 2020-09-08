@@ -3,7 +3,6 @@ package com.rxhttp.compiler
 import com.squareup.javapoet.*
 import rxhttp.wrapper.annotation.Parser
 import java.io.IOException
-import java.io.OutputStream
 import java.lang.Deprecated
 import java.util.*
 import javax.annotation.processing.Filer
@@ -13,6 +12,7 @@ import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.MirroredTypesException
 import javax.lang.model.type.TypeMirror
+import kotlin.Boolean
 import kotlin.String
 import kotlin.collections.ArrayList
 import kotlin.require
@@ -38,7 +38,7 @@ class ParserAnnotatedClass {
         mElementMap[name] = typeElement
     }
 
-    fun getMethodList(filer: Filer): List<MethodSpec> {
+    fun getMethodList(filer: Filer, isAndroid: Boolean): List<MethodSpec> {
         val t = TypeVariableName.get("T")
         val className = ClassName.get(Class::class.java)
         val classTName = ParameterizedTypeName.get(className, t)
@@ -313,7 +313,7 @@ class ParserAnnotatedClass {
                 }
             }
         }
-        rxHttpExtensions.generateClassFile(filer)
+        rxHttpExtensions.generateClassFile(filer, isAndroid)
         return methodList
     }
 

@@ -13,9 +13,9 @@ import rxhttp.wrapper.await.AwaitImpl
 import rxhttp.wrapper.await.AwaitResponse
 import rxhttp.wrapper.await.download
 import rxhttp.wrapper.callback.FileOutputStreamFactory
+import rxhttp.wrapper.callback.OutputStreamFactory
 import rxhttp.wrapper.entity.Progress
 import rxhttp.wrapper.parse.*
-import java.io.OutputStream
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -120,16 +120,14 @@ fun IRxHttp.toDownload(
     destPath: String,
     context: CoroutineContext? = null,
     progress: suspend (Progress) -> Unit
-): IAwait<String> = AwaitResponse(this)
-    .download(destPath, context, progress)
-    .flowOn(Dispatchers.IO)
+): IAwait<String> = toDownload(FileOutputStreamFactory(destPath), context, progress)
 
 fun IRxHttp.toDownload(
-    os: OutputStream,
+    osFactory: OutputStreamFactory,
     context: CoroutineContext? = null,
     progress: suspend (Progress) -> Unit
 ): IAwait<String> = AwaitResponse(this)
-    .download(os, context, progress)
+    .download(osFactory, context, progress)
     .flowOn(Dispatchers.IO)
 
 fun IRxHttp.toDownloadFlow(
@@ -137,7 +135,7 @@ fun IRxHttp.toDownloadFlow(
 ): Flow<Progress> =
     flow {
         AwaitResponse(this@toDownloadFlow)
-            .download(destPath) { emit(it) }
+            .download(FileOutputStreamFactory(destPath)) { emit(it) }
             .await()
     }.flowOn(Dispatchers.IO)
 

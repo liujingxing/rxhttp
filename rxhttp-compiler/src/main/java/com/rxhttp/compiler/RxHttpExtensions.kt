@@ -112,7 +112,7 @@ class RxHttpExtensions {
     }
 
 
-    fun generateClassFile(filer: Filer) {
+    fun generateClassFile(filer: Filer, isAndroid: Boolean) {
         val t = TypeVariableName("T")
         val k = TypeVariableName("K")
         val v = TypeVariableName("V")
@@ -178,6 +178,26 @@ class RxHttpExtensions {
             asFunList.forEach {
                 fileBuilder.addFunction(it)
             }
+        }
+
+        if (isAndroid) {
+            val contextName = ClassName("android.content", "Context")
+            val uriName = ClassName("android.net", "Uri")
+            val toDownloadName = ClassName("rxhttp", "toDownload")
+            val coroutineContextName = ClassName("kotlin.coroutines", "CoroutineContext")
+            val uriOutputStreamFactoryName = ClassName("rxhttp.wrapper.callback", "UriOutputStreamFactory")
+            val coroutineContextParameter = ParameterSpec.builder("coroutineContext", coroutineContextName.copy(nullable = true))
+                .defaultValue("null")
+                .build()
+            fileBuilder.addFunction(
+                FunSpec.builder("toDownload")
+                    .receiver(iRxHttpName)
+                    .addParameter("context", contextName)
+                    .addParameter("uri", uriName)
+                    .addParameter(coroutineContextParameter)
+                    .addParameter("progress", progressLambdaName.copy(suspending = true))
+                    .addStatement("return %T(%T(context, uri), coroutineContext, progress)", toDownloadName, uriOutputStreamFactoryName)
+                    .build())
         }
 
         fileBuilder.addFunction(
