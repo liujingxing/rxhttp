@@ -268,9 +268,8 @@ object ClassHelper {
                     }
 
                     @Override
-                    public void onProgress(int progress, long currentSize, long totalSize) {
+                    public void onProgress(Progress p) {
                         if (!disposed) {
-                            Progress p = new Progress(progress, currentSize, totalSize);
                             downstream.onNext(p);
                         }
                     }
@@ -385,9 +384,8 @@ object ClassHelper {
                     }
 
                     @Override
-                    public void onProgress(int progress, long currentSize, long totalSize) {
+                    public void onProgress(Progress p) {
                         if (!disposed) {
-                            Progress p = new Progress(progress, currentSize, totalSize);
                             downstream.onNext(p);
                         }
                     }
@@ -550,11 +548,10 @@ object ClassHelper {
 
                     //download progress callback
                     @Override
-                    public void onProgress(int progress, long currentSize, long totalSize) {
+                    public void onProgress(Progress p) {
                         if (done) {
                             return;
                         }
-                        Progress p = new Progress(progress, currentSize, totalSize);
                         try {
                             progressConsumer.accept(p);
                         } catch (Throwable t) {
@@ -662,11 +659,10 @@ object ClassHelper {
 
                     //download progress callback
                     @Override
-                    public void onProgress(int progress, long currentSize, long totalSize) {
+                    public void onProgress(Progress p) {
                         if (done) {
                             return;
                         }
-                        Progress p = new Progress(progress, currentSize, totalSize);
                         queue.offer(p);
                         schedule();
                     }

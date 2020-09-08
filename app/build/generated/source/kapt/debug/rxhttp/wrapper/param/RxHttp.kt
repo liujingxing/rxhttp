@@ -7,7 +7,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import rxhttp.IRxHttp
 import rxhttp.toParser
-import rxhttp.wrapper.callback.ProgressCallback
 import rxhttp.wrapper.entity.Progress
 import rxhttp.wrapper.parse.SimpleParser
 
@@ -31,10 +30,9 @@ inline fun <reified T : Any> BaseRxHttp.asResponse() = asParser(object: Response
  */
 fun <P : BodyParam<P>, R : RxHttpBodyParam<P, R>> RxHttpBodyParam<P,
     R>.upload(coroutine: CoroutineScope, progress: suspend (Progress) -> Unit): R {
-  param.setProgressCallback(ProgressCallback { currentProgress, currentSize, totalSize ->
-      val p = Progress(currentProgress, currentSize, totalSize)
-      coroutine.launch { progress(p) }
-  })
+  param.setProgressCallback {
+      coroutine.launch { progress(it) }
+  }
   return this as R
 }
 
