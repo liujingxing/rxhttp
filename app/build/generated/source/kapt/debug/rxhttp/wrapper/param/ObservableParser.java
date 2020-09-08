@@ -80,11 +80,10 @@ public final class ObservableParser<T> extends Observable<T> {
 
         //download progress callback
         @Override
-        public void onProgress(int progress, long currentSize, long totalSize) {
+        public void onProgress(Progress p) {
             if (done) {
                 return;
             }
-            Progress p = new Progress(progress, currentSize, totalSize);
             try {
                 progressConsumer.accept(p);
             } catch (Throwable t) {
@@ -192,11 +191,10 @@ public final class ObservableParser<T> extends Observable<T> {
 
         //download progress callback
         @Override
-        public void onProgress(int progress, long currentSize, long totalSize) {
+        public void onProgress(Progress p) {
             if (done) {
                 return;
             }
-            Progress p = new Progress(progress, currentSize, totalSize);
             queue.offer(p);
             schedule();
         }

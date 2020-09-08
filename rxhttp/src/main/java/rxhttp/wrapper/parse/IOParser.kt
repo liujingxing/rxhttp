@@ -4,6 +4,7 @@ import okhttp3.Response
 import okhttp3.ResponseBody
 import rxhttp.wrapper.OkHttpCompat
 import rxhttp.wrapper.callback.ProgressCallback
+import rxhttp.wrapper.entity.Progress
 import rxhttp.wrapper.utils.IOUtil
 import java.io.IOException
 import java.io.OutputStream
@@ -38,7 +39,8 @@ fun Response.writeTo(
         val currentProgress = ((currentSize * 100f / newContentLength)).toInt()
         if (currentProgress > lastProgress) {
             lastProgress = currentProgress
-            callback.onProgress(currentProgress, currentSize, newContentLength)
+            val progress = Progress(currentProgress, currentSize, newContentLength)
+            callback.onProgress(progress)
         }
     }
 }

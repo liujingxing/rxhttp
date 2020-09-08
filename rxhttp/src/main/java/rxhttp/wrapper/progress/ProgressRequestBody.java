@@ -1,6 +1,5 @@
 package rxhttp.wrapper.progress;
 
-
 import java.io.IOException;
 
 import okhttp3.MediaType;
@@ -11,10 +10,10 @@ import okio.ForwardingSink;
 import okio.Okio;
 import okio.Sink;
 import rxhttp.wrapper.callback.ProgressCallback;
+import rxhttp.wrapper.entity.Progress;
 
 //上传文件，带进度的请求实体
 public class ProgressRequestBody extends RequestBody {
-    public static final int MIN_INTERVAL = 50;
 
     //实际的待包装请求体
     private final RequestBody requestBody;
@@ -94,7 +93,6 @@ public class ProgressRequestBody extends RequestBody {
             long contentLength = 0L;
 
             int lastProgress; //上次回调进度
-            long lastTime;//上次回调时间
 
             @Override
             public void write(Buffer source, long byteCount) throws IOException {
@@ -108,13 +106,6 @@ public class ProgressRequestBody extends RequestBody {
 
                 int currentProgress = (int) ((bytesWritten * 100) / contentLength);
                 if (currentProgress <= lastProgress) return; //进度较上次没有更新，直接返回
-                //当前进度小于100,需要判断两次回调时间间隔是否小于一定时间,是的话直接返回
-                if (currentProgress < 100) {
-                    long currentTime = System.currentTimeMillis();
-                    //两次回调时间间隔小于 MIN_INTERVAL 毫秒,直接返回,避免更新太频繁
-                    if (currentTime - lastTime < MIN_INTERVAL) return;
-                    lastTime = currentTime;
-                }
                 lastProgress = currentProgress;
                 //回调, 更新进度
                 updateProgress(lastProgress, bytesWritten, contentLength);
@@ -122,8 +113,9 @@ public class ProgressRequestBody extends RequestBody {
         };
     }
 
-    private void updateProgress(final int progress, final long currentSize, final long totalSize) {
+    private void updateProgress(int progress, long currentSize, long totalSize) {
         if (callback == null) return;
-        callback.onProgress(progress, currentSize, totalSize);
+        Progress p = new Progress(progress, currentSize, totalSize);
+        callback.onProgress(p);
     }
 }

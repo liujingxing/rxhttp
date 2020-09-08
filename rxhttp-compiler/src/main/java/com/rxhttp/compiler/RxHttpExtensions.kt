@@ -193,12 +193,11 @@ class RxHttpExtensions {
                 .addParameter("coroutine", coroutineScopeName)
                 .addParameter("progress", progressLambdaName.copy(suspending = true))
                 .addCode("""
-                    param.setProgressCallback(%T { currentProgress, currentSize, totalSize ->
-                        val p = Progress(currentProgress, currentSize, totalSize)
-                        coroutine.%T { progress(p) }
-                    })
+                    param.setProgressCallback {
+                        coroutine.%T { progress(it) }
+                    }
                     return this as R
-                    """.trimIndent(), progressCallbackName, launchName)
+                    """.trimIndent(), launchName)
                 .returns(r)
                 .build())
 
