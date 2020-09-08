@@ -30,7 +30,7 @@ class SuspendStreamParser(
     @Throws(IOException::class)
     suspend fun onParse(response: Response): String {
         val body = ExceptionHelper.throwIfFatal(response)
-        val os = osFactory.getOutputStream(response);
+        val os = osFactory.getOutputStream(response)
         val msg = when (osFactory) {
             is FileOutputStreamFactory -> osFactory.localPath
             is UriOutputStreamFactory -> osFactory.uri.toString()
@@ -50,19 +50,18 @@ suspend fun Response.writeTo(
     context: CoroutineContext? = null,
     progress: suspend (Progress) -> Unit
 ) {
-    val contentLength = OkHttpCompat.getContentLength(this)
     val offsetSize = OkHttpCompat.getDownloadOffSize(this)?.offSize ?: 0
-    val newContentLength = contentLength + offsetSize
+    val contentLength = OkHttpCompat.getContentLength(this) + offsetSize
 
     var lastProgress = 0
 
     IOUtil.suspendWrite(body.byteStream(), os) {
         val currentSize = it + offsetSize
         //当前进度 = 当前已读取的字节 / 总字节
-        val currentProgress = ((currentSize * 100f / newContentLength)).toInt()
+        val currentProgress = ((currentSize * 100f / contentLength)).toInt()
         if (currentProgress > lastProgress) {
             lastProgress = currentProgress
-            val p = Progress(currentProgress, currentSize, newContentLength)
+            val p = Progress(currentProgress, currentSize, contentLength)
             if (context != null) {
                 withContext(context) { progress.invoke(p) }
             } else {
