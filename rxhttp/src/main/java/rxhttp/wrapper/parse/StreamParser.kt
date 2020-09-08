@@ -1,28 +1,31 @@
 package rxhttp.wrapper.parse
 
 import okhttp3.Response
-import rxhttp.wrapper.OkHttpCompat
+import rxhttp.wrapper.callback.FileOutputStreamFactory
+import rxhttp.wrapper.callback.OutputStreamFactory
+import rxhttp.wrapper.callback.UriOutputStreamFactory
 import rxhttp.wrapper.exception.ExceptionHelper
 import rxhttp.wrapper.utils.LogUtil
-import java.io.OutputStream
 
 /**
  * User: ljx
  * Date: 2020/9/4
  * Time: 21:39
  */
-open class StreamParser(
-    private val outputStream: OutputStream? = null
-) : IOParser<String>() {
+class StreamParser(
+    private val osFactory: OutputStreamFactory
+) : IOParser() {
 
     override fun onParse(response: Response): String {
         val body = ExceptionHelper.throwIfFatal(response)
-        LogUtil.log(response, "")
-        val contentLength = OkHttpCompat.getContentLength(response)
-        val offsetSize = OkHttpCompat.getDownloadOffSize(response)?.offSize ?: 0
-        write(body.byteStream(), getOutputStream(response), contentLength, offsetSize)
-        return ""
+        val os = osFactory.getOutputStream(response);
+        val msg = when (osFactory) {
+            is FileOutputStreamFactory -> osFactory.localPath
+            is UriOutputStreamFactory -> osFactory.uri.toString()
+            else -> ""
+        }
+        LogUtil.log(response, msg)
+        response.writeTo(body, os, callback)
+        return msg
     }
-
-    protected open fun getOutputStream(response: Response) = outputStream
 }

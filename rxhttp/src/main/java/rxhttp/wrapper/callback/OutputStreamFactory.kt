@@ -1,5 +1,7 @@
-package rxhttp.wrapper.parse
+package rxhttp.wrapper.callback
 
+import android.content.Context
+import android.net.Uri
 import okhttp3.Response
 import rxhttp.wrapper.OkHttpCompat
 import java.io.File
@@ -8,19 +10,29 @@ import java.io.IOException
 import java.io.OutputStream
 
 /**
- * File downloader
  * User: ljx
- * Date: 2018/10/23
- * Time: 13:49
+ * Date: 2020/9/8
+ * Time: 22:12
  */
-class DownloadParser(
-    private var localPath: String,
-) : StreamParser() {
+interface OutputStreamFactory {
 
-    override fun onParse(response: Response): String {
-        super.onParse(response)
-        return localPath
+    @Throws(IOException::class)
+    fun getOutputStream(response: Response): OutputStream
+}
+
+class UriOutputStreamFactory(
+    val context: Context,
+    val uri: Uri
+) : OutputStreamFactory {
+    override fun getOutputStream(response: Response): OutputStream {
+        val append = response.header("Content-Range") != null
+        return context.contentResolver.openOutputStream(uri, if (append) "wa" else "w")
     }
+}
+
+class FileOutputStreamFactory(
+    var localPath: String
+) : OutputStreamFactory {
 
     override fun getOutputStream(response: Response): OutputStream {
         localPath = localPath.replaceSuffix(response)
@@ -34,7 +46,9 @@ class DownloadParser(
         val append = OkHttpCompat.header(response, "Content-Range") != null
         return FileOutputStream(dstFile, append)
     }
+
 }
+
 
 private fun String.replaceSuffix(response: Response): String {
     return if (endsWith("/%s", true)

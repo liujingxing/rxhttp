@@ -34,8 +34,13 @@ object ClassHelper {
         } else {
             generatorClass(filer, "BaseRxHttp", """
             package $rxHttpPackage;
-
-            ${if (isAndroid) "import android.graphics.Bitmap;" else ""}
+            ${
+            if (isAndroid) """
+            import android.content.Context;
+            import android.graphics.Bitmap;
+            import android.net.Uri;
+            """ else ""
+            }
             import java.io.OutputStream;
             import java.lang.reflect.Type;
             import java.util.List;
@@ -49,10 +54,12 @@ object ClassHelper {
             import okhttp3.Response;
             import rxhttp.IRxHttp;
             import rxhttp.wrapper.OkHttpCompat;
+            import rxhttp.wrapper.callback.FileOutputStreamFactory;
+            import rxhttp.wrapper.callback.OutputStreamFactory;
+            import rxhttp.wrapper.callback.UriOutputStreamFactory;
             import rxhttp.wrapper.entity.ParameterizedTypeImpl;
             import rxhttp.wrapper.entity.Progress;
             ${if (isAndroid) "import rxhttp.wrapper.parse.BitmapParser;" else ""}
-            import rxhttp.wrapper.parse.DownloadParser;
             import rxhttp.wrapper.parse.OkResponseParser;
             import rxhttp.wrapper.parse.Parser;
             import rxhttp.wrapper.parse.SimpleParser;
@@ -84,18 +91,6 @@ object ClassHelper {
                 public <T> Observable<T> asParser(Parser<T> parser) {
                     return asParser(parser, null, null);
                 }
-                
-                public final Observable<String> asDownload(String destPath, Scheduler scheduler,
-                                                     Consumer<Progress> progressConsumer) {
-                    DownloadParser parser = new DownloadParser(destPath);
-                    return asParser(parser, scheduler, progressConsumer);
-                }
-                
-                public final Observable<String> asDownload(OutputStream os, Scheduler scheduler,
-                                                     Consumer<Progress> progressConsumer) {
-                    StreamParser parser = new StreamParser(os);
-                    return asParser(parser, scheduler, progressConsumer);
-                }    
 
                 public final <T> Observable<T> asClass(Class<T> type) {
                     return asParser(new SimpleParser<>(type));
@@ -176,7 +171,25 @@ object ClassHelper {
                                                            Consumer<Progress> progressConsumer) {
                     return asDownload(destPath, null, progressConsumer);
                 }
-
+                
+                public final Observable<String> asDownload(String destPath, Scheduler scheduler,
+                                                           Consumer<Progress> progressConsumer) {
+                    return asDownload(new FileOutputStreamFactory(destPath), scheduler, progressConsumer);
+                }
+                
+                ${
+                if (isAndroid) """
+                public final Observable<String> asDownload(Context context, Uri uri, Scheduler scheduler,    
+                                                           Consumer<Progress> progressConsumer) {            
+                    return asDownload(new UriOutputStreamFactory(context, uri), scheduler, progressConsumer);
+                }                                                                                            
+                """ else ""
+                }
+                
+                public final Observable<String> asDownload(OutputStreamFactory osFactory, Scheduler scheduler,
+                                                           Consumer<Progress> progressConsumer) {
+                    return asParser(new StreamParser(osFactory), scheduler, progressConsumer);
+                }
             }
 
         """.trimIndent())
