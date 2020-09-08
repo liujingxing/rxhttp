@@ -64,9 +64,8 @@ public final class ObservableCallExecute extends ObservableCall {
         }
 
         @Override
-        public void onProgress(int progress, long currentSize, long totalSize) {
+        public void onProgress(Progress p) {
             if (!disposed) {
-                Progress p = new Progress(progress, currentSize, totalSize);
                 downstream.onNext(p);
             }
         }

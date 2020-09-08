@@ -6,9 +6,6 @@ import okhttp3.Call;
 import okhttp3.Dispatcher;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import rxhttp.wrapper.annotations.NonNull;
-import rxhttp.wrapper.callback.ProgressCallback;
-import rxhttp.wrapper.progress.ProgressInterceptor;
 import rxhttp.wrapper.ssl.HttpsUtils;
 import rxhttp.wrapper.ssl.HttpsUtils.SSLParams;
 import rxhttp.wrapper.utils.LogUtil;
@@ -58,20 +55,6 @@ public final class HttpSender {
     //所有的请求，最终都会调此方法拿到Call对象，然后执行请求
     public static Call newCall(OkHttpClient client, Request request) {
         return client.newCall(request);
-    }
-
-    /**
-     * 克隆一个OkHttpClient对象,用于监听下载进度
-     *
-     * @param client           OkHttpClient
-     * @param progressCallback 进度回调
-     * @return 克隆的OkHttpClient对象
-     */
-    public static OkHttpClient clone(OkHttpClient client, @NonNull final ProgressCallback progressCallback) {
-        //克隆一个OkHttpClient后,增加拦截器,拦截下载进度
-        return client.newBuilder()
-            .addNetworkInterceptor(new ProgressInterceptor(progressCallback))
-            .build();
     }
 
     /**
