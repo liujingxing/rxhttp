@@ -38,7 +38,7 @@ class ParserAnnotatedClass {
         mElementMap[name] = typeElement
     }
 
-    fun getMethodList(filer: Filer, isAndroid: Boolean): List<MethodSpec> {
+    fun getMethodList(filer: Filer): List<MethodSpec> {
         val t = TypeVariableName.get("T")
         val className = ClassName.get(Class::class.java)
         val classTName = ParameterizedTypeName.get(className, t)
@@ -313,7 +313,7 @@ class ParserAnnotatedClass {
                 }
             }
         }
-        rxHttpExtensions.generateClassFile(filer, isAndroid)
+        rxHttpExtensions.generateClassFile(filer)
         return methodList
     }
 

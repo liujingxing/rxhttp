@@ -47,7 +47,7 @@ class RxHttpGenerator {
 
 
     @Throws(IOException::class)
-    fun generateCode(filer: Filer, okHttpVersion: String, isAndroid: Boolean) {
+    fun generateCode(filer: Filer, okHttpVersion: String) {
         val httpSenderName = ClassName.get("rxhttp", "HttpSender")
         val rxHttpPluginsName = ClassName.get("rxhttp", "RxHttpPlugins")
         val converterName = ClassName.get("rxhttp.wrapper.callback", "IConverter")
@@ -257,7 +257,7 @@ class RxHttpGenerator {
                 .returns(r)
                 .build())
         methodList.addAll(mParamsAnnotatedClass!!.getMethodList(filer))
-        methodList.addAll(mParserAnnotatedClass!!.getMethodList(filer, isAndroid))
+        methodList.addAll(mParserAnnotatedClass!!.getMethodList(filer))
         methodList.addAll(mConverterAnnotatedClass!!.methodList)
         methodList.addAll(mOkClientAnnotatedClass!!.methodList)
         val method = MethodSpec.methodBuilder("addDefaultDomainIfAbsent")

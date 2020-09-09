@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.Uri;
 
-import java.io.OutputStream;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
@@ -17,9 +16,7 @@ import okhttp3.Headers;
 import okhttp3.Response;
 import rxhttp.IRxHttp;
 import rxhttp.wrapper.OkHttpCompat;
-import rxhttp.wrapper.callback.FileOutputStreamFactory;
 import rxhttp.wrapper.callback.OutputStreamFactory;
-import rxhttp.wrapper.callback.UriOutputStreamFactory;
 import rxhttp.wrapper.entity.ParameterizedTypeImpl;
 import rxhttp.wrapper.entity.Progress;
 import rxhttp.wrapper.parse.BitmapParser;
@@ -135,15 +132,13 @@ public abstract class BaseRxHttp implements IRxHttp {
     
     public final Observable<String> asDownload(String destPath, Scheduler scheduler,
                                                Consumer<Progress> progressConsumer) {
-        return asDownload(new FileOutputStreamFactory(destPath), scheduler, progressConsumer);
+        return asParser(new StreamParser(destPath), scheduler, progressConsumer);
     }
-    
     
     public final Observable<String> asDownload(Context context, Uri uri, Scheduler scheduler,    
                                                Consumer<Progress> progressConsumer) {            
-        return asDownload(new UriOutputStreamFactory(context, uri), scheduler, progressConsumer);
+        return asParser(new StreamParser(context, uri), scheduler, progressConsumer);
     }                                                                                            
-    
     
     public final Observable<String> asDownload(OutputStreamFactory osFactory, Scheduler scheduler,
                                                Consumer<Progress> progressConsumer) {

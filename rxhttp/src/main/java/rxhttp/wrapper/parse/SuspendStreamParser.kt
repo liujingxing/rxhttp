@@ -2,6 +2,8 @@
 
 package rxhttp.wrapper.parse
 
+import android.content.Context
+import android.net.Uri
 import kotlinx.coroutines.withContext
 import okhttp3.Response
 import okhttp3.ResponseBody
@@ -27,6 +29,19 @@ class SuspendStreamParser(
     private val context: CoroutineContext? = null,
     private val progress: suspend (Progress) -> Unit,
 ) : SuspendParser<String>() {
+
+    constructor(
+        destPath: String,
+        context: CoroutineContext? = null,
+        progress: suspend (Progress) -> Unit,
+    ) : this(FileOutputStreamFactory(destPath), context, progress)
+
+    constructor(
+        context: Context,
+        uri: Uri,
+        coroutineContext: CoroutineContext? = null,
+        progress: suspend (Progress) -> Unit
+    ) : this(UriOutputStreamFactory(context, uri), coroutineContext, progress)
 
     @Throws(IOException::class)
     override suspend fun onSuspendParse(response: Response): String {
