@@ -26,10 +26,10 @@ class SuspendStreamParser(
     private val osFactory: OutputStreamFactory,
     private val context: CoroutineContext? = null,
     private val progress: suspend (Progress) -> Unit,
-) {
+) : SuspendParser<String>() {
 
     @Throws(IOException::class)
-    suspend fun onParse(response: Response): String {
+    override suspend fun onSuspendParse(response: Response): String {
         val body = ExceptionHelper.throwIfFatal(response)
         val os = osFactory.getOutputStream(response)
         val msg = when (osFactory) {
