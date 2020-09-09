@@ -14,6 +14,7 @@ import rxhttp.wrapper.OkHttpCompat
 import rxhttp.wrapper.await.AwaitImpl
 import rxhttp.wrapper.callback.OutputStreamFactory
 import rxhttp.wrapper.entity.Progress
+import rxhttp.wrapper.entity.ProgressT
 import rxhttp.wrapper.parse.*
 import kotlin.coroutines.CoroutineContext
 
@@ -67,6 +68,13 @@ suspend fun IRxHttp.awaitDownload(
     context: CoroutineContext? = null,
     progress: suspend (Progress) -> Unit
 ): String = toDownload(destPath, context, progress).await()
+
+suspend fun IRxHttp.awaitDownload(
+    context: Context,
+    uri: Uri,
+    coroutineContext: CoroutineContext? = null,
+    progress: suspend (Progress) -> Unit
+): String = toDownload(context, uri, coroutineContext, progress).await()
 
 fun IRxHttp.toBoolean(): IAwait<Boolean> = toClass()
 
@@ -141,8 +149,21 @@ fun IRxHttp.toDownloadFlow(
     destPath: String,
 ): Flow<Progress> =
     flow {
-        toParser(SuspendStreamParser(destPath) { emit(it) })
+        val result = toParser(SuspendStreamParser(destPath) { emit(it) })
             .await()
+        //Download completed, callback result.
+        emit(ProgressT(result))
+    }.flowOn(Dispatchers.IO)
+
+fun IRxHttp.toDownloadFlow(
+    context: Context,
+    uri: Uri,
+): Flow<Progress> =
+    flow {
+        val result = toParser(SuspendStreamParser(context, uri) { emit(it) })
+            .await()
+        //Download completed, callback result.
+        emit(ProgressT(result))
     }.flowOn(Dispatchers.IO)
 
 fun <T> IRxHttp.toParser(
