@@ -20,7 +20,7 @@ interface OutputStreamFactory {
     fun getOutputStream(response: Response): OutputStream
 }
 
-class UriOutputStreamFactory(
+internal class UriOutputStreamFactory(
     val context: Context,
     val uri: Uri
 ) : OutputStreamFactory {
@@ -30,7 +30,7 @@ class UriOutputStreamFactory(
     }
 }
 
-class FileOutputStreamFactory(
+internal class FileOutputStreamFactory(
     var localPath: String
 ) : OutputStreamFactory {
 
