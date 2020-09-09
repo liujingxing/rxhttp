@@ -19,7 +19,7 @@ public class TypeUtil {
      * @param index 第几个泛型
      * @return Type
      */
-    public static Type getActualTypeParameter(Class clazz, int index) {
+    public static Type getActualTypeParameter(Class<?> clazz, int index) {
         Type superclass = clazz.getGenericSuperclass();
         if (!(superclass instanceof ParameterizedType)) {
             throw new RuntimeException("Missing type parameter.");
