@@ -11,13 +11,9 @@ public class ProgressT<T> extends Progress{
 
     private T result; //http返回结果,上传/下载完成时调用
 
-    public ProgressT() {
-    }
-
     public ProgressT(T result) {
         this.result = result;
     }
-
 
     public T getResult() {
         return result;
