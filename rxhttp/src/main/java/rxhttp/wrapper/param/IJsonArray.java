@@ -46,7 +46,7 @@ public interface IJsonArray<P extends Param<P>> extends IJsonObject<P> {
      */
     @Override
     default P addAll(@NonNull String jsonElement) {
-        JsonElement element = new JsonParser().parse(jsonElement);
+        JsonElement element = JsonParser.parseString(jsonElement);
         if (element.isJsonArray()) {
             return addAll(element.getAsJsonArray());
         } else if (element.isJsonObject()) {
@@ -76,7 +76,7 @@ public interface IJsonArray<P extends Param<P>> extends IJsonObject<P> {
      * @return P
      */
     default P addJsonElement(@NonNull String jsonElement) {
-        JsonElement element = new JsonParser().parse(jsonElement);
+        JsonElement element = JsonParser.parseString(jsonElement);
         return add(JsonUtil.toAny(element));
     }
 }
