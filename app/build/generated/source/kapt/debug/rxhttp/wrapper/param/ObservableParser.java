@@ -209,7 +209,7 @@ public final class ObservableParser<T> extends Observable<T> {
             if (progress instanceof ProgressT) {
                 ProgressT<Response> progressT = (ProgressT<Response>) progress;
                 try {
-                    T t = parser.onParse(progressT.getResult());
+                    T t = Objects.requireNonNull(parser.onParse(progressT.getResult()), "The onParse function returned a null value.");
                     p = new ProgressT<>(t);
                 } catch (Throwable t) {
                     onError(t);
