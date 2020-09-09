@@ -136,10 +136,12 @@ class RxHttpExtensions {
 
         val fileBuilder = FileSpec.builder(rxHttpPackage, "RxHttp")
 
+        val wildcard = TypeVariableName("*")
+        val rxHttpName = ClassName(rxHttpPackage, RXHttp_CLASS_NAME).parameterizedBy(wildcard, wildcard)
         fileBuilder.addFunction(
             FunSpec.builder("executeList")
                 .addModifiers(KModifier.INLINE)
-                .receiver(iRxHttpName)
+                .receiver(rxHttpName)
                 .addTypeVariable(t.copy(reified = true))
                 .addStatement("return executeClass<List<T>>()")
                 .build())
@@ -147,9 +149,9 @@ class RxHttpExtensions {
         fileBuilder.addFunction(
             FunSpec.builder("executeClass")
                 .addModifiers(KModifier.INLINE)
-                .receiver(iRxHttpName)
+                .receiver(rxHttpName)
                 .addTypeVariable(t.copy(reified = true))
-                .addStatement("return object : %T<T>() {}.onParse(newCall().execute())", simpleParserName)
+                .addStatement("return execute(object : %T<T>() {})", simpleParserName)
                 .build())
 
         if (isDependenceRxJava()) {
