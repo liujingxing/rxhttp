@@ -483,7 +483,7 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
     return execute(new SimpleParser<T>(type));
   }
 
-  public Call newCall() {
+  public final Call newCall() {
     Request request = buildRequest();
     OkHttpClient okHttp = getOkHttpClient();
     return HttpSender.newCall(okHttp, request);
