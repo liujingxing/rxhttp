@@ -10,8 +10,6 @@ import okhttp3.Headers
 import okhttp3.Response
 import rxhttp.wrapper.OkHttpCompat
 import rxhttp.wrapper.await.AwaitImpl
-import rxhttp.wrapper.await.AwaitResponse
-import rxhttp.wrapper.await.download
 import rxhttp.wrapper.callback.FileOutputStreamFactory
 import rxhttp.wrapper.callback.OutputStreamFactory
 import rxhttp.wrapper.entity.Progress
@@ -126,17 +124,15 @@ fun IRxHttp.toDownload(
     osFactory: OutputStreamFactory,
     context: CoroutineContext? = null,
     progress: suspend (Progress) -> Unit
-): IAwait<String> = AwaitResponse(this)
-    .download(osFactory, context, progress)
+): IAwait<String> = toParser(SuspendStreamParser(osFactory, context, progress))
     .flowOn(Dispatchers.IO)
 
 fun IRxHttp.toDownloadFlow(
     destPath: String,
 ): Flow<Progress> =
     flow {
-        AwaitResponse(this@toDownloadFlow)
-            .download(FileOutputStreamFactory(destPath)) { emit(it) }
-            .await()
+        val parser = SuspendStreamParser(FileOutputStreamFactory(destPath)) { emit(it) }
+        toParser(parser).await()
     }.flowOn(Dispatchers.IO)
 
 fun <T> IRxHttp.toParser(
