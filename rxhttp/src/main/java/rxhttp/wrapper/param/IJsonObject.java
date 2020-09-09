@@ -31,7 +31,7 @@ public interface IJsonObject<P extends Param<P>> {
      * @return P
      */
     default P addAll(@NonNull String jsonObject) {
-        return addAll(new JsonParser().parse(jsonObject).getAsJsonObject());
+        return addAll(JsonParser.parseString(jsonObject).getAsJsonObject());
     }
 
     /**
@@ -56,7 +56,7 @@ public interface IJsonObject<P extends Param<P>> {
      * @return P
      */
     default P addJsonElement(String key, @NonNull String jsonElement) {
-        JsonElement element = new JsonParser().parse(jsonElement);
+        JsonElement element = JsonParser.parseString(jsonElement);
         return add(key, JsonUtil.toAny(element));
     }
 }
