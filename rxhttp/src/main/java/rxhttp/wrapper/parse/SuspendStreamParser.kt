@@ -1,3 +1,5 @@
+@file:Suppress("BlockingMethodInNonBlockingContext")
+
 package rxhttp.wrapper.parse
 
 import kotlinx.coroutines.withContext
@@ -20,7 +22,6 @@ import kotlin.coroutines.CoroutineContext
  * Date: 2020/9/5
  * Time: 14:09
  */
-@Suppress("BlockingMethodInNonBlockingContext")
 class SuspendStreamParser(
     private val osFactory: OutputStreamFactory,
     private val context: CoroutineContext? = null,
@@ -37,7 +38,6 @@ class SuspendStreamParser(
             else -> ""
         }
         LogUtil.log(response, msg)
-
         response.writeTo(body, os, context, progress)
         return msg
     }
