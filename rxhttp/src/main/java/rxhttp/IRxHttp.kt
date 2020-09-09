@@ -1,6 +1,8 @@
 package rxhttp
 
+import android.content.Context
 import android.graphics.Bitmap
+import android.net.Uri
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -10,7 +12,6 @@ import okhttp3.Headers
 import okhttp3.Response
 import rxhttp.wrapper.OkHttpCompat
 import rxhttp.wrapper.await.AwaitImpl
-import rxhttp.wrapper.callback.FileOutputStreamFactory
 import rxhttp.wrapper.callback.OutputStreamFactory
 import rxhttp.wrapper.entity.Progress
 import rxhttp.wrapper.parse.*
@@ -107,7 +108,7 @@ inline fun <reified T : Any> IRxHttp.toClass(): IAwait<T> = toParser(object : Si
 
 fun IRxHttp.toDownload(
     destPath: String
-): IAwait<String> = toParser(StreamParser(FileOutputStreamFactory(destPath)))
+): IAwait<String> = toParser(StreamParser(destPath))
 
 /**
  * @param destPath Local storage path
@@ -118,7 +119,16 @@ fun IRxHttp.toDownload(
     destPath: String,
     context: CoroutineContext? = null,
     progress: suspend (Progress) -> Unit
-): IAwait<String> = toDownload(FileOutputStreamFactory(destPath), context, progress)
+): IAwait<String> = toParser(SuspendStreamParser(destPath, context, progress))
+    .flowOn(Dispatchers.IO)
+
+fun IRxHttp.toDownload(
+    context: Context,
+    uri: Uri,
+    coroutineContext: CoroutineContext? = null,
+    progress: suspend (Progress) -> Unit
+): IAwait<String> = toParser(SuspendStreamParser(context, uri, coroutineContext, progress))
+    .flowOn(Dispatchers.IO)
 
 fun IRxHttp.toDownload(
     osFactory: OutputStreamFactory,
@@ -131,8 +141,8 @@ fun IRxHttp.toDownloadFlow(
     destPath: String,
 ): Flow<Progress> =
     flow {
-        val parser = SuspendStreamParser(FileOutputStreamFactory(destPath)) { emit(it) }
-        toParser(parser).await()
+        toParser(SuspendStreamParser(destPath) { emit(it) })
+            .await()
     }.flowOn(Dispatchers.IO)
 
 fun <T> IRxHttp.toParser(

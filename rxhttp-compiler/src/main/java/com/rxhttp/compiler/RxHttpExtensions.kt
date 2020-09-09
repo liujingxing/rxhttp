@@ -19,7 +19,6 @@ class RxHttpExtensions {
     private val anyTypeName = Any::class.asTypeName()
 
     private val baseRxHttpName = ClassName(rxHttpPackage, "BaseRxHttp")
-    private val iRxHttpName = ClassName("rxhttp", "IRxHttp")
     private val toFunList = ArrayList<FunSpec>()
     private val asFunList = ArrayList<FunSpec>()
 
@@ -112,7 +111,7 @@ class RxHttpExtensions {
     }
 
 
-    fun generateClassFile(filer: Filer, isAndroid: Boolean) {
+    fun generateClassFile(filer: Filer) {
         val t = TypeVariableName("T")
         val k = TypeVariableName("K")
         val v = TypeVariableName("V")
@@ -121,7 +120,6 @@ class RxHttpExtensions {
         val progressName = ClassName("rxhttp.wrapper.entity", "Progress")
         val simpleParserName = ClassName("rxhttp.wrapper.parse", "SimpleParser")
         val coroutineScopeName = ClassName("kotlinx.coroutines", "CoroutineScope")
-        val progressCallbackName = ClassName("rxhttp.wrapper.callback", "ProgressCallback")
 
         val p = TypeVariableName("P")
         val r = TypeVariableName("R")
@@ -180,26 +178,6 @@ class RxHttpExtensions {
             asFunList.forEach {
                 fileBuilder.addFunction(it)
             }
-        }
-
-        if (isAndroid) {
-            val contextName = ClassName("android.content", "Context")
-            val uriName = ClassName("android.net", "Uri")
-            val toDownloadName = ClassName("rxhttp", "toDownload")
-            val coroutineContextName = ClassName("kotlin.coroutines", "CoroutineContext")
-            val uriOutputStreamFactoryName = ClassName("rxhttp.wrapper.callback", "UriOutputStreamFactory")
-            val coroutineContextParameter = ParameterSpec.builder("coroutineContext", coroutineContextName.copy(nullable = true))
-                .defaultValue("null")
-                .build()
-            fileBuilder.addFunction(
-                FunSpec.builder("toDownload")
-                    .receiver(iRxHttpName)
-                    .addParameter("context", contextName)
-                    .addParameter("uri", uriName)
-                    .addParameter(coroutineContextParameter)
-                    .addParameter("progress", progressLambdaName.copy(suspending = true))
-                    .addStatement("return %T(%T(context, uri), coroutineContext, progress)", toDownloadName, uriOutputStreamFactoryName)
-                    .build())
         }
 
         fileBuilder.addFunction(

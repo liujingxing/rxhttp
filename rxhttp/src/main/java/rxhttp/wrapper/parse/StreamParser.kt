@@ -1,5 +1,7 @@
 package rxhttp.wrapper.parse
 
+import android.content.Context
+import android.net.Uri
 import okhttp3.Response
 import okhttp3.ResponseBody
 import rxhttp.wrapper.OkHttpCompat
@@ -23,6 +25,10 @@ class StreamParser @JvmOverloads constructor(
     private val osFactory: OutputStreamFactory,
     var callback: ProgressCallback? = null
 ) : Parser<String> {
+
+    constructor(destPath: String) : this(FileOutputStreamFactory(destPath))
+
+    constructor(context: Context, uri: Uri) : this(UriOutputStreamFactory(context, uri))
 
     override fun onParse(response: Response): String {
         val body = ExceptionHelper.throwIfFatal(response)
