@@ -334,7 +334,7 @@ class RxHttpGenerator {
             .initializer("true")
             .build()
 
-        val rxHttpBuilder = TypeSpec.classBuilder(CLASSNAME)
+        val rxHttpBuilder = TypeSpec.classBuilder(RXHttp_CLASS_NAME)
             .addJavadoc("""
                 Github
                 https://github.com/liujingxing/RxHttp
@@ -813,9 +813,9 @@ class RxHttpGenerator {
     }
 }
 
-private const val CLASSNAME = "RxHttp"
+const val RXHttp_CLASS_NAME = "RxHttp"
 const val packageName = "rxhttp.wrapper.param"
-var RXHTTP = ClassName.get(rxHttpPackage, CLASSNAME)
+var RXHTTP = ClassName.get(rxHttpPackage, RXHttp_CLASS_NAME)
 var RXHTTP_BODY_PARAM = ClassName.get(rxHttpPackage, "RxHttpBodyParam")
 private val paramName = ClassName.get(packageName, "Param")
 var p = TypeVariableName.get("P", paramName)  //泛型P

@@ -15,10 +15,9 @@ import rxhttp.wrapper.callback.UriOutputStreamFactory
 import rxhttp.wrapper.entity.Progress
 import rxhttp.wrapper.parse.SimpleParser
 
-inline fun <reified T> IRxHttp.executeList() = executeClass<List<T>>()
+inline fun <reified T> RxHttp<*, *>.executeList() = executeClass<List<T>>()
 
-inline fun <reified T> IRxHttp.executeClass() = object : SimpleParser<T>()
-    {}.onParse(newCall().execute())
+inline fun <reified T> RxHttp<*, *>.executeClass() = execute(object : SimpleParser<T>() {})
 
 inline fun <reified T> BaseRxHttp.asList() = asClass<List<T>>()
 
