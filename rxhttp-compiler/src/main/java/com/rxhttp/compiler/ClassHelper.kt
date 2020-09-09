@@ -529,7 +529,7 @@ object ClassHelper {
                         this.progressConsumer = progressConsumer;
 
                         if (progressConsumer != null && parser instanceof StreamParser) {
-                            ((StreamParser) parser).setCallback(this);
+                            ((StreamParser) parser).setProgressCallback(this);
                         }
                     }
 
@@ -640,7 +640,7 @@ object ClassHelper {
                         queue = new SpscLinkedArrayQueue<>(128);
 
                         if (progressConsumer != null && parser instanceof StreamParser) {
-                            ((StreamParser) parser).setCallback(this);
+                            ((StreamParser) parser).setProgressCallback(this);
                         }
                     }
 
