@@ -166,6 +166,7 @@ fun IRxHttp.toDownloadFlow(
         emit(ProgressT(result))
     }.flowOn(Dispatchers.IO)
 
+//All of the above methods will eventually call this method.
 fun <T> IRxHttp.toParser(
     parser: Parser<T>,
 ): IAwait<T> = AwaitImpl(this, parser)
