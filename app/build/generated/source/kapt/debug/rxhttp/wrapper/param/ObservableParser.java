@@ -66,7 +66,7 @@ public final class ObservableParser<T> extends Observable<T> {
             this.progressConsumer = progressConsumer;
 
             if (progressConsumer != null && parser instanceof StreamParser) {
-                ((StreamParser) parser).setCallback(this);
+                ((StreamParser) parser).setProgressCallback(this);
             }
         }
 
@@ -177,7 +177,7 @@ public final class ObservableParser<T> extends Observable<T> {
             queue = new SpscLinkedArrayQueue<>(128);
 
             if (progressConsumer != null && parser instanceof StreamParser) {
-                ((StreamParser) parser).setCallback(this);
+                ((StreamParser) parser).setProgressCallback(this);
             }
         }
 

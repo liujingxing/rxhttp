@@ -23,7 +23,7 @@ import java.io.OutputStream
  */
 class StreamParser @JvmOverloads constructor(
     private val osFactory: OutputStreamFactory,
-    var callback: ProgressCallback? = null
+    var progressCallback: ProgressCallback? = null
 ) : Parser<String> {
 
     constructor(destPath: String) : this(FileOutputStreamFactory(destPath))
@@ -39,7 +39,7 @@ class StreamParser @JvmOverloads constructor(
             else -> ""
         }
         LogUtil.log(response, msg)
-        response.writeTo(body, os, callback)
+        response.writeTo(body, os, progressCallback)
         return msg
     }
 }
