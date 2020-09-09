@@ -51,10 +51,6 @@ public abstract class BodyParam<P extends BodyParam<P>> extends AbstractParam<P>
         return (P) this;
     }
 
-    public ProgressCallback getCallback() {
-        return mCallback;
-    }
-
     public P setUploadMaxLength(long maxLength) {
         uploadMaxLength = maxLength;
         return (P) this;
