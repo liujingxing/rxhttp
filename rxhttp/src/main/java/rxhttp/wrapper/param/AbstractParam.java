@@ -4,6 +4,7 @@ package rxhttp.wrapper.param;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 
 import okhttp3.CacheControl;
 import okhttp3.Headers;
@@ -217,9 +218,7 @@ public abstract class AbstractParam<P extends Param<P>> implements Param<P> {
     }
 
     protected final RequestBody convert(Object object) {
-        IConverter converter = getConverter();
-        if (converter == null)
-            throw new NullPointerException("converter can not be null");
+        IConverter converter = Objects.requireNonNull(getConverter(), "converter can not be null");
         try {
             return converter.convert(object);
         } catch (IOException e) {
