@@ -108,7 +108,7 @@ class ParserAnnotatedClass {
 
         methodList.add(
             MethodSpec.methodBuilder("newCall")
-                .addModifiers(Modifier.PUBLIC)
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                 .addStatement("Request request = buildRequest()")
                 .addStatement("OkHttpClient okHttp = getOkHttpClient()")
                 .addStatement("return \$T.newCall(okHttp, request)", httpSenderName)
