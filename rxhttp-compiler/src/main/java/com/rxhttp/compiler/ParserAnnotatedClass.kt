@@ -12,7 +12,6 @@ import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.MirroredTypesException
 import javax.lang.model.type.TypeMirror
-import kotlin.Boolean
 import kotlin.String
 import kotlin.collections.ArrayList
 import kotlin.require
@@ -255,12 +254,20 @@ class ParserAnnotatedClass {
                     //有泛型且有Class类型参数
                     if (typeVariableNames.isNotEmpty() && haveClassTypeParam) {
 
+                        val wrapperListClass: MutableList<ClassName> = mutableListOf()
+                        wrapperListClass.add(ClassName.get("java.util", "List"))
+
                         //泛型的包裹类型，取自Parser注解的wrappers字段
-                        val wrapperTypes = mTypeMap[parserAlias]
-                        wrapperTypes?.forEach { mirror ->
+                        mTypeMap[parserAlias]?.forEach { mirror ->
+                            val tempClassName = ClassName.bestGuess(mirror.toString())
+                            if (!wrapperListClass.contains(tempClassName)) {
+                                wrapperListClass.add(tempClassName)
+                            }
+                        }
+
+                        wrapperListClass.forEach { wrapperClass ->
 
                             //1、asXxx方法返回值
-                            val wrapperClass = ClassName.bestGuess(mirror.toString())
                             val onParserFunReturnWrapperType = if (onParserFunReturnType is ParameterizedTypeName) {
                                 //返回类型有n个泛型，需要对每个泛型再次包装
                                 val typeNames = ArrayList<TypeName>()
@@ -274,7 +281,7 @@ class ParserAnnotatedClass {
                             asFunReturnType = ParameterizedTypeName.get(getClassName("Observable"), onParserFunReturnWrapperType)
 
                             //2、asXxx方法名
-                            val name = mirror.toString()
+                            val name = wrapperClass.toString()
                             val simpleName = name.substring(name.lastIndexOf(".") + 1)
                             methodName = "as$parserAlias${simpleName}"
 
@@ -297,7 +304,7 @@ class ParserAnnotatedClass {
                                 paramsName.append(", ")
                             }
                             paramsName.delete(paramsName.length - 2, paramsName.length)
-                            val returnStatement = "return asParser(new \$T${getTypeVariableString(typeVariableNames, mirror)}($paramsName))"
+                            val returnStatement = "return asParser(new \$T${getTypeVariableString(typeVariableNames, wrapperClass)}($paramsName))"
                             funBody.addStatement(returnStatement, ClassName.get(typeElement))
 
                             //4、生成asXxx方法
@@ -343,8 +350,8 @@ class ParserAnnotatedClass {
     }
 
     //获取泛型字符串 比如:<T> 、<K,V>等等
-    private fun getTypeVariableString(typeVariableNames: ArrayList<TypeVariableName>, mirror: TypeMirror): String {
-        val name = mirror.toString()
+    private fun getTypeVariableString(typeVariableNames: ArrayList<TypeVariableName>, wrapperClass: ClassName): String {
+        val name = wrapperClass.toString()
         val simpleName = name.substring(name.lastIndexOf(".") + 1)
 
         val type = StringBuilder()

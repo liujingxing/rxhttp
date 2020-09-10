@@ -16,7 +16,7 @@ import java.lang.reflect.Type
  * Date: 2018/10/23
  * Time: 13:49
  */
-@Parser(name = "Response", wrappers = [MutableList::class, PageList::class])
+@Parser(name = "Response", wrappers = [PageList::class])
 open class ResponseParser<T> : AbstractParser<T> {
     /**
      * 此构造方法适用于任意Class对象，但更多用于带泛型的Class对象，如：List<Student>
