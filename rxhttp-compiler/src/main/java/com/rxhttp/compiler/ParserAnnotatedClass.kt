@@ -46,7 +46,6 @@ class ParserAnnotatedClass {
         val listTName = ParameterizedTypeName.get(ClassName.get(List::class.java), t)
         val callName = ClassName.get("okhttp3", "Call")
         val responseName = ClassName.get("okhttp3", "Response")
-        val httpSenderName = ClassName.get("rxhttp", "HttpSender")
         val requestName = ClassName.get("okhttp3", "Request")
         val parserName = ClassName.get("rxhttp.wrapper.parse", "Parser")
         val progressName = ClassName.get("rxhttp.wrapper.entity", "Progress")
@@ -109,9 +108,11 @@ class ParserAnnotatedClass {
         methodList.add(
             MethodSpec.methodBuilder("newCall")
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .addStatement("Request request = buildRequest()")
-                .addStatement("OkHttpClient okHttp = getOkHttpClient()")
-                .addStatement("return \$T.newCall(okHttp, request)", httpSenderName)
+                .addCode("""
+                    Request request = buildRequest();
+                    OkHttpClient okClient = getOkHttpClient();
+                    return okClient.newCall(request);
+                """.trimIndent())
                 .returns(callName)
                 .build())
 

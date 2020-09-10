@@ -485,8 +485,8 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
 
   public final Call newCall() {
     Request request = buildRequest();
-    OkHttpClient okHttp = getOkHttpClient();
-    return HttpSender.newCall(okHttp, request);
+    OkHttpClient okClient = getOkHttpClient();
+    return okClient.newCall(request);
   }
 
   public final Request buildRequest() {
