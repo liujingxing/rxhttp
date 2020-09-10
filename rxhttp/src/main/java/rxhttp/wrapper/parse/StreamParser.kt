@@ -21,26 +21,32 @@ import java.io.OutputStream
  * Date: 2020/9/4
  * Time: 21:39
  */
-class StreamParser @JvmOverloads constructor(
-    private val osFactory: OutputStreamFactory,
+class StreamParser<T> @JvmOverloads constructor(
+    private val osFactory: OutputStreamFactory<T>,
     var progressCallback: ProgressCallback? = null
-) : Parser<String> {
+) : Parser<T> {
 
-    constructor(destPath: String) : this(FileOutputStreamFactory(destPath))
+    companion object {
 
-    constructor(context: Context, uri: Uri) : this(UriOutputStreamFactory(context, uri))
+        @JvmStatic
+        operator fun get(
+            destPath: String,
+        ): StreamParser<String> = StreamParser(FileOutputStreamFactory(destPath))
 
-    override fun onParse(response: Response): String {
+        @JvmStatic
+        operator fun get(
+            context: Context,
+            uri: Uri,
+        ): StreamParser<Uri> = StreamParser(UriOutputStreamFactory(context, uri))
+    }
+
+    override fun onParse(response: Response): T {
         val body = ExceptionHelper.throwIfFatal(response)
         val os = osFactory.getOutputStream(response)
-        val msg = when (osFactory) {
-            is FileOutputStreamFactory -> osFactory.localPath
-            is UriOutputStreamFactory -> osFactory.uri.toString()
-            else -> ""
-        }
-        LogUtil.log(response, msg)
+        val data = osFactory.data
+        LogUtil.log(response, data.toString())
         response.writeTo(body, os, progressCallback)
-        return msg
+        return data
     }
 }
 

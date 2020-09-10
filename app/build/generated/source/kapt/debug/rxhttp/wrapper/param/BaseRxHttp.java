@@ -132,16 +132,16 @@ public abstract class BaseRxHttp implements IRxHttp {
     
     public final Observable<String> asDownload(String destPath, Scheduler scheduler,
                                                Consumer<Progress> progressConsumer) {
-        return asParser(new StreamParser(destPath), scheduler, progressConsumer);
+        return asParser(StreamParser.get(destPath), scheduler, progressConsumer);
     }
     
-    public final Observable<String> asDownload(Context context, Uri uri, Scheduler scheduler,    
+    public final Observable<Uri> asDownload(Context context, Uri uri, Scheduler scheduler,    
                                                Consumer<Progress> progressConsumer) {            
-        return asParser(new StreamParser(context, uri), scheduler, progressConsumer);
+        return asParser(StreamParser.get(context, uri), scheduler, progressConsumer);
     }                                                                                            
     
-    public final Observable<String> asDownload(OutputStreamFactory osFactory, Scheduler scheduler,
+    public final <T> Observable<T> asDownload(OutputStreamFactory<T> osFactory, Scheduler scheduler,
                                                Consumer<Progress> progressConsumer) {
-        return asParser(new StreamParser(osFactory), scheduler, progressConsumer);
+        return asParser(new StreamParser<T>(osFactory), scheduler, progressConsumer);
     }
 }

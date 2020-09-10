@@ -14,30 +14,31 @@ import java.io.OutputStream
  * Date: 2020/9/8
  * Time: 22:12
  */
-interface OutputStreamFactory {
-
+abstract class OutputStreamFactory<T>(
+    var data: T
+) {
     @Throws(IOException::class)
-    fun getOutputStream(response: Response): OutputStream
+    abstract fun getOutputStream(response: Response): OutputStream
 }
 
 internal class UriOutputStreamFactory(
     val context: Context,
-    val uri: Uri
-) : OutputStreamFactory {
+    uri: Uri
+) : OutputStreamFactory<Uri>(uri) {
     override fun getOutputStream(response: Response): OutputStream {
         val append = response.header("Content-Range") != null
-        return context.contentResolver.openOutputStream(uri, if (append) "wa" else "w")
+        return context.contentResolver.openOutputStream(data, if (append) "wa" else "w")
     }
 }
 
 internal class FileOutputStreamFactory(
-    var localPath: String
-) : OutputStreamFactory {
+    localPath: String
+) : OutputStreamFactory<String>(localPath) {
 
     override fun getOutputStream(response: Response): OutputStream {
-        localPath = localPath.replaceSuffix(response)
+        data = data.replaceSuffix(response)
         //创建文件
-        val dstFile = File(localPath).apply {
+        val dstFile = File(data).apply {
             val parentFile = parentFile
             if (!parentFile.exists() && !parentFile.mkdirs()) {
                 throw IOException("Directory $parentFile create fail")
@@ -46,9 +47,7 @@ internal class FileOutputStreamFactory(
         val append = OkHttpCompat.header(response, "Content-Range") != null
         return FileOutputStream(dstFile, append)
     }
-
 }
-
 
 private fun String.replaceSuffix(response: Response): String {
     return if (endsWith("/%s", true)
