@@ -51,12 +51,6 @@ public final class HttpSender {
         LogUtil.setDebug(debug);
     }
 
-
-    //所有的请求，最终都会调此方法拿到Call对象，然后执行请求
-    public static Call newCall(OkHttpClient client, Request request) {
-        return client.newCall(request);
-    }
-
     /**
      * 连接、读写超时均为10s、添加信任证书并忽略host验证
      *
