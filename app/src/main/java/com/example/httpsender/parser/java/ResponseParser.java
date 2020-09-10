@@ -18,7 +18,7 @@ import rxhttp.wrapper.utils.Converter;
  * Date: 2018/10/23
  * Time: 13:49
  */
-//@Parser(name = "Response", wrappers = {List.class, PageList.class})
+//@Parser(name = "Response", wrappers = {PageList.class})
 public class ResponseParser<T> extends AbstractParser<T> {
 
     /**
