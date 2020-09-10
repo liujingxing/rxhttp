@@ -11,7 +11,7 @@ import rxhttp.wrapper.OkHttpCompat
 import rxhttp.wrapper.callback.FileOutputStreamFactory
 import rxhttp.wrapper.callback.OutputStreamFactory
 import rxhttp.wrapper.callback.UriOutputStreamFactory
-import rxhttp.wrapper.entity.Progress
+import rxhttp.wrapper.entity.ProgressT
 import rxhttp.wrapper.exception.ExceptionHelper
 import rxhttp.wrapper.utils.IOUtil
 import rxhttp.wrapper.utils.LogUtil
@@ -24,46 +24,49 @@ import kotlin.coroutines.CoroutineContext
  * Date: 2020/9/5
  * Time: 14:09
  */
-class SuspendStreamParser(
-    private val osFactory: OutputStreamFactory,
+class SuspendStreamParser<T>(
+    private val osFactory: OutputStreamFactory<T>,
     private val context: CoroutineContext? = null,
-    private val progress: suspend (Progress) -> Unit,
-) : SuspendParser<String>() {
+    private val progress: suspend (ProgressT<T>) -> Unit,
+) : SuspendParser<T>() {
 
-    constructor(
-        destPath: String,
-        context: CoroutineContext? = null,
-        progress: suspend (Progress) -> Unit,
-    ) : this(FileOutputStreamFactory(destPath), context, progress)
+    companion object {
 
-    constructor(
-        context: Context,
-        uri: Uri,
-        coroutineContext: CoroutineContext? = null,
-        progress: suspend (Progress) -> Unit
-    ) : this(UriOutputStreamFactory(context, uri), coroutineContext, progress)
+        operator fun get(
+            destPath: String,
+            coroutineContext: CoroutineContext? = null,
+            progress: suspend (ProgressT<String>) -> Unit,
+        ): SuspendStreamParser<String> = SuspendStreamParser(FileOutputStreamFactory(destPath), coroutineContext, progress)
+
+        operator fun get(
+            context: Context,
+            uri: Uri,
+            coroutineContext: CoroutineContext? = null,
+            progress: suspend (ProgressT<Uri>) -> Unit
+        ): SuspendStreamParser<Uri> = SuspendStreamParser(UriOutputStreamFactory(context, uri), coroutineContext, progress)
+    }
 
     @Throws(IOException::class)
-    override suspend fun onSuspendParse(response: Response): String {
+    override suspend fun onSuspendParse(response: Response): T {
         val body = ExceptionHelper.throwIfFatal(response)
         val os = osFactory.getOutputStream(response)
-        val msg = when (osFactory) {
-            is FileOutputStreamFactory -> osFactory.localPath
-            is UriOutputStreamFactory -> osFactory.uri.toString()
-            else -> ""
+        val data = osFactory.data
+        LogUtil.log(response, data.toString())
+        response.writeTo<T>(body, os) {
+            it.result = data
+            context?.apply {
+                withContext(this) { progress(it) }
+            } ?: progress(it)
         }
-        LogUtil.log(response, msg)
-        response.writeTo(body, os, context, progress)
-        return msg
+        return data
     }
 }
 
 @Throws(IOException::class)
-suspend fun Response.writeTo(
+suspend fun <T> Response.writeTo(
     body: ResponseBody,
     os: OutputStream,
-    context: CoroutineContext? = null,
-    progress: suspend (Progress) -> Unit
+    progress: suspend (ProgressT<T>) -> Unit
 ) {
     val offsetSize = OkHttpCompat.getDownloadOffSize(this)?.offSize ?: 0
     val contentLength = OkHttpCompat.getContentLength(this) + offsetSize
@@ -76,12 +79,8 @@ suspend fun Response.writeTo(
         val currentProgress = ((currentSize * 100f / contentLength)).toInt()
         if (currentProgress > lastProgress) {
             lastProgress = currentProgress
-            val p = Progress(currentProgress, currentSize, contentLength)
-            if (context != null) {
-                withContext(context) { progress.invoke(p) }
-            } else {
-                progress.invoke(p)
-            }
+            val p = ProgressT<T>(currentProgress, currentSize, contentLength)
+            progress.invoke(p)
         }
     }
 }
