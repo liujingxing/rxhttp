@@ -123,7 +123,7 @@ class RxHttpExtensions {
 
         val p = TypeVariableName("P")
         val r = TypeVariableName("R")
-        val bodyParamName = ClassName(rxHttpPackage, "BodyParam").parameterizedBy(p)
+        val bodyParamName = ClassName("rxhttp.wrapper.param", "BodyParam").parameterizedBy(p)
         val rxHttpBodyParamName = ClassName(rxHttpPackage, "RxHttpBodyParam").parameterizedBy(p, r)
         val pBound = TypeVariableName("P", bodyParamName)
         val rBound = TypeVariableName("R", rxHttpBodyParamName)
