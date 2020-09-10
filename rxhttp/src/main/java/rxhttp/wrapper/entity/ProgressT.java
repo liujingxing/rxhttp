@@ -15,6 +15,10 @@ public class ProgressT<T> extends Progress{
         this.result = result;
     }
 
+    public ProgressT(int currentProgress, long currentSize, long contentLength) {
+        super(currentProgress,currentSize,contentLength);
+    }
+
     public T getResult() {
         return result;
     }
