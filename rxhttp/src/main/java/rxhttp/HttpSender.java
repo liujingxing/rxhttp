@@ -5,21 +5,19 @@ import java.util.concurrent.TimeUnit;
 import okhttp3.Call;
 import okhttp3.Dispatcher;
 import okhttp3.OkHttpClient;
-import okhttp3.Request;
 import rxhttp.wrapper.ssl.HttpsUtils;
 import rxhttp.wrapper.ssl.HttpsUtils.SSLParams;
 import rxhttp.wrapper.utils.LogUtil;
 
 
 /**
- * 有公共参数的请求，用此类
  * User: ljx
  * Date: 2017/12/2
  * Time: 11:13
  */
 public final class HttpSender {
 
-    private static OkHttpClient mOkHttpClient; //只能初始化一次,第二次将抛出异常
+    private static OkHttpClient mOkHttpClient;
 
     public static void init(OkHttpClient okHttpClient, boolean debug) {
         setDebug(debug);
@@ -32,7 +30,6 @@ public final class HttpSender {
         mOkHttpClient = okHttpClient;
     }
 
-    //判断是否已经初始化
     public static boolean isInit() {
         return mOkHttpClient != null;
     }
@@ -51,25 +48,19 @@ public final class HttpSender {
         LogUtil.setDebug(debug);
     }
 
-    /**
-     * 连接、读写超时均为10s、添加信任证书并忽略host验证
-     *
-     * @return 返回默认的OkHttpClient对象
-     */
+    //Default OkHttpClient object in RxHttp
     private static OkHttpClient getDefaultOkHttpClient() {
         SSLParams sslParams = HttpsUtils.getSslSocketFactory();
         return new OkHttpClient.Builder()
             .connectTimeout(10, TimeUnit.SECONDS)
             .readTimeout(10, TimeUnit.SECONDS)
             .writeTimeout(10, TimeUnit.SECONDS)
-            .sslSocketFactory(sslParams.sSLSocketFactory, sslParams.trustManager) //添加信任证书
-            .hostnameVerifier((hostname, session) -> true) //忽略host验证
+            .sslSocketFactory(sslParams.sSLSocketFactory, sslParams.trustManager)
+            .hostnameVerifier((hostname, session) -> true)
             .build();
     }
 
-    /**
-     * 取消所有请求
-     */
+    //Cancel all requests.
     static void cancelAll() {
         final OkHttpClient okHttpClient = mOkHttpClient;
         if (okHttpClient == null) return;
@@ -77,9 +68,7 @@ public final class HttpSender {
     }
 
 
-    /**
-     * 根据Tag取消请求
-     */
+    //Cancel all requests by tag
     static void cancelTag(Object tag) {
         if (tag == null) return;
         final OkHttpClient okHttpClient = mOkHttpClient;
