@@ -52,7 +52,7 @@ class StreamParser<T> @JvmOverloads constructor(
 
 
 @Throws(IOException::class)
-fun Response.writeTo(
+private fun Response.writeTo(
     body: ResponseBody,
     os: OutputStream,
     callback: ProgressCallback? = null

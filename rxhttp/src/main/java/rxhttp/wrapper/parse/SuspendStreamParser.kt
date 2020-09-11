@@ -52,20 +52,17 @@ class SuspendStreamParser<T>(
         val os = osFactory.getOutputStream(response)
         val data = osFactory.data
         LogUtil.log(response, data.toString())
-        response.writeTo<T>(body, os) {
-            it.result = data
-            context?.apply {
-                withContext(this) { progress(it) }
-            } ?: progress(it)
-        }
+        response.writeTo(body, os, data, context, progress)
         return data
     }
 }
 
 @Throws(IOException::class)
-suspend fun <T> Response.writeTo(
+private suspend fun <T> Response.writeTo(
     body: ResponseBody,
     os: OutputStream,
+    data: T,
+    context: CoroutineContext? = null,
     progress: suspend (ProgressT<T>) -> Unit
 ) {
     val offsetSize = OkHttpCompat.getDownloadOffSize(this)?.offSize ?: 0
@@ -80,7 +77,10 @@ suspend fun <T> Response.writeTo(
         if (currentProgress > lastProgress) {
             lastProgress = currentProgress
             val p = ProgressT<T>(currentProgress, currentSize, contentLength)
-            progress.invoke(p)
+            if (currentProgress == 100) p.result = data
+            context?.apply {
+                withContext(this) { progress(p) }
+            } ?: progress(p)
         }
     }
 }
