@@ -45,17 +45,18 @@ class StreamParser<T> @JvmOverloads constructor(
         val os = osFactory.getOutputStream(response)
         val data = osFactory.data
         LogUtil.log(response, data.toString())
-        response.writeTo(body, os, progressCallback)
+        progressCallback?.let {
+            response.writeTo(body, os, it)
+        } ?: IOUtil.write(body.byteStream(), os)
         return data
     }
 }
-
 
 @Throws(IOException::class)
 private fun Response.writeTo(
     body: ResponseBody,
     os: OutputStream,
-    callback: ProgressCallback? = null
+    callback: ProgressCallback
 ) {
     val offsetSize = OkHttpCompat.getDownloadOffSize(this)?.offSize ?: 0
     val contentLength = OkHttpCompat.getContentLength(this) + offsetSize
@@ -63,7 +64,6 @@ private fun Response.writeTo(
     var lastProgress = 0
 
     IOUtil.write(body.byteStream(), os) {
-        if (callback == null) return@write
         val currentSize = it + offsetSize
         //当前进度 = 当前已读取的字节 / 总字节
         val currentProgress = ((currentSize * 100f / contentLength)).toInt()

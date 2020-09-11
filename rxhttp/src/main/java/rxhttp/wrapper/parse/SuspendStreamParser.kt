@@ -27,7 +27,7 @@ import kotlin.coroutines.CoroutineContext
 class SuspendStreamParser<T>(
     private val osFactory: OutputStreamFactory<T>,
     private val context: CoroutineContext? = null,
-    private val progress: suspend (ProgressT<T>) -> Unit,
+    private val progress: (suspend (ProgressT<T>) -> Unit)? = null,
 ) : SuspendParser<T>() {
 
     companion object {
@@ -35,14 +35,14 @@ class SuspendStreamParser<T>(
         operator fun get(
             destPath: String,
             coroutineContext: CoroutineContext? = null,
-            progress: suspend (ProgressT<String>) -> Unit,
+            progress: (suspend (ProgressT<String>) -> Unit)? = null,
         ): SuspendStreamParser<String> = SuspendStreamParser(FileOutputStreamFactory(destPath), coroutineContext, progress)
 
         operator fun get(
             context: Context,
             uri: Uri,
             coroutineContext: CoroutineContext? = null,
-            progress: suspend (ProgressT<Uri>) -> Unit
+            progress: (suspend (ProgressT<Uri>) -> Unit)? = null,
         ): SuspendStreamParser<Uri> = SuspendStreamParser(UriOutputStreamFactory(context, uri), coroutineContext, progress)
     }
 
@@ -52,7 +52,9 @@ class SuspendStreamParser<T>(
         val os = osFactory.getOutputStream(response)
         val data = osFactory.data
         LogUtil.log(response, data.toString())
-        response.writeTo(body, os, data, context, progress)
+        progress?.let {
+            response.writeTo(body, os, data, context, it)
+        } ?: IOUtil.write(body.byteStream(), os)
         return data
     }
 }
