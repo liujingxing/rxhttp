@@ -808,6 +808,8 @@ object ClassHelper {
         if (!isDependenceRxJava()) {
             generatorClass(filer, "RxHttpBodyParam", """
                 package $rxHttpPackage;
+                
+                import rxhttp.wrapper.param.BodyParam;
 
                 /**
                  * Github
