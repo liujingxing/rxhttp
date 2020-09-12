@@ -10,6 +10,7 @@ import javax.lang.model.element.Modifier
 import javax.lang.model.element.VariableElement
 import kotlin.Any
 import kotlin.Boolean
+import kotlin.ByteArray
 import kotlin.Int
 import kotlin.String
 import kotlin.Throws
@@ -47,7 +48,7 @@ class RxHttpGenerator {
 
 
     @Throws(IOException::class)
-    fun generateCode(filer: Filer, okHttpVersion: String) {
+    fun generateCode(filer: Filer, okHttpVersion: String, isAndroidPlatform: Boolean) {
         val httpSenderName = ClassName.get("rxhttp", "HttpSender")
         val rxHttpPluginsName = ClassName.get("rxhttp", "RxHttpPlugins")
         val converterName = ClassName.get("rxhttp.wrapper.callback", "IConverter")
@@ -82,8 +83,10 @@ class RxHttpGenerator {
         val rxHttpJson = ParameterizedTypeName.get(RXHTTP_BODY_PARAM, jsonParamName, rxHttpJsonName)
         val rxHttpJsonArray = ParameterizedTypeName.get(RXHTTP_BODY_PARAM, jsonArrayParamName, rxHttpJsonArrayName)
 
+        val nullableName = ClassName.get("rxhttp.wrapper.annotations", "Nullable")
         val okHttpClientName = ClassName.get("okhttp3", "OkHttpClient")
         val partName = ClassName.get("okhttp3.MultipartBody", "Part")
+        val mediaTypeName = ClassName.get("okhttp3", "MediaType")
         val requestBodyName = ClassName.get("okhttp3", "RequestBody")
         val headersName = ClassName.get("okhttp3", "Headers")
         val requestName = ClassName.get("okhttp3", "Request")
@@ -600,6 +603,62 @@ class RxHttpGenerator {
                 .addStatement("return this")
                 .returns(rxHttpFormName)
                 .build())
+
+
+        val mediaTypeParam = ParameterSpec.builder(mediaTypeName, "contentType")
+            .addAnnotation(nullableName)
+            .build()
+
+        methodList.add(
+            MethodSpec.methodBuilder("addPart")
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(mediaTypeParam)
+                .addParameter(ByteArray::class.java, "content")
+                .addStatement("param.addPart(contentType, content)")
+                .addStatement("return this")
+                .returns(rxHttpFormName)
+                .build())
+
+        methodList.add(
+            MethodSpec.methodBuilder("addPart")
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(mediaTypeParam)
+                .addParameter(ByteArray::class.java, "content")
+                .addParameter(Int::class.java, "offset")
+                .addParameter(Int::class.java, "byteCount")
+                .addStatement("param.addPart(contentType, content, offset, byteCount)")
+                .addStatement("return this")
+                .returns(rxHttpFormName)
+                .build())
+
+        if (isAndroidPlatform) {
+
+            val contextName = ClassName.get("android.content", "Context")
+            val uriName = ClassName.get("android.net", "Uri")
+            methodList.add(
+                MethodSpec.methodBuilder("addPart")
+                    .addModifiers(Modifier.PUBLIC)
+                    .addParameter(contextName, "context")
+                    .addParameter(uriName, "uri")
+                    .addParameter(mediaTypeParam)
+                    .addStatement("param.addPart(context, uri, contentType)")
+                    .addStatement("return this")
+                    .returns(rxHttpFormName)
+                    .build())
+
+            methodList.add(
+                MethodSpec.methodBuilder("addPart")
+                    .addModifiers(Modifier.PUBLIC)
+                    .addParameter(contextName, "context")
+                    .addParameter(uriName, "uri")
+                    .addParameter(mediaTypeParam)
+                    .addParameter(Int::class.java, "offset")
+                    .addParameter(Int::class.java, "byteCount")
+                    .addStatement("param.addPart(context, uri, contentType, offset, byteCount)")
+                    .addStatement("return this")
+                    .returns(rxHttpFormName)
+                    .build())
+        }
 
         methodList.add(
             MethodSpec.methodBuilder("addPart")

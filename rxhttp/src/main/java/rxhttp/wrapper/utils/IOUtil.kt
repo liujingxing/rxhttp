@@ -2,6 +2,8 @@
 
 package rxhttp.wrapper.utils
 
+import android.content.Context
+import android.net.Uri
 import java.io.*
 
 /**
@@ -13,10 +15,29 @@ object IOUtil {
     private const val LENGTH_BYTE = 8 * 1024 //一次性读写的字节个数，用于字节读取
 
     @JvmStatic
+    fun Uri.toByeArray(context: Context): ByteArray {
+        val inputStream: InputStream = context.contentResolver.openInputStream(this)
+        val bos = ByteArrayOutputStream()
+        try {
+            val buff = ByteArray(LENGTH_BYTE)
+            var len: Int
+            while (inputStream.read(buff).also { len = it } != -1) {
+                bos.write(buff, 0, len)
+            }
+            bos.flush()
+            return bos.toByteArray()
+        } catch (e: Exception) {
+            throw e
+        } finally {
+            close(inputStream, bos)
+        }
+    }
+
+    @JvmStatic
     fun copy(inStream: InputStream, outStream: OutputStream): Int {
-        val buffer = ByteArray(1024 * 8)
-        val bis = BufferedInputStream(inStream, 1024 * 8)
-        val bos = BufferedOutputStream(outStream, 1024 * 8)
+        val buffer = ByteArray(LENGTH_BYTE)
+        val bis = BufferedInputStream(inStream, LENGTH_BYTE)
+        val bos = BufferedOutputStream(outStream, LENGTH_BYTE)
         var count = 0
         var n = 0
         try {

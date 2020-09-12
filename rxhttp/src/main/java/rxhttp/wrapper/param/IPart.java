@@ -1,12 +1,17 @@
 package rxhttp.wrapper.param;
 
+import android.content.Context;
+import android.net.Uri;
+
 import okhttp3.Headers;
+import okhttp3.MediaType;
 import okhttp3.MultipartBody.Part;
 import okhttp3.RequestBody;
 import rxhttp.wrapper.annotations.NonNull;
 import rxhttp.wrapper.annotations.Nullable;
 import rxhttp.wrapper.entity.UpFile;
 import rxhttp.wrapper.utils.BuildUtil;
+import rxhttp.wrapper.utils.IOUtil;
 
 /**
  * User: ljx
@@ -16,6 +21,25 @@ import rxhttp.wrapper.utils.BuildUtil;
 public interface IPart<P extends Param<P>> extends IFile<P> {
 
     P addPart(@NonNull Part part);
+
+    default P addPart(@Nullable MediaType contentType, byte[] content) {
+        return addPart(RequestBody.create(contentType, content));
+    }
+
+    default P addPart(@Nullable MediaType contentType, byte[] content,
+                      int offset, int byteCount) {
+        return addPart(RequestBody.create(contentType, content, offset, byteCount));
+    }
+
+    default P addPart(Context context, Uri uri, @Nullable MediaType contentType) {
+        byte[] byteArray = IOUtil.toByeArray(uri, context);
+        return addPart(RequestBody.create(contentType, byteArray));
+    }
+
+    default P addPart(Context context, Uri uri, @Nullable MediaType contentType, int offset, int byteCount) {
+        byte[] byteArray = IOUtil.toByeArray(uri, context);
+        return addPart(RequestBody.create(contentType, byteArray, offset, byteCount));
+    }
 
     default P addPart(@NonNull RequestBody body) {
         return addPart(Part.create(body));

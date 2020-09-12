@@ -1,13 +1,17 @@
 package rxhttp.wrapper.param;
 
+import android.content.Context;
+import android.net.Uri;
 import java.io.File;
 import java.lang.Deprecated;
 import java.lang.Object;
 import java.lang.String;
 import java.util.List;
 import okhttp3.Headers;
+import okhttp3.MediaType;
 import okhttp3.MultipartBody.Part;
 import okhttp3.RequestBody;
+import rxhttp.wrapper.annotations.Nullable;
 import rxhttp.wrapper.entity.UpFile;
 
 /**
@@ -96,6 +100,28 @@ public class RxHttpFormParam extends RxHttpBodyParam<FormParam, RxHttpFormParam>
 
   public RxHttpFormParam addFile(List<? extends UpFile> fileList) {
     param.addFile(fileList);
+    return this;
+  }
+
+  public RxHttpFormParam addPart(@Nullable MediaType contentType, byte[] content) {
+    param.addPart(contentType, content);
+    return this;
+  }
+
+  public RxHttpFormParam addPart(@Nullable MediaType contentType, byte[] content, int offset,
+      int byteCount) {
+    param.addPart(contentType, content, offset, byteCount);
+    return this;
+  }
+
+  public RxHttpFormParam addPart(Context context, Uri uri, @Nullable MediaType contentType) {
+    param.addPart(context, uri, contentType);
+    return this;
+  }
+
+  public RxHttpFormParam addPart(Context context, Uri uri, @Nullable MediaType contentType,
+      int offset, int byteCount) {
+    param.addPart(context, uri, contentType, offset, byteCount);
     return this;
   }
 
