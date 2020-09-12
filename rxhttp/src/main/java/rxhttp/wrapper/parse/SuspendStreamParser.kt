@@ -11,12 +11,12 @@ import rxhttp.wrapper.OkHttpCompat
 import rxhttp.wrapper.callback.FileOutputStreamFactory
 import rxhttp.wrapper.callback.OutputStreamFactory
 import rxhttp.wrapper.callback.UriOutputStreamFactory
+import rxhttp.wrapper.entity.OutputStreamWrapper
 import rxhttp.wrapper.entity.ProgressT
 import rxhttp.wrapper.exception.ExceptionHelper
 import rxhttp.wrapper.utils.IOUtil
 import rxhttp.wrapper.utils.LogUtil
 import java.io.IOException
-import java.io.OutputStream
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -49,21 +49,20 @@ class SuspendStreamParser<T>(
     @Throws(IOException::class)
     override suspend fun onSuspendParse(response: Response): T {
         val body = ExceptionHelper.throwIfFatal(response)
-        val os = osFactory.getOutputStream(response)
-        val data = osFactory.data
-        LogUtil.log(response, data.toString())
+        val osWrapper = osFactory.getOutputStream(response)
+        val result = osWrapper.result
+        LogUtil.log(response, result.toString())
         progress?.let {
-            response.writeTo(body, os, data, context, it)
-        } ?: IOUtil.write(body.byteStream(), os)
-        return data
+            response.writeTo(body, osWrapper, context, it)
+        } ?: IOUtil.write(body.byteStream(), osWrapper.os)
+        return result
     }
 }
 
 @Throws(IOException::class)
 private suspend fun <T> Response.writeTo(
     body: ResponseBody,
-    os: OutputStream,
-    data: T,
+    osWrapper: OutputStreamWrapper<T>,
     context: CoroutineContext? = null,
     progress: suspend (ProgressT<T>) -> Unit
 ) {
@@ -72,14 +71,14 @@ private suspend fun <T> Response.writeTo(
 
     var lastProgress = 0
 
-    IOUtil.suspendWrite(body.byteStream(), os) {
+    IOUtil.suspendWrite(body.byteStream(), osWrapper.os) {
         val currentSize = it + offsetSize
         //当前进度 = 当前已读取的字节 / 总字节
         val currentProgress = ((currentSize * 100f / contentLength)).toInt()
         if (currentProgress > lastProgress) {
             lastProgress = currentProgress
             val p = ProgressT<T>(currentProgress, currentSize, contentLength)
-            if (currentProgress == 100) p.result = data
+            if (currentProgress == 100) p.result = osWrapper.result
             context?.apply {
                 withContext(this) { progress(p) }
             } ?: progress(p)
