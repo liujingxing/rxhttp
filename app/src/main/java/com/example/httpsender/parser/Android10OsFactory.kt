@@ -32,7 +32,7 @@ class Android10OsFactory(val context: Context) : OutputStreamFactory<Uri>() {
             val values = ContentValues().apply {
                 put(MediaStore.MediaColumns.DISPLAY_NAME, "$fileName.$extension") //文件名
                 put(MediaStore.MediaColumns.MIME_TYPE, mimeType) //文件类型
-                put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS) //共享文件夹，固定写法
+                put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS) //下载到Download目录
             }
             context.contentResolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values)
         } else
