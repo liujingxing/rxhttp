@@ -145,7 +145,7 @@ open class AnnotationProcessor : AbstractProcessor() {
             rxHttpGenerator.setAnnotatedClass(okClientAnnotatedClass)
 
             // Generate code
-            rxHttpGenerator.generateCode(filer, okHttpVersion)
+            rxHttpGenerator.generateCode(filer, okHttpVersion, isAndroidPlatform())
             processed = true
         } catch (e: ProcessingException) {
             error(e.element, e.message)
