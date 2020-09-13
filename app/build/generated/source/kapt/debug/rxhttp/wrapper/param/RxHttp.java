@@ -505,7 +505,7 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
   /**
    * 请求开始前内部调用，用于添加默认域名等操作
    */
-  void doOnStart() {
+  private final void doOnStart() {
     setConverter(param);
     addDefaultDomainIfAbsent(param);
   }
