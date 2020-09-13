@@ -5,6 +5,7 @@ package rxhttp.wrapper.utils
 import android.content.Context
 import android.net.Uri
 import android.provider.OpenableColumns
+import android.webkit.MimeTypeMap
 import kotlinx.coroutines.suspendCancellableCoroutine
 import okhttp3.*
 import rxhttp.wrapper.OkHttpCompat
@@ -32,12 +33,18 @@ fun Uri.asPart(
     name: String,
     contentType: MediaType? = null
 ): MultipartBody.Part {
-    val fileName = context.contentResolver
-        .query(this, null, null, null, null)?.use {
-            if (it.moveToFirst())
-                it.getString(it.getColumnIndex(OpenableColumns.DISPLAY_NAME))
-            else null
-        }
+    val contentResolver = context.contentResolver
+    var fileName = contentResolver.query(this, null, null, null, null)?.use {
+        if (it.moveToFirst())
+            it.getString(it.getColumnIndex(OpenableColumns.DISPLAY_NAME))
+        else null
+    }
+    if (fileName == null) {
+        val currentTime = System.currentTimeMillis().toString()
+        val mimeType = contentResolver.getType(this)
+        val fileSuffix = MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType)
+        fileName = "$currentTime.$fileSuffix"
+    }
     return MultipartBody.Part.createFormData(name, fileName, asRequestBody(context, contentType))
 }
 
