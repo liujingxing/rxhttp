@@ -489,6 +489,7 @@ object ClassHelper {
             import rxhttp.wrapper.entity.ProgressT;
             import rxhttp.wrapper.parse.StreamParser;
             import rxhttp.wrapper.parse.Parser;
+            import rxhttp.wrapper.utils.LogUtil;
 
             public final class ObservableParser<T> extends Observable<T> {
 
@@ -566,6 +567,7 @@ object ClassHelper {
                             try {
                                 v = Objects.requireNonNull(parser.onParse(p.getResult()), "The onParse function returned a null value.");
                             } catch (Throwable t) {
+                                LogUtil.log(p.getResult().request().url().toString(), t);
                                 fail(t);
                                 return;
                             }
@@ -675,6 +677,7 @@ object ClassHelper {
                                 T t = Objects.requireNonNull(parser.onParse(progressT.getResult()), "The onParse function returned a null value.");
                                 p = new ProgressT<>(t);
                             } catch (Throwable t) {
+                                LogUtil.log(progressT.getResult().request().url().toString(), t);
                                 onError(t);
                                 return;
                             }
