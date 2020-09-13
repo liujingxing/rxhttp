@@ -1,21 +1,45 @@
-package rxhttp.wrapper.await
+@file:JvmName("KotlinExtensions")
 
+package rxhttp.wrapper.utils
+
+import android.content.Context
+import android.net.Uri
+import android.provider.OpenableColumns
 import kotlinx.coroutines.suspendCancellableCoroutine
-import okhttp3.Call
-import okhttp3.Callback
-import okhttp3.Response
+import okhttp3.*
 import rxhttp.wrapper.OkHttpCompat
+import rxhttp.wrapper.entity.UriRequestBody
 import rxhttp.wrapper.parse.Parser
-import rxhttp.wrapper.utils.LogUtil
 import java.io.IOException
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
 /**
  * User: ljx
- * Date: 2020/9/5
- * Time: 13:01
+ * Date: 2020/9/13
+ * Time: 22:41
  */
+
+@JvmOverloads
+fun Uri.asRequestBody(
+    context: Context,
+    contentType: MediaType? = null
+) = UriRequestBody(context, this, contentType)
+
+@JvmOverloads
+fun Uri.asPart(
+    context: Context,
+    name: String,
+    contentType: MediaType? = null
+): MultipartBody.Part {
+    val fileName = context.contentResolver
+        .query(this, null, null, null, null)?.use {
+            if (it.moveToFirst())
+                it.getString(it.getColumnIndex(OpenableColumns.DISPLAY_NAME))
+            else null
+        }
+    return MultipartBody.Part.createFormData(name, fileName, asRequestBody(context, contentType))
+}
 
 internal suspend fun Call.await(): Response {
     return suspendCancellableCoroutine { continuation ->

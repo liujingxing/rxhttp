@@ -119,8 +119,19 @@ public class RxHttpFormParam extends RxHttpBodyParam<FormParam, RxHttpFormParam>
     return this;
   }
 
+  public RxHttpFormParam addPart(String name, Context context, Uri uri) {
+    param.addPart(name, context, uri);
+    return this;
+  }
+
   public RxHttpFormParam addPart(Context context, Uri uri, @Nullable MediaType contentType) {
     param.addPart(context, uri, contentType);
+    return this;
+  }
+
+  public RxHttpFormParam addPart(String name, Context context, Uri uri,
+      @Nullable MediaType contentType) {
+    param.addPart(name, context, uri, contentType);
     return this;
   }
 
