@@ -30,7 +30,7 @@ class Android10OsFactory(
         if (fileName == null) {
             val currentTime = System.currentTimeMillis().toString()
             val fileSuffix = MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType)
-            fileName = "$currentTime$fileSuffix"
+            fileName = "$currentTime.$fileSuffix"
         }
         val uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             ContentValues().run {
