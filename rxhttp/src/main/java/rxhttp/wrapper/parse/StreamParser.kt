@@ -44,7 +44,7 @@ class StreamParser<T> @JvmOverloads constructor(
         val body = ExceptionHelper.throwIfFatal(response)
         val osWrapper = osFactory.getOutputStream(response)
         val result = osWrapper.result
-        LogUtil.log(response, osWrapper.toString())
+        LogUtil.log(response, result.toString())
         progressCallback?.let {
             response.writeTo(body, osWrapper.os, it)
         } ?: IOUtil.write(body.byteStream(), osWrapper.os)
