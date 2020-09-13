@@ -136,6 +136,7 @@ class ParserAnnotatedClass {
 
         methodList.add(
             MethodSpec.methodBuilder("doOnStart")
+                .addModifiers(Modifier.PRIVATE, Modifier.FINAL)
                 .addJavadoc("请求开始前内部调用，用于添加默认域名等操作\n")
                 .addStatement("setConverter(param)")
                 .addStatement("addDefaultDomainIfAbsent(param)")
