@@ -3,9 +3,8 @@ package rxhttp.wrapper.entity
 import java.io.OutputStream
 
 /**
- * User: ljx
- * Date: 2020/9/12
- * Time: 18:10
+ * @param result When the download is complete, the object is returned
+ * @param os Download OutputStream
  */
 data class OutputStreamWrapper<out T>(
     val result: T,
