@@ -20,28 +20,31 @@ import java.io.OutputStream
  * Date: 2020/9/11
  * Time: 17:43
  */
-class Android10OsFactory(val context: Context) : OutputStreamFactory<Uri>() {
+class Android10OsFactory(
+    private val context: Context,
+    private var fileName: String? = null
+) : OutputStreamFactory<Uri>() {
 
     override fun getOutputStream(response: Response): OutputStreamWrapper<Uri> {
-
         val mimeType = response.body?.contentType().toString()
-        val fileName = System.currentTimeMillis().toString()
-        val extension = MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType)
-
-        val uri = (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            val values = ContentValues().apply {
-                put(MediaStore.MediaColumns.DISPLAY_NAME, "$fileName.$extension") //文件名
+        if (fileName == null) {
+            val currentTime = System.currentTimeMillis().toString()
+            val fileSuffix = MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType)
+            fileName = "$currentTime$fileSuffix"
+        }
+        val uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            ContentValues().run {
+                put(MediaStore.MediaColumns.DISPLAY_NAME, fileName) //文件名
                 put(MediaStore.MediaColumns.MIME_TYPE, mimeType) //文件类型
                 put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS) //下载到Download目录
-            }
-            context.contentResolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values)
-        } else
-            Uri.fromFile(File(context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
-                ?.absolutePath + File.separator + "$fileName.$extension")))
-            ?: throw IllegalArgumentException()
+                context.contentResolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, this)
+            } ?: throw NullPointerException("Uri can not be null")
+        } else {
+            Uri.fromFile(File(context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), fileName))
+        }
 
         val os: OutputStream = context.contentResolver.openOutputStream(uri)
-            ?: throw IllegalArgumentException()
+            ?: throw NullPointerException("OutputStream can not be null")
         return os.toWrapper(uri)
     }
 }
