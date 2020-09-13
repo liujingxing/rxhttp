@@ -26,22 +26,21 @@ public class UriRequestBody extends RequestBody {
 
     private Uri uri;
     private ContentResolver contentResolver;
-    private MediaType defaultMediaType;
+    private MediaType contentType;
 
     public UriRequestBody(Context context, Uri uri) {
         this(context, uri, null);
     }
 
-    public UriRequestBody(Context context, Uri uri, @Nullable MediaType defaultMediaType) {
+    public UriRequestBody(Context context, Uri uri, @Nullable MediaType contentType) {
         this.uri = uri;
-        this.defaultMediaType = defaultMediaType;
+        this.contentType = contentType;
         contentResolver = context.getContentResolver();
     }
 
     @Override
     public MediaType contentType() {
-        MediaType mediaType = MediaType.parse(contentResolver.getType(uri));
-        return mediaType != null ? mediaType : defaultMediaType;
+        return contentType != null ? contentType : MediaType.parse(contentResolver.getType(uri));
     }
 
     @Override

@@ -648,10 +648,33 @@ class RxHttpGenerator {
             methodList.add(
                 MethodSpec.methodBuilder("addPart")
                     .addModifiers(Modifier.PUBLIC)
+                    .addParameter(String::class.java, "name")
+                    .addParameter(contextName, "context")
+                    .addParameter(uriName, "uri")
+                    .addStatement("param.addPart(name, context, uri)")
+                    .addStatement("return this")
+                    .returns(rxHttpFormName)
+                    .build())
+
+            methodList.add(
+                MethodSpec.methodBuilder("addPart")
+                    .addModifiers(Modifier.PUBLIC)
                     .addParameter(contextName, "context")
                     .addParameter(uriName, "uri")
                     .addParameter(mediaTypeParam)
                     .addStatement("param.addPart(context, uri, contentType)")
+                    .addStatement("return this")
+                    .returns(rxHttpFormName)
+                    .build())
+
+            methodList.add(
+                MethodSpec.methodBuilder("addPart")
+                    .addModifiers(Modifier.PUBLIC)
+                    .addParameter(String::class.java, "name")
+                    .addParameter(contextName, "context")
+                    .addParameter(uriName, "uri")
+                    .addParameter(mediaTypeParam)
+                    .addStatement("param.addPart(name, context, uri, contentType)")
                     .addStatement("return this")
                     .returns(rxHttpFormName)
                     .build())

@@ -12,6 +12,7 @@ import rxhttp.wrapper.annotations.Nullable;
 import rxhttp.wrapper.entity.UpFile;
 import rxhttp.wrapper.entity.UriRequestBody;
 import rxhttp.wrapper.utils.BuildUtil;
+import rxhttp.wrapper.utils.KotlinExtensions;
 
 /**
  * User: ljx
@@ -32,11 +33,19 @@ public interface IPart<P extends Param<P>> extends IFile<P> {
     }
 
     default P addPart(Context context, Uri uri) {
-        return addPart(new UriRequestBody(context, uri));
+        return addPart(Part.create(new UriRequestBody(context, uri)));
     }
 
-    default P addPart(Context context, Uri uri, @Nullable MediaType defaultMediaType) {
-        return addPart(new UriRequestBody(context, uri, defaultMediaType));
+    default P addPart(String name, Context context, Uri uri) {
+        return addPart(KotlinExtensions.asPart(uri, context, name));
+    }
+
+    default P addPart(Context context, Uri uri, @Nullable MediaType contentType) {
+        return addPart(Part.create(new UriRequestBody(context, uri, contentType)));
+    }
+
+    default P addPart(String name, Context context, Uri uri, @Nullable MediaType contentType) {
+        return addPart(KotlinExtensions.asPart(uri, context, name, contentType));
     }
 
     default P addPart(@NonNull RequestBody body) {

@@ -4,6 +4,7 @@ import rxhttp.IAwait
 import rxhttp.IRxHttp
 import rxhttp.wrapper.parse.Parser
 import rxhttp.wrapper.parse.SuspendParser
+import rxhttp.wrapper.utils.await
 
 /**
  * User: ljx
