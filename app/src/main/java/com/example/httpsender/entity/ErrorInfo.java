@@ -46,6 +46,8 @@ public class ErrorInfo {
             String code = throwable.getLocalizedMessage();
             if ("416".equals(code)) {
                 errorMsg = "请求范围不符合要求";
+            } else {
+                errorMsg = throwable.getMessage();
             }
         } else if (throwable instanceof JsonSyntaxException) { //请求成功，但Json语法异常,导致解析失败
             errorMsg = "数据解析失败,请稍后再试";
