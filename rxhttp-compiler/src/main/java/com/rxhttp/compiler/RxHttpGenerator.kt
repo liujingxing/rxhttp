@@ -640,34 +640,15 @@ class RxHttpGenerator {
             val listUriName = ParameterizedTypeName.get(ClassName.get(MutableList::class.java), subUri)
             val mapUriName = ParameterizedTypeName.get(ClassName.get(MutableMap::class.java), stringName, subUri)
 
-            methodList.add(
-                MethodSpec.methodBuilder("addPart")
-                    .addModifiers(Modifier.PUBLIC)
-                    .addParameter(contextName, "context")
-                    .addParameter(uriName, "uri")
-                    .addStatement("param.addPart(context, uri)")
-                    .addStatement("return this")
-                    .returns(rxHttpFormName)
-                    .build())
-
-            methodList.add(
-                MethodSpec.methodBuilder("addPart")
-                    .addModifiers(Modifier.PUBLIC)
-                    .addParameter(contextName, "context")
-                    .addParameter(String::class.java, "name")
-                    .addParameter(uriName, "uri")
-                    .addStatement("param.addPart(context, name, uri)")
-                    .addStatement("return this")
-                    .returns(rxHttpFormName)
-                    .build())
+            val kotlinExtensionsName = ClassName.get("rxhttp.wrapper.utils", "KotlinExtensions")
+            val mapEntryName = ClassName.get("java.util.Map", "Entry")
 
             methodList.add(
                 MethodSpec.methodBuilder("addPart")
                     .addModifiers(Modifier.PUBLIC)
                     .addParameter(contextName, "context")
                     .addParameter(uriName, "uri")
-                    .addParameter(mediaTypeParam)
-                    .addStatement("param.addPart(context, uri, contentType)")
+                    .addStatement("param.addPart(\$T.asRequestBody(uri, context))", kotlinExtensionsName)
                     .addStatement("return this")
                     .returns(rxHttpFormName)
                     .build())
@@ -678,8 +659,30 @@ class RxHttpGenerator {
                     .addParameter(contextName, "context")
                     .addParameter(String::class.java, "name")
                     .addParameter(uriName, "uri")
+                    .addStatement("param.addPart(\$T.asPart(uri, context, name))", kotlinExtensionsName)
+                    .addStatement("return this")
+                    .returns(rxHttpFormName)
+                    .build())
+
+            methodList.add(
+                MethodSpec.methodBuilder("addPart")
+                    .addModifiers(Modifier.PUBLIC)
+                    .addParameter(contextName, "context")
+                    .addParameter(uriName, "uri")
                     .addParameter(mediaTypeParam)
-                    .addStatement("param.addPart(context, name, uri, contentType)")
+                    .addStatement("param.addPart(\$T.asRequestBody(uri, context, contentType))", kotlinExtensionsName)
+                    .addStatement("return this")
+                    .returns(rxHttpFormName)
+                    .build())
+
+            methodList.add(
+                MethodSpec.methodBuilder("addPart")
+                    .addModifiers(Modifier.PUBLIC)
+                    .addParameter(contextName, "context")
+                    .addParameter(String::class.java, "name")
+                    .addParameter(uriName, "uri")
+                    .addParameter(mediaTypeParam)
+                    .addStatement("param.addPart(\$T.asPart(uri, context, name, contentType))", kotlinExtensionsName)
                     .addStatement("return this")
                     .returns(rxHttpFormName)
                     .build())
@@ -688,9 +691,13 @@ class RxHttpGenerator {
                 MethodSpec.methodBuilder("addParts")
                     .addModifiers(Modifier.PUBLIC)
                     .addParameter(contextName, "context")
-                    .addParameter(mapUriName, "mapUri")
-                    .addStatement("param.addParts(context, mapUri)")
-                    .addStatement("return this")
+                    .addParameter(mapUriName, "uriMap")
+                    .addCode("""
+                        for (${"$"}T<String, ? extends Uri> entry : uriMap.entrySet()) {
+                            addPart(context, entry.getKey(), entry.getValue());       
+                        }
+                        return this;
+                    """.trimIndent(),mapEntryName)
                     .returns(rxHttpFormName)
                     .build())
 
@@ -699,8 +706,12 @@ class RxHttpGenerator {
                     .addModifiers(Modifier.PUBLIC)
                     .addParameter(contextName, "context")
                     .addParameter(listUriName, "uris")
-                    .addStatement("param.addParts(context, uris)")
-                    .addStatement("return this")
+                    .addCode("""
+                        for (Uri uri : uris) {    
+                            addPart(context, uri);
+                        }
+                        return this;                         
+                    """.trimIndent())
                     .returns(rxHttpFormName)
                     .build())
 
@@ -710,8 +721,12 @@ class RxHttpGenerator {
                     .addParameter(contextName, "context")
                     .addParameter(String::class.java, "name")
                     .addParameter(listUriName, "uris")
-                    .addStatement("param.addParts(context, name, uris)")
-                    .addStatement("return this")
+                    .addCode("""
+                        for (Uri uri : uris) {          
+                            addPart(context, name, uri);
+                        }
+                        return this;                               
+                    """.trimIndent())
                     .returns(rxHttpFormName)
                     .build())
 
@@ -721,8 +736,12 @@ class RxHttpGenerator {
                     .addParameter(contextName, "context")
                     .addParameter(listUriName, "uris")
                     .addParameter(mediaTypeParam)
-                    .addStatement("param.addParts(context, uris, contentType)")
-                    .addStatement("return this")
+                    .addCode("""
+                        for (Uri uri : uris) {                 
+                            addPart(context, uri, contentType);
+                        }
+                        return this;                                      
+                    """.trimIndent())
                     .returns(rxHttpFormName)
                     .build())
 
@@ -733,8 +752,12 @@ class RxHttpGenerator {
                     .addParameter(String::class.java, "name")
                     .addParameter(listUriName, "uris")
                     .addParameter(mediaTypeParam)
-                    .addStatement("param.addParts(context, name, uris, contentType)")
-                    .addStatement("return this")
+                    .addCode("""
+                        for (Uri uri : uris) {                       
+                            addPart(context, name, uri, contentType);
+                        }
+                        return this;                                            
+                    """.trimIndent())
                     .returns(rxHttpFormName)
                     .build())
         }

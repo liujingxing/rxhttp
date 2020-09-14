@@ -25,7 +25,7 @@ import kotlin.coroutines.resumeWithException
 fun Uri.asRequestBody(
     context: Context,
     contentType: MediaType? = null
-) = UriRequestBody(context, this, contentType)
+): RequestBody = UriRequestBody(context, this, contentType)
 
 @JvmOverloads
 fun Uri.asPart(
