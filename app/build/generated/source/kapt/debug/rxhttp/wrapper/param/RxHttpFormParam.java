@@ -8,12 +8,14 @@ import java.lang.Object;
 import java.lang.String;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import okhttp3.Headers;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody.Part;
 import okhttp3.RequestBody;
 import rxhttp.wrapper.annotations.Nullable;
 import rxhttp.wrapper.entity.UpFile;
+import rxhttp.wrapper.utils.KotlinExtensions;
 
 /**
  * Github
@@ -116,51 +118,61 @@ public class RxHttpFormParam extends RxHttpBodyParam<FormParam, RxHttpFormParam>
   }
 
   public RxHttpFormParam addPart(Context context, Uri uri) {
-    param.addPart(context, uri);
+    param.addPart(KotlinExtensions.asRequestBody(uri, context));
     return this;
   }
 
   public RxHttpFormParam addPart(Context context, String name, Uri uri) {
-    param.addPart(context, name, uri);
+    param.addPart(KotlinExtensions.asPart(uri, context, name));
     return this;
   }
 
   public RxHttpFormParam addPart(Context context, Uri uri, @Nullable MediaType contentType) {
-    param.addPart(context, uri, contentType);
+    param.addPart(KotlinExtensions.asRequestBody(uri, context, contentType));
     return this;
   }
 
   public RxHttpFormParam addPart(Context context, String name, Uri uri,
       @Nullable MediaType contentType) {
-    param.addPart(context, name, uri, contentType);
+    param.addPart(KotlinExtensions.asPart(uri, context, name, contentType));
     return this;
   }
 
-  public RxHttpFormParam addParts(Context context, Map<String, ? extends Uri> mapUri) {
-    param.addParts(context, mapUri);
+  public RxHttpFormParam addParts(Context context, Map<String, ? extends Uri> uriMap) {
+    for (Entry<String, ? extends Uri> entry : uriMap.entrySet()) {
+        addPart(context, entry.getKey(), entry.getValue());       
+    }
     return this;
   }
 
   public RxHttpFormParam addParts(Context context, List<? extends Uri> uris) {
-    param.addParts(context, uris);
-    return this;
+    for (Uri uri : uris) {    
+        addPart(context, uri);
+    }
+    return this;                         
   }
 
   public RxHttpFormParam addParts(Context context, String name, List<? extends Uri> uris) {
-    param.addParts(context, name, uris);
-    return this;
+    for (Uri uri : uris) {          
+        addPart(context, name, uri);
+    }
+    return this;                               
   }
 
   public RxHttpFormParam addParts(Context context, List<? extends Uri> uris,
       @Nullable MediaType contentType) {
-    param.addParts(context, uris, contentType);
-    return this;
+    for (Uri uri : uris) {                 
+        addPart(context, uri, contentType);
+    }
+    return this;                                      
   }
 
   public RxHttpFormParam addParts(Context context, String name, List<? extends Uri> uris,
       @Nullable MediaType contentType) {
-    param.addParts(context, name, uris, contentType);
-    return this;
+    for (Uri uri : uris) {                       
+        addPart(context, name, uri, contentType);
+    }
+    return this;                                            
   }
 
   public RxHttpFormParam addPart(Part part) {
