@@ -3,6 +3,10 @@ package rxhttp.wrapper.param;
 import android.content.Context;
 import android.net.Uri;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import okhttp3.Headers;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody.Part;
@@ -36,7 +40,7 @@ public interface IPart<P extends Param<P>> extends IFile<P> {
         return addPart(Part.create(new UriRequestBody(context, uri)));
     }
 
-    default P addPart(String name, Context context, Uri uri) {
+    default P addPart(Context context, String name, Uri uri) {
         return addPart(KotlinExtensions.asPart(uri, context, name));
     }
 
@@ -44,8 +48,43 @@ public interface IPart<P extends Param<P>> extends IFile<P> {
         return addPart(Part.create(new UriRequestBody(context, uri, contentType)));
     }
 
-    default P addPart(String name, Context context, Uri uri, @Nullable MediaType contentType) {
+    default P addPart(Context context, String name, Uri uri, @Nullable MediaType contentType) {
         return addPart(KotlinExtensions.asPart(uri, context, name, contentType));
+    }
+
+    default P addParts(Context context, Map<String, ? extends Uri> uriMap) {
+        for (Entry<String, ? extends Uri> entry : uriMap.entrySet()) {
+            addPart(context, entry.getKey(), entry.getValue());
+        }
+        return (P) this;
+    }
+
+    default P addParts(Context context, List<? extends Uri> uris) {
+        for (Uri uri : uris) {
+            addPart(context, uri);
+        }
+        return (P) this;
+    }
+
+    default P addParts(Context context, String name, List<? extends Uri> uris) {
+        for (Uri uri : uris) {
+            addPart(context, name, uri);
+        }
+        return (P) this;
+    }
+
+    default P addParts(Context context, List<? extends Uri> uris, @Nullable MediaType contentType) {
+        for (Uri uri : uris) {
+            addPart(context, uri, contentType);
+        }
+        return (P) this;
+    }
+
+    default P addParts(Context context, String name, List<? extends Uri> uris, @Nullable MediaType contentType) {
+        for (Uri uri : uris) {
+            addPart(context, name, uri, contentType);
+        }
+        return (P) this;
     }
 
     default P addPart(@NonNull RequestBody body) {

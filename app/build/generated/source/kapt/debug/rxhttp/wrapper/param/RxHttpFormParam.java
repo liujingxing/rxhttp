@@ -7,6 +7,7 @@ import java.lang.Deprecated;
 import java.lang.Object;
 import java.lang.String;
 import java.util.List;
+import java.util.Map;
 import okhttp3.Headers;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody.Part;
@@ -119,8 +120,8 @@ public class RxHttpFormParam extends RxHttpBodyParam<FormParam, RxHttpFormParam>
     return this;
   }
 
-  public RxHttpFormParam addPart(String name, Context context, Uri uri) {
-    param.addPart(name, context, uri);
+  public RxHttpFormParam addPart(Context context, String name, Uri uri) {
+    param.addPart(context, name, uri);
     return this;
   }
 
@@ -129,9 +130,36 @@ public class RxHttpFormParam extends RxHttpBodyParam<FormParam, RxHttpFormParam>
     return this;
   }
 
-  public RxHttpFormParam addPart(String name, Context context, Uri uri,
+  public RxHttpFormParam addPart(Context context, String name, Uri uri,
       @Nullable MediaType contentType) {
-    param.addPart(name, context, uri, contentType);
+    param.addPart(context, name, uri, contentType);
+    return this;
+  }
+
+  public RxHttpFormParam addParts(Context context, Map<String, ? extends Uri> mapUri) {
+    param.addParts(context, mapUri);
+    return this;
+  }
+
+  public RxHttpFormParam addParts(Context context, List<? extends Uri> uris) {
+    param.addParts(context, uris);
+    return this;
+  }
+
+  public RxHttpFormParam addParts(Context context, String name, List<? extends Uri> uris) {
+    param.addParts(context, name, uris);
+    return this;
+  }
+
+  public RxHttpFormParam addParts(Context context, List<? extends Uri> uris,
+      @Nullable MediaType contentType) {
+    param.addParts(context, uris, contentType);
+    return this;
+  }
+
+  public RxHttpFormParam addParts(Context context, String name, List<? extends Uri> uris,
+      @Nullable MediaType contentType) {
+    param.addParts(context, name, uris, contentType);
     return this;
   }
 

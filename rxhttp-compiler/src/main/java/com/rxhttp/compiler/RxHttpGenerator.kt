@@ -635,6 +635,11 @@ class RxHttpGenerator {
 
             val contextName = ClassName.get("android.content", "Context")
             val uriName = ClassName.get("android.net", "Uri")
+
+            val subUri = WildcardTypeName.subtypeOf(uriName)
+            val listUriName = ParameterizedTypeName.get(ClassName.get(MutableList::class.java), subUri)
+            val mapUriName = ParameterizedTypeName.get(ClassName.get(MutableMap::class.java), stringName, subUri)
+
             methodList.add(
                 MethodSpec.methodBuilder("addPart")
                     .addModifiers(Modifier.PUBLIC)
@@ -648,10 +653,10 @@ class RxHttpGenerator {
             methodList.add(
                 MethodSpec.methodBuilder("addPart")
                     .addModifiers(Modifier.PUBLIC)
-                    .addParameter(String::class.java, "name")
                     .addParameter(contextName, "context")
+                    .addParameter(String::class.java, "name")
                     .addParameter(uriName, "uri")
-                    .addStatement("param.addPart(name, context, uri)")
+                    .addStatement("param.addPart(context, name, uri)")
                     .addStatement("return this")
                     .returns(rxHttpFormName)
                     .build())
@@ -670,11 +675,65 @@ class RxHttpGenerator {
             methodList.add(
                 MethodSpec.methodBuilder("addPart")
                     .addModifiers(Modifier.PUBLIC)
-                    .addParameter(String::class.java, "name")
                     .addParameter(contextName, "context")
+                    .addParameter(String::class.java, "name")
                     .addParameter(uriName, "uri")
                     .addParameter(mediaTypeParam)
-                    .addStatement("param.addPart(name, context, uri, contentType)")
+                    .addStatement("param.addPart(context, name, uri, contentType)")
+                    .addStatement("return this")
+                    .returns(rxHttpFormName)
+                    .build())
+
+            methodList.add(
+                MethodSpec.methodBuilder("addParts")
+                    .addModifiers(Modifier.PUBLIC)
+                    .addParameter(contextName, "context")
+                    .addParameter(mapUriName, "mapUri")
+                    .addStatement("param.addParts(context, mapUri)")
+                    .addStatement("return this")
+                    .returns(rxHttpFormName)
+                    .build())
+
+            methodList.add(
+                MethodSpec.methodBuilder("addParts")
+                    .addModifiers(Modifier.PUBLIC)
+                    .addParameter(contextName, "context")
+                    .addParameter(listUriName, "uris")
+                    .addStatement("param.addParts(context, uris)")
+                    .addStatement("return this")
+                    .returns(rxHttpFormName)
+                    .build())
+
+            methodList.add(
+                MethodSpec.methodBuilder("addParts")
+                    .addModifiers(Modifier.PUBLIC)
+                    .addParameter(contextName, "context")
+                    .addParameter(String::class.java, "name")
+                    .addParameter(listUriName, "uris")
+                    .addStatement("param.addParts(context, name, uris)")
+                    .addStatement("return this")
+                    .returns(rxHttpFormName)
+                    .build())
+
+            methodList.add(
+                MethodSpec.methodBuilder("addParts")
+                    .addModifiers(Modifier.PUBLIC)
+                    .addParameter(contextName, "context")
+                    .addParameter(listUriName, "uris")
+                    .addParameter(mediaTypeParam)
+                    .addStatement("param.addParts(context, uris, contentType)")
+                    .addStatement("return this")
+                    .returns(rxHttpFormName)
+                    .build())
+
+            methodList.add(
+                MethodSpec.methodBuilder("addParts")
+                    .addModifiers(Modifier.PUBLIC)
+                    .addParameter(contextName, "context")
+                    .addParameter(String::class.java, "name")
+                    .addParameter(listUriName, "uris")
+                    .addParameter(mediaTypeParam)
+                    .addStatement("param.addParts(context, name, uris, contentType)")
                     .addStatement("return this")
                     .returns(rxHttpFormName)
                     .build())
