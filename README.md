@@ -83,7 +83,7 @@ dependencies {
     implementation 'com.squareup.okhttp3:okhttp:4.8.1' //rxhttp v2.2.2版本起，需要手动依赖okhttp
     kapt 'com.ljx.rxhttp:rxhttp-compiler:2.4.0' //生成RxHttp类，非kotlin项目，请使用annotationProcessor代替kapt
     
-    implementation 'com.ljx.rxlife:rxlife-coroutine:2.0.0' //管理协程生命周期，页面销毁，关闭请求
+    implementation 'com.ljx.rxlife:rxlife-coroutine:2.0.1' //管理协程生命周期，页面销毁，关闭请求
     
     //rxjava2   (RxJava2/Rxjava3二选一，使用asXxx方法时必须)
     implementation 'io.reactivex.rxjava2:rxjava:2.2.8'
