@@ -2,8 +2,10 @@ package rxhttp.wrapper.await
 
 import rxhttp.IAwait
 import rxhttp.IRxHttp
+import rxhttp.wrapper.OkHttpCompat
 import rxhttp.wrapper.parse.Parser
 import rxhttp.wrapper.parse.SuspendParser
+import rxhttp.wrapper.utils.LogUtil
 import rxhttp.wrapper.utils.await
 
 /**
@@ -19,10 +21,15 @@ internal class AwaitImpl<T>(
 
     override suspend fun await(): T {
         val call = iRxHttp.newCall()
-        return if (parser is SuspendParser) {
-            parser.onSuspendParse(call.await())
-        } else {
-            call.await(parser)
+        return try {
+            if (parser is SuspendParser) {
+                parser.onSuspendParse(call.await())
+            } else {
+                call.await(parser)
+            }
+        } catch (t: Throwable) {
+            LogUtil.log(OkHttpCompat.url(call.request()).toString(), t)
+            throw t
         }
     }
 }

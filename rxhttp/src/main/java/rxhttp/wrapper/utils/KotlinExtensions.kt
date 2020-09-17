@@ -59,7 +59,6 @@ internal suspend fun Call.await(): Response {
             }
 
             override fun onFailure(call: Call, e: IOException) {
-                LogUtil.log(OkHttpCompat.url(call.request()).toString(), e)
                 continuation.resumeWithException(e)
             }
         })
@@ -77,17 +76,12 @@ internal suspend fun <T> Call.await(parser: Parser<T>): T {
                 try {
                     continuation.resume(parser.onParse(response))
                 } catch (t: Throwable) {
-                    onError(call, t)
+                    continuation.resumeWithException(t)
                 }
             }
 
             override fun onFailure(call: Call, e: IOException) {
-                onError(call, e)
-            }
-
-            private fun onError(call: Call, t: Throwable) {
-                LogUtil.log(OkHttpCompat.url(call.request()).toString(), t)
-                continuation.resumeWithException(t)
+                continuation.resumeWithException(e)
             }
         })
     }
