@@ -4,7 +4,7 @@ package rxhttp.wrapper.utils
 
 import android.content.Context
 import android.net.Uri
-import android.provider.OpenableColumns
+import android.provider.MediaStore
 import android.webkit.MimeTypeMap
 import kotlinx.coroutines.suspendCancellableCoroutine
 import okhttp3.*
@@ -34,10 +34,9 @@ fun Uri.asPart(
     contentType: MediaType? = null
 ): MultipartBody.Part {
     val contentResolver = context.contentResolver
-    var fileName = contentResolver.query(this, null, null, null, null)?.use {
-        if (it.moveToFirst())
-            it.getString(it.getColumnIndex(OpenableColumns.DISPLAY_NAME))
-        else null
+    var fileName = contentResolver.query(this, arrayOf(MediaStore.MediaColumns.DISPLAY_NAME),
+        null, null, null)?.use {
+        if (it.moveToFirst()) it.getString(0) else null
     }
     if (fileName == null) {
         val currentTime = System.currentTimeMillis().toString()
