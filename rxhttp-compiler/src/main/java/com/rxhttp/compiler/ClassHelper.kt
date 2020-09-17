@@ -175,12 +175,20 @@ object ClassHelper {
                 }
                 ${
                 if (isAndroid) """
+                public final Observable<Uri> asDownload(Context context, Uri uri) {
+                    return asParser(StreamParser.get(context, uri), null, null);   
+                }                                                                  
+                    
                 public final Observable<Uri> asDownload(Context context, Uri uri, Scheduler scheduler,    
                                                            Consumer<Progress> progressConsumer) {            
                     return asParser(StreamParser.get(context, uri), scheduler, progressConsumer);
                 }                                                                                            
                 """ else ""
                 }
+                public final <T> Observable<T> asDownload(OutputStreamFactory<T> osFactory) {
+                    return asParser(new StreamParser<T>(osFactory), null, null);             
+                } 
+                                                                                           
                 public final <T> Observable<T> asDownload(OutputStreamFactory<T> osFactory, Scheduler scheduler,
                                                            Consumer<Progress> progressConsumer) {
                     return asParser(new StreamParser<T>(osFactory), scheduler, progressConsumer);
