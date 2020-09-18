@@ -125,6 +125,12 @@ public class RxSimpleHttp {
     return rxHttp;
   }
 
+  public static RxHttpPostText postText(String url, Object... formatArgs) {
+    RxHttpPostText rxHttp = RxHttp.postText(url, formatArgs);
+    wrapper(rxHttp);
+    return rxHttp;
+  }
+
   public static RxHttpGetEncryptParam getEncrypt(String url, Object... formatArgs) {
     RxHttpGetEncryptParam rxHttp = RxHttp.getEncrypt(url, formatArgs);
     wrapper(rxHttp);
