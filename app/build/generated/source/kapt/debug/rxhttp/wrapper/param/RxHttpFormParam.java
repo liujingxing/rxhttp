@@ -138,28 +138,28 @@ public class RxHttpFormParam extends RxHttpBodyParam<FormParam, RxHttpFormParam>
     return this;
   }
 
-  public RxHttpFormParam addParts(Context context, Map<String, ? extends Uri> uriMap) {
-    for (Entry<String, ? extends Uri> entry : uriMap.entrySet()) {
+  public RxHttpFormParam addParts(Context context, Map<String, Uri> uriMap) {
+    for (Entry<String, Uri> entry : uriMap.entrySet()) {
         addPart(context, entry.getKey(), entry.getValue());       
     }
     return this;
   }
 
-  public RxHttpFormParam addParts(Context context, List<? extends Uri> uris) {
+  public RxHttpFormParam addParts(Context context, List<Uri> uris) {
     for (Uri uri : uris) {    
         addPart(context, uri);
     }
     return this;                         
   }
 
-  public RxHttpFormParam addParts(Context context, String name, List<? extends Uri> uris) {
+  public RxHttpFormParam addParts(Context context, String name, List<Uri> uris) {
     for (Uri uri : uris) {          
         addPart(context, name, uri);
     }
     return this;                               
   }
 
-  public RxHttpFormParam addParts(Context context, List<? extends Uri> uris,
+  public RxHttpFormParam addParts(Context context, List<Uri> uris,
       @Nullable MediaType contentType) {
     for (Uri uri : uris) {                 
         addPart(context, uri, contentType);
@@ -167,7 +167,7 @@ public class RxHttpFormParam extends RxHttpBodyParam<FormParam, RxHttpFormParam>
     return this;                                      
   }
 
-  public RxHttpFormParam addParts(Context context, String name, List<? extends Uri> uris,
+  public RxHttpFormParam addParts(Context context, String name, List<Uri> uris,
       @Nullable MediaType contentType) {
     for (Uri uri : uris) {                       
         addPart(context, name, uri, contentType);
