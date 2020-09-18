@@ -636,9 +636,8 @@ class RxHttpGenerator {
             val contextName = ClassName.get("android.content", "Context")
             val uriName = ClassName.get("android.net", "Uri")
 
-            val subUri = WildcardTypeName.subtypeOf(uriName)
-            val listUriName = ParameterizedTypeName.get(ClassName.get(MutableList::class.java), subUri)
-            val mapUriName = ParameterizedTypeName.get(ClassName.get(MutableMap::class.java), stringName, subUri)
+            val listUriName = ParameterizedTypeName.get(ClassName.get(MutableList::class.java), uriName)
+            val mapUriName = ParameterizedTypeName.get(ClassName.get(MutableMap::class.java), stringName, uriName)
 
             val kotlinExtensionsName = ClassName.get("rxhttp.wrapper.utils", "KotlinExtensions")
             val mapEntryName = ClassName.get("java.util.Map", "Entry")
@@ -693,7 +692,7 @@ class RxHttpGenerator {
                     .addParameter(contextName, "context")
                     .addParameter(mapUriName, "uriMap")
                     .addCode("""
-                        for (${"$"}T<String, ? extends Uri> entry : uriMap.entrySet()) {
+                        for (${"$"}T<String, Uri> entry : uriMap.entrySet()) {
                             addPart(context, entry.getKey(), entry.getValue());       
                         }
                         return this;
