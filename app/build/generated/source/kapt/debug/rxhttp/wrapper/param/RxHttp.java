@@ -7,6 +7,7 @@ import com.example.httpsender.param.GetEncryptParam;
 import com.example.httpsender.param.PostEncryptFormParam;
 import com.example.httpsender.param.PostEncryptJsonParam;
 import com.example.httpsender.param.PostEncryptJsonParam1;
+import com.example.httpsender.param.PostText;
 import com.example.httpsender.parser.ResponseParser;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Scheduler;
@@ -263,6 +264,10 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
   public static RxHttpPostEncryptFormParam postEncryptForm(String url, Method method,
       Object... formatArgs) {
     return new RxHttpPostEncryptFormParam(new PostEncryptFormParam(format(url, formatArgs), method));
+  }
+
+  public static RxHttpPostText postText(String url, Object... formatArgs) {
+    return new RxHttpPostText(new PostText(format(url, formatArgs)));
   }
 
   public static RxHttpGetEncryptParam getEncrypt(String url, Object... formatArgs) {
