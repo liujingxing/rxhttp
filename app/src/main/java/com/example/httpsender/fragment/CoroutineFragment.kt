@@ -5,23 +5,17 @@ import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
 import android.view.View
 import androidx.lifecycle.rxLifeScope
-import com.example.httpsender.DownloadMultiActivity
 import com.example.httpsender.R
 import com.example.httpsender.databinding.CoroutineFragmentBinding
 import com.example.httpsender.entity.*
 import com.example.httpsender.kt.errorMsg
 import com.example.httpsender.kt.show
-import com.example.httpsender.kt.startActivity
 import com.google.gson.Gson
-import kotlinx.coroutines.Dispatchers
+import rxhttp.await
+import rxhttp.awaitString
 import rxhttp.toBitmap
-import rxhttp.toClass
-import rxhttp.toDownload
-import rxhttp.toStr
 import rxhttp.wrapper.param.RxHttp
-import rxhttp.wrapper.param.RxSimpleHttp
 import rxhttp.wrapper.param.toResponse
-import java.io.File
 import java.util.*
 
 /**
@@ -118,8 +112,7 @@ class CoroutineFragment : BaseFragment<CoroutineFragmentBinding>(), View.OnClick
                 .add("interest", interestList) //添加数组对象
                 .add("location", Location(120.6788, 30.7866)) //添加位置对象
                 .addJsonElement("address", address) //通过字符串添加一个对象
-                .toStr()
-                .await()
+                .awaitString()
             mBinding.tvResult.text = result
         }, {
             mBinding.tvResult.text = it.errorMsg
@@ -159,8 +152,7 @@ class CoroutineFragment : BaseFragment<CoroutineFragmentBinding>(), View.OnClick
                 .add(Name("李四"))
                 .addJsonElement("{\"name\":\"王五\"}")
                 .addAll(names)
-                .toStr()
-                .await()
+                .awaitString()
             mBinding.tvResult.text = result
         }, {
             mBinding.tvResult.text = it.errorMsg
@@ -174,8 +166,7 @@ class CoroutineFragment : BaseFragment<CoroutineFragmentBinding>(), View.OnClick
         rxLifeScope.launch({
             val dataXml = RxHttp.get("http://webservices.nextbus.com/service/publicXMLFeed?command=routeConfig&a=sf-muni")
                 .setXmlConverter()
-                .toClass<NewsDataXml>()
-                .await()
+                .await<NewsDataXml>()
             mBinding.tvResult.text = Gson().toJson(dataXml)
         }, {
             mBinding.tvResult.text = it.errorMsg
