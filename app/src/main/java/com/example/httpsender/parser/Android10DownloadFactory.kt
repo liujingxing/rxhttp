@@ -33,7 +33,7 @@ class Android10DownloadFactory @JvmOverloads constructor(
                 put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
                 val uri = queryUri ?: MediaStore.Downloads.EXTERNAL_CONTENT_URI
                 context.contentResolver.insert(uri, this)
-            } ?: throw NullPointerException("Uri insert fail")
+            } ?: throw NullPointerException("Uri insert fail, Please change the file name")
         } else {
             Uri.fromFile(File(context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), displayName))
         }
