@@ -13,7 +13,9 @@ import androidx.fragment.app.Fragment;
 import com.example.httpsender.adapter.FragmentPageAdapter;
 import com.example.httpsender.databinding.MainActivityBinding;
 import com.example.httpsender.fragment.CoroutineFragment;
+import com.example.httpsender.fragment.DownloadFragment;
 import com.example.httpsender.fragment.RxJavaFragment;
+import com.example.httpsender.fragment.UploadFragment;
 import com.example.httpsender.view.ScaleTransitionPagerTitleView;
 
 import net.lucode.hackware.magicindicator.MagicIndicator;
@@ -41,9 +43,13 @@ public class MainActivity extends AppCompatActivity {
         mBinding = DataBindingUtil.setContentView(this, R.layout.main_activity);
         mDataList.add("RxJava");
         mDataList.add("Coroutine");
+        mDataList.add("Upload");
+        mDataList.add("Download");
         List<Fragment> fragments = new ArrayList<>();
         fragments.add(new RxJavaFragment());
         fragments.add(new CoroutineFragment());
+        fragments.add(new UploadFragment());
+        fragments.add(new DownloadFragment());
         mBinding.viewPager.setAdapter(new FragmentPageAdapter(getSupportFragmentManager(), fragments, mDataList));
         initMagicIndicator();
     }
@@ -60,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public IPagerTitleView getTitleView(Context context, final int index) {
                 SimplePagerTitleView simplePagerTitleView = new ScaleTransitionPagerTitleView(context);
+                simplePagerTitleView.setPadding(dp2px(5), 0, 0, 0);
                 simplePagerTitleView.setText(mDataList.get(index));
                 simplePagerTitleView.setTextSize(18);
                 simplePagerTitleView.setNormalColor(Color.parseColor("#c8e6c9"));

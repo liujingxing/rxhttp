@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
 
@@ -34,61 +34,90 @@
                 android:gravity="center_horizontal"
                 android:orientation="vertical">
 
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="start"
+                    android:text="Android 10上传"
+                    android:textColor="@android:color/black" />
+
                 <Button
-                    android:id="@+id/bitmap"
+                    android:id="@+id/coroutine_upload10"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
                     android:onClick="@{v->click.onClick(v)}"
-                    android:text="请求Bitmap"
+                    android:text="协程上传"
                     android:textAllCaps="false" />
 
                 <Button
-                    android:id="@+id/sendGet"
+                    android:id="@+id/coroutine_uploadProgress10"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Get请求"
                     android:onClick="@{v->click.onClick(v)}"
+                    android:text="协程带进度上传"
+                    android:textAllCaps="false" />
+
+
+                <Button
+                    android:id="@+id/rxjava_upload10"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="@{v->click.onClick(v)}"
+                    android:text="RxJava上传"
                     android:textAllCaps="false" />
 
                 <Button
-                    android:id="@+id/sendPostForm"
+                    android:id="@+id/rxjava_uploadProgress10"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:onClick="@{v->click.onClick(v)}"
-                    android:text="Post 表单请求"
+                    android:text="RxJava带进度上传"
+                    android:textAllCaps="false" />
+
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:gravity="start"
+                    android:text="Android 10之前上传"
+                    android:textColor="@android:color/black" />
+
+                <Button
+                    android:id="@+id/coroutine_upload"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:onClick="@{v->click.onClick(v)}"
+                    android:text="协程上传"
                     android:textAllCaps="false" />
 
                 <Button
-                    android:id="@+id/sendPostJson"
+                    android:id="@+id/coroutine_uploadProgress"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:onClick="@{v->click.onClick(v)}"
-                    android:text="Post Json请求"
+                    android:text="协程带进度上传"
+                    android:textAllCaps="false" />
+
+
+                <Button
+                    android:id="@+id/rxjava_upload"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="@{v->click.onClick(v)}"
+                    android:text="RxJava上传"
                     android:textAllCaps="false" />
 
                 <Button
-                    android:id="@+id/sendPostJsonArray"
+                    android:id="@+id/rxjava_uploadProgress"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:onClick="@{v->click.onClick(v)}"
-                    android:text="Post JsonArray请求"
+                    android:text="RxJava带进度上传"
                     android:textAllCaps="false" />
 
-                <Button
-                    android:id="@+id/xmlConverter"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:onClick="@{v->click.onClick(v)}"
-                    android:text="XmlConverter 解析"
-                    android:textAllCaps="false" />
-
-                <Button
-                    android:id="@+id/fastJsonConverter"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:onClick="@{v->click.onClick(v)}"
-                    android:text="FastJsonConverter 解析"
-                    android:textAllCaps="false" />
             </LinearLayout>
         </ScrollView>
 
