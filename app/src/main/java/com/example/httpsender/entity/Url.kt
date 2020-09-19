@@ -17,4 +17,8 @@ object Url {
     @JvmField
     @DefaultDomain //设置为默认域名
     var baseUrl = "https://www.wanandroid.com/"
+
+    const val UPLOAD_URL = "http://t.xinhuo.com/index.php/Api/Pic/uploadPic"
+
+    const val DOWNLOAD_URL = "/miaolive/Miaolive.apk"
 }
