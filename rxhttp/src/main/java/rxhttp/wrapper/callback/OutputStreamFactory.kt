@@ -2,14 +2,15 @@ package rxhttp.wrapper.callback
 
 import android.content.Context
 import android.net.Uri
+import android.provider.MediaStore
 import okhttp3.Response
 import rxhttp.wrapper.OkHttpCompat
+import rxhttp.wrapper.entity.AppendUri
 import rxhttp.wrapper.entity.OutputStreamWrapper
 import rxhttp.wrapper.entity.toWrapper
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
-import java.io.OutputStream
 
 /**
  * User: ljx
@@ -20,6 +21,25 @@ abstract class OutputStreamFactory<T> {
 
     @Throws(IOException::class)
     abstract fun getOutputStream(response: Response): OutputStreamWrapper<T>
+}
+
+abstract class UriFactory(
+    val context: Context,
+    val queryUri: Uri? = null,
+    val fileName: String? = null,
+) : OutputStreamFactory<Uri>() {
+
+    @Throws(IOException::class)
+    abstract fun getUri(response: Response): Uri
+
+    final override fun getOutputStream(response: Response): OutputStreamWrapper<Uri> {
+        val append = response.header("Content-Range") != null
+        return getUri(response).toWrapper(context, append)
+    }
+
+    fun getAppendUri(): AppendUri? {
+        return queryUri?.findUriByFileName(context, fileName)
+    }
 }
 
 inline fun <T> newOutputStreamFactory(
@@ -35,8 +55,7 @@ internal fun newOutputStreamFactory(
     uri: Uri
 ): OutputStreamFactory<Uri> = newOutputStreamFactory {
     val append = it.header("Content-Range") != null
-    val os: OutputStream = context.contentResolver.openOutputStream(uri, if (append) "wa" else "w")
-    os.toWrapper(uri)
+    uri.toWrapper(context, append)
 }
 
 internal fun newOutputStreamFactory(
@@ -60,5 +79,22 @@ private fun String.replaceSuffix(response: Response): String {
         format(OkHttpCompat.pathSegments(response).last())
     } else {
         this
+    }
+}
+
+//find the Uri by filename, return null if find fail
+private fun Uri.findUriByFileName(context: Context, fileName: String?): AppendUri? {
+    if (fileName.isNullOrEmpty()) return null
+    val columnNames = arrayOf(
+        MediaStore.MediaColumns._ID,
+        MediaStore.MediaColumns.SIZE,
+    )
+    return context.contentResolver.query(this, columnNames,
+        MediaStore.MediaColumns.DISPLAY_NAME + "=?", arrayOf(fileName), null).use {
+        if (it.moveToFirst()) {
+            val uriId = it.getString(0)
+            val newUri = this.buildUpon().appendPath(uriId).build()
+            AppendUri(newUri, it.getLong(1))
+        } else null
     }
 }

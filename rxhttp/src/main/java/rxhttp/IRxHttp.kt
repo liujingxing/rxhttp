@@ -13,10 +13,12 @@ import okhttp3.Response
 import rxhttp.wrapper.OkHttpCompat
 import rxhttp.wrapper.await.AwaitImpl
 import rxhttp.wrapper.callback.OutputStreamFactory
+import rxhttp.wrapper.callback.UriFactory
 import rxhttp.wrapper.callback.newOutputStreamFactory
 import rxhttp.wrapper.entity.Progress
 import rxhttp.wrapper.entity.ProgressT
 import rxhttp.wrapper.parse.*
+import java.io.File
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -28,6 +30,7 @@ interface IRxHttp {
 
     fun newCall(): Call
 
+    fun setRangeHeader(startIndex: Long, endIndex: Long, connectLastProgress: Boolean): IRxHttp
 }
 
 suspend fun IRxHttp.awaitBoolean(): Boolean = await()
@@ -133,6 +136,30 @@ fun IRxHttp.toDownload(
     progress: (suspend (ProgressT<Uri>) -> Unit)? = null
 ): IAwait<Uri> = toSyncDownload(newOutputStreamFactory(context, uri), coroutineContext, progress)
     .flowOn(Dispatchers.IO)
+
+fun IRxHttp.toAppendDownload(
+    destPath: String,
+    context: CoroutineContext? = null,
+    progress: (suspend (ProgressT<String>) -> Unit)? = null
+): IAwait<String> {
+    val fileLength = File(destPath).length()
+    setRangeHeader(fileLength, -1, true)
+    return toSyncDownload(newOutputStreamFactory(destPath), context, progress)
+        .flowOn(Dispatchers.IO)
+}
+
+fun IRxHttp.toAppendDownload(
+    uriFactory: UriFactory,
+    coroutineContext: CoroutineContext? = null,
+    progress: (suspend (ProgressT<Uri>) -> Unit)? = null
+): IAwait<Uri> {
+    val factory: OutputStreamFactory<Uri> = uriFactory.getAppendUri()?.run {
+        setRangeHeader(length, -1, true)
+        newOutputStreamFactory(uriFactory.context, uri)
+    } ?: uriFactory
+    return toSyncDownload(factory, coroutineContext, progress)
+        .flowOn(Dispatchers.IO)
+}
 
 fun <T> IRxHttp.toDownload(
     osFactory: OutputStreamFactory<T>,
