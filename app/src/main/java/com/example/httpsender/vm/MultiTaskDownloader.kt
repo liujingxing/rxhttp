@@ -8,7 +8,6 @@ import com.rxjava.rxlife.RxLife
 import com.rxjava.rxlife.ScopeViewModel
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import rxhttp.wrapper.param.RxHttp
-import java.io.File
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -54,11 +53,8 @@ class MultiTaskDownloader(application: Application) : ScopeViewModel(application
             waitTask.offer(task)
             return
         }
-        val destPath = task.localPath
-        val length = File(destPath).length()
         val disposable = RxHttp.get(task.url)
-            .setRangeHeader(length, -1, true) //设置开始下载位置，结束位置默认为文件末尾
-            .asDownload(destPath, AndroidSchedulers.mainThread()) {   //如果需要衔接上次的下载进度，则需要传入上次已下载的字节数length
+            .asAppendDownload(task.localPath, AndroidSchedulers.mainThread()) {   //如果需要衔接上次的下载进度，则需要传入上次已下载的字节数length
                 //下载进度回调,0-100，仅在进度有更新时才会回调
                 task.progress = it.progress //当前进度 0-100
                 task.currentSize = it.currentSize //当前已下载的字节大小
