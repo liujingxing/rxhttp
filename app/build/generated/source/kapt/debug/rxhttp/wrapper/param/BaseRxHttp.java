@@ -177,7 +177,7 @@ public abstract class BaseRxHttp implements IRxHttp {
     public final Observable<Uri> asAppendDownload(UriFactory uriFactory, Scheduler scheduler,
                                                   Consumer<Progress> progressConsumer) {     
         AppendUri appendUri = uriFactory.getAppendUri();                                     
-        StreamParser<Uri> parser;
+        StreamParser<Uri> parser;                                                            
         if (appendUri != null) {                                                             
             setRangeHeader(appendUri.getLength(), -1, true);                                 
             parser = StreamParser.get(uriFactory.getContext(), appendUri.getUri());          
