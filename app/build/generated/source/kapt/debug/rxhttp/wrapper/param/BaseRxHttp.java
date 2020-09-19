@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.Uri;
 
+import java.io.File;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +18,10 @@ import okhttp3.Response;
 import rxhttp.IRxHttp;
 import rxhttp.wrapper.OkHttpCompat;
 import rxhttp.wrapper.callback.OutputStreamFactory;
+
+import rxhttp.wrapper.callback.UriFactory;
+import rxhttp.wrapper.entity.AppendUri;
+
 import rxhttp.wrapper.entity.ParameterizedTypeImpl;
 import rxhttp.wrapper.entity.Progress;
 import rxhttp.wrapper.parse.BitmapParser;
@@ -136,7 +141,7 @@ public abstract class BaseRxHttp implements IRxHttp {
     }
     
     public final Observable<Uri> asDownload(Context context, Uri uri) {
-        return asParser(StreamParser.get(context, uri), null, null);   
+        return asDownload(context, uri, null, null);   
     }                                                                  
         
     public final Observable<Uri> asDownload(Context context, Uri uri, Scheduler scheduler,    
@@ -145,11 +150,41 @@ public abstract class BaseRxHttp implements IRxHttp {
     }                                                                                            
     
     public final <T> Observable<T> asDownload(OutputStreamFactory<T> osFactory) {
-        return asParser(new StreamParser<T>(osFactory), null, null);             
+        return asDownload(osFactory, null, null);             
     } 
                                                                                
     public final <T> Observable<T> asDownload(OutputStreamFactory<T> osFactory, Scheduler scheduler,
                                                Consumer<Progress> progressConsumer) {
         return asParser(new StreamParser<T>(osFactory), scheduler, progressConsumer);
     }
+    
+    public final Observable<String> asAppendDownload(String destPath) {                    
+        return asAppendDownload(destPath, null, null);                                     
+    }                                                                                      
+                                                                                           
+    public final Observable<String> asAppendDownload(String destPath, Scheduler scheduler, 
+                                                     Consumer<Progress> progressConsumer) {
+        long fileLength = new File(destPath).length();                                     
+        setRangeHeader(fileLength, -1, true);                                              
+        return asParser(StreamParser.get(destPath), scheduler, progressConsumer);          
+    } 
+                                                                                         
+     
+    public final Observable<Uri> asAppendDownload(UriFactory uriFactory) {                   
+        return asAppendDownload(uriFactory, null, null);                                     
+    }                                                                                        
+                                                                                             
+    public final Observable<Uri> asAppendDownload(UriFactory uriFactory, Scheduler scheduler,
+                                                  Consumer<Progress> progressConsumer) {     
+        AppendUri appendUri = uriFactory.getAppendUri();                                     
+        StreamParser<Uri> parser;
+        if (appendUri != null) {                                                             
+            setRangeHeader(appendUri.getLength(), -1, true);                                 
+            parser = StreamParser.get(uriFactory.getContext(), appendUri.getUri());          
+        } else {                                                                             
+            parser = new StreamParser(uriFactory);                                           
+        }                                                                                    
+        return asParser(parser, scheduler, progressConsumer);                                
+    }                                                                                            
+        
 }
