@@ -19,7 +19,10 @@ fun <T> OutputStream.toWrapper(that: T): OutputStreamWrapper<T> = OutputStreamWr
 
 fun Uri.toWrapper(os: OutputStream): OutputStreamWrapper<Uri> = OutputStreamWrapper(this, os)
 
-fun Uri.toWrapper(context: Context): OutputStreamWrapper<Uri> {
-    val os = context.contentResolver.openOutputStream(this)
+fun Uri.toWrapper(
+    context: Context,
+    append: Boolean = false
+): OutputStreamWrapper<Uri> {
+    val os = context.contentResolver.openOutputStream(this, if (append) "wa" else "w")
     return OutputStreamWrapper(this, os)
 }
