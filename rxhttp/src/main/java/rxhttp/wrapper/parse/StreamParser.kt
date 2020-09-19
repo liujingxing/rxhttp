@@ -5,10 +5,8 @@ import android.net.Uri
 import okhttp3.Response
 import okhttp3.ResponseBody
 import rxhttp.wrapper.OkHttpCompat
-import rxhttp.wrapper.callback.FileOutputStreamFactory
-import rxhttp.wrapper.callback.OutputStreamFactory
-import rxhttp.wrapper.callback.ProgressCallback
-import rxhttp.wrapper.callback.UriOutputStreamFactory
+import rxhttp.wrapper.callback.*
+import rxhttp.wrapper.callback.newOutputStreamFactory
 import rxhttp.wrapper.entity.Progress
 import rxhttp.wrapper.exception.ExceptionHelper
 import rxhttp.wrapper.utils.IOUtil
@@ -31,13 +29,13 @@ class StreamParser<T> @JvmOverloads constructor(
         @JvmStatic
         operator fun get(
             destPath: String,
-        ): StreamParser<String> = StreamParser(FileOutputStreamFactory(destPath))
+        ): StreamParser<String> = StreamParser(newOutputStreamFactory(destPath))
 
         @JvmStatic
         operator fun get(
             context: Context,
             uri: Uri,
-        ): StreamParser<Uri> = StreamParser(UriOutputStreamFactory(context, uri))
+        ): StreamParser<Uri> = StreamParser(newOutputStreamFactory(context, uri))
     }
 
     override fun onParse(response: Response): T {

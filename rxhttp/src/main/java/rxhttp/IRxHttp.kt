@@ -12,9 +12,8 @@ import okhttp3.Headers
 import okhttp3.Response
 import rxhttp.wrapper.OkHttpCompat
 import rxhttp.wrapper.await.AwaitImpl
-import rxhttp.wrapper.callback.FileOutputStreamFactory
 import rxhttp.wrapper.callback.OutputStreamFactory
-import rxhttp.wrapper.callback.UriOutputStreamFactory
+import rxhttp.wrapper.callback.newOutputStreamFactory
 import rxhttp.wrapper.entity.Progress
 import rxhttp.wrapper.entity.ProgressT
 import rxhttp.wrapper.parse.*
@@ -124,7 +123,7 @@ fun IRxHttp.toDownload(
     destPath: String,
     context: CoroutineContext? = null,
     progress: (suspend (ProgressT<String>) -> Unit)? = null
-): IAwait<String> = toSyncDownload(FileOutputStreamFactory(destPath), context, progress)
+): IAwait<String> = toSyncDownload(newOutputStreamFactory(destPath), context, progress)
     .flowOn(Dispatchers.IO)
 
 fun IRxHttp.toDownload(
@@ -132,7 +131,7 @@ fun IRxHttp.toDownload(
     uri: Uri,
     coroutineContext: CoroutineContext? = null,
     progress: (suspend (ProgressT<Uri>) -> Unit)? = null
-): IAwait<Uri> = toSyncDownload(UriOutputStreamFactory(context, uri), coroutineContext, progress)
+): IAwait<Uri> = toSyncDownload(newOutputStreamFactory(context, uri), coroutineContext, progress)
     .flowOn(Dispatchers.IO)
 
 fun <T> IRxHttp.toDownload(
@@ -152,7 +151,7 @@ fun IRxHttp.toDownloadFlow(
     destPath: String,
 ): Flow<ProgressT<String>> =
     flow {
-        toSyncDownload(FileOutputStreamFactory(destPath)) { emit(it) }
+        toSyncDownload(newOutputStreamFactory(destPath)) { emit(it) }
             .await()
     }.flowOn(Dispatchers.IO)
 
@@ -161,7 +160,7 @@ fun IRxHttp.toDownloadFlow(
     uri: Uri,
 ): Flow<ProgressT<Uri>> =
     flow {
-        toSyncDownload(UriOutputStreamFactory(context, uri)) { emit(it) }
+        toSyncDownload(newOutputStreamFactory(context, uri)) { emit(it) }
             .await()
     }.flowOn(Dispatchers.IO)
 
