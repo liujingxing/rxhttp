@@ -90,55 +90,6 @@
                     android:text="FastJsonConverter 解析"
                     android:textAllCaps="false" />
 
-                <Button
-                    android:id="@+id/download"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:onClick="@{v->click.onClick(v)}"
-                    android:text="下载文件" />
-
-                <Button
-                    android:id="@+id/downloadAndProgress"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:onClick="@{v->click.onClick(v)}"
-                    android:text="带进度下载文件" />
-
-                <Button
-                    android:id="@+id/breakpointDownload"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:onClick="@{v->click.onClick(v)}"
-                    android:text="断点下载" />
-
-                <Button
-                    android:id="@+id/breakpointDownloadAndProgress"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:onClick="@{v->click.onClick(v)}"
-                    android:text="带进度断点下载" />
-
-
-                <Button
-                    android:id="@+id/upload"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:onClick="@{v->click.onClick(v)}"
-                    android:text="上传文件" />
-
-                <Button
-                    android:id="@+id/uploadAndProgress"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:onClick="@{v->click.onClick(v)}"
-                    android:text="带进度上传文件" />
-
-                <Button
-                    android:id="@+id/multitaskDownload"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:onClick="@{v->click.onClick(v)}"
-                    android:text="多任务下载" />
             </LinearLayout>
         </ScrollView>
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
 
@@ -34,62 +34,118 @@
                 android:gravity="center_horizontal"
                 android:orientation="vertical">
 
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="start"
+                    android:text="Android 10下载"
+                    android:textColor="@android:color/black" />
+
                 <Button
-                    android:id="@+id/bitmap"
+                    android:id="@+id/coroutine_download10"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
                     android:onClick="@{v->click.onClick(v)}"
-                    android:text="请求Bitmap"
+                    android:text="协程简单下载"
                     android:textAllCaps="false" />
 
                 <Button
-                    android:id="@+id/sendGet"
+                    android:id="@+id/coroutine_downloadProgress10"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Get请求"
                     android:onClick="@{v->click.onClick(v)}"
+                    android:text="协程带进度下载"
                     android:textAllCaps="false" />
 
                 <Button
-                    android:id="@+id/sendPostForm"
+                    android:id="@+id/coroutine_appendDownloadProgress10"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:onClick="@{v->click.onClick(v)}"
-                    android:text="Post 表单请求"
+                    android:text="协程带进度断点下载"
                     android:textAllCaps="false" />
 
                 <Button
-                    android:id="@+id/sendPostJson"
+                    android:id="@+id/rxjava_download10"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:onClick="@{v->click.onClick(v)}"
-                    android:text="Post Json请求"
+                    android:text="RxJava简单下载"
                     android:textAllCaps="false" />
 
                 <Button
-                    android:id="@+id/sendPostJsonArray"
+                    android:id="@+id/rxjava_downloadProgress10"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:onClick="@{v->click.onClick(v)}"
-                    android:text="Post JsonArray请求"
+                    android:text="RxJava带进度下载"
                     android:textAllCaps="false" />
 
                 <Button
-                    android:id="@+id/xmlConverter"
+                    android:id="@+id/rxjava_appendDownloadProgress10"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:onClick="@{v->click.onClick(v)}"
-                    android:text="XmlConverter 解析"
+                    android:text="RxJava带进度断点下载"
+                    android:textAllCaps="false" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:gravity="start"
+                    android:text="Android 10之前下载"
+                    android:textColor="@android:color/black" />
+
+                <Button
+                    android:id="@+id/coroutine_download"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:onClick="@{v->click.onClick(v)}"
+                    android:text="协程简单下载" />
+
+                <Button
+                    android:id="@+id/coroutine_downloadProgress"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="@{v->click.onClick(v)}"
+                    android:text="协程带进度下载" />
+
+                <Button
+                    android:id="@+id/coroutine_appendDownloadProgress"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="@{v->click.onClick(v)}"
+                    android:text="协程带进度断点下载" />
+
+                <Button
+                    android:id="@+id/rxjava_download"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="@{v->click.onClick(v)}"
+                    android:text="RxJava简单下载"
                     android:textAllCaps="false" />
 
                 <Button
-                    android:id="@+id/fastJsonConverter"
+                    android:id="@+id/rxjava_downloadProgress"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:onClick="@{v->click.onClick(v)}"
-                    android:text="FastJsonConverter 解析"
+                    android:text="RxJava带进度下载"
                     android:textAllCaps="false" />
+
+                <Button
+                    android:id="@+id/rxjava_appendDownloadProgress"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="@{v->click.onClick(v)}"
+                    android:text="RxJava带进度断点下载"
+                    android:textAllCaps="false" />
+
             </LinearLayout>
+
         </ScrollView>
 
         <ScrollView
@@ -111,6 +167,15 @@
                 android:scrollbars="vertical"
                 android:textColor="@android:color/black" />
         </ScrollView>
+
+        <Button
+            android:id="@+id/multitaskDownload"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="@{v->click.onClick(v)}"
+            android:text="多任务下载"
+            app:layout_constraintRight_toLeftOf="@id/bt_clear"
+            app:layout_constraintTop_toTopOf="@id/bt_clear" />
 
         <Button
             android:id="@+id/bt_clear"
