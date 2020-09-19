@@ -8,9 +8,8 @@ import kotlinx.coroutines.withContext
 import okhttp3.Response
 import okhttp3.ResponseBody
 import rxhttp.wrapper.OkHttpCompat
-import rxhttp.wrapper.callback.FileOutputStreamFactory
 import rxhttp.wrapper.callback.OutputStreamFactory
-import rxhttp.wrapper.callback.UriOutputStreamFactory
+import rxhttp.wrapper.callback.newOutputStreamFactory
 import rxhttp.wrapper.entity.OutputStreamWrapper
 import rxhttp.wrapper.entity.ProgressT
 import rxhttp.wrapper.exception.ExceptionHelper
@@ -36,14 +35,14 @@ class SuspendStreamParser<T>(
             destPath: String,
             coroutineContext: CoroutineContext? = null,
             progress: (suspend (ProgressT<String>) -> Unit)? = null,
-        ): SuspendStreamParser<String> = SuspendStreamParser(FileOutputStreamFactory(destPath), coroutineContext, progress)
+        ): SuspendStreamParser<String> = SuspendStreamParser(newOutputStreamFactory(destPath), coroutineContext, progress)
 
         operator fun get(
             context: Context,
             uri: Uri,
             coroutineContext: CoroutineContext? = null,
             progress: (suspend (ProgressT<Uri>) -> Unit)? = null,
-        ): SuspendStreamParser<Uri> = SuspendStreamParser(UriOutputStreamFactory(context, uri), coroutineContext, progress)
+        ): SuspendStreamParser<Uri> = SuspendStreamParser(newOutputStreamFactory(context, uri), coroutineContext, progress)
     }
 
     @Throws(IOException::class)
