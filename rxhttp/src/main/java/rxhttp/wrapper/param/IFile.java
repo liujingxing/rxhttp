@@ -2,6 +2,7 @@ package rxhttp.wrapper.param;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 
 import rxhttp.wrapper.annotations.NonNull;
 import rxhttp.wrapper.entity.UpFile;
@@ -39,6 +40,13 @@ public interface IFile<P extends Param<P>> {
     default P addFile(String key, List<? extends File> fileList) {
         for (File file : fileList) {
             addFile(new UpFile(key, file.getAbsolutePath()));
+        }
+        return (P) this;
+    }
+
+    default P addFile(Map<String, ? extends File> fileMap) {
+        for (Map.Entry<String, ? extends File> entry : fileMap.entrySet()) {
+            addFile(new UpFile(entry.getKey(), entry.getValue().getAbsolutePath()));
         }
         return (P) this;
     }
