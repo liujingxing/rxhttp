@@ -10,7 +10,8 @@ import com.example.httpsender.databinding.UploadFragmentBinding
 import com.example.httpsender.entity.Url
 import com.example.httpsender.kt.errorMsg
 import com.example.httpsender.kt.show
-import com.rxjava.rxlife.RxLife
+import com.rxjava.rxlife.life
+import com.rxjava.rxlife.lifeOnMain
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import rxhttp.awaitString
 import rxhttp.wrapper.param.RxHttp
@@ -42,23 +43,23 @@ class UploadFragment : BaseFragment<UploadFragmentBinding>(), View.OnClickListen
     //-------------------- Android 10上传 --------------------
 
     //协程文件上传，不带进度
-    private fun coroutineUpload10(v: View) {
+    private fun UploadFragmentBinding.coroutineUpload10(v: View) {
         rxLifeScope.launch({
             //真实环境，需要调用文件选择器，拿到Uri对象
             val uri = Uri.parse("content://media/external/downloads/13417")
             val result = RxHttp.postForm(Url.UPLOAD_URL)
                 .addPart(requireContext(), "uploaded_file", uri)
                 .awaitString()
-            mBinding.tvResult.append("\n上传成功 : $result")
+            tvResult.append("\n上传成功 : $result")
         }, {
-            mBinding.tvResult.append("\n${it.errorMsg}")
+            tvResult.append("\n${it.errorMsg}")
             //失败回调
             it.show()
         })
     }
 
     //协程上传文件，带进度
-    private fun coroutineUploadProgress10(v: View) {
+    private fun UploadFragmentBinding.coroutineUploadProgress10(v: View) {
         rxLifeScope.launch({
             //真实环境，需要调用文件选择器，拿到Uri对象
             val uri = Uri.parse("content://media/external/downloads/13417")
@@ -69,11 +70,11 @@ class UploadFragment : BaseFragment<UploadFragmentBinding>(), View.OnClickListen
                     val currentProgress = it.progress //当前进度 0-100
                     val currentSize = it.currentSize //当前已上传的字节大小
                     val totalSize = it.totalSize //要上传的总字节大小
-                    mBinding.tvResult.append("\n" + it.toString())
+                    tvResult.append("\n" + it.toString())
                 }.awaitString()
-            mBinding.tvResult.append("\n上传成功 : $result")
+            tvResult.append("\n上传成功 : $result")
         }, {
-            mBinding.tvResult.append("\n${it.errorMsg}")
+            tvResult.append("\n${it.errorMsg}")
             //失败回调
             it.show()
         })
@@ -81,24 +82,24 @@ class UploadFragment : BaseFragment<UploadFragmentBinding>(), View.OnClickListen
 
 
     //RxJava文件上传，不带进度
-    private fun rxJavaUpload10(v: View) {
+    private fun UploadFragmentBinding.rxJavaUpload10(v: View) {
         //真实环境，需要调用文件选择器，拿到Uri对象
         val uri = Uri.parse("content://media/external/downloads/13417")
         RxHttp.postForm(Url.UPLOAD_URL)
             .addPart(requireContext(), "uploaded_file", uri)
             .asString()
-            .to(RxLife.toMain(this))   //页面销毁，自动关闭请求，并在主线程回调
+            .lifeOnMain(this@UploadFragment)   //页面销毁，自动关闭请求，并在主线程回调
             .subscribe({
-                mBinding.tvResult.append("\n上传成功 : $it")
+                tvResult.append("\n上传成功 : $it")
             }, {
-                mBinding.tvResult.append("\n${it.errorMsg}")
+                tvResult.append("\n${it.errorMsg}")
                 //失败回调
                 it.show()
             })
     }
 
     //RxJava上传文件，带进度
-    private fun rxJavaUploadProgress10(v: View) {
+    private fun UploadFragmentBinding.rxJavaUploadProgress10(v: View) {
         //真实环境，需要调用文件选择器，拿到Uri对象
         val uri = Uri.parse("content://media/external/downloads/13417")
         RxHttp.postForm(Url.UPLOAD_URL)
@@ -108,14 +109,14 @@ class UploadFragment : BaseFragment<UploadFragmentBinding>(), View.OnClickListen
                 val currentProgress = it.progress  //当前进度 0-100
                 val currentSize = it.currentSize //当前已上传的字节大小
                 val totalSize = it.totalSize     //要上传的总字节大小
-                mBinding.tvResult.append("\n" + it.toString())
+                tvResult.append("\n" + it.toString())
             }
             .asString()
-            .to(RxLife.to(this))   //页面销毁，自动关闭请求
+            .life(this@UploadFragment)   //页面销毁，自动关闭请求
             .subscribe({
-                mBinding.tvResult.append("\n上传成功 : $it")
+                tvResult.append("\n上传成功 : $it")
             }, {
-                mBinding.tvResult.append("\n${it.errorMsg}")
+                tvResult.append("\n${it.errorMsg}")
                 //失败回调
                 it.show()
             })
@@ -125,21 +126,21 @@ class UploadFragment : BaseFragment<UploadFragmentBinding>(), View.OnClickListen
     //-------------------- Android 10之前上传 --------------------
 
     //协程文件上传，不带进度
-    private fun coroutineUpload(v: View) {
+    private fun UploadFragmentBinding.coroutineUpload(v: View) {
         rxLifeScope.launch({
             val result = RxHttp.postForm(Url.UPLOAD_URL)
                 .addFile("uploaded_file", File("xxxx/1.png"))
                 .awaitString()
-            mBinding.tvResult.append("\n上传成功 : $result")
+            tvResult.append("\n上传成功 : $result")
         }, {
-            mBinding.tvResult.append("\n${it.errorMsg}")
+            tvResult.append("\n${it.errorMsg}")
             //失败回调
             it.show()
         })
     }
 
     //协程上传文件，带进度
-    private fun coroutineUploadProgress(v: View) {
+    private fun UploadFragmentBinding.coroutineUploadProgress(v: View) {
         rxLifeScope.launch({
             val result = RxHttp.postForm(Url.UPLOAD_URL)
                 .addFile("uploaded_file", File("xxxx/1.png"))
@@ -148,11 +149,11 @@ class UploadFragment : BaseFragment<UploadFragmentBinding>(), View.OnClickListen
                     val currentProgress = it.progress //当前进度 0-100
                     val currentSize = it.currentSize //当前已上传的字节大小
                     val totalSize = it.totalSize //要上传的总字节大小
-                    mBinding.tvResult.append("\n" + it.toString())
+                    tvResult.append("\n" + it.toString())
                 }.awaitString()
-            mBinding.tvResult.append("\n上传成功 : $result")
+            tvResult.append("\n上传成功 : $result")
         }, {
-            mBinding.tvResult.append("\n${it.errorMsg}")
+            tvResult.append("\n${it.errorMsg}")
             //失败回调
             it.show()
         })
@@ -160,22 +161,22 @@ class UploadFragment : BaseFragment<UploadFragmentBinding>(), View.OnClickListen
 
 
     //RxJava文件上传，不带进度
-    private fun rxJavaUpload(v: View) {
+    private fun UploadFragmentBinding.rxJavaUpload(v: View) {
         RxHttp.postForm(Url.UPLOAD_URL)
             .addFile("uploaded_file", File("xxxx/1.png"))
             .asString()
-            .to(RxLife.toMain(this))   //页面销毁，自动关闭请求，并在主线程回调
+            .lifeOnMain(this@UploadFragment)   //页面销毁，自动关闭请求，并在主线程回调
             .subscribe({
-                mBinding.tvResult.append("\n上传成功 : $it")
+                tvResult.append("\n上传成功 : $it")
             }, {
-                mBinding.tvResult.append("\n${it.errorMsg}")
+                tvResult.append("\n${it.errorMsg}")
                 //失败回调
                 it.show()
             })
     }
 
     //RxJava上传文件，带进度
-    private fun rxJavaUploadProgress(v: View) {
+    private fun UploadFragmentBinding.rxJavaUploadProgress(v: View) {
         RxHttp.postForm(Url.UPLOAD_URL)
             .addFile("uploaded_file", File("xxxx/1.png"))
             .upload(AndroidSchedulers.mainThread()) {
@@ -183,25 +184,25 @@ class UploadFragment : BaseFragment<UploadFragmentBinding>(), View.OnClickListen
                 val currentProgress = it.progress  //当前进度 0-100
                 val currentSize = it.currentSize //当前已上传的字节大小
                 val totalSize = it.totalSize     //要上传的总字节大小
-                mBinding.tvResult.append("\n" + it.toString())
+                tvResult.append("\n" + it.toString())
             }
             .asString()
-            .to(RxLife.to(this))   //页面销毁，自动关闭请求
+            .life(this@UploadFragment)   //页面销毁，自动关闭请求
             .subscribe({
-                mBinding.tvResult.append("\n上传成功 : $it")
+                tvResult.append("\n上传成功 : $it")
             }, {
-                mBinding.tvResult.append("\n${it.errorMsg}")
+                tvResult.append("\n${it.errorMsg}")
                 //失败回调
                 it.show()
             })
     }
 
-    private fun clearLog(view: View) {
-        mBinding.tvResult.text = ""
-        mBinding.tvResult.setBackgroundColor(Color.TRANSPARENT)
+    private fun UploadFragmentBinding.clearLog(view: View) {
+        tvResult.text = ""
+        tvResult.setBackgroundColor(Color.TRANSPARENT)
     }
 
-    override fun onClick(v: View) {
+    override fun onClick(v: View) = mBinding.run {
         when (v.id) {
             R.id.coroutine_upload10 -> coroutineUpload10(v)
             R.id.coroutine_uploadProgress10 -> coroutineUploadProgress10(v)

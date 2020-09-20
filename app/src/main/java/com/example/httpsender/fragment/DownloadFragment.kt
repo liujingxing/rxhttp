@@ -42,23 +42,23 @@ class DownloadFragment : BaseFragment<DownloadFragmentBinding>(), View.OnClickLi
     //-------------------- Android 10下载 --------------------
 
     //文件下载，不带进度
-    private fun coroutineDownload10(view: View) {
+    private fun DownloadFragmentBinding.coroutineDownload10(view: View) {
         rxLifeScope.launch({
             val factory = Android10DownloadFactory(requireContext())
             //下载使用非默认域名，故这里使用RxSimpleHttp类发送请求，RxSimpleHttp类是通过@Domain注解生成的
             val result = RxSimpleHttp.get(Url.DOWNLOAD_URL)
                 .toDownload(factory)
                 .await()
-            mBinding.tvResult.append("\n下载完成, $result")
+            tvResult.append("\n下载完成, $result")
         }, {
-            mBinding.tvResult.append("\n${it.errorMsg}")
+            tvResult.append("\n${it.errorMsg}")
             //失败回调
             it.show()
         })
     }
 
     //文件下载，带进度
-    private fun coroutineDownloadProgress10(view: View) {
+    private fun DownloadFragmentBinding.coroutineDownloadProgress10(view: View) {
         rxLifeScope.launch({
             val factory = Android10DownloadFactory(requireContext())
             //下载使用非默认域名，故这里使用RxSimpleHttp类发送请求，RxSimpleHttp类是通过注解生成的
@@ -68,12 +68,12 @@ class DownloadFragment : BaseFragment<DownloadFragmentBinding>(), View.OnClickLi
                     val currentProgress = it.progress //当前进度 0-100
                     val currentSize = it.currentSize //当前已下载的字节大小
                     val totalSize = it.totalSize //要下载的总字节大小
-                    mBinding.tvResult.append(it.toString())
+                    tvResult.append(it.toString())
                 }
                 .await()
-            mBinding.tvResult.append("\n下载完成, $result")
+            tvResult.append("\n下载完成, $result")
         }, {
-            mBinding.tvResult.append("\n${it.errorMsg}")
+            tvResult.append("\n${it.errorMsg}")
             //失败回调
             it.show()
         })
@@ -89,7 +89,7 @@ class DownloadFragment : BaseFragment<DownloadFragmentBinding>(), View.OnClickLi
      * 如果没有查询到，就走正常的下载流程
      */
     @RequiresApi(Build.VERSION_CODES.Q)
-    private fun coroutineAppendDownloadProgress10(view: View) {
+    private fun DownloadFragmentBinding.coroutineAppendDownloadProgress10(view: View) {
         rxLifeScope.launch({
             val queryUri = MediaStore.Downloads.EXTERNAL_CONTENT_URI
             val factory = Android10DownloadFactory(requireContext(), queryUri, "miaobo.apk")
@@ -100,34 +100,34 @@ class DownloadFragment : BaseFragment<DownloadFragmentBinding>(), View.OnClickLi
                     val currentProgress = it.progress //当前进度 0-100
                     val currentSize = it.currentSize //当前已下载的字节大小
                     val totalSize = it.totalSize //要下载的总字节大小
-                    mBinding.tvResult.append(it.toString())
+                    tvResult.append(it.toString())
                 }
                 .await()
-            mBinding.tvResult.append("\n下载完成, $result")
+            tvResult.append("\n下载完成, $result")
         }, {
             //下载失败
-            mBinding.tvResult.append("\n${it.errorMsg}")
+            tvResult.append("\n${it.errorMsg}")
             it.show()
         })
     }
 
     //文件下载，不带进度
-    private fun rxJavaDownload10(view: View) {
+    private fun DownloadFragmentBinding.rxJavaDownload10(view: View) {
         val factory = Android10DownloadFactory(requireContext())
         RxSimpleHttp.get(Url.DOWNLOAD_URL)
             .asDownload(factory)
-            .lifeOnMain(this) //感知生命周期，并在主线程回调
+            .lifeOnMain(this@DownloadFragment) //感知生命周期，并在主线程回调
             .subscribe({
-                mBinding.tvResult.append("\n下载完成, $it")
+                tvResult.append("\n下载完成, $it")
             }, {
                 //下载失败
-                mBinding.tvResult.append("\n${it.errorMsg}")
+                tvResult.append("\n${it.errorMsg}")
                 it.show()
             })
     }
 
     //文件下载，带进度
-    private fun rxJavaDownloadProgress10(view: View) {
+    private fun DownloadFragmentBinding.rxJavaDownloadProgress10(view: View) {
         val factory = Android10DownloadFactory(requireContext())
         RxSimpleHttp.get(Url.DOWNLOAD_URL)
             .asDownload(factory, AndroidSchedulers.mainThread()) {
@@ -135,14 +135,14 @@ class DownloadFragment : BaseFragment<DownloadFragmentBinding>(), View.OnClickLi
                 val currentProgress = it.progress //当前进度 0-100
                 val currentSize = it.currentSize //当前已下载的字节大小
                 val totalSize = it.totalSize //要下载的总字节大小
-                mBinding.tvResult.append(it.toString())
+                tvResult.append(it.toString())
             }
-            .lifeOnMain(this) //感知生命周期，并在主线程回调
+            .lifeOnMain(this@DownloadFragment) //感知生命周期，并在主线程回调
             .subscribe({
-                mBinding.tvResult.append("\n下载完成, $it")
+                tvResult.append("\n下载完成, $it")
             }, {
                 //下载失败
-                mBinding.tvResult.append("\n${it.errorMsg}")
+                tvResult.append("\n${it.errorMsg}")
                 it.show()
             })
     }
@@ -157,7 +157,7 @@ class DownloadFragment : BaseFragment<DownloadFragmentBinding>(), View.OnClickLi
      * 如果没有查询到，就走正常的下载流程
      */
     @RequiresApi(Build.VERSION_CODES.Q)
-    private fun rxJavaAppendDownloadProgress10(view: View) {
+    private fun DownloadFragmentBinding.rxJavaAppendDownloadProgress10(view: View) {
         val queryUri = MediaStore.Downloads.EXTERNAL_CONTENT_URI
         val factory = Android10DownloadFactory(requireContext(), queryUri, "miaobo.apk")
         RxSimpleHttp.get(Url.DOWNLOAD_URL)
@@ -166,14 +166,14 @@ class DownloadFragment : BaseFragment<DownloadFragmentBinding>(), View.OnClickLi
                 val currentProgress = it.progress //当前进度 0-100
                 val currentSize = it.currentSize //当前已下载的字节大小
                 val totalSize = it.totalSize //要下载的总字节大小
-                mBinding.tvResult.append(it.toString())
+                tvResult.append(it.toString())
             }
-            .lifeOnMain(this) //感知生命周期，并在主线程回调
+            .lifeOnMain(this@DownloadFragment) //感知生命周期，并在主线程回调
             .subscribe({
-                mBinding.tvResult.append("\n下载完成, $it")
+                tvResult.append("\n下载完成, $it")
             }, {
                 //下载失败
-                mBinding.tvResult.append("\n${it.errorMsg}")
+                tvResult.append("\n${it.errorMsg}")
                 it.show()
             })
     }
@@ -181,23 +181,23 @@ class DownloadFragment : BaseFragment<DownloadFragmentBinding>(), View.OnClickLi
     //-------------------- Android 10之前下载 --------------------
 
     //文件下载，不带进度
-    private fun coroutineDownload(view: View) {
+    private fun DownloadFragmentBinding.coroutineDownload(view: View) {
         rxLifeScope.launch({
             val destPath = "${requireContext().externalCacheDir.toString()}/${System.currentTimeMillis()}.apk"
             //下载使用非默认域名，故这里使用RxSimpleHttp类发送请求，RxSimpleHttp类是通过@Domain注解生成的
             val result = RxSimpleHttp.get(Url.DOWNLOAD_URL)
                 .toDownload(destPath)
                 .await()
-            mBinding.tvResult.append("\n下载完成, $result")
+            tvResult.append("\n下载完成, $result")
         }, {
-            mBinding.tvResult.append("\n${it.errorMsg}")
+            tvResult.append("\n${it.errorMsg}")
             //失败回调
             it.show()
         })
     }
 
     //文件下载，带进度
-    private fun coroutineDownloadProgress(view: View) {
+    private fun DownloadFragmentBinding.coroutineDownloadProgress(view: View) {
         rxLifeScope.launch({
             val destPath = "${requireContext().externalCacheDir.toString()}/${System.currentTimeMillis()}.apk"
             //下载使用非默认域名，故这里使用RxSimpleHttp类发送请求，RxSimpleHttp类是通过注解生成的
@@ -207,19 +207,19 @@ class DownloadFragment : BaseFragment<DownloadFragmentBinding>(), View.OnClickLi
                     val currentProgress = it.progress //当前进度 0-100
                     val currentSize = it.currentSize //当前已下载的字节大小
                     val totalSize = it.totalSize //要下载的总字节大小
-                    mBinding.tvResult.append(it.toString())
+                    tvResult.append(it.toString())
                 }
                 .await()
-            mBinding.tvResult.append("\n下载完成, $result")
+            tvResult.append("\n下载完成, $result")
         }, {
-            mBinding.tvResult.append("\n${it.errorMsg}")
+            tvResult.append("\n${it.errorMsg}")
             //失败回调
             it.show()
         })
     }
 
     //断点下载，带进度
-    private fun coroutineAppendDownloadProgress(view: View) {
+    private fun DownloadFragmentBinding.coroutineAppendDownloadProgress(view: View) {
         rxLifeScope.launch({
             val destPath = "${requireContext().externalCacheDir.toString()}/Miaobo.apk"
             //下载使用非默认域名，故这里使用RxSimpleHttp类发送请求，RxSimpleHttp类是通过注解生成的
@@ -229,34 +229,34 @@ class DownloadFragment : BaseFragment<DownloadFragmentBinding>(), View.OnClickLi
                     val currentProgress = it.progress //当前进度 0-100
                     val currentSize = it.currentSize //当前已下载的字节大小
                     val totalSize = it.totalSize //要下载的总字节大小
-                    mBinding.tvResult.append(it.toString())
+                    tvResult.append(it.toString())
                 }
                 .await()
-            mBinding.tvResult.append("\n下载完成, $result")
+            tvResult.append("\n下载完成, $result")
         }, {
             //下载失败
-            mBinding.tvResult.append("\n${it.errorMsg}")
+            tvResult.append("\n${it.errorMsg}")
             it.show()
         })
     }
 
     //文件下载，不带进度
-    private fun rxJavaDownload(view: View) {
+    private fun DownloadFragmentBinding.rxJavaDownload(view: View) {
         val destPath = "${requireContext().externalCacheDir.toString()}/${System.currentTimeMillis()}.apk"
         RxSimpleHttp.get(Url.DOWNLOAD_URL)
             .asDownload(destPath)
-            .lifeOnMain(this) //感知生命周期，并在主线程回调
+            .lifeOnMain(this@DownloadFragment) //感知生命周期，并在主线程回调
             .subscribe({
-                mBinding.tvResult.append("\n下载完成, $it")
+                tvResult.append("\n下载完成, $it")
             }, {
                 //下载失败
-                mBinding.tvResult.append("\n${it.errorMsg}")
+                tvResult.append("\n${it.errorMsg}")
                 it.show()
             })
     }
 
     //文件下载，带进度
-    private fun rxJavaDownloadProgress(view: View) {
+    private fun DownloadFragmentBinding.rxJavaDownloadProgress(view: View) {
         val destPath = "${requireContext().externalCacheDir.toString()}/${System.currentTimeMillis()}.apk"
         RxSimpleHttp.get(Url.DOWNLOAD_URL)
             .asDownload(destPath, AndroidSchedulers.mainThread()) {
@@ -264,21 +264,21 @@ class DownloadFragment : BaseFragment<DownloadFragmentBinding>(), View.OnClickLi
                 val currentProgress = it.progress //当前进度 0-100
                 val currentSize = it.currentSize //当前已下载的字节大小
                 val totalSize = it.totalSize //要下载的总字节大小
-                mBinding.tvResult.append(it.toString())
+                tvResult.append(it.toString())
             }
-            .lifeOnMain(this) //感知生命周期，并在主线程回调
+            .lifeOnMain(this@DownloadFragment) //感知生命周期，并在主线程回调
             .subscribe({
-                mBinding.tvResult.append("\n下载完成, $it")
+                tvResult.append("\n下载完成, $it")
             }, {
                 //下载失败
-                mBinding.tvResult.append("\n${it.errorMsg}")
+                tvResult.append("\n${it.errorMsg}")
                 it.show()
             })
     }
 
 
     //断点下载，带进度
-    private fun rxJavaAppendDownloadProgress(view: View) {
+    private fun DownloadFragmentBinding.rxJavaAppendDownloadProgress(view: View) {
         val destPath = "${requireContext().externalCacheDir.toString()}/Miaobo.apk"
         RxSimpleHttp.get(Url.DOWNLOAD_URL)
             .asAppendDownload(destPath, AndroidSchedulers.mainThread()) {
@@ -286,25 +286,25 @@ class DownloadFragment : BaseFragment<DownloadFragmentBinding>(), View.OnClickLi
                 val currentProgress = it.progress //当前进度 0-100
                 val currentSize = it.currentSize //当前已下载的字节大小
                 val totalSize = it.totalSize //要下载的总字节大小
-                mBinding.tvResult.append(it.toString())
+                tvResult.append(it.toString())
             }
-            .lifeOnMain(this) //感知生命周期，并在主线程回调
+            .lifeOnMain(this@DownloadFragment) //感知生命周期，并在主线程回调
             .subscribe({
-                mBinding.tvResult.append("\n下载完成, $it")
+                tvResult.append("\n下载完成, $it")
             }, {
                 //下载失败
-                mBinding.tvResult.append("\n${it.errorMsg}")
+                tvResult.append("\n${it.errorMsg}")
                 it.show()
             })
     }
 
-    private fun clearLog(view: View) {
-        mBinding.tvResult.text = ""
-        mBinding.tvResult.setBackgroundColor(Color.TRANSPARENT)
+    private fun DownloadFragmentBinding.clearLog(view: View) {
+        tvResult.text = ""
+        tvResult.setBackgroundColor(Color.TRANSPARENT)
     }
 
     @RequiresApi(Build.VERSION_CODES.Q)
-    override fun onClick(v: View) {
+    override fun onClick(v: View) = mBinding.run {
         when (v.id) {
             R.id.coroutine_download10 -> coroutineDownload10(v)
             R.id.coroutine_downloadProgress10 -> coroutineDownloadProgress10(v)
