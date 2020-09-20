@@ -29,6 +29,7 @@ import rxhttp.wrapper.parse.OkResponseParser;
 import rxhttp.wrapper.parse.Parser;
 import rxhttp.wrapper.parse.SimpleParser;
 import rxhttp.wrapper.parse.StreamParser;
+import rxhttp.wrapper.utils.KotlinExtensions;
 import rxhttp.wrapper.utils.LogUtil;
 
 /**
@@ -167,9 +168,19 @@ public abstract class BaseRxHttp implements IRxHttp {
         long fileLength = new File(destPath).length();                                     
         setRangeHeader(fileLength, -1, true);                                              
         return asParser(StreamParser.get(destPath), scheduler, progressConsumer);          
-    } 
-                                                                                         
+    }                                                                       
      
+    public final Observable<Uri> asAppendDownload(Context context, Uri uri) {                   
+        return asAppendDownload(context, uri, null, null);                                      
+    }                                                                                           
+                                                                                                
+    public final Observable<Uri> asAppendDownload(Context context, Uri uri, Scheduler scheduler,
+                                                  Consumer<Progress> progressConsumer) {        
+        long length = KotlinExtensions.length(uri, context);                                
+        if (length >= 0) setRangeHeader(length, -1, true);                                                                              
+        return asParser(StreamParser.get(context, uri), scheduler, progressConsumer);           
+    }                                                                                           
+        
     public final Observable<Uri> asAppendDownload(UriFactory uriFactory) {                   
         return asAppendDownload(uriFactory, null, null);                                     
     }                                                                                        
