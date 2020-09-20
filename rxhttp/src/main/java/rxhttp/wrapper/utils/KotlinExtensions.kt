@@ -2,6 +2,7 @@
 
 package rxhttp.wrapper.utils
 
+import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
 import android.provider.MediaStore
@@ -33,10 +34,7 @@ fun Uri.asPart(
     contentType: MediaType? = null
 ): MultipartBody.Part {
     val contentResolver = context.contentResolver
-    var fileName = contentResolver.query(this, arrayOf(MediaStore.MediaColumns.DISPLAY_NAME),
-        null, null, null)?.use {
-        if (it.moveToFirst()) it.getString(0) else null
-    }
+    var fileName = getColumnValue(contentResolver, MediaStore.MediaColumns.DISPLAY_NAME)
     if (fileName == null) {
         val currentTime = System.currentTimeMillis().toString()
         val mimeType = contentResolver.getType(this)
@@ -51,6 +49,14 @@ internal fun Uri.length(context: Context): Long {
     return context.contentResolver.query(this, arrayOf(MediaStore.MediaColumns.SIZE),
         null, null, null).use {
         if (it.moveToFirst()) it.getLong(0) else -1L
+    }
+}
+
+//Return the value of the specified column，return null if does not exist
+internal fun Uri.getColumnValue(contentResolver: ContentResolver, columnName: String): String? {
+    return contentResolver.query(this, arrayOf(columnName),
+        null, null, null).use {
+        if (it.moveToFirst()) it.getString(0) else null
     }
 }
 
