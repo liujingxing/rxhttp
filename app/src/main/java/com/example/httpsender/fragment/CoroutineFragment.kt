@@ -35,49 +35,49 @@ class CoroutineFragment : BaseFragment<CoroutineFragmentBinding>(), View.OnClick
         click = this@CoroutineFragment
     }
 
-    private fun bitmap(view: View) {
+    private fun CoroutineFragmentBinding.bitmap(view: View) {
         rxLifeScope.launch({
             val imageUrl = "http://img2.shelinkme.cn/d3/photos/0/017/022/755_org.jpg@!normal_400_400?1558517697888"
             val bitmap = RxHttp.get(imageUrl).toBitmap().await()
-            mBinding.tvResult.background = BitmapDrawable(bitmap)
+            tvResult.background = BitmapDrawable(bitmap)
         }, {
-            mBinding.tvResult.text = it.errorMsg
+            tvResult.text = it.errorMsg
             //失败回调
             it.show()
         })
     }
 
     //发送Get请求，获取文章列表
-    private fun sendGet(view: View) {
+    private fun CoroutineFragmentBinding.sendGet(view: View) {
         rxLifeScope.launch({
             val pageList = RxHttp.get("/article/list/0/json")
                 .toResponse<PageList<Article>>()
                 .await()
-            mBinding.tvResult.text = Gson().toJson(pageList)
+            tvResult.text = Gson().toJson(pageList)
         }, {
-            mBinding.tvResult.text = it.errorMsg
+            tvResult.text = it.errorMsg
             //失败回调
             it.show()
         })
     }
 
     //发送Post表单请求,根据关键字查询文章
-    private fun sendPostForm(view: View) {
+    private fun CoroutineFragmentBinding.sendPostForm(view: View) {
         rxLifeScope.launch({
             val pageList = RxHttp.postForm("/article/query/0/json")
                 .add("k", "性能优化")
                 .toResponse<PageList<Article>>()
                 .await()
-            mBinding.tvResult.text = Gson().toJson(pageList)
+            tvResult.text = Gson().toJson(pageList)
         }, {
-            mBinding.tvResult.text = it.errorMsg
+            tvResult.text = it.errorMsg
             //失败回调
             it.show()
         })
     }
 
     //发送Post Json请求，此接口不通，仅用于调试参数
-    private fun sendPostJson(view: View) {
+    private fun CoroutineFragmentBinding.sendPostJson(view: View) {
         rxLifeScope.launch({
             //发送以下User对象
             /*
@@ -113,16 +113,16 @@ class CoroutineFragment : BaseFragment<CoroutineFragmentBinding>(), View.OnClick
                 .add("location", Location(120.6788, 30.7866)) //添加位置对象
                 .addJsonElement("address", address) //通过字符串添加一个对象
                 .awaitString()
-            mBinding.tvResult.text = result
+            tvResult.text = result
         }, {
-            mBinding.tvResult.text = it.errorMsg
+            tvResult.text = it.errorMsg
             //失败回调
             it.show()
         })
     }
 
     //发送Post JsonArray请求，此接口不通，仅用于调试参数
-    private fun sendPostJsonArray(view: View) {
+    private fun CoroutineFragmentBinding.sendPostJsonArray(view: View) {
         rxLifeScope.launch({
             //发送以下Json数组
             /*
@@ -153,49 +153,49 @@ class CoroutineFragment : BaseFragment<CoroutineFragmentBinding>(), View.OnClick
                 .addJsonElement("{\"name\":\"王五\"}")
                 .addAll(names)
                 .awaitString()
-            mBinding.tvResult.text = result
+            tvResult.text = result
         }, {
-            mBinding.tvResult.text = it.errorMsg
+            tvResult.text = it.errorMsg
             //失败回调
             it.show()
         })
     }
 
     //使用XmlConverter解析数据，此接口返回数据太多，会有点慢
-    private fun xmlConverter(view: View) {
+    private fun CoroutineFragmentBinding.xmlConverter(view: View) {
         rxLifeScope.launch({
             val dataXml = RxHttp.get("http://webservices.nextbus.com/service/publicXMLFeed?command=routeConfig&a=sf-muni")
                 .setXmlConverter()
                 .await<NewsDataXml>()
-            mBinding.tvResult.text = Gson().toJson(dataXml)
+            tvResult.text = Gson().toJson(dataXml)
         }, {
-            mBinding.tvResult.text = it.errorMsg
+            tvResult.text = it.errorMsg
             //失败回调
             it.show()
         })
     }
 
     //使用XmlConverter解析数据
-    private fun fastJsonConverter(view: View) {
+    private fun CoroutineFragmentBinding.fastJsonConverter(view: View) {
         rxLifeScope.launch({
             val pageList = RxHttp.get("/article/list/0/json")
                 .setFastJsonConverter()
                 .toResponse<PageList<Article>>()
                 .await()
-            mBinding.tvResult.text = Gson().toJson(pageList)
+            tvResult.text = Gson().toJson(pageList)
         }, {
-            mBinding.tvResult.text = it.errorMsg
+            tvResult.text = it.errorMsg
             //失败回调
             it.show()
         })
     }
 
-    private fun clearLog(view: View) {
-        mBinding.tvResult.text = ""
-        mBinding.tvResult.setBackgroundColor(Color.TRANSPARENT)
+    private fun CoroutineFragmentBinding.clearLog(view: View) {
+        tvResult.text = ""
+        tvResult.setBackgroundColor(Color.TRANSPARENT)
     }
 
-    override fun onClick(v: View) {
+    override fun onClick(v: View) = mBinding.run {
         when (v.id) {
             R.id.bitmap -> bitmap(v)
             R.id.sendGet -> sendGet(v)
