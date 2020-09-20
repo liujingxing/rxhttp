@@ -8,7 +8,6 @@ import android.provider.MediaStore
 import android.webkit.MimeTypeMap
 import kotlinx.coroutines.suspendCancellableCoroutine
 import okhttp3.*
-import rxhttp.wrapper.OkHttpCompat
 import rxhttp.wrapper.entity.UriRequestBody
 import rxhttp.wrapper.parse.Parser
 import java.io.IOException
@@ -45,6 +44,14 @@ fun Uri.asPart(
         fileName = "$currentTime.$fileSuffix"
     }
     return MultipartBody.Part.createFormData(name, fileName, asRequestBody(context, contentType))
+}
+
+//return The size of the media item, return null if does not exist
+internal fun Uri.length(context: Context): Long {
+    return context.contentResolver.query(this, arrayOf(MediaStore.MediaColumns.SIZE),
+        null, null, null).use {
+        if (it.moveToFirst()) it.getLong(0) else -1L
+    }
 }
 
 internal suspend fun Call.await(): Response {
