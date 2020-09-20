@@ -6,6 +6,8 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
+import android.webkit.MimeTypeMap
+import okhttp3.MediaType
 import okhttp3.Response
 import rxhttp.wrapper.callback.UriFactory
 import java.io.File
@@ -32,12 +34,13 @@ class Android10DownloadFactory @JvmOverloads constructor(
 ) : UriFactory(context, queryUri, fileName) {
 
     override fun getUri(response: Response): Uri {
-        val displayName = fileName ?: response.request.url.pathSegments.last()
+        val mediaType = response.body?.contentType()
+        val displayName = fileName ?: mediaType.getFileName()
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             ContentValues().run {
                 put(MediaStore.MediaColumns.DISPLAY_NAME, displayName) //文件名
                 //取contentType响应头作为文件类型
-                put(MediaStore.MediaColumns.MIME_TYPE, response.body?.contentType().toString())
+                put(MediaStore.MediaColumns.MIME_TYPE, mediaType.toString())
                 //下载到Download目录
                 put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
                 val uri = queryUri ?: MediaStore.Downloads.EXTERNAL_CONTENT_URI
@@ -47,4 +50,10 @@ class Android10DownloadFactory @JvmOverloads constructor(
             Uri.fromFile(File(context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), displayName))
         }
     }
+}
+
+private fun MediaType?.getFileName(): String {
+    val currentTime = System.currentTimeMillis().toString()
+    val fileSuffix = MimeTypeMap.getSingleton().getExtensionFromMimeType(this.toString())
+    return "$currentTime$fileSuffix"
 }
