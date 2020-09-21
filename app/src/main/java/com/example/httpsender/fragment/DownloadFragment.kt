@@ -44,7 +44,7 @@ class DownloadFragment : BaseFragment<DownloadFragmentBinding>(), View.OnClickLi
     //文件下载，不带进度
     private fun DownloadFragmentBinding.coroutineDownload10(view: View) {
         rxLifeScope.launch({
-            val factory = Android10DownloadFactory(requireContext())
+            val factory = Android10DownloadFactory(requireContext(), "miaobo.apk")
             //下载使用非默认域名，故这里使用RxSimpleHttp类发送请求，RxSimpleHttp类是通过@Domain注解生成的
             val result = RxSimpleHttp.get(Url.DOWNLOAD_URL)
                 .toDownload(factory)
@@ -60,7 +60,7 @@ class DownloadFragment : BaseFragment<DownloadFragmentBinding>(), View.OnClickLi
     //文件下载，带进度
     private fun DownloadFragmentBinding.coroutineDownloadProgress10(view: View) {
         rxLifeScope.launch({
-            val factory = Android10DownloadFactory(requireContext())
+            val factory = Android10DownloadFactory(requireContext(), "miaobo.apk")
             //下载使用非默认域名，故这里使用RxSimpleHttp类发送请求，RxSimpleHttp类是通过注解生成的
             val result = RxSimpleHttp.get(Url.DOWNLOAD_URL)
                 .toDownload(factory, Dispatchers.Main) {
@@ -92,7 +92,7 @@ class DownloadFragment : BaseFragment<DownloadFragmentBinding>(), View.OnClickLi
     private fun DownloadFragmentBinding.coroutineAppendDownloadProgress10(view: View) {
         rxLifeScope.launch({
             val queryUri = MediaStore.Downloads.EXTERNAL_CONTENT_URI
-            val factory = Android10DownloadFactory(requireContext(), queryUri, "miaobo.apk")
+            val factory = Android10DownloadFactory(requireContext(), "miaobo.apk", queryUri)
             //下载使用非默认域名，故这里使用RxSimpleHttp类发送请求，RxSimpleHttp类是通过注解生成的
             val result = RxSimpleHttp.get(Url.DOWNLOAD_URL)
                 .toAppendDownload(factory, Dispatchers.Main) {
@@ -113,7 +113,7 @@ class DownloadFragment : BaseFragment<DownloadFragmentBinding>(), View.OnClickLi
 
     //文件下载，不带进度
     private fun DownloadFragmentBinding.rxJavaDownload10(view: View) {
-        val factory = Android10DownloadFactory(requireContext())
+        val factory = Android10DownloadFactory(requireContext(), "miaobo.apk")
         RxSimpleHttp.get(Url.DOWNLOAD_URL)
             .asDownload(factory)
             .lifeOnMain(this@DownloadFragment) //感知生命周期，并在主线程回调
@@ -128,7 +128,7 @@ class DownloadFragment : BaseFragment<DownloadFragmentBinding>(), View.OnClickLi
 
     //文件下载，带进度
     private fun DownloadFragmentBinding.rxJavaDownloadProgress10(view: View) {
-        val factory = Android10DownloadFactory(requireContext())
+        val factory = Android10DownloadFactory(requireContext(), "miaobo.apk")
         RxSimpleHttp.get(Url.DOWNLOAD_URL)
             .asDownload(factory, AndroidSchedulers.mainThread()) {
                 //下载进度回调,0-100，仅在进度有更新时才会回调，最多回调101次，最后一次回调文件存储路径
@@ -159,7 +159,7 @@ class DownloadFragment : BaseFragment<DownloadFragmentBinding>(), View.OnClickLi
     @RequiresApi(Build.VERSION_CODES.Q)
     private fun DownloadFragmentBinding.rxJavaAppendDownloadProgress10(view: View) {
         val queryUri = MediaStore.Downloads.EXTERNAL_CONTENT_URI
-        val factory = Android10DownloadFactory(requireContext(), queryUri, "miaobo.apk")
+        val factory = Android10DownloadFactory(requireContext(), "miaobo.apk", queryUri)
         RxSimpleHttp.get(Url.DOWNLOAD_URL)
             .asAppendDownload(factory, AndroidSchedulers.mainThread()) {
                 //下载进度回调,0-100，仅在进度有更新时才会回调，最多回调101次，最后一次回调文件存储路径
