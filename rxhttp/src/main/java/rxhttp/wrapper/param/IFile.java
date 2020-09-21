@@ -15,38 +15,37 @@ import rxhttp.wrapper.entity.UpFile;
 @SuppressWarnings("unchecked")
 public interface IFile<P extends Param<P>> {
 
+    @Deprecated
     default P add(String key, File file) {
-        return addFile(key, file.getAbsolutePath());
+        return addFile(new UpFile(key, file));
     }
 
     default P addFile(String key, File file) {
-        return addFile(key, file.getAbsolutePath());
+        return addFile(new UpFile(key, file));
     }
 
     default P addFile(String key, String filePath) {
         return addFile(new UpFile(key, filePath));
     }
 
-    default P addFile(String key, String value, String filePath) {
-        UpFile upFile = new UpFile(key, filePath);
-        upFile.setValue(value);
-        return addFile(upFile);
+    default P addFile(String key, String fileName, String filePath) {
+        return addFile(new UpFile(key, fileName, filePath));
     }
 
-    default P addFile(String key, String value, File file) {
-        return addFile(key, value, file.getAbsolutePath());
+    default P addFile(String key, String fileName, File file) {
+        return addFile(new UpFile(key, fileName, file));
     }
 
     default P addFile(String key, List<? extends File> fileList) {
         for (File file : fileList) {
-            addFile(new UpFile(key, file.getAbsolutePath()));
+            addFile(new UpFile(key, file));
         }
         return (P) this;
     }
 
     default P addFile(Map<String, ? extends File> fileMap) {
         for (Map.Entry<String, ? extends File> entry : fileMap.entrySet()) {
-            addFile(new UpFile(entry.getKey(), entry.getValue().getAbsolutePath()));
+            addFile(new UpFile(entry.getKey(), entry.getValue()));
         }
         return (P) this;
     }

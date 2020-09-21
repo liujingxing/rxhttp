@@ -1,5 +1,7 @@
 package rxhttp.wrapper.param;
 
+import java.io.File;
+
 import okhttp3.Headers;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody.Part;
@@ -40,14 +42,15 @@ public interface IPart<P extends Param<P>> extends IFile<P> {
     }
 
     @Override
-    default P addFile(@NonNull UpFile file) {
+    default P addFile(@NonNull UpFile upFile) {
+        File file = upFile.getFile();
         if (!file.exists())
             throw new IllegalArgumentException("File '" + file.getAbsolutePath() + "' does not exist");
         if (!file.isFile())
             throw new IllegalArgumentException("File '" + file.getAbsolutePath() + "' is not a file");
 
         RequestBody requestBody = RequestBody.create(BuildUtil.getMediaType(file.getName()), file);
-        return addPart(Part.createFormData(file.getKey(), file.getValue(), requestBody));
+        return addPart(Part.createFormData(upFile.getKey(), upFile.getFileName(), requestBody));
     }
 
 }
