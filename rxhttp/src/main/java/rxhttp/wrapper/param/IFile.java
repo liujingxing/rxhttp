@@ -28,12 +28,12 @@ public interface IFile<P extends Param<P>> {
         return addFile(new UpFile(key, filePath));
     }
 
-    default P addFile(String key, String fileName, String filePath) {
-        return addFile(new UpFile(key, fileName, filePath));
+    default P addFile(String key, String filename, String filePath) {
+        return addFile(new UpFile(key, filename, filePath));
     }
 
-    default P addFile(String key, String fileName, File file) {
-        return addFile(new UpFile(key, fileName, file));
+    default P addFile(String key, String filename, File file) {
+        return addFile(new UpFile(key, filename, file));
     }
 
     default P addFile(String key, List<? extends File> fileList) {

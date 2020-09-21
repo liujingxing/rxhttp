@@ -81,13 +81,13 @@ public class RxHttpFormParam extends RxHttpBodyParam<FormParam, RxHttpFormParam>
     return this;
   }
 
-  public RxHttpFormParam addFile(String key, String fileName, String filePath) {
-    param.addFile(key, fileName, filePath);
+  public RxHttpFormParam addFile(String key, String filename, String filePath) {
+    param.addFile(key, filename, filePath);
     return this;
   }
 
-  public RxHttpFormParam addFile(String key, String fileName, File file) {
-    param.addFile(key, fileName, file);
+  public RxHttpFormParam addFile(String key, String filename, File file) {
+    param.addFile(key, filename, file);
     return this;
   }
 
