@@ -6,8 +6,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
-import android.webkit.MimeTypeMap
-import okhttp3.MediaType
 import okhttp3.Response
 import rxhttp.wrapper.callback.UriFactory
 import java.io.File
@@ -29,31 +27,23 @@ import java.io.File
  */
 class Android10DownloadFactory @JvmOverloads constructor(
     context: Context,
-    queryUri: Uri? = null,
-    fileName: String? = null
+    fileName: String,
+    queryUri: Uri? = null
 ) : UriFactory(context, queryUri, fileName) {
 
     override fun getUri(response: Response): Uri {
-        val mediaType = response.body?.contentType()
-        val displayName = fileName ?: mediaType.getFileName()
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             ContentValues().run {
-                put(MediaStore.MediaColumns.DISPLAY_NAME, displayName) //文件名
+                put(MediaStore.MediaColumns.DISPLAY_NAME, fileName) //文件名
                 //取contentType响应头作为文件类型
-                put(MediaStore.MediaColumns.MIME_TYPE, mediaType.toString())
+                put(MediaStore.MediaColumns.MIME_TYPE, response.body?.contentType().toString())
                 //下载到Download目录
                 put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
                 val uri = queryUri ?: MediaStore.Downloads.EXTERNAL_CONTENT_URI
                 context.contentResolver.insert(uri, this)
             } ?: throw NullPointerException("Uri insert fail, Please change the file name")
         } else {
-            Uri.fromFile(File(context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), displayName))
+            Uri.fromFile(File(context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), fileName))
         }
     }
-}
-
-private fun MediaType?.getFileName(): String {
-    val currentTime = System.currentTimeMillis().toString()
-    val fileSuffix = MimeTypeMap.getSingleton().getExtensionFromMimeType(this.toString())
-    return "$currentTime$fileSuffix"
 }
