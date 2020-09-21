@@ -9,24 +9,24 @@ import java.io.File
  */
 class UpFile(
     val key: String,
-    private var fileName: String?,
+    private var filename: String?,
     val file: File
 ) {
 
     constructor(key: String, path: String) : this(key, null, File(path))
     constructor(key: String, file: File) : this(key, null, file)
-    constructor(key: String, fileName: String?, path: String) : this(key, fileName, File(path))
+    constructor(key: String, filename: String?, path: String) : this(key, filename, File(path))
 
     @Deprecated("", ReplaceWith("setFileName(fileName)"))
-    fun setValue(fileName: String?) {
-        setFileName(fileName)
+    fun setValue(filename: String?) {
+        setFilename(filename)
     }
 
-    fun setFileName(fileName: String?) {
-        this.fileName = fileName
+    fun setFilename(fileName: String?) {
+        this.filename = fileName
     }
 
-    fun getFileName(): String {
-        return fileName ?: file.name
+    fun getFilename(): String {
+        return filename ?: file.name
     }
 }
