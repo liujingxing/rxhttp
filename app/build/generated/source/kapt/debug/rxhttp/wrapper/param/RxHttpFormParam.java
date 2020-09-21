@@ -67,7 +67,7 @@ public class RxHttpFormParam extends RxHttpBodyParam<FormParam, RxHttpFormParam>
    */
   @Deprecated
   public RxHttpFormParam add(String key, File file) {
-    param.add(key,file);
+    param.addFile(key,file);
     return this;
   }
 
@@ -81,13 +81,13 @@ public class RxHttpFormParam extends RxHttpBodyParam<FormParam, RxHttpFormParam>
     return this;
   }
 
-  public RxHttpFormParam addFile(String key, String value, String filePath) {
-    param.addFile(key,value,filePath);
+  public RxHttpFormParam addFile(String key, String fileName, String filePath) {
+    param.addFile(key, fileName, filePath);
     return this;
   }
 
-  public RxHttpFormParam addFile(String key, String value, File file) {
-    param.addFile(key,value,file);
+  public RxHttpFormParam addFile(String key, String fileName, File file) {
+    param.addFile(key, fileName, file);
     return this;
   }
 
