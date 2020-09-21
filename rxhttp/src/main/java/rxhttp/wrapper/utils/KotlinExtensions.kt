@@ -44,7 +44,7 @@ fun Uri.asPart(
     return MultipartBody.Part.createFormData(name, fileName, asRequestBody(context, contentType))
 }
 
-//return The size of the media item, return null if does not exist
+//return The size of the media item, return -1 if does not exist
 internal fun Uri.length(context: Context): Long {
     return context.contentResolver.query(this, arrayOf(MediaStore.MediaColumns.SIZE),
         null, null, null).use {
