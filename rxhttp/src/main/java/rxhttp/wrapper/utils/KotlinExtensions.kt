@@ -6,7 +6,6 @@ import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
 import android.provider.MediaStore
-import android.webkit.MimeTypeMap
 import kotlinx.coroutines.suspendCancellableCoroutine
 import okhttp3.*
 import rxhttp.wrapper.entity.UriRequestBody
@@ -30,18 +29,12 @@ fun Uri.asRequestBody(
 @JvmOverloads
 fun Uri.asPart(
     context: Context,
-    name: String,
+    key: String,
+    filename: String? = null,
     contentType: MediaType? = null
 ): MultipartBody.Part {
-    val contentResolver = context.contentResolver
-    var fileName = getColumnValue(contentResolver, MediaStore.MediaColumns.DISPLAY_NAME)
-    if (fileName == null) {
-        val currentTime = System.currentTimeMillis().toString()
-        val mimeType = contentResolver.getType(this)
-        val fileSuffix = MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType)
-        fileName = "$currentTime.$fileSuffix"
-    }
-    return MultipartBody.Part.createFormData(name, fileName, asRequestBody(context, contentType))
+    val newFilename = filename ?: displayName(context)
+    return MultipartBody.Part.createFormData(key, newFilename, asRequestBody(context, contentType))
 }
 
 //return The size of the media item, return -1 if does not exist
@@ -50,6 +43,10 @@ internal fun Uri.length(context: Context): Long {
         null, null, null).use {
         if (it.moveToFirst()) it.getLong(0) else -1L
     }
+}
+
+internal fun Uri.displayName(context: Context): String? {
+    return getColumnValue(context.contentResolver, MediaStore.MediaColumns.DISPLAY_NAME)
 }
 
 //Return the value of the specified column，return null if does not exist
