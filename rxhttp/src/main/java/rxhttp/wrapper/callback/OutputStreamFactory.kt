@@ -1,5 +1,6 @@
 package rxhttp.wrapper.callback
 
+import android.content.ContentUris
 import android.content.Context
 import android.net.Uri
 import android.provider.MediaStore
@@ -79,17 +80,24 @@ private fun String.replaceSuffix(response: Response): String {
 }
 
 //find the Uri by filename and relativePath, return null if find fail
-fun Uri.findUriByFileName(context: Context, filename: String?, relativePath: String): AppendUri? {
+fun Uri.findUriByFileName(context: Context, filename: String?, relativePath: String?): AppendUri? {
     if (filename.isNullOrEmpty() || relativePath.isNullOrEmpty()) return null
+    val realRelativePath = relativePath.run {
+        //Remove the prefix slash if it exists
+        if (startsWith("/")) substring(1) else this
+    }.run {
+        //Suffix adds a slash if it does not exist
+        if (endsWith("/")) this else "$this/"
+    }
     val columnNames = arrayOf(
         MediaStore.MediaColumns._ID,
         MediaStore.MediaColumns.SIZE,
     )
     return context.contentResolver.query(this, columnNames,
-        "relative_path=? AND _display_name=?", arrayOf(relativePath, filename), null).use {
+        "relative_path=? AND _display_name=?", arrayOf(realRelativePath, filename), null).use {
         if (it.moveToFirst()) {
-            val uriId = it.getString(0)
-            val newUri = this.buildUpon().appendPath(uriId).build()
+            val uriId = it.getLong(0)
+            val newUri = ContentUris.withAppendedId(this, uriId)
             AppendUri(newUri, it.getLong(1))
         } else null
     }
