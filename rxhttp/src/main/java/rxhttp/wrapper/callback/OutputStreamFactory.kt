@@ -24,21 +24,17 @@ abstract class OutputStreamFactory<T> {
 }
 
 abstract class UriFactory(
-    val context: Context,
-    val queryUri: Uri? = null,
-    val fileName: String? = null,
+    val context: Context
 ) : OutputStreamFactory<Uri>() {
 
     @Throws(IOException::class)
     abstract fun getUri(response: Response): Uri
 
+    open fun getAppendUri(): AppendUri? = null
+
     final override fun getOutputStream(response: Response): OutputStreamWrapper<Uri> {
         val append = response.header("Content-Range") != null
         return getUri(response).toWrapper(context, append)
-    }
-
-    fun getAppendUri(): AppendUri? {
-        return queryUri?.findUriByFileName(context, fileName)
     }
 }
 
@@ -82,15 +78,15 @@ private fun String.replaceSuffix(response: Response): String {
     }
 }
 
-//find the Uri by filename, return null if find fail
-private fun Uri.findUriByFileName(context: Context, fileName: String?): AppendUri? {
-    if (fileName.isNullOrEmpty()) return null
+//find the Uri by filename and relativePath, return null if find fail
+fun Uri.findUriByFileName(context: Context, filename: String?, relativePath: String): AppendUri? {
+    if (filename.isNullOrEmpty() || relativePath.isNullOrEmpty()) return null
     val columnNames = arrayOf(
         MediaStore.MediaColumns._ID,
         MediaStore.MediaColumns.SIZE,
     )
     return context.contentResolver.query(this, columnNames,
-        MediaStore.MediaColumns.DISPLAY_NAME + "=?", arrayOf(fileName), null).use {
+        "relative_path=? AND _display_name=?", arrayOf(relativePath, filename), null).use {
         if (it.moveToFirst()) {
             val uriId = it.getString(0)
             val newUri = this.buildUpon().appendPath(uriId).build()
