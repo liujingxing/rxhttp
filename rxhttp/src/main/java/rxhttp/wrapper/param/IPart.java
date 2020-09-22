@@ -49,7 +49,7 @@ public interface IPart<P extends Param<P>> extends IFile<P> {
         if (!file.isFile())
             throw new IllegalArgumentException("File '" + file.getAbsolutePath() + "' is not a file");
 
-        RequestBody requestBody = RequestBody.create(BuildUtil.getMediaType(file.getName()), file);
+        RequestBody requestBody = RequestBody.create(BuildUtil.getMediaType(upFile.getFilename()), file);
         return addPart(Part.createFormData(upFile.getKey(), upFile.getFilename(), requestBody));
     }
 
