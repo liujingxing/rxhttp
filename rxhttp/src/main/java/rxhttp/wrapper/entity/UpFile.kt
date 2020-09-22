@@ -22,6 +22,11 @@ class UpFile(
         setFilename(filename)
     }
 
+    @Deprecated("", ReplaceWith("getFilename()"))
+    fun getValue(): String {
+        return getFilename()
+    }
+
     fun setFilename(fileName: String?) {
         this.filename = fileName
     }
