@@ -6,44 +6,66 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
+import androidx.annotation.RequiresApi
 import okhttp3.Response
 import rxhttp.wrapper.callback.UriFactory
+import rxhttp.wrapper.callback.findUriByFileName
+import rxhttp.wrapper.entity.AppendUri
 import java.io.File
 
 /**
- * Android 10文件下载可参照此类
- *
- * 断点下载时，必须要传入 queryUri、fileName 参数
- *
- * queryUri 参数可以理解为要查找的uri对应的文件夹
- * fileName  就是要查询的文件名
- *
- * 内部会在queryUri对应的文件夹下查找于fileName名字一样的文件，进而得到文件id及文件长度(也就是断点未知)
- * 如果没有查询到，就走正常的下载流程
- *
  * User: ljx
  * Date: 2020/9/11
  * Time: 17:43
+ *
+ * @param context Context
+ * @param filename 文件名
+ * @param relativePath  文件相对路径，可取值:
+ * [Environment.DIRECTORY_DOWNLOADS]
+ * [Environment.DIRECTORY_DCIM]
+ * [Environment.DIRECTORY_PICTURES]
+ * [Environment.DIRECTORY_MUSIC]
+ * [Environment.DIRECTORY_MOVIES]
+ * [Environment.DIRECTORY_DOCUMENTS]
+ * ...
  */
 class Android10DownloadFactory @JvmOverloads constructor(
     context: Context,
-    fileName: String,
-    queryUri: Uri? = null
-) : UriFactory(context, queryUri, fileName) {
+    private val filename: String,
+    private val relativePath: String = Environment.DIRECTORY_DOWNLOADS
+) : UriFactory(context) {
+
+    /**
+     * [MediaStore.Files.getContentUri]
+     * [MediaStore.Downloads.EXTERNAL_CONTENT_URI]
+     * [MediaStore.Audio.Media.EXTERNAL_CONTENT_URI]
+     * [MediaStore.Video.Media.EXTERNAL_CONTENT_URI]
+     * [MediaStore.Images.Media.EXTERNAL_CONTENT_URI]
+     */
+    @RequiresApi(Build.VERSION_CODES.Q)
+    private val insertUri: Uri = MediaStore.Downloads.EXTERNAL_CONTENT_URI
+
+    override fun getAppendUri(): AppendUri? {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            insertUri.findUriByFileName(context, filename, relativePath)
+        } else {
+            val file = File("${Environment.getExternalStorageDirectory()}/$relativePath/$filename")
+            AppendUri(Uri.fromFile(file), file.length())
+        }
+    }
 
     override fun getUri(response: Response): Uri {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             ContentValues().run {
-                put(MediaStore.MediaColumns.DISPLAY_NAME, fileName) //文件名
+                put(MediaStore.MediaColumns.RELATIVE_PATH, relativePath) //下载到指定目录
+                put(MediaStore.MediaColumns.DISPLAY_NAME, filename)   //文件名
                 //取contentType响应头作为文件类型
                 put(MediaStore.MediaColumns.MIME_TYPE, response.body?.contentType().toString())
-                //下载到Download目录
-                put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
-                val uri = queryUri ?: MediaStore.Downloads.EXTERNAL_CONTENT_URI
-                context.contentResolver.insert(uri, this)
+                context.contentResolver.insert(insertUri, this)
             } ?: throw NullPointerException("Uri insert fail, Please change the file name")
         } else {
-            Uri.fromFile(File(context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), fileName))
+            val file = File("${Environment.getExternalStorageDirectory()}/$relativePath/$filename")
+            Uri.fromFile(file)
         }
     }
 }
