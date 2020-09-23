@@ -79,7 +79,7 @@ private fun String.replaceSuffix(response: Response): String {
     }
 }
 
-//find the Uri by filename and relativePath, return null if find fail
+//find the Uri by filename and relativePath, return null if find fail.  RequiresApi 29
 fun Uri.findUriByFileName(context: Context, filename: String?, relativePath: String?): AppendUri? {
     if (filename.isNullOrEmpty() || relativePath.isNullOrEmpty()) return null
     val realRelativePath = relativePath.run {
@@ -94,7 +94,7 @@ fun Uri.findUriByFileName(context: Context, filename: String?, relativePath: Str
         MediaStore.MediaColumns.SIZE,
     )
     return context.contentResolver.query(this, columnNames,
-        "relative_path=? AND _display_name=?", arrayOf(realRelativePath, filename), null).use {
+        "relative_path=? AND _display_name=?", arrayOf(realRelativePath, filename), null)?.use {
         if (it.moveToFirst()) {
             val uriId = it.getLong(0)
             val newUri = ContentUris.withAppendedId(this, uriId)
