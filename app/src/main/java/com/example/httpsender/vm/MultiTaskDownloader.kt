@@ -1,13 +1,14 @@
 package com.example.httpsender.vm
 
-import android.app.Application
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import com.example.httpsender.Tip
 import com.example.httpsender.entity.DownloadTask
-import com.rxjava.rxlife.RxLife
-import com.rxjava.rxlife.ScopeViewModel
+import com.example.httpsender.utils.Preferences
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import okio.ByteString.Companion.encodeUtf8
 import rxhttp.wrapper.param.RxHttp
+import java.io.File
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -16,37 +17,64 @@ import kotlin.collections.ArrayList
  * Date: 2020/7/12
  * Time: 18:00
  */
-class MultiTaskDownloader(application: Application) : ScopeViewModel(application) {
+object MultiTaskDownloader {
 
-    companion object {
-        const val MAX_TASK_COUNT = 3   //最大并发数
+    const val IDLE = 0             //未开始，闲置状态
+    const val WAITING = 1          //等待中状态
+    const val DOWNLOADING = 2      //下载中
+    const val PAUSED = 3           //已暂停
+    const val COMPLETED = 4        //已完成
+    const val FAIL = 5             //下载失败
+    const val CANCEL = 6           //取消状态，等待时被取消
 
-        const val IDLE = 0             //未开始，闲置状态
-        const val WAITING = 1          //等待中状态
-        const val DOWNLOADING = 2      //下载中
-        const val PAUSED = 3           //已暂停
-        const val COMPLETED = 4        //已完成
-        const val FAIL = 5             //下载失败
-        const val CANCEL = 6           //取消状态，等待时被取消
-    }
+    private const val MAX_TASK_COUNT = 3   //最大并发数
 
+    @JvmStatic
     val allLiveTask = MutableLiveData<ArrayList<DownloadTask>>() //所有下载任务
-
     private val waitTask = LinkedList<DownloadTask>() //等待下载的任务
     private val downloadingTask = LinkedList<DownloadTask>() //下载中的任务
 
+    private val lengthMap = HashMap<String, Long>()
+
+    @JvmStatic
     fun addTasks(tasks: ArrayList<DownloadTask>) {
         val allTaskList = getAllTask()
-        allTaskList.addAll(tasks)
+        tasks.forEach {
+            if (!allTaskList.contains(it)) {
+                val md5Key = it.url.encodeUtf8().md5().hex()
+                val length = Preferences.getValue(md5Key, -1L)
+                if (length != -1L) {
+                    it.totalSize = length
+                    it.currentSize = File(it.localPath).length()
+                    it.progress = (it.currentSize * 100 / it.totalSize).toInt()
+                    lengthMap[it.url] = length
+
+                    if (it.currentSize > 0) {
+                        it.state = PAUSED
+                    }
+                    if (it.totalSize == it.currentSize) {
+                        //如果当前size等于总size，则任务文件下载完成，注意: 这个判断不是100%准确，最好能对文件做md5校验
+                        it.state = COMPLETED
+                    }
+                }
+                allTaskList.add(it)
+            }
+        }
         allLiveTask.value = allTaskList
     }
 
     //开始下载所有任务
+    @JvmStatic
     fun startAllDownloadTask() {
         val allTaskList = getAllTask()
-        allTaskList.forEach { download(it) }
+        allTaskList.forEach {
+            if (it.state != COMPLETED) {
+                download(it)
+            }
+        }
     }
 
+    @JvmStatic
     fun download(task: DownloadTask) {
         if (downloadingTask.size >= MAX_TASK_COUNT) {
             task.state = WAITING
@@ -60,6 +88,12 @@ class MultiTaskDownloader(application: Application) : ScopeViewModel(application
                 task.currentSize = it.currentSize //当前已下载的字节大小
                 task.totalSize = it.totalSize //要下载的总字节大小
                 updateTask()
+                val key = task.url
+                val length = lengthMap[key]
+                if (length != task.totalSize) {
+                    lengthMap[key] = task.totalSize
+                    saveTotalSize(lengthMap)
+                }
             }
             .doFinally {
                 updateTask()
@@ -67,7 +101,6 @@ class MultiTaskDownloader(application: Application) : ScopeViewModel(application
                 downloadingTask.remove(task)
                 waitTask.poll()?.let { download(it) }
             }
-            .to(RxLife.to(this)) //加入感知生命周期的观察者
             .subscribe({
                 Tip.show("下载完成")
                 task.state = COMPLETED
@@ -80,7 +113,20 @@ class MultiTaskDownloader(application: Application) : ScopeViewModel(application
         downloadingTask.add(task)
     }
 
+
+    private fun saveTotalSize(map: HashMap<String, Long>) {
+        Log.e("LJX", "saveTotalSize=${map.size}")
+        val editor = Preferences.getEditor()
+        for ((key, value) in map) {
+            val md5Key = key.encodeUtf8().md5().hex()
+            editor.putLong(md5Key, value)
+        }
+        editor.commit()
+    }
+
+
     //关闭所有任务
+    @JvmStatic
     fun cancelAllTask() {
         var iterator = waitTask.iterator()
         while (iterator.hasNext()) {
@@ -101,6 +147,7 @@ class MultiTaskDownloader(application: Application) : ScopeViewModel(application
     }
 
     //等待中->取消下载
+    @JvmStatic
     fun removeWaitTask(task: DownloadTask) {
         waitTask.remove(task)
         task.state = CANCEL
@@ -108,6 +155,7 @@ class MultiTaskDownloader(application: Application) : ScopeViewModel(application
     }
 
     //暂停下载
+    @JvmStatic
     fun pauseTask(task: DownloadTask) {
         val disposable = task.disposable
         if (!RxHttp.isDisposed(disposable)) {
@@ -115,6 +163,11 @@ class MultiTaskDownloader(application: Application) : ScopeViewModel(application
             task.state = PAUSED
             updateTask()
         }
+    }
+
+    @JvmStatic
+    fun haveTaskExecuting(): Boolean {
+        return waitTask.size > 0 || downloadingTask.size > 0
     }
 
     //发送通知，更新UI
