@@ -73,7 +73,7 @@ private suspend fun <T> Response.writeTo(
     IOUtil.suspendWrite(body.byteStream(), osWrapper.os) {
         val currentSize = it + offsetSize
         //当前进度 = 当前已读取的字节 / 总字节
-        val currentProgress = ((currentSize * 100f / contentLength)).toInt()
+        val currentProgress = ((currentSize * 100 / contentLength)).toInt()
         if (currentProgress > lastProgress) {
             lastProgress = currentProgress
             val p = ProgressT<T>(currentProgress, currentSize, contentLength)
