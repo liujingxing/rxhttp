@@ -65,7 +65,7 @@ public class DownloadMultiAdapter extends RecyclerView.Adapter<MyViewHolder> {
             viewHolder.btPause.setText("暂停");
         } else if (state == MultiTaskDownloader.PAUSED) {
             viewHolder.tvWaiting.setText("已暂停");
-            viewHolder.btPause.setText("继续");
+            viewHolder.btPause.setText("继续下载");
         } else if (state == MultiTaskDownloader.COMPLETED) {
             viewHolder.tvWaiting.setText("已完成");
             viewHolder.btPause.setText("已完成");
@@ -74,7 +74,7 @@ public class DownloadMultiAdapter extends RecyclerView.Adapter<MyViewHolder> {
             viewHolder.btPause.setText("重新下载");
         } else if (state == MultiTaskDownloader.CANCEL) {
             viewHolder.tvWaiting.setText("已取消");
-            viewHolder.btPause.setText("重新下载");
+            viewHolder.btPause.setText("继续下载");
         }
     }
 

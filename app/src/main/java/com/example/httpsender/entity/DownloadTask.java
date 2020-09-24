@@ -10,7 +10,6 @@ import io.reactivex.rxjava3.disposables.Disposable;
  */
 public class DownloadTask {
 
-    private int taskId;
     private String url;
     private String localPath;
 
@@ -20,19 +19,11 @@ public class DownloadTask {
 
     private Disposable mDisposable;
 
+    private int state; //0=未开始 1=等待中 2=下载中 3=暂停中 4=已完成  5=下载失败 6=已取消
+
 
     public DownloadTask(String url) {
         this.url = url;
-    }
-
-    private int state; //0=未开始 1=等待中 2=下载中 3=暂停中 4=已完成  5=下载失败 6=已取消
-
-    public int getTaskId() {
-        return taskId;
-    }
-
-    public void setTaskId(int taskId) {
-        this.taskId = taskId;
     }
 
     public int getState() {
@@ -93,5 +84,20 @@ public class DownloadTask {
 
     public void setTotalSize(long totalSize) {
         this.totalSize = totalSize;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        DownloadTask task = (DownloadTask) o;
+
+        return url.equals(task.url);
+    }
+
+    @Override
+    public int hashCode() {
+        return url.hashCode();
     }
 }
