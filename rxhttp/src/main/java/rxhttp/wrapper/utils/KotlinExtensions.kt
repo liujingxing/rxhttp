@@ -39,10 +39,7 @@ fun Uri.asPart(
 
 //return The size of the media item, return -1 if does not exist
 internal fun Uri.length(context: Context): Long {
-    return context.contentResolver.query(this, arrayOf(MediaStore.MediaColumns.SIZE),
-        null, null, null).use {
-        if (it.moveToFirst()) it.getLong(0) else -1L
-    }
+    return getColumnValue(context.contentResolver, MediaStore.MediaColumns.SIZE)?.toLong() ?: -1L
 }
 
 internal fun Uri.displayName(context: Context): String? {
@@ -52,7 +49,7 @@ internal fun Uri.displayName(context: Context): String? {
 //Return the value of the specified column，return null if does not exist
 internal fun Uri.getColumnValue(contentResolver: ContentResolver, columnName: String): String? {
     return contentResolver.query(this, arrayOf(columnName),
-        null, null, null).use {
+        null, null, null)?.use {
         if (it.moveToFirst()) it.getString(0) else null
     }
 }
