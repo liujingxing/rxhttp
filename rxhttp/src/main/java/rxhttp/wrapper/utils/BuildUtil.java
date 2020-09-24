@@ -92,8 +92,10 @@ public class BuildUtil {
         return builder.build();
     }
 
-    public static MediaType getMediaType(String fName) {
-        String contentType = URLConnection.guessContentTypeFromName(fName);
+    public static MediaType getMediaType(String filename) {
+        int index = filename.lastIndexOf(".") + 1;
+        String fileSuffix = filename.substring(index);
+        String contentType = URLConnection.guessContentTypeFromName(fileSuffix);
         if (contentType == null || contentType.isEmpty()) {
             contentType = "application/octet-stream";
         }
