@@ -80,14 +80,14 @@ private fun String.replaceSuffix(response: Response): String {
 }
 
 //find the Uri by filename and relativePath, return null if find fail.  RequiresApi 29
-fun Uri.findUriByFileName(context: Context, filename: String?, relativePath: String?): AppendUri? {
+fun Uri.query(context: Context, filename: String?, relativePath: String?): AppendUri? {
     if (filename.isNullOrEmpty() || relativePath.isNullOrEmpty()) return null
-    val realRelativePath = relativePath.run {
+    val realRelativePath = relativePath.let {
         //Remove the prefix slash if it exists
-        if (startsWith("/")) substring(1) else this
-    }.run {
+        if (it.startsWith("/")) it.substring(1) else it
+    }.let {
         //Suffix adds a slash if it does not exist
-        if (endsWith("/")) this else "$this/"
+        if (it.endsWith("/")) it else "$it/"
     }
     val columnNames = arrayOf(
         MediaStore.MediaColumns._ID,

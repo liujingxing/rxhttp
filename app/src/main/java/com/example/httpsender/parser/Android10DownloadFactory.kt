@@ -9,7 +9,7 @@ import android.provider.MediaStore
 import androidx.annotation.RequiresApi
 import okhttp3.Response
 import rxhttp.wrapper.callback.UriFactory
-import rxhttp.wrapper.callback.findUriByFileName
+import rxhttp.wrapper.callback.query
 import rxhttp.wrapper.entity.AppendUri
 import java.io.File
 
@@ -43,11 +43,11 @@ class Android10DownloadFactory @JvmOverloads constructor(
      * [MediaStore.Images.Media.EXTERNAL_CONTENT_URI]
      */
     @RequiresApi(Build.VERSION_CODES.Q)
-    private val insertUri: Uri = MediaStore.Downloads.EXTERNAL_CONTENT_URI
+    fun getInsertUri() = MediaStore.Downloads.EXTERNAL_CONTENT_URI
 
     override fun getAppendUri(): AppendUri? {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            insertUri.findUriByFileName(context, filename, relativePath)
+            getInsertUri().query(context, filename, relativePath)
         } else {
             val file = File("${Environment.getExternalStorageDirectory()}/$relativePath/$filename")
             AppendUri(Uri.fromFile(file), file.length())
@@ -61,7 +61,7 @@ class Android10DownloadFactory @JvmOverloads constructor(
                 put(MediaStore.MediaColumns.DISPLAY_NAME, filename)   //文件名
                 //取contentType响应头作为文件类型
                 put(MediaStore.MediaColumns.MIME_TYPE, response.body?.contentType().toString())
-                context.contentResolver.insert(insertUri, this)
+                context.contentResolver.insert(getInsertUri(), this)
             } ?: throw NullPointerException("Uri insert fail, Please change the file name")
         } else {
             val file = File("${Environment.getExternalStorageDirectory()}/$relativePath/$filename")
