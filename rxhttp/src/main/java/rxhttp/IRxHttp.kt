@@ -118,6 +118,12 @@ fun IRxHttp.toOkResponse(): IAwait<Response> = toParser(OkResponseParser())
 
 inline fun <reified T : Any> IRxHttp.toClass(): IAwait<T> = toParser(object : SimpleParser<T>() {})
 
+fun <T> IRxHttp.toSyncDownload(
+    osFactory: OutputStreamFactory<T>,
+    context: CoroutineContext? = null,
+    progress: (suspend (ProgressT<T>) -> Unit)? = null
+): IAwait<T> = toParser(SuspendStreamParser(osFactory, context, progress))
+
 /**
  * @param destPath Local storage path
  * @param context Use to control the thread on which the progress callback
@@ -145,11 +151,38 @@ fun <T> IRxHttp.toDownload(
 ): IAwait<T> = toSyncDownload(osFactory, context, progress)
     .flowOn(Dispatchers.IO)
 
-fun <T> IRxHttp.toSyncDownload(
-    osFactory: OutputStreamFactory<T>,
+fun IRxHttp.toAppendDownload(
+    destPath: String,
     context: CoroutineContext? = null,
-    progress: (suspend (ProgressT<T>) -> Unit)? = null
-): IAwait<T> = toParser(SuspendStreamParser(osFactory, context, progress))
+    progress: (suspend (ProgressT<String>) -> Unit)? = null
+): IAwait<String> {
+    val fileLength = File(destPath).length()
+    setRangeHeader(fileLength, -1, true)
+    return toDownload(destPath, context, progress)
+}
+
+fun IRxHttp.toAppendDownload(
+    context: Context,
+    uri: Uri,
+    coroutineContext: CoroutineContext? = null,
+    progress: (suspend (ProgressT<Uri>) -> Unit)? = null
+): IAwait<Uri> {
+    val length = uri.length(context)
+    if (length >= 0) setRangeHeader(length, -1, true)
+    return toDownload(context, uri, coroutineContext, progress)
+}
+
+fun IRxHttp.toAppendDownload(
+    uriFactory: UriFactory,
+    coroutineContext: CoroutineContext? = null,
+    progress: (suspend (ProgressT<Uri>) -> Unit)? = null
+): IAwait<Uri> {
+    val factory: OutputStreamFactory<Uri> = uriFactory.getAppendUri()?.run {
+        setRangeHeader(length, -1, true)
+        newOutputStreamFactory(uriFactory.context, uri)
+    } ?: uriFactory
+    return toDownload(factory, coroutineContext, progress)
+}
 
 fun IRxHttp.toDownloadFlow(
     destPath: String,
@@ -176,40 +209,31 @@ fun <T> IRxHttp.toDownloadFlow(
             .await()
     }.flowOn(Dispatchers.IO)
 
-fun IRxHttp.toAppendDownload(
+fun IRxHttp.toAppendDownloadFlow(
     destPath: String,
-    context: CoroutineContext? = null,
-    progress: (suspend (ProgressT<String>) -> Unit)? = null
-): IAwait<String> {
+): Flow<ProgressT<String>> {
     val fileLength = File(destPath).length()
     setRangeHeader(fileLength, -1, true)
-    return toSyncDownload(newOutputStreamFactory(destPath), context, progress)
-        .flowOn(Dispatchers.IO)
+    return toDownloadFlow(destPath)
 }
 
-fun IRxHttp.toAppendDownload(
+fun IRxHttp.toAppendDownloadFlow(
     context: Context,
     uri: Uri,
-    coroutineContext: CoroutineContext? = null,
-    progress: (suspend (ProgressT<Uri>) -> Unit)? = null
-): IAwait<Uri> {
+): Flow<ProgressT<Uri>> {
     val length = uri.length(context)
     if (length >= 0) setRangeHeader(length, -1, true)
-    return toSyncDownload(newOutputStreamFactory(context, uri), coroutineContext, progress)
-        .flowOn(Dispatchers.IO)
+    return toDownloadFlow(context, uri)
 }
 
-fun IRxHttp.toAppendDownload(
+fun IRxHttp.toAppendDownloadFlow(
     uriFactory: UriFactory,
-    coroutineContext: CoroutineContext? = null,
-    progress: (suspend (ProgressT<Uri>) -> Unit)? = null
-): IAwait<Uri> {
+): Flow<ProgressT<Uri>> {
     val factory: OutputStreamFactory<Uri> = uriFactory.getAppendUri()?.run {
         setRangeHeader(length, -1, true)
         newOutputStreamFactory(uriFactory.context, uri)
     } ?: uriFactory
-    return toSyncDownload(factory, coroutineContext, progress)
-        .flowOn(Dispatchers.IO)
+    return toDownloadFlow(factory)
 }
 
 //All of the above methods will eventually call this method.
