@@ -21,3 +21,8 @@ fun Uri.dimQuery(context: Context, displayName: String) {
         }
     }
 }
+
+fun Uri.dimDelete(context: Context, displayName: String) {
+    val delete = context.contentResolver.delete(this, "_display_name LIKE '%$displayName%'", null)
+    Log.e("LJX", "delete=$delete")
+}
