@@ -126,7 +126,7 @@ object IOUtil {
             while (inStream.read(bytes, 0, bytes.size).also { readLength = it } != -1) {
                 outStream.write(bytes, 0, readLength)
                 progress?.apply {
-                    totalReadLength += readLength;
+                    totalReadLength += readLength
                     invoke(totalReadLength)
                 }
             }
@@ -136,6 +136,7 @@ object IOUtil {
         }
     }
 
+    @Suppress("BlockingMethodInNonBlockingContext")
     @Throws(IOException::class)
     suspend fun suspendWrite(
         inStream: InputStream?,
@@ -152,7 +153,7 @@ object IOUtil {
             while (inStream.read(bytes, 0, bytes.size).also { readLength = it } != -1) {
                 outStream.write(bytes, 0, readLength)
                 progress?.apply {
-                    totalReadLength += readLength;
+                    totalReadLength += readLength
                     invoke(totalReadLength)
                 }
             }
