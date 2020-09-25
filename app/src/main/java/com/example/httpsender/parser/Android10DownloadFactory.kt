@@ -62,7 +62,7 @@ class Android10DownloadFactory @JvmOverloads constructor(
                 //取contentType响应头作为文件类型
                 put(MediaStore.MediaColumns.MIME_TYPE, response.body?.contentType().toString())
                 context.contentResolver.insert(getInsertUri(), this)
-            } ?: throw NullPointerException("Uri insert fail, Please change the file name")
+            } ?: throw NullPointerException("Uri insert failed. Try changing filename")
         } else {
             val file = File("${Environment.getExternalStorageDirectory()}/$relativePath/$filename")
             Uri.fromFile(file)
