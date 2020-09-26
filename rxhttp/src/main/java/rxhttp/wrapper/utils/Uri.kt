@@ -1,24 +1,22 @@
-@file:JvmName("KotlinExtensions")
+@file:JvmName("UriUtil")
 
 package rxhttp.wrapper.utils
 
 import android.content.ContentResolver
+import android.content.ContentUris
 import android.content.Context
 import android.net.Uri
 import android.provider.MediaStore
-import kotlinx.coroutines.suspendCancellableCoroutine
-import okhttp3.*
+import okhttp3.MediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import rxhttp.wrapper.entity.UriRequestBody
-import rxhttp.wrapper.parse.Parser
 import java.io.FileNotFoundException
-import java.io.IOException
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
 
 /**
  * User: ljx
- * Date: 2020/9/13
- * Time: 22:41
+ * Date: 2020/9/26
+ * Time: 14:55
  */
 
 @JvmOverloads
@@ -61,42 +59,24 @@ internal fun Uri.getColumnValue(contentResolver: ContentResolver, columnName: St
     }
 }
 
-internal suspend fun Call.await(): Response {
-    return suspendCancellableCoroutine { continuation ->
-        continuation.invokeOnCancellation {
-            cancel()
-        }
-        enqueue(object : Callback {
-
-            override fun onResponse(call: Call, response: Response) {
-                continuation.resume(response)
-            }
-
-            override fun onFailure(call: Call, e: IOException) {
-                continuation.resumeWithException(e)
-            }
-        })
+//find the Uri by filename and relativePath, return null if find fail.  RequiresApi 29
+fun Uri.query(context: Context, filename: String?, relativePath: String?): Uri? {
+    if (filename.isNullOrEmpty() || relativePath.isNullOrEmpty()) return null
+    val realRelativePath = relativePath.let {
+        //Remove the prefix slash if it exists
+        if (it.startsWith("/")) it.substring(1) else it
+    }.let {
+        //Suffix adds a slash if it does not exist
+        if (it.endsWith("/")) it else "$it/"
     }
-}
-
-internal suspend fun <T> Call.await(parser: Parser<T>): T {
-    return suspendCancellableCoroutine { continuation ->
-        continuation.invokeOnCancellation {
-            cancel()
-        }
-        enqueue(object : Callback {
-
-            override fun onResponse(call: Call, response: Response) {
-                try {
-                    continuation.resume(parser.onParse(response))
-                } catch (t: Throwable) {
-                    continuation.resumeWithException(t)
-                }
-            }
-
-            override fun onFailure(call: Call, e: IOException) {
-                continuation.resumeWithException(e)
-            }
-        })
+    val columnNames = arrayOf(
+        MediaStore.MediaColumns._ID,
+    )
+    return context.contentResolver.query(this, columnNames,
+        "relative_path=? AND _display_name=?", arrayOf(realRelativePath, filename), null)?.use {
+        if (it.moveToFirst()) {
+            val uriId = it.getLong(0)
+            ContentUris.withAppendedId(this, uriId)
+        } else null
     }
 }
