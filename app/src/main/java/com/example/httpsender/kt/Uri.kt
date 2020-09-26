@@ -18,7 +18,11 @@ fun Uri.dimQuery(context: Context, displayName: String) {
             val id = it.getString(it.getColumnIndex(MediaStore.MediaColumns._ID))
             val name = it.getString(it.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME))
             val data = it.getString(it.getColumnIndex(MediaStore.MediaColumns.DATA))
-            Log.e("LJX", "id=$id name=$name data=$data")
+            //注意: 通过这种方式获取的文件size，在文件被手动删除后，读取到的是不准确的
+            val size = it.getString(it.getColumnIndex(MediaStore.MediaColumns.SIZE))
+            val dateAdded = it.getString(it.getColumnIndex(MediaStore.MediaColumns.DATE_ADDED))
+            val dateModified = it.getString(it.getColumnIndex(MediaStore.MediaColumns.DATE_MODIFIED))
+            Log.e("LJX", "id=$id  size=$size  name=$name  data=$data  dateAdded=$dateAdded  dateModified=$dateModified")
         }
     }
 }
