@@ -9,7 +9,7 @@ import android.provider.MediaStore
 import androidx.annotation.RequiresApi
 import okhttp3.Response
 import rxhttp.wrapper.callback.UriFactory
-import rxhttp.wrapper.callback.query
+import rxhttp.wrapper.utils.query
 import java.io.File
 
 /**

@@ -15,7 +15,7 @@ import okhttp3.MultipartBody.Part;
 import okhttp3.RequestBody;
 import rxhttp.wrapper.annotations.Nullable;
 import rxhttp.wrapper.entity.UpFile;
-import rxhttp.wrapper.utils.KotlinExtensions;
+import rxhttp.wrapper.utils.UriUtil;
 
 /**
  * Github
@@ -118,34 +118,34 @@ public class RxHttpFormParam extends RxHttpBodyParam<FormParam, RxHttpFormParam>
   }
 
   public RxHttpFormParam addPart(Context context, Uri uri) {
-    param.addPart(KotlinExtensions.asRequestBody(uri, context));
+    param.addPart(UriUtil.asRequestBody(uri, context));
     return this;
   }
 
   public RxHttpFormParam addPart(Context context, String key, Uri uri) {
-    param.addPart(KotlinExtensions.asPart(uri, context, key));
+    param.addPart(UriUtil.asPart(uri, context, key));
     return this;
   }
 
   public RxHttpFormParam addPart(Context context, String key, String fileName, Uri uri) {
-    param.addPart(KotlinExtensions.asPart(uri, context, key, fileName));
+    param.addPart(UriUtil.asPart(uri, context, key, fileName));
     return this;
   }
 
   public RxHttpFormParam addPart(Context context, Uri uri, @Nullable MediaType contentType) {
-    param.addPart(KotlinExtensions.asRequestBody(uri, context, contentType));
+    param.addPart(UriUtil.asRequestBody(uri, context, contentType));
     return this;
   }
 
   public RxHttpFormParam addPart(Context context, String key, Uri uri,
       @Nullable MediaType contentType) {
-    param.addPart(KotlinExtensions.asPart(uri, context, key, null, contentType));
+    param.addPart(UriUtil.asPart(uri, context, key, null, contentType));
     return this;
   }
 
   public RxHttpFormParam addPart(Context context, String key, String filename, Uri uri,
       @Nullable MediaType contentType) {
-    param.addPart(KotlinExtensions.asPart(uri, context, key, filename, contentType));
+    param.addPart(UriUtil.asPart(uri, context, key, filename, contentType));
     return this;
   }
 
