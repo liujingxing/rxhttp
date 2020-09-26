@@ -50,6 +50,7 @@ object ClassHelper {
             import ${getClassPath("Scheduler")};
             import ${getClassPath("Consumer")};
             import ${getClassPath("RxJavaPlugins")};
+            import ${getClassPath("Schedulers")};
             import okhttp3.Headers;
             import okhttp3.Response;
             import rxhttp.IRxHttp;
@@ -230,16 +231,25 @@ object ClassHelper {
                 }                                                                                        
                                                                                                          
                 public final Observable<Uri> asAppendDownload(UriFactory uriFactory, Scheduler scheduler,
-                                                              Consumer<Progress> progressConsumer) {     
-                    AppendUri appendUri = uriFactory.getAppendUri();                                     
-                    StreamParser<Uri> parser;                                                            
-                    if (appendUri != null) {                                                             
-                        setRangeHeader(appendUri.getLength(), -1, true);                                 
-                        parser = StreamParser.get(uriFactory.getContext(), appendUri.getUri());          
-                    } else {                                                                             
-                        parser = new StreamParser(uriFactory);                                           
-                    }                                                                                    
-                    return asParser(parser, scheduler, progressConsumer);                                
+                                                              Consumer<Progress> progressConsumer) {
+                    return Observable
+                        .fromCallable(() -> {
+                            Uri uri = uriFactory.query();
+                            StreamParser<Uri> parser;
+                            if (uri != null) {
+                                long length = KotlinExtensions.length(uri, uriFactory.getContext());
+                                if (length >= 0)
+                                    setRangeHeader(length, -1, true);
+                                parser = StreamParser.get(uriFactory.getContext(), uri);
+                            } else {
+                                parser = new StreamParser(uriFactory);
+                            }
+                            return parser;
+                        })
+                        .subscribeOn(Schedulers.io())
+                        .flatMap(parser -> {
+                            return asParser(parser, scheduler, progressConsumer);
+                        });
                 }                                                                                            
                 """ else ""
                 }    

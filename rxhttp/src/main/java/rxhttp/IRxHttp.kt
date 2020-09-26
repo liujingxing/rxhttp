@@ -7,6 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.withContext
 import okhttp3.Call
 import okhttp3.Headers
 import okhttp3.Response
@@ -172,15 +173,19 @@ fun IRxHttp.toAppendDownload(
     return toDownload(context, uri, coroutineContext, progress)
 }
 
-fun IRxHttp.toAppendDownload(
+suspend fun IRxHttp.toAppendDownload(
     uriFactory: UriFactory,
     coroutineContext: CoroutineContext? = null,
     progress: (suspend (ProgressT<Uri>) -> Unit)? = null
 ): IAwait<Uri> {
-    val factory: OutputStreamFactory<Uri> = uriFactory.getAppendUri()?.run {
-        setRangeHeader(length, -1, true)
-        newOutputStreamFactory(uriFactory.context, uri)
-    } ?: uriFactory
+    val factory = withContext(Dispatchers.IO) {
+        uriFactory.query()?.let {
+            val length = it.length(uriFactory.context)
+            if (length >= 0)
+                setRangeHeader(length, -1, true)
+            newOutputStreamFactory(uriFactory.context, it)
+        } ?: uriFactory
+    }
     return toDownload(factory, coroutineContext, progress)
 }
 
@@ -226,13 +231,17 @@ fun IRxHttp.toAppendDownloadFlow(
     return toDownloadFlow(context, uri)
 }
 
-fun IRxHttp.toAppendDownloadFlow(
+suspend fun IRxHttp.toAppendDownloadFlow(
     uriFactory: UriFactory,
 ): Flow<ProgressT<Uri>> {
-    val factory: OutputStreamFactory<Uri> = uriFactory.getAppendUri()?.run {
-        setRangeHeader(length, -1, true)
-        newOutputStreamFactory(uriFactory.context, uri)
-    } ?: uriFactory
+    val factory = withContext(Dispatchers.IO) {
+        uriFactory.query()?.let {
+            val length = it.length(uriFactory.context)
+            if (length >= 0)
+                setRangeHeader(length, -1, true)
+            newOutputStreamFactory(uriFactory.context, it)
+        } ?: uriFactory
+    }
     return toDownloadFlow(factory)
 }
 

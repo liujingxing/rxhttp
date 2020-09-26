@@ -6,7 +6,6 @@ import android.net.Uri
 import android.provider.MediaStore
 import okhttp3.Response
 import rxhttp.wrapper.OkHttpCompat
-import rxhttp.wrapper.entity.AppendUri
 import rxhttp.wrapper.entity.OutputStreamWrapper
 import rxhttp.wrapper.entity.toWrapper
 import java.io.File
@@ -29,13 +28,13 @@ abstract class UriFactory(
 ) : OutputStreamFactory<Uri>() {
 
     @Throws(IOException::class)
-    abstract fun getUri(response: Response): Uri
+    abstract fun insert(response: Response): Uri
 
-    open fun getAppendUri(): AppendUri? = null
+    open fun query(): Uri? = null
 
     final override fun getOutputStream(response: Response): OutputStreamWrapper<Uri> {
         val append = response.header("Content-Range") != null
-        return getUri(response).toWrapper(context, append)
+        return insert(response).toWrapper(context, append)
     }
 }
 
@@ -80,7 +79,7 @@ private fun String.replaceSuffix(response: Response): String {
 }
 
 //find the Uri by filename and relativePath, return null if find fail.  RequiresApi 29
-fun Uri.query(context: Context, filename: String?, relativePath: String?): AppendUri? {
+fun Uri.query(context: Context, filename: String?, relativePath: String?): Uri? {
     if (filename.isNullOrEmpty() || relativePath.isNullOrEmpty()) return null
     val realRelativePath = relativePath.let {
         //Remove the prefix slash if it exists
@@ -91,14 +90,12 @@ fun Uri.query(context: Context, filename: String?, relativePath: String?): Appen
     }
     val columnNames = arrayOf(
         MediaStore.MediaColumns._ID,
-        MediaStore.MediaColumns.SIZE,
     )
     return context.contentResolver.query(this, columnNames,
         "relative_path=? AND _display_name=?", arrayOf(realRelativePath, filename), null)?.use {
         if (it.moveToFirst()) {
             val uriId = it.getLong(0)
-            val newUri = ContentUris.withAppendedId(this, uriId)
-            AppendUri(newUri, it.getLong(1))
+            ContentUris.withAppendedId(this, uriId)
         } else null
     }
 }
