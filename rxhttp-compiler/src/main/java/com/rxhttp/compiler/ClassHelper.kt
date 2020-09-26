@@ -59,7 +59,6 @@ object ClassHelper {
             ${
             if (isAndroid) """
             import rxhttp.wrapper.callback.UriFactory;
-            import rxhttp.wrapper.entity.AppendUri;
             """ else ""
             }
             import rxhttp.wrapper.entity.ParameterizedTypeImpl;
@@ -69,8 +68,8 @@ object ClassHelper {
             import rxhttp.wrapper.parse.Parser;
             import rxhttp.wrapper.parse.SimpleParser;
             import rxhttp.wrapper.parse.StreamParser;
-            import rxhttp.wrapper.utils.UriUtil;
             import rxhttp.wrapper.utils.LogUtil;
+            import rxhttp.wrapper.utils.UriUtil;
 
             /**
              * 本类存放asXxx方法，如果依赖了RxJava的话
@@ -221,9 +220,16 @@ object ClassHelper {
                                                                                                             
                 public final Observable<Uri> asAppendDownload(Context context, Uri uri, Scheduler scheduler,
                                                               Consumer<Progress> progressConsumer) {        
-                    long length = UriUtil.length(uri, context);                                
-                    if (length >= 0) setRangeHeader(length, -1, true);                                                                              
-                    return asParser(StreamParser.get(context, uri), scheduler, progressConsumer);           
+                    return Observable
+                        .fromCallable(() -> {
+                            long length = UriUtil.length(uri, context);
+                            if (length >= 0) setRangeHeader(length, -1, true);
+                            return StreamParser.get(context, uri);
+                        })
+                        .subscribeOn(Schedulers.io())
+                        .flatMap(parser -> {
+                            return asParser(parser, scheduler, progressConsumer);
+                        });        
                 }                                                                                           
                     
                 public final Observable<Uri> asAppendDownload(UriFactory uriFactory) {                   

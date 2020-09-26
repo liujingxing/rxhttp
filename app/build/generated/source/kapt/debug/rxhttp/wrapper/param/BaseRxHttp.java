@@ -21,7 +21,6 @@ import rxhttp.wrapper.OkHttpCompat;
 import rxhttp.wrapper.callback.OutputStreamFactory;
 
 import rxhttp.wrapper.callback.UriFactory;
-import rxhttp.wrapper.entity.AppendUri;
 
 import rxhttp.wrapper.entity.ParameterizedTypeImpl;
 import rxhttp.wrapper.entity.Progress;
@@ -30,8 +29,8 @@ import rxhttp.wrapper.parse.OkResponseParser;
 import rxhttp.wrapper.parse.Parser;
 import rxhttp.wrapper.parse.SimpleParser;
 import rxhttp.wrapper.parse.StreamParser;
-import rxhttp.wrapper.utils.UriUtil;
 import rxhttp.wrapper.utils.LogUtil;
+import rxhttp.wrapper.utils.UriUtil;
 
 /**
  * 本类存放asXxx方法，如果依赖了RxJava的话
@@ -177,9 +176,16 @@ public abstract class BaseRxHttp implements IRxHttp {
                                                                                                 
     public final Observable<Uri> asAppendDownload(Context context, Uri uri, Scheduler scheduler,
                                                   Consumer<Progress> progressConsumer) {        
-        long length = UriUtil.length(uri, context);                                
-        if (length >= 0) setRangeHeader(length, -1, true);                                                                              
-        return asParser(StreamParser.get(context, uri), scheduler, progressConsumer);           
+        return Observable
+            .fromCallable(() -> {
+                long length = UriUtil.length(uri, context);
+                if (length >= 0) setRangeHeader(length, -1, true);
+                return StreamParser.get(context, uri);
+            })
+            .subscribeOn(Schedulers.io())
+            .flatMap(parser -> {
+                return asParser(parser, scheduler, progressConsumer);
+            });        
     }                                                                                           
         
     public final Observable<Uri> asAppendDownload(UriFactory uriFactory) {                   

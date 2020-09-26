@@ -162,13 +162,13 @@ fun IRxHttp.toAppendDownload(
     return toDownload(destPath, context, progress)
 }
 
-fun IRxHttp.toAppendDownload(
+suspend fun IRxHttp.toAppendDownload(
     context: Context,
     uri: Uri,
     coroutineContext: CoroutineContext? = null,
     progress: (suspend (ProgressT<Uri>) -> Unit)? = null
 ): IAwait<Uri> {
-    val length = uri.length(context)
+    val length = withContext(Dispatchers.IO) { uri.length(context) }
     if (length >= 0) setRangeHeader(length, -1, true)
     return toDownload(context, uri, coroutineContext, progress)
 }
@@ -178,7 +178,7 @@ suspend fun IRxHttp.toAppendDownload(
     coroutineContext: CoroutineContext? = null,
     progress: (suspend (ProgressT<Uri>) -> Unit)? = null
 ): IAwait<Uri> {
-    val factory = withContext(Dispatchers.IO) {
+    val factory: OutputStreamFactory<Uri> = withContext(Dispatchers.IO) {
         uriFactory.query()?.let {
             val length = it.length(uriFactory.context)
             if (length >= 0)
@@ -222,11 +222,11 @@ fun IRxHttp.toAppendDownloadFlow(
     return toDownloadFlow(destPath)
 }
 
-fun IRxHttp.toAppendDownloadFlow(
+suspend fun IRxHttp.toAppendDownloadFlow(
     context: Context,
     uri: Uri,
 ): Flow<ProgressT<Uri>> {
-    val length = uri.length(context)
+    val length = withContext(Dispatchers.IO) { uri.length(context) }
     if (length >= 0) setRangeHeader(length, -1, true)
     return toDownloadFlow(context, uri)
 }
@@ -234,7 +234,7 @@ fun IRxHttp.toAppendDownloadFlow(
 suspend fun IRxHttp.toAppendDownloadFlow(
     uriFactory: UriFactory,
 ): Flow<ProgressT<Uri>> {
-    val factory = withContext(Dispatchers.IO) {
+    val factory: OutputStreamFactory<Uri> = withContext(Dispatchers.IO) {
         uriFactory.query()?.let {
             val length = it.length(uriFactory.context)
             if (length >= 0)

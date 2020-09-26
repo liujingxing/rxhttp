@@ -36,7 +36,7 @@ fun Uri.asPart(
     return MultipartBody.Part.createFormData(key, newFilename, asRequestBody(context, contentType))
 }
 
-//return The size of the media item, return -1 if does not exist
+//return The size of the media item, return -1 if does not exist, might block.
 fun Uri?.length(context: Context): Long {
     if (this == null) return -1L
     val fileDescriptor = try {
