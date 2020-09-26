@@ -41,7 +41,7 @@ class DownloadFragment : BaseFragment<DownloadFragmentBinding>(), View.OnClickLi
 
     //-------------------- Android 10下载 --------------------
 
-    //文件下载，不带进度
+    //Android 10协程下载，不带进度，兼容Android 10以下
     private fun DownloadFragmentBinding.coroutineDownload10(view: View) {
         rxLifeScope.launch({
             val factory = Android10DownloadFactory(requireContext(), "miaobo.apk")
@@ -57,7 +57,7 @@ class DownloadFragment : BaseFragment<DownloadFragmentBinding>(), View.OnClickLi
         })
     }
 
-    //文件下载，带进度
+    //Android 10协程下载，带进度，兼容Android 10以下
     private fun DownloadFragmentBinding.coroutineDownloadProgress10(view: View) {
         rxLifeScope.launch({
             val factory = Android10DownloadFactory(requireContext(), "miaobo.apk")
@@ -80,12 +80,9 @@ class DownloadFragment : BaseFragment<DownloadFragmentBinding>(), View.OnClickLi
     }
 
     /**
-     * Android 10 断点下载，构建Android10DownloadFactory对象时，必须要传入 queryUri、fileName 参数
+     * Android 10 协程断点下载，兼容Android 10以下
      *
-     * queryUri 参数可以理解为要查找的uri对应的文件夹
-     * fileName  就是要查询的文件名
-     *
-     * 内部会在queryUri对应的文件夹下查找于fileName名字一样的文件，进而得到文件id及文件长度(也就是断点未知)
+     * 内部会在指定的表里查找指定路径及文件名的Uri，并读取到Uri对应资源的长度，将其设置为断点位置
      * 如果没有查询到，就走正常的下载流程
      */
     private fun DownloadFragmentBinding.coroutineAppendDownloadProgress10(view: View) {
@@ -109,7 +106,7 @@ class DownloadFragment : BaseFragment<DownloadFragmentBinding>(), View.OnClickLi
         })
     }
 
-    //文件下载，不带进度
+    //Android 10 RxJava下载，不带进度，兼容Android 10以下
     private fun DownloadFragmentBinding.rxJavaDownload10(view: View) {
         val factory = Android10DownloadFactory(requireContext(), "miaobo.apk")
         RxSimpleHttp.get(Url.DOWNLOAD_URL)
@@ -124,7 +121,7 @@ class DownloadFragment : BaseFragment<DownloadFragmentBinding>(), View.OnClickLi
             })
     }
 
-    //文件下载，带进度
+    //Android 10 RxJava下载，带进度，兼容Android 10以下
     private fun DownloadFragmentBinding.rxJavaDownloadProgress10(view: View) {
         val factory = Android10DownloadFactory(requireContext(), "miaobo.apk")
         RxSimpleHttp.get(Url.DOWNLOAD_URL)
@@ -146,12 +143,9 @@ class DownloadFragment : BaseFragment<DownloadFragmentBinding>(), View.OnClickLi
     }
 
     /**
-     * Android 10 断点下载，构建Android10DownloadFactory对象时，必须要传入 queryUri、fileName 参数
+     * Android 10 RxJava断点下载，兼容Android 10以下
      *
-     * queryUri 参数可以理解为要查找的uri对应的文件夹
-     * fileName  就是要查询的文件名
-     *
-     * 内部会在queryUri对应的文件夹下查找于fileName名字一样的文件，进而得到文件id及文件长度(也就是断点未知)
+     * 内部会在指定的表里查找指定路径及文件名的Uri，并读取到Uri对应资源的长度，将其设置为断点位置
      * 如果没有查询到，就走正常的下载流程
      */
     private fun DownloadFragmentBinding.rxJavaAppendDownloadProgress10(view: View) {
