@@ -10,6 +10,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import okhttp3.*
 import rxhttp.wrapper.entity.UriRequestBody
 import rxhttp.wrapper.parse.Parser
+import java.io.FileNotFoundException
 import java.io.IOException
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -38,8 +39,14 @@ fun Uri.asPart(
 }
 
 //return The size of the media item, return -1 if does not exist
-internal fun Uri.length(context: Context): Long {
-    return getColumnValue(context.contentResolver, MediaStore.MediaColumns.SIZE)?.toLong() ?: -1L
+fun Uri?.length(context: Context): Long {
+    if (this == null) return -1L
+    val fileDescriptor = try {
+        context.contentResolver.openFileDescriptor(this, "r")
+    } catch (e: FileNotFoundException) {
+        null
+    }
+    return fileDescriptor?.statSize ?: -1L
 }
 
 internal fun Uri.displayName(context: Context): String? {
