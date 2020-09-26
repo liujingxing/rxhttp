@@ -10,7 +10,6 @@ import androidx.annotation.RequiresApi
 import okhttp3.Response
 import rxhttp.wrapper.callback.UriFactory
 import rxhttp.wrapper.callback.query
-import rxhttp.wrapper.entity.AppendUri
 import java.io.File
 
 /**
@@ -45,24 +44,24 @@ class Android10DownloadFactory @JvmOverloads constructor(
     @RequiresApi(Build.VERSION_CODES.Q)
     fun getInsertUri() = MediaStore.Downloads.EXTERNAL_CONTENT_URI
 
-    override fun getAppendUri(): AppendUri? {
+    override fun query(): Uri? {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             getInsertUri().query(context, filename, relativePath)
         } else {
             val file = File("${Environment.getExternalStorageDirectory()}/$relativePath/$filename")
-            AppendUri(Uri.fromFile(file), file.length())
+            Uri.fromFile(file)
         }
     }
 
-    override fun getUri(response: Response): Uri {
+    override fun insert(response: Response): Uri {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            ContentValues().run {
+            getInsertUri().query(context, filename, relativePath) ?: (ContentValues().run {
                 put(MediaStore.MediaColumns.RELATIVE_PATH, relativePath) //下载到指定目录
                 put(MediaStore.MediaColumns.DISPLAY_NAME, filename)   //文件名
                 //取contentType响应头作为文件类型
                 put(MediaStore.MediaColumns.MIME_TYPE, response.body?.contentType().toString())
                 context.contentResolver.insert(getInsertUri(), this)
-            } ?: throw NullPointerException("Uri insert failed. Try changing filename")
+            } ?: throw NullPointerException("Uri insert failed. Try changing filename"))
         } else {
             val file = File("${Environment.getExternalStorageDirectory()}/$relativePath/$filename")
             Uri.fromFile(file)
