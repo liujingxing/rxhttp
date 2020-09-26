@@ -30,7 +30,7 @@ import rxhttp.wrapper.parse.OkResponseParser;
 import rxhttp.wrapper.parse.Parser;
 import rxhttp.wrapper.parse.SimpleParser;
 import rxhttp.wrapper.parse.StreamParser;
-import rxhttp.wrapper.utils.KotlinExtensions;
+import rxhttp.wrapper.utils.UriUtil;
 import rxhttp.wrapper.utils.LogUtil;
 
 /**
@@ -177,7 +177,7 @@ public abstract class BaseRxHttp implements IRxHttp {
                                                                                                 
     public final Observable<Uri> asAppendDownload(Context context, Uri uri, Scheduler scheduler,
                                                   Consumer<Progress> progressConsumer) {        
-        long length = KotlinExtensions.length(uri, context);                                
+        long length = UriUtil.length(uri, context);                                
         if (length >= 0) setRangeHeader(length, -1, true);                                                                              
         return asParser(StreamParser.get(context, uri), scheduler, progressConsumer);           
     }                                                                                           
@@ -193,7 +193,7 @@ public abstract class BaseRxHttp implements IRxHttp {
                 Uri uri = uriFactory.query();
                 StreamParser<Uri> parser;
                 if (uri != null) {
-                    long length = KotlinExtensions.length(uri, uriFactory.getContext());
+                    long length = UriUtil.length(uri, uriFactory.getContext());
                     if (length >= 0)
                         setRangeHeader(length, -1, true);
                     parser = StreamParser.get(uriFactory.getContext(), uri);

@@ -639,7 +639,7 @@ class RxHttpGenerator {
             val listUriName = ParameterizedTypeName.get(ClassName.get(MutableList::class.java), uriName)
             val mapUriName = ParameterizedTypeName.get(ClassName.get(MutableMap::class.java), stringName, uriName)
 
-            val kotlinExtensionsName = ClassName.get("rxhttp.wrapper.utils", "KotlinExtensions")
+            val kotlinExtensionsName = ClassName.get("rxhttp.wrapper.utils", "UriUtil")
             val mapEntryName = ClassName.get("java.util.Map", "Entry")
 
             methodList.add(
