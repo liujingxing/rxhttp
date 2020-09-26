@@ -14,6 +14,7 @@ import com.example.httpsender.kt.errorMsg
 import com.example.httpsender.kt.show
 import com.example.httpsender.kt.startActivity
 import com.example.httpsender.parser.Android10DownloadFactory
+import com.rxjava.rxlife.life
 import com.rxjava.rxlife.lifeOnMain
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import kotlinx.coroutines.Dispatchers
@@ -134,7 +135,7 @@ class DownloadFragment : BaseFragment<DownloadFragmentBinding>(), View.OnClickLi
                 val totalSize = it.totalSize //要下载的总字节大小
                 tvResult.append(it.toString())
             }
-            .lifeOnMain(this@DownloadFragment) //感知生命周期，并在主线程回调
+            .life(this@DownloadFragment) //感知生命周期，并在主线程回调
             .subscribe({
                 tvResult.append("\n下载完成, $it")
             }, {
@@ -163,7 +164,7 @@ class DownloadFragment : BaseFragment<DownloadFragmentBinding>(), View.OnClickLi
                 val totalSize = it.totalSize //要下载的总字节大小
                 tvResult.append(it.toString())
             }
-            .lifeOnMain(this@DownloadFragment) //感知生命周期，并在主线程回调
+            .life(this@DownloadFragment) //感知生命周期，并在主线程回调
             .subscribe({
                 tvResult.append("\n下载完成, $it")
             }, {
@@ -261,7 +262,7 @@ class DownloadFragment : BaseFragment<DownloadFragmentBinding>(), View.OnClickLi
                 val totalSize = it.totalSize //要下载的总字节大小
                 tvResult.append(it.toString())
             }
-            .lifeOnMain(this@DownloadFragment) //感知生命周期，并在主线程回调
+            .life(this@DownloadFragment) //感知生命周期，并在主线程回调
             .subscribe({
                 tvResult.append("\n下载完成, $it")
             }, {
@@ -283,7 +284,7 @@ class DownloadFragment : BaseFragment<DownloadFragmentBinding>(), View.OnClickLi
                 val totalSize = it.totalSize //要下载的总字节大小
                 tvResult.append(it.toString())
             }
-            .lifeOnMain(this@DownloadFragment) //感知生命周期，并在主线程回调
+            .life(this@DownloadFragment) //感知生命周期，并在主线程回调
             .subscribe({
                 tvResult.append("\n下载完成, $it")
             }, {
