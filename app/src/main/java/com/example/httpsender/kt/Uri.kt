@@ -15,9 +15,10 @@ fun Uri.dimQuery(context: Context, displayName: String) {
     context.contentResolver.query(this, null,
         "_display_name LIKE '%$displayName%'",null, null)?.use {
         while (it.moveToNext()) {
+            val id = it.getString(it.getColumnIndex(MediaStore.MediaColumns._ID))
             val name = it.getString(it.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME))
             val data = it.getString(it.getColumnIndex(MediaStore.MediaColumns.DATA))
-            Log.e("LJX", "name=$name data=$data")
+            Log.e("LJX", "id=$id name=$name data=$data")
         }
     }
 }
