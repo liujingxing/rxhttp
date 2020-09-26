@@ -91,7 +91,7 @@ dependencies {
     implementation 'com.ljx.rxlife2:rxlife-rxjava:2.0.0' //管理RxJava2生命周期，页面销毁，关闭请求
 
     //rxjava3
-    implementation 'io.reactivex.rxjava3:rxjava:3.0.2'
+    implementation 'io.reactivex.rxjava3:rxjava:3.0.6'
     implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
     implementation 'com.ljx.rxlife3:rxlife-rxjava:3.0.0' //管理RxJava3生命周期，页面销毁，关闭请求
 
