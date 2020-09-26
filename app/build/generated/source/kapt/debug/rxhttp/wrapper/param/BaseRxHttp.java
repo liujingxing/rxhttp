@@ -19,9 +19,7 @@ import okhttp3.Response;
 import rxhttp.IRxHttp;
 import rxhttp.wrapper.OkHttpCompat;
 import rxhttp.wrapper.callback.OutputStreamFactory;
-
 import rxhttp.wrapper.callback.UriFactory;
-
 import rxhttp.wrapper.entity.ParameterizedTypeImpl;
 import rxhttp.wrapper.entity.Progress;
 import rxhttp.wrapper.parse.BitmapParser;
