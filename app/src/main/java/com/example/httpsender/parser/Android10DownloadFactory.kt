@@ -55,13 +55,20 @@ class Android10DownloadFactory @JvmOverloads constructor(
 
     override fun insert(response: Response): Uri {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            getInsertUri().query(context, filename, relativePath) ?: (ContentValues().run {
+            val uri = getInsertUri().query(context, filename, relativePath)
+            /*
+             * 通过查找，要插入的Uri已经存在，就无需再次插入
+             * 否则会出现新插入的文件，文件名被系统更改的现象，因为insert不会执行覆盖操作
+             */
+            if (uri != null) return uri
+            ContentValues().run {
                 put(MediaStore.MediaColumns.RELATIVE_PATH, relativePath) //下载到指定目录
                 put(MediaStore.MediaColumns.DISPLAY_NAME, filename)   //文件名
                 //取contentType响应头作为文件类型
                 put(MediaStore.MediaColumns.MIME_TYPE, response.body?.contentType().toString())
                 context.contentResolver.insert(getInsertUri(), this)
-            } ?: throw NullPointerException("Uri insert failed. Try changing filename"))
+                //当相同路径下的文件，在文件管理器中被手动删除时，就会插入失败
+            } ?: throw NullPointerException("Uri insert failed. Try changing filename")
         } else {
             val file = File("${Environment.getExternalStorageDirectory()}/$relativePath/$filename")
             Uri.fromFile(file)
