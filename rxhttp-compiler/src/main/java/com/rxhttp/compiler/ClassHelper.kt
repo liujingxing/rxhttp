@@ -50,17 +50,13 @@ object ClassHelper {
             import ${getClassPath("Scheduler")};
             import ${getClassPath("Consumer")};
             import ${getClassPath("RxJavaPlugins")};
-            import ${getClassPath("Schedulers")};
+            ${if (isAndroid) "import ${getClassPath("Schedulers")};" else ""}
             import okhttp3.Headers;
             import okhttp3.Response;
             import rxhttp.IRxHttp;
             import rxhttp.wrapper.OkHttpCompat;
             import rxhttp.wrapper.callback.OutputStreamFactory;
-            ${
-            if (isAndroid) """
-            import rxhttp.wrapper.callback.UriFactory;
-            """ else ""
-            }
+            ${if (isAndroid) "import rxhttp.wrapper.callback.UriFactory;" else ""}
             import rxhttp.wrapper.entity.ParameterizedTypeImpl;
             import rxhttp.wrapper.entity.Progress;
             ${if (isAndroid) "import rxhttp.wrapper.parse.BitmapParser;" else ""}
@@ -69,7 +65,7 @@ object ClassHelper {
             import rxhttp.wrapper.parse.SimpleParser;
             import rxhttp.wrapper.parse.StreamParser;
             import rxhttp.wrapper.utils.LogUtil;
-            import rxhttp.wrapper.utils.UriUtil;
+            ${if (isAndroid) "import rxhttp.wrapper.utils.UriUtil;" else ""}
 
             /**
              * 本类存放asXxx方法，如果依赖了RxJava的话
