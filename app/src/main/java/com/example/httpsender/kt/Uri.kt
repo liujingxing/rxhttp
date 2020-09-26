@@ -31,3 +31,8 @@ fun Uri.dimDelete(context: Context, displayName: String) {
     val delete = context.contentResolver.delete(this, "_display_name LIKE '%$displayName%'", null)
     Log.e("LJX", "delete=$delete")
 }
+
+fun Uri.delete(context: Context, displayName: String) {
+    val delete = context.contentResolver.delete(this, "_display_name=?", arrayOf(displayName))
+    Log.e("LJX", "delete=$delete")
+}
