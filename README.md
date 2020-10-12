@@ -62,8 +62,8 @@ android {
         javaCompileOptions {
             annotationProcessorOptions {
                 arguments = [
-                    //必须，告知RxHttp你依赖的okhttp版本，目前已适配 v3.12.0 - v4.8.1版本  (v4.3.0除外)
-                    rxhttp_okhttp: '4.8.1'，
+                    //必须，告知RxHttp你依赖的okhttp版本，目前已适配 v3.12.0 - v4.9.0版本  (v4.3.0除外)
+                    rxhttp_okhttp: '4.9.0'，
                     //使用asXxx方法时必须，告知RxHttp你依赖的rxjava版本，可传入rxjava2、rxjava3
                     rxhttp_rxjava: 'rxjava3'， 
                     rxhttp_package: 'rxhttp'   //非必须，指定RxHttp类包名
@@ -80,7 +80,7 @@ android {
 dependencies {
     //以下3个为必须，
     implementation 'com.ljx.rxhttp:rxhttp:2.4.1'
-    implementation 'com.squareup.okhttp3:okhttp:4.8.1' //rxhttp v2.2.2版本起，需要手动依赖okhttp
+    implementation 'com.squareup.okhttp3:okhttp:4.9.0' //rxhttp v2.2.2版本起，需要手动依赖okhttp
     kapt 'com.ljx.rxhttp:rxhttp-compiler:2.4.1' //生成RxHttp类，纯Java项目，请使用annotationProcessor代替kapt
     
     implementation 'com.ljx.rxlife:rxlife-coroutine:2.0.1' //管理协程生命周期，页面销毁，关闭请求
