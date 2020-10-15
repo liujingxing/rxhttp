@@ -65,11 +65,18 @@ public class GsonUtil {
         if (gson == null) {
             gson = new GsonBuilder()
                 .disableHtmlEscaping()
-                .registerTypeAdapter(String.class, new StringAdapter())
-                .registerTypeAdapter(Integer.class, new IntegerDefault0Adapter())
-                .registerTypeAdapter(Double.class, new DoubleDefault0Adapter())
-                .registerTypeAdapter(Long.class, new LongDefault0Adapter())
-                .create();
+                    .registerTypeAdapter(Integer.class, new IntegerTypeAdapter())
+                    .registerTypeAdapter(int.class, new IntegerTypeAdapter())
+                    .registerTypeAdapter(Double.class, new DoubleTypeAdapter())
+                    .registerTypeAdapter(double.class, new DoubleTypeAdapter())
+                    .registerTypeAdapter(Long.class, new LongTypeAdapter())
+                    .registerTypeAdapter(long.class, new LongTypeAdapter())
+                    .registerTypeAdapter(Float.class, new FloatTypeAdapter())
+                    .registerTypeAdapter(float.class, new FloatTypeAdapter())
+                    .registerTypeAdapter(Boolean.class, new BooleanTypeAdapter())
+                    .registerTypeAdapter(boolean.class, new BooleanTypeAdapter())
+                    .registerTypeAdapter(String.class, new StringTypeAdapter())
+                    .create();
         }
         return gson;
     }
