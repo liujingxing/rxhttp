@@ -137,6 +137,12 @@ public class RxSimpleHttp {
     return rxHttp;
   }
 
+  public static RxHttpPostBodyParam postBodyForm(String url, Object... formatArgs) {
+    RxHttpPostBodyParam rxHttp = RxHttp.postBodyForm(url, formatArgs);
+    wrapper(rxHttp);
+    return rxHttp;
+  }
+
   public static RxHttpPostEncryptJsonParam1 postEncryptJson1(String url, Object... formatArgs) {
     RxHttpPostEncryptJsonParam1 rxHttp = RxHttp.postEncryptJson1(url, formatArgs);
     wrapper(rxHttp);
