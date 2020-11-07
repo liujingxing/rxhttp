@@ -31,14 +31,13 @@ import rxhttp.wrapper.utils.LogUtil;
 public abstract class AbstractParam<P extends Param<P>> implements Param<P> {
 
     private String mUrl;    //链接地址
-    private Method mMethod;  //请求方法
     private Builder mHBuilder; //请求头构造器
-
-    private Request.Builder requestBuilder = new Request.Builder(); //请求构造器
+    private final Method mMethod;  //请求方法
+    private final CacheStrategy mCacheStrategy;
+    private final Request.Builder requestBuilder = new Request.Builder(); //请求构造器
 
     private boolean mIsAssemblyEnabled = true;//是否添加公共参数
 
-    private CacheStrategy mCacheStrategy;
 
     /**
      * @param url    请求路径
