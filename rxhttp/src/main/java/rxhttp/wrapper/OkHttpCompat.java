@@ -1,6 +1,7 @@
 package rxhttp.wrapper;
 
 import java.io.Closeable;
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -13,7 +14,11 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import okhttp3.internal.Util;
+import okhttp3.internal.cache.DiskLruCache;
+import okhttp3.internal.cache.DiskLruCache.Companion;
+import okhttp3.internal.concurrent.TaskRunner;
 import okhttp3.internal.http.StatusLine;
+import okhttp3.internal.io.FileSystem;
 import rxhttp.wrapper.annotations.Nullable;
 import rxhttp.wrapper.callback.IConverter;
 import rxhttp.wrapper.entity.DownloadOffSize;
@@ -121,6 +126,31 @@ public class OkHttpCompat {
                 throw new IOException(e.getMessage());
             }
         }
+    }
+
+    public static DiskLruCache newDiskLruCache(FileSystem fileSystem, File directory, int appVersion, int valueCount, long maxSize) {
+        String okHttpVersion = getOkHttpUserAgent();
+        if (okHttpVersion.compareTo("okhttp/4.3.0") >= 0) {
+            return new DiskLruCache(fileSystem, directory, appVersion, valueCount, maxSize, TaskRunner.INSTANCE);
+        } else if (okHttpVersion.compareTo("okhttp/4.0.0") >= 0) {
+            Companion companion = DiskLruCache.Companion;
+            Class<? extends Companion> clazz = companion.getClass();
+            try {
+                Method create = clazz.getDeclaredMethod("create", FileSystem.class, File.class, int.class, int.class, long.class);
+                return (DiskLruCache) create.invoke(companion, fileSystem, directory, appVersion, valueCount, maxSize);
+            } catch (Throwable e) {
+                e.printStackTrace();
+            }
+        } else {
+            Class<DiskLruCache> clazz = DiskLruCache.class;
+            try {
+                Method create = clazz.getDeclaredMethod("create", FileSystem.class, File.class, int.class, int.class, long.class);
+                return (DiskLruCache) create.invoke(null, fileSystem, directory, appVersion, valueCount, maxSize);
+            } catch (Throwable e) {
+                e.printStackTrace();
+            }
+        }
+        throw new RuntimeException("Please upgrade OkHttp to V3.12.0 or higher");
     }
 
     //获取OkHttp版本号

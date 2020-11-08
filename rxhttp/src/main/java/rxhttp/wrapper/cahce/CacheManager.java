@@ -96,7 +96,7 @@ public class CacheManager implements Closeable, Flushable {
      * @param maxSize   long
      */
     public CacheManager(File directory, long maxSize) {
-        this.cache = DiskLruCacheFactory.newDiskLruCache(FileSystem.SYSTEM, directory, VERSION, ENTRY_COUNT, maxSize);
+        this.cache = OkHttpCompat.newDiskLruCache(FileSystem.SYSTEM, directory, VERSION, ENTRY_COUNT, maxSize);
     }
 
 
