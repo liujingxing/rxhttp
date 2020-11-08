@@ -48,7 +48,7 @@ class RxHttpGenerator {
 
 
     @Throws(IOException::class)
-    fun generateCode(filer: Filer, okHttpVersion: String, isAndroidPlatform: Boolean) {
+    fun generateCode(filer: Filer, isAndroidPlatform: Boolean) {
         val httpSenderName = ClassName.get("rxhttp", "HttpSender")
         val rxHttpPluginsName = ClassName.get("rxhttp", "RxHttpPlugins")
         val converterName = ClassName.get("rxhttp.wrapper.callback", "IConverter")
