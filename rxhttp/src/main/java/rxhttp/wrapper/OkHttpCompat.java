@@ -157,33 +157,25 @@ public class OkHttpCompat {
     public static String getOkHttpUserAgent() {
         if (OKHTTP_USER_AGENT != null) return OKHTTP_USER_AGENT;
         try {
-            //4.7.x及以上版本获取从Util类获取
-            Class<?> aClass = getClass("okhttp3.internal.Util");
-            if (aClass == null) {
-                //4.7.x以下版本从Version类获取
-                aClass = getClass("okhttp3.internal.Version");
-            }
+            //4.7.x及以上版本获取userAgent方式
+            Class<?> clazz = Class.forName("okhttp3.internal.Util");
+            return OKHTTP_USER_AGENT = (String) clazz.getDeclaredField("userAgent").get(null);
+        } catch (Throwable ignore) {
+        }
+        try {
+            Class<?> clazz = Class.forName("okhttp3.internal.Version");
             try {
                 //4.x.x及以上版本获取userAgent方式
-                Field userAgent = aClass.getDeclaredField("userAgent");
+                Field userAgent = clazz.getDeclaredField("userAgent");
                 return OKHTTP_USER_AGENT = (String) userAgent.get(null);
             } catch (Exception ignore) {
             }
-
             //4.x.x以下版本获取userAgent方式
-            Method userAgent = aClass.getDeclaredMethod("userAgent");
+            Method userAgent = clazz.getDeclaredMethod("userAgent");
             return OKHTTP_USER_AGENT = (String) userAgent.invoke(null);
         } catch (Throwable e) {
             e.printStackTrace();
         }
-        return OKHTTP_USER_AGENT = "okhttp/x.x.x";
-    }
-
-    private static Class<?> getClass(String packageName) {
-        try {
-            return Class.forName(packageName);
-        } catch (Throwable ignore) {
-            return null;
-        }
+        return OKHTTP_USER_AGENT = "okhttp/4.2.0";
     }
 }
