@@ -28,7 +28,7 @@ lateinit var rxHttpPackage: String  //RxHttp相关类的包名
  * Date: 2019/3/21
  * Time: 20:36
  */
-@SupportedOptions(value = ["rxhttp_okhttp", "rxhttp_rxjava", "rxhttp_package"])
+@SupportedOptions(value = ["rxhttp_rxjava", "rxhttp_package"])
 @IncrementalAnnotationProcessor(AGGREGATING)
 open class AnnotationProcessor : AbstractProcessor() {
     private lateinit var typeUtils: Types
@@ -36,7 +36,6 @@ open class AnnotationProcessor : AbstractProcessor() {
     private lateinit var filer: Filer
     private lateinit var elementUtils: Elements
     private var processed = false
-    private lateinit var okHttpVersion: String
 
     @Synchronized
     override fun init(processingEnvironment: ProcessingEnvironment) {
@@ -46,7 +45,6 @@ open class AnnotationProcessor : AbstractProcessor() {
         filer = processingEnvironment.filer
         elementUtils = processingEnvironment.elementUtils
         val map = processingEnvironment.options
-        okHttpVersion = map["rxhttp_okhttp"] ?: "4.6.0"
         rxHttpPackage = map["rxhttp_package"] ?: "rxhttp.wrapper.param"
         initRxJavaVersion(getRxJavaVersion(map))
     }
@@ -145,7 +143,7 @@ open class AnnotationProcessor : AbstractProcessor() {
             rxHttpGenerator.setAnnotatedClass(okClientAnnotatedClass)
 
             // Generate code
-            rxHttpGenerator.generateCode(filer, okHttpVersion, isAndroidPlatform())
+            rxHttpGenerator.generateCode(filer, isAndroidPlatform())
             processed = true
         } catch (e: ProcessingException) {
             error(e.element, e.message)
