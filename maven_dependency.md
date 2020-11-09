@@ -1,8 +1,6 @@
 ## 注意
 
-- 由于`Maven`依赖不支持传递参数给注解处理器，故无法兼容到`OkHttp`所有版本，故仅支持`OkHttp v4.3.0`及以上版本
-
-- RxHttp仅支持`RxJava2和RxJava3`，依赖时需要选择对应的注解处理器，如不需要支持RxJava，则可不选择注解处理器
+- RxHttp支持`RxJava2和RxJava3`，依赖时需要选择对应的注解处理器，如不需要支持RxJava，则可不选择注解处理器
 
 ```xml
 <dependencies>
