@@ -49,14 +49,33 @@ wiki详细文档：https://github.com/liujingxing/okhttp-RxHttp/wiki  (此文档
 
 ***[Maven依赖点击这里](https://github.com/liujingxing/okhttp-RxHttp/blob/master/maven_dependency.md)***
 
-***1、`OkHttp 3.14.x`以上版本, 最低要求为API 21，如你想要兼容21以下，请依赖`OkHttp 3.12.x`，该版本最低要求 API 9***
+***1、RxHttp目前已适配`OkHttp 3.12.0 - 4.0.9`版本(4.3.0版本除外), 如你想要兼容21以下，请依赖`OkHttp 3.12.x`，该版本最低要求 API 9***
 
 ***2、asXxx方法内部是通过RxJava实现的，而RxHttp 2.2.0版本起，内部已剔除RxJava，如需使用，请自行依赖RxJava并告知RxHttp依赖的Rxjava版本***
 
+
+## 必须
 ```java
-//使用kapt依赖rxhttp-compiler，需要导入kapt插件
+//使用kapt依赖rxhttp-compiler时必须
 apply plugin: 'kotlin-kapt'
 
+android {
+    //必须，java 8或更高
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    implementation 'com.ljx.rxhttp:rxhttp:2.4.2'
+    implementation 'com.squareup.okhttp3:okhttp:4.9.0' //rxhttp v2.2.2版本起，需要手动依赖okhttp
+    kapt 'com.ljx.rxhttp:rxhttp-compiler:2.4.2' //生成RxHttp类，纯Java项目，请使用annotationProcessor代替kapt
+ }
+```
+
+## 可选
+```java
 android {
     defaultConfig {
         javaCompileOptions {
@@ -69,18 +88,8 @@ android {
             }
         }
     }
-    //必须，java 8或更高
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
 }
 dependencies {
-    //以下3个为必须，
-    implementation 'com.ljx.rxhttp:rxhttp:2.4.2'
-    implementation 'com.squareup.okhttp3:okhttp:4.9.0' //rxhttp v2.2.2版本起，需要手动依赖okhttp
-    kapt 'com.ljx.rxhttp:rxhttp-compiler:2.4.2' //生成RxHttp类，纯Java项目，请使用annotationProcessor代替kapt
-    
     implementation 'com.ljx.rxlife:rxlife-coroutine:2.0.1' //管理协程生命周期，页面销毁，关闭请求
     
     //rxjava2   (RxJava2/Rxjava3二选一，使用asXxx方法时必须)
