@@ -3,7 +3,6 @@ package rxhttp.wrapper.entity;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.net.Uri;
-import android.os.ParcelFileDescriptor;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -15,6 +14,8 @@ import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okio.BufferedSink;
 import okio.Okio;
+import rxhttp.wrapper.utils.BuildUtil;
+import rxhttp.wrapper.utils.UriUtil;
 
 /**
  * For compatibility with okHTTP 3.x version, only written in Java
@@ -24,9 +25,9 @@ import okio.Okio;
  */
 public class UriRequestBody extends RequestBody {
 
-    private Uri uri;
-    private ContentResolver contentResolver;
-    private MediaType contentType;
+    private final Uri uri;
+    private final ContentResolver contentResolver;
+    private final MediaType contentType;
 
     public UriRequestBody(Context context, Uri uri) {
         this(context, uri, null);
@@ -40,13 +41,21 @@ public class UriRequestBody extends RequestBody {
 
     @Override
     public MediaType contentType() {
-        return contentType != null ? contentType : MediaType.parse(contentResolver.getType(uri));
+        if (contentType != null) return contentType;
+        if (uri.getScheme().equals(ContentResolver.SCHEME_FILE)) {
+            return BuildUtil.getMediaType((uri.getLastPathSegment()));
+        } else {
+            String contentType = contentResolver.getType(uri);
+            if (contentType == null || contentType.isEmpty()) {
+                contentType = "application/octet-stream";
+            }
+            return MediaType.parse(contentType);
+        }
     }
 
     @Override
     public long contentLength() throws IOException {
-        ParcelFileDescriptor descriptor = contentResolver.openFileDescriptor(uri, "r");
-        return descriptor != null ? descriptor.getStatSize() : -1L;
+        return UriUtil.length(uri, contentResolver);
     }
 
     @Override
