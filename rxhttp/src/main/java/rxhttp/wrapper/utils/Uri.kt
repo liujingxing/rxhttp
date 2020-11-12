@@ -22,7 +22,7 @@ import java.io.FileNotFoundException
 @JvmOverloads
 fun Uri.asRequestBody(
     context: Context,
-    contentType: MediaType? = null
+    contentType: MediaType? = null,
 ): RequestBody = UriRequestBody(context, this, contentType)
 
 @JvmOverloads
@@ -30,7 +30,7 @@ fun Uri.asPart(
     context: Context,
     key: String,
     filename: String? = null,
-    contentType: MediaType? = null
+    contentType: MediaType? = null,
 ): MultipartBody.Part {
     val newFilename = filename ?: displayName(context)
     return MultipartBody.Part.createFormData(key, newFilename, asRequestBody(context, contentType))
