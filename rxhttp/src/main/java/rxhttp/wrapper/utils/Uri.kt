@@ -11,6 +11,7 @@ import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import rxhttp.wrapper.entity.UriRequestBody
+import java.io.File
 import java.io.FileNotFoundException
 
 /**
@@ -36,18 +37,27 @@ fun Uri.asPart(
     return MultipartBody.Part.createFormData(key, newFilename, asRequestBody(context, contentType))
 }
 
-//return The size of the media item, return -1 if does not exist, might block.
 fun Uri?.length(context: Context): Long {
+    return length(context.contentResolver)
+}
+
+//return The size of the media item, return -1 if does not exist, might block.
+fun Uri?.length(contentResolver: ContentResolver): Long {
     if (this == null) return -1L
-    val fileDescriptor = try {
-        context.contentResolver.openFileDescriptor(this, "r")
-    } catch (e: FileNotFoundException) {
-        null
+    if (scheme == ContentResolver.SCHEME_FILE) {
+        return File(path).length()
     }
-    return fileDescriptor?.statSize ?: -1L
+    return try {
+        contentResolver.openFileDescriptor(this, "r")?.statSize ?: -1L
+    } catch (e: FileNotFoundException) {
+        -1L
+    }
 }
 
 internal fun Uri.displayName(context: Context): String? {
+    if (scheme == ContentResolver.SCHEME_FILE) {
+        return lastPathSegment
+    }
     return getColumnValue(context.contentResolver, MediaStore.MediaColumns.DISPLAY_NAME)
 }
 
