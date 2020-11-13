@@ -70,8 +70,22 @@ internal fun newOutputStreamFactory(
 private fun String.replaceSuffix(response: Response): String {
     return if (endsWith("/%s", true)
         || endsWith("/%1\$s", true)) {
-        format(OkHttpCompat.pathSegments(response).last())
+        val filename = response.findFilename()
+            ?: OkHttpCompat.pathSegments(response).last()
+        format(filename)
     } else {
         this
     }
+}
+
+private fun Response.findFilename(): String? {
+    val header = header("Content-Disposition") ?: return null
+    header.split(";").forEach {
+        val keyValuePair = it.split("=")
+        if (keyValuePair.size > 1 && keyValuePair[0] == " filename") {
+            val filename = keyValuePair[1]
+            return filename.substring(1, filename.length - 1)
+        }
+    }
+    return null
 }
