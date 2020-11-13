@@ -50,6 +50,7 @@ class RxHttpGenerator {
     @Throws(IOException::class)
     fun generateCode(filer: Filer, isAndroidPlatform: Boolean) {
         val httpSenderName = ClassName.get("rxhttp", "HttpSender")
+        val logUtilName = ClassName.get("rxhttp.wrapper.utils", "LogUtil")
         val rxHttpPluginsName = ClassName.get("rxhttp", "RxHttpPlugins")
         val converterName = ClassName.get("rxhttp.wrapper.callback", "IConverter")
         val functionsName = ClassName.get("rxhttp.wrapper.callback", "Function")
@@ -105,7 +106,16 @@ class RxHttpGenerator {
             MethodSpec.methodBuilder("setDebug")
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                 .addParameter(Boolean::class.javaPrimitiveType, "debug")
-                .addStatement("\$T.setDebug(debug)", httpSenderName)
+                .addStatement("setDebug(debug, false)")
+                .returns(Void.TYPE)
+                .build())
+
+        methodList.add(
+            MethodSpec.methodBuilder("setDebug")
+                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                .addParameter(Boolean::class.javaPrimitiveType, "debug")
+                .addParameter(Boolean::class.javaPrimitiveType, "segmentPrint")
+                .addStatement("\$T.setDebug(debug, segmentPrint)", logUtilName)
                 .returns(Void.TYPE)
                 .build())
 
