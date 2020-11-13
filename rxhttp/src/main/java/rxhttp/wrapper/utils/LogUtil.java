@@ -37,13 +37,24 @@ public class LogUtil {
     private static final String TAG_RXJAVA = "RxJava";
 
     private static boolean isDebug = false;
+    //日志长度超出logcat单条日志打印长度时，是否分段打印，默认false
+    private static boolean isSegmentPrint = false;
 
     public static void setDebug(boolean debug) {
+        setDebug(debug, false);
+    }
+
+    public static void setDebug(boolean debug, boolean segmentPrint) {
         isDebug = debug;
+        isSegmentPrint = segmentPrint;
     }
 
     public static boolean isDebug() {
         return isDebug;
+    }
+
+    public static boolean isSegmentPrint() {
+        return isSegmentPrint;
     }
 
     //打印Http请求连接失败异常日志

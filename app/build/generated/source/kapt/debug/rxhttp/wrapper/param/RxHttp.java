@@ -79,7 +79,11 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
   }
 
   public static void setDebug(boolean debug) {
-    HttpSender.setDebug(debug);
+    setDebug(debug, false);
+  }
+
+  public static void setDebug(boolean debug, boolean segmentPrint) {
+    LogUtil.setDebug(debug, segmentPrint);
   }
 
   public static void init(OkHttpClient okHttpClient) {

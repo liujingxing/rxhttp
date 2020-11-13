@@ -20,7 +20,7 @@ public final class HttpSender {
     private static OkHttpClient mOkHttpClient;
 
     public static void init(OkHttpClient okHttpClient, boolean debug) {
-        setDebug(debug);
+        LogUtil.setDebug(debug);
         init(okHttpClient);
     }
 
@@ -42,10 +42,6 @@ public final class HttpSender {
 
     public static OkHttpClient.Builder newOkClientBuilder() {
         return getOkHttpClient().newBuilder();
-    }
-
-    public static void setDebug(boolean debug) {
-        LogUtil.setDebug(debug);
     }
 
     //Default OkHttpClient object in RxHttp
