@@ -324,6 +324,17 @@ class ParamsAnnotatedClass {
                 .build())
 
         methodList.add(
+            MethodSpec.methodBuilder("addNonAsciiHeader")
+                .addJavadoc("Add a header with the specified name and value. Does validation of header names, allowing non-ASCII values.")
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(String::class.java, "key")
+                .addParameter(String::class.java, "value")
+                .addStatement("param.addNonAsciiHeader(key,value)")
+                .addStatement("return (R)this")
+                .returns(rxHttp)
+                .build())
+
+        methodList.add(
             MethodSpec.methodBuilder("addHeader")
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(String::class.java, "key")
