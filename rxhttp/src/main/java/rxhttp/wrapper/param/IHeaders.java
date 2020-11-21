@@ -23,6 +23,8 @@ public interface IHeaders<P extends Param<P>> {
 
     P addNonAsciiHeader(String key, String value);
 
+    P setNonAsciiHeader(String key, String value);
+
     P addHeader(String line);
 
     P addAllHeader(Map<String, String> headers);
