@@ -462,7 +462,7 @@ public class CacheManager implements Closeable, Flushable {
                 Headers.Builder varyHeadersBuilder = new Headers.Builder();
                 int varyRequestHeaderLineCount = readInt(source);
                 for (int i = 0; i < varyRequestHeaderLineCount; i++) {
-                    varyHeadersBuilder.add(source.readUtf8LineStrict());
+                    addUnsafeNonAscii(varyHeadersBuilder, source.readUtf8LineStrict());
                 }
                 varyHeaders = varyHeadersBuilder.build();
 
@@ -473,7 +473,7 @@ public class CacheManager implements Closeable, Flushable {
                 Headers.Builder responseHeadersBuilder = new Headers.Builder();
                 int responseHeaderLineCount = readInt(source);
                 for (int i = 0; i < responseHeaderLineCount; i++) {
-                    responseHeadersBuilder.add(source.readUtf8LineStrict());
+                    addUnsafeNonAscii(responseHeadersBuilder, source.readUtf8LineStrict());
                 }
                 String sendRequestMillisString = responseHeadersBuilder.get(SENT_MILLIS);
                 String receivedResponseMillisString = responseHeadersBuilder.get(RECEIVED_MILLIS);
@@ -505,6 +505,21 @@ public class CacheManager implements Closeable, Flushable {
                 }
             } finally {
                 in.close();
+            }
+        }
+
+        /**
+         * Add a header with the specified name and value. Does validation of header names, allowing
+         * non-ASCII values.
+         */
+        void addUnsafeNonAscii(Headers.Builder builder, String line) {
+            int index = line.indexOf(":", 1);
+            if (index != -1) {
+                builder.addUnsafeNonAscii(line.substring(0, index), line.substring(index + 1));
+            } else if (line.charAt(0) == ':') {
+                builder.addUnsafeNonAscii("", line.substring(1));
+            } else {
+                builder.addUnsafeNonAscii("", line);
             }
         }
 
