@@ -54,7 +54,7 @@ public class RxHttpManager {
         //RxHttp初始化，自定义OkHttpClient对象，非必须
         RxHttp.init(client);
 
-        RxHttp.setDebug(true, true);
+        RxHttp.setDebug(true);
 
         //设置缓存策略，非必须
         File cacheFile = new File(context.getExternalCacheDir(), "RxHttpCache");
