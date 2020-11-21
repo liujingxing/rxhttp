@@ -94,14 +94,11 @@ public class LogUtil {
                 .append("<------ ")
                 .append(RxHttpVersion.userAgent + " ")
                 .append(OkHttpCompat.getOkHttpUserAgent())
-                .append(" request end Method=")
-                .append(request.method())
-                .append(" Code=").append(response.code())
-                .append(" ------>");
-            if (tookMs > 0) {
-                builder.append("(").append(tookMs).append("ms)");
-            }
-            builder.append("\n\n").append(getEncodedUrlAndParams(request))
+                .append(" request end ------>")
+                .append("\n\n").append(request.method()).append(": ").append(getEncodedUrlAndParams(request))
+                .append("\n\n").append(response.protocol()).append(" ")
+                .append(response.code()).append(" ").append(response.message())
+                .append(tookMs > 0 ? " " + tookMs + "ms" : "")
                 .append("\n\n").append(response.headers())
                 .append("\n").append(result);
             Platform.get().logi(TAG, builder.toString());
@@ -114,9 +111,8 @@ public class LogUtil {
     public static void log(@NonNull Request request) {
         if (!isDebug) return;
         try {
-            String builder = "<------ " + RxHttpVersion.userAgent + " " + OkHttpCompat.getOkHttpUserAgent() + " request start Method=" +
-                request.method() + " ------>" +
-                request2Str(request);
+            String builder = "<------ " + RxHttpVersion.userAgent + " " + OkHttpCompat.getOkHttpUserAgent() +
+                " request start ------>" + request2Str(request);
             Platform.get().logd(TAG, builder);
         } catch (Throwable e) {
             Platform.get().logd(TAG, "Request start log printing failed", e);
@@ -141,7 +137,7 @@ public class LogUtil {
 
     private static String request2Str(Request request) {
         StringBuilder builder = new StringBuilder();
-        builder.append("\n\n")
+        builder.append("\n\n").append(request.method()).append(": ")
             .append(getEncodedUrlAndParams(request));
         RequestBody body = request.body();
         if (body != null) {
