@@ -98,6 +98,12 @@ public abstract class AbstractParam<P extends Param<P>> implements Param<P> {
     }
 
     @Override
+    public P addNonAsciiHeader(String key, String value) {
+        getHeadersBuilder().addUnsafeNonAscii(key, value);
+        return (P) this;
+    }
+
+    @Override
     public final P addHeader(String line) {
         getHeadersBuilder().add(line);
         return (P) this;

@@ -328,6 +328,14 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
     return (R)this;
   }
 
+  /**
+   * Add a header with the specified name and value. Does validation of header names, allowing non-ASCII values.
+   */
+  public R addNonAsciiHeader(String key, String value) {
+    param.addNonAsciiHeader(key,value);
+    return (R)this;
+  }
+
   public R addHeader(String key, String value) {
     param.addHeader(key,value);
     return (R)this;
