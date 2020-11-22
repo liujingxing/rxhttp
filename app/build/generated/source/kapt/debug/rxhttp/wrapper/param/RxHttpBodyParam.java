@@ -17,52 +17,52 @@ import rxhttp.wrapper.parse.Parser;
 @SuppressWarnings("unchecked")
 public class RxHttpBodyParam<P extends BodyParam<P>, R extends RxHttpBodyParam<P, R>> extends RxHttp<P, R> {
 
-  //Controls the downstream callback thread
-  private Scheduler observeOnScheduler;
+    //Controls the downstream callback thread
+    private Scheduler observeOnScheduler;
 
-  //Upload progress callback
-  private Consumer<Progress> progressConsumer;
+    //Upload progress callback
+    private Consumer<Progress> progressConsumer;
 
-  protected RxHttpBodyParam(P param) {
-    super(param);
-  }
+    protected RxHttpBodyParam(P param) {
+        super(param);
+    }
 
-  public final R setUploadMaxLength(long maxLength) {
-    param.setUploadMaxLength(maxLength);
-    return (R) this;
-  }
+    public final R setUploadMaxLength(long maxLength) {
+        param.setUploadMaxLength(maxLength);
+        return (R) this;
+    }
 
-  public final R upload(Consumer<Progress> progressConsumer) {
-    return upload(null, progressConsumer);
-  }
+    public final R upload(Consumer<Progress> progressConsumer) {
+        return upload(null, progressConsumer);
+    }
 
-  /**
-   * @param progressConsumer   Upload progress callback
-   * @param observeOnScheduler Controls the downstream callback thread
-   */
-  public final R upload(Scheduler observeOnScheduler, Consumer<Progress> progressConsumer) {
-    this.progressConsumer = progressConsumer;
-    this.observeOnScheduler = observeOnScheduler;
-    return (R) this;
-  }
-  
-  @Override
-  public final <T> Observable<T> asParser(Parser<T> parser) {
-    return asParser(parser, observeOnScheduler, progressConsumer);
-  }
-  
-  @Override
-  public final <T> Observable<T> asParser(Parser<T> parser, Scheduler scheduler,
-      Consumer<Progress> progressConsumer) {
-    if (progressConsumer == null) {                                             
-      return super.asParser(parser, scheduler, null);                                            
-    }  
-    ObservableCall observableCall;                                      
-    if (isAsync) {                                                      
-      observableCall = new ObservableCallEnqueue(this, true);                 
-    } else {                                                            
-      observableCall = new ObservableCallExecute(this, true);                 
-    }                                                                   
-    return observableCall.asParser(parser, scheduler, progressConsumer);
-  }
+    /**
+     * @param progressConsumer   Upload progress callback
+     * @param observeOnScheduler Controls the downstream callback thread
+     */
+    public final R upload(Scheduler observeOnScheduler, Consumer<Progress> progressConsumer) {
+        this.progressConsumer = progressConsumer;
+        this.observeOnScheduler = observeOnScheduler;
+        return (R) this;
+    }
+
+    @Override
+    public final <T> Observable<T> asParser(Parser<T> parser) {
+        return asParser(parser, observeOnScheduler, progressConsumer);
+    }
+
+    @Override
+    public final <T> Observable<T> asParser(Parser<T> parser, Scheduler scheduler,
+                                            Consumer<Progress> progressConsumer) {
+        if (progressConsumer == null) {
+            return super.asParser(parser, scheduler, null);
+        }
+        ObservableCall observableCall;
+        if (isAsync) {
+            observableCall = new ObservableCallEnqueue(this, true);
+        } else {
+            observableCall = new ObservableCallExecute(this, true);
+        }
+        return observableCall.asParser(parser, scheduler, progressConsumer);
+    }
 }

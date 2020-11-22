@@ -6,6 +6,10 @@ import com.rxhttp.compiler.ClassHelper.generatorObservableCallEnqueue
 import com.rxhttp.compiler.ClassHelper.generatorObservableCallExecute
 import com.rxhttp.compiler.ClassHelper.generatorObservableParser
 import com.rxhttp.compiler.ClassHelper.generatorRxHttpBodyParam
+import com.rxhttp.compiler.ClassHelper.generatorRxHttpFormParam
+import com.rxhttp.compiler.ClassHelper.generatorRxHttpJsonArrayParam
+import com.rxhttp.compiler.ClassHelper.generatorRxHttpJsonParam
+import com.rxhttp.compiler.ClassHelper.generatorRxHttpNoBodyParam
 import com.rxhttp.compiler.exception.ProcessingException
 import net.ltgt.gradle.incap.IncrementalAnnotationProcessor
 import net.ltgt.gradle.incap.IncrementalAnnotationProcessorType.AGGREGATING
@@ -76,6 +80,10 @@ open class AnnotationProcessor : AbstractProcessor() {
         if (annotations.isEmpty() || processed) return true
         generatorBaseRxHttp(filer, isAndroidPlatform())
         generatorRxHttpBodyParam(filer)
+        generatorRxHttpFormParam(filer, isAndroidPlatform())
+        generatorRxHttpNoBodyParam(filer)
+        generatorRxHttpJsonParam(filer)
+        generatorRxHttpJsonArrayParam(filer)
         if (isDependenceRxJava()) {  //是否依赖了RxJava
 //            generatorObservableHttp(filer)
 //            generatorObservableUpload(filer)
@@ -143,7 +151,7 @@ open class AnnotationProcessor : AbstractProcessor() {
             rxHttpGenerator.setAnnotatedClass(okClientAnnotatedClass)
 
             // Generate code
-            rxHttpGenerator.generateCode(filer, isAndroidPlatform())
+            rxHttpGenerator.generateCode(filer)
             processed = true
         } catch (e: ProcessingException) {
             error(e.element, e.message)
