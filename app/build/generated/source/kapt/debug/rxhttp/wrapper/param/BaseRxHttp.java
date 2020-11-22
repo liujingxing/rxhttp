@@ -105,11 +105,11 @@ public abstract class BaseRxHttp implements IRxHttp {
         Type tTypeList = ParameterizedTypeImpl.get(List.class, tType);
         return asParser(new SimpleParser<List<T>>(tTypeList));
     }
-
+    
     public final <T> Observable<Bitmap> asBitmap() {
         return asParser(new BitmapParser());
     }
-
+    
     public final Observable<Response> asOkResponse() {
         return asParser(new OkResponseParser());
     }
