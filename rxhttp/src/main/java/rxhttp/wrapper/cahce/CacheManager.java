@@ -516,7 +516,7 @@ public class CacheManager implements Closeable, Flushable {
             int index = line.indexOf(":", 1);
             if (index != -1) {
                 builder.addUnsafeNonAscii(line.substring(0, index), line.substring(index + 1));
-            } else if (line.charAt(0) == ':') {
+            } else if (line.startsWith(":")) {
                 builder.addUnsafeNonAscii("", line.substring(1));
             } else {
                 builder.addUnsafeNonAscii("", line);
