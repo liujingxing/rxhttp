@@ -58,13 +58,13 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:2.2.0"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0"
 
-    implementation project(":rxhttp")
-    kapt project(':rxhttp-compiler')
+//    implementation project(":rxhttp")
+//    kapt project(':rxhttp-compiler')
 
     implementation "com.squareup.okhttp3:okhttp:${okhttp_version}"
 
-//    implementation "com.ljx.rxhttp:rxhttp:${rxhttp_version}"
-//    kapt "com.ljx.rxhttp:rxhttp-compiler:${rxhttp_version}"
+    implementation "com.ljx.rxhttp:rxhttp:${rxhttp_version}"
+    kapt "com.ljx.rxhttp:rxhttp-compiler:${rxhttp_version}"
 
     implementation 'com.ljx.rxlife:rxlife-coroutine:2.0.1'
 
