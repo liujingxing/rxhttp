@@ -25,7 +25,6 @@ object ClassHelper {
         }
     }
 
-    @JvmStatic
     private fun generatorObservableClass(filer: Filer) {
         generatorObservableCall(filer)
         generatorObservableCallEnqueue(filer)
@@ -33,8 +32,7 @@ object ClassHelper {
         generatorObservableParser(filer)
     }
 
-    @JvmStatic
-    fun generatorBaseRxHttp(filer: Filer, isAndroid: Boolean) {
+    private fun generatorBaseRxHttp(filer: Filer, isAndroid: Boolean) {
         if (!isDependenceRxJava()) {
             generatorClass(filer, "BaseRxHttp", """
                 package $rxHttpPackage;
@@ -282,8 +280,7 @@ object ClassHelper {
         }
     }
 
-    @JvmStatic
-    fun generatorObservableCallEnqueue(filer: Filer) {
+    private fun generatorObservableCallEnqueue(filer: Filer) {
         generatorClass(filer, "ObservableCallEnqueue", """
             package $rxHttpPackage;
  
@@ -401,8 +398,7 @@ object ClassHelper {
         """.trimIndent())
     }
 
-    @JvmStatic
-    fun generatorObservableCallExecute(filer: Filer) {
+    private fun generatorObservableCallExecute(filer: Filer) {
         generatorClass(filer, "ObservableCallExecute", """
             package $rxHttpPackage;
 
@@ -514,8 +510,7 @@ object ClassHelper {
         """.trimIndent())
     }
 
-    @JvmStatic
-    fun generatorObservableCall(filer: Filer) {
+    private fun generatorObservableCall(filer: Filer) {
         generatorClass(filer, "ObservableCall", """
             package $rxHttpPackage;
 
@@ -548,9 +543,7 @@ object ClassHelper {
         """.trimIndent())
     }
 
-
-    @JvmStatic
-    fun generatorObservableParser(filer: Filer) {
+    private fun generatorObservableParser(filer: Filer) {
         generatorClass(filer, "ObservableParser", """
             package $rxHttpPackage;
 
@@ -897,8 +890,7 @@ object ClassHelper {
         """.trimIndent())
     }
 
-    @JvmStatic
-    fun generatorRxHttpBodyParam(filer: Filer) {
+    private fun generatorRxHttpBodyParam(filer: Filer) {
         if (!isDependenceRxJava()) {
             generatorClass(filer, "RxHttpBodyParam", """
                 package $rxHttpPackage;
@@ -1000,8 +992,7 @@ object ClassHelper {
         }
     }
 
-    @JvmStatic
-    fun generatorRxHttpNoBodyParam(filer: Filer) {
+    private fun generatorRxHttpNoBodyParam(filer: Filer) {
         generatorClass(filer, "RxHttpNoBodyParam", """
             package $rxHttpPackage;
 
@@ -1058,8 +1049,7 @@ object ClassHelper {
         """.trimIndent())
     }
 
-    @JvmStatic
-    fun generatorRxHttpFormParam(filer: Filer, isAndroid: Boolean) {
+    private fun generatorRxHttpFormParam(filer: Filer, isAndroid: Boolean) {
         generatorClass(filer, "RxHttpFormParam", """
             package $rxHttpPackage;
 
@@ -1280,8 +1270,7 @@ object ClassHelper {
         """.trimIndent())
     }
 
-    @JvmStatic
-    fun generatorRxHttpJsonParam(filer: Filer) {
+    private fun generatorRxHttpJsonParam(filer: Filer) {
         generatorClass(filer, "RxHttpJsonParam", """
             package $rxHttpPackage;
 
@@ -1329,8 +1318,7 @@ object ClassHelper {
         """.trimIndent())
     }
 
-    @JvmStatic
-    fun generatorRxHttpJsonArrayParam(filer: Filer) {
+    private fun generatorRxHttpJsonArrayParam(filer: Filer) {
         generatorClass(filer, "RxHttpJsonArrayParam", """
             package $rxHttpPackage;
 
@@ -1401,8 +1389,7 @@ object ClassHelper {
         """.trimIndent())
     }
 
-    @JvmStatic
-    fun generatorObservableHttp(filer: Filer) {
+    private fun generatorObservableHttp(filer: Filer) {
         generatorClass(filer, "ObservableHttp", """
                 package $rxHttpPackage;
 
@@ -1573,8 +1560,7 @@ object ClassHelper {
             """.trimIndent())
     }
 
-    @JvmStatic
-    fun generatorObservableUpload(filer: Filer) {
+    private fun generatorObservableUpload(filer: Filer) {
         generatorClass(filer, "ObservableUpload", """
                 package $rxHttpPackage;
 
@@ -1920,8 +1906,7 @@ object ClassHelper {
             """.trimIndent())
     }
 
-    @JvmStatic
-    fun generatorObservableDownload(filer: Filer) {
+    private fun generatorObservableDownload(filer: Filer) {
         generatorClass(filer, "ObservableDownload", """
                 package $rxHttpPackage;
 
@@ -2277,8 +2262,6 @@ object ClassHelper {
             """.trimIndent())
     }
 
-
-    @JvmStatic
     private fun generatorClass(filer: Filer, className: String, content: String) {
         var writer: BufferedWriter? = null
         try {
