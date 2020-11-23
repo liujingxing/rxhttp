@@ -191,59 +191,59 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
    * ```                                                  
    */
   public static RxHttpNoBodyParam get(String url, Object... formatArgs) {
-    return with(Param.get(format(url, formatArgs)));
+    return new RxHttpNoBodyParam(Param.get(format(url, formatArgs)));
   }
 
   public static RxHttpNoBodyParam head(String url, Object... formatArgs) {
-    return with(Param.head(format(url, formatArgs)));
+    return new RxHttpNoBodyParam(Param.head(format(url, formatArgs)));
   }
 
   public static RxHttpFormParam postForm(String url, Object... formatArgs) {
-    return with(Param.postForm(format(url, formatArgs)));
+    return new RxHttpFormParam(Param.postForm(format(url, formatArgs)));
   }
 
   public static RxHttpFormParam putForm(String url, Object... formatArgs) {
-    return with(Param.putForm(format(url, formatArgs)));
+    return new RxHttpFormParam(Param.putForm(format(url, formatArgs)));
   }
 
   public static RxHttpFormParam patchForm(String url, Object... formatArgs) {
-    return with(Param.patchForm(format(url, formatArgs)));
+    return new RxHttpFormParam(Param.patchForm(format(url, formatArgs)));
   }
 
   public static RxHttpFormParam deleteForm(String url, Object... formatArgs) {
-    return with(Param.deleteForm(format(url, formatArgs)));
+    return new RxHttpFormParam(Param.deleteForm(format(url, formatArgs)));
   }
 
   public static RxHttpJsonParam postJson(String url, Object... formatArgs) {
-    return with(Param.postJson(format(url, formatArgs)));
+    return new RxHttpJsonParam(Param.postJson(format(url, formatArgs)));
   }
 
   public static RxHttpJsonParam putJson(String url, Object... formatArgs) {
-    return with(Param.putJson(format(url, formatArgs)));
+    return new RxHttpJsonParam(Param.putJson(format(url, formatArgs)));
   }
 
   public static RxHttpJsonParam patchJson(String url, Object... formatArgs) {
-    return with(Param.patchJson(format(url, formatArgs)));
+    return new RxHttpJsonParam(Param.patchJson(format(url, formatArgs)));
   }
 
   public static RxHttpJsonParam deleteJson(String url, Object... formatArgs) {
-    return with(Param.deleteJson(format(url, formatArgs)));
+    return new RxHttpJsonParam(Param.deleteJson(format(url, formatArgs)));
   }
 
   public static RxHttpJsonArrayParam postJsonArray(String url, Object... formatArgs) {
-    return with(Param.postJsonArray(format(url, formatArgs)));
+    return new RxHttpJsonArrayParam(Param.postJsonArray(format(url, formatArgs)));
   }
 
   public static RxHttpJsonArrayParam putJsonArray(String url, Object... formatArgs) {
-    return with(Param.putJsonArray(format(url, formatArgs)));
+    return new RxHttpJsonArrayParam(Param.putJsonArray(format(url, formatArgs)));
   }
 
   public static RxHttpJsonArrayParam patchJsonArray(String url, Object... formatArgs) {
-    return with(Param.patchJsonArray(format(url, formatArgs)));
+    return new RxHttpJsonArrayParam(Param.patchJsonArray(format(url, formatArgs)));
   }
 
   public static RxHttpJsonArrayParam deleteJsonArray(String url, Object... formatArgs) {
-    return with(Param.deleteJsonArray(format(url, formatArgs)));
+    return new RxHttpJsonArrayParam(Param.deleteJsonArray(format(url, formatArgs)));
   }
 
   public static RxHttpPostEncryptJsonParam postEncryptJson(@NotNull String url,
@@ -266,22 +266,6 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
 
   public static RxHttpPostEncryptJsonParam1 postEncryptJson1(String url, Object... formatArgs) {
     return new RxHttpPostEncryptJsonParam1(new PostEncryptJsonParam1(format(url, formatArgs)));
-  }
-
-  public static RxHttpNoBodyParam with(NoBodyParam noBodyParam) {
-    return new RxHttpNoBodyParam(noBodyParam);
-  }
-
-  public static RxHttpFormParam with(FormParam formParam) {
-    return new RxHttpFormParam(formParam);
-  }
-
-  public static RxHttpJsonParam with(JsonParam jsonParam) {
-    return new RxHttpJsonParam(jsonParam);
-  }
-
-  public static RxHttpJsonArrayParam with(JsonArrayParam jsonArrayParam) {
-    return new RxHttpJsonArrayParam(jsonArrayParam);
   }
 
   public R setUrl(String url) {
