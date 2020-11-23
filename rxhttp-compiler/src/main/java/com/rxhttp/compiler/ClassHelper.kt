@@ -13,6 +13,27 @@ import javax.annotation.processing.Filer
 object ClassHelper {
 
     @JvmStatic
+    fun generatorStaticClass(filer: Filer, isAndroid: Boolean) {
+        generatorBaseRxHttp(filer, isAndroid)
+        generatorRxHttpBodyParam(filer)
+        generatorRxHttpFormParam(filer, isAndroid)
+        generatorRxHttpNoBodyParam(filer)
+        generatorRxHttpJsonParam(filer)
+        generatorRxHttpJsonArrayParam(filer)
+        if (isDependenceRxJava()) {
+            generatorObservableClass(filer)
+        }
+    }
+
+    @JvmStatic
+    private fun generatorObservableClass(filer: Filer) {
+        generatorObservableCall(filer)
+        generatorObservableCallEnqueue(filer)
+        generatorObservableCallExecute(filer)
+        generatorObservableParser(filer)
+    }
+
+    @JvmStatic
     fun generatorBaseRxHttp(filer: Filer, isAndroid: Boolean) {
         if (!isDependenceRxJava()) {
             generatorClass(filer, "BaseRxHttp", """
@@ -2258,7 +2279,7 @@ object ClassHelper {
 
 
     @JvmStatic
-    fun generatorClass(filer: Filer, className: String, content: String) {
+    private fun generatorClass(filer: Filer, className: String, content: String) {
         var writer: BufferedWriter? = null
         try {
             val sourceFile = filer.createSourceFile("$rxHttpPackage.$className")

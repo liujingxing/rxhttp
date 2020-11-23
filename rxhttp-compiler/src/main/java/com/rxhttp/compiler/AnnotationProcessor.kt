@@ -1,15 +1,6 @@
 package com.rxhttp.compiler
 
-import com.rxhttp.compiler.ClassHelper.generatorBaseRxHttp
-import com.rxhttp.compiler.ClassHelper.generatorObservableCall
-import com.rxhttp.compiler.ClassHelper.generatorObservableCallEnqueue
-import com.rxhttp.compiler.ClassHelper.generatorObservableCallExecute
-import com.rxhttp.compiler.ClassHelper.generatorObservableParser
-import com.rxhttp.compiler.ClassHelper.generatorRxHttpBodyParam
-import com.rxhttp.compiler.ClassHelper.generatorRxHttpFormParam
-import com.rxhttp.compiler.ClassHelper.generatorRxHttpJsonArrayParam
-import com.rxhttp.compiler.ClassHelper.generatorRxHttpJsonParam
-import com.rxhttp.compiler.ClassHelper.generatorRxHttpNoBodyParam
+import com.rxhttp.compiler.ClassHelper.generatorStaticClass
 import com.rxhttp.compiler.exception.ProcessingException
 import net.ltgt.gradle.incap.IncrementalAnnotationProcessor
 import net.ltgt.gradle.incap.IncrementalAnnotationProcessorType.AGGREGATING
@@ -78,22 +69,7 @@ open class AnnotationProcessor : AbstractProcessor() {
     override fun process(annotations: Set<TypeElement>, roundEnv: RoundEnvironment): Boolean {
 //        messager.printMessage(Diagnostic.Kind.WARNING, "process start annotations$annotations this=$this")
         if (annotations.isEmpty() || processed) return true
-        generatorBaseRxHttp(filer, isAndroidPlatform())
-        generatorRxHttpBodyParam(filer)
-        generatorRxHttpFormParam(filer, isAndroidPlatform())
-        generatorRxHttpNoBodyParam(filer)
-        generatorRxHttpJsonParam(filer)
-        generatorRxHttpJsonArrayParam(filer)
-        if (isDependenceRxJava()) {  //是否依赖了RxJava
-//            generatorObservableHttp(filer)
-//            generatorObservableUpload(filer)
-//            generatorObservableDownload(filer)
-
-            generatorObservableCall(filer)
-            generatorObservableCallEnqueue(filer)
-            generatorObservableCallExecute(filer)
-            generatorObservableParser(filer)
-        }
+        generatorStaticClass(filer, isAndroidPlatform())
         try {
             val rxHttpGenerator = RxHttpGenerator()
             val rxHttpWrapper = RxHttpWrapper()
