@@ -34,10 +34,6 @@ class ParamsAnnotatedClass {
         val headerBuilderName = ClassName.get("okhttp3", "Headers.Builder")
         val cacheControlName = ClassName.get("okhttp3", "CacheControl")
         val paramName = ClassName.get(packageName, "Param")
-        val noBodyParamName = ClassName.get(packageName, "NoBodyParam")
-        val formParamName = ClassName.get(packageName, "FormParam")
-        val jsonParamName = ClassName.get(packageName, "JsonParam")
-        val jsonArrayParamName = ClassName.get(packageName, "JsonArrayParam")
         val cacheModeName = ClassName.get("rxhttp.wrapper.cahce", "CacheMode")
         val cacheStrategyName = ClassName.get("rxhttp.wrapper.cahce", "CacheStrategy")
         val downloadOffSizeName = ClassName.get("rxhttp.wrapper.entity", "DownloadOffSize")
@@ -84,7 +80,7 @@ class ParamsAnnotatedClass {
                 .addParameter(String::class.java, "url")
                 .addParameter(ArrayTypeName.of(Any::class.java), "formatArgs")
                 .varargs()
-                .addStatement("return with(\$T.\$L(format(url, formatArgs)))", paramName, key)
+                .addStatement("return new $value(\$T.\$L(format(url, formatArgs)))", paramName, key)
                 .returns(ClassName.get(rxHttpPackage, value))
                 .build())
         }
@@ -229,37 +225,6 @@ class ParamsAnnotatedClass {
             JavaFile.builder(rxHttpPackage, rxHttpPostEncryptFormParamSpec)
                 .build().writeTo(filer)
         }
-        methodList.add(
-            MethodSpec.methodBuilder("with")
-                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                .addParameter(noBodyParamName, "noBodyParam")
-                .addStatement("return new \$L(noBodyParam)", "RxHttpNoBodyParam")
-                .returns(ClassName.get(rxHttpPackage, "RxHttpNoBodyParam"))
-                .build())
-
-        methodList.add(
-            MethodSpec.methodBuilder("with")
-                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                .addParameter(formParamName, "formParam")
-                .addStatement("return new \$L(formParam)", "RxHttpFormParam")
-                .returns(ClassName.get(rxHttpPackage, "RxHttpFormParam"))
-                .build())
-
-        methodList.add(
-            MethodSpec.methodBuilder("with")
-                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                .addParameter(jsonParamName, "jsonParam")
-                .addStatement("return new \$L(jsonParam)", "RxHttpJsonParam")
-                .returns(ClassName.get(rxHttpPackage, "RxHttpJsonParam"))
-                .build())
-
-        methodList.add(
-            MethodSpec.methodBuilder("with")
-                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                .addParameter(jsonArrayParamName, "jsonArrayParam")
-                .addStatement("return new \$L(jsonArrayParam)", "RxHttpJsonArrayParam")
-                .returns(ClassName.get(rxHttpPackage, "RxHttpJsonArrayParam"))
-                .build())
 
         methodList.add(
             MethodSpec.methodBuilder("setUrl")
