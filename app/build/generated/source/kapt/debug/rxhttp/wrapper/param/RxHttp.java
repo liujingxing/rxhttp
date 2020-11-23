@@ -4,11 +4,9 @@ import com.example.httpsender.RxHttpManager;
 import com.example.httpsender.entity.PageList;
 import com.example.httpsender.entity.Url;
 import com.example.httpsender.param.GetEncryptParam;
-import com.example.httpsender.param.PostBodyParam;
 import com.example.httpsender.param.PostEncryptFormParam;
 import com.example.httpsender.param.PostEncryptJsonParam;
 import com.example.httpsender.param.PostEncryptJsonParam1;
-import com.example.httpsender.param.PostText;
 import com.example.httpsender.parser.ResponseParser;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Scheduler;
@@ -262,16 +260,8 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
     return new RxHttpPostEncryptFormParam(new PostEncryptFormParam(format(url, formatArgs), method));
   }
 
-  public static RxHttpPostText postText(String url, Object... formatArgs) {
-    return new RxHttpPostText(new PostText(format(url, formatArgs)));
-  }
-
   public static RxHttpGetEncryptParam getEncrypt(String url, Object... formatArgs) {
     return new RxHttpGetEncryptParam(new GetEncryptParam(format(url, formatArgs)));
-  }
-
-  public static RxHttpPostBodyParam postBodyForm(String url, Object... formatArgs) {
-    return new RxHttpPostBodyParam(new PostBodyParam(format(url, formatArgs)));
   }
 
   public static RxHttpPostEncryptJsonParam1 postEncryptJson1(String url, Object... formatArgs) {
