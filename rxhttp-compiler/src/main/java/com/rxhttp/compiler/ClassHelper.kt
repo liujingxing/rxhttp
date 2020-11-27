@@ -304,16 +304,16 @@ object ClassHelper {
              * Date: 2018/04/20
              * Time: 11:15
              */
-            public final class ObservableCallEnqueue extends ObservableCall {
+            final class ObservableCallEnqueue extends ObservableCall {
 
                 private IRxHttp iRxHttp;
                 private boolean callbackUploadProgress;
 
-                public ObservableCallEnqueue(IRxHttp iRxHttp) {
+                ObservableCallEnqueue(IRxHttp iRxHttp) {
                     this(iRxHttp, false);
                 }
 
-                public ObservableCallEnqueue(IRxHttp iRxHttp, boolean callbackUploadProgress) {
+                ObservableCallEnqueue(IRxHttp iRxHttp, boolean callbackUploadProgress) {
                     this.iRxHttp = iRxHttp;
                     this.callbackUploadProgress = callbackUploadProgress;
                 }
@@ -419,16 +419,16 @@ object ClassHelper {
              * Date: 2018/04/20
              * Time: 11:15
              */
-            public final class ObservableCallExecute extends ObservableCall {
+            final class ObservableCallExecute extends ObservableCall {
 
                 private IRxHttp iRxHttp;
                 private boolean callbackUploadProgress;
 
-                public ObservableCallExecute(IRxHttp iRxHttp) {
+                ObservableCallExecute(IRxHttp iRxHttp) {
                     this(iRxHttp, false);
                 }
 
-                public ObservableCallExecute(IRxHttp iRxHttp, boolean callbackUploadProgress) {
+                ObservableCallExecute(IRxHttp iRxHttp, boolean callbackUploadProgress) {
                     this.iRxHttp = iRxHttp;
                     this.callbackUploadProgress = callbackUploadProgress;
                 }
@@ -525,7 +525,7 @@ object ClassHelper {
              * Date: 2020/9/5
              * Time: 21:59
              */
-            public abstract class ObservableCall extends Observable<Progress> {
+            abstract class ObservableCall extends Observable<Progress> {
             
                 public <T> Observable<T> asParser(Parser<T> parser) {
                     return asParser(parser, null, null);
@@ -575,14 +575,14 @@ object ClassHelper {
             import rxhttp.wrapper.parse.Parser;
             import rxhttp.wrapper.utils.LogUtil;
 
-            public final class ObservableParser<T> extends Observable<T> {
+            final class ObservableParser<T> extends Observable<T> {
 
                 private final Parser<T> parser;
                 private final ObservableSource<Progress> source;
                 private final Scheduler scheduler;
                 private final Consumer<Progress> progressConsumer;
 
-                public ObservableParser(@NonNull ObservableSource<Progress> source, @NonNull Parser<T> parser,
+                ObservableParser(@NonNull ObservableSource<Progress> source, @NonNull Parser<T> parser,
                                         @Nullable Scheduler scheduler, @Nullable Consumer<Progress> progressConsumer) {
                     this.source = source;
                     this.parser = parser;
