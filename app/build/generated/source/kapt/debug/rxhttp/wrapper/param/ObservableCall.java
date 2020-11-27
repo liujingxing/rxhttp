@@ -11,7 +11,7 @@ import rxhttp.wrapper.parse.Parser;
  * Date: 2020/9/5
  * Time: 21:59
  */
-public abstract class ObservableCall extends Observable<Progress> {
+abstract class ObservableCall extends Observable<Progress> {
 
     public <T> Observable<T> asParser(Parser<T> parser) {
         return asParser(parser, null, null);

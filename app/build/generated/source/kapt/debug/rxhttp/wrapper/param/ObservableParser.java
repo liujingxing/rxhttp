@@ -28,14 +28,14 @@ import rxhttp.wrapper.parse.StreamParser;
 import rxhttp.wrapper.parse.Parser;
 import rxhttp.wrapper.utils.LogUtil;
 
-public final class ObservableParser<T> extends Observable<T> {
+final class ObservableParser<T> extends Observable<T> {
 
     private final Parser<T> parser;
     private final ObservableSource<Progress> source;
     private final Scheduler scheduler;
     private final Consumer<Progress> progressConsumer;
 
-    public ObservableParser(@NonNull ObservableSource<Progress> source, @NonNull Parser<T> parser,
+    ObservableParser(@NonNull ObservableSource<Progress> source, @NonNull Parser<T> parser,
                             @Nullable Scheduler scheduler, @Nullable Consumer<Progress> progressConsumer) {
         this.source = source;
         this.parser = parser;

@@ -20,16 +20,16 @@ import rxhttp.wrapper.utils.LogUtil;
  * Date: 2018/04/20
  * Time: 11:15
  */
-public final class ObservableCallEnqueue extends ObservableCall {
+final class ObservableCallEnqueue extends ObservableCall {
 
     private IRxHttp iRxHttp;
     private boolean callbackUploadProgress;
 
-    public ObservableCallEnqueue(IRxHttp iRxHttp) {
+    ObservableCallEnqueue(IRxHttp iRxHttp) {
         this(iRxHttp, false);
     }
 
-    public ObservableCallEnqueue(IRxHttp iRxHttp, boolean callbackUploadProgress) {
+    ObservableCallEnqueue(IRxHttp iRxHttp, boolean callbackUploadProgress) {
         this.iRxHttp = iRxHttp;
         this.callbackUploadProgress = callbackUploadProgress;
     }
