@@ -58,10 +58,8 @@ public class ParseException extends IOException {
     @Override
     public String toString() {
         return getClass().getName() + ":" +
-            " Method=" + requestMethod +
-            " Code=" + errorCode +
-            "\n\n" + requestUrl +
-            "\n\n" + responseHeaders +
-            "\nmessage = " + getMessage();
+            "\n\n" + requestMethod + ": " + requestUrl +
+            "\n\nCode = " + errorCode + " message = " + getMessage() +
+            "\n\n" + responseHeaders;
     }
 }
