@@ -1,6 +1,8 @@
 package com.example.httpsender.param
 
 
+import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody
 import rxhttp.wrapper.annotation.Param
 import rxhttp.wrapper.param.JsonParam
@@ -15,6 +17,7 @@ import rxhttp.wrapper.utils.GsonUtil
 @Param(methodName = "postEncryptJson")
 class PostEncryptJsonParam(url: String) : JsonParam(url, Method.POST) {
 
+    private var MEDIA_TYPE_JSON: MediaType = "application/json; charset=utf-8".toMediaType()
     /**
      * @return 根据自己的业务需求返回对应的RequestBody
      */

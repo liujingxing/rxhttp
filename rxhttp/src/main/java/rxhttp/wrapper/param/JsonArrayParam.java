@@ -1,16 +1,23 @@
 package rxhttp.wrapper.param;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import okhttp3.HttpUrl;
 import okhttp3.HttpUrl.Builder;
 import okhttp3.RequestBody;
-import rxhttp.wrapper.annotations.NonNull;
 import rxhttp.wrapper.annotations.Nullable;
 import rxhttp.wrapper.utils.CacheUtil;
 import rxhttp.wrapper.utils.GsonUtil;
+import rxhttp.wrapper.utils.JsonUtil;
 
 /**
  * post、put、patch、delete请求，参数以{application/json; charset=utf-8}形式提交
@@ -18,7 +25,7 @@ import rxhttp.wrapper.utils.GsonUtil;
  * Date: 2019-09-09
  * Time: 21:08
  */
-public class JsonArrayParam extends BodyParam<JsonArrayParam> implements IJsonArray<JsonArrayParam> {
+public class JsonArrayParam extends BodyParam<JsonArrayParam> {
 
     private List<Object> mList;
 
@@ -44,20 +51,62 @@ public class JsonArrayParam extends BodyParam<JsonArrayParam> implements IJsonAr
      * @param object Object
      * @return JsonArrayParam
      */
-    public JsonArrayParam add(@NonNull Object object) {
-        List<Object> list = mList;
-        if (list == null) {
-            list = mList = new ArrayList<>();
-        }
-        list.add(object);
+    public JsonArrayParam add(@Nullable Object object) {
+        initList();
+        mList.add(object);
         return this;
     }
 
     @Override
-    public JsonArrayParam add(String key, @NonNull Object value) {
+    public JsonArrayParam add(String key, @Nullable Object value) {
         HashMap<String, Object> map = new HashMap<>();
         map.put(key, value);
         return add(map);
+    }
+
+    public JsonArrayParam addAll(String jsonElement) {
+        JsonElement element = JsonParser.parseString(jsonElement);
+        if (element.isJsonArray()) {
+            return addAll(element.getAsJsonArray());
+        } else if (element.isJsonObject()) {
+            return addAll(element.getAsJsonObject());
+        }
+        return add(JsonUtil.toAny(element));
+    }
+
+    public JsonArrayParam addAll(JsonObject jsonObject) {
+        return addAll(JsonUtil.toMap(jsonObject));
+    }
+
+    @Override
+    public JsonArrayParam addAll(Map<String, ?> map) {
+        initList();
+        for (Entry<String, ?> next : map.entrySet()) {
+            add(next.getKey(), next.getValue());
+        }
+        return this;
+    }
+
+    public JsonArrayParam addAll(JsonArray jsonArray) {
+        return addAll(JsonUtil.toList(jsonArray));
+    }
+
+    public JsonArrayParam addAll(List<?> list) {
+        initList();
+        for (Object object : list) {
+            add(object);
+        }
+        return this;
+    }
+
+    public JsonArrayParam addJsonElement(String jsonElement) {
+        JsonElement element = JsonParser.parseString(jsonElement);
+        return add(JsonUtil.toAny(element));
+    }
+
+    public JsonArrayParam addJsonElement(String key, String jsonElement) {
+        JsonElement element = JsonParser.parseString(jsonElement);
+        return add(key, JsonUtil.toAny(element));
     }
 
     @Nullable
@@ -74,6 +123,10 @@ public class JsonArrayParam extends BodyParam<JsonArrayParam> implements IJsonAr
         HttpUrl httpUrl = HttpUrl.get(getSimpleUrl());
         Builder builder = httpUrl.newBuilder().addQueryParameter("json", json);
         return builder.toString();
+    }
+
+    private void initList() {
+        if (mList == null) mList = new ArrayList<>();
     }
 
     @Override

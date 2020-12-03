@@ -1,16 +1,21 @@
 package rxhttp.wrapper.param;
 
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import okhttp3.HttpUrl;
 import okhttp3.HttpUrl.Builder;
 import okhttp3.RequestBody;
-import rxhttp.wrapper.annotations.NonNull;
 import rxhttp.wrapper.annotations.Nullable;
 import rxhttp.wrapper.utils.CacheUtil;
 import rxhttp.wrapper.utils.GsonUtil;
+import rxhttp.wrapper.utils.JsonUtil;
 
 /**
  * post、put、patch、delete请求，参数以{application/json; charset=utf-8}形式提交
@@ -18,7 +23,7 @@ import rxhttp.wrapper.utils.GsonUtil;
  * Date: 2019-09-09
  * Time: 21:08
  */
-public class JsonParam extends BodyParam<JsonParam> implements IJsonObject<JsonParam> {
+public class JsonParam extends BodyParam<JsonParam> {
 
     private Map<String, Object> mParam; //请求参数
 
@@ -39,13 +44,32 @@ public class JsonParam extends BodyParam<JsonParam> implements IJsonObject<JsonP
     }
 
     @Override
-    public JsonParam add(String key, @NonNull Object value) {
-        Map<String, Object> param = mParam;
-        if (param == null) {
-            param = mParam = new LinkedHashMap<>();
-        }
-        param.put(key, value);
+    public JsonParam add(String key, @Nullable Object value) {
+        initMap();
+        mParam.put(key, value);
         return this;
+    }
+
+    public JsonParam addAll(String jsonObject) {
+        return addAll(JsonParser.parseString(jsonObject).getAsJsonObject());
+    }
+
+    public JsonParam addAll(JsonObject jsonObject) {
+        return addAll(JsonUtil.toMap(jsonObject));
+    }
+
+    @Override
+    public JsonParam addAll(Map<String, ?> map) {
+        initMap();
+        for (Entry<String, ?> entry : map.entrySet()) {
+            add(entry.getKey(), entry.getValue());
+        }
+        return this;
+    }
+
+    public JsonParam addJsonElement(String key, String jsonElement) {
+        JsonElement element = JsonParser.parseString(jsonElement);
+        return add(key, JsonUtil.toAny(element));
     }
 
     @Nullable
@@ -62,6 +86,10 @@ public class JsonParam extends BodyParam<JsonParam> implements IJsonObject<JsonP
         HttpUrl httpUrl = HttpUrl.get(getSimpleUrl());
         Builder builder = httpUrl.newBuilder().addQueryParameter("json", json);
         return builder.toString();
+    }
+
+    private void initMap() {
+        if (mParam == null) mParam = new LinkedHashMap<>();
     }
 
     @Override
