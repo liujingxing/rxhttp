@@ -25,8 +25,6 @@ public final class HttpSender {
     }
 
     public static void init(OkHttpClient okHttpClient) {
-        if (mOkHttpClient != null)
-            throw new IllegalArgumentException("OkHttpClient can only be initialized once");
         mOkHttpClient = okHttpClient;
     }
 
