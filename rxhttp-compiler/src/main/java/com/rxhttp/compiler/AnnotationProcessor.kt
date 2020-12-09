@@ -297,7 +297,7 @@ open class AnnotationProcessor : AbstractProcessor() {
     private fun checkVariableValidClass(element: VariableElement) {
         if (!element.modifiers.contains(Modifier.PUBLIC)) {
             throw ProcessingException(element,
-                "The variable %s is not public",
+                "The variable %s is not public, please add @JvmField annotation if you use kotlin",
                 element.simpleName)
         }
         if (!element.modifiers.contains(Modifier.STATIC)) {
