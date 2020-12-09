@@ -15,7 +15,7 @@ object ClassHelper {
     @JvmStatic
     fun generatorStaticClass(filer: Filer, isAndroid: Boolean) {
         generatorBaseRxHttp(filer, isAndroid)
-        generatorRxHttpBodyParam(filer)
+        generatorRxHttpAbstractBodyParam(filer)
         generatorRxHttpFormParam(filer, isAndroid)
         generatorRxHttpNoBodyParam(filer)
         generatorRxHttpJsonParam(filer)
@@ -890,7 +890,7 @@ object ClassHelper {
         """.trimIndent())
     }
 
-    private fun generatorRxHttpBodyParam(filer: Filer) {
+    private fun generatorRxHttpAbstractBodyParam(filer: Filer) {
         if (!isDependenceRxJava()) {
             generatorClass(filer, "RxHttpAbstractBodyParam", """
                 package $rxHttpPackage;
