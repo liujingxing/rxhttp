@@ -997,6 +997,7 @@ object ClassHelper {
             package $rxHttpPackage;
 
             import java.util.List;
+            import java.util.Map;
             
             import rxhttp.wrapper.param.NoBodyParam;
 
@@ -1010,6 +1011,23 @@ object ClassHelper {
             public class RxHttpNoBodyParam extends RxHttp<NoBodyParam, RxHttpNoBodyParam> {
                 public RxHttpNoBodyParam(NoBodyParam param) {
                     super(param);
+                }
+                
+                public RxHttpNoBodyParam add(String key, Object value) {
+                  param.add(key,value);
+                  return this;
+                }
+                
+                public RxHttpNoBodyParam add(String key, Object value, boolean isAdd) {
+                  if(isAdd) {
+                    param.add(key,value);
+                  }
+                  return this;
+                }
+                
+                public RxHttpNoBodyParam addAll(Map<String, ?> map) {
+                  param.addAll(map);
+                  return this;
                 }
 
                 public RxHttpNoBodyParam addEncoded(String key, Object value) {
@@ -1082,6 +1100,23 @@ object ClassHelper {
                     super(param);
                 }
 
+                public RxHttpFormParam add(String key, Object value) {
+                  param.add(key,value);
+                  return this;
+                }
+                
+                public RxHttpFormParam add(String key, Object value, boolean isAdd) {
+                  if(isAdd) {
+                    param.add(key,value);
+                  }
+                  return this;
+                }
+                
+                public RxHttpFormParam addAll(Map<String, ?> map) {
+                  param.addAll(map);
+                  return this;
+                }
+                
                 public RxHttpFormParam addEncoded(String key, Object value) {
                     param.addEncoded(key, value);
                     return this;
@@ -1275,6 +1310,8 @@ object ClassHelper {
             package $rxHttpPackage;
 
             import com.google.gson.JsonObject;
+
+            import java.util.Map;
             
             import rxhttp.wrapper.param.JsonParam;
             /**
@@ -1289,6 +1326,23 @@ object ClassHelper {
                     super(param);
                 }
 
+                public RxHttpJsonParam add(String key, Object value) {
+                  param.add(key,value);
+                  return this;
+                }
+                
+                public RxHttpJsonParam add(String key, Object value, boolean isAdd) {
+                  if(isAdd) {
+                    param.add(key,value);
+                  }
+                  return this;
+                }
+                
+                public RxHttpJsonParam addAll(Map<String, ?> map) {
+                  param.addAll(map);
+                  return this;
+                }
+                
                 /**
                  * 将Json对象里面的key-value逐一取出，添加到另一个Json对象中，
                  * 输入非Json对象将抛出{@link IllegalStateException}异常
@@ -1326,6 +1380,7 @@ object ClassHelper {
             import com.google.gson.JsonObject;
 
             import java.util.List;
+            import java.util.Map;
             
             import rxhttp.wrapper.param.JsonArrayParam;
 
@@ -1339,6 +1394,23 @@ object ClassHelper {
             public class RxHttpJsonArrayParam extends RxHttpAbstractBodyParam<JsonArrayParam, RxHttpJsonArrayParam> {
                 public RxHttpJsonArrayParam(JsonArrayParam param) {
                     super(param);
+                }
+
+                public RxHttpJsonArrayParam add(String key, Object value) {
+                  param.add(key,value);
+                  return this;
+                }
+                
+                public RxHttpJsonArrayParam add(String key, Object value, boolean isAdd) {
+                  if(isAdd) {
+                    param.add(key,value);
+                  }
+                  return this;
+                }
+                
+                public RxHttpJsonArrayParam addAll(Map<String, ?> map) {
+                  param.addAll(map);
+                  return this;
                 }
 
                 public RxHttpJsonArrayParam add(Object object) {

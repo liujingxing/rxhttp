@@ -237,38 +237,6 @@ class ParamsAnnotatedClass {
                 .build())
 
         methodList.add(
-            MethodSpec.methodBuilder("add")
-                .addModifiers(Modifier.PUBLIC)
-                .addParameter(String::class.java, "key")
-                .addParameter(Any::class.java, "value")
-                .addStatement("param.add(key,value)")
-                .addStatement("return (R)this")
-                .returns(rxHttp)
-                .build())
-
-        methodList.add(
-            MethodSpec.methodBuilder("add")
-                .addModifiers(Modifier.PUBLIC)
-                .addParameter(String::class.java, "key")
-                .addParameter(Any::class.java, "value")
-                .addParameter(Boolean::class.javaPrimitiveType, "isAdd")
-                .beginControlFlow("if(isAdd)")
-                .addStatement("param.add(key,value)")
-                .endControlFlow()
-                .addStatement("return (R)this")
-                .returns(rxHttp)
-                .build())
-
-        methodList.add(
-            MethodSpec.methodBuilder("addAll")
-                .addModifiers(Modifier.PUBLIC)
-                .addParameter(mapName, "map")
-                .addStatement("param.addAll(map)")
-                .addStatement("return (R)this")
-                .returns(rxHttp)
-                .build())
-
-        methodList.add(
             MethodSpec.methodBuilder("addHeader")
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(String::class.java, "line")

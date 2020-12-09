@@ -29,6 +29,23 @@ public class RxHttpFormParam extends RxHttpAbstractBodyParam<FormParam, RxHttpFo
         super(param);
     }
 
+    public RxHttpFormParam add(String key, Object value) {
+      param.add(key,value);
+      return this;
+    }
+    
+    public RxHttpFormParam add(String key, Object value, boolean isAdd) {
+      if(isAdd) {
+        param.add(key,value);
+      }
+      return this;
+    }
+    
+    public RxHttpFormParam addAll(Map<String, ?> map) {
+      param.addAll(map);
+      return this;
+    }
+    
     public RxHttpFormParam addEncoded(String key, Object value) {
         param.addEncoded(key, value);
         return this;
