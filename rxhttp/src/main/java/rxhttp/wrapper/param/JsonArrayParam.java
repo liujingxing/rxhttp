@@ -25,7 +25,7 @@ import rxhttp.wrapper.utils.JsonUtil;
  * Date: 2019-09-09
  * Time: 21:08
  */
-public class JsonArrayParam extends BodyParam<JsonArrayParam> {
+public class JsonArrayParam extends AbstractBodyParam<JsonArrayParam> {
 
     private List<Object> mList;
 

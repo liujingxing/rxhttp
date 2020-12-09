@@ -23,7 +23,7 @@ import rxhttp.wrapper.utils.JsonUtil;
  * Date: 2019-09-09
  * Time: 21:08
  */
-public class JsonParam extends BodyParam<JsonParam> {
+public class JsonParam extends AbstractBodyParam<JsonParam> {
 
     private Map<String, Object> mParam; //请求参数
 

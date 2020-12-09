@@ -24,7 +24,7 @@ import rxhttp.wrapper.utils.UriUtil;
  * https://github.com/liujingxing/okhttp-RxHttp/wiki/FAQ
  * https://github.com/liujingxing/okhttp-RxHttp/wiki/更新日志
  */
-public class RxHttpFormParam extends RxHttpBodyParam<FormParam, RxHttpFormParam> {
+public class RxHttpFormParam extends RxHttpAbstractBodyParam<FormParam, RxHttpFormParam> {
     public RxHttpFormParam(FormParam param) {
         super(param);
     }

@@ -123,13 +123,13 @@ class RxHttpExtensions {
 
         val p = TypeVariableName("P")
         val r = TypeVariableName("R")
-        val bodyParamName = ClassName("rxhttp.wrapper.param", "BodyParam").parameterizedBy(p)
-        val rxHttpBodyParamName = ClassName(rxHttpPackage, "RxHttpBodyParam").parameterizedBy(p, r)
+        val bodyParamName = ClassName("rxhttp.wrapper.param", "AbstractBodyParam").parameterizedBy(p)
+        val rxHttpBodyParamName = ClassName(rxHttpPackage, "RxHttpAbstractBodyParam").parameterizedBy(p, r)
         val pBound = TypeVariableName("P", bodyParamName)
         val rBound = TypeVariableName("R", rxHttpBodyParamName)
 
 
-        val progressLambdaName: LambdaTypeName = LambdaTypeName.get(parameters = *arrayOf(progressName),
+        val progressLambdaName = LambdaTypeName.get(parameters = *arrayOf(progressName),
             returnType = Unit::class.asClassName())
 
         val fileBuilder = FileSpec.builder(rxHttpPackage, "RxHttp")
