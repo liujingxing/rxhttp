@@ -12,7 +12,7 @@ import rxhttp.wrapper.progress.ProgressRequestBody;
  * Time: 15:08
  */
 @SuppressWarnings("unchecked")
-public abstract class BodyParam<P extends BodyParam<P>> extends AbstractParam<P> {
+public abstract class AbstractBodyParam<P extends AbstractBodyParam<P>> extends AbstractParam<P> {
 
     //Upload progress callback
     private ProgressCallback mCallback;
@@ -23,7 +23,7 @@ public abstract class BodyParam<P extends BodyParam<P>> extends AbstractParam<P>
      * @param url    request url
      * @param method {@link Method#POST}、{@link Method#PUT}、{@link Method#DELETE}、{@link Method#PATCH}
      */
-    public BodyParam(String url, Method method) {
+    public AbstractBodyParam(String url, Method method) {
         super(url, method);
     }
 

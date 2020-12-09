@@ -58,8 +58,8 @@ final class ObservableCallEnqueue extends ObservableCall {
          * @param downstream the Observer to wrap, not null (not verified)
          */
         HttpDisposable(Observer<? super Progress> downstream, IRxHttp iRxHttp, boolean callbackUploadProgress) {
-            if (iRxHttp instanceof RxHttpBodyParam && callbackUploadProgress) {
-                RxHttpBodyParam<?, ?> bodyParam = (RxHttpBodyParam) iRxHttp;
+            if (iRxHttp instanceof RxHttpAbstractBodyParam && callbackUploadProgress) {
+                RxHttpAbstractBodyParam<?, ?> bodyParam = (RxHttpAbstractBodyParam) iRxHttp;
                 bodyParam.getParam().setProgressCallback(this);
             }
             this.downstream = downstream;

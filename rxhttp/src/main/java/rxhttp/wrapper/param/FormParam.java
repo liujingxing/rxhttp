@@ -23,7 +23,7 @@ import rxhttp.wrapper.utils.CacheUtil;
  * Date: 2019-09-09
  * Time: 21:08
  */
-public class FormParam extends BodyParam<FormParam> implements IPart<FormParam> {
+public class FormParam extends AbstractBodyParam<FormParam> implements IPart<FormParam> {
 
     private boolean isMultiForm;
 

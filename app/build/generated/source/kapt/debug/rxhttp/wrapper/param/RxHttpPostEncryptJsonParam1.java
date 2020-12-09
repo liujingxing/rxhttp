@@ -7,7 +7,7 @@ import com.example.httpsender.param.PostEncryptJsonParam1;
  * https://github.com/liujingxing/RxHttp
  * https://github.com/liujingxing/RxLife
  */
-public class RxHttpPostEncryptJsonParam1 extends RxHttpBodyParam<PostEncryptJsonParam1, RxHttpPostEncryptJsonParam1> {
+public class RxHttpPostEncryptJsonParam1 extends RxHttpAbstractBodyParam<PostEncryptJsonParam1, RxHttpPostEncryptJsonParam1> {
   public RxHttpPostEncryptJsonParam1(PostEncryptJsonParam1 param) {
     super(param);
   }

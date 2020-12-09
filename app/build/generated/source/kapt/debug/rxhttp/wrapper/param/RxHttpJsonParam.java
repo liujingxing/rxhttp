@@ -10,7 +10,7 @@ import rxhttp.wrapper.param.JsonParam;
  * https://github.com/liujingxing/okhttp-RxHttp/wiki/FAQ
  * https://github.com/liujingxing/okhttp-RxHttp/wiki/更新日志
  */
-public class RxHttpJsonParam extends RxHttpBodyParam<JsonParam, RxHttpJsonParam> {
+public class RxHttpJsonParam extends RxHttpAbstractBodyParam<JsonParam, RxHttpJsonParam> {
     public RxHttpJsonParam(JsonParam param) {
         super(param);
     }

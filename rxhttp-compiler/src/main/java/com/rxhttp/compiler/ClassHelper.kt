@@ -342,8 +342,8 @@ object ClassHelper {
                      * @param downstream the Observer to wrap, not null (not verified)
                      */
                     HttpDisposable(Observer<? super Progress> downstream, IRxHttp iRxHttp, boolean callbackUploadProgress) {
-                        if (iRxHttp instanceof RxHttpBodyParam && callbackUploadProgress) {
-                            RxHttpBodyParam<?, ?> bodyParam = (RxHttpBodyParam) iRxHttp;
+                        if (iRxHttp instanceof RxHttpAbstractBodyParam && callbackUploadProgress) {
+                            RxHttpAbstractBodyParam<?, ?> bodyParam = (RxHttpAbstractBodyParam) iRxHttp;
                             bodyParam.getParam().setProgressCallback(this);
                         }
                         this.downstream = downstream;
@@ -457,8 +457,8 @@ object ClassHelper {
                      * @param downstream the Observer to wrap, not null (not verified)
                      */
                     HttpDisposable(Observer<? super Progress> downstream, IRxHttp iRxHttp, boolean callbackUploadProgress) {
-                        if (iRxHttp instanceof RxHttpBodyParam && callbackUploadProgress) {
-                            RxHttpBodyParam<?, ?> bodyParam = (RxHttpBodyParam) iRxHttp;
+                        if (iRxHttp instanceof RxHttpAbstractBodyParam && callbackUploadProgress) {
+                            RxHttpAbstractBodyParam<?, ?> bodyParam = (RxHttpAbstractBodyParam) iRxHttp;
                             bodyParam.getParam().setProgressCallback(this);
                         }
                         this.downstream = downstream;
@@ -892,10 +892,10 @@ object ClassHelper {
 
     private fun generatorRxHttpBodyParam(filer: Filer) {
         if (!isDependenceRxJava()) {
-            generatorClass(filer, "RxHttpBodyParam", """
+            generatorClass(filer, "RxHttpAbstractBodyParam", """
                 package $rxHttpPackage;
                 
-                import rxhttp.wrapper.param.BodyParam;
+                import rxhttp.wrapper.param.AbstractBodyParam;
 
                 /**
                  * Github
@@ -905,9 +905,9 @@ object ClassHelper {
                  * https://github.com/liujingxing/okhttp-RxHttp/wiki/更新日志
                  */
                 @SuppressWarnings("unchecked")
-                public class RxHttpBodyParam<P extends BodyParam<P>, R extends RxHttpBodyParam<P, R>> extends RxHttp<P, R> {
+                public class RxHttpAbstractBodyParam<P extends AbstractBodyParam<P>, R extends RxHttpAbstractBodyParam<P, R>> extends RxHttp<P, R> {
 
-                    protected RxHttpBodyParam(P param) {
+                    protected RxHttpAbstractBodyParam(P param) {
                         super(param);
                     }
 
@@ -918,14 +918,14 @@ object ClassHelper {
                 }
             """.trimIndent())
         } else {
-            generatorClass(filer, "RxHttpBodyParam", """
+            generatorClass(filer, "RxHttpAbstractBodyParam", """
                 package $rxHttpPackage;
                 
                 import ${getClassPath("Observable")};
                 import ${getClassPath("Scheduler")};
                 import ${getClassPath("Consumer")};
                 import rxhttp.wrapper.entity.Progress;
-                import rxhttp.wrapper.param.BodyParam;
+                import rxhttp.wrapper.param.AbstractBodyParam;
                 import rxhttp.wrapper.parse.Parser;
                 
                 /**
@@ -936,7 +936,7 @@ object ClassHelper {
                  * https://github.com/liujingxing/okhttp-RxHttp/wiki/更新日志
                  */
                 @SuppressWarnings("unchecked")
-                public class RxHttpBodyParam<P extends BodyParam<P>, R extends RxHttpBodyParam<P, R>> extends RxHttp<P, R> {
+                public class RxHttpAbstractBodyParam<P extends AbstractBodyParam<P>, R extends RxHttpAbstractBodyParam<P, R>> extends RxHttp<P, R> {
 
                     //Controls the downstream callback thread
                     private Scheduler observeOnScheduler;
@@ -944,7 +944,7 @@ object ClassHelper {
                     //Upload progress callback
                     private Consumer<Progress> progressConsumer;
 
-                    protected RxHttpBodyParam(P param) {
+                    protected RxHttpAbstractBodyParam(P param) {
                         super(param);
                     }
 
@@ -1077,7 +1077,7 @@ object ClassHelper {
              * https://github.com/liujingxing/okhttp-RxHttp/wiki/FAQ
              * https://github.com/liujingxing/okhttp-RxHttp/wiki/更新日志
              */
-            public class RxHttpFormParam extends RxHttpBodyParam<FormParam, RxHttpFormParam> {
+            public class RxHttpFormParam extends RxHttpAbstractBodyParam<FormParam, RxHttpFormParam> {
                 public RxHttpFormParam(FormParam param) {
                     super(param);
                 }
@@ -1284,7 +1284,7 @@ object ClassHelper {
              * https://github.com/liujingxing/okhttp-RxHttp/wiki/FAQ
              * https://github.com/liujingxing/okhttp-RxHttp/wiki/更新日志
              */
-            public class RxHttpJsonParam extends RxHttpBodyParam<JsonParam, RxHttpJsonParam> {
+            public class RxHttpJsonParam extends RxHttpAbstractBodyParam<JsonParam, RxHttpJsonParam> {
                 public RxHttpJsonParam(JsonParam param) {
                     super(param);
                 }
@@ -1336,7 +1336,7 @@ object ClassHelper {
              * https://github.com/liujingxing/okhttp-RxHttp/wiki/FAQ
              * https://github.com/liujingxing/okhttp-RxHttp/wiki/更新日志
              */
-            public class RxHttpJsonArrayParam extends RxHttpBodyParam<JsonArrayParam, RxHttpJsonArrayParam> {
+            public class RxHttpJsonArrayParam extends RxHttpAbstractBodyParam<JsonArrayParam, RxHttpJsonArrayParam> {
                 public RxHttpJsonArrayParam(JsonArrayParam param) {
                     super(param);
                 }

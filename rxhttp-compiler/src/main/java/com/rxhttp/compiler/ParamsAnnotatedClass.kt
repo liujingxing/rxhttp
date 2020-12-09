@@ -143,10 +143,11 @@ class ParamsAnnotatedClass {
                 "rxhttp.wrapper.param.NoBodyParam" -> ClassName.get(rxHttpPackage, "RxHttpNoBodyParam")
                 else -> {
                     val typeName = TypeName.get(superclass)
-                    if ((typeName as? ParameterizedTypeName)?.rawType?.toString() == "rxhttp.wrapper.param.BodyParam") {
+                    if ((typeName as? ParameterizedTypeName)?.rawType?.toString() == "rxhttp.wrapper.param.AbstractBodyParam") {
                         prefix = "param."
-                        val rxHttpBodyParam = ClassName.get(rxHttpPackage, "RxHttpBodyParam")
-                        ParameterizedTypeName.get(rxHttpBodyParam, param, rxHttpParamName)
+                        ClassName.get(rxHttpPackage, "RxHttpAbstractBodyParam").let {
+                            ParameterizedTypeName.get(it, param, rxHttpParamName)
+                        }
                     } else {
                         prefix = "param."
                         ParameterizedTypeName.get(RXHTTP, param, rxHttpParamName)

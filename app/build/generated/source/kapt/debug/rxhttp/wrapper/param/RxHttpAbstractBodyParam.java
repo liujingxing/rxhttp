@@ -4,7 +4,7 @@ import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Scheduler;
 import io.reactivex.rxjava3.functions.Consumer;
 import rxhttp.wrapper.entity.Progress;
-import rxhttp.wrapper.param.BodyParam;
+import rxhttp.wrapper.param.AbstractBodyParam;
 import rxhttp.wrapper.parse.Parser;
 
 /**
@@ -15,7 +15,7 @@ import rxhttp.wrapper.parse.Parser;
  * https://github.com/liujingxing/okhttp-RxHttp/wiki/更新日志
  */
 @SuppressWarnings("unchecked")
-public class RxHttpBodyParam<P extends BodyParam<P>, R extends RxHttpBodyParam<P, R>> extends RxHttp<P, R> {
+public class RxHttpAbstractBodyParam<P extends AbstractBodyParam<P>, R extends RxHttpAbstractBodyParam<P, R>> extends RxHttp<P, R> {
 
     //Controls the downstream callback thread
     private Scheduler observeOnScheduler;
@@ -23,7 +23,7 @@ public class RxHttpBodyParam<P extends BodyParam<P>, R extends RxHttpBodyParam<P
     //Upload progress callback
     private Consumer<Progress> progressConsumer;
 
-    protected RxHttpBodyParam(P param) {
+    protected RxHttpAbstractBodyParam(P param) {
         super(param);
     }
 
