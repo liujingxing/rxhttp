@@ -1,6 +1,7 @@
 package rxhttp.wrapper.param;
 
 import java.util.List;
+import java.util.Map;
 
 import rxhttp.wrapper.param.NoBodyParam;
 
@@ -14,6 +15,23 @@ import rxhttp.wrapper.param.NoBodyParam;
 public class RxHttpNoBodyParam extends RxHttp<NoBodyParam, RxHttpNoBodyParam> {
     public RxHttpNoBodyParam(NoBodyParam param) {
         super(param);
+    }
+    
+    public RxHttpNoBodyParam add(String key, Object value) {
+      param.add(key,value);
+      return this;
+    }
+    
+    public RxHttpNoBodyParam add(String key, Object value, boolean isAdd) {
+      if(isAdd) {
+        param.add(key,value);
+      }
+      return this;
+    }
+    
+    public RxHttpNoBodyParam addAll(Map<String, ?> map) {
+      param.addAll(map);
+      return this;
     }
 
     public RxHttpNoBodyParam addEncoded(String key, Object value) {

@@ -273,23 +273,6 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
     return (R)this;
   }
 
-  public R add(String key, Object value) {
-    param.add(key,value);
-    return (R)this;
-  }
-
-  public R add(String key, Object value, boolean isAdd) {
-    if(isAdd) {
-      param.add(key,value);
-    }
-    return (R)this;
-  }
-
-  public R addAll(Map<String, ?> map) {
-    param.addAll(map);
-    return (R)this;
-  }
-
   public R addHeader(String line) {
     param.addHeader(line);
     return (R)this;

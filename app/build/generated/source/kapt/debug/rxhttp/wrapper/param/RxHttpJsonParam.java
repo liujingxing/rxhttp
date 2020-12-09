@@ -2,6 +2,8 @@ package rxhttp.wrapper.param;
 
 import com.google.gson.JsonObject;
 
+import java.util.Map;
+
 import rxhttp.wrapper.param.JsonParam;
 /**
  * Github
@@ -15,6 +17,23 @@ public class RxHttpJsonParam extends RxHttpAbstractBodyParam<JsonParam, RxHttpJs
         super(param);
     }
 
+    public RxHttpJsonParam add(String key, Object value) {
+      param.add(key,value);
+      return this;
+    }
+    
+    public RxHttpJsonParam add(String key, Object value, boolean isAdd) {
+      if(isAdd) {
+        param.add(key,value);
+      }
+      return this;
+    }
+    
+    public RxHttpJsonParam addAll(Map<String, ?> map) {
+      param.addAll(map);
+      return this;
+    }
+    
     /**
      * 将Json对象里面的key-value逐一取出，添加到另一个Json对象中，
      * 输入非Json对象将抛出{@link IllegalStateException}异常
