@@ -198,6 +198,22 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
     return new RxHttpNoBodyParam(Param.head(format(url, formatArgs)));
   }
 
+  public static RxHttpBodyParam postBody(String url, Object... formatArgs) {
+    return new RxHttpBodyParam(Param.postBody(format(url, formatArgs)));
+  }
+
+  public static RxHttpBodyParam putBody(String url, Object... formatArgs) {
+    return new RxHttpBodyParam(Param.putBody(format(url, formatArgs)));
+  }
+
+  public static RxHttpBodyParam patchBody(String url, Object... formatArgs) {
+    return new RxHttpBodyParam(Param.patchBody(format(url, formatArgs)));
+  }
+
+  public static RxHttpBodyParam deleteBody(String url, Object... formatArgs) {
+    return new RxHttpBodyParam(Param.deleteBody(format(url, formatArgs)));
+  }
+
   public static RxHttpFormParam postForm(String url, Object... formatArgs) {
     return new RxHttpFormParam(Param.postForm(format(url, formatArgs)));
   }

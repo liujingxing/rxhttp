@@ -128,6 +128,10 @@ class RxHttpWrapper {
         val methodMap = LinkedHashMap<String, String>()
         methodMap["get"] = "RxHttpNoBodyParam"
         methodMap["head"] = "RxHttpNoBodyParam"
+        methodMap["postBody"] = "RxHttpBodyParam"
+        methodMap["putBody"] = "RxHttpBodyParam"
+        methodMap["patchBody"] = "RxHttpBodyParam"
+        methodMap["deleteBody"] = "RxHttpBodyParam"
         methodMap["postForm"] = "RxHttpFormParam"
         methodMap["putForm"] = "RxHttpFormParam"
         methodMap["patchForm"] = "RxHttpFormParam"

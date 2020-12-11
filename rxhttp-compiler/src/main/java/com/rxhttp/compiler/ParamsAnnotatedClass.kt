@@ -45,6 +45,10 @@ class ParamsAnnotatedClass {
         val methodMap = LinkedHashMap<String, String>()
         methodMap["get"] = "RxHttpNoBodyParam"
         methodMap["head"] = "RxHttpNoBodyParam"
+        methodMap["postBody"] = "RxHttpBodyParam"
+        methodMap["putBody"] = "RxHttpBodyParam"
+        methodMap["patchBody"] = "RxHttpBodyParam"
+        methodMap["deleteBody"] = "RxHttpBodyParam"
         methodMap["postForm"] = "RxHttpFormParam"
         methodMap["putForm"] = "RxHttpFormParam"
         methodMap["patchForm"] = "RxHttpFormParam"
@@ -137,6 +141,7 @@ class ParamsAnnotatedClass {
             val superclass = typeElement.superclass
             var prefix = "((" + param.simpleName() + ")param)."
             val rxHttpParam = when (superclass.toString()) {
+                "rxhttp.wrapper.param.BodyParam" -> ClassName.get(rxHttpPackage, "RxHttpBodyParam")
                 "rxhttp.wrapper.param.FormParam" -> ClassName.get(rxHttpPackage, "RxHttpFormParam")
                 "rxhttp.wrapper.param.JsonParam" -> ClassName.get(rxHttpPackage, "RxHttpJsonParam")
                 "rxhttp.wrapper.param.JsonArrayParam" -> ClassName.get(rxHttpPackage, "RxHttpJsonArrayParam")

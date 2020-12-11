@@ -32,6 +32,30 @@ public class RxSimpleHttp {
     return rxHttp;
   }
 
+  public static RxHttpBodyParam postBody(String url, Object... formatArgs) {
+    RxHttpBodyParam rxHttp = RxHttp.postBody(url, formatArgs);
+    wrapper(rxHttp);
+    return rxHttp;
+  }
+
+  public static RxHttpBodyParam putBody(String url, Object... formatArgs) {
+    RxHttpBodyParam rxHttp = RxHttp.putBody(url, formatArgs);
+    wrapper(rxHttp);
+    return rxHttp;
+  }
+
+  public static RxHttpBodyParam patchBody(String url, Object... formatArgs) {
+    RxHttpBodyParam rxHttp = RxHttp.patchBody(url, formatArgs);
+    wrapper(rxHttp);
+    return rxHttp;
+  }
+
+  public static RxHttpBodyParam deleteBody(String url, Object... formatArgs) {
+    RxHttpBodyParam rxHttp = RxHttp.deleteBody(url, formatArgs);
+    wrapper(rxHttp);
+    return rxHttp;
+  }
+
   public static RxHttpFormParam postForm(String url, Object... formatArgs) {
     RxHttpFormParam rxHttp = RxHttp.postForm(url, formatArgs);
     wrapper(rxHttp);
