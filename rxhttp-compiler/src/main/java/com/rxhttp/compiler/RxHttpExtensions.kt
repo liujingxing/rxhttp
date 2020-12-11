@@ -2,6 +2,7 @@ package com.rxhttp.compiler
 
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import org.jetbrains.annotations.Nullable
 import javax.annotation.processing.Filer
 import javax.lang.model.element.ElementKind
 import javax.lang.model.element.ExecutableElement
@@ -61,8 +62,12 @@ class RxHttpExtensions {
                     ).build()
                     parameterList.add(parameterSpec)
                 } else {
+                    val annotation = it.getAnnotation(Nullable::class.java)
                     val name = it.simpleName.toString()
-                    val type = it.asType().asTypeName().toKClassTypeName()
+                    var type = it.asType().asTypeName().toKClassTypeName()
+                    if (annotation != null) {
+                        type = type.copy(true)
+                    }
                     val parameterSpec = ParameterSpec.builder(name, type)
                         .jvmModifiers(it.modifiers)
                         .build()
