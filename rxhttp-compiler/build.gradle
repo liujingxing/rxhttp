@@ -3,7 +3,7 @@ apply plugin: 'kotlin-kapt'
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.squareup:javapoet:1.12.1'
+    implementation 'com.squareup:javapoet:1.13.0'
     implementation 'com.squareup:kotlinpoet:1.5.0'
     compileOnly "net.ltgt.gradle.incap:incap:0.2"
     kapt "net.ltgt.gradle.incap:incap-processor:0.2"
