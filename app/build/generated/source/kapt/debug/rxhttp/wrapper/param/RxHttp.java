@@ -246,8 +246,7 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
     return new RxHttpJsonArrayParam(Param.deleteJsonArray(format(url, formatArgs)));
   }
 
-  public static RxHttpPostEncryptJsonParam postEncryptJson(@NotNull String url,
-      Object... formatArgs) {
+  public static RxHttpPostEncryptJsonParam postEncryptJson(String url, Object... formatArgs) {
     return new RxHttpPostEncryptJsonParam(new PostEncryptJsonParam(format(url, formatArgs)));
   }
 
