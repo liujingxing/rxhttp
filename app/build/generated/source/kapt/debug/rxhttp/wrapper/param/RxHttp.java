@@ -551,11 +551,15 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
     return (R)this;
   }
 
-  public R setSimpleClient() {
-    if (RxHttpManager.simpleClient == null)
-        throw new IllegalArgumentException("OkHttpClient can not be null");;
-    this.okClient = RxHttpManager.simpleClient;
+  public R setOkClient(@NotNull OkHttpClient okClient) {
+    if (okClient == null) 
+        throw new IllegalArgumentException("okClient can not be null");
+    this.okClient = okClient;
     return (R)this;
+  }
+
+  public R setSimpleClient() {
+    return setOkClient(RxHttpManager.simpleClient);
   }
 
   /**
