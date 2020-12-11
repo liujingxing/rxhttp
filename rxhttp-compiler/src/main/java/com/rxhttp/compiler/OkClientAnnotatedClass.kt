@@ -2,6 +2,8 @@ package com.rxhttp.compiler
 
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.MethodSpec
+import com.squareup.javapoet.ParameterSpec
+import org.jetbrains.annotations.NotNull
 import rxhttp.wrapper.annotation.OkClient
 import java.util.*
 import javax.lang.model.element.Modifier
@@ -23,17 +25,28 @@ class OkClientAnnotatedClass {
     val methodList: List<MethodSpec>
         get() {
             val methodList = ArrayList<MethodSpec>()
+
+            val okClientName = ClassName.get("okhttp3", "OkHttpClient")
+            val okClientParam = ParameterSpec.builder(okClientName, "okClient")
+                .addAnnotation(NotNull::class.java).build()
+
+            methodList.add(MethodSpec.methodBuilder("setOkClient")
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(okClientParam)
+                .addCode("""
+                    if (okClient == null) 
+                        throw new IllegalArgumentException("okClient can not be null");
+                    this.okClient = okClient;
+                    return (R)this;
+                """.trimIndent())
+                .returns(r)
+                .build())
             for ((key, value) in mElementMap) {
+                val className = ClassName.get(value.enclosingElement.asType())
+                val fieldName = value.simpleName.toString()
                 methodList.add(MethodSpec.methodBuilder("set$key")
                     .addModifiers(Modifier.PUBLIC)
-                    .addStatement("""
-                            if (${"$"}T.${"$"}L == null)
-                            throw new IllegalArgumentException("OkHttpClient can not be null");
-                    """.trimIndent(), ClassName.get(value.enclosingElement.asType()), value.simpleName.toString())
-                    .addStatement("this.okClient = \$T.\$L",
-                        ClassName.get(value.enclosingElement.asType()),
-                        value.simpleName.toString())
-                    .addStatement("return (R)this")
+                    .addStatement("return setOkClient(\$T.\$L)", className, fieldName)
                     .returns(r)
                     .build()
                 )
