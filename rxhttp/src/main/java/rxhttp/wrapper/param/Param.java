@@ -21,6 +21,22 @@ public interface Param<P extends Param<P>> extends IParam<P>, IHeaders<P>, ICach
         return new NoBodyParam(url, Method.HEAD);
     }
 
+    static BodyParam postBody(@NonNull String url) {
+        return new BodyParam(url, Method.POST);
+    }
+
+    static BodyParam putBody(@NonNull String url) {
+        return new BodyParam(url, Method.PUT);
+    }
+
+    static BodyParam patchBody(@NonNull String url) {
+        return new BodyParam(url, Method.PATCH);
+    }
+
+    static BodyParam deleteBody(@NonNull String url) {
+        return new BodyParam(url, Method.DELETE);
+    }
+
     /**
      * post请求
      * 参数以{application/x-www-form-urlencoded}形式提交
