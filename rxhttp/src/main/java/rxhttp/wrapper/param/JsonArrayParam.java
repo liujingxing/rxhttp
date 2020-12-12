@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import okhttp3.HttpUrl;
 import okhttp3.HttpUrl.Builder;
@@ -81,10 +80,7 @@ public class JsonArrayParam extends AbstractBodyParam<JsonArrayParam> {
     @Override
     public JsonArrayParam addAll(Map<String, ?> map) {
         initList();
-        for (Entry<String, ?> next : map.entrySet()) {
-            add(next.getKey(), next.getValue());
-        }
-        return this;
+        return super.addAll(map);
     }
 
     public JsonArrayParam addAll(JsonArray jsonArray) {
