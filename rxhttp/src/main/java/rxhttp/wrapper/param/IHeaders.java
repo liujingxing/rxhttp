@@ -65,6 +65,13 @@ public interface IHeaders<P extends Param<P>> {
         return (P) this;
     }
 
+    default P setAllHeader(@NotNull Map<String, String> headers) {
+        for (Entry<String, String> entry : headers.entrySet()) {
+            setHeader(entry.getKey(), entry.getValue());
+        }
+        return (P) this;
+    }
+
     default P removeAllHeader(String key) {
         getHeadersBuilder().removeAll(key);
         return (P) this;

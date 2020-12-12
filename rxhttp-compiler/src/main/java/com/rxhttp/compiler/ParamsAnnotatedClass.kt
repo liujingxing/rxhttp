@@ -424,6 +424,15 @@ class ParamsAnnotatedClass {
                 .build())
 
         methodList.add(
+            MethodSpec.methodBuilder("setAllHeader")
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(mapStringName, "headers")
+                .addStatement("param.setAllHeader(headers)")
+                .addStatement("return (R)this")
+                .returns(rxHttp)
+                .build())
+
+        methodList.add(
             MethodSpec.methodBuilder("setRangeHeader")
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(Long::class.javaPrimitiveType, "startIndex")
