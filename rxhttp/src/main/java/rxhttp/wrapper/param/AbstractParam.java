@@ -2,6 +2,9 @@ package rxhttp.wrapper.param;
 
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
@@ -18,6 +21,7 @@ import rxhttp.wrapper.annotations.Nullable;
 import rxhttp.wrapper.cahce.CacheMode;
 import rxhttp.wrapper.cahce.CacheStrategy;
 import rxhttp.wrapper.callback.IConverter;
+import rxhttp.wrapper.entity.KeyValuePair;
 import rxhttp.wrapper.utils.BuildUtil;
 import rxhttp.wrapper.utils.LogUtil;
 
@@ -35,6 +39,7 @@ public abstract class AbstractParam<P extends Param<P>> implements Param<P> {
     private final Method mMethod;  //请求方法
     private final CacheStrategy mCacheStrategy;
     private final Request.Builder requestBuilder = new Request.Builder(); //请求构造器
+    private List<KeyValuePair> queryPairs; //查询参数，拼接在Url后面
 
     private boolean mIsAssemblyEnabled = true;//是否添加公共参数
 
@@ -55,16 +60,61 @@ public abstract class AbstractParam<P extends Param<P>> implements Param<P> {
     }
 
     @Override
-    public HttpUrl getHttpUrl() {
-        return HttpUrl.get(mUrl);
+    public P addQuery(String key, Object value) {
+        if (value == null) value = "";
+        return addQuery(new KeyValuePair(key, value));
     }
 
-    /**
-     * @return 不带参数的url
-     */
+    @Override
+    public P addEncodedQuery(String key, Object value) {
+        if (value == null) value = "";
+        return addQuery(new KeyValuePair(key, value, true));
+    }
+
+    @Override
+    public P removeAllQuery() {
+        final List<KeyValuePair> pairs = queryPairs;
+        if (pairs != null) pairs.clear();
+        return (P) this;
+    }
+
+    @Override
+    public P removeAllQuery(String key) {
+        final List<KeyValuePair> pairs = queryPairs;
+        if (pairs != null) {
+            Iterator<KeyValuePair> iterator = pairs.iterator();
+            while (iterator.hasNext()) {
+                KeyValuePair next = iterator.next();
+                if (next.equals(key))
+                    iterator.remove();
+            }
+        }
+        return (P) this;
+    }
+
+    private P addQuery(KeyValuePair keyValuePair) {
+        if (queryPairs == null) queryPairs = new ArrayList<>();
+        queryPairs.add(keyValuePair);
+        return (P) this;
+    }
+
+    public List<KeyValuePair> getQueryPairs() {
+        return queryPairs;
+    }
+
+    @Override
+    public final String getUrl() {
+        return getHttpUrl().toString();
+    }
+
     @Override
     public final String getSimpleUrl() {
         return mUrl;
+    }
+
+    @Override
+    public HttpUrl getHttpUrl() {
+        return BuildUtil.getHttpUrl(mUrl, queryPairs);
     }
 
     @Override
