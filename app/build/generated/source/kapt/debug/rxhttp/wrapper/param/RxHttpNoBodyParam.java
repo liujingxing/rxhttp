@@ -3,6 +3,7 @@ package rxhttp.wrapper.param;
 import java.util.List;
 import java.util.Map;
 
+import rxhttp.wrapper.annotations.NonNull;
 import rxhttp.wrapper.param.NoBodyParam;
 
 /**
@@ -36,6 +37,11 @@ public class RxHttpNoBodyParam extends RxHttp<NoBodyParam, RxHttpNoBodyParam> {
 
     public RxHttpNoBodyParam addEncoded(String key, Object value) {
         param.addEncoded(key, value);
+        return this;
+    }
+    
+    public RxHttpNoBodyParam addAllEncoded(@NonNull Map<String, ?> map) {
+        param.addAllEncoded(map);
         return this;
     }
 
