@@ -21,8 +21,6 @@ public interface IParam<P extends Param<P>> {
 
     default P addAll(@NonNull Map<String, ?> map) {
         for (Entry<String, ?> entry : map.entrySet()) {
-            Object value = entry.getValue();
-            if (value == null) continue;
             add(entry.getKey(), entry.getValue());
         }
         return (P) this;

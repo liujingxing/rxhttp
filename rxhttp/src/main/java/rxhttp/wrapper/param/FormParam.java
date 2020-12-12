@@ -41,20 +41,19 @@ public class FormParam extends AbstractBodyParam<FormParam> implements IPart<For
     }
 
     @Override
-    public FormParam add(String key, Object value) {
+    public FormParam add(String key, @Nullable Object value) {
         if (value == null) value = "";
         return add(new KeyValuePair(key, value));
     }
 
-    public FormParam addEncoded(String key, Object value) {
+    public FormParam addEncoded(String key, @Nullable Object value) {
+        if (value == null) value = "";
         return add(new KeyValuePair(key, value, true));
     }
 
     public FormParam addAllEncoded(@NonNull Map<String, ?> map) {
         for (Entry<String, ?> entry : map.entrySet()) {
-            Object value = entry.getValue();
-            if (value == null) continue;
-            addEncoded(entry.getKey(), value);
+            addEncoded(entry.getKey(), entry.getValue());
         }
         return this;
     }

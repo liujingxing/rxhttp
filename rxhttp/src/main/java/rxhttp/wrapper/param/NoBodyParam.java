@@ -44,20 +44,19 @@ public class NoBodyParam extends AbstractParam<NoBodyParam> {
     }
 
     @Override
-    public NoBodyParam add(String key, Object value) {
+    public NoBodyParam add(String key, @Nullable Object value) {
         if (value == null) value = "";
         return add(new KeyValuePair(key, value));
     }
 
-    public NoBodyParam addEncoded(String key, Object value) {
+    public NoBodyParam addEncoded(String key, @Nullable Object value) {
+        if (value == null) value = "";
         return add(new KeyValuePair(key, value, true));
     }
 
     public NoBodyParam addAllEncoded(@NonNull Map<String, ?> map) {
         for (Entry<String, ?> entry : map.entrySet()) {
-            Object value = entry.getValue();
-            if (value == null) continue;
-            addEncoded(entry.getKey(), value);
+            addEncoded(entry.getKey(), entry.getValue());
         }
         return this;
     }
