@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import okhttp3.HttpUrl;
 import okhttp3.RequestBody;
@@ -49,6 +51,15 @@ public class NoBodyParam extends AbstractParam<NoBodyParam> {
 
     public NoBodyParam addEncoded(String key, Object value) {
         return add(new KeyValuePair(key, value, true));
+    }
+
+    public NoBodyParam addAllEncoded(@NonNull Map<String, ?> map) {
+        for (Entry<String, ?> entry : map.entrySet()) {
+            Object value = entry.getValue();
+            if (value == null) continue;
+            addEncoded(entry.getKey(), value);
+        }
+        return this;
     }
 
     public NoBodyParam removeAllBody(String key) {

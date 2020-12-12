@@ -12,6 +12,7 @@ import okhttp3.Headers;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody.Part;
 import okhttp3.RequestBody;
+import rxhttp.wrapper.annotations.NonNull;
 import rxhttp.wrapper.annotations.Nullable;
 import rxhttp.wrapper.entity.UpFile;
 import rxhttp.wrapper.param.FormParam;
@@ -48,6 +49,11 @@ public class RxHttpFormParam extends RxHttpAbstractBodyParam<FormParam, RxHttpFo
     
     public RxHttpFormParam addEncoded(String key, Object value) {
         param.addEncoded(key, value);
+        return this;
+    }
+    
+    public RxHttpFormParam addAllEncoded(@NonNull Map<String, ?> map) {
+        param.addAllEncoded(map);
         return this;
     }
 

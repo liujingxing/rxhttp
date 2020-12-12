@@ -999,6 +999,7 @@ object ClassHelper {
             import java.util.List;
             import java.util.Map;
             
+            import rxhttp.wrapper.annotations.NonNull;
             import rxhttp.wrapper.param.NoBodyParam;
 
             /**
@@ -1032,6 +1033,11 @@ object ClassHelper {
 
                 public RxHttpNoBodyParam addEncoded(String key, Object value) {
                     param.addEncoded(key, value);
+                    return this;
+                }
+                
+                public RxHttpNoBodyParam addAllEncoded(@NonNull Map<String, ?> map) {
+                    param.addAllEncoded(map);
                     return this;
                 }
 
@@ -1083,6 +1089,7 @@ object ClassHelper {
             import okhttp3.MediaType;
             import okhttp3.MultipartBody.Part;
             import okhttp3.RequestBody;
+            import rxhttp.wrapper.annotations.NonNull;
             import rxhttp.wrapper.annotations.Nullable;
             import rxhttp.wrapper.entity.UpFile;
             import rxhttp.wrapper.param.FormParam;
@@ -1119,6 +1126,11 @@ object ClassHelper {
                 
                 public RxHttpFormParam addEncoded(String key, Object value) {
                     param.addEncoded(key, value);
+                    return this;
+                }
+                
+                public RxHttpFormParam addAllEncoded(@NonNull Map<String, ?> map) {
+                    param.addAllEncoded(map);
                     return this;
                 }
 

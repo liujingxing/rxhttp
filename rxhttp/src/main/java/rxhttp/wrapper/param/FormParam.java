@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import okhttp3.MultipartBody.Part;
 import okhttp3.RequestBody;
@@ -46,6 +48,15 @@ public class FormParam extends AbstractBodyParam<FormParam> implements IPart<For
 
     public FormParam addEncoded(String key, Object value) {
         return add(new KeyValuePair(key, value, true));
+    }
+
+    public FormParam addAllEncoded(@NonNull Map<String, ?> map) {
+        for (Entry<String, ?> entry : map.entrySet()) {
+            Object value = entry.getValue();
+            if (value == null) continue;
+            addEncoded(entry.getKey(), value);
+        }
+        return this;
     }
 
     public FormParam removeAllBody(String key) {
