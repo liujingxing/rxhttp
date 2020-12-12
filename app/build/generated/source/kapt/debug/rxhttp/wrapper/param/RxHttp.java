@@ -377,6 +377,11 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
     return (R)this;
   }
 
+  public R setAllHeader(Map<String, String> headers) {
+    param.setAllHeader(headers);
+    return (R)this;
+  }
+
   public R setRangeHeader(long startIndex) {
     return setRangeHeader(startIndex, -1, false);
   }
