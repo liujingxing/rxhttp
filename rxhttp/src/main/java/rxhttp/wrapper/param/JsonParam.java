@@ -7,7 +7,6 @@ import com.google.gson.JsonParser;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import okhttp3.HttpUrl;
 import okhttp3.HttpUrl.Builder;
@@ -61,10 +60,7 @@ public class JsonParam extends AbstractBodyParam<JsonParam> {
     @Override
     public JsonParam addAll(Map<String, ?> map) {
         initMap();
-        for (Entry<String, ?> entry : map.entrySet()) {
-            add(entry.getKey(), entry.getValue());
-        }
-        return this;
+        return super.addAll(map);
     }
 
     public JsonParam addJsonElement(String key, String jsonElement) {
