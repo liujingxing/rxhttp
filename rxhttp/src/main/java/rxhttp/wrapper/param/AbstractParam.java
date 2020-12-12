@@ -142,65 +142,6 @@ public abstract class AbstractParam<P extends Param<P>> implements Param<P> {
     }
 
     @Override
-    public final P addHeader(String key, String value) {
-        getHeadersBuilder().add(key, value);
-        return (P) this;
-    }
-
-    @Override
-    public P addNonAsciiHeader(String key, String value) {
-        getHeadersBuilder().addUnsafeNonAscii(key, value);
-        return (P) this;
-    }
-
-    @Override
-    public P setNonAsciiHeader(String key, String value) {
-        Builder builder = getHeadersBuilder();
-        builder.removeAll(key);
-        builder.addUnsafeNonAscii(key, value);
-        return (P) this;
-    }
-
-    @Override
-    public final P addHeader(String line) {
-        getHeadersBuilder().add(line);
-        return (P) this;
-    }
-
-    @Override
-    public P addAllHeader(Map<String, String> headers) {
-        if (headers != null) {
-            for (Entry<String, String> entry : headers.entrySet()) {
-                addHeader(entry.getKey(), entry.getValue());
-            }
-        }
-        return (P) this;
-    }
-
-    @Override
-    public P addAllHeader(Headers headers) {
-        getHeadersBuilder().addAll(headers);
-        return (P) this;
-    }
-
-    @Override
-    public final P setHeader(String key, String value) {
-        getHeadersBuilder().set(key, value);
-        return (P) this;
-    }
-
-    @Override
-    public final String getHeader(String key) {
-        return getHeadersBuilder().get(key);
-    }
-
-    @Override
-    public final P removeAllHeader(String key) {
-        getHeadersBuilder().removeAll(key);
-        return (P) this;
-    }
-
-    @Override
     public P cacheControl(CacheControl cacheControl) {
         requestBuilder.cacheControl(cacheControl);
         return (P) this;

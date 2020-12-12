@@ -1,39 +1,74 @@
 package rxhttp.wrapper.param;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Map;
+import java.util.Map.Entry;
 
 import okhttp3.Headers;
+import okhttp3.Headers.Builder;
 
 /**
  * User: ljx
  * Date: 2019/1/22
  * Time: 13:58
  */
+@SuppressWarnings("unchecked")
 public interface IHeaders<P extends Param<P>> {
 
     Headers getHeaders();
-
-    String getHeader(String key);
 
     Headers.Builder getHeadersBuilder();
 
     P setHeadersBuilder(Headers.Builder builder);
 
-    P addHeader(String key, String value);
+    default String getHeader(String key) {
+        return getHeadersBuilder().get(key);
+    }
 
-    P addNonAsciiHeader(String key, String value);
+    default P addHeader(String key, String value) {
+        getHeadersBuilder().add(key, value);
+        return (P) this;
+    }
 
-    P setNonAsciiHeader(String key, String value);
+    default P addNonAsciiHeader(String key, String value) {
+        getHeadersBuilder().addUnsafeNonAscii(key, value);
+        return (P) this;
+    }
 
-    P addHeader(String line);
+    default P setNonAsciiHeader(String key, String value) {
+        Builder builder = getHeadersBuilder();
+        builder.removeAll(key);
+        builder.addUnsafeNonAscii(key, value);
+        return (P) this;
+    }
 
-    P addAllHeader(Map<String, String> headers);
+    default P addHeader(String line) {
+        getHeadersBuilder().add(line);
+        return (P) this;
+    }
 
-    P addAllHeader(Headers headers);
+    default P addAllHeader(@NotNull Map<String, String> headers) {
+        for (Entry<String, String> entry : headers.entrySet()) {
+            addHeader(entry.getKey(), entry.getValue());
+        }
+        return (P) this;
+    }
 
-    P setHeader(String key, String value);
+    default P addAllHeader(Headers headers) {
+        getHeadersBuilder().addAll(headers);
+        return (P) this;
+    }
 
-    P removeAllHeader(String key);
+    default P setHeader(String key, String value) {
+        getHeadersBuilder().set(key, value);
+        return (P) this;
+    }
+
+    default P removeAllHeader(String key) {
+        getHeadersBuilder().removeAll(key);
+        return (P) this;
+    }
 
     /**
      * 设置断点下载开始位置，结束位置默认为文件末尾
