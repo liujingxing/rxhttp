@@ -1137,14 +1137,6 @@ object ClassHelper {
                     return this;
                 }
 
-                public Object queryValue(String key) {
-                    return param.queryValue(key);
-                }
-
-                public List<Object> queryValues(String key) {
-                    return param.queryValues(key);
-                }
-
                 /**
                  * @deprecated please user {@link #addFile(String, File)} instead
                  */
