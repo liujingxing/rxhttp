@@ -122,7 +122,7 @@ dependencies {
 
 [开源阅读 3.0](https://github.com/gedoor/legado)
 
-如果你的项目用到了RxHttp，想要在这里展示，请联系我。
+`注：如果你的项目用到了RxHttp，想要在这里展示，请联系我。`
 
 # 小技巧
 
