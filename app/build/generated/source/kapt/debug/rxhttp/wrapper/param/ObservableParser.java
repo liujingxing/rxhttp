@@ -7,16 +7,14 @@ import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.ObservableSource;
 import io.reactivex.rxjava3.core.Observer;
 import io.reactivex.rxjava3.exceptions.Exceptions;
+import io.reactivex.rxjava3.internal.fuseable.SimplePlainQueue;
+import io.reactivex.rxjava3.internal.queue.SpscArrayQueue;
 import io.reactivex.rxjava3.plugins.RxJavaPlugins;
 import io.reactivex.rxjava3.core.Scheduler;
 import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.functions.Consumer;
-import io.reactivex.rxjava3.exceptions.CompositeException;
 import io.reactivex.rxjava3.internal.disposables.DisposableHelper;
-
 import io.reactivex.rxjava3.core.Scheduler.Worker;
-import io.reactivex.rxjava3.internal.fuseable.SimpleQueue;
-import io.reactivex.rxjava3.internal.queue.SpscLinkedArrayQueue;
 
 import okhttp3.Response;
 import rxhttp.wrapper.annotations.NonNull;
@@ -166,7 +164,7 @@ final class ObservableParser<T> extends Observable<T> {
 
         private volatile boolean done;
         private volatile boolean disposed;
-        private final SimpleQueue<Progress> queue;
+        private final SimplePlainQueue<Progress> queue;
         private final Scheduler.Worker worker;
 
         private final Consumer<Progress> progressConsumer;
@@ -176,7 +174,7 @@ final class ObservableParser<T> extends Observable<T> {
             this.parser = parser;
             this.worker = worker;
             this.progressConsumer = progressConsumer;
-            queue = new SpscLinkedArrayQueue<>(128);
+            queue = new SpscArrayQueue<>(2);
 
             if (progressConsumer != null && parser instanceof StreamParser) {
                 ((StreamParser) parser).setProgressCallback(this);
@@ -197,8 +195,7 @@ final class ObservableParser<T> extends Observable<T> {
             if (done) {
                 return;
             }
-            queue.offer(p);
-            schedule();
+            offer(p);
         }
 
         @SuppressWarnings("unchecked")
@@ -207,22 +204,26 @@ final class ObservableParser<T> extends Observable<T> {
             if (done) {
                 return;
             }
-            ProgressT<T> p = null;
+            ProgressT<T> pt = null;
             if (progress instanceof ProgressT) {
                 ProgressT<Response> progressT = (ProgressT<Response>) progress;
                 try {
                     T t = Objects.requireNonNull(parser.onParse(progressT.getResult()), "The onParse function returned a null value.");
-                    p = new ProgressT<>(t);
+                    pt = new ProgressT<>(t);
                 } catch (Throwable t) {
                     LogUtil.log(progressT.getResult().request().url().toString(), t);
                     onError(t);
                     return;
                 }
             }
-            if (p != null) {
+            Progress p = pt != null ? pt : progress;
+            offer(p);
+        }
+        
+        private void offer(Progress p) {
+            if (!queue.offer(p)) {
+                queue.poll();
                 queue.offer(p);
-            } else {
-                queue.offer(progress);
             }
             schedule();
         }
@@ -259,7 +260,7 @@ final class ObservableParser<T> extends Observable<T> {
         public void run() {
             int missed = 1;
 
-            final SimpleQueue<Progress> q = queue;
+            final SimplePlainQueue<Progress> q = queue;
             final Observer<? super T> a = downstream;
             while (!checkTerminated(done, q.isEmpty(), a)) {
                 for (; ; ) {
