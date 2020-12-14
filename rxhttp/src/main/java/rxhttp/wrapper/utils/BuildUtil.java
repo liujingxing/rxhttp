@@ -12,6 +12,7 @@ import okhttp3.MultipartBody.Part;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import rxhttp.wrapper.annotations.NonNull;
+import rxhttp.wrapper.annotations.Nullable;
 import rxhttp.wrapper.entity.KeyValuePair;
 import rxhttp.wrapper.param.IRequest;
 
@@ -78,7 +79,7 @@ public class BuildUtil {
         return builder.build();
     }
 
-    public static HttpUrl getHttpUrl(@NonNull String url, List<KeyValuePair> list) {
+    public static HttpUrl getHttpUrl(@NonNull String url, @Nullable List<KeyValuePair> list) {
         HttpUrl httpUrl = HttpUrl.get(url);
         if (list == null || list.size() == 0) return httpUrl;
         HttpUrl.Builder builder = httpUrl.newBuilder();
