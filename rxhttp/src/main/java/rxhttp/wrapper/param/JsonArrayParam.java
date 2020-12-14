@@ -108,6 +108,7 @@ public class JsonArrayParam extends AbstractBodyParam<JsonArrayParam> {
     }
 
     /**
+     * @return List
      * @deprecated please user {@link #getBodyParam()} instead
      */
     @Deprecated
