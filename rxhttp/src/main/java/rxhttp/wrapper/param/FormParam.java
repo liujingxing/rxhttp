@@ -132,8 +132,15 @@ public class FormParam extends AbstractBodyParam<FormParam> implements IPart<For
 
     @Override
     public String buildCacheKey() {
-        List<KeyValuePair> keyValuePairs = CacheUtil.excludeCacheKey(mKeyValuePairs);
-        return BuildUtil.getHttpUrl(getSimpleUrl(), keyValuePairs).toString();
+        List<KeyValuePair> cachePairs = new ArrayList<>();
+        List<KeyValuePair> queryPairs = getQueryPairs();
+        List<KeyValuePair> bodyPairs = mKeyValuePairs;
+        if (queryPairs != null)
+            cachePairs.addAll(queryPairs);
+        if (bodyPairs != null)
+            cachePairs.addAll(bodyPairs);
+        List<KeyValuePair> pairs = CacheUtil.excludeCacheKey(cachePairs);
+        return BuildUtil.getHttpUrl(getSimpleUrl(), pairs).toString();
     }
 
     @Override

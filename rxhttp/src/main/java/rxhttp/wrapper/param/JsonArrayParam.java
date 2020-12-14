@@ -14,6 +14,8 @@ import okhttp3.HttpUrl;
 import okhttp3.HttpUrl.Builder;
 import okhttp3.RequestBody;
 import rxhttp.wrapper.annotations.Nullable;
+import rxhttp.wrapper.entity.KeyValuePair;
+import rxhttp.wrapper.utils.BuildUtil;
 import rxhttp.wrapper.utils.CacheUtil;
 import rxhttp.wrapper.utils.GsonUtil;
 import rxhttp.wrapper.utils.JsonUtil;
@@ -112,9 +114,10 @@ public class JsonArrayParam extends AbstractBodyParam<JsonArrayParam> {
 
     @Override
     public String buildCacheKey() {
+        List<KeyValuePair> queryPairs = CacheUtil.excludeCacheKey(getQueryPairs());
+        HttpUrl httpUrl = BuildUtil.getHttpUrl(getSimpleUrl(), queryPairs);
         List<Object> list = CacheUtil.excludeCacheKey(mList);
         String json = GsonUtil.toJson(list);
-        HttpUrl httpUrl = HttpUrl.get(getSimpleUrl());
         Builder builder = httpUrl.newBuilder().addQueryParameter("json", json);
         return builder.toString();
     }

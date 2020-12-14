@@ -6,12 +6,15 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import okhttp3.HttpUrl;
 import okhttp3.HttpUrl.Builder;
 import okhttp3.RequestBody;
 import rxhttp.wrapper.annotations.Nullable;
+import rxhttp.wrapper.entity.KeyValuePair;
+import rxhttp.wrapper.utils.BuildUtil;
 import rxhttp.wrapper.utils.CacheUtil;
 import rxhttp.wrapper.utils.GsonUtil;
 import rxhttp.wrapper.utils.JsonUtil;
@@ -75,9 +78,10 @@ public class JsonParam extends AbstractBodyParam<JsonParam> {
 
     @Override
     public String buildCacheKey() {
+        List<KeyValuePair> queryPairs = CacheUtil.excludeCacheKey(getQueryPairs());
+        HttpUrl httpUrl = BuildUtil.getHttpUrl(getSimpleUrl(), queryPairs);
         Map<?, ?> param = CacheUtil.excludeCacheKey(mParam);
         String json = GsonUtil.toJson(param);
-        HttpUrl httpUrl = HttpUrl.get(getSimpleUrl());
         Builder builder = httpUrl.newBuilder().addQueryParameter("json", json);
         return builder.toString();
     }

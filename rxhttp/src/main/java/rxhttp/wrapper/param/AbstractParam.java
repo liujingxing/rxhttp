@@ -97,6 +97,7 @@ public abstract class AbstractParam<P extends Param<P>> implements Param<P> {
         return (P) this;
     }
 
+    @Nullable
     public List<KeyValuePair> getQueryPairs() {
         return queryPairs;
     }
@@ -188,8 +189,8 @@ public abstract class AbstractParam<P extends Param<P>> implements Param<P> {
 
     @NonNull
     public String buildCacheKey() {
-        List<KeyValuePair> keyValuePairs = CacheUtil.excludeCacheKey(getQueryPairs());
-        return BuildUtil.getHttpUrl(getSimpleUrl(), keyValuePairs).toString();
+        List<KeyValuePair> queryPairs = CacheUtil.excludeCacheKey(getQueryPairs());
+        return BuildUtil.getHttpUrl(getSimpleUrl(), queryPairs).toString();
     }
 
     @Override
