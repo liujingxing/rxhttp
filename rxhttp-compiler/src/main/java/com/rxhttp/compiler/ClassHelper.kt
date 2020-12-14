@@ -554,16 +554,14 @@ object ClassHelper {
             import ${getClassPath("ObservableSource")};
             import ${getClassPath("Observer")};
             import ${getClassPath("Exceptions")};
+            import ${getClassPath("SimplePlainQueue")};
+            import ${getClassPath("SpscArrayQueue")};
             import ${getClassPath("RxJavaPlugins")};
             import ${getClassPath("Scheduler")};
             import ${getClassPath("Disposable")};
             import ${getClassPath("Consumer")};
-            import ${getClassPath("CompositeException")};
             import ${getClassPath("DisposableHelper")};
-            
             import ${getClassPath("Scheduler")}.Worker;
-            import ${getClassPath("SimpleQueue")};
-            import ${getClassPath("SpscLinkedArrayQueue")};
             
             import okhttp3.Response;
             import rxhttp.wrapper.annotations.NonNull;
@@ -713,7 +711,7 @@ object ClassHelper {
 
                     private volatile boolean done;
                     private volatile boolean disposed;
-                    private final SimpleQueue<Progress> queue;
+                    private final SimplePlainQueue<Progress> queue;
                     private final Scheduler.Worker worker;
 
                     private final Consumer<Progress> progressConsumer;
@@ -723,7 +721,7 @@ object ClassHelper {
                         this.parser = parser;
                         this.worker = worker;
                         this.progressConsumer = progressConsumer;
-                        queue = new SpscLinkedArrayQueue<>(128);
+                        queue = new SpscArrayQueue<>(2);
 
                         if (progressConsumer != null && parser instanceof StreamParser) {
                             ((StreamParser) parser).setProgressCallback(this);
@@ -744,8 +742,7 @@ object ClassHelper {
                         if (done) {
                             return;
                         }
-                        queue.offer(p);
-                        schedule();
+                        offer(p);
                     }
 
                     @SuppressWarnings("unchecked")
@@ -754,22 +751,26 @@ object ClassHelper {
                         if (done) {
                             return;
                         }
-                        ProgressT<T> p = null;
+                        ProgressT<T> pt = null;
                         if (progress instanceof ProgressT) {
                             ProgressT<Response> progressT = (ProgressT<Response>) progress;
                             try {
                                 T t = Objects.requireNonNull(parser.onParse(progressT.getResult()), "The onParse function returned a null value.");
-                                p = new ProgressT<>(t);
+                                pt = new ProgressT<>(t);
                             } catch (Throwable t) {
                                 LogUtil.log(progressT.getResult().request().url().toString(), t);
                                 onError(t);
                                 return;
                             }
                         }
-                        if (p != null) {
+                        Progress p = pt != null ? pt : progress;
+                        offer(p);
+                    }
+                    
+                    private void offer(Progress p) {
+                        if (!queue.offer(p)) {
+                            queue.poll();
                             queue.offer(p);
-                        } else {
-                            queue.offer(progress);
                         }
                         schedule();
                     }
@@ -806,7 +807,7 @@ object ClassHelper {
                     public void run() {
                         int missed = 1;
 
-                        final SimpleQueue<Progress> q = queue;
+                        final SimplePlainQueue<Progress> q = queue;
                         final Observer<? super T> a = downstream;
                         while (!checkTerminated(done, q.isEmpty(), a)) {
                             for (; ; ) {
