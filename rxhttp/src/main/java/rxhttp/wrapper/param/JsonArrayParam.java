@@ -28,7 +28,7 @@ import rxhttp.wrapper.utils.JsonUtil;
  */
 public class JsonArrayParam extends AbstractBodyParam<JsonArrayParam> {
 
-    private List<Object> mList;
+    private List<Object> bodyParam;
 
     /**
      * @param url    request url
@@ -40,7 +40,7 @@ public class JsonArrayParam extends AbstractBodyParam<JsonArrayParam> {
 
     @Override
     public RequestBody getRequestBody() {
-        final List<?> jsonArray = mList;
+        final List<?> jsonArray = bodyParam;
         if (jsonArray == null)
             return RequestBody.create(null, new byte[0]);
         return convert(jsonArray);
@@ -54,7 +54,7 @@ public class JsonArrayParam extends AbstractBodyParam<JsonArrayParam> {
      */
     public JsonArrayParam add(@Nullable Object object) {
         initList();
-        mList.add(object);
+        bodyParam.add(object);
         return this;
     }
 
@@ -107,30 +107,39 @@ public class JsonArrayParam extends AbstractBodyParam<JsonArrayParam> {
         return add(key, JsonUtil.toAny(element));
     }
 
+    /**
+     * @deprecated please user {@link #getBodyParam()} instead
+     */
+    @Deprecated
     @Nullable
     public List<Object> getList() {
-        return mList;
+        return getBodyParam();
+    }
+
+    @Nullable
+    public List<Object> getBodyParam() {
+        return bodyParam;
     }
 
     @Override
     public String buildCacheKey() {
-        List<KeyValuePair> queryPairs = CacheUtil.excludeCacheKey(getQueryPairs());
+        List<KeyValuePair> queryPairs = CacheUtil.excludeCacheKey(getQueryParam());
         HttpUrl httpUrl = BuildUtil.getHttpUrl(getSimpleUrl(), queryPairs);
-        List<Object> list = CacheUtil.excludeCacheKey(mList);
+        List<Object> list = CacheUtil.excludeCacheKey(bodyParam);
         String json = GsonUtil.toJson(list);
         Builder builder = httpUrl.newBuilder().addQueryParameter("json", json);
         return builder.toString();
     }
 
     private void initList() {
-        if (mList == null) mList = new ArrayList<>();
+        if (bodyParam == null) bodyParam = new ArrayList<>();
     }
 
     @Override
     public String toString() {
         return "JsonArrayParam{" +
-            "url=" + getUrl() +
-            "mList=" + mList +
+            "url = " + getUrl() +
+            "bodyParam = " + bodyParam +
             '}';
     }
 }
