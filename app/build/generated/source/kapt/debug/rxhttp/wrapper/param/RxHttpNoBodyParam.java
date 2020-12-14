@@ -19,39 +19,33 @@ public class RxHttpNoBodyParam extends RxHttp<NoBodyParam, RxHttpNoBodyParam> {
     }
     
     public RxHttpNoBodyParam add(String key, Object value) {
-      param.add(key,value);
-      return this;
+        return addQuery(key, value);
     }
     
     public RxHttpNoBodyParam add(String key, Object value, boolean isAdd) {
-      if(isAdd) {
-        param.add(key,value);
-      }
-      return this;
+        if (isAdd) {
+            addQuery(key, value);
+        }
+        return this;
     }
     
     public RxHttpNoBodyParam addAll(Map<String, ?> map) {
-      param.addAll(map);
-      return this;
+        return addAllQuery(map);
     }
 
     public RxHttpNoBodyParam addEncoded(String key, Object value) {
-        param.addEncoded(key, value);
-        return this;
+        return addEncodedQuery(key, value);
     }
     
     public RxHttpNoBodyParam addAllEncoded(@NonNull Map<String, ?> map) {
-        param.addAllEncoded(map);
-        return this;
+        return addAllEncodedQuery(map);
     }
 
     public RxHttpNoBodyParam set(String key, Object value) {
-        param.set(key, value);
-        return this;
+        return setQuery(key, value);
     }
 
     public RxHttpNoBodyParam setEncoded(String key, Object value) {
-        param.setEncoded(key, value);
-        return this;
+        return setEncodedQuery(key, value); 
     }
 }
