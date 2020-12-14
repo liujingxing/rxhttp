@@ -199,7 +199,7 @@ class RxHttpGenerator {
                     
                     if (param.getCacheMode() != CacheMode.ONLY_NETWORK) {                      
                       if (builder == null) builder = okHttpClient.newBuilder();              
-                      builder.addInterceptor(new ${'$'}T(param.getCacheStrategy()));
+                      builder.addInterceptor(new ${'$'}T(getCacheStrategy()));
                     }
                                                                                             
                     realOkClient = builder != null ? builder.build() : okHttpClient;
