@@ -123,6 +123,7 @@ public class FormParam extends AbstractBodyParam<FormParam> implements IPart<For
     }
 
     /**
+     * @return List
      * @deprecated please user {@link #getBodyParam()} instead
      */
     @Deprecated

@@ -72,6 +72,7 @@ public class JsonParam extends AbstractBodyParam<JsonParam> {
     }
 
     /**
+     * @return Map
      * @deprecated please user {@link #getBodyParam()} instead
      */
     @Deprecated

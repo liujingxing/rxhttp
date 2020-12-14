@@ -51,6 +51,7 @@ public class NoBodyParam extends AbstractParam<NoBodyParam> {
     }
 
     /**
+     * @return List
      * @deprecated please user {@link #getQueryParam()} instead
      */
     @Deprecated
