@@ -1,7 +1,6 @@
 package rxhttp.wrapper.param;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -85,29 +84,6 @@ public class FormParam extends AbstractBodyParam<FormParam> implements IPart<For
     public FormParam setEncoded(String key, Object value) {
         removeAllBody(key);
         return addEncoded(key, value);
-    }
-
-    @Nullable
-    public Object queryValue(String key) {
-        final List<KeyValuePair> keyValuePairs = mKeyValuePairs;
-        if (keyValuePairs == null) return this;
-        for (KeyValuePair pair : keyValuePairs) {
-            if (pair.equals(key))
-                return pair.getValue();
-        }
-        return null;
-    }
-
-    @NonNull
-    public List<Object> queryValues(String key) {
-        final List<KeyValuePair> keyValuePairs = mKeyValuePairs;
-        if (keyValuePairs == null) return Collections.emptyList();
-        List<Object> values = new ArrayList<>();
-        for (KeyValuePair pair : keyValuePairs) {
-            if (pair.equals(key))
-                values.add(pair.getValue());
-        }
-        return Collections.unmodifiableList(values);
     }
 
     private FormParam add(KeyValuePair keyValuePair) {
