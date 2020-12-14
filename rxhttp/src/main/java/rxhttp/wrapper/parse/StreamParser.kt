@@ -22,7 +22,7 @@ import java.io.OutputStream
  */
 class StreamParser<T> @JvmOverloads constructor(
     private val osFactory: OutputStreamFactory<T>,
-    var progressCallback: ProgressCallback? = null
+    var progressCallback: ProgressCallback? = null,
 ) : Parser<T> {
 
     companion object {
@@ -55,21 +55,40 @@ class StreamParser<T> @JvmOverloads constructor(
 private fun Response.writeTo(
     body: ResponseBody,
     os: OutputStream,
-    callback: ProgressCallback
+    callback: ProgressCallback,
 ) {
     val offsetSize = OkHttpCompat.getDownloadOffSize(this)?.offSize ?: 0
-    val contentLength = OkHttpCompat.getContentLength(this) + offsetSize
+    var contentLength = OkHttpCompat.getContentLength(this)
+    if (contentLength != -1L) contentLength += offsetSize
 
     var lastProgress = 0
+    var lastSize = 0L
+    var lastRefreshTime = 0L
 
     IOUtil.write(body.byteStream(), os) {
         val currentSize = it + offsetSize
-        //当前进度 = 当前已读取的字节 / 总字节
-        val currentProgress = ((currentSize * 100 / contentLength)).toInt()
-        if (currentProgress > lastProgress) {
-            lastProgress = currentProgress
-            val progress = Progress(currentProgress, currentSize, contentLength)
-            callback.onProgress(progress)
+        lastSize = currentSize
+        if (contentLength == -1L) {
+            //响应头里取不到contentLength，仅回调已下载字节数
+            val curTime = System.currentTimeMillis()
+            if (curTime - lastRefreshTime > 500) {
+                val progress = Progress(0, currentSize, contentLength)
+                callback.onProgress(progress)
+                lastRefreshTime = curTime
+            }
+        } else {
+            //当前进度 = 当前已读取的字节 * 100 / 总字节
+            val currentProgress = ((currentSize * 100 / contentLength)).toInt()
+            if (currentProgress > lastProgress) {
+                lastProgress = currentProgress
+                val progress = Progress(currentProgress, currentSize, contentLength)
+                callback.onProgress(progress)
+            }
         }
+    }
+    if (contentLength == -1L) {
+        //响应头里取不到contentLength时，保证下载完成事件能回调
+        val progress = Progress(100, lastSize, contentLength)
+        callback.onProgress(progress)
     }
 }

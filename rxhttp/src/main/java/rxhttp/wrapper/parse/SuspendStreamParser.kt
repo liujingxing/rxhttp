@@ -66,21 +66,46 @@ private suspend fun <T> Response.writeTo(
     progress: suspend (ProgressT<T>) -> Unit
 ) {
     val offsetSize = OkHttpCompat.getDownloadOffSize(this)?.offSize ?: 0
-    val contentLength = OkHttpCompat.getContentLength(this) + offsetSize
+    var contentLength = OkHttpCompat.getContentLength(this)
+    if (contentLength != -1L) contentLength += offsetSize
 
     var lastProgress = 0
+    var lastSize = 0L
+    var lastRefreshTime = 0L
 
     IOUtil.suspendWrite(body.byteStream(), osWrapper.os) {
         val currentSize = it + offsetSize
-        //当前进度 = 当前已读取的字节 / 总字节
-        val currentProgress = ((currentSize * 100 / contentLength)).toInt()
-        if (currentProgress > lastProgress) {
-            lastProgress = currentProgress
-            val p = ProgressT<T>(currentProgress, currentSize, contentLength)
-            if (currentProgress == 100) p.result = osWrapper.result
-            context?.apply {
-                withContext(this) { progress(p) }
-            } ?: progress(p)
+        lastSize = currentSize
+        if (contentLength == -1L) {
+            //响应头里取不到contentLength，仅回调已下载字节数
+            val curTime = System.currentTimeMillis()
+            if (curTime - lastRefreshTime > 500) {
+                val p = ProgressT<T>(0, currentSize, contentLength)
+                context?.apply {
+                    withContext(this) { progress(p) }
+                } ?: progress(p)
+                lastRefreshTime = curTime
+            }
+        } else {
+            //当前进度 = 当前已读取的字节 * 100 / 总字节
+            val currentProgress = ((currentSize * 100 / contentLength)).toInt()
+            if (currentProgress > lastProgress) {
+                lastProgress = currentProgress
+                val p = ProgressT<T>(currentProgress, currentSize, contentLength)
+                if (currentProgress == 100) p.result = osWrapper.result
+                context?.apply {
+                    withContext(this) { progress(p) }
+                } ?: progress(p)
+            }
         }
+    }
+
+    if (contentLength == -1L) {
+        //响应头里取不到contentLength时，保证下载完成事件能回调
+        val p = ProgressT<T>(100, lastSize, contentLength)
+        p.result = osWrapper.result
+        context?.apply {
+            withContext(this) { progress(p) }
+        } ?: progress(p)
     }
 }
