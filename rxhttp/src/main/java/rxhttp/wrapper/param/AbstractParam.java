@@ -5,8 +5,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Objects;
 
 import okhttp3.CacheControl;
@@ -23,6 +21,7 @@ import rxhttp.wrapper.cahce.CacheStrategy;
 import rxhttp.wrapper.callback.IConverter;
 import rxhttp.wrapper.entity.KeyValuePair;
 import rxhttp.wrapper.utils.BuildUtil;
+import rxhttp.wrapper.utils.CacheUtil;
 import rxhttp.wrapper.utils.LogUtil;
 
 /**
@@ -170,13 +169,14 @@ public abstract class AbstractParam<P extends Param<P>> implements Param<P> {
 
     @Override
     public final CacheStrategy getCacheStrategy() {
-        String cacheKey = getCacheKey();
-        mCacheStrategy.setCacheKey(cacheKey);
+        if (getCacheKey() == null) {
+            setCacheKey(buildCacheKey());
+        }
         return mCacheStrategy;
     }
 
     @Override
-    public String getCacheKey() {
+    public final String getCacheKey() {
         return mCacheStrategy.getCacheKey();
     }
 
@@ -184,6 +184,12 @@ public abstract class AbstractParam<P extends Param<P>> implements Param<P> {
     public final P setCacheKey(String cacheKey) {
         mCacheStrategy.setCacheKey(cacheKey);
         return (P) this;
+    }
+
+    @NonNull
+    public String buildCacheKey() {
+        List<KeyValuePair> keyValuePairs = CacheUtil.excludeCacheKey(getQueryPairs());
+        return BuildUtil.getHttpUrl(getSimpleUrl(), keyValuePairs).toString();
     }
 
     @Override

@@ -7,8 +7,6 @@ import okhttp3.RequestBody;
 import rxhttp.wrapper.annotations.NonNull;
 import rxhttp.wrapper.annotations.Nullable;
 import rxhttp.wrapper.entity.KeyValuePair;
-import rxhttp.wrapper.utils.BuildUtil;
-import rxhttp.wrapper.utils.CacheUtil;
 
 /**
  * Get、Head没有body的请求调用此类
@@ -50,14 +48,6 @@ public class NoBodyParam extends AbstractParam<NoBodyParam> {
     @Override
     public final RequestBody getRequestBody() {
         return null;
-    }
-
-    @Override
-    public String getCacheKey() {
-        String cacheKey = super.getCacheKey();
-        if (cacheKey != null) return cacheKey;
-        List<KeyValuePair> keyValuePairs = CacheUtil.excludeCacheKey(getQueryPairs());
-        return BuildUtil.getHttpUrl(getSimpleUrl(), keyValuePairs).toString();
     }
 
     /**

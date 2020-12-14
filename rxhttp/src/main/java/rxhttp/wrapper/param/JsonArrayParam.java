@@ -111,9 +111,7 @@ public class JsonArrayParam extends AbstractBodyParam<JsonArrayParam> {
     }
 
     @Override
-    public String getCacheKey() {
-        String cacheKey = super.getCacheKey();
-        if (cacheKey != null) return cacheKey;
+    public String buildCacheKey() {
         List<Object> list = CacheUtil.excludeCacheKey(mList);
         String json = GsonUtil.toJson(list);
         HttpUrl httpUrl = HttpUrl.get(getSimpleUrl());
