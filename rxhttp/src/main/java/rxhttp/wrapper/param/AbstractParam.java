@@ -33,28 +33,27 @@ import rxhttp.wrapper.utils.LogUtil;
 @SuppressWarnings("unchecked")
 public abstract class AbstractParam<P extends Param<P>> implements Param<P> {
 
-    private String mUrl;    //链接地址
-    private Builder mHBuilder; //请求头构造器
-    private final Method mMethod;  //请求方法
-    private final CacheStrategy mCacheStrategy;
-    private final Request.Builder requestBuilder = new Request.Builder(); //请求构造器
+    private String url;    //链接地址
+    private Builder HBuilder; //请求头构造器
+    private final Method method;  //请求方法
+    private final CacheStrategy cacheStrategy;  //缓存策略
     private List<KeyValuePair> queryParam; //查询参数，拼接在Url后面
+    private final Request.Builder requestBuilder = new Request.Builder(); //请求构造器
 
-    private boolean mIsAssemblyEnabled = true;//是否添加公共参数
-
+    private boolean isAssemblyEnabled = true;//是否添加公共参数
 
     /**
      * @param url    请求路径
      * @param method Method#GET  Method#HEAD  Method#POST  Method#PUT  Method#DELETE  Method#PATCH
      */
     public AbstractParam(@NonNull String url, Method method) {
-        this.mUrl = url;
-        this.mMethod = method;
-        mCacheStrategy = RxHttpPlugins.getCacheStrategy();
+        this.url = url;
+        this.method = method;
+        cacheStrategy = RxHttpPlugins.getCacheStrategy();
     }
 
     public P setUrl(@NonNull String url) {
-        mUrl = url;
+        this.url = url;
         return (P) this;
     }
 
@@ -109,35 +108,35 @@ public abstract class AbstractParam<P extends Param<P>> implements Param<P> {
 
     @Override
     public final String getSimpleUrl() {
-        return mUrl;
+        return url;
     }
 
     @Override
     public HttpUrl getHttpUrl() {
-        return BuildUtil.getHttpUrl(mUrl, queryParam);
+        return BuildUtil.getHttpUrl(url, queryParam);
     }
 
     @Override
     public Method getMethod() {
-        return mMethod;
+        return method;
     }
 
     @Nullable
     @Override
     public final Headers getHeaders() {
-        return mHBuilder == null ? null : mHBuilder.build();
+        return HBuilder == null ? null : HBuilder.build();
     }
 
     @Override
     public final Builder getHeadersBuilder() {
-        if (mHBuilder == null)
-            mHBuilder = new Builder();
-        return mHBuilder;
+        if (HBuilder == null)
+            HBuilder = new Builder();
+        return HBuilder;
     }
 
     @Override
     public P setHeadersBuilder(Builder builder) {
-        mHBuilder = builder;
+        HBuilder = builder;
         return (P) this;
     }
 
@@ -155,13 +154,13 @@ public abstract class AbstractParam<P extends Param<P>> implements Param<P> {
 
     @Override
     public final P setAssemblyEnabled(boolean enabled) {
-        mIsAssemblyEnabled = enabled;
+        isAssemblyEnabled = enabled;
         return (P) this;
     }
 
     @Override
     public final boolean isAssemblyEnabled() {
-        return mIsAssemblyEnabled;
+        return isAssemblyEnabled;
     }
 
     public Request.Builder getRequestBuilder() {
@@ -173,17 +172,17 @@ public abstract class AbstractParam<P extends Param<P>> implements Param<P> {
         if (getCacheKey() == null) {
             setCacheKey(buildCacheKey());
         }
-        return mCacheStrategy;
+        return cacheStrategy;
     }
 
     @Override
     public final String getCacheKey() {
-        return mCacheStrategy.getCacheKey();
+        return cacheStrategy.getCacheKey();
     }
 
     @Override
     public final P setCacheKey(String cacheKey) {
-        mCacheStrategy.setCacheKey(cacheKey);
+        cacheStrategy.setCacheKey(cacheKey);
         return (P) this;
     }
 
@@ -195,23 +194,23 @@ public abstract class AbstractParam<P extends Param<P>> implements Param<P> {
 
     @Override
     public final long getCacheValidTime() {
-        return mCacheStrategy.getCacheValidTime();
+        return cacheStrategy.getCacheValidTime();
     }
 
     @Override
     public final P setCacheValidTime(long cacheTime) {
-        mCacheStrategy.setCacheValidTime(cacheTime);
+        cacheStrategy.setCacheValidTime(cacheTime);
         return (P) this;
     }
 
     @Override
     public final CacheMode getCacheMode() {
-        return mCacheStrategy.getCacheMode();
+        return cacheStrategy.getCacheMode();
     }
 
     @Override
     public final P setCacheMode(CacheMode cacheMode) {
-        mCacheStrategy.setCacheMode(cacheMode);
+        cacheStrategy.setCacheMode(cacheMode);
         return (P) this;
     }
 
