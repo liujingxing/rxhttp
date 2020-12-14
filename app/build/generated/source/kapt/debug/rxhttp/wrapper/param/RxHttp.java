@@ -157,7 +157,7 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
 
     if (param.getCacheMode() != CacheMode.ONLY_NETWORK) {                      
       if (builder == null) builder = okHttpClient.newBuilder();              
-      builder.addInterceptor(new CacheInterceptor(param.getCacheStrategy()));
+      builder.addInterceptor(new CacheInterceptor(getCacheStrategy()));
     }
                                                                             
     realOkClient = builder != null ? builder.build() : okHttpClient;
