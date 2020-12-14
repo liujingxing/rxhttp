@@ -38,7 +38,7 @@ public abstract class AbstractParam<P extends Param<P>> implements Param<P> {
     private final Method mMethod;  //请求方法
     private final CacheStrategy mCacheStrategy;
     private final Request.Builder requestBuilder = new Request.Builder(); //请求构造器
-    private List<KeyValuePair> queryPairs; //查询参数，拼接在Url后面
+    private List<KeyValuePair> queryParam; //查询参数，拼接在Url后面
 
     private boolean mIsAssemblyEnabled = true;//是否添加公共参数
 
@@ -72,14 +72,14 @@ public abstract class AbstractParam<P extends Param<P>> implements Param<P> {
 
     @Override
     public P removeAllQuery() {
-        final List<KeyValuePair> pairs = queryPairs;
+        final List<KeyValuePair> pairs = queryParam;
         if (pairs != null) pairs.clear();
         return (P) this;
     }
 
     @Override
     public P removeAllQuery(String key) {
-        final List<KeyValuePair> pairs = queryPairs;
+        final List<KeyValuePair> pairs = queryParam;
         if (pairs != null) {
             Iterator<KeyValuePair> iterator = pairs.iterator();
             while (iterator.hasNext()) {
@@ -92,14 +92,14 @@ public abstract class AbstractParam<P extends Param<P>> implements Param<P> {
     }
 
     private P addQuery(KeyValuePair keyValuePair) {
-        if (queryPairs == null) queryPairs = new ArrayList<>();
-        queryPairs.add(keyValuePair);
+        if (queryParam == null) queryParam = new ArrayList<>();
+        queryParam.add(keyValuePair);
         return (P) this;
     }
 
     @Nullable
-    public List<KeyValuePair> getQueryPairs() {
-        return queryPairs;
+    public List<KeyValuePair> getQueryParam() {
+        return queryParam;
     }
 
     @Override
@@ -114,7 +114,7 @@ public abstract class AbstractParam<P extends Param<P>> implements Param<P> {
 
     @Override
     public HttpUrl getHttpUrl() {
-        return BuildUtil.getHttpUrl(mUrl, queryPairs);
+        return BuildUtil.getHttpUrl(mUrl, queryParam);
     }
 
     @Override
@@ -189,7 +189,7 @@ public abstract class AbstractParam<P extends Param<P>> implements Param<P> {
 
     @NonNull
     public String buildCacheKey() {
-        List<KeyValuePair> queryPairs = CacheUtil.excludeCacheKey(getQueryPairs());
+        List<KeyValuePair> queryPairs = CacheUtil.excludeCacheKey(getQueryParam());
         return BuildUtil.getHttpUrl(getSimpleUrl(), queryPairs).toString();
     }
 

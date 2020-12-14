@@ -51,11 +51,11 @@ public class NoBodyParam extends AbstractParam<NoBodyParam> {
     }
 
     /**
-     * @deprecated please user {@link #getQueryPairs()} instead
+     * @deprecated please user {@link #getQueryParam()} instead
      */
     @Deprecated
     public List<KeyValuePair> getKeyValuePairs() {
-        return getQueryPairs();
+        return getQueryParam();
     }
 
     @Override

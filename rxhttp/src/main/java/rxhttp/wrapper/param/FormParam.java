@@ -29,7 +29,7 @@ public class FormParam extends AbstractBodyParam<FormParam> implements IPart<For
     private boolean isMultiForm;
 
     private List<Part> mPartList;  //Part List
-    private List<KeyValuePair> mKeyValuePairs; //Param list
+    private List<KeyValuePair> bodyParam; //Param list
 
     /**
      * @param url    request url
@@ -58,9 +58,9 @@ public class FormParam extends AbstractBodyParam<FormParam> implements IPart<For
     }
 
     public FormParam removeAllBody(String key) {
-        final List<KeyValuePair> keyValuePairs = mKeyValuePairs;
-        if (keyValuePairs == null) return this;
-        Iterator<KeyValuePair> iterator = keyValuePairs.iterator();
+        final List<KeyValuePair> bodyParam = this.bodyParam;
+        if (bodyParam == null) return this;
+        Iterator<KeyValuePair> iterator = bodyParam.iterator();
         while (iterator.hasNext()) {
             KeyValuePair next = iterator.next();
             if (next.equals(key))
@@ -70,9 +70,9 @@ public class FormParam extends AbstractBodyParam<FormParam> implements IPart<For
     }
 
     public FormParam removeAllBody() {
-        final List<KeyValuePair> keyValuePairs = mKeyValuePairs;
-        if (keyValuePairs != null)
-            keyValuePairs.clear();
+        final List<KeyValuePair> bodyParam = this.bodyParam;
+        if (bodyParam != null)
+            bodyParam.clear();
         return this;
     }
 
@@ -87,11 +87,11 @@ public class FormParam extends AbstractBodyParam<FormParam> implements IPart<For
     }
 
     private FormParam add(KeyValuePair keyValuePair) {
-        List<KeyValuePair> keyValuePairs = mKeyValuePairs;
-        if (keyValuePairs == null) {
-            keyValuePairs = mKeyValuePairs = new ArrayList<>();
+        List<KeyValuePair> bodyParam = this.bodyParam;
+        if (bodyParam == null) {
+            bodyParam = this.bodyParam = new ArrayList<>();
         }
-        keyValuePairs.add(keyValuePair);
+        bodyParam.add(keyValuePair);
         return this;
     }
 
@@ -114,16 +114,24 @@ public class FormParam extends AbstractBodyParam<FormParam> implements IPart<For
 
     @Override
     public RequestBody getRequestBody() {
-        return isMultiForm() ? BuildUtil.buildFormRequestBody(mKeyValuePairs, mPartList)
-            : BuildUtil.buildFormRequestBody(mKeyValuePairs);
+        return isMultiForm() ? BuildUtil.buildFormRequestBody(bodyParam, mPartList)
+            : BuildUtil.buildFormRequestBody(bodyParam);
     }
 
     public List<Part> getPartList() {
         return mPartList;
     }
 
+    /**
+     * @deprecated please user {@link #getBodyParam()} instead
+     */
+    @Deprecated
     public List<KeyValuePair> getKeyValuePairs() {
-        return mKeyValuePairs;
+        return getBodyParam();
+    }
+
+    public List<KeyValuePair> getBodyParam() {
+        return bodyParam;
     }
 
     public boolean isMultiForm() {
@@ -133,8 +141,8 @@ public class FormParam extends AbstractBodyParam<FormParam> implements IPart<For
     @Override
     public String buildCacheKey() {
         List<KeyValuePair> cachePairs = new ArrayList<>();
-        List<KeyValuePair> queryPairs = getQueryPairs();
-        List<KeyValuePair> bodyPairs = mKeyValuePairs;
+        List<KeyValuePair> queryPairs = getQueryParam();
+        List<KeyValuePair> bodyPairs = bodyParam;
         if (queryPairs != null)
             cachePairs.addAll(queryPairs);
         if (bodyPairs != null)
@@ -145,6 +153,6 @@ public class FormParam extends AbstractBodyParam<FormParam> implements IPart<For
 
     @Override
     public String toString() {
-        return BuildUtil.getHttpUrl(getSimpleUrl(), mKeyValuePairs).toString();
+        return BuildUtil.getHttpUrl(getSimpleUrl(), bodyParam).toString();
     }
 }
