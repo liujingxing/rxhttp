@@ -60,6 +60,10 @@ public class NoBodyParam extends AbstractParam<NoBodyParam> {
         return BuildUtil.getHttpUrl(getSimpleUrl(), keyValuePairs).toString();
     }
 
+    /**
+     * @deprecated please user {@link #getQueryPairs()} instead
+     */
+    @Deprecated
     public List<KeyValuePair> getKeyValuePairs() {
         return getQueryPairs();
     }
