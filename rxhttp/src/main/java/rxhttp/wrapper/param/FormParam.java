@@ -131,9 +131,7 @@ public class FormParam extends AbstractBodyParam<FormParam> implements IPart<For
     }
 
     @Override
-    public String getCacheKey() {
-        String cacheKey = super.getCacheKey();
-        if (cacheKey != null) return cacheKey;
+    public String buildCacheKey() {
         List<KeyValuePair> keyValuePairs = CacheUtil.excludeCacheKey(mKeyValuePairs);
         return BuildUtil.getHttpUrl(getSimpleUrl(), keyValuePairs).toString();
     }
