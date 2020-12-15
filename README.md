@@ -127,7 +127,7 @@ val student = RxHttp
 
 更多可查看请求时序图
 
-![image](https://github.com/liujingxing/okhttp-RxHttp/blob/master/screen/rxhttp_trilogy.jpg)
+![image](https://github.com/liujingxing/okhttp-RxHttp/blob/master/screen/rxhttp_sequence_chart.jpg)
 
 ## 3、Advanced usage
 
@@ -170,30 +170,12 @@ disposable.dispose(); //在合适的时机关闭请求
 
 ## 4、ProGuard
 
-`RxHttp v2.2.8`版本起，无需添加混淆规则(内部自带混淆规则)，v2.2.8以下版本，在proguard-rules.pro文件添加以下代码
-
-```bash
-# okhttp 4.7.0及以上版本混淆规则
--keepclassmembers class okhttp3.internal.Util {
-    public static java.lang.String userAgent;
-}
-
-# okhttp 4.7.0以下版本混淆规则
--keepclassmembers class okhttp3.internal.Version{
-    # 4.0.0<=version<4.7.0
-    public static java.lang.String userAgent;
-    # version<4.0.0
-    public static java.lang.String userAgent();
-}
-# okhttp 4.0.0以下版本混淆规则
--keepclassmembers class okhttp3.internal.http.StatusLine{
-    public static okhttp3.internal.http.StatusLine parse(java.lang.String);
-}
-```
+If you are using RxHttp v2.2.8 or above the shrinking and obfuscation rules are included automatically.
+Otherwise you must manually add the options in [rxhttp.pro](https://github.com/liujingxing/okhttp-RxHttp/blob/master/rxhttp/src/main/resources/META-INF/proguard/rxhttp.pro).
 
 ## 5、Donations
 
-如果它对你帮助很大，并且你很想支持库的后续开发和维护，那么你可以扫下方二维码随意打赏我，就当是请我喝杯咖啡或是啤酒，开源不易，感激不尽
+If this project helps you a lot and you want to support the project's development and maintenance of this project, feel free to scan the following QR code for donation. Your donation is highly appreciated. Thank you!
 
 ![image](https://github.com/liujingxing/RxHttp/blob/master/screen/rxhttp_donate.png)
 
