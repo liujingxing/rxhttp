@@ -38,7 +38,6 @@ wiki详细文档：https://github.com/liujingxing/okhttp-RxHttp/wiki  (此文档
 自动关闭请求用到的RxLife类，详情请查看[RxLife库](https://github.com/liujingxing/RxLife)
 
 [更新日志](https://github.com/liujingxing/okhttp-RxHttp/wiki/%E6%9B%B4%E6%96%B0%E6%97%A5%E5%BF%97) &nbsp;&nbsp;&nbsp;&nbsp;
-[已知问题](https://github.com/liujingxing/okhttp-RxHttp/wiki/%E5%B7%B2%E7%9F%A5%E9%97%AE%E9%A2%98) &nbsp;&nbsp;&nbsp;&nbsp;
 
 [遇到问题，点击这里，99%的问题都能自己解决](https://github.com/liujingxing/okhttp-RxHttp/wiki/FAQ)
 
@@ -123,17 +122,6 @@ dependencies {
 [开源阅读 3.0](https://github.com/gedoor/legado)
 
 `注：如果你的项目用到了RxHttp，想要在这里展示，请联系我。`
-
-# 小技巧
-
-在这教大家一个小技巧，由于使用RxHttp发送请求都遵循请求三部曲，故我们可以在android studio 设置代码模版,如下
-
-![image](https://github.com/liujingxing/RxHttp/blob/master/screen/templates.png)
-
-如图设置好后，写代码时，输入rp,就会自动生成模版，如下：
-
-![image](https://github.com/liujingxing/RxHttp/blob/master/screen/templates_demo.gif)
-
 
 # Demo演示
 <img src="https://github.com/liujingxing/RxHttp/blob/master/screen/screenrecorder-2019-11-27_22_56_26.gif" width = "240" height = "520" />
