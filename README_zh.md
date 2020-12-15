@@ -1,6 +1,10 @@
+# RxHttp
+
+[English](https://github.com/liujingxing/okhttp-RxHttp/blob/master/README.md) | 中文文档
+
 [ ![Download](https://api.bintray.com/packages/32774707/maven/rxhttp2/images/download.svg) ](https://bintray.com/32774707/maven/rxhttp2/_latestVersion)
 
-# RxHttp主要优势
+# 主要优势
 
   ***1. 30秒即可上手，学习成本极低***
 
