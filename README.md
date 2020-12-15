@@ -106,6 +106,8 @@ public class Url {
 ```java
 // java
 RxHttp.get("/service/...")   //1、You can choose get/postFrom/postJson and so on
+    .addQuery("key", "value")  // add query param
+    .addHeader("headerKey", "headerValue")  //add request header
     .asClass(Student.class)  //2、Use the asXxx method to determine the return value type, customizable
     .subscribe(student -> {  //3、Subscribing observer
         //成功回调，在子线程工作
@@ -114,19 +116,21 @@ RxHttp.get("/service/...")   //1、You can choose get/postFrom/postJson and so o
     });
 
 // kotlin 
-RxHttp.get("/service/...")   //1、You can choose get/postFrom/postJson and so on
-    .asClass<Student>()      //2、Use the asXxx method to determine the return value type, customizable
-    .subscribe({ student ->  //3、Subscribing observer
+RxHttp.postFrom("/service/...")   //1、You can choose get/postFrom/postJson and so on
+    .add("key", "value")                 //add param to body
+    .addQuery("key1", "value1")          //add query param
+    .addFile("file", File(".../1.png"))  //add file to body
+    .asClass<Student>()           //2、Use the asXxx method to determine the return value type, customizable
+    .subscribe({ student ->       //3、Subscribing observer
 
     }, { throwable ->
 
     })
 
 // kotlin coroutine
-val student = RxHttp
-    .get("/service/...")     //1、You can choose get/postFrom/postJson and so on
-    .toClass<Student>()      //2、Use the toXxx method to determine the return value type, customizable
-    .await()                 //3、Get the return value, await is the suspend method
+val student = RxHttp.get("/service/...")  //1、You can choose get/postFrom/postJson and so on
+    .toClass<Student>()                   //2、Use the toXxx method to determine the return value type, customizable
+    .await()                              //3、Get the return value, await is the suspend method
 ```
 
 See the request timing diagram for more
