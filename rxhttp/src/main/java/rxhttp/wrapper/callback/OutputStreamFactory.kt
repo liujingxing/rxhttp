@@ -9,6 +9,7 @@ import rxhttp.wrapper.entity.toWrapper
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.net.URLDecoder
 
 /**
  * User: ljx
@@ -78,13 +79,29 @@ private fun String.replaceSuffix(response: Response): String {
     }
 }
 
+/**
+ * find filename form Content-Disposition response headers
+ * For example:
+ * Content-Disposition: attachment; filename="rxhttp.apk"
+ * Content-Disposition: attachment;filename*=UTF-8'zh_cn'%E6%B5%8B%E8%AF%95.apk
+ */
 private fun Response.findFilename(): String? {
     val header = header("Content-Disposition") ?: return null
     header.split(";").forEach {
         val keyValuePair = it.split("=")
-        if (keyValuePair.size > 1 && keyValuePair[0] == " filename") {
-            val filename = keyValuePair[1]
-            return filename.substring(1, filename.length - 1)
+        if (keyValuePair.size > 1) {
+            return when (keyValuePair[0].trim()) {
+                "filename" -> keyValuePair[1].run { substring(1, length - 1) }
+                "filename*" -> {
+                    keyValuePair[1].run {
+                        val firstIndex = indexOf("'")
+                        val lastIndex = lastIndexOf("'")
+                        if (firstIndex == -1 || lastIndex == -1 || firstIndex >= lastIndex) return null
+                        URLDecoder.decode(substring(lastIndex + 1), substring(0, firstIndex))
+                    }
+                }
+                else -> null
+            }
         }
     }
     return null
