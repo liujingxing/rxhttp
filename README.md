@@ -127,7 +127,7 @@ val student = RxHttp
 
 更多可查看请求时序图
 
-![image](https://github.com/liujingxing/okhttp-RxHttp/blob/master/screen/rxhttp_sequence_chart.jpg)
+![image](https://github.com/liujingxing/okhttp-RxHttp/blob/master/screen/rxhttp_sequence_chart_en.jpg)
 
 ## 3、Advanced usage
 
