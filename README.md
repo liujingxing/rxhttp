@@ -106,13 +106,13 @@ public class Url {
 ```java
 // java
 RxHttp.get("/service/...")   //1、You can choose get/postFrom/postJson and so on
-    .addQuery("key", "value")  // add query param
+    .addQuery("key", "value")               //add query param
     .addHeader("headerKey", "headerValue")  //add request header
     .asClass(Student.class)  //2、Use the asXxx method to determine the return value type, customizable
     .subscribe(student -> {  //3、Subscribing observer
-        //成功回调，在子线程工作
+        //Success callback，Default IO thread
     }, throwable -> {
-        //失败回调
+        //Abnormal callback
     });
 
 // kotlin 
@@ -122,9 +122,9 @@ RxHttp.postFrom("/service/...")   //1、You can choose get/postFrom/postJson and
     .addFile("file", File(".../1.png"))  //add file to body
     .asClass<Student>()           //2、Use the asXxx method to determine the return value type, customizable
     .subscribe({ student ->       //3、Subscribing observer
-
+        //Success callback，Default IO thread
     }, { throwable ->
-
+        //Abnormal callback
     })
 
 // kotlin coroutine
@@ -147,7 +147,7 @@ RxHttp.get("/service/...")
     .asString()
     .as(RxLife.as(this))  //The Activity destroys and automatically closes the request
     .subscribe(s -> {
-        //Success callback
+        //Success callback，Default IO thread
     }, throwable -> {
         //Abnormal callback
     });
@@ -157,7 +157,7 @@ RxHttp.get("/service/...")
     .asString()
     .to(RxLife.to(this))  //The Activity destroys and automatically closes the request
     .subscribe(s -> {
-        //Success callback
+        //Success callback，Default IO thread
     }, throwable -> {
         //Abnormal callback
     });
@@ -167,7 +167,7 @@ RxHttp.get("/service/...")
 Disposable disposable = RxHttp.get("/service/...")
     .asString()
     .subscribe(s -> {
-        //Success callback
+        //Success callback，Default IO thread
     }, throwable -> {
         //Abnormal callback
     });
