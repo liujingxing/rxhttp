@@ -37,8 +37,7 @@ wiki详细文档：https://github.com/liujingxing/okhttp-RxHttp/wiki  (此文档
 
 自动关闭请求用到的RxLife类，详情请查看[RxLife库](https://github.com/liujingxing/RxLife)
 
-[更新日志](https://github.com/liujingxing/okhttp-RxHttp/wiki/%E6%9B%B4%E6%96%B0%E6%97%A5%E5%BF%97) &nbsp;&nbsp;&nbsp;&nbsp;
-
+[更新日志](https://github.com/liujingxing/okhttp-RxHttp/wiki/%E6%9B%B4%E6%96%B0%E6%97%A5%E5%BF%97)  &nbsp;&nbsp;&nbsp;&nbsp; 
 [遇到问题，点击这里，99%的问题都能自己解决](https://github.com/liujingxing/okhttp-RxHttp/wiki/FAQ)
 
 
