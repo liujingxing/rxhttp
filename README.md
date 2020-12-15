@@ -9,24 +9,25 @@ A type-safe HTTP client for Android. Written based on OkHttp
 
 ## 1、Feature
 
-- 支持kotlin协程、RxJava2、RxJava3
+- Support kotlin coroutines, RxJava2, RxJava3
 
-- 支持Gson、Xml、ProtoBuf、FastJson等第三方数据解析工具
+- Support Gson, Xml, ProtoBuf, FastJson and other third-party data parsing tools
 
-- 支持在FragmentActivity、Fragment、View、ViewModel及任意类中，自动关闭请求
+- Supports automatic closure of requests in FragmentActivity, Fragment, View, ViewModel, and any class
 
-- 支持全局加解密、添加公共参数及头部、网络缓存，均支持对某个请求单独设置
+- Support global encryption and decryption, add common parameters and headers, network cache, all support a request set up separately
 
 ## 2、usage
 
 1、Adding dependencies and configurations
 
+### Required
 ```java
-//使用kapt依赖rxhttp-compiler时必须
+//Must be used when using kapt
 apply plugin: 'kotlin-kapt'
 
 android {
-    //必须，java 8或更高
+    //Java 8 or higher
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -35,40 +36,39 @@ android {
 
 dependencies {
     implementation 'com.ljx.rxhttp:rxhttp:2.5.1'
-    implementation 'com.squareup.okhttp3:okhttp:4.9.0' //rxhttp v2.2.2版本起，需要手动依赖okhttp
-    kapt 'com.ljx.rxhttp:rxhttp-compiler:2.5.1' //生成RxHttp类，纯Java项目，请使用annotationProcessor代替kapt
+    implementation 'com.squareup.okhttp3:okhttp:4.9.0' 
+    kapt 'com.ljx.rxhttp:rxhttp-compiler:2.5.1' //Use the annotationProcessor instead of kapt, if you use Java
  }
 ```
 
-## 可选
+### Optional
 ```java
 android {
     defaultConfig {
         javaCompileOptions {
             annotationProcessorOptions {
                 arguments = [
-                    //使用asXxx方法时必须，告知RxHttp你依赖的rxjava版本，可传入rxjava2、rxjava3
+                    //Pass in RxJava version, can pass in RxJava2, RxJava3
                     rxhttp_rxjava: 'rxjava3'，
-                    rxhttp_package: 'rxhttp'   //非必须，指定RxHttp类包名
+                    rxhttp_package: 'rxhttp'   //Specifies the RxHttp class package
                 ]
             }
         }
     }
 }
 dependencies {
-    implementation 'com.ljx.rxlife:rxlife-coroutine:2.0.1' //管理协程生命周期，页面销毁，关闭请求
+    implementation 'com.ljx.rxlife:rxlife-coroutine:2.0.1' //Coroutine, Automatic close request
 
-    //rxjava2   (RxJava2/Rxjava3二选一，使用asXxx方法时必须)
+    //rxjava2   (RxJava2/Rxjava3 select one)
     implementation 'io.reactivex.rxjava2:rxjava:2.2.8'
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
-    implementation 'com.ljx.rxlife2:rxlife-rxjava:2.0.0' //管理RxJava2生命周期，页面销毁，关闭请求
+    implementation 'com.ljx.rxlife2:rxlife-rxjava:2.0.0' //RxJava2, Automatic close request
 
     //rxjava3
     implementation 'io.reactivex.rxjava3:rxjava:3.0.6'
     implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
-    implementation 'com.ljx.rxlife3:rxlife-rxjava:3.0.0' //管理RxJava3生命周期，页面销毁，关闭请求
+    implementation 'com.ljx.rxlife3:rxlife-rxjava:3.0.0' //RxJava3, Automatic close request
 
-    //非必须，根据自己需求选择 RxHttp默认内置了GsonConverter
     implementation 'com.ljx.rxhttp:converter-fastjson:2.5.1'
     implementation 'com.ljx.rxhttp:converter-jackson:2.5.1'
     implementation 'com.ljx.rxhttp:converter-moshi:2.5.1'
@@ -77,95 +77,98 @@ dependencies {
 }
 ```
 
+**Finally, rebuild the project, which is necessary**
+
 2、Initialize the SDK
 
+This step is optional
+
 ```java
-//开启调式模式，默认false (可选)
-RxHttp.setDebug(boolean)
-//配置OkHttpClient对象 (可选)
-RxHttp.init(OkHttpClient)
+RxHttp.setDebug(boolean)  
+RxHttp.init(OkHttpClient)  
 ```
 
-3、配置默认BaseUrl
+3、Configuration BaseUrl
+
+This step is optional
 
 ```java
 public class Url {
 
-    //添加@DefaultDomain注解到BASE_URL上(可选)
+    //Add the @defaultDomain annotation to BASE_URL
     @DefaultDomain
     public static BASE_URL = "https://..."
 }
 ```
 
-4、执行请求
+4、Perform the requested
 
 ```java
-// java 环境
-RxHttp.get("/service/...")   //1、选择请求方法，可选get/postFrom等等
-    .asClass(Student.class)  //2、使用asXxx方法，确定返回值类型，可自定义
-    .subscribe(student -> {  //3、订阅观察者
+// java
+RxHttp.get("/service/...")   //1、You can choose get/postFrom/postJson and so on
+    .asClass(Student.class)  //2、Use the asXxx method to determine the return value type, customizable
+    .subscribe(student -> {  //3、Subscribing observer
         //成功回调，在子线程工作
     }, throwable -> {
         //失败回调
     });
 
-// kotlin 环境
-RxHttp.get("/service/...")   //1、选择请求方法，可选get/postFrom等等
-    .asClass<Student>()      //2、使用asXxx方法，确定返回值类型，可自定义
-    .subscribe({ student ->  //3、订阅观察者
+// kotlin 
+RxHttp.get("/service/...")   //1、You can choose get/postFrom/postJson and so on
+    .asClass<Student>()      //2、Use the asXxx method to determine the return value type, customizable
+    .subscribe({ student ->  //3、Subscribing observer
 
     }, { throwable ->
 
     })
 
-// kotlin 协程环境
+// kotlin coroutine
 val student = RxHttp
-    .get("/service/...")     //1、选择请求方法，可选get/postFrom等等
-    .toClass<Student>()      //2、使用toXxx方法，确定返回值类型，可自定义
-    .await()                 //3、获取返回值，await是挂断方法
+    .get("/service/...")     //1、You can choose get/postFrom/postJson and so on
+    .toClass<Student>()      //2、Use the toXxx method to determine the return value type, customizable
+    .await()                 //3、Get the return value, await is the suspend method
 ```
 
-更多可查看请求时序图
+See the request timing diagram for more
 
 ![image](https://github.com/liujingxing/okhttp-RxHttp/blob/master/screen/rxhttp_sequence_chart.jpg)
 
 ## 3、Advanced usage
 
- 1、关闭请求
+ 1、Close the request
 
 ```java
-//在RxJava2中，自动关闭请求
+//In Rxjava2 , Automatic close request
 RxHttp.get("/service/...")
     .asString()
-    .as(RxLife.as(this))  //Activity销毁，自动关闭请求
+    .as(RxLife.as(this))  //The Activity destroys and automatically closes the request
     .subscribe(s -> {
-        //成功回调
+        //Success callback
     }, throwable -> {
-        //失败回调
+        //Abnormal callback
     });
 
-//在RxJava3中，自动关闭请求
+//In Rxjava3 , Automatic close request
 RxHttp.get("/service/...")
     .asString()
-    .to(RxLife.to(this))  //Activity销毁，自动关闭请求
+    .to(RxLife.to(this))  //The Activity destroys and automatically closes the request
     .subscribe(s -> {
-        //成功回调
+        //Success callback
     }, throwable -> {
-        //失败回调
+        //Abnormal callback
     });
 
-//注意：this可以是LifecycleOwner or View
 
-//在RxJava2/RxJava3中，手动关闭请求
+//In RxJava2/RxJava3, close the request manually
 Disposable disposable = RxHttp.get("/service/...")
     .asString()
     .subscribe(s -> {
-        //成功回调
+        //Success callback
     }, throwable -> {
-        //失败回调
+        //Abnormal callback
     });
 
-disposable.dispose(); //在合适的时机关闭请求
+disposable.dispose(); //Close the request at the appropriate time
 ```
 
 ## 4、ProGuard
