@@ -26,7 +26,7 @@
 
 # 请求三部曲
 
-![image](https://github.com/liujingxing/okhttp-RxHttp/blob/master/screen/rxhttp_sequence_chart_zh.jpg)
+![image](https://github.com/liujingxing/okhttp-RxHttp/blob/master/screen/rxhttp_request_trilogy_zh.jpg)
 
 # 上手教程
 

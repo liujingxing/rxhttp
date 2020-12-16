@@ -135,7 +135,7 @@ val students = RxHttp.postJson("/service/...")  //1、You can choose get,postFro
 
 See the request timing diagram for more
 
-![image](https://github.com/liujingxing/okhttp-RxHttp/blob/master/screen/rxhttp_sequence_chart_en.jpg)
+![image](https://github.com/liujingxing/okhttp-RxHttp/blob/master/screen/rxhttp_request_trilogy_en.jpg)
 
 ## 3、Advanced usage
 
