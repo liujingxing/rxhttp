@@ -116,19 +116,19 @@ RxHttp.get("/service/...")   //1、You can choose get,postFrom,postJson etc
     });
 
 // kotlin 
-RxHttp.postFrom("/service/...")   //1、You can choose get,postFrom,postJson etc
+RxHttp.postForm("/service/...")          //post FormBody
     .add("key", "value")                 //add param to body
     .addQuery("key1", "value1")          //add query param
     .addFile("file", File(".../1.png"))  //add file to body
-    .asClass<Student>()           //2、Use the asXxx method to determine the return value type, customizable
-    .subscribe({ student ->       //3、Subscribing observer
-        //Success callback，Default IO thread
+    .asClass<Student>()           
+    .subscribe({ student ->       
+        //Default IO thread
     }, { throwable ->
-        //Abnormal callback
+        
     })
 
 // kotlin coroutine
-val students = RxHttp.postJson("/service/...")  //1、You can choose get,postFrom,postJson etc
+val students = RxHttp.postJson("/service/...")  //1、post {application/json; charset=utf-8}
     .toList<Student>()                          //2、Use the toXxx method to determine the return value type, customizable
     .await()                                    //3、Get the return value, await is the suspend method
 ```
@@ -147,9 +147,9 @@ RxHttp.get("/service/...")
     .asString()
     .as(RxLife.as(this))  //The Activity destroys and automatically closes the request
     .subscribe(s -> {
-        //Success callback，Default IO thread
+        //Default IO thread
     }, throwable -> {
-        //Abnormal callback
+
     });
 
 //In Rxjava3 , Automatic close request
@@ -157,9 +157,9 @@ RxHttp.get("/service/...")
     .asString()
     .to(RxLife.to(this))  //The Activity destroys and automatically closes the request
     .subscribe(s -> {
-        //Success callback，Default IO thread
+        //Default IO thread
     }, throwable -> {
-        //Abnormal callback
+        
     });
 
 
@@ -167,9 +167,9 @@ RxHttp.get("/service/...")
 Disposable disposable = RxHttp.get("/service/...")
     .asString()
     .subscribe(s -> {
-        //Success callback，Default IO thread
+        //Default IO thread
     }, throwable -> {
-        //Abnormal callback
+        
     });
 
 disposable.dispose(); //Close the request at the appropriate time
