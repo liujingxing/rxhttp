@@ -77,7 +77,8 @@ class BodyParam(
     }
 
     override fun getRequestBody(): RequestBody {
-        return requestBody!!
+        return requestBody
+            ?: throw NullPointerException("requestBody cannot be null, please call the setBody series methods")
     }
 
     override fun add(key: String, value: Any): BodyParam {
