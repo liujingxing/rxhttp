@@ -5,8 +5,8 @@ import android.net.Uri
 import okhttp3.MediaType
 import okhttp3.RequestBody
 import okio.ByteString
-import rxhttp.wrapper.entity.UriRequestBody
 import rxhttp.wrapper.utils.BuildUtil
+import rxhttp.wrapper.utils.asRequestBody
 import java.io.File
 
 /**
@@ -63,11 +63,11 @@ class BodyParam(
 
     @JvmOverloads
     fun setBody(
-        context: Context,
         uri: Uri,
+        context: Context,
         contentType: MediaType? = null,
     ): BodyParam {
-        requestBody = UriRequestBody(context, uri, contentType)
+        requestBody = uri.asRequestBody(context, contentType)
         return this
     }
 
