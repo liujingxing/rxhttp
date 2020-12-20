@@ -9,9 +9,7 @@ import com.rxhttp.compiler.AnnotationProcessor
  */
 class AnnotationRxJava3Processor : AnnotationProcessor() {
 
-    override fun getRxJavaVersion(map: Map<String, String>): String? {
-        return "rxjava3"
-    }
+    override fun getRxJavaVersion(map: Map<String, String>) = "rxjava3"
 
     override fun isAndroidPlatform() = false
 }

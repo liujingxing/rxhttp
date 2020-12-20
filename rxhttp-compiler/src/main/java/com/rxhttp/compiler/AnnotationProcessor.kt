@@ -56,15 +56,11 @@ open class AnnotationProcessor : AbstractProcessor() {
         return annotations
     }
 
-    open fun getRxJavaVersion(map: Map<String, String>): String? {
-        return map["rxhttp_rxjava"]
-    }
+    open fun getRxJavaVersion(map: Map<String, String>) = map["rxhttp_rxjava"]
 
     open fun isAndroidPlatform() = true
 
-    override fun getSupportedSourceVersion(): SourceVersion {
-        return SourceVersion.latestSupported()
-    }
+    override fun getSupportedSourceVersion(): SourceVersion = SourceVersion.latestSupported()
 
     override fun process(annotations: Set<TypeElement>, roundEnv: RoundEnvironment): Boolean {
 //        messager.printMessage(Diagnostic.Kind.WARNING, "process start annotations$annotations this=$this")
