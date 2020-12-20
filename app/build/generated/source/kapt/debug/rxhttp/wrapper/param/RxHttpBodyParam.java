@@ -57,13 +57,13 @@ public class RxHttpBodyParam extends RxHttpAbstractBodyParam<BodyParam, RxHttpBo
         return this;
     }
     
-    public RxHttpBodyParam setBody(Context context, Uri uri) {
-        param.setBody(context, uri);
+    public RxHttpBodyParam setBody(Uri uri, Context context) {
+        param.setBody(uri, context);
         return this;
     }
     
-    public RxHttpBodyParam setBody(Context context, Uri uri, @Nullable MediaType contentType) {
-        param.setBody(context, uri, contentType);
+    public RxHttpBodyParam setBody(Uri uri, Context context, @Nullable MediaType contentType) {
+        param.setBody(uri, context, contentType);
         return this;
     }
     
