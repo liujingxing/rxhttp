@@ -8,7 +8,7 @@ import com.squareup.javapoet.ClassName
  * Date: 2020/4/12
  * Time: 15:33
  */
-var rxJavaVersion: String? = null
+private var rxJavaVersion: String? = null
 
 private val rxJavaClassList = LinkedHashMap<String, String>()
 
