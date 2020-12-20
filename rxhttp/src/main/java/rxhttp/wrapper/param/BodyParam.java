@@ -58,13 +58,12 @@ public class BodyParam extends AbstractBodyParam<BodyParam> {
         return this;
     }
 
-    public BodyParam setBody(MediaType mediaType, File file) {
-        requestBody = RequestBody.create(mediaType, file);
-        return this;
+    public BodyParam setBody(File file) {
+        return setBody(BuildUtil.getMediaType(file.getName()), file);
     }
 
-    public BodyParam setBody(File file) {
-        requestBody = RequestBody.create(BuildUtil.getMediaType(file.getName()), file);
+    public BodyParam setBody(MediaType mediaType, File file) {
+        requestBody = RequestBody.create(mediaType, file);
         return this;
     }
 

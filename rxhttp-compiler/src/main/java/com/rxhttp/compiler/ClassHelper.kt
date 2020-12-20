@@ -1107,13 +1107,13 @@ object ClassHelper {
                     return this;
                 }
 
-                public RxHttpBodyParam setBody(MediaType mediaType, File file) {
-                    param.setBody(mediaType, file);
-                    return this;
-                }
-
                 public RxHttpBodyParam setBody(File file) {
                     param.setBody(file);
+                    return this;
+                }
+                
+                public RxHttpBodyParam setBody(MediaType mediaType, File file) {
+                    param.setBody(mediaType, file);
                     return this;
                 }
 
