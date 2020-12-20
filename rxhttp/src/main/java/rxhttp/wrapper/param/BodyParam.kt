@@ -1,89 +1,86 @@
-package rxhttp.wrapper.param;
+package rxhttp.wrapper.param
 
-import android.content.Context;
-import android.net.Uri;
-
-import java.io.File;
-
-import okhttp3.MediaType;
-import okhttp3.RequestBody;
-import okio.ByteString;
-import rxhttp.wrapper.entity.UriRequestBody;
-import rxhttp.wrapper.utils.BuildUtil;
+import android.content.Context
+import android.net.Uri
+import okhttp3.MediaType
+import okhttp3.RequestBody
+import okio.ByteString
+import rxhttp.wrapper.entity.UriRequestBody
+import rxhttp.wrapper.utils.BuildUtil
+import java.io.File
 
 /**
  * User: ljx
  * Date: 2019-09-11
  * Time: 11:52
+ *
+ * @param url    request url
+ * @param method [Method.POST]、[Method.PUT]、[Method.DELETE]、[Method.PATCH]
  */
-public class BodyParam extends AbstractBodyParam<BodyParam> {
+class BodyParam(
+    url: String,
+    method: Method,
+) : AbstractBodyParam<BodyParam>(url, method) {
 
-    private RequestBody requestBody;
+    private var requestBody: RequestBody? = null
 
-    /**
-     * @param url    request url
-     * @param method {@link Method#POST}、{@link Method#PUT}、{@link Method#DELETE}、{@link Method#PATCH}
-     */
-    public BodyParam(String url, Method method) {
-        super(url, method);
+    fun setBody(requestBody: RequestBody): BodyParam {
+        this.requestBody = requestBody
+        return this
     }
 
-    public BodyParam setBody(RequestBody requestBody) {
-        this.requestBody = requestBody;
-        return this;
+    @JvmOverloads
+    fun setBody(content: String, mediaType: MediaType? = null): BodyParam {
+        requestBody = RequestBody.create(mediaType, content)
+        return this
     }
 
-    public <T> BodyParam setJsonBody(T object) {
-        this.requestBody = convert(object);
-        return this;
+    @JvmOverloads
+    fun setBody(content: ByteString, mediaType: MediaType? = null): BodyParam {
+        requestBody = RequestBody.create(mediaType, content)
+        return this
     }
 
-    public BodyParam setBody(MediaType mediaType, String content) {
-        requestBody = RequestBody.create(mediaType, content);
-        return this;
+    @JvmOverloads
+    fun setBody(
+        content: ByteArray,
+        mediaType: MediaType? = null,
+        offset: Int = 0,
+        byteCount: Int = content.size,
+    ): BodyParam {
+        requestBody = RequestBody.create(mediaType, content, offset, byteCount)
+        return this
     }
 
-    public BodyParam setBody(MediaType mediaType, ByteString content) {
-        requestBody = RequestBody.create(mediaType, content);
-        return this;
+    @JvmOverloads
+    fun setBody(
+        file: File,
+        mediaType: MediaType? = BuildUtil.getMediaType(file.name),
+    ): BodyParam {
+        requestBody = RequestBody.create(mediaType, file)
+        return this
     }
 
-    public BodyParam setBody(MediaType mediaType, byte[] content) {
-        requestBody = RequestBody.create(mediaType, content);
-        return this;
+    @JvmOverloads
+    fun setBody(
+        context: Context,
+        uri: Uri,
+        contentType: MediaType? = null,
+    ): BodyParam {
+        requestBody = UriRequestBody(context, uri, contentType)
+        return this
     }
 
-    public BodyParam setBody(MediaType mediaType, byte[] content, int offset, int byteCount) {
-        requestBody = RequestBody.create(mediaType, content, offset, byteCount);
-        return this;
+    fun <T> setJsonBody(any: T): BodyParam {
+        requestBody = convert(any)
+        return this
     }
 
-    public BodyParam setBody(File file) {
-        return setBody(BuildUtil.getMediaType(file.getName()), file);
+    override fun getRequestBody(): RequestBody {
+        return requestBody!!
     }
 
-    public BodyParam setBody(MediaType mediaType, File file) {
-        requestBody = RequestBody.create(mediaType, file);
-        return this;
-    }
-
-    public BodyParam setBody(Context context, Uri uri) {
-        requestBody = new UriRequestBody(context, uri);
-        return this;
-    }
-
-    public BodyParam setBody(Context context, MediaType contentType, Uri uri) {
-        requestBody = new UriRequestBody(context, uri, contentType);
-        return this;
-    }
-
-    @Override
-    public RequestBody getRequestBody() {
-        return requestBody;
-    }
-
-    @Override
-    public BodyParam add(String key, Object value) {
-        return this;
+    override fun add(key: String, value: Any): BodyParam {
+        return this
     }
 }

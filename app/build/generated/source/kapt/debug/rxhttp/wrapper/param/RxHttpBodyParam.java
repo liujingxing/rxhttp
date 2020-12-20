@@ -3,6 +3,7 @@ package rxhttp.wrapper.param;
 import android.content.Context;
 import android.net.Uri;
 
+import rxhttp.wrapper.annotations.Nullable;
 import rxhttp.wrapper.param.BodyParam;
 
 import java.io.File;
@@ -20,54 +21,54 @@ public class RxHttpBodyParam extends RxHttpAbstractBodyParam<BodyParam, RxHttpBo
     public RxHttpBodyParam(BodyParam param) {
         super(param);
     }
-
+    
     public RxHttpBodyParam setBody(RequestBody requestBody) {
         param.setBody(requestBody);
         return this;
     }
-
-    public <T> RxHttpBodyParam setJsonBody(T object) {
-        param.setJsonBody(object);
+    
+    public RxHttpBodyParam setBody(String content, @Nullable MediaType mediaType) {
+        param.setBody(content, mediaType);
         return this;
     }
-
-    public RxHttpBodyParam setBody(MediaType mediaType, String content) {
-        param.setBody(mediaType, content);
+    
+    public RxHttpBodyParam setBody(ByteString content, @Nullable MediaType mediaType) {
+        param.setBody(content, mediaType);
         return this;
     }
-
-    public RxHttpBodyParam setBody(MediaType mediaType, ByteString content) {
-        param.setBody(mediaType, content);
+    
+    public RxHttpBodyParam setBody(byte[] content, @Nullable MediaType mediaType) {
+        param.setBody(content, mediaType);
         return this;
     }
-
-    public RxHttpBodyParam setBody(MediaType mediaType, byte[] content) {
-        param.setBody(mediaType, content);
+    
+    public RxHttpBodyParam setBody(byte[] content, @Nullable MediaType mediaType, int offset, int byteCount) {
+        param.setBody(content, mediaType, offset, byteCount);
         return this;
     }
-
-    public RxHttpBodyParam setBody(MediaType mediaType, byte[] content, int offset, int byteCount) {
-        param.setBody(mediaType, content, offset, byteCount);
-        return this;
-    }
-
+    
     public RxHttpBodyParam setBody(File file) {
         param.setBody(file);
         return this;
     }
     
-    public RxHttpBodyParam setBody(MediaType mediaType, File file) {
-        param.setBody(mediaType, file);
+    public RxHttpBodyParam setBody(File file, @Nullable MediaType mediaType) {
+        param.setBody(file, mediaType);
         return this;
     }
-
+    
     public RxHttpBodyParam setBody(Context context, Uri uri) {
         param.setBody(context, uri);
         return this;
     }
-
-    public RxHttpBodyParam setBody(Context context, MediaType contentType, Uri uri) {
-        param.setBody(context, contentType, uri);
+    
+    public RxHttpBodyParam setBody(Context context, Uri uri, @Nullable MediaType contentType) {
+        param.setBody(context, uri, contentType);
+        return this;
+    }
+    
+    public <T> RxHttpBodyParam setJsonBody(T object) {
+        param.setJsonBody(object);
         return this;
     }
 }
