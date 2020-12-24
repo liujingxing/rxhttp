@@ -82,7 +82,9 @@ private fun String.replaceSuffix(response: Response): String {
 /**
  * find filename form Content-Disposition response headers
  * For example:
- * Content-Disposition: attachment; filename="rxhttp.apk"
+ * Content-Disposition: attachment; filename=test.apk
+ * Content-Disposition: attachment; filename='test.apk'
+ * Content-Disposition: attachment; filename="test.apk"
  * Content-Disposition: attachment;filename*=UTF-8'zh_cn'%E6%B5%8B%E8%AF%95.apk
  */
 private fun Response.findFilename(): String? {
@@ -91,7 +93,16 @@ private fun Response.findFilename(): String? {
         val keyValuePair = it.split("=")
         if (keyValuePair.size > 1) {
             return when (keyValuePair[0].trim()) {
-                "filename" -> keyValuePair[1].run { substring(1, length - 1) }
+                "filename" -> {
+                    keyValuePair[1].run {
+                        //matches "test.apk" or 'test.apk'
+                        if (matches(Regex("^[\"'][\\s\\S]*[\"']\$"))) {
+                            substring(1, length - 1)
+                        } else {
+                            this
+                        }
+                    }
+                }
                 "filename*" -> {
                     keyValuePair[1].run {
                         val firstIndex = indexOf("'")
