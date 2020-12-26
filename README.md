@@ -135,7 +135,7 @@ val students = RxHttp.postJson("/service/...")  //1、post {application/json; ch
 
 See the request timing diagram for more
 
-![image](https://github.com/liujingxing/okhttp-RxHttp/blob/master/screen/rxhttp_request_trilogy_en.jpg)
+![image](https://github.com/liujingxing/okhttp-RxHttp/blob/master/screen/sequence_chart_en.jpg)
 
 ## 3、Advanced usage
 
