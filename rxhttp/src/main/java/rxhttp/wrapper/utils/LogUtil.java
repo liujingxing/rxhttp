@@ -182,23 +182,28 @@ public class LogUtil {
                     }
                 }
                 if (name == null) continue;
-                if (requestBody.contentLength() < 1024) {
-                    Buffer buffer = new Buffer();
-                    requestBody.writeTo(buffer);
-                    String value = buffer.readUtf8();
-                    if (paramBuilder.length() == 0) {
-                        paramBuilder.append("\n\n");
-                    } else {
-                        paramBuilder.append("&");
-                    }
-                    paramBuilder.append(name).append("=").append(value);
-                } else {
+                if (fileName != null) {
                     if (fileBuilder.length() == 0) {
                         fileBuilder.append("\n\n");
                     } else {
                         fileBuilder.append("&");
                     }
                     fileBuilder.append(name).append("=").append(fileName);
+                } else {
+                    long contentLength = requestBody.contentLength();
+                    String value = null;
+                    if (contentLength < 1024) {
+                        Buffer buffer = new Buffer();
+                        requestBody.writeTo(buffer);
+                        value = buffer.readUtf8();
+                    }
+                    if (paramBuilder.length() == 0) {
+                        paramBuilder.append("\n\n");
+                    } else {
+                        paramBuilder.append("&");
+                    }
+                    paramBuilder.append(name).append("=").append(value != null ? value :
+                        "(binary " + contentLength + "-byte body omitted)");
                 }
             }
             return url + paramBuilder.toString() + fileBuilder.toString();
