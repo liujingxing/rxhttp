@@ -48,7 +48,6 @@ public class BuildUtil {
                 } else {
                     builder.add(entry.getKey(), entry.getValue().toString());
                 }
-
             }
         }
         return builder.build();
