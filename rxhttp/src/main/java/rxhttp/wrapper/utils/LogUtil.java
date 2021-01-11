@@ -84,7 +84,7 @@ public class LogUtil {
             StringBuilder builder = new StringBuilder("<------ ")
                 .append(RxHttpVersion.userAgent).append(" ")
                 .append(OkHttpCompat.getOkHttpUserAgent())
-                .append(" request start ------>\n\n")
+                .append(" request start ------>\n")
                 .append(request.method())
                 .append(" ").append(request.url())
                 .append("\n").append(request.headers());
@@ -112,7 +112,7 @@ public class LogUtil {
             StringBuilder builder = new StringBuilder("<------ ")
                 .append(RxHttpVersion.userAgent).append(" ")
                 .append(OkHttpCompat.getOkHttpUserAgent())
-                .append(" request end ------>\n\n")
+                .append(" request end ------>\n")
                 .append(request.method()).append(" ").append(getEncodedUrlAndParams(request))
                 .append("\n\n").append(response.protocol()).append(" ")
                 .append(response.code()).append(" ").append(response.message())
