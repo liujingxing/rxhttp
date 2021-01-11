@@ -74,9 +74,9 @@ public final class HttpStatusCodeException extends IOException {
         return "<------ " + RxHttpVersion.userAgent + " " + OkHttpCompat.getOkHttpUserAgent() +
             " request end ------>" +
             "\n" + getClass().getName() + ":" +
-            "\n\n" + requestMethod + ": " + requestUrl +
+            "\n\n" + requestMethod + " " + requestUrl +
             "\n\n" + protocol + " " + statusCode + " " + getMessage() +
-            "\n\n" + responseHeaders +
+            "\n" + responseHeaders +
             "\n" + result;
     }
 }

@@ -1,14 +1,13 @@
 package rxhttp.wrapper.utils;
 
-
 import java.io.EOFException;
 import java.io.IOException;
-import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.util.List;
 
 import kotlin.text.Charsets;
 import okhttp3.Headers;
+import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.Request;
@@ -64,20 +63,40 @@ public class LogUtil {
     }
 
     //打印Http请求连接失败异常日志
-    @SuppressWarnings("deprecation")
     public static void log(String url, Throwable throwable) {
         if (!isDebug) return;
         try {
             throwable.printStackTrace();
-            StringBuilder builder = new StringBuilder()
-                .append(throwable.toString());
+            StringBuilder builder = new StringBuilder(throwable.toString());
             if (!(throwable instanceof ParseException) && !(throwable instanceof HttpStatusCodeException)) {
-                builder.append("\n\n")
-                    .append(URLDecoder.decode(url));
+                builder.append("\n\n").append(url);
             }
             Platform.get().loge(TAG, builder.toString());
         } catch (Throwable e) {
             Platform.get().logd(TAG, "Request error Log printing failed", e);
+        }
+    }
+
+    //请求前，打印日志
+    public static void log(@NonNull Request request) {
+        if (!isDebug) return;
+        try {
+            StringBuilder builder = new StringBuilder("<------ ")
+                .append(RxHttpVersion.userAgent).append(" ")
+                .append(OkHttpCompat.getOkHttpUserAgent())
+                .append(" request start ------>\n\n")
+                .append(request.method())
+                .append(" ").append(request.url())
+                .append("\n").append(request.headers());
+            RequestBody body = request.body();
+            if (body != null) {
+                builder.append("Content-Type: ").append(body.contentType());
+                builder.append("\nContent-Length: ").append(body.contentLength());
+                builder.append("\n\n").append(requestBody2Str(body));
+            }
+            Platform.get().logd(TAG, builder.toString());
+        } catch (Throwable e) {
+            Platform.get().logd(TAG, "Request start log printing failed", e);
         }
     }
 
@@ -90,16 +109,15 @@ public class LogUtil {
             long tookMs = logTime != null ? logTime.tookMs() : 0;
             String result = body != null ? body :
                 getResult(OkHttpCompat.requireBody(response), OkHttpCompat.needDecodeResult(response));
-            StringBuilder builder = new StringBuilder()
-                .append("<------ ")
-                .append(RxHttpVersion.userAgent + " ")
+            StringBuilder builder = new StringBuilder("<------ ")
+                .append(RxHttpVersion.userAgent).append(" ")
                 .append(OkHttpCompat.getOkHttpUserAgent())
-                .append(" request end ------>")
-                .append("\n\n").append(request.method()).append(": ").append(getEncodedUrlAndParams(request))
+                .append(" request end ------>\n\n")
+                .append(request.method()).append(" ").append(getEncodedUrlAndParams(request))
                 .append("\n\n").append(response.protocol()).append(" ")
                 .append(response.code()).append(" ").append(response.message())
                 .append(tookMs > 0 ? " " + tookMs + "ms" : "")
-                .append("\n\n").append(response.headers())
+                .append("\n").append(response.headers())
                 .append("\n").append(result);
             Platform.get().logi(TAG, builder.toString());
         } catch (Throwable e) {
@@ -107,56 +125,23 @@ public class LogUtil {
         }
     }
 
-    //请求前，打印日志
-    public static void log(@NonNull Request request) {
-        if (!isDebug) return;
-        try {
-            String builder = "<------ " + RxHttpVersion.userAgent + " " + OkHttpCompat.getOkHttpUserAgent() +
-                " request start ------>" + request2Str(request);
-            Platform.get().logd(TAG, builder);
-        } catch (Throwable e) {
-            Platform.get().logd(TAG, "Request start log printing failed", e);
-        }
-    }
-
-    @SuppressWarnings("deprecation")
     public static String getEncodedUrlAndParams(Request request) {
-        String result;
+        RequestBody body = request.body();
+        HttpUrl url = request.url();
         try {
-            result = getRequestParams(request);
+            if (body != null) {
+                return url + "\n\n" + requestBody2Str(body);
+            }
         } catch (Throwable e) {
             e.printStackTrace();
-            result = request.url().toString();
         }
-        try {
-            return URLDecoder.decode(result);
-        } catch (Throwable e) {
-            return result;
-        }
+        return url.toString();
     }
 
-    private static String request2Str(Request request) {
-        StringBuilder builder = new StringBuilder();
-        builder.append("\n\n").append(request.method()).append(": ")
-            .append(getEncodedUrlAndParams(request));
-        RequestBody body = request.body();
-        if (body != null) {
-            builder.append("\n\nContent-Type: ").append(body.contentType());
-            try {
-                builder.append("\nContent-Length: ").append(body.contentLength());
-            } catch (IOException ignore) {
-            }
-        }
-        builder.append(body != null ? "\n" : "\n\n").append(request.headers());
-        return builder.toString();
-    }
-
-    private static String getRequestParams(Request request) throws IOException {
-        RequestBody body = request.body();
+    private static String requestBody2Str(@NonNull RequestBody body) throws IOException {
         if (body instanceof ProgressRequestBody) {
             body = ((ProgressRequestBody) body).getRequestBody();
         }
-        String url = request.url().toString();
         if (body instanceof MultipartBody) {
             MultipartBody multipartBody = (MultipartBody) body;
             List<MultipartBody.Part> parts = multipartBody.parts();
@@ -195,49 +180,33 @@ public class LogUtil {
                     if (contentLength < 1024) {
                         Buffer buffer = new Buffer();
                         requestBody.writeTo(buffer);
-                        value = buffer.readUtf8();
+                        value = buffer.readString(getCharset(requestBody));
                     }
-                    if (paramBuilder.length() == 0) {
-                        paramBuilder.append("\n\n");
-                    } else {
+                    if (paramBuilder.length() > 0) {
                         paramBuilder.append("&");
                     }
                     paramBuilder.append(name).append("=").append(value != null ? value :
                         "(binary " + contentLength + "-byte body omitted)");
                 }
             }
-            return url + paramBuilder.toString() + fileBuilder.toString();
+            return paramBuilder.toString() + fileBuilder.toString();
         }
-
-        if (body != null) {
-            Buffer buffer = new Buffer();
-            body.writeTo(buffer);
-            if (!isPlaintext(buffer)) {
-                return url + "\n\n(binary "
-                    + body.contentLength() + "-byte body omitted)";
-            } else {
-                return url + "\n\n" + buffer.readUtf8();
-            }
+        Buffer buffer = new Buffer();
+        body.writeTo(buffer);
+        if (!isProbablyUtf8(buffer)) {
+            return "(binary " + body.contentLength() + "-byte body omitted)";
+        } else {
+            return buffer.readString(getCharset(body));
         }
-        return url;
     }
 
-    @SuppressWarnings("deprecation")
     private static String getResult(ResponseBody body, boolean onResultDecoder) throws IOException {
         BufferedSource source = body.source();
         source.request(Long.MAX_VALUE); // Buffer the entire body.
         Buffer buffer = source.buffer();
         String result;
-        if (isPlaintext(buffer)) {
-            Charset UTF_8 = null;
-            MediaType contentType = body.contentType();
-            if (contentType != null) {
-                UTF_8 = contentType.charset();
-            }
-            if (UTF_8 == null) {
-                UTF_8 = Charsets.UTF_8;
-            }
-            result = buffer.clone().readString(UTF_8);
+        if (isProbablyUtf8(buffer)) {
+            result = buffer.clone().readString(getCharset(body));
             if (onResultDecoder) {
                 result = RxHttpPlugins.onResultDecoder(result);
             }
@@ -247,8 +216,7 @@ public class LogUtil {
         return result;
     }
 
-
-    private static boolean isPlaintext(Buffer buffer) {
+    private static boolean isProbablyUtf8(Buffer buffer) {
         try {
             Buffer prefix = new Buffer();
             long byteCount = buffer.size() < 64 ? buffer.size() : 64;
@@ -266,5 +234,15 @@ public class LogUtil {
         } catch (EOFException e) {
             return false; // Truncated UTF-8 sequence.
         }
+    }
+
+    private static Charset getCharset(RequestBody requestBody) {
+        MediaType mediaType = requestBody.contentType();
+        return mediaType != null ? mediaType.charset(Charsets.UTF_8) : Charsets.UTF_8;
+    }
+
+    private static Charset getCharset(ResponseBody responseBody) {
+        MediaType mediaType = responseBody.contentType();
+        return mediaType != null ? mediaType.charset(Charsets.UTF_8) : Charsets.UTF_8;
     }
 }
