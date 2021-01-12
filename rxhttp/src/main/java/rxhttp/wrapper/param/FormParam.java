@@ -99,10 +99,9 @@ public class FormParam extends AbstractBodyParam<FormParam> implements IPart<For
 
     @Override
     public FormParam addPart(Part part) {
-        List<Part> partList = this.partList;
         if (partList == null) {
-            setMultiForm();
-            partList = this.partList = new ArrayList<>();
+            partList = new ArrayList<>();
+            if (!isMultipart()) setMultiForm();
         }
         partList.add(part);
         return this;
