@@ -96,9 +96,6 @@ public class BuildUtil {
         int index = filename.lastIndexOf(".") + 1;
         String fileSuffix = filename.substring(index);
         String contentType = URLConnection.guessContentTypeFromName(fileSuffix);
-        if (contentType == null || contentType.isEmpty()) {
-            contentType = "application/octet-stream";
-        }
-        return MediaType.parse(contentType);
+        return contentType != null ? MediaType.parse(contentType) : null;
     }
 }
