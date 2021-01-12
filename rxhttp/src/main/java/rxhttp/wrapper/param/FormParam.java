@@ -28,7 +28,7 @@ public class FormParam extends AbstractBodyParam<FormParam> implements IPart<For
 
     private boolean isMultiForm;
 
-    private List<Part> mPartList;  //Part List
+    private List<Part> partList;  //Part List
     private List<KeyValuePair> bodyParam; //Param list
 
     /**
@@ -97,10 +97,10 @@ public class FormParam extends AbstractBodyParam<FormParam> implements IPart<For
 
     @Override
     public FormParam addPart(Part part) {
-        List<Part> partList = mPartList;
+        List<Part> partList = this.partList;
         if (partList == null) {
             isMultiForm = true;
-            partList = mPartList = new ArrayList<>();
+            partList = this.partList = new ArrayList<>();
         }
         partList.add(part);
         return this;
@@ -114,12 +114,12 @@ public class FormParam extends AbstractBodyParam<FormParam> implements IPart<For
 
     @Override
     public RequestBody getRequestBody() {
-        return isMultiForm() ? BuildUtil.buildFormRequestBody(bodyParam, mPartList)
+        return isMultiForm() ? BuildUtil.buildFormRequestBody(bodyParam, partList)
             : BuildUtil.buildFormRequestBody(bodyParam);
     }
 
     public List<Part> getPartList() {
-        return mPartList;
+        return partList;
     }
 
     /**
