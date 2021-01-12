@@ -46,10 +46,7 @@ public class UriRequestBody extends RequestBody {
             return BuildUtil.getMediaType((uri.getLastPathSegment()));
         } else {
             String contentType = contentResolver.getType(uri);
-            if (contentType == null || contentType.isEmpty()) {
-                contentType = "application/octet-stream";
-            }
-            return MediaType.parse(contentType);
+            return contentType != null ? MediaType.parse(contentType) : null;
         }
     }
 
