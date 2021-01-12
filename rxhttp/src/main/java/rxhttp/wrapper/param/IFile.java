@@ -36,16 +36,30 @@ public interface IFile<P extends Param<P>> {
         return addFile(new UpFile(key, filename, file));
     }
 
-    default P addFiles(String key, List<? extends File> fileList) {
-        for (File file : fileList) {
-            addFile(new UpFile(key, file));
+    default <T> P addFiles(String key, List<T> list) {
+        for (T src : list) {
+            if (src instanceof String) {
+                addFile(new UpFile(key, src.toString()));
+            } else if (src instanceof File) {
+                addFile(new UpFile(key, (File) src));
+            } else {
+                throw new IllegalArgumentException("Incoming data type exception, it must be String or File");
+            }
         }
         return (P) this;
     }
 
-    default P addFiles(Map<String, ? extends File> fileMap) {
-        for (Map.Entry<String, ? extends File> entry : fileMap.entrySet()) {
-            addFile(new UpFile(entry.getKey(), entry.getValue()));
+    default <T> P addFiles(Map<String, T> fileMap) {
+        for (Map.Entry<String, T> entry : fileMap.entrySet()) {
+            String key = entry.getKey();
+            T value = entry.getValue();
+            if (value instanceof String) {
+                addFile(new UpFile(key, value.toString()));
+            } else if (value instanceof File) {
+                addFile(new UpFile(key, (File) value));
+            } else {
+                throw new IllegalArgumentException("Incoming data type exception, it must be String or File");
+            }
         }
         return (P) this;
     }

@@ -1259,7 +1259,7 @@ object ClassHelper {
                  * @deprecated please user {@link #addFiles(String, List)} instead
                  */
                 @Deprecated
-                public RxHttpFormParam addFile(String key, List<? extends File> fileList) {
+                public <T> RxHttpFormParam addFile(String key, List<T> fileList) {
                     return addFiles(key, fileList);
                 }
 
@@ -1268,12 +1268,12 @@ object ClassHelper {
                     return this;
                 }
                 
-                public RxHttpFormParam addFiles(Map<String, ? extends File> fileMap) {
+                public <T> RxHttpFormParam addFiles(Map<String, T> fileMap) {
                     param.addFiles(fileMap);
                     return this;
                 }
                 
-                public RxHttpFormParam addFiles(String key, List<? extends File> fileList) {
+                public <T> RxHttpFormParam addFiles(String key, List<T> fileList) {
                     param.addFiles(key, fileList);
                     return this;
                 }
