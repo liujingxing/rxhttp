@@ -3,13 +3,13 @@ package rxhttp.wrapper.utils;
 import java.io.EOFException;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.List;
 
 import kotlin.text.Charsets;
 import okhttp3.Headers;
 import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
+import okhttp3.MultipartBody.Part;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
@@ -143,53 +143,7 @@ public class LogUtil {
             body = ((ProgressRequestBody) body).getRequestBody();
         }
         if (body instanceof MultipartBody) {
-            MultipartBody multipartBody = (MultipartBody) body;
-            List<MultipartBody.Part> parts = multipartBody.parts();
-            StringBuilder fileBuilder = new StringBuilder();
-            StringBuilder paramBuilder = new StringBuilder();
-            for (int i = 0, size = parts.size(); i < size; i++) {
-                MultipartBody.Part part = parts.get(i);
-                RequestBody requestBody = part.body();
-                Headers headers = part.headers();
-                if (headers == null || headers.size() == 0) continue;
-                String[] split = headers.value(0).split(";");
-                String name = null, fileName = null;
-                for (String s : split) {
-                    if (s.equals("form-data")) continue;
-                    String[] keyValue = s.split("=");
-                    if (keyValue.length < 2) continue;
-                    String value = keyValue[1].substring(1, keyValue[1].length() - 1);
-                    if (name == null) {
-                        name = value;
-                    } else {
-                        fileName = value;
-                        break;
-                    }
-                }
-                if (name == null) continue;
-                if (fileName != null) {
-                    if (fileBuilder.length() == 0) {
-                        fileBuilder.append("\n\n");
-                    } else {
-                        fileBuilder.append("&");
-                    }
-                    fileBuilder.append(name).append("=").append(fileName);
-                } else {
-                    long contentLength = requestBody.contentLength();
-                    String value = null;
-                    if (contentLength < 1024) {
-                        Buffer buffer = new Buffer();
-                        requestBody.writeTo(buffer);
-                        value = buffer.readString(getCharset(requestBody));
-                    }
-                    if (paramBuilder.length() > 0) {
-                        paramBuilder.append("&");
-                    }
-                    paramBuilder.append(name).append("=").append(value != null ? value :
-                        "(binary " + contentLength + "-byte body omitted)");
-                }
-            }
-            return paramBuilder.toString() + fileBuilder.toString();
+            return multipartBody2Str((MultipartBody) body);
         }
         Buffer buffer = new Buffer();
         body.writeTo(buffer);
@@ -198,6 +152,64 @@ public class LogUtil {
         } else {
             return buffer.readString(getCharset(body));
         }
+    }
+
+    private static String multipartBody2Str(MultipartBody multipartBody) {
+        final byte[] colonSpace = {':', ' '};
+        final byte[] CRLF = {'\r', '\n'};
+        final byte[] dashDash = {'-', '-'};
+        Buffer sink = new Buffer();
+        for (Part part : multipartBody.parts()) {
+            Headers headers = part.headers();
+            RequestBody body = part.body();
+            sink.write(dashDash)
+                .writeUtf8(multipartBody.boundary())
+                .write(CRLF);
+            if (headers != null) {
+                for (int i = 0, size = headers.size(); i < size; i++) {
+                    sink.writeUtf8(headers.name(i))
+                        .write(colonSpace)
+                        .writeUtf8(headers.value(i))
+                        .write(CRLF);
+                }
+            }
+            MediaType contentType = body.contentType();
+            if (contentType != null) {
+                sink.writeUtf8("Content-Type: ")
+                    .writeUtf8(contentType.toString())
+                    .write(CRLF);
+            }
+            long contentLength = -1;
+            try {
+                contentLength = body.contentLength();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            sink.writeUtf8("Content-Length: ")
+                .writeDecimalLong(contentLength)
+                .write(CRLF);
+
+            if (contentLength > 1024) {
+                sink.writeUtf8("(binary " + contentLength + "-byte body omitted)");
+            } else {
+                if (body instanceof MultipartBody) {
+                    sink.write(CRLF)
+                        .writeUtf8(multipartBody2Str((MultipartBody) body));
+                } else {
+                    try {
+                        body.writeTo(sink);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            if (contentLength > 0) sink.write(CRLF);
+            sink.write(CRLF);
+        }
+        sink.write(dashDash)
+            .writeUtf8(multipartBody.boundary())
+            .write(dashDash);
+        return sink.readString(getCharset(multipartBody));
     }
 
     private static String getResult(ResponseBody body, boolean onResultDecoder) throws IOException {
