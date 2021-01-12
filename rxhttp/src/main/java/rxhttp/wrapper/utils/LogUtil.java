@@ -6,7 +6,6 @@ import java.nio.charset.Charset;
 
 import kotlin.text.Charsets;
 import okhttp3.Headers;
-import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.MultipartBody.Part;
@@ -125,19 +124,6 @@ public class LogUtil {
         }
     }
 
-    public static String getEncodedUrlAndParams(Request request) {
-        RequestBody body = request.body();
-        HttpUrl url = request.url();
-        try {
-            if (body != null) {
-                return url + "\n\n" + requestBody2Str(body);
-            }
-        } catch (Throwable e) {
-            e.printStackTrace();
-        }
-        return url.toString();
-    }
-
     private static String requestBody2Str(@NonNull RequestBody body) throws IOException {
         if (body instanceof ProgressRequestBody) {
             body = ((ProgressRequestBody) body).getRequestBody();
@@ -212,6 +198,7 @@ public class LogUtil {
         return sink.readString(getCharset(multipartBody));
     }
 
+    @SuppressWarnings("deprecation")
     private static String getResult(ResponseBody body, boolean onResultDecoder) throws IOException {
         BufferedSource source = body.source();
         source.request(Long.MAX_VALUE); // Buffer the entire body.
