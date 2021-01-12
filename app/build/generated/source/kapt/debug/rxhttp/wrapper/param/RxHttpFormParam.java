@@ -242,8 +242,39 @@ public class RxHttpFormParam extends RxHttpAbstractBodyParam<FormParam, RxHttpFo
         return this;
     }
 
+    //Set content-type to multipart/form-data
     public RxHttpFormParam setMultiForm() {
         param.setMultiForm();
+        return this;
+    }
+    
+    //Set content-type to multipart/mixed
+    public RxHttpFormParam setMultiMixed() {
+        param.setMultiMixed();
+        return this;
+    }
+    
+    //Set content-type to multipart/alternative
+    public RxHttpFormParam setMultiAlternative() {
+        param.setMultiAlternative();
+        return this;
+    }
+    
+    //Set content-type to multipart/digest
+    public RxHttpFormParam setMultiDigest() {
+        param.setMultiDigest();
+        return this;
+    }
+    
+    //Set content-type to multipart/parallel
+    public RxHttpFormParam setMultiParallel() {
+        param.setMultiParallel();
+        return this;
+    }
+    
+    //Set the MIME type
+    public RxHttpFormParam setMultiType(MediaType multiType) {
+        param.setMultiType(multiType);
         return this;
     }
 }
