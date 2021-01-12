@@ -36,21 +36,21 @@ public interface IFile<P extends Param<P>> {
         return addFile(new UpFile(key, filename, file));
     }
 
-    default P addFile(String key, List<? extends File> fileList) {
+    default P addFiles(String key, List<? extends File> fileList) {
         for (File file : fileList) {
             addFile(new UpFile(key, file));
         }
         return (P) this;
     }
 
-    default P addFile(Map<String, ? extends File> fileMap) {
+    default P addFiles(Map<String, ? extends File> fileMap) {
         for (Map.Entry<String, ? extends File> entry : fileMap.entrySet()) {
             addFile(new UpFile(entry.getKey(), entry.getValue()));
         }
         return (P) this;
     }
 
-    default P addFile(List<? extends UpFile> upFileList) {
+    default P addFiles(List<? extends UpFile> upFileList) {
         for (UpFile upFile : upFileList) {
             addFile(upFile);
         }
