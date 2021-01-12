@@ -113,7 +113,7 @@ public class LogUtil {
                 .append(RxHttpVersion.userAgent).append(" ")
                 .append(OkHttpCompat.getOkHttpUserAgent())
                 .append(" request end ------>\n")
-                .append(request.method()).append(" ").append(getEncodedUrlAndParams(request))
+                .append(request.method()).append(" ").append(request.url())
                 .append("\n\n").append(response.protocol()).append(" ")
                 .append(response.code()).append(" ").append(response.message())
                 .append(tookMs > 0 ? " " + tookMs + "ms" : "")
