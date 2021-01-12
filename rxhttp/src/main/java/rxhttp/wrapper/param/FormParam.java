@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
 import okhttp3.MultipartBody.Part;
 import okhttp3.RequestBody;
 import rxhttp.wrapper.annotations.NonNull;
@@ -26,7 +28,7 @@ import rxhttp.wrapper.utils.CacheUtil;
  */
 public class FormParam extends AbstractBodyParam<FormParam> implements IPart<FormParam> {
 
-    private boolean isMultiForm;
+    private MediaType multiType;
 
     private List<Part> partList;  //Part List
     private List<KeyValuePair> bodyParam; //Param list
@@ -99,23 +101,52 @@ public class FormParam extends AbstractBodyParam<FormParam> implements IPart<For
     public FormParam addPart(Part part) {
         List<Part> partList = this.partList;
         if (partList == null) {
-            isMultiForm = true;
+            setMultiForm();
             partList = this.partList = new ArrayList<>();
         }
         partList.add(part);
         return this;
     }
 
-    //set content-type to multipart/form-data
+    //Set content-type to multipart/form-data
     public FormParam setMultiForm() {
-        isMultiForm = true;
+        return setMultiType(MultipartBody.FORM);
+    }
+
+    //Set content-type to multipart/mixed
+    public FormParam setMultiMixed() {
+        return setMultiType(MultipartBody.MIXED);
+    }
+
+    //Set content-type to multipart/alternative
+    public FormParam setMultiAlternative() {
+        return setMultiType(MultipartBody.ALTERNATIVE);
+    }
+
+    //Set content-type to multipart/digest
+    public FormParam setMultiDigest() {
+        return setMultiType(MultipartBody.DIGEST);
+    }
+
+    //Set content-type to multipart/parallel
+    public FormParam setMultiParallel() {
+        return setMultiType(MultipartBody.PARALLEL);
+    }
+
+    //Set the MIME type
+    public FormParam setMultiType(MediaType multiType) {
+        this.multiType = multiType;
         return this;
+    }
+
+    public boolean isMultipart() {
+        return multiType != null;
     }
 
     @Override
     public RequestBody getRequestBody() {
-        return isMultiForm() ? BuildUtil.buildFormRequestBody(bodyParam, partList)
-            : BuildUtil.buildFormRequestBody(bodyParam);
+        return isMultipart() ? BuildUtil.buildMultipartBody(multiType, bodyParam, partList)
+            : BuildUtil.buildFormBody(bodyParam);
     }
 
     public List<Part> getPartList() {
@@ -133,10 +164,6 @@ public class FormParam extends AbstractBodyParam<FormParam> implements IPart<For
 
     public List<KeyValuePair> getBodyParam() {
         return bodyParam;
-    }
-
-    public boolean isMultiForm() {
-        return isMultiForm;
     }
 
     @Override
