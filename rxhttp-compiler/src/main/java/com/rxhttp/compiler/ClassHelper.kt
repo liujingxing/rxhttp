@@ -1247,13 +1247,34 @@ object ClassHelper {
                     return this;
                 }
 
+                /**
+                 * @deprecated please user {@link #addFiles(List)} instead
+                 */
+                @Deprecated
+                public RxHttpFormParam addFile(List<? extends UpFile> fileList) {
+                    return addFiles(fileList);
+                }
+                
+                /**
+                 * @deprecated please user {@link #addFiles(String, List)} instead
+                 */
+                @Deprecated
                 public RxHttpFormParam addFile(String key, List<? extends File> fileList) {
-                    param.addFile(key, fileList);
-                    return this;
+                    return addFiles(key, fileList);
                 }
 
-                public RxHttpFormParam addFile(List<? extends UpFile> fileList) {
-                    param.addFile(fileList);
+                public RxHttpFormParam addFiles(List<? extends UpFile> fileList) {
+                    param.addFiles(fileList);
+                    return this;
+                }
+                
+                public RxHttpFormParam addFiles(Map<String, ? extends File> fileMap) {
+                    param.addFiles(fileMap);
+                    return this;
+                }
+                
+                public RxHttpFormParam addFiles(String key, List<? extends File> fileList) {
+                    param.addFiles(key, fileList);
                     return this;
                 }
 
@@ -1338,7 +1359,7 @@ object ClassHelper {
                     return this;
                 }
                 """ else ""
-                }
+        }
                 public RxHttpFormParam addPart(Part part) {
                     param.addPart(part);
                     return this;
