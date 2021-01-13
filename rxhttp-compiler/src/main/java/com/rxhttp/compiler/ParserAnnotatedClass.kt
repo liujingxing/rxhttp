@@ -106,6 +106,7 @@ class ParserAnnotatedClass {
 
         methodList.add(
             MethodSpec.methodBuilder("newCall")
+                .addAnnotation(Override::class.java)
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                 .addCode("""
                     Request request = buildRequest();
@@ -120,11 +121,14 @@ class ParserAnnotatedClass {
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                 .addCode(
                     """
+                    boolean debug = ${"$"}T.isDebug();    
                     if (request == null) {
                         doOnStart();
                         request = param.buildRequest();
+                        if (debug) 
+                            LogUtil.log(request, getOkHttpClient().cookieJar());
                     }
-                    if (${"$"}T.isDebug()) {
+                    if (debug) {
                         request = request.newBuilder()
                             .tag(LogTime.class, new ${"$"}T())
                             .build();

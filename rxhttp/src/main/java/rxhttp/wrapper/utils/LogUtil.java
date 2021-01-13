@@ -3,9 +3,13 @@ package rxhttp.wrapper.utils;
 import java.io.EOFException;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.List;
 
 import kotlin.text.Charsets;
+import okhttp3.Cookie;
+import okhttp3.CookieJar;
 import okhttp3.Headers;
+import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.MultipartBody.Part;
@@ -77,22 +81,56 @@ public class LogUtil {
     }
 
     //请求前，打印日志
-    public static void log(@NonNull Request request) {
+    public static void log(@NonNull Request userRequest, CookieJar cookieJar) {
         if (!isDebug) return;
         try {
+            Request.Builder requestBuilder = userRequest.newBuilder();
             StringBuilder builder = new StringBuilder("<------ ")
                 .append(RxHttpVersion.userAgent).append(" ")
                 .append(OkHttpCompat.getOkHttpUserAgent())
                 .append(" request start ------>\n")
-                .append(request.method())
-                .append(" ").append(request.url())
-                .append("\n").append(request.headers());
-            RequestBody body = request.body();
+                .append(userRequest.method())
+                .append(" ").append(userRequest.url());
+            RequestBody body = userRequest.body();
             if (body != null) {
-                builder.append("Content-Type: ").append(body.contentType());
-                builder.append("\nContent-Length: ").append(body.contentLength());
-                builder.append("\n\n").append(requestBody2Str(body));
+                MediaType contentType = body.contentType();
+                if (contentType != null) {
+                    requestBuilder.header("Content-Type", contentType.toString());
+                }
+                long contentLength = body.contentLength();
+                if (contentLength != -1L) {
+                    requestBuilder.header("Content-Length", String.valueOf(contentLength));
+                    requestBuilder.removeHeader("Transfer-Encoding");
+                } else {
+                    requestBuilder.header("Transfer-Encoding", "chunked");
+                    requestBuilder.removeHeader("Content-Length");
+                }
             }
+
+            if (userRequest.header("Host") == null) {
+                requestBuilder.header("Host", hostHeader(userRequest.url()));
+            }
+
+            if (userRequest.header("Connection") == null) {
+                requestBuilder.header("Connection", "Keep-Alive");
+            }
+
+            // If we add an "Accept-Encoding: gzip" header field we're responsible for also decompressing
+            // the transfer stream.
+            if (userRequest.header("Accept-Encoding") == null
+                && userRequest.header("Range") == null) {
+                requestBuilder.header("Accept-Encoding", "gzip");
+            }
+            List<Cookie> cookies = cookieJar.loadForRequest(userRequest.url());
+            if (!cookies.isEmpty()) {
+                requestBuilder.header("Cookie", cookieHeader(cookies));
+            }
+            if (userRequest.header("User-Agent") == null) {
+                requestBuilder.header("User-Agent", OkHttpCompat.getOkHttpUserAgent());
+            }
+            builder.append("\n").append(requestBuilder.build().headers());
+            if (body != null) builder.append("\n").append(requestBody2Str(body));
+
             Platform.get().logd(TAG, builder.toString());
         } catch (Throwable e) {
             Platform.get().logd(TAG, "Request start log printing failed", e);
@@ -243,5 +281,28 @@ public class LogUtil {
     private static Charset getCharset(ResponseBody responseBody) {
         MediaType mediaType = responseBody.contentType();
         return mediaType != null ? mediaType.charset(Charsets.UTF_8) : Charsets.UTF_8;
+    }
+
+
+    private static String hostHeader(HttpUrl url) {
+        String host = url.host().contains(":")
+            ? "[" + url.host() + "]"
+            : url.host();
+        return host + ":" + url.port();
+    }
+
+    /**
+     * Returns a 'Cookie' HTTP request header with all cookies, like {@code a=b; c=d}.
+     */
+    private static String cookieHeader(List<Cookie> cookies) {
+        StringBuilder cookieHeader = new StringBuilder();
+        for (int i = 0, size = cookies.size(); i < size; i++) {
+            if (i > 0) {
+                cookieHeader.append("; ");
+            }
+            Cookie cookie = cookies.get(i);
+            cookieHeader.append(cookie.name()).append('=').append(cookie.value());
+        }
+        return cookieHeader.toString();
     }
 }
