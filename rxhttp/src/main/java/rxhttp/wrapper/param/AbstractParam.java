@@ -217,9 +217,7 @@ public abstract class AbstractParam<P extends Param<P>> implements Param<P> {
     @Override
     public final Request buildRequest() {
         Param<?> param = RxHttpPlugins.onParamAssembly(this);
-        Request request = BuildUtil.buildRequest(param, requestBuilder);
-        LogUtil.log(request);
-        return request;
+        return BuildUtil.buildRequest(param, requestBuilder);
     }
 
     protected IConverter getConverter() {

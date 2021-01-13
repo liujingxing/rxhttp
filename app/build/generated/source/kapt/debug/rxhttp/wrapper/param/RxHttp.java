@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.lang.Class;
 import java.lang.Deprecated;
 import java.lang.Object;
+import java.lang.Override;
 import java.lang.String;
 import java.lang.SuppressWarnings;
 import java.lang.reflect.Type;
@@ -531,6 +532,7 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
     return execute(new SimpleParser<T>(type));
   }
 
+  @Override
   public final Call newCall() {
     Request request = buildRequest();
     OkHttpClient okClient = getOkHttpClient();
@@ -538,11 +540,14 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
   }
 
   public final Request buildRequest() {
+    boolean debug = LogUtil.isDebug();    
     if (request == null) {
         doOnStart();
         request = param.buildRequest();
+        if (debug) 
+            LogUtil.log(request, getOkHttpClient().cookieJar());
     }
-    if (LogUtil.isDebug()) {
+    if (debug) {
         request = request.newBuilder()
             .tag(LogTime.class, new LogTime())
             .build();
