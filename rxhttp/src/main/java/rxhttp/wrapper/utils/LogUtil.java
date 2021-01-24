@@ -17,6 +17,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
+import okhttp3.internal.http.HttpHeaders;
 import okio.Buffer;
 import okio.BufferedSource;
 import rxhttp.Platform;
@@ -129,8 +130,16 @@ public class LogUtil {
                 requestBuilder.header("User-Agent", OkHttpCompat.getOkHttpUserAgent());
             }
             builder.append("\n").append(requestBuilder.build().headers());
-            if (body != null) builder.append("\n").append(requestBody2Str(body));
-
+            if (body != null) {
+                builder.append("\n");
+                if (bodyHasUnknownEncoding(userRequest.headers())) {
+                    builder.append("(binary ")
+                        .append(body.contentLength())
+                        .append("-byte encoded body omitted)");
+                } else {
+                    builder.append(requestBody2Str(body));
+                }
+            }
             Platform.get().logd(TAG, builder.toString());
         } catch (Throwable e) {
             Platform.get().logd(TAG, "Request start log printing failed", e);
@@ -138,14 +147,23 @@ public class LogUtil {
     }
 
     //打印Http返回的正常结果
+    @SuppressWarnings("deprecation")
     public static void log(@NonNull Response response, String body) {
         if (!isDebug) return;
         try {
             Request request = response.request();
             LogTime logTime = request.tag(LogTime.class);
             long tookMs = logTime != null ? logTime.tookMs() : 0;
-            String result = body != null ? body :
-                getResult(OkHttpCompat.requireBody(response), OkHttpCompat.needDecodeResult(response));
+            String result;
+            if (body != null) {
+                result = body;
+            } else if (!HttpHeaders.hasBody(response)) {
+                result = "No Response Body";
+            } else if (bodyHasUnknownEncoding(response.headers())) {
+                result = "(binary " + response.body().contentLength() + "-byte encoded body omitted)";
+            } else {
+                result = response2Str(response);
+            }
             StringBuilder builder = new StringBuilder("<------ ")
                 .append(RxHttpVersion.userAgent).append(" ")
                 .append(OkHttpCompat.getOkHttpUserAgent())
@@ -237,7 +255,10 @@ public class LogUtil {
     }
 
     @SuppressWarnings("deprecation")
-    private static String getResult(ResponseBody body, boolean onResultDecoder) throws IOException {
+    private static String response2Str(Response response) throws IOException {
+        ResponseBody body = OkHttpCompat.requireBody(response);
+        boolean onResultDecoder = OkHttpCompat.needDecodeResult(response);
+
         BufferedSource source = body.source();
         source.request(Long.MAX_VALUE); // Buffer the entire body.
         Buffer buffer = source.buffer();
@@ -304,5 +325,12 @@ public class LogUtil {
             cookieHeader.append(cookie.name()).append('=').append(cookie.value());
         }
         return cookieHeader.toString();
+    }
+
+    private static boolean bodyHasUnknownEncoding(Headers headers) {
+        String contentEncoding = headers.get("Content-Encoding");
+        return contentEncoding != null
+            && !contentEncoding.equalsIgnoreCase("identity")
+            && !contentEncoding.equalsIgnoreCase("gzip");
     }
 }
