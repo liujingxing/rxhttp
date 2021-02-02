@@ -391,7 +391,7 @@ class ParserAnnotatedClass {
                 && !it.getModifiers().contains(Modifier.STATIC) //非静态
                 && it.simpleName.toString() == "onParse"  //onParse方法
                 && it.parameters.size == 1  //只有一个参数
-                && it.parameters[0].asType().toString() == "okhttp3.Response"  //参数是okhttp3.Response类型
+                && TypeName.get(it.parameters[0].asType()).toString() == "okhttp3.Response"  //参数是okhttp3.Response类型
             ) {
                 return it.returnType;
             }
