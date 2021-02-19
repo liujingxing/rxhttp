@@ -1123,7 +1123,7 @@ object ClassHelper {
                     return this;
                 }
                 
-                public <T> RxHttpBodyParam setJsonBody(T object) {
+                public RxHttpBodyParam setJsonBody(Object object) {
                     param.setJsonBody(object);
                     return this;
                 }
