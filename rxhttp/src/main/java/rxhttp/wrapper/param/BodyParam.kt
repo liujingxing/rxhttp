@@ -22,24 +22,32 @@ class BodyParam(
     method: Method,
 ) : AbstractBodyParam<BodyParam>(url, method) {
 
+    private var jsonValue: Any? = null
     private var requestBody: RequestBody? = null
+
+    fun setJsonBody(value: Any): BodyParam {
+        jsonValue = value
+        requestBody = null
+        return this
+    }
 
     fun setBody(requestBody: RequestBody): BodyParam {
         this.requestBody = requestBody
+        jsonValue = null
         return this
     }
 
     @JvmOverloads
-    fun setBody(content: String, mediaType: MediaType? = null): BodyParam {
-        requestBody = RequestBody.create(mediaType, content)
-        return this
-    }
+    fun setBody(
+        content: String,
+        mediaType: MediaType? = null,
+    ): BodyParam = setBody(RequestBody.create(mediaType, content))
 
     @JvmOverloads
-    fun setBody(content: ByteString, mediaType: MediaType? = null): BodyParam {
-        requestBody = RequestBody.create(mediaType, content)
-        return this
-    }
+    fun setBody(
+        content: ByteString,
+        mediaType: MediaType? = null,
+    ): BodyParam = setBody(RequestBody.create(mediaType, content))
 
     @JvmOverloads
     fun setBody(
@@ -47,36 +55,23 @@ class BodyParam(
         mediaType: MediaType? = null,
         offset: Int = 0,
         byteCount: Int = content.size,
-    ): BodyParam {
-        requestBody = RequestBody.create(mediaType, content, offset, byteCount)
-        return this
-    }
+    ): BodyParam = setBody(RequestBody.create(mediaType, content, offset, byteCount))
 
     @JvmOverloads
     fun setBody(
         file: File,
         mediaType: MediaType? = BuildUtil.getMediaType(file.name),
-    ): BodyParam {
-        requestBody = RequestBody.create(mediaType, file)
-        return this
-    }
+    ): BodyParam = setBody(RequestBody.create(mediaType, file))
 
     @JvmOverloads
     fun setBody(
         uri: Uri,
         context: Context,
         contentType: MediaType? = null,
-    ): BodyParam {
-        requestBody = uri.asRequestBody(context, contentType)
-        return this
-    }
-
-    fun <T> setJsonBody(any: T): BodyParam {
-        requestBody = convert(any)
-        return this
-    }
+    ): BodyParam = setBody(uri.asRequestBody(context, contentType))
 
     override fun getRequestBody(): RequestBody {
+        jsonValue?.let { requestBody = convert(it) }
         return requestBody
             ?: throw NullPointerException("requestBody cannot be null, please call the setBody series methods")
     }
