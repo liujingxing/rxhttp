@@ -4,8 +4,6 @@
 
 [ ![Download](https://api.bintray.com/packages/32774707/maven/rxhttp2/images/download.svg) ](https://bintray.com/32774707/maven/rxhttp2/_latestVersion)
 
-本人正在参与[掘金2020年度人气创作者榜单排名](https://rank.juejin.cn/?u=%E4%B8%8D%E6%80%95%E5%A4%A9%E9%BB%91&t=user)，希望各位小伙伴帮我投票，2021年会给大家带来更多优质的文章。
-
 # 主要优势
 
   ***1. 30秒即可上手，学习成本极低***
