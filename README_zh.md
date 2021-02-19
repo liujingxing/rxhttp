@@ -70,9 +70,9 @@ android {
 }
 
 dependencies {
-    implementation 'com.ljx.rxhttp:rxhttp:2.5.4'
+    implementation 'com.ljx.rxhttp:rxhttp:2.5.5'
     implementation 'com.squareup.okhttp3:okhttp:4.9.0' //rxhttp v2.2.2版本起，需要手动依赖okhttp
-    kapt 'com.ljx.rxhttp:rxhttp-compiler:2.5.4' //生成RxHttp类，纯Java项目，请使用annotationProcessor代替kapt
+    kapt 'com.ljx.rxhttp:rxhttp-compiler:2.5.5' //生成RxHttp类，纯Java项目，请使用annotationProcessor代替kapt
  }
 ```
 
@@ -105,11 +105,11 @@ dependencies {
     implementation 'com.ljx.rxlife3:rxlife-rxjava:3.0.0' //管理RxJava3生命周期，页面销毁，关闭请求
 
     //非必须，根据自己需求选择 RxHttp默认内置了GsonConverter
-    implementation 'com.ljx.rxhttp:converter-fastjson:2.5.4'
-    implementation 'com.ljx.rxhttp:converter-jackson:2.5.4'
-    implementation 'com.ljx.rxhttp:converter-moshi:2.5.4'
-    implementation 'com.ljx.rxhttp:converter-protobuf:2.5.4'
-    implementation 'com.ljx.rxhttp:converter-simplexml:2.5.4'
+    implementation 'com.ljx.rxhttp:converter-fastjson:2.5.5'
+    implementation 'com.ljx.rxhttp:converter-jackson:2.5.5'
+    implementation 'com.ljx.rxhttp:converter-moshi:2.5.5'
+    implementation 'com.ljx.rxhttp:converter-protobuf:2.5.5'
+    implementation 'com.ljx.rxhttp:converter-simplexml:2.5.5'
 }
 ```
 
