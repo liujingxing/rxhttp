@@ -36,7 +36,7 @@ android {
 
 dependencies {
     implementation 'com.ljx.rxhttp:rxhttp:2.5.5'
-    implementation 'com.squareup.okhttp3:okhttp:4.9.0' 
+    implementation 'com.squareup.okhttp3:okhttp:4.9.1' 
     kapt 'com.ljx.rxhttp:rxhttp-compiler:2.5.5' //Use the annotationProcessor instead of kapt, if you use Java
  }
 ```
