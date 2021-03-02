@@ -23,7 +23,7 @@ dependencies {
     api 'com.ljx.rxhttp:rxhttp-annotation:1.0.1'
 //    api project(":rxhttp-annotation")
     api 'com.google.code.gson:gson:2.8.6'
-    api "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.9"
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.2"
 }
 
 sourceCompatibility = "8"
