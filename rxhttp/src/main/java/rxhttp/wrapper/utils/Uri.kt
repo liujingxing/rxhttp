@@ -10,6 +10,7 @@ import android.provider.MediaStore
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import rxhttp.wrapper.OkHttpCompat
 import rxhttp.wrapper.entity.UriRequestBody
 import java.io.File
 import java.io.FileNotFoundException
@@ -34,7 +35,7 @@ fun Uri.asPart(
     contentType: MediaType? = null,
 ): MultipartBody.Part {
     val newFilename = filename ?: displayName(context)
-    return MultipartBody.Part.createFormData(key, newFilename, asRequestBody(context, contentType))
+    return OkHttpCompat.createFormData(key, newFilename, asRequestBody(context, contentType))
 }
 
 fun Uri?.length(context: Context): Long {

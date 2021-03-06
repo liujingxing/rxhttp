@@ -10,7 +10,10 @@ import java.util.Objects;
 
 import okhttp3.Headers;
 import okhttp3.HttpUrl;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import okhttp3.internal.Util;
@@ -19,6 +22,7 @@ import okhttp3.internal.cache.DiskLruCache.Companion;
 import okhttp3.internal.concurrent.TaskRunner;
 import okhttp3.internal.http.StatusLine;
 import okhttp3.internal.io.FileSystem;
+import okio.ByteString;
 import rxhttp.wrapper.annotations.Nullable;
 import rxhttp.wrapper.callback.IConverter;
 import rxhttp.wrapper.entity.DownloadOffSize;
@@ -55,6 +59,27 @@ public class OkHttpCompat {
     public static void closeQuietly(Closeable closeable) {
         if (closeable == null) return;
         Util.closeQuietly(closeable);
+    }
+
+    public static RequestBody create(@Nullable MediaType contentType, String content) {
+        return RequestBody.create(contentType, content);
+    }
+
+    public static RequestBody create(final @Nullable MediaType contentType, final ByteString content) {
+        return RequestBody.create(contentType, content);
+    }
+
+    public static RequestBody create(final @Nullable MediaType contentType, final byte[] content,
+                                     final int offset, final int byteCount) {
+        return RequestBody.create(contentType, content, offset, byteCount);
+    }
+
+    public static RequestBody create(final @Nullable MediaType contentType, final File file) {
+        return RequestBody.create(contentType, file);
+    }
+
+    public static MultipartBody.Part createFormData(String name, @Nullable String filename, RequestBody body) {
+        return MultipartBody.Part.createFormData(name, filename, body);
     }
 
     public static Request request(Response response) {
