@@ -5,6 +5,7 @@ import android.net.Uri
 import okhttp3.MediaType
 import okhttp3.RequestBody
 import okio.ByteString
+import rxhttp.wrapper.OkHttpCompat
 import rxhttp.wrapper.utils.BuildUtil
 import rxhttp.wrapper.utils.asRequestBody
 import java.io.File
@@ -41,13 +42,13 @@ class BodyParam(
     fun setBody(
         content: String,
         mediaType: MediaType? = null,
-    ): BodyParam = setBody(RequestBody.create(mediaType, content))
+    ): BodyParam = setBody(OkHttpCompat.create(mediaType, content))
 
     @JvmOverloads
     fun setBody(
         content: ByteString,
         mediaType: MediaType? = null,
-    ): BodyParam = setBody(RequestBody.create(mediaType, content))
+    ): BodyParam = setBody(OkHttpCompat.create(mediaType, content))
 
     @JvmOverloads
     fun setBody(
@@ -55,13 +56,13 @@ class BodyParam(
         mediaType: MediaType? = null,
         offset: Int = 0,
         byteCount: Int = content.size,
-    ): BodyParam = setBody(RequestBody.create(mediaType, content, offset, byteCount))
+    ): BodyParam = setBody(OkHttpCompat.create(mediaType, content, offset, byteCount))
 
     @JvmOverloads
     fun setBody(
         file: File,
         mediaType: MediaType? = BuildUtil.getMediaType(file.name),
-    ): BodyParam = setBody(RequestBody.create(mediaType, file))
+    ): BodyParam = setBody(OkHttpCompat.create(mediaType, file))
 
     @JvmOverloads
     fun setBody(
