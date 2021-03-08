@@ -70,7 +70,7 @@ android {
 }
 
 dependencies {
-    implementation 'com.ljx.rxhttp:rxhttp:2.5.5'
+    implementation 'com.ljx.rxhttp:rxhttp:2.5.6'
     implementation 'com.squareup.okhttp3:okhttp:4.9.1' //rxhttp v2.2.2版本起，需要手动依赖okhttp
     kapt 'com.ljx.rxhttp:rxhttp-compiler:2.5.6' //生成RxHttp类，纯Java项目，请使用annotationProcessor代替kapt
  }
