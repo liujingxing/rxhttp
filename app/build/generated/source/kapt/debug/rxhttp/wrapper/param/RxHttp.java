@@ -30,7 +30,6 @@ import okhttp3.Headers.Builder;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import org.jetbrains.annotations.NotNull;
 import rxhttp.HttpSender;
 import rxhttp.RxHttpPlugins;
 import rxhttp.wrapper.cahce.CacheMode;
@@ -626,7 +625,7 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
     return (R)this;
   }
 
-  public R setOkClient(@NotNull OkHttpClient okClient) {
+  public R setOkClient(OkHttpClient okClient) {
     if (okClient == null) 
         throw new IllegalArgumentException("okClient can not be null");
     this.okClient = okClient;
