@@ -45,15 +45,15 @@ open class AnnotationProcessor : AbstractProcessor() {
     }
 
     override fun getSupportedAnnotationTypes(): Set<String> {
-        val annotations: MutableSet<String> = LinkedHashSet()
-        annotations.add(Override::class.java.canonicalName)
-        annotations.add(Param::class.java.canonicalName)
-        annotations.add(Parser::class.java.canonicalName)
-        annotations.add(Converter::class.java.canonicalName)
-        annotations.add(Domain::class.java.canonicalName)
-        annotations.add(DefaultDomain::class.java.canonicalName)
-        annotations.add(OkClient::class.java.canonicalName)
-        return annotations
+        return LinkedHashSet<String>().apply {
+            add(Override::class.java.canonicalName)
+            add(Param::class.java.canonicalName)
+            add(Parser::class.java.canonicalName)
+            add(Converter::class.java.canonicalName)
+            add(Domain::class.java.canonicalName)
+            add(DefaultDomain::class.java.canonicalName)
+            add(OkClient::class.java.canonicalName)
+        }
     }
 
     open fun getRxJavaVersion(map: Map<String, String>) = map["rxhttp_rxjava"]
