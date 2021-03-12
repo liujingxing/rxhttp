@@ -20,7 +20,7 @@ object IOUtil {
         val bis = BufferedInputStream(inStream, LENGTH_BYTE)
         val bos = BufferedOutputStream(outStream, LENGTH_BYTE)
         var count = 0
-        var n = 0
+        var n: Int
         try {
             while (bis.read(buffer, 0, 1024 * 8).also { n = it } != -1) {
                 bos.write(buffer, 0, n)
