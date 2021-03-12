@@ -3,7 +3,6 @@ package com.rxhttp.compiler
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterSpec
-import org.jetbrains.annotations.NotNull
 import rxhttp.wrapper.annotation.OkClient
 import java.util.*
 import javax.lang.model.element.Modifier
@@ -27,8 +26,7 @@ class OkClientAnnotatedClass {
             val methodList = ArrayList<MethodSpec>()
 
             val okClientName = ClassName.get("okhttp3", "OkHttpClient")
-            val okClientParam = ParameterSpec.builder(okClientName, "okClient")
-                .addAnnotation(NotNull::class.java).build()
+            val okClientParam = ParameterSpec.builder(okClientName, "okClient").build()
 
             methodList.add(MethodSpec.methodBuilder("setOkClient")
                 .addModifiers(Modifier.PUBLIC)
