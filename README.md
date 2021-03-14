@@ -35,9 +35,9 @@ android {
 }
 
 dependencies {
-    implementation 'com.ljx.rxhttp:rxhttp:2.5.6'
+    implementation 'com.ljx.rxhttp:rxhttp:2.5.7'
     implementation 'com.squareup.okhttp3:okhttp:4.9.1' 
-    kapt 'com.ljx.rxhttp:rxhttp-compiler:2.5.6' //Use the annotationProcessor instead of kapt, if you use Java
+    kapt 'com.ljx.rxhttp:rxhttp-compiler:2.5.7' //Use the annotationProcessor instead of kapt, if you use Java
  }
 ```
 
@@ -69,11 +69,11 @@ dependencies {
     implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
     implementation 'com.ljx.rxlife3:rxlife-rxjava:3.0.0' //RxJava3, Automatic close request
 
-    implementation 'com.ljx.rxhttp:converter-fastjson:2.5.6'
-    implementation 'com.ljx.rxhttp:converter-jackson:2.5.6'
-    implementation 'com.ljx.rxhttp:converter-moshi:2.5.6'
-    implementation 'com.ljx.rxhttp:converter-protobuf:2.5.6'
-    implementation 'com.ljx.rxhttp:converter-simplexml:2.5.6'
+    implementation 'com.ljx.rxhttp:converter-fastjson:2.5.7'
+    implementation 'com.ljx.rxhttp:converter-jackson:2.5.7'
+    implementation 'com.ljx.rxhttp:converter-moshi:2.5.7'
+    implementation 'com.ljx.rxhttp:converter-protobuf:2.5.7'
+    implementation 'com.ljx.rxhttp:converter-simplexml:2.5.7'
 }
 ```
 
