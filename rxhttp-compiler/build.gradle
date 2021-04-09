@@ -1,6 +1,7 @@
 apply plugin: 'kotlin'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'com.github.dcendents.android-maven'
+group = 'com.github.liujingxing'
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
