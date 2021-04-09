@@ -58,13 +58,16 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0"
     implementation 'androidx.lifecycle:lifecycle-service:2.3.0-beta01'
 
-//    implementation project(":rxhttp")
-//    kapt project(':rxhttp-compiler')
+    implementation project(":rxhttp")
+    kapt project(':rxhttp-compiler')
 
     implementation "com.squareup.okhttp3:okhttp:${okhttp_version}"
 
-    implementation "com.ljx.rxhttp:rxhttp:${rxhttp_version}"
-    kapt "com.ljx.rxhttp:rxhttp-compiler:${rxhttp_version}"
+//    implementation "com.ljx.rxhttp:rxhttp:${rxhttp_version}"
+//    kapt "com.ljx.rxhttp:rxhttp-compiler:${rxhttp_version}"
+
+//    implementation "com.github.liujingxing:okhttp-RxHttp:2.6.0-beta3"
+//    kapt "com.github.liujingxing:rxhttp-compiler:2.6.0-beta3"
 
     implementation 'com.ljx.rxlife:rxlife-coroutine:2.0.1'
 
@@ -73,17 +76,17 @@ dependencies {
     implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
     implementation 'io.reactivex.rxjava3:rxjava:3.0.6'
 
-    implementation "com.ljx.rxhttp:converter-fastjson:${rxhttp_converter_version}"
-    implementation "com.ljx.rxhttp:converter-jackson:${rxhttp_converter_version}"
-    implementation "com.ljx.rxhttp:converter-moshi:${rxhttp_converter_version}"
-    implementation "com.ljx.rxhttp:converter-protobuf:${rxhttp_converter_version}"
-    implementation "com.ljx.rxhttp:converter-simplexml:${rxhttp_converter_version}"
+//    implementation "com.ljx.rxhttp:converter-fastjson:${rxhttp_converter_version}"
+//    implementation "com.ljx.rxhttp:converter-jackson:${rxhttp_converter_version}"
+//    implementation "com.ljx.rxhttp:converter-moshi:${rxhttp_converter_version}"
+//    implementation "com.ljx.rxhttp:converter-protobuf:${rxhttp_converter_version}"
+//    implementation "com.ljx.rxhttp:converter-simplexml:${rxhttp_converter_version}"
 
-//    implementation project(':rxhttp-converter:converter-fastjson')
-//    implementation project(':rxhttp-converter:converter-simplexml')
-//    implementation project(':rxhttp-converter:converter-protobuf')
-//    implementation project(':rxhttp-converter:converter-moshi')
-//    implementation project(':rxhttp-converter:converter-jackson')
+    implementation project(':rxhttp-converter:converter-fastjson')
+    implementation project(':rxhttp-converter:converter-simplexml')
+    implementation project(':rxhttp-converter:converter-protobuf')
+    implementation project(':rxhttp-converter:converter-moshi')
+    implementation project(':rxhttp-converter:converter-jackson')
 
     testImplementation 'junit:junit:4.13'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
