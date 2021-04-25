@@ -49,7 +49,7 @@ android {
             annotationProcessorOptions {
                 arguments = [
                     //Pass in RxJava version, can pass in RxJava2, RxJava3
-                    rxhttp_rxjava: 'rxjava3'，
+                    rxhttp_rxjava: 'rxjava3',
                     rxhttp_package: 'rxhttp'   //Specifies the RxHttp class package
                 ]
             }
