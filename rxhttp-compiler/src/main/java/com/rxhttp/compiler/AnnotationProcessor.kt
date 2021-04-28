@@ -197,20 +197,22 @@ open class AnnotationProcessor : AbstractProcessor() {
                     element.simpleName.toString())
             }
 
-            //2、查找 java.lang.reflect.Type 类型参数构造方法
-            val typeArgumentConstructorFun = constructorFun
-                .findTypeArgumentConstructorFun(element.typeParameters.size)
-            if (typeArgumentConstructorFun == null) {
-                val method = StringBuffer("public %s(")
-                for (i in element.typeParameters.indices) {
-                    method.append("java.lang.reflect.Type")
-                    if (i == element.typeParameters.size - 1) {
-                        method.append(")")
-                    } else method.append(", ")
+            if (isDependenceRxJava()) {
+                //2、如果依赖了RxJava，则需要查找带 java.lang.reflect.Type 参数的构造方法
+                val typeArgumentConstructorFun = constructorFun
+                    .findTypeArgumentConstructorFun(element.typeParameters.size)
+                if (typeArgumentConstructorFun == null) {
+                    val method = StringBuffer("public %s(")
+                    for (i in element.typeParameters.indices) {
+                        method.append("java.lang.reflect.Type")
+                        if (i == element.typeParameters.size - 1) {
+                            method.append(")")
+                        } else method.append(", ")
+                    }
+                    throw ProcessingException(element,
+                        "This class %s must declare '$method' constructor method",
+                        element.simpleName.toString(), element.simpleName.toString())
                 }
-                throw ProcessingException(element,
-                    "This class %s must declare '$method' constructor method",
-                    element.simpleName.toString(), element.simpleName.toString())
             }
         }
 
