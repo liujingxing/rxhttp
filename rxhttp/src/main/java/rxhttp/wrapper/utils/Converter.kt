@@ -3,6 +3,7 @@ package rxhttp.wrapper.utils
 
 import okhttp3.Response
 import rxhttp.wrapper.OkHttpCompat
+import rxhttp.wrapper.entity.ParameterizedTypeImpl
 import rxhttp.wrapper.exception.ExceptionHelper
 import java.io.IOException
 import java.lang.reflect.Type
@@ -12,6 +13,17 @@ import java.lang.reflect.Type
  * Date: 2020/8/15
  * Time: 11:48
  */
+
+@Throws(IOException::class)
+fun <R> Response.convertTo(rawType: Type, vararg types: Type): R {
+    return convert(ParameterizedTypeImpl.get(rawType, *types))
+}
+
+@Throws(IOException::class)
+fun <R> Response.convertToParameterized(rawType: Type, vararg actualTypeArguments: Type): R {
+    return convert(ParameterizedTypeImpl.getParameterized(rawType, *actualTypeArguments))
+}
+
 @Throws(IOException::class)
 fun <R> Response.convert(type: Type): R {
     val body = ExceptionHelper.throwIfFatal(this)

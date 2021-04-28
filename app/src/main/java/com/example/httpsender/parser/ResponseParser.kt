@@ -3,10 +3,9 @@ package com.example.httpsender.parser
 import com.example.httpsender.entity.PageList
 import com.example.httpsender.entity.Response
 import rxhttp.wrapper.annotation.Parser
-import rxhttp.wrapper.entity.ParameterizedTypeImpl
 import rxhttp.wrapper.exception.ParseException
 import rxhttp.wrapper.parse.AbstractParser
-import rxhttp.wrapper.utils.convert
+import rxhttp.wrapper.utils.convertTo
 import java.io.IOException
 import java.lang.reflect.Type
 
@@ -42,8 +41,7 @@ open class ResponseParser<T> : AbstractParser<T> {
 
     @Throws(IOException::class)
     override fun onParse(response: okhttp3.Response): T {
-        val type: Type = ParameterizedTypeImpl[Response::class.java, mType] //获取泛型类型
-        val data: Response<T> = response.convert(type)
+        val data: Response<T> = response.convertTo(Response::class.java, mType)
         var t = data.data //获取data字段
         if (t == null && mType === String::class.java) {
             /*
