@@ -32,10 +32,10 @@ public class CookieStore implements ICookieJar {
 
     private static final int appVersion = 1;
 
-    private File directory;
-    private long maxSize;
+    private final File directory;
+    private final long maxSize;
     private DiskLruCache diskCache; //磁盘缓存
-    private Map<String, List<Cookie>> memoryCache; //内存缓存
+    private Map<String, ConcurrentHashMap<String, Cookie>> memoryCache; //内存缓存
 
     public CookieStore() {
         this(null, Integer.MAX_VALUE, true);
@@ -96,8 +96,17 @@ public class CookieStore implements ICookieJar {
     @Override
     public void saveCookie(HttpUrl url, List<Cookie> cookies) {
         final String host = url.host();
+        ConcurrentHashMap<String, Cookie> cookieMap;
         if (memoryCache != null) { //开启了内存缓存，则将cookie写入内存
-            memoryCache.put(host, cookies);
+            cookieMap = memoryCache.get(host);
+            if (cookieMap == null) {
+                memoryCache.put(host, cookieMap = new ConcurrentHashMap<>());
+            }
+        } else {
+            cookieMap = new ConcurrentHashMap<>();
+        }
+        for (Cookie cookie : cookies) {
+            cookieMap.put(getToken(cookie), cookie);
         }
 
         DiskLruCache diskCache = getDiskLruCache();
@@ -108,7 +117,7 @@ public class CookieStore implements ICookieJar {
                 if (editor == null) {
                     return;
                 }
-                writeCookie(editor, cookies);
+                writeCookie(editor, cookieMap);
                 editor.commit();
             } catch (Exception e) {
                 e.printStackTrace();
@@ -127,33 +136,49 @@ public class CookieStore implements ICookieJar {
     @Override
     public List<Cookie> loadCookie(HttpUrl url) {
         final String host = url.host();
-        List<Cookie> cookies;
-        if (memoryCache != null) {  //1、开启了内存缓存，则从内存查找cookie
-            cookies = memoryCache.get(host);
-            if (cookies != null) { //2、内存缓存查找成功，直接返回
-                return Collections.unmodifiableList(cookies);
+        if (memoryCache != null) {    //1、开启了内存缓存，则从内存查找cookie
+            Map<String, Cookie> cookieMap = memoryCache.get(host);
+            if (cookieMap != null) {  //2、内存缓存查找成功，直接返回
+                return matchCookies(url, cookieMap);
             }
         }
-        cookies = new ArrayList<>();
+        ConcurrentHashMap<String, Cookie> cookieMap = new ConcurrentHashMap<>();
         DiskLruCache diskCache = getDiskLruCache();
         if (diskCache != null) { //3、开启了磁盘缓存，则从磁盘查找cookie
             DiskLruCache.Snapshot snapshot = null;
             try {
                 //4、磁盘缓存查找
                 snapshot = diskCache.get(md5(host));
-                if (snapshot == null) return Collections.unmodifiableList(cookies);
+                if (snapshot == null) return Collections.emptyList();
                 List<Cookie> cookiesList = readCookie(url, snapshot.getSource(0));
-                if (!cookiesList.isEmpty())
-                    cookies.addAll(cookiesList);
+                for (Cookie cookie : cookiesList) {
+                    cookieMap.put(getToken(cookie), cookie);
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
                 OkHttpCompat.closeQuietly(snapshot);
             }
         }
-        if (!cookies.isEmpty() && memoryCache != null) //5、磁盘缓存查找成功，添加进内存缓存
-            memoryCache.put(host, cookies);
-        return Collections.unmodifiableList(cookies);
+        if (memoryCache != null && !cookieMap.isEmpty()) //5、磁盘缓存查找成功，添加进内存缓存
+            memoryCache.put(host, cookieMap);
+        return matchCookies(url, cookieMap);
+    }
+
+    private List<Cookie> matchCookies(HttpUrl url, Map<String, Cookie> cookieMap) {
+        List<Cookie> matchCookies = new ArrayList<>();
+        for (Cookie cookie : cookieMap.values()) {
+            //cookie匹配且未过期
+            if (cookie.matches(url) && cookie.expiresAt() > System.currentTimeMillis()) {
+                matchCookies.add(cookie);
+            }
+        }
+        return Collections.unmodifiableList(matchCookies);
+    }
+
+
+    private String getToken(Cookie cookie) {
+        return cookie.name() + "; " + cookie.domain() + "; " + cookie.path() + "; " + cookie.secure();
     }
 
     /**
@@ -211,11 +236,11 @@ public class CookieStore implements ICookieJar {
     }
 
     //cookie写入磁盘
-    private void writeCookie(DiskLruCache.Editor editor, List<Cookie> cookies) throws
+    private void writeCookie(DiskLruCache.Editor editor, Map<String, Cookie> cookieMap) throws
         IOException {
         BufferedSink sink = Okio.buffer(editor.newSink(0));
-        sink.writeInt(cookies.size());
-        for (Cookie cookie : cookies) {
+        sink.writeInt(cookieMap.size());
+        for (Cookie cookie : cookieMap.values()) {
             sink.writeUtf8(cookie.toString()).writeByte('\n');
         }
         sink.close();
