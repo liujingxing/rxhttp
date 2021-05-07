@@ -41,7 +41,7 @@ open class ResponseParser<T> : AbstractParser<T> {
 
     @Throws(IOException::class)
     override fun onParse(response: okhttp3.Response): T {
-        val data: Response<T> = response.convertTo(Response::class.java, mType)
+        val data: Response<T> = response.convertTo(Response::class, mType)
         var t = data.data //获取data字段
         if (t == null && mType === String::class.java) {
             /*

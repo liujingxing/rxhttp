@@ -1,4 +1,5 @@
 @file:JvmName("Converter")
+
 package rxhttp.wrapper.utils
 
 import okhttp3.Response
@@ -7,6 +8,7 @@ import rxhttp.wrapper.entity.ParameterizedTypeImpl
 import rxhttp.wrapper.exception.ExceptionHelper
 import java.io.IOException
 import java.lang.reflect.Type
+import kotlin.reflect.KClass
 
 /**
  * User: ljx
@@ -15,8 +17,18 @@ import java.lang.reflect.Type
  */
 
 @Throws(IOException::class)
+fun <R> Response.convertTo(rawType: KClass<*>, vararg types: Type): R {
+    return convertTo(rawType.java, *types)
+}
+
+@Throws(IOException::class)
 fun <R> Response.convertTo(rawType: Type, vararg types: Type): R {
     return convert(ParameterizedTypeImpl.get(rawType, *types))
+}
+
+@Throws(IOException::class)
+fun <R> Response.convertToParameterized(rawType: KClass<*>, vararg actualTypeArguments: Type): R {
+    return convertToParameterized(rawType.java, *actualTypeArguments)
 }
 
 @Throws(IOException::class)
