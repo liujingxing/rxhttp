@@ -1,6 +1,8 @@
-apply plugin: 'java-library'
-apply plugin: 'kotlin'
-apply plugin: 'com.github.dcendents.android-maven'
+plugins {
+    id 'kotlin'
+    id 'maven-publish'
+}
+
 group = 'com.github.liujingxing'
 
 sourceSets {
