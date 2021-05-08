@@ -30,11 +30,9 @@ import okhttp3.Headers.Builder;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import rxhttp.HttpSender;
 import rxhttp.RxHttpPlugins;
 import rxhttp.wrapper.cahce.CacheMode;
 import rxhttp.wrapper.cahce.CacheStrategy;
-import rxhttp.wrapper.callback.Function;
 import rxhttp.wrapper.callback.IConverter;
 import rxhttp.wrapper.entity.DownloadOffSize;
 import rxhttp.wrapper.entity.ParameterizedTypeImpl;
@@ -54,8 +52,6 @@ import rxhttp.wrapper.utils.LogUtil;
  */
 @SuppressWarnings("unchecked")
 public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
-  protected P param;
-
   private int connectTimeoutMillis;
 
   private int readTimeoutMillis;
@@ -64,60 +60,18 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
 
   private OkHttpClient realOkClient;
 
-  private OkHttpClient okClient = HttpSender.getOkHttpClient();
+  private OkHttpClient okClient = RxHttpPlugins.getOkHttpClient();
+
+  protected IConverter converter = RxHttpPlugins.getConverter();
 
   protected boolean isAsync = true;
 
-  protected IConverter converter = RxHttpPlugins.getConverter();
+  protected P param;
 
   public Request request;
 
   protected RxHttp(P param) {
     this.param = param;
-  }
-
-  public static void setDebug(boolean debug) {
-    setDebug(debug, false);
-  }
-
-  public static void setDebug(boolean debug, boolean segmentPrint) {
-    LogUtil.setDebug(debug, segmentPrint);
-  }
-
-  public static void init(OkHttpClient okHttpClient) {
-    HttpSender.init(okHttpClient);
-  }
-
-  public static void init(OkHttpClient okHttpClient, boolean debug) {
-    HttpSender.init(okHttpClient,debug);
-  }
-
-  public static boolean isInit() {
-    return HttpSender.isInit();
-  }
-
-  /**
-   * 设置统一数据解码/解密器，每次请求成功后会回调该接口并传入Http请求的结果
-   * 通过该接口，可以统一对数据解密，并将解密后的数据返回即可
-   * 若部分接口不需要回调该接口，发请求前，调用{@link #setDecoderEnabled(boolean)}方法设置false即可
-   */
-  public static void setResultDecoder(Function<String, String> decoder) {
-    RxHttpPlugins.setResultDecoder(decoder);
-  }
-
-  /**
-   * 设置默认的转换器
-   */
-  public static void setConverter(IConverter converter) {
-    RxHttpPlugins.setConverter(converter);
-  }
-
-  /**
-   * 设置统一公共参数回调接口,通过该接口,可添加公共参数/请求头，每次请求前会回调该接口
-   * 若部分接口不需要添加公共参数,发请求前，调用{@link #setAssemblyEnabled(boolean)}方法设置false即可
-   */
-  public static void setOnParamAssembly(Function<Param<?>, Param<?>> onParamAssembly) {
-    RxHttpPlugins.setOnParamAssembly(onParamAssembly);
   }
 
   public R connectTimeout(int connectTimeout) {
