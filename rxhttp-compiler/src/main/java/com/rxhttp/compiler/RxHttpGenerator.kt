@@ -1,19 +1,14 @@
 package com.rxhttp.compiler
 
 import com.squareup.javapoet.*
-import java.io.File
 import java.io.IOException
-import java.lang.Deprecated
 import java.util.*
 import javax.annotation.processing.Filer
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.VariableElement
-import kotlin.Any
 import kotlin.Boolean
-import kotlin.ByteArray
 import kotlin.Int
 import kotlin.String
-import kotlin.Throws
 
 class RxHttpGenerator {
     private var mParamsAnnotatedClass: ParamsAnnotatedClass? = null
@@ -49,103 +44,22 @@ class RxHttpGenerator {
     //生成RxHttp类
     @Throws(IOException::class)
     fun generateCode(filer: Filer) {
-        val httpSenderName = ClassName.get("rxhttp", "HttpSender")
-        val logUtilName = ClassName.get("rxhttp.wrapper.utils", "LogUtil")
         val rxHttpPluginsName = ClassName.get("rxhttp", "RxHttpPlugins")
         val converterName = ClassName.get("rxhttp.wrapper.callback", "IConverter")
-        val functionsName = ClassName.get("rxhttp.wrapper.callback", "Function")
-        val stringName = ClassName.get(String::class.java)
         val timeUnitName = ClassName.get("java.util.concurrent", "TimeUnit")
-        val paramTName = ParameterizedTypeName.get(paramName, TypeVariableName.get("?"))
-        val mapKVName = ParameterizedTypeName.get(functionsName, paramTName, paramTName)
-        val mapStringName = ParameterizedTypeName.get(functionsName, stringName, stringName)
         val okHttpClientName = ClassName.get("okhttp3", "OkHttpClient")
         val requestName = ClassName.get("okhttp3", "Request")
         val cacheInterceptorName = ClassName.get("rxhttp.wrapper.intercept", "CacheInterceptor")
 
         val methodList = ArrayList<MethodSpec>() //方法集合
 
-        methodList.add(
+        methodList.add(  //添加构造方法
             MethodSpec.constructorBuilder()
                 .addModifiers(Modifier.PROTECTED)
                 .addParameter(p, "param")
                 .addStatement("this.param = param")
-                .build()) //添加构造方法
-
-        methodList.add(
-            MethodSpec.methodBuilder("setDebug")
-                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                .addParameter(Boolean::class.javaPrimitiveType, "debug")
-                .addStatement("setDebug(debug, false)")
-                .returns(Void.TYPE)
-                .build())
-
-        methodList.add(
-            MethodSpec.methodBuilder("setDebug")
-                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                .addParameter(Boolean::class.javaPrimitiveType, "debug")
-                .addParameter(Boolean::class.javaPrimitiveType, "segmentPrint")
-                .addStatement("\$T.setDebug(debug, segmentPrint)", logUtilName)
-                .returns(Void.TYPE)
-                .build())
-
-        methodList.add(
-            MethodSpec.methodBuilder("init")
-                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                .addParameter(okHttpClientName, "okHttpClient")
-                .addStatement("\$T.init(okHttpClient)", httpSenderName)
-                .returns(Void.TYPE)
-                .build())
-
-        methodList.add(
-            MethodSpec.methodBuilder("init")
-                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                .addParameter(okHttpClientName, "okHttpClient")
-                .addParameter(Boolean::class.javaPrimitiveType, "debug")
-                .addStatement("\$T.init(okHttpClient,debug)", httpSenderName)
-                .returns(Void.TYPE)
-                .build())
-
-        methodList.add(
-            MethodSpec.methodBuilder("isInit")
-                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                .addStatement("return \$T.isInit()", httpSenderName)
-                .returns(Boolean::class.java)
-                .build())
-
-        methodList.add(
-            MethodSpec.methodBuilder("setResultDecoder")
-                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                .addJavadoc("""
-                    设置统一数据解码/解密器，每次请求成功后会回调该接口并传入Http请求的结果
-                    通过该接口，可以统一对数据解密，并将解密后的数据返回即可
-                    若部分接口不需要回调该接口，发请求前，调用{@link #setDecoderEnabled(boolean)}方法设置false即可
-                """.trimIndent())
-                .addParameter(mapStringName, "decoder")
-                .addStatement("\$T.setResultDecoder(decoder)", rxHttpPluginsName)
-                .returns(Void.TYPE)
-                .build())
-
-        methodList.add(
-            MethodSpec.methodBuilder("setConverter")
-                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                .addJavadoc("设置默认的转换器\n")
-                .addParameter(converterName, "converter")
-                .addStatement("\$T.setConverter(converter)", rxHttpPluginsName)
-                .returns(Void.TYPE)
-                .build())
-
-        methodList.add(
-            MethodSpec.methodBuilder("setOnParamAssembly")
-                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                .addJavadoc("""
-                    设置统一公共参数回调接口,通过该接口,可添加公共参数/请求头，每次请求前会回调该接口
-                    若部分接口不需要添加公共参数,发请求前，调用{@link #setAssemblyEnabled(boolean)}方法设置false即可
-                """.trimIndent())
-                .addParameter(mapKVName, "onParamAssembly")
-                .addStatement("\$T.setOnParamAssembly(onParamAssembly)", rxHttpPluginsName)
-                .returns(Void.TYPE)
-                .build())
+                .build()
+        )
 
         methodList.add(
             MethodSpec.methodBuilder("connectTimeout")
@@ -154,7 +68,8 @@ class RxHttpGenerator {
                 .addStatement("connectTimeoutMillis = connectTimeout")
                 .addStatement("return (R)this")
                 .returns(r)
-                .build())
+                .build()
+        )
 
         methodList.add(
             MethodSpec.methodBuilder("readTimeout")
@@ -163,7 +78,8 @@ class RxHttpGenerator {
                 .addStatement("readTimeoutMillis = readTimeout")
                 .addStatement("return (R)this")
                 .returns(r)
-                .build())
+                .build()
+        )
 
         methodList.add(
             MethodSpec.methodBuilder("writeTimeout")
@@ -172,12 +88,14 @@ class RxHttpGenerator {
                 .addStatement("writeTimeoutMillis = writeTimeout")
                 .addStatement("return (R)this")
                 .returns(r)
-                .build())
+                .build()
+        )
 
         methodList.add(
             MethodSpec.methodBuilder("getOkHttpClient")
                 .addModifiers(Modifier.PUBLIC)
-                .addCode("""
+                .addCode(
+                    """
                     if (realOkClient != null) return realOkClient;
                     final OkHttpClient okHttpClient = okClient;
                     OkHttpClient.Builder builder = null;
@@ -204,8 +122,10 @@ class RxHttpGenerator {
                                                                                             
                     realOkClient = builder != null ? builder.build() : okHttpClient;
                     return realOkClient;
-                """.trimIndent(), timeUnitName, timeUnitName, timeUnitName, cacheInterceptorName)
-                .returns(okHttpClientName).build())
+                """.trimIndent(), timeUnitName, timeUnitName, timeUnitName, cacheInterceptorName
+                )
+                .returns(okHttpClientName).build()
+        )
 
         if (isDependenceRxJava()) {
             val disposableName = getClassName("Disposable")
@@ -214,14 +134,16 @@ class RxHttpGenerator {
                     .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                     .addParameter(disposableName, "disposable")
                     .addStatement("if (!isDisposed(disposable)) disposable.dispose()")
-                    .build())
+                    .build()
+            )
 
             methodList.add(
                 MethodSpec.methodBuilder("isDisposed")
                     .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                     .addParameter(disposableName, "disposable")
                     .addStatement("return disposable == null || disposable.isDisposed()")
-                    .returns(Boolean::class.java).build())
+                    .returns(Boolean::class.java).build()
+            )
         }
 
         methodList.add(
@@ -229,7 +151,8 @@ class RxHttpGenerator {
                 .addModifiers(Modifier.PUBLIC)
                 .addStatement("return param")
                 .returns(p)
-                .build())
+                .build()
+        )
 
         methodList.add(
             MethodSpec.methodBuilder("setParam")
@@ -238,7 +161,8 @@ class RxHttpGenerator {
                 .addStatement("this.param = param")
                 .addStatement("return (R)this")
                 .returns(r)
-                .build())
+                .build()
+        )
         methodList.addAll(mParamsAnnotatedClass!!.getMethodList(filer))
         methodList.addAll(mParserAnnotatedClass!!.getMethodList(filer))
         methodList.addAll(mConverterAnnotatedClass!!.methodList)
@@ -248,9 +172,11 @@ class RxHttpGenerator {
             .addModifiers(Modifier.PRIVATE)
             .addParameter(p, "param")
         if (defaultDomain != null) {
-            method.addStatement("String newUrl = addDomainIfAbsent(param.getSimpleUrl(), \$T.\$L)",
+            method.addStatement(
+                "String newUrl = addDomainIfAbsent(param.getSimpleUrl(), \$T.\$L)",
                 ClassName.get(defaultDomain!!.enclosingElement.asType()),
-                defaultDomain!!.simpleName.toString())
+                defaultDomain!!.simpleName.toString()
+            )
                 .addStatement("param.setUrl(newUrl)")
         }
         method.addStatement("return param")
@@ -267,13 +193,14 @@ class RxHttpGenerator {
                 .varargs()
                 .addStatement("return formatArgs == null || formatArgs.length == 0 ? url : String.format(url, formatArgs)")
                 .returns(String::class.java)
-                .build())
+                .build()
+        )
         val converterSpec = FieldSpec.builder(converterName, "converter", Modifier.PROTECTED)
             .initializer("\$T.getConverter()", rxHttpPluginsName)
             .build()
 
         val okHttpClientSpec = FieldSpec.builder(okHttpClientName, "okClient", Modifier.PRIVATE)
-            .initializer("\$T.getOkHttpClient()", httpSenderName)
+            .initializer("\$T.getOkHttpClient()", rxHttpPluginsName)
             .build()
         val build = AnnotationSpec.builder(SuppressWarnings::class.java)
             .addMember("value", "\"unchecked\"")
@@ -286,23 +213,25 @@ class RxHttpGenerator {
             .build()
 
         val rxHttpBuilder = TypeSpec.classBuilder(RXHttp_CLASS_NAME)
-            .addJavadoc("""
+            .addJavadoc(
+                """
                 Github
                 https://github.com/liujingxing/RxHttp
                 https://github.com/liujingxing/RxLife
                 https://github.com/liujingxing/okhttp-RxHttp/wiki/FAQ
                 https://github.com/liujingxing/okhttp-RxHttp/wiki/更新日志
-            """.trimIndent())
+            """.trimIndent()
+            )
             .addModifiers(Modifier.PUBLIC)
             .addAnnotation(build)
-            .addField(p, "param", Modifier.PROTECTED)
             .addField(Int::class.javaPrimitiveType, "connectTimeoutMillis", Modifier.PRIVATE)
             .addField(Int::class.javaPrimitiveType, "readTimeoutMillis", Modifier.PRIVATE)
             .addField(Int::class.javaPrimitiveType, "writeTimeoutMillis", Modifier.PRIVATE)
             .addField(okHttpClientName, "realOkClient", Modifier.PRIVATE)
             .addField(okHttpClientSpec)
-            .addField(isAsyncField)
             .addField(converterSpec)
+            .addField(isAsyncField)
+            .addField(p, "param", Modifier.PROTECTED)
             .addField(requestName, "request", Modifier.PUBLIC)
             .superclass(baseRxHttpName)
             .addTypeVariable(p)
