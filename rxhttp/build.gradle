@@ -1,10 +1,8 @@
 plugins {
-    id 'java-library'
-    id 'kotlin'
     id 'maven'
+    id 'kotlin'
+    id 'java-library'
 }
-
-group = 'com.github.liujingxing'
 
 sourceSets {
     main.java.srcDirs += "$buildDir/generated/sources/java-templates/java/main"
