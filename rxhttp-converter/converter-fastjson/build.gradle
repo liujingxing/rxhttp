@@ -1,10 +1,11 @@
-apply plugin: 'java-library'
-group = 'com.github.liujingxing'
+plugins {
+    id 'java-library'
+    id 'maven'
+}
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-//    compileOnly project(":rxhttp")
-    compileOnly "com.ljx.rxhttp:rxhttp:${rxhttp_version}"
+    compileOnly project(":rxhttp")
     compileOnly "com.squareup.okhttp3:okhttp:${okhttp_version}"
     api "com.alibaba:fastjson:${fastjson_version}"
 }
