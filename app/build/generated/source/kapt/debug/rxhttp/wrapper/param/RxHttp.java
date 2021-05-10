@@ -74,6 +74,15 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
     this.param = param;
   }
 
+  public P getParam() {
+    return param;
+  }
+
+  public R setParam(P param) {
+    this.param = param;
+    return (R)this;
+  }
+
   public R connectTimeout(int connectTimeout) {
     connectTimeoutMillis = connectTimeout;
     return (R)this;
@@ -124,15 +133,6 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
 
   public static boolean isDisposed(Disposable disposable) {
     return disposable == null || disposable.isDisposed();
-  }
-
-  public P getParam() {
-    return param;
-  }
-
-  public R setParam(P param) {
-    this.param = param;
-    return (R)this;
   }
 
   /**

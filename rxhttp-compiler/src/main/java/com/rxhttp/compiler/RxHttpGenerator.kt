@@ -62,6 +62,24 @@ class RxHttpGenerator {
         )
 
         methodList.add(
+            MethodSpec.methodBuilder("getParam")
+                .addModifiers(Modifier.PUBLIC)
+                .addStatement("return param")
+                .returns(p)
+                .build()
+        )
+
+        methodList.add(
+            MethodSpec.methodBuilder("setParam")
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(p, "param")
+                .addStatement("this.param = param")
+                .addStatement("return (R)this")
+                .returns(r)
+                .build()
+        )
+
+        methodList.add(
             MethodSpec.methodBuilder("connectTimeout")
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(Int::class.javaPrimitiveType, "connectTimeout")
@@ -146,23 +164,6 @@ class RxHttpGenerator {
             )
         }
 
-        methodList.add(
-            MethodSpec.methodBuilder("getParam")
-                .addModifiers(Modifier.PUBLIC)
-                .addStatement("return param")
-                .returns(p)
-                .build()
-        )
-
-        methodList.add(
-            MethodSpec.methodBuilder("setParam")
-                .addModifiers(Modifier.PUBLIC)
-                .addParameter(p, "param")
-                .addStatement("this.param = param")
-                .addStatement("return (R)this")
-                .returns(r)
-                .build()
-        )
         methodList.addAll(mParamsAnnotatedClass!!.getMethodList(filer))
         methodList.addAll(mParserAnnotatedClass!!.getMethodList(filer))
         methodList.addAll(mConverterAnnotatedClass!!.methodList)
