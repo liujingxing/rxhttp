@@ -1,8 +1,11 @@
-apply plugin: 'java-library'
+plugins {
+    id 'java-library'
+    id 'maven'
+}
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    compileOnly "com.ljx.rxhttp:rxhttp:${rxhttp_version}"
+    compileOnly project(":rxhttp")
     compileOnly "com.squareup.okhttp3:okhttp:${okhttp_version}"
     api "com.squareup.moshi:moshi:${moshi_version}"
 }
