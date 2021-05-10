@@ -24,8 +24,8 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     compileOnly 'com.google.android:android:4.1.1.4'
     compileOnly "com.squareup.okhttp3:okhttp:${okhttp_version}"
-    api 'com.ljx.rxhttp:rxhttp-annotation:1.0.1'
-//    api project(":rxhttp-annotation")
+//    api 'com.ljx.rxhttp:rxhttp-annotation:1.0.1'
+    api project(":rxhttp-annotation")
     api 'com.google.code.gson:gson:2.8.6'
     api "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.2"
 }
