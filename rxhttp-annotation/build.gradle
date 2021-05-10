@@ -1,4 +1,7 @@
-apply plugin: 'java-library'
+plugins {
+    id 'maven'
+    id 'java-library'
+}
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
