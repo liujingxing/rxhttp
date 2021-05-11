@@ -22,6 +22,17 @@ A type-safe HTTP client for Android. Written based on OkHttp
 1、Adding dependencies and configurations
 
 ### Required
+
+Add it to your build.gradle with:
+```java
+allprojects {
+    repositories {
+        maven { url "https://jitpack.io" }
+    }
+}
+```
+and:
+
 ```java
 //Must be used when using kapt
 apply plugin: 'kotlin-kapt'
@@ -84,8 +95,10 @@ dependencies {
 This step is optional
 
 ```java
-RxHttp.setDebug(boolean)  
-RxHttp.init(OkHttpClient)  
+RxHttpPlugins.init(OkHttpClient)  
+    .setDebug(boolean)  
+    .setOnParamAssembly(Function)
+    ....
 ```
 
 3、Configuration BaseUrl
