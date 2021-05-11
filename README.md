@@ -35,9 +35,9 @@ android {
 }
 
 dependencies {
-    implementation 'com.ljx.rxhttp:rxhttp:2.5.7'
+    implementation 'com.github.liujingxing.rxhttp:rxhttp:2.6.0'
     implementation 'com.squareup.okhttp3:okhttp:4.9.1' 
-    kapt 'com.ljx.rxhttp:rxhttp-compiler:2.5.7' //Use the annotationProcessor instead of kapt, if you use Java
+    kapt 'com.github.liujingxing.rxhttp:rxhttp-compiler:2.6.0' //Use the annotationProcessor instead of kapt, if you use Java
  }
 ```
 
@@ -57,23 +57,23 @@ android {
     }
 }
 dependencies {
-    implementation 'com.ljx.rxlife:rxlife-coroutine:2.0.1' //Coroutine, Automatic close request
+    implementation 'com.github.liujingxing.rxlife:rxlife-coroutine:2.1.0' //Coroutine, Automatic close request
 
     //rxjava2   (RxJava2/Rxjava3 select one)
     implementation 'io.reactivex.rxjava2:rxjava:2.2.8'
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
-    implementation 'com.ljx.rxlife2:rxlife-rxjava:2.0.0' //RxJava2, Automatic close request
+    implementation 'com.github.liujingxing.rxlife:rxlife-rxjava2:2.1.0' //RxJava2, Automatic close request
 
     //rxjava3
     implementation 'io.reactivex.rxjava3:rxjava:3.0.6'
     implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
-    implementation 'com.ljx.rxlife3:rxlife-rxjava:3.0.0' //RxJava3, Automatic close request
+    implementation 'com.github.liujingxing.rxlife:rxlife-rxjava3:2.1.0' //RxJava3, Automatic close request
 
-    implementation 'com.ljx.rxhttp:converter-fastjson:2.5.7'
-    implementation 'com.ljx.rxhttp:converter-jackson:2.5.7'
-    implementation 'com.ljx.rxhttp:converter-moshi:2.5.7'
-    implementation 'com.ljx.rxhttp:converter-protobuf:2.5.7'
-    implementation 'com.ljx.rxhttp:converter-simplexml:2.5.7'
+    implementation 'com.github.liujingxing.rxhttp:converter-fastjson:2.6.0'
+    implementation 'com.github.liujingxing.rxhttp:converter-jackson:2.6.0'
+    implementation 'com.github.liujingxing.rxhttp:converter-moshi:2.6.0'
+    implementation 'com.github.liujingxing.rxhttp:converter-protobuf:2.6.0'
+    implementation 'com.github.liujingxing.rxhttp:converter-simplexml:2.6.0'
 }
 ```
 
