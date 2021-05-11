@@ -2,7 +2,7 @@
 
 English | [中文文档](https://github.com/liujingxing/okhttp-RxHttp/blob/master/README_zh.md)
 
-[ ![Download](https://api.bintray.com/packages/32774707/maven/rxhttp2/images/download.svg) ](https://bintray.com/32774707/maven/rxhttp2/_latestVersion)
+[![](https://jitpack.io/v/liujingxing/rxhttp.svg)](https://jitpack.io/#liujingxing/rxhttp)
 
 A type-safe HTTP client for Android. Written based on OkHttp
 
