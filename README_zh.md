@@ -70,9 +70,9 @@ android {
 }
 
 dependencies {
-    implementation 'com.ljx.rxhttp:rxhttp:2.5.7'
+    implementation 'com.github.liujingxing.rxhttp:rxhttp:2.6.0'
     implementation 'com.squareup.okhttp3:okhttp:4.9.1' //rxhttp v2.2.2版本起，需要手动依赖okhttp
-    kapt 'com.ljx.rxhttp:rxhttp-compiler:2.5.7' //生成RxHttp类，纯Java项目，请使用annotationProcessor代替kapt
+    kapt 'com.github.liujingxing.rxhttp:rxhttp-compiler:2.6.0' //生成RxHttp类，纯Java项目，请使用annotationProcessor代替kapt
  }
 ```
 
@@ -92,24 +92,24 @@ android {
     }
 }
 dependencies {
-    implementation 'com.ljx.rxlife:rxlife-coroutine:2.0.1' //管理协程生命周期，页面销毁，关闭请求
+    implementation 'com.github.liujingxing.rxlife:rxlife-coroutine:2.1.0' //管理协程生命周期，页面销毁，关闭请求
     
     //rxjava2   (RxJava2/Rxjava3二选一，使用asXxx方法时必须)
     implementation 'io.reactivex.rxjava2:rxjava:2.2.8'
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
-    implementation 'com.ljx.rxlife2:rxlife-rxjava:2.0.0' //管理RxJava2生命周期，页面销毁，关闭请求
+    implementation 'com.github.liujingxing.rxlife2:rxlife-rxjava2:2.1.0' //管理RxJava2生命周期，页面销毁，关闭请求
 
     //rxjava3
     implementation 'io.reactivex.rxjava3:rxjava:3.0.6'
     implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
-    implementation 'com.ljx.rxlife3:rxlife-rxjava:3.0.0' //管理RxJava3生命周期，页面销毁，关闭请求
+    implementation 'com.github.liujingxing.rxlife:rxlife-rxjava3:2.1.0' //管理RxJava3生命周期，页面销毁，关闭请求
 
     //非必须，根据自己需求选择 RxHttp默认内置了GsonConverter
-    implementation 'com.ljx.rxhttp:converter-fastjson:2.5.7'
-    implementation 'com.ljx.rxhttp:converter-jackson:2.5.7'
-    implementation 'com.ljx.rxhttp:converter-moshi:2.5.7'
-    implementation 'com.ljx.rxhttp:converter-protobuf:2.5.7'
-    implementation 'com.ljx.rxhttp:converter-simplexml:2.5.7'
+    implementation 'com.github.liujingxing.rxhttp:converter-fastjson:2.6.0'
+    implementation 'com.github.liujingxing.rxhttp:converter-jackson:2.6.0'
+    implementation 'com.github.liujingxing.rxhttp:converter-moshi:2.6.0'
+    implementation 'com.github.liujingxing.rxhttp:converter-protobuf:2.6.0'
+    implementation 'com.github.liujingxing.rxhttp:converter-simplexml:2.6.0'
 }
 ```
 
