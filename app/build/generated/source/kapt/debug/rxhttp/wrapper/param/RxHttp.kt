@@ -32,6 +32,7 @@ fun <P : AbstractBodyParam<P>, R : RxHttpAbstractBodyParam<P, R>> RxHttpAbstract
   param.setProgressCallback {
       coroutine.launch { progress(it) }
   }
+  @Suppress("UNCHECKED_CAST")
   return this as R
 }
 

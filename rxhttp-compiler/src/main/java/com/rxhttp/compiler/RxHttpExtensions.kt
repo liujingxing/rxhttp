@@ -134,7 +134,7 @@ class RxHttpExtensions {
         val rBound = TypeVariableName("R", rxHttpBodyParamName)
 
 
-        val progressLambdaName = LambdaTypeName.get(parameters = *arrayOf(progressName),
+        val progressLambdaName = LambdaTypeName.get(parameters = arrayOf(progressName),
             returnType = Unit::class.asClassName())
 
         val fileBuilder = FileSpec.builder(rxHttpPackage, "RxHttp")
@@ -201,6 +201,7 @@ class RxHttpExtensions {
                     param.setProgressCallback {
                         coroutine.%T { progress(it) }
                     }
+                    @Suppress("UNCHECKED_CAST")
                     return this as R
                     """.trimIndent(), launchName)
                 .returns(r)
