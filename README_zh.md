@@ -2,7 +2,7 @@
 
 [English](https://github.com/liujingxing/okhttp-RxHttp/blob/master/README.md) | 中文文档
 
-[ ![Download](https://api.bintray.com/packages/32774707/maven/rxhttp2/images/download.svg) ](https://bintray.com/32774707/maven/rxhttp2/_latestVersion)
+[![](https://jitpack.io/v/liujingxing/rxhttp.svg)](https://jitpack.io/#liujingxing/rxhttp)
 
 # 主要优势
 
