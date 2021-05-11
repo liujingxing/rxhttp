@@ -57,6 +57,17 @@ wiki详细文档：https://github.com/liujingxing/okhttp-RxHttp/wiki  (此文档
 
 
 ## 必须
+
+将`jitpack`添加到项目的`build.gradle`文件中，如下：
+```java
+allprojects {
+    repositories {
+        maven { url "https://jitpack.io" }
+    }
+}
+```
+`注：RxHttp 2.6.0版本起，已全面从JCenter迁移至jitpack`
+
 ```java
 //使用kapt依赖rxhttp-compiler时必须
 apply plugin: 'kotlin-kapt'
