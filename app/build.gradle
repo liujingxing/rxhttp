@@ -63,16 +63,13 @@ dependencies {
 
     implementation "com.squareup.okhttp3:okhttp:${okhttp_version}"
 
-//    implementation "com.ljx.rxhttp:rxhttp:${rxhttp_version}"
-//    kapt "com.ljx.rxhttp:rxhttp-compiler:${rxhttp_version}"
+//    implementation "com.github.liujingxing.rxhttp:rxhttp:${rxhttp_version}"
+//    kapt "com.github.liujingxing.rxhttp:rxhttp-compiler:${rxhttp_version}"
 
-//    implementation "com.github.liujingxing:okhttp-RxHttp:2.6.0-beta3"
-//    kapt "com.github.liujingxing:rxhttp-compiler:2.6.0-beta3"
-
-    implementation 'com.ljx.rxlife:rxlife-coroutine:2.0.1'
+    implementation 'com.github.liujingxing.rxlife:rxlife-coroutine:2.0.0-beta5'
 
     //管理RxJava及生命周期，Activity/Fragment 销毁，自动关闭未完成的请求
-    implementation 'com.ljx.rxlife3:rxlife-rxjava:3.0.0'
+    implementation 'com.github.liujingxing.rxlife:rxlife-rxjava3:2.0.0-beta5'
     implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
     implementation 'io.reactivex.rxjava3:rxjava:3.0.6'
 

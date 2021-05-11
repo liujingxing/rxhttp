@@ -145,25 +145,6 @@ class RxHttpGenerator {
                 .returns(okHttpClientName).build()
         )
 
-        if (isDependenceRxJava()) {
-            val disposableName = getClassName("Disposable")
-            methodList.add(
-                MethodSpec.methodBuilder("dispose")
-                    .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                    .addParameter(disposableName, "disposable")
-                    .addStatement("if (!isDisposed(disposable)) disposable.dispose()")
-                    .build()
-            )
-
-            methodList.add(
-                MethodSpec.methodBuilder("isDisposed")
-                    .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                    .addParameter(disposableName, "disposable")
-                    .addStatement("return disposable == null || disposable.isDisposed()")
-                    .returns(Boolean::class.java).build()
-            )
-        }
-
         methodList.addAll(mParamsAnnotatedClass!!.getMethodList(filer))
         methodList.addAll(mParserAnnotatedClass!!.getMethodList(filer))
         methodList.addAll(mConverterAnnotatedClass!!.methodList)
