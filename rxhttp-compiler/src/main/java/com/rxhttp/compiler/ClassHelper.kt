@@ -157,12 +157,12 @@ object ClassHelper {
 
                 public final <K, V> Observable<Map<K, V>> asMap(Class<K> kType, Class<V> vType) {
                     Type tTypeMap = ParameterizedTypeImpl.getParameterized(Map.class, kType, vType);
-                    return asParser(new SimpleParser<Map<K, V>>(tTypeMap));
+                    return asParser(new SimpleParser<>(tTypeMap));
                 }
 
                 public final <T> Observable<List<T>> asList(Class<T> tType) {
                     Type tTypeList = ParameterizedTypeImpl.get(List.class, tType);
-                    return asParser(new SimpleParser<List<T>>(tTypeList));
+                    return asParser(new SimpleParser<>(tTypeList));
                 }
                 ${
                 if (isAndroid) """
@@ -217,7 +217,7 @@ object ClassHelper {
                                                                                            
                 public final <T> Observable<T> asDownload(OutputStreamFactory<T> osFactory, Scheduler scheduler,
                                                            Consumer<Progress> progressConsumer) {
-                    return asParser(new StreamParser<T>(osFactory), scheduler, progressConsumer);
+                    return asParser(new StreamParser<>(osFactory), scheduler, progressConsumer);
                 }
                 
                 public final Observable<String> asAppendDownload(String destPath) {                    
@@ -245,9 +245,7 @@ object ClassHelper {
                             return StreamParser.get(context, uri);
                         })
                         .subscribeOn(Schedulers.io())
-                        .flatMap(parser -> {
-                            return asParser(parser, scheduler, progressConsumer);
-                        });        
+                        .flatMap(parser -> asParser(parser, scheduler, progressConsumer));        
                 }                                                                                           
                     
                 public final Observable<Uri> asAppendDownload(UriFactory uriFactory) {                   
@@ -266,14 +264,12 @@ object ClassHelper {
                                     setRangeHeader(length, -1, true);
                                 parser = StreamParser.get(uriFactory.getContext(), uri);
                             } else {
-                                parser = new StreamParser(uriFactory);
+                                parser = new StreamParser<>(uriFactory);
                             }
                             return parser;
                         })
                         .subscribeOn(Schedulers.io())
-                        .flatMap(parser -> {
-                            return asParser(parser, scheduler, progressConsumer);
-                        });
+                        .flatMap(parser -> asParser(parser, scheduler, progressConsumer));
                 }                                                                                            
                 """ else ""
                 }    
