@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import com.example.httpsender.Tip
 import com.example.httpsender.entity.DownloadTask
 import com.example.httpsender.utils.Preferences
+import com.rxjava.rxlife.RxLife
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import okio.ByteString.Companion.encodeUtf8
 import rxhttp.wrapper.param.RxHttp
@@ -140,7 +141,7 @@ object MultiTaskDownloader {
             val task = iterator.next()
             iterator.remove()
             val disposable = task.disposable
-            RxHttp.dispose(disposable)
+            RxLife.dispose(disposable)
             task.state = CANCEL
         }
         updateTask()
@@ -158,7 +159,7 @@ object MultiTaskDownloader {
     @JvmStatic
     fun pauseTask(task: DownloadTask) {
         val disposable = task.disposable
-        if (!RxHttp.isDisposed(disposable)) {
+        if (!RxLife.isDisposed(disposable)) {
             disposable.dispose()
             task.state = PAUSED
             updateTask()

@@ -10,7 +10,6 @@ import com.example.httpsender.param.PostEncryptJsonParam1;
 import com.example.httpsender.parser.ResponseParser;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Scheduler;
-import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.functions.Consumer;
 import java.io.IOException;
 import java.lang.Class;
@@ -125,14 +124,6 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
                                                                             
     realOkClient = builder != null ? builder.build() : okHttpClient;
     return realOkClient;
-  }
-
-  public static void dispose(Disposable disposable) {
-    if (!isDisposed(disposable)) disposable.dispose();
-  }
-
-  public static boolean isDisposed(Disposable disposable) {
-    return disposable == null || disposable.isDisposed();
   }
 
   /**
