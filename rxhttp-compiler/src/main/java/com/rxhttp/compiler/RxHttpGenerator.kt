@@ -119,7 +119,7 @@ class RxHttpGenerator {
                     OkHttpClient.Builder builder = null;
                     
                     if (connectTimeoutMillis != 0) {
-                      if (builder == null) builder = okHttpClient.newBuilder();
+                      builder = okHttpClient.newBuilder();
                       builder.connectTimeout(connectTimeoutMillis, ${'$'}T.MILLISECONDS);
                     }
                     

@@ -103,7 +103,7 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
     OkHttpClient.Builder builder = null;
 
     if (connectTimeoutMillis != 0) {
-      if (builder == null) builder = okHttpClient.newBuilder();
+      builder = okHttpClient.newBuilder();
       builder.connectTimeout(connectTimeoutMillis, TimeUnit.MILLISECONDS);
     }
 
@@ -380,7 +380,7 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
 
   /**
    * 设置单个接口是否需要添加公共参数,
-   * 即是否回调通过{@link #setOnParamAssembly(Function)}方法设置的接口,默认为true
+   * 即是否回调通过{@link RxHttpPlugins#setOnParamAssembly(Function)}方法设置的接口,默认为true
    */
   public R setAssemblyEnabled(boolean enabled) {
     param.setAssemblyEnabled(enabled);
@@ -389,7 +389,7 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
 
   /**
    * 设置单个接口是否需要对Http返回的数据进行解码/解密,
-   * 即是否回调通过{@link #setResultDecoder(Function)}方法设置的接口,默认为true
+   * 即是否回调通过{@link RxHttpPlugins#setResultDecoder(Function)}方法设置的接口,默认为true
    */
   public R setDecoderEnabled(boolean enabled) {
     param.addHeader(Param.DATA_DECRYPT,String.valueOf(enabled));
@@ -469,11 +469,11 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
 
   public <T> List<T> executeList(Class<T> type) throws IOException {
     Type tTypeList = ParameterizedTypeImpl.get(List.class, type);
-    return execute(new SimpleParser<List<T>>(tTypeList));
+    return execute(new SimpleParser<>(tTypeList));
   }
 
   public <T> T executeClass(Class<T> type) throws IOException {
-    return execute(new SimpleParser<T>(type));
+    return execute(new SimpleParser<>(type));
   }
 
   @Override
@@ -535,17 +535,17 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
   }
 
   public <T> Observable<T> asResponse(Class<T> type) {
-    return asParser(new ResponseParser<T>(type));
+    return asParser(new ResponseParser<>(type));
   }
 
   public <T> Observable<List<T>> asResponseList(Class<T> type) {
     Type typeList = ParameterizedTypeImpl.get(List.class, type);
-    return asParser(new ResponseParser<List<T>>(typeList));
+    return asParser(new ResponseParser<>(typeList));
   }
 
   public <T> Observable<PageList<T>> asResponsePageList(Class<T> type) {
     Type typePageList = ParameterizedTypeImpl.get(PageList.class, type);
-    return asParser(new ResponseParser<PageList<T>>(typePageList));
+    return asParser(new ResponseParser<>(typePageList));
   }
 
   public R setXmlConverter() {
