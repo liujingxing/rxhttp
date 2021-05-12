@@ -90,7 +90,7 @@ class ParserAnnotatedClass {
                 .addException(IOException::class.java)
                 .addParameter(classTName, "type")
                 .addStatement("\$T tTypeList = \$T.get(List.class, type)", type, parameterizedType)
-                .addStatement("return execute(new \$T<List<T>>(tTypeList))", simpleParserName)
+                .addStatement("return execute(new \$T<>(tTypeList))", simpleParserName)
                 .returns(listTName)
                 .build())
 
@@ -100,7 +100,7 @@ class ParserAnnotatedClass {
                 .addTypeVariable(t)
                 .addException(IOException::class.java)
                 .addParameter(classTName, "type")
-                .addStatement("return execute(new \$T<T>(type))", simpleParserName)
+                .addStatement("return execute(new \$T<>(type))", simpleParserName)
                 .returns(t)
                 .build())
 
@@ -236,7 +236,7 @@ class ParserAnnotatedClass {
                     var methodName = "as$parserAlias"
                     //方法体
                     val methodBody =
-                        "return asParser(new \$T${getTypeVariableString(typeVariableNames)}(${getParamsName(parameterList)}))"
+                        "return asParser(new \$T<>(${getParamsName(parameterList)}))"
 
                     //生成的as方法返回类型(Observable<T>类型)
                     var asFunReturnType = ParameterizedTypeName.get(
@@ -309,7 +309,7 @@ class ParserAnnotatedClass {
                                 paramsName.append(", ")
                             }
                             paramsName.delete(paramsName.length - 2, paramsName.length)
-                            val returnStatement = "return asParser(new \$T${getTypeVariableString(typeVariableNames, wrapperClass)}($paramsName))"
+                            val returnStatement = "return asParser(new \$T<>($paramsName))"
                             funBody.addStatement(returnStatement, ClassName.get(typeElement))
 
                             //4、生成asXxx方法

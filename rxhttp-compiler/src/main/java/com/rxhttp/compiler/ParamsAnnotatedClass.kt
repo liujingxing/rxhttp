@@ -503,7 +503,7 @@ class ParamsAnnotatedClass {
             MethodSpec.methodBuilder("setAssemblyEnabled")
                 .addJavadoc("""
                     设置单个接口是否需要添加公共参数,
-                    即是否回调通过{@link #setOnParamAssembly(Function)}方法设置的接口,默认为true
+                    即是否回调通过{@link RxHttpPlugins#setOnParamAssembly(Function)}方法设置的接口,默认为true
                 """.trimIndent())
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(Boolean::class.javaPrimitiveType, "enabled")
@@ -516,7 +516,7 @@ class ParamsAnnotatedClass {
             MethodSpec.methodBuilder("setDecoderEnabled")
                 .addJavadoc("""
                     设置单个接口是否需要对Http返回的数据进行解码/解密,
-                    即是否回调通过{@link #setResultDecoder(Function)}方法设置的接口,默认为true
+                    即是否回调通过{@link RxHttpPlugins#setResultDecoder(Function)}方法设置的接口,默认为true
                 """.trimIndent())
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(Boolean::class.javaPrimitiveType, "enabled")
