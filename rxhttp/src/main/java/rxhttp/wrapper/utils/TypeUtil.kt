@@ -1,30 +1,30 @@
-package rxhttp.wrapper.utils;
+@file:JvmName("TypeUtil")
 
-import com.google.gson.internal.$Gson$Types;
+package rxhttp.wrapper.utils
 
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
+import java.lang.reflect.ParameterizedType
+import java.lang.reflect.Type
+
 
 /**
- * User: ljx
- * Date: 2019-06-16
- * Time: 13:36
+ * 获取泛型类型
+ *
+ * @param clazz 类类型
+ * @param index 第几个泛型
+ * @return Type
  */
-public class TypeUtil {
+fun getActualTypeParameter(clazz: Class<*>, index: Int): Type {
+    return getActualTypeParameters(clazz)[index]
+}
 
-    /**
-     * 获取泛型类型
-     *
-     * @param clazz 类类型
-     * @param index 第几个泛型
-     * @return Type
-     */
-    public static Type getActualTypeParameter(Class<?> clazz, int index) {
-        Type superclass = clazz.getGenericSuperclass();
-        if (!(superclass instanceof ParameterizedType)) {
-            throw new RuntimeException("Missing type parameter.");
-        }
-        ParameterizedType parameter = (ParameterizedType) superclass;
-        return $Gson$Types.canonicalize(parameter.getActualTypeArguments()[index]);
-    }
+/**
+ * 获取泛型类型数组
+ *
+ * @param clazz 类类型
+ * @return Array<Type>
+ */
+fun getActualTypeParameters(clazz: Class<*>): Array<Type> {
+    val superclass = clazz.genericSuperclass as? ParameterizedType
+        ?: throw RuntimeException("Missing type parameter.")
+    return superclass.actualTypeArguments
 }
