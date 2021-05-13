@@ -2,7 +2,9 @@
 
 [English](https://github.com/liujingxing/okhttp-RxHttp/blob/master/README.md) | 中文文档
 
-[![](https://jitpack.io/v/liujingxing/rxhttp.svg)](https://jitpack.io/#liujingxing/rxhttp)
+[![](https://jitpack.io/v/liujingxing/rxhttp.svg)](https://jitpack.io/#liujingxing/rxhttp) 
+
+***RxHttp&RxLife 交流群：378530627   &nbsp;&nbsp;&nbsp;&nbsp;  个人微信：ljx-studio*** 
 
 # 主要优势
 
@@ -46,8 +48,6 @@ wiki详细文档：https://github.com/liujingxing/okhttp-RxHttp/wiki  (此文档
 
 
 # 上手准备
-
-***RxHttp&RxLife 交流群：378530627***
 
 ***[Maven依赖点击这里](https://github.com/liujingxing/okhttp-RxHttp/blob/master/maven_dependency.md)***
 
