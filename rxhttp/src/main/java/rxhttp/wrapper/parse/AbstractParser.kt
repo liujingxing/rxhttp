@@ -1,10 +1,9 @@
 package rxhttp.wrapper.parse
 
-import com.google.gson.internal.`$Gson$Preconditions`
 import com.google.gson.internal.`$Gson$Types`
 import okhttp3.Response
-import rxhttp.wrapper.utils.TypeUtil
 import rxhttp.wrapper.utils.convert
+import rxhttp.wrapper.utils.getActualTypeParameter
 import java.io.IOException
 import java.lang.reflect.Type
 
@@ -18,13 +17,12 @@ abstract class AbstractParser<T> : Parser<T> {
     protected var mType: Type
 
     constructor() {
-        mType = TypeUtil.getActualTypeParameter(javaClass, 0)
+        mType = getActualTypeParameter(javaClass, 0)
     }
 
     constructor(type: Type) {
-        mType = `$Gson$Types`.canonicalize(`$Gson$Preconditions`.checkNotNull(type))
+        mType = `$Gson$Types`.canonicalize(type)
     }
-
 
     @Deprecated("", replaceWith = ReplaceWith("response.convert(type)"))
     @Throws(IOException::class)
