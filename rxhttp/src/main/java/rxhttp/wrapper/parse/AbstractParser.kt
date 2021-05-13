@@ -24,9 +24,7 @@ abstract class AbstractParser<T> : Parser<T> {
         mType = `$Gson$Types`.canonicalize(type)
     }
 
-    @Deprecated("", replaceWith = ReplaceWith("response.convert(type)"))
+    @Deprecated("", replaceWith = ReplaceWith("response.convertTo(rawType, types)"))
     @Throws(IOException::class)
-    fun <R> convert(response: Response, type: Type): R {
-        return response.convert(type)
-    }
+    fun <R> convert(response: Response, type: Type): R = response.convert(type)
 }
