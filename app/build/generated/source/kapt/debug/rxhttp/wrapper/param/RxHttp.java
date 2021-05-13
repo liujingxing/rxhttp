@@ -207,10 +207,6 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
     return new RxHttpJsonArrayParam(Param.deleteJsonArray(format(url, formatArgs)));
   }
 
-  public static RxHttpPostEncryptJsonParam postEncryptJson(String url, Object... formatArgs) {
-    return new RxHttpPostEncryptJsonParam(new PostEncryptJsonParam(format(url, formatArgs)));
-  }
-
   public static RxHttpPostEncryptFormParam postEncryptForm(String url, Object... formatArgs) {
     return new RxHttpPostEncryptFormParam(new PostEncryptFormParam(format(url, formatArgs)));
   }
@@ -226,6 +222,10 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
 
   public static RxHttpPostEncryptJsonParam1 postEncryptJson1(String url, Object... formatArgs) {
     return new RxHttpPostEncryptJsonParam1(new PostEncryptJsonParam1(format(url, formatArgs)));
+  }
+
+  public static RxHttpPostEncryptJsonParam postEncryptJson(String url, Object... formatArgs) {
+    return new RxHttpPostEncryptJsonParam(new PostEncryptJsonParam(format(url, formatArgs)));
   }
 
   public R setUrl(String url) {
