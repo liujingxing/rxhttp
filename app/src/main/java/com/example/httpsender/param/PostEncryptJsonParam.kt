@@ -24,7 +24,7 @@ class PostEncryptJsonParam(url: String) : JsonParam(url, Method.POST) {
     override fun getRequestBody(): RequestBody {
         //我们要发送Post请求，参数以加密后的json形式发出
         //第一步，将参数转换为Json字符串
-        val json = if (params == null) "" else GsonUtil.toJson(params)
+        val json = if (bodyParam == null) "" else GsonUtil.toJson(bodyParam)
         //第二步，加密
         val encryptByte = encrypt(json, "RxHttp")
         //第三部，创建RequestBody并返回
