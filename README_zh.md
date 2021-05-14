@@ -28,7 +28,7 @@
 
 # 请求三部曲
 
-![image](https://github.com/liujingxing/okhttp-RxHttp/blob/master/screen/sequence_chart_zh.jpg)
+![](https://p6-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/0863323afac54cb9965aa0175d5c30b1~tplv-k3u1fbpfcp-watermark.image)
 
 # 上手教程
 
