@@ -197,7 +197,7 @@ Otherwise you must manually add the options in [rxhttp.pro](https://github.com/l
 
 If this project helps you a lot and you want to support the project's development and maintenance of this project, feel free to scan the following QR code for donation. Your donation is highly appreciated. Thank you!
 
-![image](https://github.com/liujingxing/RxHttp/blob/master/screen/rxhttp_donate.png)
+![rxhttp_donate.png](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/aafa7d05cfda4b2ea2a092bba8ebc1a0~tplv-k3u1fbpfcp-watermark.image)
 
 # Licenses
 
