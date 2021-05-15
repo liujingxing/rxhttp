@@ -17,7 +17,7 @@ public abstract class AbstractBodyParam<P extends AbstractBodyParam<P>> extends 
     //Upload progress callback
     private ProgressCallback mCallback;
     //Upload max length
-    private long uploadMaxLength = Integer.MAX_VALUE;
+    private long uploadMaxLength = Long.MAX_VALUE;
 
     /**
      * @param url    request url
