@@ -27,7 +27,7 @@ inline fun <T, R> IAwait<T>.newAwait(
 /**
  * @param times  retry times, default Int.MAX_VALUE Always try again
  * @param period retry period, default 0, time in milliseconds
- * @param test   Retry conditions, default null，Unconditional retry
+ * @param test   retry conditions, default null，Unconditional retry
  */
 fun <T> IAwait<T>.retry(
     times: Int = Int.MAX_VALUE,
