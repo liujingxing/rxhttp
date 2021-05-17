@@ -366,31 +366,36 @@ suspend fun <T> IAwait<T>.async(
 
 suspend fun <T> IAwait<T>.awaitResult(): Result<T> = runCatching { await() }
 
-suspend fun <T> IAwait<T>.awaitResult(action: (value: T) -> Unit): Result<T> =
-    awaitResult().onSuccess(action)
+suspend fun <T> IAwait<T>.awaitResult(onSuccess: (value: T) -> Unit): Result<T> =
+    awaitResult().onSuccess(onSuccess)
+
+suspend fun <T> Deferred<T>.awaitResult(): Result<T> = runCatching { await() }
+
+suspend fun <T> Deferred<T>.awaitResult(onSuccess: (value: T) -> Unit): Result<T> =
+    awaitResult().onSuccess(onSuccess)
 
 /**
  * Try to get the return value and return null when an error occurs.
  */
 suspend fun <T> Deferred<T>.tryAwait(
-    action: ((exception: Throwable) -> Unit)? = null
-): T? = tryAwait(action) { await() }
+    onError: ((exception: Throwable) -> Unit)? = null
+): T? = tryAwait(onError) { await() }
 
 /**
  * Try to get the return value and return null when an error occurs.
  */
 suspend fun <T> IAwait<T>.tryAwait(
-    action: ((exception: Throwable) -> Unit)? = null
-): T? = tryAwait(action) { await() }
+    onError: ((exception: Throwable) -> Unit)? = null
+): T? = tryAwait(onError) { await() }
 
 private inline fun <T> tryAwait(
-    noinline action: ((exception: Throwable) -> Unit)? = null,
+    noinline onError: ((exception: Throwable) -> Unit)? = null,
     block: () -> T,
 ): T? {
     return try {
         block()
     } catch (e: Throwable) {
-        action?.invoke(e)
+        onError?.invoke(e)
         null
     }
 }
