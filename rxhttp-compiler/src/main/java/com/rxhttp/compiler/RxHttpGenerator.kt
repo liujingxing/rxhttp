@@ -198,10 +198,10 @@ class RxHttpGenerator {
             .addJavadoc(
                 """
                 Github
-                https://github.com/liujingxing/RxHttp
-                https://github.com/liujingxing/RxLife
-                https://github.com/liujingxing/okhttp-RxHttp/wiki/FAQ
-                https://github.com/liujingxing/okhttp-RxHttp/wiki/更新日志
+                https://github.com/liujingxing/rxhttp
+                https://github.com/liujingxing/rxlife
+                https://github.com/liujingxing/rxhttp/wiki/FAQ
+                https://github.com/liujingxing/rxhttp/wiki/更新日志
             """.trimIndent()
             )
             .addModifiers(Modifier.PUBLIC)

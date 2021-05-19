@@ -1,6 +1,6 @@
 # RxHttp
 
-[English](https://github.com/liujingxing/okhttp-RxHttp/blob/master/README.md) | 中文文档
+[English](https://github.com/liujingxing/rxhttp/blob/master/README.md) | 中文文档
 
 [![](https://jitpack.io/v/liujingxing/rxhttp.svg)](https://jitpack.io/#liujingxing/rxhttp) 
 
@@ -38,18 +38,18 @@
 
 掘金详细文档：[RxHttp 让你眼前一亮的Http请求框架](https://juejin.im/post/5ded221a518825125d14a1d4)
 
-wiki详细文档：https://github.com/liujingxing/okhttp-RxHttp/wiki  (此文档会持续更新)
+wiki详细文档：https://github.com/liujingxing/rxhttp/wiki  (此文档会持续更新)
 
 
-自动关闭请求用到的RxLife类，详情请查看[RxLife库](https://github.com/liujingxing/RxLife)
+自动关闭请求用到的RxLife类，详情请查看[RxLife库](https://github.com/liujingxing/rxlife)
 
-[更新日志](https://github.com/liujingxing/okhttp-RxHttp/wiki/%E6%9B%B4%E6%96%B0%E6%97%A5%E5%BF%97)  &nbsp;&nbsp;&nbsp;&nbsp; 
-[遇到问题，点击这里，99%的问题都能自己解决](https://github.com/liujingxing/okhttp-RxHttp/wiki/FAQ)
+[更新日志](https://github.com/liujingxing/rxhttp/wiki/%E6%9B%B4%E6%96%B0%E6%97%A5%E5%BF%97)  &nbsp;&nbsp;&nbsp;&nbsp; 
+[遇到问题，点击这里，99%的问题都能自己解决](https://github.com/liujingxing/rxhttp/wiki/FAQ)
 
 
 # 上手准备
 
-***[Maven依赖点击这里](https://github.com/liujingxing/okhttp-RxHttp/blob/master/maven_dependency.md)***
+***[Maven依赖点击这里](https://github.com/liujingxing/rxhttp/blob/master/maven_dependency.md)***
 
 ***1、RxHttp目前已适配`OkHttp 3.12.0 - 4.9.1`版本(4.3.0版本除外), 如你想要兼容21以下，请依赖`OkHttp 3.12.x`，该版本最低要求 API 9***
 
@@ -129,7 +129,7 @@ dependencies {
 
 # 混淆
 
-`RxHttp v2.2.8`版本起，无需添加任何混淆规则(内部自带混淆规则)，v2.2.8以下版本，请[查看混淆规则](https://github.com/liujingxing/okhttp-RxHttp/wiki/关于混淆),并添加到自己项目中
+`RxHttp v2.2.8`版本起，无需添加任何混淆规则(内部自带混淆规则)，v2.2.8以下版本，请[查看混淆规则](https://github.com/liujingxing/rxhttp/wiki/关于混淆),并添加到自己项目中
 
 # 友情链接
 
@@ -138,7 +138,7 @@ dependencies {
 `注：如果你的项目用到了RxHttp，想要在这里展示，请联系我。`
 
 # Demo演示
-<img src="https://github.com/liujingxing/RxHttp/blob/master/screen/screenrecorder-2019-11-27_22_56_26.gif" width = "240" height = "520" />
+<img src="https://github.com/liujingxing/rxhttp/blob/master/screen/screenrecorder-2019-11-27_22_56_26.gif" width = "240" height = "520" />
 
 > 更多功能，请下载Demo体验
 

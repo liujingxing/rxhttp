@@ -44,10 +44,10 @@ import rxhttp.wrapper.utils.LogUtil;
 
 /**
  * Github
- * https://github.com/liujingxing/RxHttp
- * https://github.com/liujingxing/RxLife
- * https://github.com/liujingxing/okhttp-RxHttp/wiki/FAQ
- * https://github.com/liujingxing/okhttp-RxHttp/wiki/更新日志
+ * https://github.com/liujingxing/rxhttp
+ * https://github.com/liujingxing/rxlife
+ * https://github.com/liujingxing/rxhttp/wiki/FAQ
+ * https://github.com/liujingxing/rxhttp/wiki/更新日志
  */
 @SuppressWarnings("unchecked")
 public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {

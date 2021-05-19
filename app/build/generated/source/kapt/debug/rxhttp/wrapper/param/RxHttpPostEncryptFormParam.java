@@ -5,8 +5,8 @@ import java.lang.String;
 
 /**
  * Github
- * https://github.com/liujingxing/RxHttp
- * https://github.com/liujingxing/RxLife
+ * https://github.com/liujingxing/rxhttp
+ * https://github.com/liujingxing/rxlife
  */
 public class RxHttpPostEncryptFormParam extends RxHttpFormParam {
   public RxHttpPostEncryptFormParam(PostEncryptFormParam param) {

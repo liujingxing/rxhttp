@@ -14,8 +14,8 @@ import okio.ByteString;
 
 /**
  * Github
- * https://github.com/liujingxing/RxHttp
- * https://github.com/liujingxing/RxLife
+ * https://github.com/liujingxing/rxhttp
+ * https://github.com/liujingxing/rxlife
  */
 public class RxHttpBodyParam extends RxHttpAbstractBodyParam<BodyParam, RxHttpBodyParam> {
     public RxHttpBodyParam(BodyParam param) {
