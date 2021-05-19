@@ -42,7 +42,7 @@ object ClassHelper {
 
                 /**
                  * 本类存放asXxx方法(需要单独依赖RxJava，并告知RxHttp依赖的RxJava版本)
-                 * 如未生成，请查看 https://github.com/liujingxing/okhttp-RxHttp/wiki/FAQ
+                 * 如未生成，请查看 https://github.com/liujingxing/rxhttp/wiki/FAQ
                  * User: ljx
                  * Date: 2020/4/11
                  * Time: 18:15
@@ -90,7 +90,7 @@ object ClassHelper {
 
             /**
              * 本类存放asXxx方法(需要单独依赖RxJava，并告知RxHttp依赖的RxJava版本)
-             * 如未生成，请查看 https://github.com/liujingxing/okhttp-RxHttp/wiki/FAQ
+             * 如未生成，请查看 https://github.com/liujingxing/rxhttp/wiki/FAQ
              * User: ljx
              * Date: 2020/4/11
              * Time: 18:15
@@ -899,10 +899,10 @@ object ClassHelper {
 
                 /**
                  * Github
-                 * https://github.com/liujingxing/RxHttp
-                 * https://github.com/liujingxing/RxLife
-                 * https://github.com/liujingxing/okhttp-RxHttp/wiki/FAQ
-                 * https://github.com/liujingxing/okhttp-RxHttp/wiki/更新日志
+                 * https://github.com/liujingxing/rxhttp
+                 * https://github.com/liujingxing/rxlife
+                 * https://github.com/liujingxing/rxhttp/wiki/FAQ
+                 * https://github.com/liujingxing/rxhttp/wiki/更新日志
                  */
                 @SuppressWarnings("unchecked")
                 public class RxHttpAbstractBodyParam<P extends AbstractBodyParam<P>, R extends RxHttpAbstractBodyParam<P, R>> extends RxHttp<P, R> {
@@ -930,10 +930,10 @@ object ClassHelper {
                 
                 /**
                  * Github
-                 * https://github.com/liujingxing/RxHttp
-                 * https://github.com/liujingxing/RxLife
-                 * https://github.com/liujingxing/okhttp-RxHttp/wiki/FAQ
-                 * https://github.com/liujingxing/okhttp-RxHttp/wiki/更新日志
+                 * https://github.com/liujingxing/rxhttp
+                 * https://github.com/liujingxing/rxlife
+                 * https://github.com/liujingxing/rxhttp/wiki/FAQ
+                 * https://github.com/liujingxing/rxhttp/wiki/更新日志
                  */
                 @SuppressWarnings("unchecked")
                 public class RxHttpAbstractBodyParam<P extends AbstractBodyParam<P>, R extends RxHttpAbstractBodyParam<P, R>> extends RxHttp<P, R> {
@@ -1004,10 +1004,10 @@ object ClassHelper {
 
             /**
              * Github
-             * https://github.com/liujingxing/RxHttp
-             * https://github.com/liujingxing/RxLife
-             * https://github.com/liujingxing/okhttp-RxHttp/wiki/FAQ
-             * https://github.com/liujingxing/okhttp-RxHttp/wiki/更新日志
+             * https://github.com/liujingxing/rxhttp
+             * https://github.com/liujingxing/rxlife
+             * https://github.com/liujingxing/rxhttp/wiki/FAQ
+             * https://github.com/liujingxing/rxhttp/wiki/更新日志
              */
             public class RxHttpNoBodyParam extends RxHttp<NoBodyParam, RxHttpNoBodyParam> {
                 public RxHttpNoBodyParam(NoBodyParam param) {
@@ -1068,8 +1068,8 @@ object ClassHelper {
 
             /**
              * Github
-             * https://github.com/liujingxing/RxHttp
-             * https://github.com/liujingxing/RxLife
+             * https://github.com/liujingxing/rxhttp
+             * https://github.com/liujingxing/rxlife
              */
             public class RxHttpBodyParam extends RxHttpAbstractBodyParam<BodyParam, RxHttpBodyParam> {
                 public RxHttpBodyParam(BodyParam param) {
@@ -1154,10 +1154,10 @@ object ClassHelper {
 
             /**
              * Github
-             * https://github.com/liujingxing/RxHttp
-             * https://github.com/liujingxing/RxLife
-             * https://github.com/liujingxing/okhttp-RxHttp/wiki/FAQ
-             * https://github.com/liujingxing/okhttp-RxHttp/wiki/更新日志
+             * https://github.com/liujingxing/rxhttp
+             * https://github.com/liujingxing/rxlife
+             * https://github.com/liujingxing/rxhttp/wiki/FAQ
+             * https://github.com/liujingxing/rxhttp/wiki/更新日志
              */
             public class RxHttpFormParam extends RxHttpAbstractBodyParam<FormParam, RxHttpFormParam> {
                 public RxHttpFormParam(FormParam param) {
@@ -1429,10 +1429,10 @@ object ClassHelper {
             import rxhttp.wrapper.param.JsonParam;
             /**
              * Github
-             * https://github.com/liujingxing/RxHttp
-             * https://github.com/liujingxing/RxLife
-             * https://github.com/liujingxing/okhttp-RxHttp/wiki/FAQ
-             * https://github.com/liujingxing/okhttp-RxHttp/wiki/更新日志
+             * https://github.com/liujingxing/rxhttp
+             * https://github.com/liujingxing/rxlife
+             * https://github.com/liujingxing/rxhttp/wiki/FAQ
+             * https://github.com/liujingxing/rxhttp/wiki/更新日志
              */
             public class RxHttpJsonParam extends RxHttpAbstractBodyParam<JsonParam, RxHttpJsonParam> {
                 public RxHttpJsonParam(JsonParam param) {
@@ -1499,10 +1499,10 @@ object ClassHelper {
 
             /**
              * Github
-             * https://github.com/liujingxing/RxHttp
-             * https://github.com/liujingxing/RxLife
-             * https://github.com/liujingxing/okhttp-RxHttp/wiki/FAQ
-             * https://github.com/liujingxing/okhttp-RxHttp/wiki/更新日志
+             * https://github.com/liujingxing/rxhttp
+             * https://github.com/liujingxing/rxlife
+             * https://github.com/liujingxing/rxhttp/wiki/FAQ
+             * https://github.com/liujingxing/rxhttp/wiki/更新日志
              */
             public class RxHttpJsonArrayParam extends RxHttpAbstractBodyParam<JsonArrayParam, RxHttpJsonArrayParam> {
                 public RxHttpJsonArrayParam(JsonArrayParam param) {

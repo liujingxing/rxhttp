@@ -22,7 +22,7 @@ import javax.net.ssl.X509TrustManager;
 
 /**
  * 处理https证书问题，此类出处为鸿洋的okhttputils
- * 详细用法请查看：https://github.com/liujingxing/okhttp-RxHttp/wiki/%E5%85%B3%E4%BA%8EHttps
+ * 详细用法请查看：https://github.com/liujingxing/rxhttp/wiki/%E5%85%B3%E4%BA%8EHttps
  * User: ljx
  * Date: 2020/05/01
  * Time: 11:13

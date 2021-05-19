@@ -1,6 +1,6 @@
 # RxHttp
 
-English | [中文文档](https://github.com/liujingxing/okhttp-RxHttp/blob/master/README_zh.md)
+English | [中文文档](https://github.com/liujingxing/rxhttp/blob/master/README_zh.md)
 
 [![](https://jitpack.io/v/liujingxing/rxhttp.svg)](https://jitpack.io/#liujingxing/rxhttp)
 
@@ -191,7 +191,7 @@ disposable.dispose(); //Close the request at the appropriate time
 ## 4、ProGuard
 
 If you are using RxHttp v2.2.8 or above the shrinking and obfuscation rules are included automatically.
-Otherwise you must manually add the options in [rxhttp.pro](https://github.com/liujingxing/okhttp-RxHttp/blob/master/rxhttp/src/main/resources/META-INF/proguard/rxhttp.pro).
+Otherwise you must manually add the options in [rxhttp.pro](https://github.com/liujingxing/rxhttp/blob/master/rxhttp/src/main/resources/META-INF/proguard/rxhttp.pro).
 
 ## 5、Donations
 
