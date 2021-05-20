@@ -32,7 +32,7 @@ public class GetEncryptParam extends NoBodyParam {
     @Override
     public HttpUrl getHttpUrl() {
         StringBuilder paramsBuilder = new StringBuilder(); //存储加密后的参数
-        for (KeyValuePair pair : getKeyValuePairs()) {
+        for (KeyValuePair pair : getQueryParam()) {
             //这里遍历所有添加的参数，可对参数进行加密操作
             String key = pair.getKey();
             String value = pair.getValue().toString();
