@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 
 import rxhttp.wrapper.exception.ParseException;
-import rxhttp.wrapper.parse.AbstractParser;
+import rxhttp.wrapper.parse.TypeParser;
 import rxhttp.wrapper.utils.Converter;
 
 /**
@@ -18,7 +18,7 @@ import rxhttp.wrapper.utils.Converter;
  * Time: 13:49
  */
 //@Parser(name = "Response", wrappers = {PageList.class})
-public class ResponseParser<T> extends AbstractParser<T> {
+public class ResponseParser<T> extends TypeParser<T> {
 
     /**
      * 此构造方法适用于任意Class对象，但更多用于带泛型的Class对象，如：List<Student>
@@ -47,9 +47,9 @@ public class ResponseParser<T> extends AbstractParser<T> {
     @SuppressWarnings("unchecked")
     @Override
     public T onParse(@NotNull okhttp3.Response response) throws IOException {
-        Response<T> data = Converter.convertTo(response, Response.class, mType);
+        Response<T> data = Converter.convertTo(response, Response.class, types);
         T t = data.getData(); //获取data字段
-        if (t == null && mType == String.class) {
+        if (t == null && types[0] == String.class) {
             /*
              * 考虑到有些时候服务端会返回：{"errorCode":0,"errorMsg":"关注成功"}  类似没有data的数据
              * 此时code正确，但是data字段为空，直接返回data的话，会报空指针错误，

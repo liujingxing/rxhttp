@@ -4,7 +4,7 @@ import com.example.httpsender.entity.PageList
 import com.example.httpsender.entity.Response
 import rxhttp.wrapper.annotation.Parser
 import rxhttp.wrapper.exception.ParseException
-import rxhttp.wrapper.parse.AbstractParser
+import rxhttp.wrapper.parse.TypeParser
 import rxhttp.wrapper.utils.convertTo
 import java.io.IOException
 import java.lang.reflect.Type
@@ -18,7 +18,7 @@ import java.lang.reflect.Type
  * 如果使用协程发送请求，wrappers属性可不设置，设置了也无效
  */
 @Parser(name = "Response", wrappers = [PageList::class])
-open class ResponseParser<T> : AbstractParser<T> {
+open class ResponseParser<T> : TypeParser<T> {
     /**
      * 此构造方法适用于任意Class对象，但更多用于带泛型的Class对象，如：List<Student>
      *
@@ -41,9 +41,9 @@ open class ResponseParser<T> : AbstractParser<T> {
 
     @Throws(IOException::class)
     override fun onParse(response: okhttp3.Response): T {
-        val data: Response<T> = response.convertTo(Response::class, mType)
+        val data: Response<T> = response.convertTo(Response::class, *types)
         var t = data.data //获取data字段
-        if (t == null && mType === String::class.java) {
+        if (t == null && types[0] === String::class.java) {
             /*
              * 考虑到有些时候服务端会返回：{"errorCode":0,"errorMsg":"关注成功"}  类似没有data的数据
              * 此时code正确，但是data字段为空，直接返回data的话，会报空指针错误，
