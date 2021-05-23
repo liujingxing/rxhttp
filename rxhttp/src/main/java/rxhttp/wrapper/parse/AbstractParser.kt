@@ -12,6 +12,10 @@ import java.lang.reflect.Type
  * Date: 2019/1/21
  * Time: 15:32
  */
+@Deprecated(
+    "This supports only single type, TypeParser supports multiple type",
+    replaceWith = ReplaceWith("TypeParser<T>")
+)
 abstract class AbstractParser<T> : Parser<T> {
     @JvmField
     protected var mType: Type
