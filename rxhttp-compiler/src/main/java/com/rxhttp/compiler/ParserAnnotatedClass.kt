@@ -180,12 +180,8 @@ class ParserAnnotatedClass {
                     .addParameter(schedulerName, "scheduler")
                     .addParameter(consumerProgressName, "progressConsumer")
                     .addCode("""
-                        ObservableCall observableCall;                                      
-                        if (isAsync) {                                                      
-                          observableCall = new ObservableCallEnqueue(this);                 
-                        } else {                                                            
-                          observableCall = new ObservableCallExecute(this);                 
-                        }                                                                   
+                        ObservableCall observableCall = isAsync ? new ObservableCallEnqueue(this)
+                            : new ObservableCallExecute(this);                                
                         return observableCall.asParser(parser, scheduler, progressConsumer);
                     """.trimIndent())
                     .returns(observableTName)

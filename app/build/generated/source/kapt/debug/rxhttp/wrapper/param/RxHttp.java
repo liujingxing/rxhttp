@@ -525,12 +525,8 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
 
   public <T> Observable<T> asParser(Parser<T> parser, Scheduler scheduler,
       Consumer<Progress> progressConsumer) {
-    ObservableCall observableCall;                                      
-    if (isAsync) {                                                      
-      observableCall = new ObservableCallEnqueue(this);                 
-    } else {                                                            
-      observableCall = new ObservableCallExecute(this);                 
-    }                                                                   
+    ObservableCall observableCall = isAsync ? new ObservableCallEnqueue(this)
+        : new ObservableCallExecute(this);                                
     return observableCall.asParser(parser, scheduler, progressConsumer);
   }
 
