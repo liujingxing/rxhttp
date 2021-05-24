@@ -259,8 +259,9 @@ class ParserAnnotatedClass {
                     //有泛型且有Class类型参数
                     if (typeVariableNames.isNotEmpty() && haveClassTypeParam) {
 
-                        val wrapperListClass: MutableList<ClassName> = mutableListOf()
-                        wrapperListClass.add(ClassName.get("java.util", "List"))
+                        val wrapperListClass = mutableListOf<ClassName>()
+                        if (typeVariableNames.size == 1)
+                            wrapperListClass.add(ClassName.get("java.util", "List"))
 
                         //泛型的包裹类型，取自Parser注解的wrappers字段
                         mTypeMap[parserAlias]?.forEach { mirror ->
