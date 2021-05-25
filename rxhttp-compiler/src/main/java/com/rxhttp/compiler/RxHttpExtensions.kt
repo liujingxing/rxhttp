@@ -263,6 +263,6 @@ class RxHttpExtensions {
                 }
             newTypeVariableNames.add(typeVariableName)
         }
-        return newTypeVariableNames;
+        return newTypeVariableNames
     }
 }
