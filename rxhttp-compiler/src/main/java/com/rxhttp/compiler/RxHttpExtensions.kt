@@ -35,14 +35,23 @@ class RxHttpExtensions {
         for (executableElement in getConstructorFun(typeElement)) {
 
             if (typeVariableNames.size > 0
-                && executableElement.parameters.size == typeVariableNames.size
                 && executableElement.modifiers.contains(Modifier.PUBLIC)
             ) {
+                if (executableElement.parameters.size == 1
+                    && executableElement.parameters[0].asType()
+                        .toString() == "java.lang.reflect.Type[]"
+                ) {
+                    continue
+                }
+
                 var allTypeArg = true
-                for (variableElement in executableElement.parameters) {
-                    if (variableElement.asType().toString() != "java.lang.reflect.Type") {
-                        allTypeArg = false
-                        break
+                //构造方法参数数量等于泛型数量
+                if (executableElement.parameters.size == typeVariableNames.size) {
+                    for (variableElement in executableElement.parameters) {
+                        if (variableElement.asType().toString() != "java.lang.reflect.Type") {
+                            allTypeArg = false
+                            break
+                        }
                     }
                 }
                 if (allTypeArg) continue
