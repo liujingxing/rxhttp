@@ -4,7 +4,7 @@
 
 [![](https://jitpack.io/v/liujingxing/rxhttp.svg)](https://jitpack.io/#liujingxing/rxhttp) 
 
-***RxHttp&RxLife 交流群：378530627   &nbsp;&nbsp;&nbsp;&nbsp;  微信群先加我个人微信(记得备注，否则不通过)：ljx-studio*** 
+***RxHttp&RxLife 交流群：378530627   &nbsp;&nbsp;&nbsp;&nbsp;  微信群先加我个人微信（记得备注，否则不通过）：ljx-studio*** 
 
 # 主要优势
 
