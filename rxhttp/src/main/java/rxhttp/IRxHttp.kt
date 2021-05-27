@@ -62,6 +62,11 @@ suspend fun IRxHttp.awaitHeaders(): Headers = OkHttpCompat.headers(awaitOkRespon
 
 suspend fun IRxHttp.awaitOkResponse(): Response = await(OkResponseParser())
 
+suspend inline fun <reified T : Any> IRxHttp.awaitResult(): Result<T> = runCatching { await() }
+
+suspend inline fun <reified T : Any> IRxHttp.awaitResult(onSuccess: (value: T) -> Unit): Result<T> =
+    awaitResult<T>().onSuccess(onSuccess)
+
 suspend inline fun <reified T : Any> IRxHttp.await(): T = await(object : SimpleParser<T>() {})
 
 suspend fun <T> IRxHttp.await(parser: Parser<T>): T = toParser(parser).await()
