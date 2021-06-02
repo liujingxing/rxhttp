@@ -32,6 +32,7 @@ class RxHttpExtensions {
             typeVariableNames.add(it.asTypeVariableName())
         }
 
+        //遍历构造方法
         for (executableElement in getConstructorFun(typeElement)) {
 
             if (typeVariableNames.size > 0
