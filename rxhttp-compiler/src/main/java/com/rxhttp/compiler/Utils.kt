@@ -8,49 +8,53 @@ import javax.lang.model.type.TypeVariable
 
 //将Java的基本类型/常用类型转换为kotlin中对应的类型
 fun TypeName.toKClassTypeName(): TypeName =
-    if (this is ParameterizedTypeName) {
-        when (rawType.toString()) {
-            else -> (rawType.toKClassTypeName() as ClassName).parameterizedBy(*typeArguments.map { it.toKClassTypeName() }.toTypedArray())
-        }
-    } else if (this is WildcardTypeName) {
-        //通配符
-        when {
-            this.toString() == "*" -> {
-                this
-            }
-            inTypes.isNotEmpty() -> {
-                WildcardTypeName.consumerOf(inTypes[0].toKClassTypeName())
-            }
-            outTypes.isNotEmpty() -> {
-                WildcardTypeName.producerOf(outTypes[0].toKClassTypeName())
-            }
-            else -> {
-                this
+    when {
+        this is ParameterizedTypeName -> {
+            when (rawType.toString()) {
+                else -> (rawType.toKClassTypeName() as ClassName).parameterizedBy(*typeArguments.map { it.toKClassTypeName() }
+                    .toTypedArray())
             }
         }
-    } else if (this is TypeVariableName) {
-        //泛型
-        val newBounds = ArrayList<TypeName>()
-        bounds.forEach {
-            if (it.toString() != "java.lang.Object")
-                newBounds.add(it.toKClassTypeName())
+        this is WildcardTypeName -> {
+            //通配符
+            when {
+                this.toString() == "*" -> {
+                    this
+                }
+                inTypes.isNotEmpty() -> {
+                    WildcardTypeName.consumerOf(inTypes[0].toKClassTypeName())
+                }
+                outTypes.isNotEmpty() -> {
+                    WildcardTypeName.producerOf(outTypes[0].toKClassTypeName())
+                }
+                else -> {
+                    this
+                }
+            }
         }
-        TypeVariableName.invoke(name, newBounds)
-    } else if (this.toString() == "java.lang.Object") ClassName("kotlin", "Any")
-    else if (this.toString() == "java.lang.String") ClassName("kotlin", "String")
-    else if (toString() == "java.lang.Number") ClassName("kotlin", "Number")
-    else if (toString() == "java.lang.Boolean") ClassName("kotlin", "Boolean")
-    else if (toString() == "java.lang.Byte") ClassName("kotlin", "Byte")
-    else if (toString() == "java.lang.Short") ClassName("kotlin", "Short")
-    else if (toString() == "java.lang.Integer") ClassName("kotlin", "Int")
-    else if (toString() == "java.lang.Long") ClassName("kotlin", "Long")
-    else if (toString() == "java.lang.Float") ClassName("kotlin", "Float")
-    else if (toString() == "java.lang.Double") ClassName("kotlin", "Double")
-    else if (toString() == "java.lang.CharSequence") ClassName("kotlin", "CharSequence")
-    else if (toString() == "java.util.List") ClassName("kotlin.collections", "List")
-    else if (toString() == "java.util.Map") ClassName("kotlin.collections", "Map")
-    else {
-        this
+        this is TypeVariableName -> {
+            //泛型
+            val newBounds = ArrayList<TypeName>()
+            bounds.forEach {
+                if (it.toString() != "java.lang.Object")
+                    newBounds.add(it.toKClassTypeName())
+            }
+            TypeVariableName.invoke(name, newBounds)
+        }
+        toString() == "java.lang.Object" -> ANY
+        toString() == "java.lang.String" -> STRING
+        toString() == "java.lang.Number" -> NUMBER
+        toString() == "java.lang.Boolean" -> BOOLEAN
+        toString() == "java.lang.Byte" -> BYTE
+        toString() == "java.lang.Short" -> SHORT
+        toString() == "java.lang.Integer" -> INT
+        toString() == "java.lang.Long" -> LONG
+        toString() == "java.lang.Float" -> FLOAT
+        toString() == "java.lang.Double" -> DOUBLE
+        toString() == "java.lang.CharSequence" -> CHAR_SEQUENCE
+        toString() == "java.util.List" -> LIST
+        toString() == "java.util.Map" -> MAP
+        else -> this
     }
 
 //ExecutableElement 转 FunSpec.Builder
