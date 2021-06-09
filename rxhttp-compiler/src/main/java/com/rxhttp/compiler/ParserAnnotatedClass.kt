@@ -208,7 +208,7 @@ class ParserAnnotatedClass {
                 }
 
                 //遍历public构造方法
-                getConstructorFun(typeElement).forEach {
+                typeElement.getConstructorFun().forEach {
                     //根据构造方法参数，获取asXxx方法需要的参数
                     val parameterList = ArrayList<ParameterSpec>()
                     var typeIndex = 0
@@ -219,10 +219,10 @@ class ParserAnnotatedClass {
                                 //Type类型参数转Class<T>类型
                                 val classTypeName =
                                     ParameterizedTypeName.get(className, typeVariableName)
-                                val parameterSpec = ParameterSpec.builder(
-                                    classTypeName,
+                                val variableName =
                                     "${typeVariableName.name.lowercase(Locale.getDefault())}Type"
-                                ).build()
+                                val parameterSpec =
+                                    ParameterSpec.builder(classTypeName, variableName).build()
                                 parameterList.add(parameterSpec)
                             }
                         } else if (variableType.toString() == "java.lang.reflect.Type"
@@ -343,9 +343,9 @@ class ParserAnnotatedClass {
 
 
     //获取构造方法
-    private fun getConstructorFun(typeElement: TypeElement): MutableList<ExecutableElement> {
+    private fun TypeElement.getConstructorFun(): MutableList<ExecutableElement> {
         val funList = ArrayList<ExecutableElement>()
-        typeElement.enclosedElements.forEach {
+        enclosedElements.forEach {
             if (it is ExecutableElement
                 && it.kind == ElementKind.CONSTRUCTOR
                 && it.getModifiers().contains(Modifier.PUBLIC)
@@ -356,11 +356,11 @@ class ParserAnnotatedClass {
         return funList
     }
 
-    private fun getParamsName(variableElements: MutableList<ParameterSpec>): String {
+    private fun getParamsName(parameterSpecs: MutableList<ParameterSpec>): String {
         val paramsName = StringBuilder()
-        for ((index, element) in variableElements.withIndex()) {
+        parameterSpecs.forEachIndexed { index, parameterSpec ->
             if (index > 0) paramsName.append(", ")
-            paramsName.append(element.name)
+            paramsName.append(parameterSpec.name)
         }
         return paramsName.toString()
     }
