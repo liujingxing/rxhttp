@@ -212,20 +212,21 @@ class ParserAnnotatedClass {
                     //根据构造方法参数，获取asXxx方法需要的参数
                     val parameterList = ArrayList<ParameterSpec>()
                     var typeIndex = 0
-                    it.parameters.forEach { variableNames ->
-                        if (variableNames.asType().toString() == "java.lang.reflect.Type"
+                    it.parameters.forEach { variableElement ->
+                        val variableType = variableElement.asType()
+                        val variableName = variableElement.simpleName.toString()
+                        val parameterSpec = if (variableType.toString() == "java.lang.reflect.Type"
                             && typeIndex < typeVariableNames.size
                         ) {
                             //Type类型参数转Class<T>类型
                             val classTypeName = ParameterizedTypeName.get(
-                                className, typeVariableNames[typeIndex++])
-                            val parameterSpec = ParameterSpec
-                                .builder(classTypeName, variableNames.simpleName.toString())
-                                .build()
-                            parameterList.add(parameterSpec)
+                                className, typeVariableNames[typeIndex++]
+                            )
+                            ParameterSpec.builder(classTypeName, variableName).build()
                         } else {
-                            parameterList.add(ParameterSpec.get(variableNames))
+                            ParameterSpec.get(variableElement)
                         }
+                        parameterList.add(parameterSpec)
                     }
 
                     //方法名
@@ -242,6 +243,7 @@ class ParserAnnotatedClass {
                             .addModifiers(Modifier.PUBLIC)
                             .addTypeVariables(typeVariableNames)
                             .addParameters(parameterList)
+                            .varargs(it.isVarArgs)
                             .addStatement(methodBody, ClassName.get(typeElement))  //方法里面的表达式
                             .returns(asFunReturnType)
                             .build())
