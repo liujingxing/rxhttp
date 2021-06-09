@@ -8,6 +8,7 @@ import javax.lang.model.element.ElementKind
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
+import javax.lang.model.type.TypeKind
 
 /**
  * User: ljx
@@ -61,28 +62,37 @@ class RxHttpExtensions {
             //根据构造方法参数，获取asXxx方法需要的参数
             val parameterList = ArrayList<ParameterSpec>()
             var typeIndex = 0
-            executableElement.parameters.forEach {
-                if (it.asType().toString() == "java.lang.reflect.Type"
+            val varArgsFun = executableElement.isVarArgs  //改构造方法是否携带可变参数，即是否为可变参数方法
+            executableElement.parameters.forEachIndexed { index, variableElement ->
+                val variableType = variableElement.asType()
+                val variableName = variableElement.simpleName.toString()
+                val parameterSpec = if (variableType.toString() == "java.lang.reflect.Type"
                     && typeIndex < typeVariableNames.size
-                ) {
-                    //Type类型参数转Class<T>类型
-                    val parameterSpec = ParameterSpec.builder(
-                        it.simpleName.toString(),
+                ) {  //Type类型参数转Class<T>类型
+                    ParameterSpec.builder(
+                        variableName,
                         classTypeName.parameterizedBy(typeVariableNames[typeIndex++])
                     ).build()
-                    parameterList.add(parameterSpec)
                 } else {
-                    val annotation = it.getAnnotation(Nullable::class.java)
-                    val name = it.simpleName.toString()
-                    var type = it.asType().asTypeName().toKClassTypeName()
-                    if (annotation != null) {
-                        type = type.copy(true)
+                    val annotation = variableElement.getAnnotation(Nullable::class.java)
+                    var type = variableType.asTypeName()
+                    if (annotation != null) type = type.copy(true)
+                    val isVarArg = varArgsFun
+                        && index == executableElement.parameters.lastIndex
+                        && variableType.kind == TypeKind.ARRAY;
+                    if (isVarArg) {  //最后一个参数是可变参数
+                        if (type is ParameterizedTypeName) {
+                            type = type.typeArguments[0].toKClassTypeName()
+                        }
                     }
-                    val parameterSpec = ParameterSpec.builder(name, type)
-                        .jvmModifiers(it.modifiers)
-                        .build()
-                    parameterList.add(parameterSpec)
+                    val parameterSpecBuilder = ParameterSpec.builder(variableName, type)
+                        .jvmModifiers(variableElement.modifiers)
+                    if (isVarArg) {
+                        parameterSpecBuilder.addModifiers(KModifier.VARARG)
+                    }
+                    parameterSpecBuilder.build()
                 }
+                parameterList.add(parameterSpec)
             }
 
             val modifiers = ArrayList<KModifier>()
@@ -239,11 +249,12 @@ class RxHttpExtensions {
         return funList
     }
 
-    private fun getParamsName(variableElements: MutableList<ParameterSpec>): String {
+    private fun getParamsName(parameterSpecs: MutableList<ParameterSpec>): String {
         val paramsName = StringBuilder()
-        for ((index, element) in variableElements.withIndex()) {
+        parameterSpecs.forEachIndexed { index, parameterSpec ->
             if (index > 0) paramsName.append(", ")
-            paramsName.append(element.name)
+            if (KModifier.VARARG in parameterSpec.modifiers) paramsName.append("*")
+            paramsName.append(parameterSpec.name)
         }
         return paramsName.toString()
     }
