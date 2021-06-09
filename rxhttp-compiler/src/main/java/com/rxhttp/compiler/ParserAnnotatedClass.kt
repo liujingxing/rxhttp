@@ -214,19 +214,31 @@ class ParserAnnotatedClass {
                     var typeIndex = 0
                     it.parameters.forEach { variableElement ->
                         val variableType = variableElement.asType()
-                        val variableName = variableElement.simpleName.toString()
-                        val parameterSpec = if (variableType.toString() == "java.lang.reflect.Type"
+                        if (variableType.toString() == "java.lang.reflect.Type[]") {
+                            typeVariableNames.forEach { typeVariableName ->
+                                //Type类型参数转Class<T>类型
+                                val classTypeName =
+                                    ParameterizedTypeName.get(className, typeVariableName)
+                                val parameterSpec = ParameterSpec.builder(
+                                    classTypeName,
+                                    "${typeVariableName.name.lowercase(Locale.getDefault())}Type"
+                                ).build()
+                                parameterList.add(parameterSpec)
+                            }
+                        } else if (variableType.toString() == "java.lang.reflect.Type"
                             && typeIndex < typeVariableNames.size
                         ) {
                             //Type类型参数转Class<T>类型
                             val classTypeName = ParameterizedTypeName.get(
                                 className, typeVariableNames[typeIndex++]
                             )
-                            ParameterSpec.builder(classTypeName, variableName).build()
+                            val variableName = variableElement.simpleName.toString()
+                            val parameterSpec =
+                                ParameterSpec.builder(classTypeName, variableName).build()
+                            parameterList.add(parameterSpec)
                         } else {
-                            ParameterSpec.get(variableElement)
+                            parameterList.add(ParameterSpec.get(variableElement))
                         }
-                        parameterList.add(parameterSpec)
                     }
 
                     //方法名
@@ -243,7 +255,7 @@ class ParserAnnotatedClass {
                             .addModifiers(Modifier.PUBLIC)
                             .addTypeVariables(typeVariableNames)
                             .addParameters(parameterList)
-                            .varargs(it.isVarArgs)
+                            .varargs(it.isVarArgs && parameterList.last().type is ArrayTypeName)
                             .addStatement(methodBody, ClassName.get(typeElement))  //方法里面的表达式
                             .returns(asFunReturnType)
                             .build())

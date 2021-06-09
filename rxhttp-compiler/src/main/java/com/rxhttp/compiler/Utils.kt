@@ -113,7 +113,11 @@ fun MutableList<ExecutableElement>.findNoArgumentConstructorFun(): ExecutableEle
 fun MutableList<ExecutableElement>.findTypeArgumentConstructorFun(typeParametersSize: Int): ExecutableElement? {
     for (it in this) {
         if (!it.modifiers.contains(Modifier.PUBLIC)) continue
-        //构造方法个数小于泛型个数，则遍历下一个
+        it.parameters.forEach { variableElement ->
+            if (variableElement.asType().toString() == "java.lang.reflect.Type[]")
+                return it
+        }
+        //构造方法参数个数小于泛型个数，则遍历下一个
         if (it.parameters.size < typeParametersSize) continue
         for (i in 0 until typeParametersSize) {
             //参数非java.lang.reflect.Type，返回null
