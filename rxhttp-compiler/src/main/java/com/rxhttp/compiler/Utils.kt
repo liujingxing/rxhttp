@@ -10,10 +10,10 @@ import javax.lang.model.type.TypeVariable
 fun TypeName.toKClassTypeName(): TypeName =
     when {
         this is ParameterizedTypeName -> {
-            when (rawType.toString()) {
-                else -> (rawType.toKClassTypeName() as ClassName).parameterizedBy(*typeArguments.map { it.toKClassTypeName() }
-                    .toTypedArray())
-            }
+            (rawType.toKClassTypeName() as ClassName).parameterizedBy(
+                *typeArguments.map { it.toKClassTypeName() }
+                    .toTypedArray()
+            )
         }
         this is WildcardTypeName -> {
             //通配符
