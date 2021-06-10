@@ -32,7 +32,7 @@ abstract class UriFactory(
     open fun query(): Uri? = null
 
     final override fun getOutputStream(response: Response): OutputStreamWrapper<Uri> {
-        val append = response.header("Content-Range") != null
+        val append = OkHttpCompat.header(response, "Content-Range") != null
         return insert(response).toWrapper(context, append)
     }
 }
@@ -49,7 +49,7 @@ internal fun newOutputStreamFactory(
     context: Context,
     uri: Uri
 ): OutputStreamFactory<Uri> = newOutputStreamFactory {
-    val append = it.header("Content-Range") != null
+    val append = OkHttpCompat.header(it, "Content-Range") != null
     uri.toWrapper(context, append)
 }
 
@@ -88,7 +88,7 @@ private fun String.replaceSuffix(response: Response): String {
  * Content-Disposition: attachment;filename*=UTF-8'zh_cn'%E6%B5%8B%E8%AF%95.apk
  */
 private fun Response.findFilename(): String? {
-    val header = header("Content-Disposition") ?: return null
+    val header = OkHttpCompat.header(this, "Content-Disposition") ?: return null
     header.split(";").forEach {
         val keyValuePair = it.split("=")
         if (keyValuePair.size > 1) {
