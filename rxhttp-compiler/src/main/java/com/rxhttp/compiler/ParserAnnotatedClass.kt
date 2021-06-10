@@ -6,12 +6,10 @@ import java.io.IOException
 import java.lang.Deprecated
 import java.util.*
 import javax.annotation.processing.Filer
-import javax.lang.model.element.ElementKind
-import javax.lang.model.element.ExecutableElement
-import javax.lang.model.element.Modifier
-import javax.lang.model.element.TypeElement
+import javax.lang.model.element.*
 import javax.lang.model.type.MirroredTypesException
 import javax.lang.model.type.TypeMirror
+import kotlin.Int
 import kotlin.String
 import kotlin.collections.ArrayList
 import kotlin.require
@@ -245,7 +243,9 @@ class ParserAnnotatedClass {
                     var methodName = "as$parserAlias"
                     //方法体
                     val methodBody =
-                        "return asParser(new \$T<>(${getParamsName(parameterList)}))"
+                        "return asParser(new \$T<>(${
+                            getParamsName(it.parameters, parameterList, typeVariableNames.size)
+                        }))"
 
                     //生成的as方法返回类型(Observable<T>类型)
                     var asFunReturnType = ParameterizedTypeName.get(
@@ -267,8 +267,7 @@ class ParserAnnotatedClass {
                         }
                     }
                     //有泛型且有Class类型参数
-                    if (typeVariableNames.isNotEmpty() && haveClassTypeParam) {
-
+                    if (typeVariableNames.size == 1 && haveClassTypeParam) {
                         val wrapperListClass = mutableListOf<ClassName>()
                         if (typeVariableNames.size == 1)
                             wrapperListClass.add(ClassName.get("java.util", "List"))
@@ -305,21 +304,27 @@ class ParserAnnotatedClass {
                             val funBody = CodeBlock.builder()
                             val paramsName = StringBuilder()
                             //遍历参数，取出参数名
-                            parameterList.forEach { param ->
+                            parameterList.forEachIndexed { index, param ->
+                                if (index > 0) paramsName.append(", ")
                                 if (param.type.toString().startsWith("java.lang.Class")) {
                                     /*
                                      * Class类型参数，需要进行再次包装，最后再取参数名
                                      * 格式：Type tTypeList = ParameterizedTypeImpl.get(List.class, tType);
                                      */
-                                    val expression = "\$T ${param.name}$simpleName = \$T.get($simpleName.class, ${param.name})"
+                                    val variableName = "${param.name}$simpleName"
+                                    val expression =
+                                        "\$T $variableName = \$T.get($simpleName.class, ${param.name})"
                                     funBody.addStatement(expression, type, parameterizedType)
-                                    paramsName.append("${param.name}${simpleName}")
+                                    val parameterType = it.parameters[index].asType()
+                                    if ("java.lang.reflect.Type[]" == parameterType.toString()) {
+                                        paramsName.append("new Type[]{$variableName}")
+                                    } else {
+                                        paramsName.append(variableName)
+                                    }
                                 } else {
                                     paramsName.append(param.name)
                                 }
-                                paramsName.append(", ")
                             }
-                            paramsName.delete(paramsName.length - 2, paramsName.length)
                             val returnStatement = "return asParser(new \$T<>($paramsName))"
                             funBody.addStatement(returnStatement, ClassName.get(typeElement))
 
@@ -356,17 +361,42 @@ class ParserAnnotatedClass {
         return funList
     }
 
-    private fun getParamsName(parameterSpecs: MutableList<ParameterSpec>): String {
-        val paramsName = StringBuilder()
-        parameterSpecs.forEachIndexed { index, parameterSpec ->
-            if (index > 0) paramsName.append(", ")
-            paramsName.append(parameterSpec.name)
+    /**
+     * @param variableElements 解析器构造方法参数列表
+     * @param parameterSpecs 通过解析器构造方法参数列表转换而来的实际参数列表，parameterSpecs.size() >= variableElements.size()
+     * @param typeCount 解析器泛型数量
+     */
+    private fun getParamsName(
+        variableElements: List<VariableElement>,
+        parameterSpecs: MutableList<ParameterSpec>,
+        typeCount: Int
+    ): String {
+        val sb = StringBuilder()
+        var paramIndex = 0
+        var variableIndex = 0
+        val variableSize = variableElements.size
+        val paramSize = parameterSpecs.size
+        while (paramIndex < paramSize && variableIndex < variableSize) {
+            if (variableIndex > 0) sb.append(", ")
+            val type = variableElements[variableIndex++].asType()
+            if ("java.lang.reflect.Type[]" == type.toString()) {
+                sb.append("new Type[]{")
+                for (i in 0 until typeCount) {
+                    if (i > 0) sb.append(", ")
+                    sb.append(parameterSpecs[paramIndex++].name)
+                }
+                sb.append("}")
+            } else
+                sb.append(parameterSpecs[paramIndex++].name)
         }
-        return paramsName.toString()
+        return sb.toString()
     }
 
     //获取泛型字符串 比如:<T> 、<K,V>等等
-    private fun getTypeVariableString(typeVariableNames: ArrayList<TypeVariableName>, wrapperClass: ClassName): String {
+    private fun getTypeVariableString(
+        typeVariableNames: ArrayList<TypeVariableName>,
+        wrapperClass: ClassName
+    ): String {
         val name = wrapperClass.toString()
         val simpleName = name.substring(name.lastIndexOf(".") + 1)
 
