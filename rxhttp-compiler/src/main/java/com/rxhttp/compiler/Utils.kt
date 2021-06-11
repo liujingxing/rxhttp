@@ -9,8 +9,23 @@ import javax.lang.model.type.TypeVariable
 //将Java的基本类型/常用类型转换为kotlin中对应的类型
 fun TypeName.toKClassTypeName(): TypeName =
     when {
-        this is ParameterizedTypeName -> {
-            (rawType.toKClassTypeName() as ClassName).parameterizedBy(
+        this is ParameterizedTypeName -> { //带有具体泛型的类，如 kotlin.Array<kotlin.Int>
+            val kClassRawType = rawType.toKClassTypeName()
+            val realRawType =
+                if ("kotlin.Array" == kClassRawType.toString()) {
+                    when (typeArguments[0].toString()) {
+                        "kotlin.Boolean" -> BOOLEAN_ARRAY
+                        "kotlin.Byte" -> BYTE_ARRAY
+                        "kotlin.Char" -> CHAR_ARRAY
+                        "kotlin.Short" -> SHORT_ARRAY
+                        "kotlin.Int" -> INT_ARRAY
+                        "kotlin.Long" -> LONG_ARRAY
+                        "kotlin.Float" -> FLOAT_ARRAY
+                        "kotlin.Double" -> DOUBLE_ARRAY
+                        else -> null
+                    }
+                } else null
+            realRawType ?: (kClassRawType as ClassName).parameterizedBy(
                 *typeArguments.map { it.toKClassTypeName() }
                     .toTypedArray()
             )
@@ -18,18 +33,14 @@ fun TypeName.toKClassTypeName(): TypeName =
         this is WildcardTypeName -> {
             //通配符
             when {
-                this.toString() == "*" -> {
-                    this
-                }
+                this.toString() == "*" -> this
                 inTypes.isNotEmpty() -> {
                     WildcardTypeName.consumerOf(inTypes[0].toKClassTypeName())
                 }
                 outTypes.isNotEmpty() -> {
                     WildcardTypeName.producerOf(outTypes[0].toKClassTypeName())
                 }
-                else -> {
-                    this
-                }
+                else -> this
             }
         }
         this is TypeVariableName -> {
@@ -51,6 +62,7 @@ fun TypeName.toKClassTypeName(): TypeName =
         toString() == "java.lang.Long" -> LONG
         toString() == "java.lang.Float" -> FLOAT
         toString() == "java.lang.Double" -> DOUBLE
+        toString() == "java.lang.Character" -> CHAR
         toString() == "java.lang.CharSequence" -> CHAR_SEQUENCE
         toString() == "java.util.List" -> LIST
         toString() == "java.util.Map" -> MAP
