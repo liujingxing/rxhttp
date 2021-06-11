@@ -48,7 +48,7 @@ class RxHttpExtensions {
 
                 var allTypeArg = true
                 //构造方法参数数量等于泛型数量
-                if (executableElement.parameters.size == typeVariableNames.size) {
+                if (executableElement.parameters.size > typeVariableNames.size) {
                     for (variableElement in executableElement.parameters) {
                         if (variableElement.asType().toString() != "java.lang.reflect.Type") {
                             allTypeArg = false
@@ -76,15 +76,17 @@ class RxHttpExtensions {
                 } else {
                     val annotation = variableElement.getAnnotation(Nullable::class.java)
                     var type = variableType.asTypeName()
-                    if (annotation != null) type = type.copy(true)
                     val isVarArg = varArgsFun
                         && index == executableElement.parameters.lastIndex
-                        && variableType.kind == TypeKind.ARRAY;
+                        && variableType.kind == TypeKind.ARRAY
                     if (isVarArg) {  //最后一个参数是可变参数
                         if (type is ParameterizedTypeName) {
                             type = type.typeArguments[0].toKClassTypeName()
                         }
+                    } else {
+                        type = type.toKClassTypeName()
                     }
+                    if (annotation != null) type = type.copy(true)
                     val parameterSpecBuilder = ParameterSpec.builder(variableName, type)
                         .jvmModifiers(variableElement.modifiers)
                     if (isVarArg) {
