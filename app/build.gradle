@@ -49,7 +49,7 @@ dependencies {
     implementation fileTree(include: ['*.jar', '*.aar'], dir: 'libs')
     implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'androidx.appcompat:appcompat:1.2.0'
-    implementation 'androidx.recyclerview:recyclerview:1.1.0'
+    implementation 'androidx.recyclerview:recyclerview:1.2.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
     implementation 'com.github.hackware1993:MagicIndicator:1.7.0'
     implementation "androidx.fragment:fragment-ktx:1.2.5"
@@ -71,7 +71,7 @@ dependencies {
     //管理RxJava及生命周期，Activity/Fragment 销毁，自动关闭未完成的请求
     implementation "com.github.liujingxing.rxlife:rxlife-rxjava3:${rxlife_version}"
     implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
-    implementation 'io.reactivex.rxjava3:rxjava:3.0.6'
+    implementation 'io.reactivex.rxjava3:rxjava:3.0.13'
 
     implementation "com.github.liujingxing.rxhttp:converter-fastjson:${rxhttp_version}"
     implementation "com.github.liujingxing.rxhttp:converter-jackson:${rxhttp_version}"
