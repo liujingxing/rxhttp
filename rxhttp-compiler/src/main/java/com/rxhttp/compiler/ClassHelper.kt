@@ -16,7 +16,7 @@ object ClassHelper {
     fun generatorStaticClass(filer: Filer, isAndroid: Boolean) {
         generatorBaseRxHttp(filer, isAndroid)
         generatorRxHttpAbstractBodyParam(filer)
-        generatorRxHttpBodyParam(filer)
+        generatorRxHttpBodyParam(filer, isAndroid)
         generatorRxHttpFormParam(filer, isAndroid)
         generatorRxHttpNoBodyParam(filer)
         generatorRxHttpJsonParam(filer)
@@ -1050,13 +1050,16 @@ object ClassHelper {
     }
 
     @JvmStatic
-    fun generatorRxHttpBodyParam(filer: Filer) {
-        generatorClass(filer, "RxHttpBodyParam", """
+    fun generatorRxHttpBodyParam(filer: Filer, isAndroid: Boolean) {
+        generatorClass(
+            filer, "RxHttpBodyParam", """
             package $rxHttpPackage;
-
+            ${
+            if (isAndroid) """
             import android.content.Context;
             import android.net.Uri;
-
+            """ else ""
+            }
             import rxhttp.wrapper.annotations.Nullable;
             import rxhttp.wrapper.param.BodyParam;
 
@@ -1110,7 +1113,8 @@ object ClassHelper {
                     param.setBody(file, mediaType);
                     return this;
                 }
-                
+                ${
+                if (isAndroid) """
                 public RxHttpBodyParam setBody(Uri uri, Context context) {
                     param.setBody(uri, context);
                     return this;
@@ -1120,7 +1124,8 @@ object ClassHelper {
                     param.setBody(uri, context, contentType);
                     return this;
                 }
-                
+                """ else ""
+                }
                 public RxHttpBodyParam setJsonBody(Object object) {
                     param.setJsonBody(object);
                     return this;
