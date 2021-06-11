@@ -62,7 +62,7 @@ class RxHttpExtensions {
             //根据构造方法参数，获取asXxx方法需要的参数
             val parameterList = ArrayList<ParameterSpec>()
             var typeIndex = 0
-            val varArgsFun = executableElement.isVarArgs  //改构造方法是否携带可变参数，即是否为可变参数方法
+            val varArgsFun = executableElement.isVarArgs  //该构造方法是否携带可变参数，即是否为可变参数方法
             executableElement.parameters.forEachIndexed { index, variableElement ->
                 val variableType = variableElement.asType()
                 val variableName = variableElement.simpleName.toString()
