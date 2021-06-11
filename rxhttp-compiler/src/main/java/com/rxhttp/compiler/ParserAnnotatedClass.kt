@@ -334,6 +334,7 @@ class ParserAnnotatedClass {
                                     .addModifiers(Modifier.PUBLIC)
                                     .addTypeVariables(typeVariableNames)
                                     .addParameters(parameterList)
+                                    .varargs(it.isVarArgs && parameterList.last().type is ArrayTypeName)
                                     .addCode(funBody.build())  //方法里面的表达式
                                     .returns(asFunReturnType)
                                     .build())
