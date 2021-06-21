@@ -152,8 +152,6 @@ public class LogUtil {
         if (!isDebug) return;
         try {
             Request request = response.request();
-            LogTime logTime = request.tag(LogTime.class);
-            long tookMs = logTime != null ? logTime.tookMs() : 0;
             String result;
             if (body != null) {
                 result = body;
@@ -164,6 +162,8 @@ public class LogUtil {
             } else {
                 result = response2Str(response);
             }
+            LogTime logTime = request.tag(LogTime.class);
+            long tookMs = logTime != null ? logTime.tookMs() : 0;
             StringBuilder builder = new StringBuilder("<------ ")
                 .append(RxHttpVersion.userAgent).append(" ")
                 .append(OkHttpCompat.getOkHttpUserAgent())
