@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class LogTime {
 
-    private long startNs;
+    private final long startNs;
 
     public LogTime() {
         this.startNs = System.nanoTime();
