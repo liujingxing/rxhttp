@@ -65,7 +65,7 @@ public class FormParam extends AbstractBodyParam<FormParam> implements IPart<For
         Iterator<KeyValuePair> iterator = bodyParam.iterator();
         while (iterator.hasNext()) {
             KeyValuePair next = iterator.next();
-            if (next.equals(key))
+            if (next.getKey().equals(key))
                 iterator.remove();
         }
         return this;
