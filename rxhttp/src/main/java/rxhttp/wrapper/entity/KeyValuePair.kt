@@ -1,6 +1,5 @@
 package rxhttp.wrapper.entity
 
-import rxhttp.wrapper.annotations.NonNull
 
 /**
  * User: ljx
@@ -12,10 +11,6 @@ class KeyValuePair @JvmOverloads constructor(
     val value: Any,
     val isEncoded: Boolean = false,
 ) {
-
-    fun equals(@NonNull key: String): Boolean {
-        return key == key
-    }
 
     override fun equals(other: Any?): Boolean {
         if (other === this) return true
