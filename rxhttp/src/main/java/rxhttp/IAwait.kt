@@ -25,12 +25,12 @@ inline fun <T, R> IAwait<T>.newAwait(
 }
 
 /**
- * @param times  retry times, default Int.MAX_VALUE Always try again
+ * @param times  retry times, default Long.MAX_VALUE Always try again
  * @param period retry period, default 0, time in milliseconds
- * @param test   retry conditions, default null，Unconditional retry
+ * @param test   retry conditions, default true，Unconditional retry
  */
 fun <T> IAwait<T>.retry(
-    times: Int = Int.MAX_VALUE,
+    times: Long = Long.MAX_VALUE,
     period: Long = 0,
     test: suspend (Throwable) -> Boolean = { true }
 ): IAwait<T> = object : IAwait<T> {
@@ -42,7 +42,7 @@ fun <T> IAwait<T>.retry(
             this@retry.await()
         } catch (e: Throwable) {
             val remaining = retryTime  //Remaining retries
-            if (remaining != Int.MAX_VALUE) {
+            if (remaining != Long.MAX_VALUE) {
                 retryTime = remaining - 1
             }
             val pass = test(e)
