@@ -8,9 +8,7 @@
 [![](https://img.shields.io/badge/掘金-@不怕天黑-blue.svg)](https://juejin.cn/user/272334612601559/posts)
 [![](https://img.shields.io/badge/QQ群-378530627-red.svg)](https://jq.qq.com/?_wv=1027&k=E53Hakvv)
 
-
-
-***RxHttp&RxLife 交流群：378530627   &nbsp;&nbsp;&nbsp;&nbsp;  微信群先加我个人微信（记得备注，否则不通过）：ljx-studio*** 
+***微信群先加我个人微信（记得备注，否则不通过）：ljx-studio*** 
 
 # 主要优势
 
