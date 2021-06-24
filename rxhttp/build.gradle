@@ -16,7 +16,7 @@ compileKotlin {
 task copyJavaTemplates(type: Copy) {
     from 'src/main/java-templates'
     into "$buildDir/generated/sources/java-templates/java/main"
-    expand('projectVersion': "${rxhttp_next_version}")
+    expand('projectVersion': "${rxhttp_version}")
     filteringCharset = 'UTF-8'
 }
 
