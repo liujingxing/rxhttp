@@ -13,17 +13,16 @@ android {
 
         multiDexEnabled true
 
-        javaCompileOptions {
-            annotationProcessorOptions {
-                arguments = [
-//                        rxhttp_package: 'rxhttp',  //设置RxHttp相关类的包名，多module依赖时，需要配置不同的包名
-                        rxhttp_rxjava: 'rxjava3'     //可传入rxjava2、rxjava3
-                ]
-            }
-        }
-
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
+
+    kapt {
+        arguments {
+            arg("rxhttp_rxjava", "rxjava3") //可传入rxjava2、rxjava3
+//            arg("rxhttp_package", "rxhttp") //设置RxHttp相关类的包名，多module依赖时，需要配置不同的包名
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled true
