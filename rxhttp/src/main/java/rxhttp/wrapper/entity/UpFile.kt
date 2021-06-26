@@ -7,15 +7,13 @@ import java.io.File
  * Date: 2018/12/21
  * Time: 09:21
  */
-class UpFile(
+class UpFile @JvmOverloads constructor(
     val key: String,
-    private var filename: String?,
-    val file: File
+    val file: File,
+    private var filename: String? = null,
 ) {
 
-    constructor(key: String, path: String) : this(key, null, File(path))
-    constructor(key: String, file: File) : this(key, null, file)
-    constructor(key: String, filename: String?, path: String) : this(key, filename, File(path))
+    constructor(key: String, path: String) : this(key, File(path))
 
     @Deprecated("", ReplaceWith("setFileName(fileName)"))
     fun setValue(filename: String?) {
