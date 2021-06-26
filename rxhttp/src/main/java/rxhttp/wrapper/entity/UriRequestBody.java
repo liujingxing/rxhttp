@@ -14,6 +14,8 @@ import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okio.BufferedSink;
 import okio.Okio;
+import okio.Source;
+import rxhttp.wrapper.OkHttpCompat;
 import rxhttp.wrapper.utils.BuildUtil;
 import rxhttp.wrapper.utils.UriUtil;
 
@@ -57,7 +59,14 @@ public class UriRequestBody extends RequestBody {
 
     @Override
     public void writeTo(@NotNull BufferedSink sink) throws IOException {
-        InputStream inputStream = contentResolver.openInputStream(uri);
-        sink.writeAll(Okio.source(inputStream));
+        InputStream input = null;
+        Source source = null;
+        try {
+            input = contentResolver.openInputStream(uri);
+            source = Okio.source(input);
+            sink.writeAll(source);
+        } finally {
+            OkHttpCompat.closeQuietly(source, input);
+        }
     }
 }

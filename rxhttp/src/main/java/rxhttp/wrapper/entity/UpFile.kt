@@ -11,6 +11,7 @@ class UpFile @JvmOverloads constructor(
     val key: String,
     val file: File,
     private var filename: String? = null,
+    val skipSize: Long = 0,
 ) {
 
     constructor(key: String, path: String) : this(key, File(path))

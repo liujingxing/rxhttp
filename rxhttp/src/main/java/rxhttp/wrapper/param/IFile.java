@@ -20,16 +20,24 @@ public interface IFile<P extends Param<P>> {
         return addFile(new UpFile(key, file));
     }
 
+    default P addFile(String key, String path) {
+        return addFile(new UpFile(key, path));
+    }
+
     default P addFile(String key, File file) {
         return addFile(new UpFile(key, file));
     }
 
-    default P addFile(String key, String filePath) {
-        return addFile(new UpFile(key, filePath));
+    default P addFile(String key, File file, long skipSize) {
+        return addFile(new UpFile(key, file, null, skipSize));
     }
 
     default P addFile(String key, File file, String filename) {
         return addFile(new UpFile(key, file, filename));
+    }
+
+    default P addFile(String key, File file, String filename, long skipSize) {
+        return addFile(new UpFile(key, file, filename, skipSize));
     }
 
     default <T> P addFiles(String key, List<T> list) {

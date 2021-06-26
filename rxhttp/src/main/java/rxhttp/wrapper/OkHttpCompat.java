@@ -56,9 +56,12 @@ public class OkHttpCompat {
         closeQuietly(response.body());
     }
 
-    public static void closeQuietly(Closeable closeable) {
-        if (closeable == null) return;
-        Util.closeQuietly(closeable);
+    public static void closeQuietly(Closeable... closeables) {
+        if (closeables == null) return;
+        for (Closeable closeable : closeables) {
+            if (closeable == null) continue;
+            Util.closeQuietly(closeable);
+        }
     }
 
     public static RequestBody create(@Nullable MediaType contentType, String content) {
