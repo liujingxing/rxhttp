@@ -8,6 +8,7 @@ import okhttp3.MultipartBody.Part;
 import okhttp3.RequestBody;
 import rxhttp.wrapper.annotations.NonNull;
 import rxhttp.wrapper.annotations.Nullable;
+import rxhttp.wrapper.entity.FileRequestBody;
 import rxhttp.wrapper.entity.UpFile;
 import rxhttp.wrapper.utils.BuildUtil;
 
@@ -49,7 +50,8 @@ public interface IPart<P extends Param<P>> extends IFile<P> {
         if (!file.isFile())
             throw new IllegalArgumentException("File '" + file.getAbsolutePath() + "' is not a file");
 
-        RequestBody requestBody = RequestBody.create(BuildUtil.getMediaType(upFile.getFilename()), file);
+        RequestBody requestBody = new FileRequestBody(upFile.getFile(), upFile.getSkipSize(),
+            BuildUtil.getMediaType(upFile.getFilename()));
         return addPart(Part.createFormData(upFile.getKey(), upFile.getFilename(), requestBody));
     }
 
