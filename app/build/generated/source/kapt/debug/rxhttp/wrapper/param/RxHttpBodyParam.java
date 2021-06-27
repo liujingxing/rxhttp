@@ -52,6 +52,16 @@ public class RxHttpBodyParam extends RxHttpAbstractBodyParam<BodyParam, RxHttpBo
         return this;
     }
     
+    public RxHttpBodyParam setBody(File file, long skipSize) {
+        param.setBody(file, skipSize);
+        return this;
+    }
+    
+    public RxHttpBodyParam setBody(File file, long skipSize, @Nullable MediaType mediaType) {
+        param.setBody(file, skipSize, mediaType);
+        return this;
+    }
+    
     public RxHttpBodyParam setBody(File file, @Nullable MediaType mediaType) {
         param.setBody(file, mediaType);
         return this;
