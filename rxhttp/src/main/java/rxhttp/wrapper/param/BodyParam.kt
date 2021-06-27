@@ -6,6 +6,7 @@ import okhttp3.MediaType
 import okhttp3.RequestBody
 import okio.ByteString
 import rxhttp.wrapper.OkHttpCompat
+import rxhttp.wrapper.entity.FileRequestBody
 import rxhttp.wrapper.utils.BuildUtil
 import rxhttp.wrapper.utils.asRequestBody
 import java.io.File
@@ -58,11 +59,17 @@ class BodyParam(
         byteCount: Int = content.size,
     ): BodyParam = setBody(OkHttpCompat.create(mediaType, content, offset, byteCount))
 
+    fun setBody(
+        file: File,
+        mediaType: MediaType?,
+    ): BodyParam = setBody(FileRequestBody(file, 0, mediaType))
+
     @JvmOverloads
     fun setBody(
         file: File,
+        skipSize: Long = 0,
         mediaType: MediaType? = BuildUtil.getMediaType(file.name),
-    ): BodyParam = setBody(OkHttpCompat.create(mediaType, file))
+    ): BodyParam = setBody(FileRequestBody(file, skipSize, mediaType))
 
     @JvmOverloads
     fun setBody(
