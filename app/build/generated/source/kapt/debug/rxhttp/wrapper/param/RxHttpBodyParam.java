@@ -63,7 +63,7 @@ public class RxHttpBodyParam extends RxHttpAbstractBodyParam<BodyParam, RxHttpBo
     }
     
     public RxHttpBodyParam setBody(File file, @Nullable MediaType mediaType) {
-        param.setBody(file, mediaType);
+        param.setBody(file, 0, mediaType);
         return this;
     }
     
@@ -72,8 +72,18 @@ public class RxHttpBodyParam extends RxHttpAbstractBodyParam<BodyParam, RxHttpBo
         return this;
     }
     
+    public RxHttpBodyParam setBody(Uri uri, Context context, long skipSize) {
+        param.setBody(uri, context, skipSize);
+        return this;
+    }
+    
+    public RxHttpBodyParam setBody(Uri uri, Context context, long skipSize, @Nullable MediaType contentType) {
+        param.setBody(uri, context, skipSize, contentType);
+        return this;
+    }
+    
     public RxHttpBodyParam setBody(Uri uri, Context context, @Nullable MediaType contentType) {
-        param.setBody(uri, context, contentType);
+        param.setBody(uri, context, 0, contentType);
         return this;
     }
     
