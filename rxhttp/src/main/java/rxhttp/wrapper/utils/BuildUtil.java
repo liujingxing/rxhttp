@@ -1,5 +1,9 @@
 package rxhttp.wrapper.utils;
 
+import android.content.ContentResolver;
+import android.content.Context;
+import android.net.Uri;
+
 import java.net.URLConnection;
 import java.util.List;
 
@@ -93,10 +97,21 @@ public class BuildUtil {
         return builder.build();
     }
 
+    //For compatibility with okHTTP 3.x version, only written in Java
     public static MediaType getMediaType(String filename) {
         int index = filename.lastIndexOf(".") + 1;
         String fileSuffix = filename.substring(index);
         String contentType = URLConnection.guessContentTypeFromName(fileSuffix);
         return contentType != null ? MediaType.parse(contentType) : null;
+    }
+
+    //For compatibility with okHTTP 3.x version, only written in Java
+    public static MediaType getMediaTypeByUri(Context context, Uri uri) {
+        if (uri.getScheme().equals(ContentResolver.SCHEME_FILE)) {
+            return BuildUtil.getMediaType((uri.getLastPathSegment()));
+        } else {
+            String contentType = context.getContentResolver().getType(uri);
+            return contentType != null ? MediaType.parse(contentType) : null;
+        }
     }
 }

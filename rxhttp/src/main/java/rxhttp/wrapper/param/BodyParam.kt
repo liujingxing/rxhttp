@@ -59,11 +59,6 @@ class BodyParam(
         byteCount: Int = content.size,
     ): BodyParam = setBody(OkHttpCompat.create(mediaType, content, offset, byteCount))
 
-    fun setBody(
-        file: File,
-        mediaType: MediaType?,
-    ): BodyParam = setBody(FileRequestBody(file, 0, mediaType))
-
     @JvmOverloads
     fun setBody(
         file: File,
@@ -75,8 +70,9 @@ class BodyParam(
     fun setBody(
         uri: Uri,
         context: Context,
-        contentType: MediaType? = null,
-    ): BodyParam = setBody(uri.asRequestBody(context, contentType))
+        skipSize: Long = 0,
+        contentType: MediaType? = BuildUtil.getMediaTypeByUri(context, uri),
+    ): BodyParam = setBody(uri.asRequestBody(context, skipSize, contentType))
 
     override fun getRequestBody(): RequestBody {
         jsonValue?.let { requestBody = convert(it) }

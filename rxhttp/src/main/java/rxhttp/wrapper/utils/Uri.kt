@@ -24,18 +24,21 @@ import java.io.FileNotFoundException
 @JvmOverloads
 fun Uri.asRequestBody(
     context: Context,
-    contentType: MediaType? = null,
-): RequestBody = UriRequestBody(context, this, contentType)
+    skipSize: Long = 0,
+    contentType: MediaType? = BuildUtil.getMediaTypeByUri(context, this),
+): RequestBody = UriRequestBody(context, this, skipSize, contentType)
 
 @JvmOverloads
 fun Uri.asPart(
     context: Context,
     key: String,
-    filename: String? = null,
-    contentType: MediaType? = null,
+    filename: String? = displayName(context),
+    skipSize: Long = 0,
+    contentType: MediaType? = BuildUtil.getMediaTypeByUri(context, this),
 ): MultipartBody.Part {
-    val newFilename = filename ?: displayName(context)
-    return OkHttpCompat.createFormData(key, newFilename, asRequestBody(context, contentType))
+    return asRequestBody(context, skipSize, contentType).let {
+        OkHttpCompat.createFormData(key, filename, it)
+    }
 }
 
 fun Uri?.length(context: Context): Long {
