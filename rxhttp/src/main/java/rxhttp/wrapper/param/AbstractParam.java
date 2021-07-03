@@ -22,7 +22,6 @@ import rxhttp.wrapper.callback.IConverter;
 import rxhttp.wrapper.entity.KeyValuePair;
 import rxhttp.wrapper.utils.BuildUtil;
 import rxhttp.wrapper.utils.CacheUtil;
-import rxhttp.wrapper.utils.LogUtil;
 
 /**
  * 此类是唯一直接实现Param接口的类
