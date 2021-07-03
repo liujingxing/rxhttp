@@ -27,7 +27,6 @@ import rxhttp.wrapper.OkHttpCompat;
 import rxhttp.wrapper.annotations.NonNull;
 import rxhttp.wrapper.exception.HttpStatusCodeException;
 import rxhttp.wrapper.exception.ParseException;
-import rxhttp.wrapper.progress.ProgressRequestBody;
 
 /**
  * User: ljx
@@ -181,9 +180,6 @@ public class LogUtil {
     }
 
     private static String requestBody2Str(@NonNull RequestBody body) throws IOException {
-        if (body instanceof ProgressRequestBody) {
-            body = ((ProgressRequestBody) body).getRequestBody();
-        }
         if (body instanceof MultipartBody) {
             return multipartBody2Str((MultipartBody) body);
         }
