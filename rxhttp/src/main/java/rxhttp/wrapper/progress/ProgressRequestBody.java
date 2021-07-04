@@ -36,7 +36,7 @@ public class ProgressRequestBody extends RequestBody {
     @Override
     public void writeTo(BufferedSink sink) throws IOException {
         if (sink instanceof Buffer
-            && sink.toString().contains(
+            || sink.toString().contains(
             "com.android.tools.profiler.support.network.HttpTracker$OutputStreamTracker")) {
             requestBody.writeTo(sink);
         } else {
