@@ -36,8 +36,8 @@ public class ProgressRequestBody extends RequestBody {
     @Override
     public void writeTo(BufferedSink sink) throws IOException {
         if (sink instanceof Buffer
-            && sink.toString()
-            .contains("com.android.tools.profiler.support.network.HttpTracker$OutputStreamTracker))")) {
+            && sink.toString().contains(
+            "com.android.tools.profiler.support.network.HttpTracker$OutputStreamTracker")) {
             requestBody.writeTo(sink);
         } else {
             BufferedSink bufferedSink = Okio.buffer(sink(sink));
