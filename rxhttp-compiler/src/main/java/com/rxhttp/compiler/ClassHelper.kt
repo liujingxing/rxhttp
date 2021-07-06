@@ -56,7 +56,7 @@ object ClassHelper {
             generatorClass(filer, "BaseRxHttp", """
             package $rxHttpPackage;
             ${
-            if (isAndroid) """
+                if (isAndroid) """
             import android.content.Context;
             import android.graphics.Bitmap;
             import android.net.Uri;
@@ -170,7 +170,7 @@ object ClassHelper {
                     return asParser(new BitmapParser());
                 }
                 """ else ""
-                }
+            }
                 public final Observable<Response> asOkResponse() {
                     return asParser(new OkResponseParser());
                 }
@@ -210,7 +210,7 @@ object ClassHelper {
                     return asParser(StreamParser.get(context, uri), scheduler, progressConsumer);
                 }                                                                                            
                 """ else ""
-                }
+            }
                 public final <T> Observable<T> asDownload(OutputStreamFactory<T> osFactory) {
                     return asDownload(osFactory, null, null);             
                 } 
@@ -272,7 +272,7 @@ object ClassHelper {
                         .flatMap(parser -> asParser(parser, scheduler, progressConsumer));
                 }                                                                                            
                 """ else ""
-                }    
+            }    
             }
 
         """.trimIndent())
@@ -1055,7 +1055,7 @@ object ClassHelper {
             filer, "RxHttpBodyParam", """
             package $rxHttpPackage;
             ${
-            if (isAndroid) """
+                if (isAndroid) """
             import android.content.Context;
             import android.net.Uri;
             """ else ""
@@ -1109,18 +1109,8 @@ object ClassHelper {
                     return this;
                 }
                 
-                public RxHttpBodyParam setBody(File file, long skipSize) {
-                    param.setBody(file, skipSize);
-                    return this;
-                }
-                
-                public RxHttpBodyParam setBody(File file, long skipSize, @Nullable MediaType mediaType) {
-                    param.setBody(file, skipSize, mediaType);
-                    return this;
-                }
-                
                 public RxHttpBodyParam setBody(File file, @Nullable MediaType mediaType) {
-                    param.setBody(file, 0, mediaType);
+                    param.setBody(file, mediaType);
                     return this;
                 }
                 ${
@@ -1130,22 +1120,12 @@ object ClassHelper {
                     return this;
                 }
                 
-                public RxHttpBodyParam setBody(Uri uri, Context context, long skipSize) {
-                    param.setBody(uri, context, skipSize);
-                    return this;
-                }
-                
-                public RxHttpBodyParam setBody(Uri uri, Context context, long skipSize, @Nullable MediaType contentType) {
-                    param.setBody(uri, context, skipSize, contentType);
-                    return this;
-                }
-                
                 public RxHttpBodyParam setBody(Uri uri, Context context, @Nullable MediaType contentType) {
-                    param.setBody(uri, context, 0, contentType);
+                    param.setBody(uri, context, contentType);
                     return this;
                 }
                 """ else ""
-                }
+            }
                 public RxHttpBodyParam setJsonBody(Object object) {
                     param.setJsonBody(object);
                     return this;
@@ -1245,28 +1225,18 @@ object ClassHelper {
                     return this;
                 }
 
-                public RxHttpFormParam addFile(String key, String path) {
-                    param.addFile(key, path);
-                    return this;
-                }
-
                 public RxHttpFormParam addFile(String key, File file) {
                     param.addFile(key, file);
                     return this;
                 }
 
-                public RxHttpFormParam addFile(String key, File file, long skipSize) {
-                    param.addFile(key, file, skipSize);
+                public RxHttpFormParam addFile(String key, String filePath) {
+                    param.addFile(key, filePath);
                     return this;
                 }
-                
+
                 public RxHttpFormParam addFile(String key, File file, String filename) {
                     param.addFile(key, file, filename);
-                    return this;
-                }
-                
-                public RxHttpFormParam addFile(String key, File file, String filename, long skipSize) {
-                    param.addFile(key, file, filename, skipSize);
                     return this;
                 }
 
@@ -1317,24 +1287,9 @@ object ClassHelper {
                     return this;
                 }
                 ${
-                if (isAndroid) """
+            if (isAndroid) """
                 public RxHttpFormParam addPart(Context context, Uri uri) {
                     param.addPart(UriUtil.asRequestBody(uri, context));
-                    return this;
-                }
-                
-                public RxHttpFormParam addPart(Context context, Uri uri, long skipSize) {
-                    param.addPart(UriUtil.asRequestBody(uri, context, skipSize));
-                    return this;
-                }
-                
-                public RxHttpFormParam addPart(Context context, Uri uri, long skipSize, @Nullable MediaType contentType) {
-                    param.addPart(UriUtil.asRequestBody(uri, context, skipSize, contentType));
-                    return this;
-                }
-                
-                public RxHttpFormParam addPart(Context context, Uri uri, @Nullable MediaType contentType) {
-                    param.addPart(UriUtil.asRequestBody(uri, context, 0, contentType));
                     return this;
                 }
 
@@ -1342,14 +1297,14 @@ object ClassHelper {
                     param.addPart(UriUtil.asPart(uri, context, key));
                     return this;
                 }
-                
-                public RxHttpFormParam addPart(Context context, String key, Uri uri, long skipSize) {
-                    param.addPart(UriUtil.asPart(uri, context, key, UriUtil.displayName(uri, context), skipSize));
-                    return this;
-                }
 
                 public RxHttpFormParam addPart(Context context, String key, String fileName, Uri uri) {
                     param.addPart(UriUtil.asPart(uri, context, key, fileName));
+                    return this;
+                }
+
+                public RxHttpFormParam addPart(Context context, Uri uri, @Nullable MediaType contentType) {
+                    param.addPart(UriUtil.asRequestBody(uri, context, 0, contentType));
                     return this;
                 }
 
@@ -1362,18 +1317,6 @@ object ClassHelper {
                 public RxHttpFormParam addPart(Context context, String key, String filename, Uri uri,
                                                @Nullable MediaType contentType) {
                     param.addPart(UriUtil.asPart(uri, context, key, filename, 0, contentType));
-                    return this;
-                }
-                
-                public RxHttpFormParam addPart(Context context, String key, String filename, Uri uri,
-                                               long skipSize) {
-                    param.addPart(UriUtil.asPart(uri, context, key, filename, skipSize));
-                    return this;
-                }
-                
-                public RxHttpFormParam addPart(Context context, String key, String filename, Uri uri,
-                                               long skipSize, @Nullable MediaType contentType) {
-                    param.addPart(UriUtil.asPart(uri, context, key, filename, skipSize, contentType));
                     return this;
                 }
 

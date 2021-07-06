@@ -86,28 +86,18 @@ public class RxHttpFormParam extends RxHttpAbstractBodyParam<FormParam, RxHttpFo
         return this;
     }
 
-    public RxHttpFormParam addFile(String key, String path) {
-        param.addFile(key, path);
-        return this;
-    }
-
     public RxHttpFormParam addFile(String key, File file) {
         param.addFile(key, file);
         return this;
     }
 
-    public RxHttpFormParam addFile(String key, File file, long skipSize) {
-        param.addFile(key, file, skipSize);
+    public RxHttpFormParam addFile(String key, String filePath) {
+        param.addFile(key, filePath);
         return this;
     }
-    
+
     public RxHttpFormParam addFile(String key, File file, String filename) {
         param.addFile(key, file, filename);
-        return this;
-    }
-    
-    public RxHttpFormParam addFile(String key, File file, String filename, long skipSize) {
-        param.addFile(key, file, filename, skipSize);
         return this;
     }
 
@@ -157,24 +147,9 @@ public class RxHttpFormParam extends RxHttpAbstractBodyParam<FormParam, RxHttpFo
         param.addPart(contentType, content, offset, byteCount);
         return this;
     }
-
+    
     public RxHttpFormParam addPart(Context context, Uri uri) {
         param.addPart(UriUtil.asRequestBody(uri, context));
-        return this;
-    }
-
-    public RxHttpFormParam addPart(Context context, Uri uri, long skipSize) {
-        param.addPart(UriUtil.asRequestBody(uri, context, skipSize));
-        return this;
-    }
-
-    public RxHttpFormParam addPart(Context context, Uri uri, long skipSize, @Nullable MediaType contentType) {
-        param.addPart(UriUtil.asRequestBody(uri, context, skipSize, contentType));
-        return this;
-    }
-
-    public RxHttpFormParam addPart(Context context, Uri uri, @Nullable MediaType contentType) {
-        param.addPart(UriUtil.asRequestBody(uri, context, 0, contentType));
         return this;
     }
 
@@ -183,13 +158,13 @@ public class RxHttpFormParam extends RxHttpAbstractBodyParam<FormParam, RxHttpFo
         return this;
     }
 
-    public RxHttpFormParam addPart(Context context, String key, Uri uri, long skipSize) {
-        param.addPart(UriUtil.asPart(uri, context, key, UriUtil.displayName(uri, context), skipSize));
+    public RxHttpFormParam addPart(Context context, String key, String fileName, Uri uri) {
+        param.addPart(UriUtil.asPart(uri, context, key, fileName));
         return this;
     }
 
-    public RxHttpFormParam addPart(Context context, String key, String fileName, Uri uri) {
-        param.addPart(UriUtil.asPart(uri, context, key, fileName));
+    public RxHttpFormParam addPart(Context context, Uri uri, @Nullable MediaType contentType) {
+        param.addPart(UriUtil.asRequestBody(uri, context, 0, contentType));
         return this;
     }
 
@@ -202,18 +177,6 @@ public class RxHttpFormParam extends RxHttpAbstractBodyParam<FormParam, RxHttpFo
     public RxHttpFormParam addPart(Context context, String key, String filename, Uri uri,
                                    @Nullable MediaType contentType) {
         param.addPart(UriUtil.asPart(uri, context, key, filename, 0, contentType));
-        return this;
-    }
-
-    public RxHttpFormParam addPart(Context context, String key, String filename, Uri uri,
-                                   long skipSize) {
-        param.addPart(UriUtil.asPart(uri, context, key, filename, skipSize));
-        return this;
-    }
-
-    public RxHttpFormParam addPart(Context context, String key, String filename, Uri uri,
-                                   long skipSize, @Nullable MediaType contentType) {
-        param.addPart(UriUtil.asPart(uri, context, key, filename, skipSize, contentType));
         return this;
     }
 

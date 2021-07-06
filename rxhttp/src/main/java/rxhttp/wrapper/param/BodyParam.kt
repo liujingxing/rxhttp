@@ -62,17 +62,15 @@ class BodyParam(
     @JvmOverloads
     fun setBody(
         file: File,
-        skipSize: Long = 0,
         mediaType: MediaType? = BuildUtil.getMediaType(file.name),
-    ): BodyParam = setBody(FileRequestBody(file, skipSize, mediaType))
+    ): BodyParam = setBody(FileRequestBody(file, 0, mediaType))
 
     @JvmOverloads
     fun setBody(
         uri: Uri,
         context: Context,
-        skipSize: Long = 0,
-        contentType: MediaType? = BuildUtil.getMediaTypeByUri(context, uri),
-    ): BodyParam = setBody(uri.asRequestBody(context, skipSize, contentType))
+        mediaType: MediaType? = BuildUtil.getMediaTypeByUri(context, uri),
+    ): BodyParam = setBody(uri.asRequestBody(context, mediaType = mediaType))
 
     override fun getRequestBody(): RequestBody {
         jsonValue?.let { requestBody = convert(it) }
