@@ -23,6 +23,10 @@ public class ProgressRequestBody extends RequestBody {
         this.callback = callback;
     }
 
+    public RequestBody getRequestBody() {
+        return requestBody;
+    }
+
     @Override
     public MediaType contentType() {
         return requestBody.contentType();
