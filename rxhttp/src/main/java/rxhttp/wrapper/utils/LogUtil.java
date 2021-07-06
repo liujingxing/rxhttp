@@ -25,8 +25,11 @@ import rxhttp.RxHttpPlugins;
 import rxhttp.internal.RxHttpVersion;
 import rxhttp.wrapper.OkHttpCompat;
 import rxhttp.wrapper.annotations.NonNull;
+import rxhttp.wrapper.entity.FileRequestBody;
+import rxhttp.wrapper.entity.UriRequestBody;
 import rxhttp.wrapper.exception.HttpStatusCodeException;
 import rxhttp.wrapper.exception.ParseException;
+import rxhttp.wrapper.progress.ProgressRequestBody;
 
 /**
  * User: ljx
@@ -180,15 +183,30 @@ public class LogUtil {
     }
 
     private static String requestBody2Str(@NonNull RequestBody body) throws IOException {
+        if (body instanceof ProgressRequestBody) {
+            body = ((ProgressRequestBody) body).getRequestBody();
+        }
         if (body instanceof MultipartBody) {
             return multipartBody2Str((MultipartBody) body);
         }
-        Buffer buffer = new Buffer();
-        body.writeTo(buffer);
-        if (!isProbablyUtf8(buffer)) {
-            return "(binary " + body.contentLength() + "-byte body omitted)";
+        long contentLength = -1;
+        try {
+            contentLength = body.contentLength();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (body instanceof FileRequestBody) {
+            return "(binary " + contentLength + "-byte file body omitted)";
+        } else if (body instanceof UriRequestBody) {
+            return "(binary " + contentLength + "-byte uri body omitted)";
         } else {
-            return buffer.readString(getCharset(body));
+            Buffer buffer = new Buffer();
+            body.writeTo(buffer);
+            if (!isProbablyUtf8(buffer)) {
+                return "(binary " + body.contentLength() + "-byte body omitted)";
+            } else {
+                return buffer.readString(getCharset(body));
+            }
         }
     }
 
@@ -227,18 +245,20 @@ public class LogUtil {
                 .writeDecimalLong(contentLength)
                 .write(CRLF);
 
-            if (contentLength > 1024) {
+            if (body instanceof MultipartBody) {
+                sink.write(CRLF)
+                    .writeUtf8(multipartBody2Str((MultipartBody) body));
+            } else if (body instanceof FileRequestBody) {
+                sink.writeUtf8("(binary " + contentLength + "-byte file body omitted)");
+            } else if (body instanceof UriRequestBody) {
+                sink.writeUtf8("(binary " + contentLength + "-byte uri body omitted)");
+            } else if (contentLength > 1024) {
                 sink.writeUtf8("(binary " + contentLength + "-byte body omitted)");
             } else {
-                if (body instanceof MultipartBody) {
-                    sink.write(CRLF)
-                        .writeUtf8(multipartBody2Str((MultipartBody) body));
-                } else {
-                    try {
-                        body.writeTo(sink);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                try {
+                    body.writeTo(sink);
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
             if (contentLength > 0) sink.write(CRLF);
