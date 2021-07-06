@@ -40,7 +40,11 @@ public class FileRequestBody extends RequestBody {
 
     @Override
     public long contentLength() throws IOException {
-        return file.length() - skipSize;
+        long realLength = file.length();
+        if (realLength > 0 && skipSize > 0 && realLength > skipSize) {
+            realLength -= skipSize;
+        }
+        return realLength;
     }
 
     @Override
@@ -49,7 +53,7 @@ public class FileRequestBody extends RequestBody {
         Source source = null;
         try {
             input = new FileInputStream(file);
-            long skip = input.skip(skipSize);
+            if (skipSize > 0) input.skip(skipSize);
             source = Okio.source(input);
             sink.writeAll(source);
         } finally {
