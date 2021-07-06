@@ -98,7 +98,8 @@ public class BuildUtil {
     }
 
     //For compatibility with okHTTP 3.x version, only written in Java
-    public static MediaType getMediaType(String filename) {
+    public static MediaType getMediaType(@Nullable String filename) {
+        if (filename == null) return null;
         int index = filename.lastIndexOf(".") + 1;
         String fileSuffix = filename.substring(index);
         String contentType = URLConnection.guessContentTypeFromName(fileSuffix);

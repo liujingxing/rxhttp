@@ -10,27 +10,9 @@ import java.io.File
 class UpFile @JvmOverloads constructor(
     val key: String,
     val file: File,
-    private var filename: String? = null,
+    var filename: String? = file.name,
     val skipSize: Long = 0,
 ) {
 
     constructor(key: String, path: String) : this(key, File(path))
-
-    @Deprecated("", ReplaceWith("setFileName(fileName)"))
-    fun setValue(filename: String?) {
-        setFilename(filename)
-    }
-
-    @Deprecated("", ReplaceWith("getFilename()"))
-    fun getValue(): String {
-        return getFilename()
-    }
-
-    fun setFilename(fileName: String?) {
-        this.filename = fileName
-    }
-
-    fun getFilename(): String {
-        return filename ?: file.name
-    }
 }
