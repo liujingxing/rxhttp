@@ -25,8 +25,8 @@ import java.io.FileNotFoundException
 fun Uri.asRequestBody(
     context: Context,
     skipSize: Long = 0,
-    contentType: MediaType? = BuildUtil.getMediaTypeByUri(context, this),
-): RequestBody = UriRequestBody(context, this, skipSize, contentType)
+    mediaType: MediaType? = BuildUtil.getMediaTypeByUri(context, this),
+): RequestBody = UriRequestBody(context, this, skipSize, mediaType)
 
 @JvmOverloads
 fun Uri.asPart(
