@@ -1058,6 +1058,7 @@ object ClassHelper {
                 if (isAndroid) """
             import android.content.Context;
             import android.net.Uri;
+            import rxhttp.wrapper.utils.UriUtil;
             """ else ""
             }
             import rxhttp.wrapper.annotations.Nullable;
@@ -1116,12 +1117,12 @@ object ClassHelper {
                 ${
                 if (isAndroid) """
                 public RxHttpBodyParam setBody(Uri uri, Context context) {
-                    param.setBody(uri, context);
+                    param.setBody(UriUtil.asRequestBody(uri, context));
                     return this;
                 }
                 
                 public RxHttpBodyParam setBody(Uri uri, Context context, @Nullable MediaType contentType) {
-                    param.setBody(uri, context, contentType);
+                    param.setBody(UriUtil.asRequestBody(uri, context, 0, contentType));
                     return this;
                 }
                 """ else ""
