@@ -55,15 +55,10 @@ dependencies {
 ### Optional
 ```java
 android {
-    defaultConfig {
-        javaCompileOptions {
-            annotationProcessorOptions {
-                arguments = [
-                    //Pass in RxJava version, can pass in RxJava2, RxJava3
-                    rxhttp_rxjava: 'rxjava3',
-                    rxhttp_package: 'rxhttp'   //Specifies the RxHttp class package
-                ]
-            }
+    kapt {
+        arguments {
+            arg("rxhttp_rxjava", "rxjava3")  //can pass in RxJava2, RxJava3
+            arg("rxhttp_package", "rxhttp")  //Specifies the RxHttp class package
         }
     }
 }
