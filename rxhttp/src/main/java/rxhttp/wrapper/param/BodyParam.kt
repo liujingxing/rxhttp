@@ -68,7 +68,5 @@ class BodyParam(
             ?: throw NullPointerException("requestBody cannot be null, please call the setBody series methods")
     }
 
-    override fun add(key: String, value: Any): BodyParam {
-        return this
-    }
+    override fun add(key: String, value: Any) = this
 }
