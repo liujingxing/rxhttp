@@ -1,14 +1,11 @@
 package rxhttp.wrapper.param
 
-import android.content.Context
-import android.net.Uri
 import okhttp3.MediaType
 import okhttp3.RequestBody
 import okio.ByteString
 import rxhttp.wrapper.OkHttpCompat
 import rxhttp.wrapper.entity.FileRequestBody
 import rxhttp.wrapper.utils.BuildUtil
-import rxhttp.wrapper.utils.asRequestBody
 import java.io.File
 
 /**
@@ -64,13 +61,6 @@ class BodyParam(
         file: File,
         mediaType: MediaType? = BuildUtil.getMediaType(file.name),
     ): BodyParam = setBody(FileRequestBody(file, 0, mediaType))
-
-    @JvmOverloads
-    fun setBody(
-        uri: Uri,
-        context: Context,
-        mediaType: MediaType? = BuildUtil.getMediaTypeByUri(context, uri),
-    ): BodyParam = setBody(uri.asRequestBody(context, mediaType = mediaType))
 
     override fun getRequestBody(): RequestBody {
         jsonValue?.let { requestBody = convert(it) }
