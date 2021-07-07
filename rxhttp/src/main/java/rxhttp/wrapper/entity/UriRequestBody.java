@@ -46,6 +46,9 @@ public class UriRequestBody extends RequestBody {
 
     public UriRequestBody(Context context, Uri uri, long skipSize, @Nullable MediaType contentType) {
         this.uri = uri;
+        if (skipSize < 0) {
+            throw new IllegalArgumentException("skipSize >= 0 required but it was " + skipSize);
+        }
         this.skipSize = skipSize;
         this.contentType = contentType;
         contentResolver = context.getContentResolver();
@@ -58,11 +61,12 @@ public class UriRequestBody extends RequestBody {
 
     @Override
     public long contentLength() throws IOException {
-        long realLength = UriUtil.length(uri, contentResolver);
-        if (realLength > 0 && skipSize > 0 && realLength > skipSize) {
-            realLength -= skipSize;
+        long fileLength = UriUtil.length(uri, contentResolver);
+        if (skipSize > 0 && skipSize > fileLength) {
+            throw new IllegalArgumentException("skipSize cannot be larger than the file length. " +
+                "The file length is " + fileLength + ", but it was " + skipSize);
         }
-        return realLength;
+        return fileLength - skipSize;
     }
 
     @Override
@@ -71,7 +75,13 @@ public class UriRequestBody extends RequestBody {
         Source source = null;
         try {
             input = contentResolver.openInputStream(uri);
-            if (skipSize > 0) input.skip(skipSize);
+            if (skipSize > 0) {
+                long skip = input.skip(skipSize);
+                if (skip != skipSize) {
+                    throw new IllegalArgumentException(
+                        "Expected to skip " + skipSize + " bytes, actually skipped " + skip + " bytes");
+                }
+            }
             source = Okio.source(input);
             sink.writeAll(source);
         } finally {
