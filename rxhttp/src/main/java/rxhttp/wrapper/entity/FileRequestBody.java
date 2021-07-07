@@ -29,6 +29,13 @@ public class FileRequestBody extends RequestBody {
 
     public FileRequestBody(File file, long skipSize, @Nullable MediaType mediaType) {
         this.file = file;
+        if (skipSize < 0) {
+            throw new IllegalArgumentException("skipSize >= 0 required but it was " + skipSize);
+        }
+        if (skipSize > file.length()) {
+            throw new IllegalArgumentException("skipSize cannot be larger than the file length. " +
+                "The file length is " + file.length() + ", but it was " + skipSize);
+        }
         this.skipSize = skipSize;
         this.mediaType = mediaType;
     }
@@ -40,11 +47,7 @@ public class FileRequestBody extends RequestBody {
 
     @Override
     public long contentLength() throws IOException {
-        long realLength = file.length();
-        if (realLength > 0 && skipSize > 0 && realLength > skipSize) {
-            realLength -= skipSize;
-        }
-        return realLength;
+        return file.length() - skipSize;
     }
 
     @Override
@@ -53,7 +56,13 @@ public class FileRequestBody extends RequestBody {
         Source source = null;
         try {
             input = new FileInputStream(file);
-            if (skipSize > 0) input.skip(skipSize);
+            if (skipSize > 0) {
+                long skip = input.skip(skipSize);
+                if (skip != skipSize) {
+                    throw new IllegalArgumentException(
+                        "Expected to skip " + skipSize + " bytes, actually skipped " + skip + " bytes");
+                }
+            }
             source = Okio.source(input);
             sink.writeAll(source);
         } finally {
