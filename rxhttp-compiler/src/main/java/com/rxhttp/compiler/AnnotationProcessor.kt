@@ -3,7 +3,7 @@ package com.rxhttp.compiler
 import com.rxhttp.compiler.ClassHelper.generatorStaticClass
 import com.rxhttp.compiler.exception.ProcessingException
 import net.ltgt.gradle.incap.IncrementalAnnotationProcessor
-import net.ltgt.gradle.incap.IncrementalAnnotationProcessorType.AGGREGATING
+import net.ltgt.gradle.incap.IncrementalAnnotationProcessorType
 import rxhttp.wrapper.annotation.*
 import java.util.*
 import javax.annotation.processing.*
@@ -23,14 +23,23 @@ lateinit var rxHttpPackage: String  //RxHttp相关类的包名
  * Date: 2019/3/21
  * Time: 20:36
  */
-@SupportedOptions(value = ["rxhttp_rxjava", "rxhttp_package"])
-@IncrementalAnnotationProcessor(AGGREGATING)
+//@SupportedOptions(value = ["rxhttp_rxjava", "rxhttp_package", "rxhttp_incremental", "rxhttp_debug"])
+@IncrementalAnnotationProcessor(IncrementalAnnotationProcessorType.DYNAMIC)
 open class AnnotationProcessor : AbstractProcessor() {
+    companion object {
+        const val rxhttp_rxjava = "rxhttp_rxjava"
+        const val rxhttp_package = "rxhttp_package"
+        const val rxhttp_incremental = "rxhttp_incremental"
+        const val rxhttp_debug = "rxhttp_debug"
+    }
+
     private lateinit var typeUtils: Types
     private lateinit var messager: Messager
     private lateinit var filer: Filer
     private lateinit var elementUtils: Elements
+    private lateinit var incremental: String
     private var processed = false
+    private var verbose = false
 
     @Synchronized
     override fun init(processingEnvironment: ProcessingEnvironment) {
@@ -40,7 +49,9 @@ open class AnnotationProcessor : AbstractProcessor() {
         filer = processingEnvironment.filer
         elementUtils = processingEnvironment.elementUtils
         val map = processingEnvironment.options
-        rxHttpPackage = map["rxhttp_package"] ?: "rxhttp.wrapper.param"
+        rxHttpPackage = map[rxhttp_package] ?: "rxhttp.wrapper.param"
+        incremental = map[rxhttp_incremental] ?: "aggregating"
+        verbose = "true" == map[rxhttp_debug]
         initRxJavaVersion(getRxJavaVersion(map))
     }
 
@@ -56,14 +67,34 @@ open class AnnotationProcessor : AbstractProcessor() {
         }
     }
 
-    open fun getRxJavaVersion(map: Map<String, String>) = map["rxhttp_rxjava"]
+    override fun getSupportedOptions(): MutableSet<String> {
+        return mutableSetOf(
+            rxhttp_rxjava,
+            rxhttp_package,
+            rxhttp_incremental,
+            rxhttp_debug
+        ).apply {
+            if (incremental == "aggregating") {
+                add("org.gradle.annotation.processing.aggregating")
+            } else if (incremental == "isolating") {
+                add("org.gradle.annotation.processing.isolating")
+            }
+        }
+    }
+
+    open fun getRxJavaVersion(map: Map<String, String>) = map[rxhttp_rxjava]
 
     open fun isAndroidPlatform() = true
 
     override fun getSupportedSourceVersion(): SourceVersion = SourceVersion.latestSupported()
 
     override fun process(annotations: Set<TypeElement>, roundEnv: RoundEnvironment): Boolean {
-//        messager.printMessage(Diagnostic.Kind.WARNING, "process start annotations$annotations this=$this")
+        if (verbose) {
+            messager.printMessage(
+                Diagnostic.Kind.WARNING,
+                "process start annotations$annotations this=$this"
+            )
+        }
         if (annotations.isEmpty() || processed) return true
         generatorStaticClass(filer, isAndroidPlatform())
         try {
