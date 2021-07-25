@@ -92,10 +92,23 @@ open class AnnotationProcessor : AbstractProcessor() {
         if (verbose) {
             messager.printMessage(
                 Diagnostic.Kind.WARNING,
-                "process start annotations$annotations this=$this"
+                """
+                    process isOver = ${roundEnv.processingOver()}                     
+                    annotations = $annotations                     
+                    rootElements = ${roundEnv.rootElements}
+                """.trimIndent()
             )
         }
-        if (annotations.isEmpty() || processed) return true
+        if (annotations.isEmpty()) return true
+        if (annotations.size == 1
+            && annotations.first().toString() == "java.lang.Override"
+        ) {
+            val exist = roundEnv.rootElements.find {
+                it.toString() == "$rxHttpPackage.RxHttp"
+            }
+            if (exist != null)
+                return true
+        }
         generatorStaticClass(filer, isAndroidPlatform())
         try {
             val rxHttpGenerator = RxHttpGenerator()
