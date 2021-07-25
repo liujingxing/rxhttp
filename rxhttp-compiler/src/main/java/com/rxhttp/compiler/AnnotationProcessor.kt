@@ -38,7 +38,6 @@ open class AnnotationProcessor : AbstractProcessor() {
     private lateinit var filer: Filer
     private lateinit var elementUtils: Elements
     private var incremental = true
-    private var processed = false
     private var debug = false
 
     @Synchronized
@@ -152,7 +151,10 @@ open class AnnotationProcessor : AbstractProcessor() {
             rxHttpWrapper.generateRxWrapper(filer)
             val elementSet = roundEnv.getElementsAnnotatedWith(DefaultDomain::class.java)
             if (elementSet.size > 1)
-                throw ProcessingException(elementSet.iterator().next(), "@DefaultDomain annotations can only be used once")
+                throw ProcessingException(
+                    elementSet.iterator().next(),
+                    "@DefaultDomain annotations can only be used once"
+                )
             else if (elementSet.iterator().hasNext()) {
                 val variableElement = elementSet.iterator().next() as VariableElement
                 checkVariableValidClass(variableElement)
@@ -166,7 +168,6 @@ open class AnnotationProcessor : AbstractProcessor() {
 
             // Generate code
             rxHttpGenerator.generateCode(filer)
-            processed = true
         } catch (e: ProcessingException) {
             error(e.element, e.message)
         } catch (e: Throwable) {
@@ -179,14 +180,18 @@ open class AnnotationProcessor : AbstractProcessor() {
     @Throws(ProcessingException::class)
     private fun checkParamsValidClass(element: TypeElement) {
         if (!element.modifiers.contains(Modifier.PUBLIC)) {
-            throw ProcessingException(element,
+            throw ProcessingException(
+                element,
                 "The class %s is not public",
-                Param::class.java.simpleName)
+                Param::class.java.simpleName
+            )
         }
         if (element.modifiers.contains(Modifier.ABSTRACT)) {
-            throw ProcessingException(element,
+            throw ProcessingException(
+                element,
                 "The class %s is abstract. You can't annotate abstract classes with @%",
-                element.simpleName.toString(), Param::class.java.simpleName)
+                element.simpleName.toString(), Param::class.java.simpleName
+            )
         }
         var currentClass = element
         while (true) {
@@ -197,10 +202,12 @@ open class AnnotationProcessor : AbstractProcessor() {
             }
             val superClassType = currentClass.superclass
             if (superClassType.kind == TypeKind.NONE) {
-                throw ProcessingException(element,
+                throw ProcessingException(
+                    element,
                     "The class %s annotated with @%s must inherit from %s",
                     element.qualifiedName.toString(), Param::class.java.simpleName,
-                    "rxhttp.wrapper.param.Param")
+                    "rxhttp.wrapper.param.Param"
+                )
             }
             currentClass = typeUtils.asElement(superClassType) as TypeElement
         }
@@ -209,34 +216,44 @@ open class AnnotationProcessor : AbstractProcessor() {
     @Throws(ProcessingException::class)
     private fun checkParserValidClass(element: TypeElement) {
         if (!element.modifiers.contains(Modifier.PUBLIC)) {
-            throw ProcessingException(element,
+            throw ProcessingException(
+                element,
                 "The class %s is not public",
-                Parser::class.java.simpleName)
+                Parser::class.java.simpleName
+            )
         }
         if (element.modifiers.contains(Modifier.ABSTRACT)) {
-            throw ProcessingException(element,
+            throw ProcessingException(
+                element,
                 "The class %s is abstract. You can't annotate abstract classes with @%",
-                element.simpleName.toString(), Parser::class.java.simpleName)
+                element.simpleName.toString(), Parser::class.java.simpleName
+            )
         }
 
         val constructorFun = getConstructorFun(element)
         if (element.typeParameters.size > 0) {
             //有泛型的解析器不能声明为final类型
             if (element.modifiers.contains(Modifier.FINAL)) {
-                throw ProcessingException(element,
+                throw ProcessingException(
+                    element,
                     "This class %s cannot be declared final",
-                    element.simpleName.toString())
+                    element.simpleName.toString()
+                )
             }
             //1、查找无参构造方法
             val noArgumentConstructorFun = constructorFun.findNoArgumentConstructorFun()
-                ?: throw ProcessingException(element,
+                ?: throw ProcessingException(
+                    element,
                     "This class must be declared 'protected %s()' constructor method",
-                    element.simpleName.toString())
+                    element.simpleName.toString()
+                )
             if (!noArgumentConstructorFun.modifiers.contains(Modifier.PROTECTED)) {
                 //无参构造方法必须要声明为protected
-                throw ProcessingException(element,
+                throw ProcessingException(
+                    element,
                     "This class %s no-argument constructor must be declared protected",
-                    element.simpleName.toString())
+                    element.simpleName.toString()
+                )
             }
 
             if (isDependenceRxJava()) {
@@ -251,9 +268,11 @@ open class AnnotationProcessor : AbstractProcessor() {
                             method.append(")")
                         } else method.append(", ")
                     }
-                    throw ProcessingException(element,
+                    throw ProcessingException(
+                        element,
                         "This class %s must declare '$method' constructor method",
-                        element.simpleName.toString(), element.simpleName.toString())
+                        element.simpleName.toString(), element.simpleName.toString()
+                    )
                 }
             }
         }
@@ -270,10 +289,12 @@ open class AnnotationProcessor : AbstractProcessor() {
             //未遍历到Parser，则找到父类继续，一直循环下去，直到最顶层的父类
             val superClassType = currentClass.superclass
             if (superClassType.kind == TypeKind.NONE) {
-                throw ProcessingException(element,
+                throw ProcessingException(
+                    element,
                     "The class %s annotated with @%s must inherit from %s",
                     element.qualifiedName.toString(), Parser::class.java.simpleName,
-                    "rxhttp.wrapper.parse.Parser<T>")
+                    "rxhttp.wrapper.parse.Parser<T>"
+                )
             }
             //TypeMirror转TypeElement
             currentClass = typeUtils.asElement(superClassType) as TypeElement
@@ -283,14 +304,18 @@ open class AnnotationProcessor : AbstractProcessor() {
     @Throws(ProcessingException::class)
     private fun checkConverterValidClass(element: VariableElement) {
         if (!element.modifiers.contains(Modifier.PUBLIC)) {
-            throw ProcessingException(element,
+            throw ProcessingException(
+                element,
                 "The variable %s is not public",
-                element.simpleName)
+                element.simpleName
+            )
         }
         if (!element.modifiers.contains(Modifier.STATIC)) {
-            throw ProcessingException(element,
+            throw ProcessingException(
+                element,
                 "The variable %s is not static",
-                element.simpleName.toString())
+                element.simpleName.toString()
+            )
         }
         var classType = element.asType()
         if ("rxhttp.wrapper.callback.IConverter" != classType.toString()) {
@@ -306,9 +331,11 @@ open class AnnotationProcessor : AbstractProcessor() {
                 //未遍历到IConverter，则找到父类继续，一直循环下去，直到最顶层的父类
                 classType = currentClass.superclass
                 if (classType.kind == TypeKind.NONE) {
-                    throw ProcessingException(element,
+                    throw ProcessingException(
+                        element,
                         "The variable %s is not a IConverter",
-                        element.simpleName.toString())
+                        element.simpleName.toString()
+                    )
                 }
             }
         }
@@ -317,33 +344,43 @@ open class AnnotationProcessor : AbstractProcessor() {
     @Throws(ProcessingException::class)
     private fun checkOkClientValidClass(element: VariableElement) {
         if (!element.modifiers.contains(Modifier.PUBLIC)) {
-            throw ProcessingException(element,
+            throw ProcessingException(
+                element,
                 "The variable %s is not public",
-                element.simpleName)
+                element.simpleName
+            )
         }
         if (!element.modifiers.contains(Modifier.STATIC)) {
-            throw ProcessingException(element,
+            throw ProcessingException(
+                element,
                 "The variable %s is not static",
-                element.simpleName.toString())
+                element.simpleName.toString()
+            )
         }
         val classType = element.asType()
         if ("okhttp3.OkHttpClient" != classType.toString()) {
-            throw ProcessingException(element,
-                "The variable %s is not a OkHttpClient", element.simpleName.toString())
+            throw ProcessingException(
+                element,
+                "The variable %s is not a OkHttpClient", element.simpleName.toString()
+            )
         }
     }
 
     @Throws(ProcessingException::class)
     private fun checkVariableValidClass(element: VariableElement) {
         if (!element.modifiers.contains(Modifier.PUBLIC)) {
-            throw ProcessingException(element,
+            throw ProcessingException(
+                element,
                 "The variable %s is not public, please add @JvmField annotation if you use kotlin",
-                element.simpleName)
+                element.simpleName
+            )
         }
         if (!element.modifiers.contains(Modifier.STATIC)) {
-            throw ProcessingException(element,
+            throw ProcessingException(
+                element,
                 "The variable %s is not static",
-                element.simpleName.toString())
+                element.simpleName.toString()
+            )
         }
     }
 
@@ -357,7 +394,8 @@ open class AnnotationProcessor : AbstractProcessor() {
         typeElement.enclosedElements.forEach {
             if (it is ExecutableElement
                 && it.kind == ElementKind.CONSTRUCTOR
-                && (it.getModifiers().contains(Modifier.PUBLIC) || it.getModifiers().contains(Modifier.PROTECTED))
+                && (it.getModifiers().contains(Modifier.PUBLIC) || it.getModifiers()
+                    .contains(Modifier.PROTECTED))
             ) {
                 funList.add(it)
             }
