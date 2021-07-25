@@ -37,9 +37,9 @@ open class AnnotationProcessor : AbstractProcessor() {
     private lateinit var messager: Messager
     private lateinit var filer: Filer
     private lateinit var elementUtils: Elements
-    private lateinit var incremental: String
+    private var incremental = true
     private var processed = false
-    private var verbose = false
+    private var debug = false
 
     @Synchronized
     override fun init(processingEnvironment: ProcessingEnvironment) {
@@ -50,8 +50,8 @@ open class AnnotationProcessor : AbstractProcessor() {
         elementUtils = processingEnvironment.elementUtils
         val map = processingEnvironment.options
         rxHttpPackage = map[rxhttp_package] ?: "rxhttp.wrapper.param"
-        incremental = map[rxhttp_incremental] ?: "aggregating"
-        verbose = "true" == map[rxhttp_debug]
+        incremental = "false" != map[rxhttp_incremental]
+        debug = "true" == map[rxhttp_debug]
         initRxJavaVersion(getRxJavaVersion(map))
     }
 
@@ -74,10 +74,8 @@ open class AnnotationProcessor : AbstractProcessor() {
             rxhttp_incremental,
             rxhttp_debug
         ).apply {
-            if (incremental == "aggregating") {
+            if (incremental) {
                 add("org.gradle.annotation.processing.aggregating")
-            } else if (incremental == "isolating") {
-                add("org.gradle.annotation.processing.isolating")
             }
         }
     }
@@ -89,7 +87,7 @@ open class AnnotationProcessor : AbstractProcessor() {
     override fun getSupportedSourceVersion(): SourceVersion = SourceVersion.latestSupported()
 
     override fun process(annotations: Set<TypeElement>, roundEnv: RoundEnvironment): Boolean {
-        if (verbose) {
+        if (debug) {
             messager.printMessage(
                 Diagnostic.Kind.WARNING,
                 """
