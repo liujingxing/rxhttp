@@ -2,6 +2,7 @@ package rxhttp.wrapper.param;
 
 import com.example.httpsender.param.PostEncryptFormParam;
 import java.lang.String;
+import java.util.List;
 
 /**
  * Github
@@ -13,8 +14,8 @@ public class RxHttpPostEncryptFormParam extends RxHttpFormParam {
     super(param);
   }
 
-  public RxHttpPostEncryptFormParam test() {
-    ((PostEncryptFormParam)param).test();
+  public RxHttpPostEncryptFormParam addAllQuery(String key, List<String> param) {
+    ((PostEncryptFormParam)param).addAllQuery(key,param);
     return this;
   }
 
