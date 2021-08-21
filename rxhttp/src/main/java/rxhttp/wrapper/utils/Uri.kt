@@ -52,7 +52,7 @@ fun Uri?.length(contentResolver: ContentResolver): Long {
         return File(path).length()
     }
     return try {
-        contentResolver.openFileDescriptor(this, "r")?.statSize ?: -1L
+        contentResolver.openFileDescriptor(this, "r").use { it?.statSize ?: -1 }
     } catch (e: FileNotFoundException) {
         -1L
     }
