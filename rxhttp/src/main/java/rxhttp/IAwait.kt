@@ -386,7 +386,7 @@ fun <T> IAwait<T>.startDelay(timeMillis: Long): IAwait<T> = newAwait {
  */
 suspend fun <T> IAwait<T>.async(
     scope: CoroutineScope,
-    context: CoroutineContext = SupervisorJob(),
+    context: CoroutineContext = SupervisorJob(scope.coroutineContext[Job]),
     start: CoroutineStart = CoroutineStart.DEFAULT
 ): Deferred<T> = scope.async(context, start) {
     await()
