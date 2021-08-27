@@ -132,12 +132,6 @@ dependencies {
 
 `RxHttp v2.2.8`版本起，无需添加任何混淆规则(内部自带混淆规则)，v2.2.8以下版本，请[查看混淆规则](https://github.com/liujingxing/rxhttp/wiki/关于混淆),并添加到自己项目中
 
-# 友情链接
-
-[开源阅读 3.0](https://github.com/gedoor/legado)
-
-`注：如果你的项目用到了RxHttp，想要在这里展示，请联系我。`
-
 # Demo演示
 <img src="https://github.com/liujingxing/rxhttp/blob/master/screen/screenrecorder-2019-11-27_22_56_26.gif" width = "240" height = "520" />
 
