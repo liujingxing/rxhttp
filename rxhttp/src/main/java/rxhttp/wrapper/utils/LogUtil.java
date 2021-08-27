@@ -199,9 +199,9 @@ public class LogUtil {
             return "(binary " + contentLength + "-byte file body omitted)";
         } else if (body instanceof UriRequestBody) {
             return "(binary " + contentLength + "-byte uri body omitted)";
-        } else if (body.isDuplex()) {
+        } else if (versionGte3140() && body.isDuplex()) {
             return "(binary " + contentLength + "-byte duplex body omitted)";
-        } else if (body.isOneShot()) {
+        } else if (versionGte3140() && body.isOneShot()) {
             return "(binary " + contentLength + "-byte one-shot body omitted)";
         } else {
             Buffer buffer = new Buffer();
@@ -256,9 +256,9 @@ public class LogUtil {
                 sink.writeUtf8("(binary " + contentLength + "-byte file body omitted)");
             } else if (body instanceof UriRequestBody) {
                 sink.writeUtf8("(binary " + contentLength + "-byte uri body omitted)");
-            } else if (body.isDuplex()) {
+            } else if (versionGte3140() && body.isDuplex()) {
                 sink.writeUtf8("(binary " + contentLength + "-byte duplex body omitted)");
-            } else if (body.isOneShot()) {
+            } else if (versionGte3140() && body.isOneShot()) {
                 sink.writeUtf8("(binary " + contentLength + "-byte one-shot body omitted)");
             } else if (contentLength > 1024) {
                 sink.writeUtf8("(binary " + contentLength + "-byte body omitted)");
@@ -276,6 +276,11 @@ public class LogUtil {
             .writeUtf8(multipartBody.boundary())
             .write(dashDash);
         return sink.readString(getCharset(multipartBody));
+    }
+
+    private static boolean versionGte3140() {
+        String okHttpVersion = OkHttpCompat.getOkHttpUserAgent();
+        return okHttpVersion.compareTo("okhttp/3.14.0") >= 0;
     }
 
     @SuppressWarnings("deprecation")
