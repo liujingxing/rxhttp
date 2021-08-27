@@ -1,6 +1,5 @@
 plugins {
     id 'kotlin'
-    id 'maven'
     id 'kotlin-kapt'
 }
 
