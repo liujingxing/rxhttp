@@ -1,6 +1,7 @@
 plugins {
     id 'kotlin'
     id 'kotlin-kapt'
+    id 'maven-publish'
 }
 
 dependencies {

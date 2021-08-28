@@ -1,6 +1,7 @@
 plugins {
     id 'java-library'
     id 'kotlin'
+    id 'maven-publish'
 }
 
 sourceSets {
