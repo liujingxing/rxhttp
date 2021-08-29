@@ -1,8 +1,6 @@
-plugins {
-    id 'java-library'
-    id 'kotlin'
-    id 'maven-publish'
-}
+apply plugin: 'java-library'
+apply plugin: 'kotlin'
+apply from: '../maven.gradle'
 
 sourceSets {
     main.java.srcDirs += "$buildDir/generated/sources/java-templates/java/main"
