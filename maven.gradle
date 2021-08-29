@@ -1,0 +1,2 @@
+if (maven == "1")
+    apply plugin: 'maven'
