@@ -37,8 +37,9 @@ open class AnnotationProcessor : AbstractProcessor() {
     private lateinit var messager: Messager
     private lateinit var filer: Filer
     private lateinit var elementUtils: Elements
-    private var incremental = true
     private var debug = false
+    private var processed = false
+    private var incremental = true
 
     @Synchronized
     override fun init(processingEnvironment: ProcessingEnvironment) {
@@ -86,26 +87,18 @@ open class AnnotationProcessor : AbstractProcessor() {
     override fun getSupportedSourceVersion(): SourceVersion = SourceVersion.latestSupported()
 
     override fun process(annotations: Set<TypeElement>, roundEnv: RoundEnvironment): Boolean {
-        if (debug) {
+        if (true) {
             messager.printMessage(
                 Diagnostic.Kind.WARNING,
                 """
-                    process isOver = ${roundEnv.processingOver()}                     
+                    process isOver = ${roundEnv.processingOver()}     
+                    processed = $processed                
+                    rootElements.size = ${roundEnv.rootElements.size}
                     annotations = $annotations                     
-                    rootElements = ${roundEnv.rootElements}
                 """.trimIndent()
             )
         }
-        if (annotations.isEmpty()) return true
-        if (annotations.size == 1
-            && annotations.first().toString() == "java.lang.Override"
-        ) {
-            val exist = roundEnv.rootElements.find {
-                it.toString() == "$rxHttpPackage.RxHttp"
-            }
-            if (exist != null)
-                return true
-        }
+        if (annotations.isEmpty() || processed) return true
         generatorStaticClass(filer, isAndroidPlatform())
         try {
             val rxHttpGenerator = RxHttpGenerator()
@@ -168,6 +161,7 @@ open class AnnotationProcessor : AbstractProcessor() {
 
             // Generate code
             rxHttpGenerator.generateCode(filer)
+            processed = true
         } catch (e: ProcessingException) {
             error(e.element, e.message)
         } catch (e: Throwable) {
