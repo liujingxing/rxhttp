@@ -3,8 +3,6 @@ package rxhttp.wrapper.param;
 import android.graphics.Point;
 import com.example.httpsender.param.GetEncryptParam;
 import java.io.IOException;
-import java.lang.CharSequence;
-import java.lang.IllegalArgumentException;
 import java.util.List;
 import java.util.Map;
 
