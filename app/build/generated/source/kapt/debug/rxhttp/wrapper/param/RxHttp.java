@@ -572,7 +572,7 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
   }
 
   /**
-   * 给Param设置默认域名(如何缺席的话)，此方法会在请求发起前，被RxHttp内部调用
+   * 给Param设置默认域名(如果缺席的话)，此方法会在请求发起前，被RxHttp内部调用
    */
   private P addDefaultDomainIfAbsent(P param) {
     String newUrl = addDomainIfAbsent(param.getSimpleUrl(), Url.baseUrl);
