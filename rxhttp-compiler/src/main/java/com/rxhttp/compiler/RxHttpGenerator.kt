@@ -150,7 +150,7 @@ class RxHttpGenerator {
         methodList.addAll(mConverterAnnotatedClass!!.methodList)
         methodList.addAll(mOkClientAnnotatedClass!!.methodList)
         val method = MethodSpec.methodBuilder("addDefaultDomainIfAbsent")
-            .addJavadoc("给Param设置默认域名(如何缺席的话)，此方法会在请求发起前，被RxHttp内部调用\n")
+            .addJavadoc("给Param设置默认域名(如果缺席的话)，此方法会在请求发起前，被RxHttp内部调用\n")
             .addModifiers(Modifier.PRIVATE)
             .addParameter(p, "param")
         if (defaultDomain != null) {
