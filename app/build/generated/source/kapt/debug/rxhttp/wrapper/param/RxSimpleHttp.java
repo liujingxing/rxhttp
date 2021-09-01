@@ -1,8 +1,5 @@
 package rxhttp.wrapper.param;
 
-import java.lang.Object;
-import java.lang.String;
-
 /**
  * 本类由@Converter、@Domain、@OkClient注解中的className字段生成  类命名方式: Rx + {className字段值} + Http
  * Github

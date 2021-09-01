@@ -118,6 +118,7 @@ class RxHttpWrapper {
                 .addMethods(methodList)
 
             JavaFile.builder(rxHttpPackage, rxHttpBuilder.build())
+                .skipJavaLangImports(true)
                 .build().writeTo(filer)
         }
     }

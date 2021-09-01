@@ -229,6 +229,7 @@ class ParamsAnnotatedClass {
                 .addMethods(rxHttpPostCustomMethod)
                 .build()
             JavaFile.builder(rxHttpPackage, rxHttpPostEncryptFormParamSpec)
+                .skipJavaLangImports(true)
                 .build().writeTo(filer)
         }
 
