@@ -4,7 +4,7 @@ import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
-import androidx.lifecycle.rxLifeScope
+import androidx.lifecycle.lifecycleScope
 import com.example.httpsender.R
 import com.example.httpsender.databinding.UploadFragmentBinding
 import com.example.httpsender.entity.Url
@@ -13,7 +13,9 @@ import com.example.httpsender.kt.show
 import com.rxjava.rxlife.life
 import com.rxjava.rxlife.lifeOnMain
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import rxhttp.awaitString
+import kotlinx.coroutines.launch
+import rxhttp.awaitResult
+import rxhttp.toStr
 import rxhttp.wrapper.param.RxHttp
 import rxhttp.wrapper.param.upload
 import java.io.File
@@ -44,26 +46,28 @@ class UploadFragment : BaseFragment<UploadFragmentBinding>(), View.OnClickListen
 
     //协程文件上传，不带进度
     private fun UploadFragmentBinding.coroutineUpload10(v: View) {
-        rxLifeScope.launch({
+        lifecycleScope.launch {
             //真实环境，需要调用文件选择器，拿到Uri对象
             val uri = Uri.parse("content://media/external/downloads/13417")
-            val result = RxHttp.postForm(Url.UPLOAD_URL)
+            RxHttp.postForm(Url.UPLOAD_URL)
                 .addPart(requireContext(), "uploaded_file", uri)
-                .awaitString()
-            tvResult.append("\n上传成功 : $result")
-        }, {
-            tvResult.append("\n${it.errorMsg}")
-            //失败回调
-            it.show()
-        })
+                .toStr()
+                .awaitResult {
+                    tvResult.append("\n上传成功 : $it")
+                }.onFailure {
+                    tvResult.append("\n${it.errorMsg}")
+                    //失败回调
+                    it.show()
+                }
+        }
     }
 
     //协程上传文件，带进度
     private fun UploadFragmentBinding.coroutineUploadProgress10(v: View) {
-        rxLifeScope.launch({
+        lifecycleScope.launch {
             //真实环境，需要调用文件选择器，拿到Uri对象
             val uri = Uri.parse("content://media/external/downloads/13417")
-            val result = RxHttp.postForm(Url.UPLOAD_URL)
+            RxHttp.postForm(Url.UPLOAD_URL)
                 .addPart(requireContext(), "uploaded_file", uri)
                 .upload(this) {
                     //上传进度回调,0-100，仅在进度有更新时才会回调
@@ -71,13 +75,15 @@ class UploadFragment : BaseFragment<UploadFragmentBinding>(), View.OnClickListen
                     val currentSize = it.currentSize //当前已上传的字节大小
                     val totalSize = it.totalSize //要上传的总字节大小
                     tvResult.append("\n" + it.toString())
-                }.awaitString()
-            tvResult.append("\n上传成功 : $result")
-        }, {
-            tvResult.append("\n${it.errorMsg}")
-            //失败回调
-            it.show()
-        })
+                }.toStr()
+                .awaitResult {
+                    tvResult.append("\n上传成功 : $it")
+                }.onFailure {
+                    tvResult.append("\n${it.errorMsg}")
+                    //失败回调
+                    it.show()
+                }
+        }
     }
 
 
@@ -127,22 +133,24 @@ class UploadFragment : BaseFragment<UploadFragmentBinding>(), View.OnClickListen
 
     //协程文件上传，不带进度
     private fun UploadFragmentBinding.coroutineUpload(v: View) {
-        rxLifeScope.launch({
-            val result = RxHttp.postForm(Url.UPLOAD_URL)
+        lifecycleScope.launch {
+            RxHttp.postForm(Url.UPLOAD_URL)
                 .addFile("uploaded_file", File("xxxx/1.png"))
-                .awaitString()
-            tvResult.append("\n上传成功 : $result")
-        }, {
-            tvResult.append("\n${it.errorMsg}")
-            //失败回调
-            it.show()
-        })
+                .toStr()
+                .awaitResult {
+                    tvResult.append("\n上传成功 : $it")
+                }.onFailure {
+                    tvResult.append("\n${it.errorMsg}")
+                    //失败回调
+                    it.show()
+                }
+        }
     }
 
     //协程上传文件，带进度
     private fun UploadFragmentBinding.coroutineUploadProgress(v: View) {
-        rxLifeScope.launch({
-            val result = RxHttp.postForm(Url.UPLOAD_URL)
+        lifecycleScope.launch {
+            RxHttp.postForm(Url.UPLOAD_URL)
                 .addFile("uploaded_file", File("xxxx/1.png"))
                 .upload(this) {
                     //上传进度回调,0-100，仅在进度有更新时才会回调
@@ -150,13 +158,16 @@ class UploadFragment : BaseFragment<UploadFragmentBinding>(), View.OnClickListen
                     val currentSize = it.currentSize //当前已上传的字节大小
                     val totalSize = it.totalSize //要上传的总字节大小
                     tvResult.append("\n" + it.toString())
-                }.awaitString()
-            tvResult.append("\n上传成功 : $result")
-        }, {
-            tvResult.append("\n${it.errorMsg}")
-            //失败回调
-            it.show()
-        })
+                }.toStr()
+                .awaitResult {
+                    tvResult.append("\n上传成功 : $it")
+                }.onFailure {
+                    tvResult.append("\n${it.errorMsg}")
+                    //失败回调
+                    it.show()
+                }
+
+        }
     }
 
 

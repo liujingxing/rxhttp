@@ -5,7 +5,7 @@ import android.os.Build
 import android.os.Bundle
 import android.view.View
 import androidx.annotation.RequiresApi
-import androidx.lifecycle.rxLifeScope
+import androidx.lifecycle.lifecycleScope
 import com.example.httpsender.DownloadMultiActivity
 import com.example.httpsender.R
 import com.example.httpsender.databinding.DownloadFragmentBinding
@@ -18,6 +18,8 @@ import com.rxjava.rxlife.life
 import com.rxjava.rxlife.lifeOnMain
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import rxhttp.awaitResult
 import rxhttp.toAppendDownload
 import rxhttp.toDownload
 import rxhttp.wrapper.param.RxSimpleHttp
@@ -43,40 +45,42 @@ class DownloadFragment : BaseFragment<DownloadFragmentBinding>(), View.OnClickLi
 
     //Android 10协程下载，不带进度，兼容Android 10以下
     private fun DownloadFragmentBinding.coroutineDownload10(view: View) {
-        rxLifeScope.launch({
+        lifecycleScope.launch {
             val factory = Android10DownloadFactory(requireContext(), "miaobo.apk")
             //下载使用非默认域名，故这里使用RxSimpleHttp类发送请求，RxSimpleHttp类是通过@Domain注解生成的
-            val result = RxSimpleHttp.get(Url.DOWNLOAD_URL)
+            RxSimpleHttp.get(Url.DOWNLOAD_URL)
                 .toDownload(factory)
-                .await()
-            tvResult.append("\n下载完成, $result")
-        }, {
-            tvResult.append("\n${it.errorMsg}")
-            //失败回调
-            it.show()
-        })
+                .awaitResult {
+                    tvResult.append("\n下载完成, $it")
+                }.onFailure {
+                    tvResult.append("\n${it.errorMsg}")
+                    //失败回调
+                    it.show()
+                }
+
+        }
     }
 
     //Android 10协程下载，带进度，兼容Android 10以下
     private fun DownloadFragmentBinding.coroutineDownloadProgress10(view: View) {
-        rxLifeScope.launch({
+        lifecycleScope.launch {
             val factory = Android10DownloadFactory(requireContext(), "miaobo.apk")
             //下载使用非默认域名，故这里使用RxSimpleHttp类发送请求，RxSimpleHttp类是通过注解生成的
-            val result = RxSimpleHttp.get(Url.DOWNLOAD_URL)
+            RxSimpleHttp.get(Url.DOWNLOAD_URL)
                 .toDownload(factory, Dispatchers.Main) {
                     //下载进度回调,0-100，仅在进度有更新时才会回调，最多回调101次，最后一次回调文件存储路径
                     val currentProgress = it.progress //当前进度 0-100
                     val currentSize = it.currentSize //当前已下载的字节大小
                     val totalSize = it.totalSize //要下载的总字节大小
                     tvResult.append(it.toString())
+                }.awaitResult {
+                    tvResult.append("\n下载完成, $it")
+                }.onFailure {
+                    tvResult.append("\n${it.errorMsg}")
+                    //失败回调
+                    it.show()
                 }
-                .await()
-            tvResult.append("\n下载完成, $result")
-        }, {
-            tvResult.append("\n${it.errorMsg}")
-            //失败回调
-            it.show()
-        })
+        }
     }
 
     /**
@@ -86,10 +90,10 @@ class DownloadFragment : BaseFragment<DownloadFragmentBinding>(), View.OnClickLi
      * 如果没有查询到，就走正常的下载流程
      */
     private fun DownloadFragmentBinding.coroutineAppendDownloadProgress10(view: View) {
-        rxLifeScope.launch({
+        lifecycleScope.launch {
             val factory = Android10DownloadFactory(requireContext(), "miaobo.apk")
             //下载使用非默认域名，故这里使用RxSimpleHttp类发送请求，RxSimpleHttp类是通过注解生成的
-            val result = RxSimpleHttp.get(Url.DOWNLOAD_URL)
+            RxSimpleHttp.get(Url.DOWNLOAD_URL)
                 .toAppendDownload(factory, Dispatchers.Main) {
                     //下载进度回调,0-100，仅在进度有更新时才会回调，最多回调101次，最后一次回调文件存储路径
                     val currentProgress = it.progress //当前进度 0-100
@@ -97,13 +101,14 @@ class DownloadFragment : BaseFragment<DownloadFragmentBinding>(), View.OnClickLi
                     val totalSize = it.totalSize //要下载的总字节大小
                     tvResult.append(it.toString())
                 }
-                .await()
-            tvResult.append("\n下载完成, $result")
-        }, {
-            //下载失败
-            tvResult.append("\n${it.errorMsg}")
-            it.show()
-        })
+                .awaitResult {
+                    tvResult.append("\n下载完成, $it")
+                }.onFailure {
+                    //下载失败
+                    tvResult.append("\n${it.errorMsg}")
+                    it.show()
+                }
+        }
     }
 
     //Android 10 RxJava下载，不带进度，兼容Android 10以下
@@ -172,26 +177,27 @@ class DownloadFragment : BaseFragment<DownloadFragmentBinding>(), View.OnClickLi
 
     //文件下载，不带进度
     private fun DownloadFragmentBinding.coroutineDownload(view: View) {
-        rxLifeScope.launch({
+        lifecycleScope.launch {
             val destPath = "${requireContext().externalCacheDir}/${System.currentTimeMillis()}.apk"
             //下载使用非默认域名，故这里使用RxSimpleHttp类发送请求，RxSimpleHttp类是通过@Domain注解生成的
-            val result = RxSimpleHttp.get(Url.DOWNLOAD_URL)
+            RxSimpleHttp.get(Url.DOWNLOAD_URL)
                 .toDownload(destPath)
-                .await()
-            tvResult.append("\n下载完成, $result")
-        }, {
-            tvResult.append("\n${it.errorMsg}")
-            //失败回调
-            it.show()
-        })
+                .awaitResult {
+                    tvResult.append("\n下载完成, $it")
+                }.onFailure {
+                    tvResult.append("\n${it.errorMsg}")
+                    //失败回调
+                    it.show()
+                }
+        }
     }
 
     //文件下载，带进度
     private fun DownloadFragmentBinding.coroutineDownloadProgress(view: View) {
-        rxLifeScope.launch({
+        lifecycleScope.launch {
             val destPath = "${requireContext().externalCacheDir}/${System.currentTimeMillis()}.apk"
             //下载使用非默认域名，故这里使用RxSimpleHttp类发送请求，RxSimpleHttp类是通过注解生成的
-            val result = RxSimpleHttp.get(Url.DOWNLOAD_URL)
+            RxSimpleHttp.get(Url.DOWNLOAD_URL)
                 .toDownload(destPath, Dispatchers.Main) {
                     //下载进度回调,0-100，仅在进度有更新时才会回调，最多回调101次，最后一次回调文件存储路径
                     val currentProgress = it.progress //当前进度 0-100
@@ -199,21 +205,23 @@ class DownloadFragment : BaseFragment<DownloadFragmentBinding>(), View.OnClickLi
                     val totalSize = it.totalSize //要下载的总字节大小
                     tvResult.append(it.toString())
                 }
-                .await()
-            tvResult.append("\n下载完成, $result")
-        }, {
-            tvResult.append("\n${it.errorMsg}")
-            //失败回调
-            it.show()
-        })
+                .awaitResult {
+                    tvResult.append("\n下载完成, $it")
+                }.onFailure {
+                    tvResult.append("\n${it.errorMsg}")
+                    //失败回调
+                    it.show()
+                }
+
+        }
     }
 
     //断点下载，带进度
     private fun DownloadFragmentBinding.coroutineAppendDownloadProgress(view: View) {
-        rxLifeScope.launch({
+        lifecycleScope.launch {
             val destPath = "${requireContext().externalCacheDir}/Miaobo.apk"
             //下载使用非默认域名，故这里使用RxSimpleHttp类发送请求，RxSimpleHttp类是通过注解生成的
-            val result = RxSimpleHttp.get(Url.DOWNLOAD_URL)
+            RxSimpleHttp.get(Url.DOWNLOAD_URL)
                 .toAppendDownload(destPath, Dispatchers.Main) {
                     //下载进度回调,0-100，仅在进度有更新时才会回调，最多回调101次，最后一次回调文件存储路径
                     val currentProgress = it.progress //当前进度 0-100
@@ -221,13 +229,14 @@ class DownloadFragment : BaseFragment<DownloadFragmentBinding>(), View.OnClickLi
                     val totalSize = it.totalSize //要下载的总字节大小
                     tvResult.append(it.toString())
                 }
-                .await()
-            tvResult.append("\n下载完成, $result")
-        }, {
-            //下载失败
-            tvResult.append("\n${it.errorMsg}")
-            it.show()
-        })
+                .awaitResult {
+                    tvResult.append("\n下载完成, $it")
+                }.onFailure {
+                    //下载失败
+                    tvResult.append("\n${it.errorMsg}")
+                    it.show()
+                }
+        }
     }
 
     //文件下载，不带进度
