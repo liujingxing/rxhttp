@@ -87,7 +87,7 @@ open class AnnotationProcessor : AbstractProcessor() {
     override fun getSupportedSourceVersion(): SourceVersion = SourceVersion.latestSupported()
 
     override fun process(annotations: Set<TypeElement>, roundEnv: RoundEnvironment): Boolean {
-        if (true) {
+        if (debug) {
             messager.printMessage(
                 Diagnostic.Kind.WARNING,
                 """
