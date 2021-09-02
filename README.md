@@ -66,12 +66,12 @@ dependencies {
     //rxjava2   (RxJava2/Rxjava3 select one)
     implementation 'io.reactivex.rxjava2:rxjava:2.2.8'
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
-    implementation 'com.github.liujingxing.rxlife:rxlife-rxjava2:2.1.0' //RxJava2, Automatic close request
+    implementation 'com.github.liujingxing.rxlife:rxlife-rxjava2:2.2.0' //RxJava2, Automatic close request
 
     //rxjava3
     implementation 'io.reactivex.rxjava3:rxjava:3.0.6'
     implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
-    implementation 'com.github.liujingxing.rxlife:rxlife-rxjava3:2.1.0' //RxJava3, Automatic close request
+    implementation 'com.github.liujingxing.rxlife:rxlife-rxjava3:2.2.0' //RxJava3, Automatic close request
 
     implementation 'com.github.liujingxing.rxhttp:converter-fastjson:2.6.7'
     implementation 'com.github.liujingxing.rxhttp:converter-jackson:2.6.7'
