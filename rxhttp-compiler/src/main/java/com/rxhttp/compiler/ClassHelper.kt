@@ -552,24 +552,22 @@ object ClassHelper {
             import ${getClassPath("Observable")};
             import ${getClassPath("ObservableSource")};
             import ${getClassPath("Observer")};
-            import ${getClassPath("Exceptions")};
-            import ${getClassPath("SimplePlainQueue")};
-            import ${getClassPath("SpscArrayQueue")};
-            import ${getClassPath("RxJavaPlugins")};
             import ${getClassPath("Scheduler")};
+            import ${getClassPath("Scheduler")}.Worker;
             import ${getClassPath("Disposable")};
+            import ${getClassPath("Exceptions")};
             import ${getClassPath("Consumer")};
             import ${getClassPath("DisposableHelper")};
-            import ${getClassPath("Scheduler")}.Worker;
-            
+            import ${getClassPath("SpscArrayQueue")};
+            import ${getClassPath("RxJavaPlugins")};
             import okhttp3.Response;
             import rxhttp.wrapper.annotations.NonNull;
             import rxhttp.wrapper.annotations.Nullable;
             import rxhttp.wrapper.callback.ProgressCallback;
             import rxhttp.wrapper.entity.Progress;
             import rxhttp.wrapper.entity.ProgressT;
-            import rxhttp.wrapper.parse.StreamParser;
             import rxhttp.wrapper.parse.Parser;
+            import rxhttp.wrapper.parse.StreamParser;
             import rxhttp.wrapper.utils.LogUtil;
 
             final class ObservableParser<T> extends Observable<T> {
@@ -710,7 +708,7 @@ object ClassHelper {
 
                     private volatile boolean done;
                     private volatile boolean disposed;
-                    private final SimplePlainQueue<Progress> queue;
+                    private final SpscArrayQueue<Progress> queue;
                     private final Scheduler.Worker worker;
 
                     private final Consumer<Progress> progressConsumer;
@@ -806,7 +804,7 @@ object ClassHelper {
                     public void run() {
                         int missed = 1;
 
-                        final SimplePlainQueue<Progress> q = queue;
+                        final SpscArrayQueue<Progress> q = queue;
                         final Observer<? super T> a = downstream;
                         while (!checkTerminated(done, q.isEmpty(), a)) {
                             for (; ; ) {

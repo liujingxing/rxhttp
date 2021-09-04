@@ -6,24 +6,22 @@ import java.util.concurrent.atomic.AtomicInteger;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.ObservableSource;
 import io.reactivex.rxjava3.core.Observer;
-import io.reactivex.rxjava3.exceptions.Exceptions;
-import io.reactivex.rxjava3.internal.fuseable.SimplePlainQueue;
-import io.reactivex.rxjava3.internal.queue.SpscArrayQueue;
-import io.reactivex.rxjava3.plugins.RxJavaPlugins;
 import io.reactivex.rxjava3.core.Scheduler;
+import io.reactivex.rxjava3.core.Scheduler.Worker;
 import io.reactivex.rxjava3.disposables.Disposable;
+import io.reactivex.rxjava3.exceptions.Exceptions;
 import io.reactivex.rxjava3.functions.Consumer;
 import io.reactivex.rxjava3.internal.disposables.DisposableHelper;
-import io.reactivex.rxjava3.core.Scheduler.Worker;
-
+import io.reactivex.rxjava3.operators.SpscArrayQueue;
+import io.reactivex.rxjava3.plugins.RxJavaPlugins;
 import okhttp3.Response;
 import rxhttp.wrapper.annotations.NonNull;
 import rxhttp.wrapper.annotations.Nullable;
 import rxhttp.wrapper.callback.ProgressCallback;
 import rxhttp.wrapper.entity.Progress;
 import rxhttp.wrapper.entity.ProgressT;
-import rxhttp.wrapper.parse.StreamParser;
 import rxhttp.wrapper.parse.Parser;
+import rxhttp.wrapper.parse.StreamParser;
 import rxhttp.wrapper.utils.LogUtil;
 
 final class ObservableParser<T> extends Observable<T> {
@@ -164,7 +162,7 @@ final class ObservableParser<T> extends Observable<T> {
 
         private volatile boolean done;
         private volatile boolean disposed;
-        private final SimplePlainQueue<Progress> queue;
+        private final SpscArrayQueue<Progress> queue;
         private final Scheduler.Worker worker;
 
         private final Consumer<Progress> progressConsumer;
@@ -260,7 +258,7 @@ final class ObservableParser<T> extends Observable<T> {
         public void run() {
             int missed = 1;
 
-            final SimplePlainQueue<Progress> q = queue;
+            final SpscArrayQueue<Progress> q = queue;
             final Observer<? super T> a = downstream;
             while (!checkTerminated(done, q.isEmpty(), a)) {
                 for (; ; ) {
