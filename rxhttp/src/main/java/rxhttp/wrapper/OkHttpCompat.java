@@ -142,8 +142,7 @@ public class OkHttpCompat {
 
     //解析http状态行
     public static StatusLine parse(String statusLine) throws IOException {
-        String okHttpUserAgent = getOkHttpUserAgent();
-        if (okHttpUserAgent.compareTo("okhttp/4.0.0") >= 0) {
+        if (okHttpVersionCompare("4.0.0") >= 0) {
             return StatusLine.Companion.parse(statusLine);
         } else {
             Class<StatusLine> statusLineClass = StatusLine.class;
@@ -157,10 +156,9 @@ public class OkHttpCompat {
     }
 
     public static DiskLruCache newDiskLruCache(FileSystem fileSystem, File directory, int appVersion, int valueCount, long maxSize) {
-        String okHttpVersion = getOkHttpUserAgent();
-        if (okHttpVersion.compareTo("okhttp/4.3.0") >= 0) {
+        if (okHttpVersionCompare("4.3.0") >= 0) {
             return new DiskLruCache(fileSystem, directory, appVersion, valueCount, maxSize, TaskRunner.INSTANCE);
-        } else if (okHttpVersion.compareTo("okhttp/4.0.0") >= 0) {
+        } else if (okHttpVersionCompare("4.0.0") >= 0) {
             Companion companion = DiskLruCache.Companion;
             Class<? extends Companion> clazz = companion.getClass();
             try {
@@ -179,6 +177,13 @@ public class OkHttpCompat {
             }
         }
         throw new RuntimeException("Please upgrade OkHttp to V3.12.0 or higher");
+    }
+
+    //okhttp版本比较，当前版本大于version2，返回 >0; 等于，返回=0; 否则，返回 <0
+    public static int okHttpVersionCompare(String version2) {
+        String[] okHttpUserAgentArr = getOkHttpUserAgent().split("/");
+        String okhttpVersion = okHttpUserAgentArr[okHttpUserAgentArr.length - 1];
+        return versionCompare(okhttpVersion, version2);
     }
 
     //获取OkHttp版本号
@@ -205,5 +210,25 @@ public class OkHttpCompat {
             e.printStackTrace();
         }
         return OKHTTP_USER_AGENT = "okhttp/4.2.0";
+    }
+
+    private static int versionCompare(String version1, String version2) {
+        String[] versionArr1 = version1.split("\\.");
+        String[] versionArr2 = version2.split("\\.");
+        int minLen = Math.min(versionArr1.length, versionArr2.length);
+        int diff = 0;
+        for (int i = 0; i < minLen; i++) {
+            String v1 = versionArr1[i];
+            String v2 = versionArr2[i];
+            diff = v1.length() - v2.length();
+            if (diff == 0) {
+                diff = v1.compareTo(v2);
+            }
+            if (diff != 0) {
+                break;
+            }
+        }
+        diff = (diff != 0) ? diff : (versionArr1.length - versionArr2.length);
+        return diff;
     }
 }

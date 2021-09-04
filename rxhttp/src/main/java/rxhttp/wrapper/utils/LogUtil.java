@@ -279,8 +279,7 @@ public class LogUtil {
     }
 
     private static boolean versionGte3140() {
-        String okHttpVersion = OkHttpCompat.getOkHttpUserAgent();
-        return okHttpVersion.compareTo("okhttp/3.14.0") >= 0;
+        return OkHttpCompat.okHttpVersionCompare("3.14.0") >= 0;
     }
 
     @SuppressWarnings("deprecation")
