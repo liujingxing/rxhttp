@@ -46,9 +46,9 @@ android {
 }
 
 dependencies {
-    implementation 'com.github.liujingxing.rxhttp:rxhttp:2.6.7'
+    implementation 'com.github.liujingxing.rxhttp:rxhttp:2.6.8'
     implementation 'com.squareup.okhttp3:okhttp:4.9.1' 
-    kapt 'com.github.liujingxing.rxhttp:rxhttp-compiler:2.6.7' //Use the annotationProcessor instead of kapt, if you use Java
+    kapt 'com.github.liujingxing.rxhttp:rxhttp-compiler:2.6.8' //Use the annotationProcessor instead of kapt, if you use Java
  }
 ```
 
@@ -69,15 +69,15 @@ dependencies {
     implementation 'com.github.liujingxing.rxlife:rxlife-rxjava2:2.2.0' //RxJava2, Automatic close request
 
     //rxjava3
-    implementation 'io.reactivex.rxjava3:rxjava:3.0.6'
+    implementation 'io.reactivex.rxjava3:rxjava:3.1.1'
     implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
     implementation 'com.github.liujingxing.rxlife:rxlife-rxjava3:2.2.0' //RxJava3, Automatic close request
 
-    implementation 'com.github.liujingxing.rxhttp:converter-fastjson:2.6.7'
-    implementation 'com.github.liujingxing.rxhttp:converter-jackson:2.6.7'
-    implementation 'com.github.liujingxing.rxhttp:converter-moshi:2.6.7'
-    implementation 'com.github.liujingxing.rxhttp:converter-protobuf:2.6.7'
-    implementation 'com.github.liujingxing.rxhttp:converter-simplexml:2.6.7'
+    implementation 'com.github.liujingxing.rxhttp:converter-fastjson:2.6.8'
+    implementation 'com.github.liujingxing.rxhttp:converter-jackson:2.6.8'
+    implementation 'com.github.liujingxing.rxhttp:converter-moshi:2.6.8'
+    implementation 'com.github.liujingxing.rxhttp:converter-protobuf:2.6.8'
+    implementation 'com.github.liujingxing.rxhttp:converter-simplexml:2.6.8'
 }
 ```
 

@@ -85,9 +85,9 @@ android {
 }
 
 dependencies {
-    implementation 'com.github.liujingxing.rxhttp:rxhttp:2.6.7'
+    implementation 'com.github.liujingxing.rxhttp:rxhttp:2.6.8'
     implementation 'com.squareup.okhttp3:okhttp:4.9.1' //rxhttp v2.2.2版本起，需要手动依赖okhttp
-    kapt 'com.github.liujingxing.rxhttp:rxhttp-compiler:2.6.7' //生成RxHttp类，纯Java项目，请使用annotationProcessor代替kapt
+    kapt 'com.github.liujingxing.rxhttp:rxhttp-compiler:2.6.8' //生成RxHttp类，纯Java项目，请使用annotationProcessor代替kapt
  }
 ```
 
@@ -110,16 +110,16 @@ dependencies {
     implementation 'com.github.liujingxing.rxlife:rxlife-rxjava2:2.2.0' //管理RxJava2生命周期，页面销毁，关闭请求
 
     //rxjava3
-    implementation 'io.reactivex.rxjava3:rxjava:3.0.6'
+    implementation 'io.reactivex.rxjava3:rxjava:3.1.1'
     implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
     implementation 'com.github.liujingxing.rxlife:rxlife-rxjava3:2.2.0' //管理RxJava3生命周期，页面销毁，关闭请求
 
     //非必须，根据自己需求选择 RxHttp默认内置了GsonConverter
-    implementation 'com.github.liujingxing.rxhttp:converter-fastjson:2.6.7'
-    implementation 'com.github.liujingxing.rxhttp:converter-jackson:2.6.7'
-    implementation 'com.github.liujingxing.rxhttp:converter-moshi:2.6.7'
-    implementation 'com.github.liujingxing.rxhttp:converter-protobuf:2.6.7'
-    implementation 'com.github.liujingxing.rxhttp:converter-simplexml:2.6.7'
+    implementation 'com.github.liujingxing.rxhttp:converter-fastjson:2.6.8'
+    implementation 'com.github.liujingxing.rxhttp:converter-jackson:2.6.8'
+    implementation 'com.github.liujingxing.rxhttp:converter-moshi:2.6.8'
+    implementation 'com.github.liujingxing.rxhttp:converter-protobuf:2.6.8'
+    implementation 'com.github.liujingxing.rxhttp:converter-simplexml:2.6.8'
 }
 ```
 
