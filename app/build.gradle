@@ -18,7 +18,7 @@ android {
 
     kapt {
         arguments {
-            arg("rxhttp_rxjava", "rxjava3") //可传入rxjava2、rxjava3
+            arg("rxhttp_rxjava", "3.1.1") //可传入rxjava2、rxjava3
 //            arg("rxhttp_package", "rxhttp") //设置RxHttp相关类的包名，多module依赖时，需要配置不同的包名
         }
     }
@@ -69,7 +69,7 @@ dependencies {
     //管理RxJava及生命周期，Activity/Fragment 销毁，自动关闭未完成的请求
     implementation "com.github.liujingxing.rxlife:rxlife-rxjava3:${rxlife_version}"
     implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
-    implementation 'io.reactivex.rxjava3:rxjava:3.0.13'
+    implementation 'io.reactivex.rxjava3:rxjava:3.1.1'
 
 //    implementation "com.github.liujingxing.rxhttp:converter-fastjson:${rxhttp_version}"
 //    implementation "com.github.liujingxing.rxhttp:converter-jackson:${rxhttp_version}"
