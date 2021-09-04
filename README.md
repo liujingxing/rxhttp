@@ -57,7 +57,7 @@ dependencies {
 android {
     kapt {
         arguments {
-            arg("rxhttp_rxjava", "rxjava3")  //can pass in RxJava2, RxJava3
+            arg("rxhttp_rxjava", "rxjava3")  //can pass in RxJava2, RxJava3 or RxJava version name
             arg("rxhttp_package", "rxhttp")  //Specifies the RxHttp class package
         }
     }
