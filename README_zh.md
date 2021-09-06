@@ -98,7 +98,7 @@ android {
     kapt {
         arguments {
             //使用asXxx方法时必须，告知RxHttp你依赖的rxjava版本，可传入rxjava2、rxjava3
-            arg("rxhttp_rxjava", "rxjava3")  //可参入 RxJava2, RxJava3
+            arg("rxhttp_rxjava", "3.1.1")  //可参入 RxJava2, RxJava3，3.1.1或更高版本需要传入具体的版本号
             arg("rxhttp_package", "rxhttp")  //非必须，指定RxHttp类包名
         }
     }
