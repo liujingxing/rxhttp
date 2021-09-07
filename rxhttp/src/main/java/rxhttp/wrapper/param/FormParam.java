@@ -18,9 +18,10 @@ import rxhttp.wrapper.utils.CacheUtil;
 
 /**
  * post、put、patch、delete请求
- * 参数以{application/x-www-form-urlencoded}形式提交
- * 当带有文件时，自动以{multipart/form-data}形式提交
- * 当调用{@link #setMultiForm()}方法，强制以{multipart/form-data}形式提交
+ * 参数以 { application/x-www-form-urlencoded } 形式提交
+ * 当带有文件时，自动以 { multipart/form-data } 形式提交
+ *
+ * 当然，亦可调用一系列 setMultiXxx 方法，指定 { multipart/xxx } 形式提交，如：setMultiForm()
  * <p>
  * User: ljx
  * Date: 2019-09-09
