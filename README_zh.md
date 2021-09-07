@@ -85,8 +85,8 @@ android {
 }
 
 dependencies {
+    implementation 'com.squareup.okhttp3:okhttp:4.9.1'  
     implementation 'com.github.liujingxing.rxhttp:rxhttp:2.6.8'
-    implementation 'com.squareup.okhttp3:okhttp:4.9.1' //rxhttp v2.2.2版本起，需要手动依赖okhttp
     kapt 'com.github.liujingxing.rxhttp:rxhttp-compiler:2.6.8' //生成RxHttp类，纯Java项目，请使用annotationProcessor代替kapt
  }
 ```
@@ -94,13 +94,19 @@ dependencies {
 ## 可选
 ```java
 android {
-    //纯Java项目，请使用javaCompileOptions方法传参
     kapt {
         arguments {
-            //使用asXxx方法时必须，告知RxHttp你依赖的rxjava版本，可传入rxjava2、rxjava3
-            arg("rxhttp_rxjava", "3.1.1")  //可参入 RxJava2, RxJava3，3.1.1或更高版本需要传入具体的版本号
-            arg("rxhttp_package", "rxhttp")  //非必须，指定RxHttp类包名
+            //依赖了RxJava时，rxhttp_rxjava参数为必须，传入RxJava版本号
+            arg("rxhttp_rxjava", "3.1.1")  
+            arg("rxhttp_package", "rxhttp")  //指定RxHttp类包名，非必须
         }
+    }
+    //如果项目未集成kotlin，通过javaCompileOptions方法传参，在defaultConfig标签下
+    annotationProcessorOptions {
+        arguments = [
+            rxhttp_rxjava: '3.1.1',
+            rxhttp_package: 'rxhttp'
+        ]
     }
 }
 dependencies {
