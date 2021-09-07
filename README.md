@@ -46,9 +46,10 @@ android {
 }
 
 dependencies {
+    implementation 'com.squareup.okhttp3:okhttp:4.9.1'
     implementation 'com.github.liujingxing.rxhttp:rxhttp:2.6.8'
-    implementation 'com.squareup.okhttp3:okhttp:4.9.1' 
-    kapt 'com.github.liujingxing.rxhttp:rxhttp-compiler:2.6.8' //Use the annotationProcessor instead of kapt, if you use Java
+    //Use the annotationProcessor instead of kapt, if you use Java
+    kapt 'com.github.liujingxing.rxhttp:rxhttp-compiler:2.6.8' 
  }
 ```
 
@@ -57,9 +58,17 @@ dependencies {
 android {
     kapt {
         arguments {
-            arg("rxhttp_rxjava", "3.1.1")  //RxJava version name
+            //Pass in the RxJava version name if you use RxJava 
+            arg("rxhttp_rxjava", "3.1.1")  
             arg("rxhttp_package", "rxhttp")  //Specifies the RxHttp class package
         }
+    }
+    //If you uses Java, pass the parameters using javaCompileOptions in defaultConfig
+    annotationProcessorOptions {
+        arguments = [
+            rxhttp_rxjava: '3.1.1',
+            rxhttp_package: 'rxhttp'
+        ]
     }
 }
 dependencies {
