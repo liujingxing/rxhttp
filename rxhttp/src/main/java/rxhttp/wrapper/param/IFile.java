@@ -15,11 +15,6 @@ import rxhttp.wrapper.entity.UpFile;
 @SuppressWarnings("unchecked")
 public interface IFile<P extends Param<P>> {
 
-    @Deprecated
-    default P add(String key, File file) {
-        return addFile(new UpFile(key, file));
-    }
-
     default P addFile(String key, File file) {
         return addFile(new UpFile(key, file));
     }
