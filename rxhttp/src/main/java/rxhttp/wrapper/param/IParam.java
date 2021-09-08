@@ -26,23 +26,9 @@ public interface IParam<P extends Param<P>> {
         return (P) this;
     }
 
-    P removeAllQuery();
-
-    P removeAllQuery(String key);
-
     P addQuery(String key, @Nullable Object value);
 
     P addEncodedQuery(String key, @Nullable Object value);
-
-    default P setQuery(String key, @Nullable Object value) {
-        removeAllQuery(key);
-        return addQuery(key, value);
-    }
-
-    default P setEncodedQuery(String key, @Nullable Object value) {
-        removeAllQuery(key);
-        return addEncodedQuery(key, value);
-    }
 
     default P addAllQuery(@NonNull Map<String, ?> map) {
         for (Entry<String, ?> entry : map.entrySet()) {
@@ -51,23 +37,9 @@ public interface IParam<P extends Param<P>> {
         return (P) this;
     }
 
-    default P setAllQuery(@NonNull Map<String, ?> map) {
-        for (Entry<String, ?> entry : map.entrySet()) {
-            setQuery(entry.getKey(), entry.getValue());
-        }
-        return (P) this;
-    }
-
     default P addAllEncodedQuery(@NonNull Map<String, ?> map) {
         for (Entry<String, ?> entry : map.entrySet()) {
             addEncodedQuery(entry.getKey(), entry.getValue());
-        }
-        return (P) this;
-    }
-
-    default P setAllEncodedQuery(@NonNull Map<String, ?> map) {
-        for (Entry<String, ?> entry : map.entrySet()) {
-            setEncodedQuery(entry.getKey(), entry.getValue());
         }
         return (P) this;
     }

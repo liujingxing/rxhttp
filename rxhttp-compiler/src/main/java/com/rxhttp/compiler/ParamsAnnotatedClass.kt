@@ -243,38 +243,11 @@ class ParamsAnnotatedClass {
                 .build())
 
         methodList.add(
-            MethodSpec.methodBuilder("removeAllQuery")
-                .addModifiers(Modifier.PUBLIC)
-                .addStatement("param.removeAllQuery()")
-                .addStatement("return (R)this")
-                .returns(rxHttp)
-                .build())
-
-        methodList.add(
-            MethodSpec.methodBuilder("removeAllQuery")
-                .addModifiers(Modifier.PUBLIC)
-                .addParameter(String::class.java, "key")
-                .addStatement("param.removeAllQuery(key)")
-                .addStatement("return (R)this")
-                .returns(rxHttp)
-                .build())
-
-        methodList.add(
             MethodSpec.methodBuilder("addQuery")
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(String::class.java, "key")
                 .addParameter(Any::class.java, "value")
                 .addStatement("param.addQuery(key,value)")
-                .addStatement("return (R)this")
-                .returns(rxHttp)
-                .build())
-
-        methodList.add(
-            MethodSpec.methodBuilder("setQuery")
-                .addModifiers(Modifier.PUBLIC)
-                .addParameter(String::class.java, "key")
-                .addParameter(Any::class.java, "value")
-                .addStatement("param.setQuery(key,value)")
                 .addStatement("return (R)this")
                 .returns(rxHttp)
                 .build())
@@ -290,16 +263,6 @@ class ParamsAnnotatedClass {
                 .build())
 
         methodList.add(
-            MethodSpec.methodBuilder("setEncodedQuery")
-                .addModifiers(Modifier.PUBLIC)
-                .addParameter(String::class.java, "key")
-                .addParameter(Any::class.java, "value")
-                .addStatement("param.setEncodedQuery(key,value)")
-                .addStatement("return (R)this")
-                .returns(rxHttp)
-                .build())
-
-        methodList.add(
             MethodSpec.methodBuilder("addAllQuery")
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(mapName, "map")
@@ -309,28 +272,10 @@ class ParamsAnnotatedClass {
                 .build())
 
         methodList.add(
-            MethodSpec.methodBuilder("setAllQuery")
-                .addModifiers(Modifier.PUBLIC)
-                .addParameter(mapName, "map")
-                .addStatement("param.setAllQuery(map)")
-                .addStatement("return (R)this")
-                .returns(rxHttp)
-                .build())
-
-        methodList.add(
             MethodSpec.methodBuilder("addAllEncodedQuery")
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(mapName, "map")
                 .addStatement("param.addAllEncodedQuery(map)")
-                .addStatement("return (R)this")
-                .returns(rxHttp)
-                .build())
-
-        methodList.add(
-            MethodSpec.methodBuilder("setAllEncodedQuery")
-                .addModifiers(Modifier.PUBLIC)
-                .addParameter(mapName, "map")
-                .addStatement("param.setAllEncodedQuery(map)")
                 .addStatement("return (R)this")
                 .returns(rxHttp)
                 .build())

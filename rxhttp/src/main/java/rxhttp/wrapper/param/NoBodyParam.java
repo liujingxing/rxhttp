@@ -37,14 +37,6 @@ public class NoBodyParam extends AbstractParam<NoBodyParam> {
         return addAllEncodedQuery(map);
     }
 
-    public NoBodyParam set(String key, Object value) {
-        return setQuery(key, value);
-    }
-
-    public NoBodyParam setEncoded(String key, Object value) {
-        return setEncodedQuery(key, value);
-    }
-
     @Override
     public final RequestBody getRequestBody() {
         return null;
