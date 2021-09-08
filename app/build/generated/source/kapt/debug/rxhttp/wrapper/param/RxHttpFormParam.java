@@ -77,15 +77,6 @@ public class RxHttpFormParam extends RxHttpAbstractBodyParam<FormParam, RxHttpFo
         return this;
     }
 
-    /**
-     * @deprecated please user {@link #addFile(String, File)} instead
-     */
-    @Deprecated
-    public RxHttpFormParam add(String key, File file) {
-        param.addFile(key, file);
-        return this;
-    }
-
     public RxHttpFormParam addFile(String key, File file) {
         param.addFile(key, file);
         return this;
