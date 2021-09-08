@@ -35,7 +35,7 @@ public class GetEncryptParam extends NoBodyParam {
         for (KeyValuePair pair : getQueryParam()) {
             //这里遍历所有添加的参数，可对参数进行加密操作
             String key = pair.getKey();
-            String value = pair.getValue().toString();
+            Object value = pair.getValue();
             //加密逻辑自己写
 
         }
