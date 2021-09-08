@@ -40,12 +40,4 @@ public class RxHttpNoBodyParam extends RxHttp<NoBodyParam, RxHttpNoBodyParam> {
     public RxHttpNoBodyParam addAllEncoded(@NonNull Map<String, ?> map) {
         return addAllEncodedQuery(map);
     }
-
-    public RxHttpNoBodyParam set(String key, Object value) {
-        return setQuery(key, value);
-    }
-
-    public RxHttpNoBodyParam setEncoded(String key, Object value) {
-        return setEncodedQuery(key, value); 
-    }
 }

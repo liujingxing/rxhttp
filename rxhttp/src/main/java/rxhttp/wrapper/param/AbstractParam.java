@@ -66,27 +66,6 @@ public abstract class AbstractParam<P extends Param<P>> implements Param<P> {
         return addQuery(new KeyValuePair(key, value, true));
     }
 
-    @Override
-    public P removeAllQuery() {
-        final List<KeyValuePair> pairs = queryParam;
-        if (pairs != null) pairs.clear();
-        return (P) this;
-    }
-
-    @Override
-    public P removeAllQuery(String key) {
-        final List<KeyValuePair> pairs = queryParam;
-        if (pairs != null) {
-            Iterator<KeyValuePair> iterator = pairs.iterator();
-            while (iterator.hasNext()) {
-                KeyValuePair next = iterator.next();
-                if (next.getKey().equals(key))
-                    iterator.remove();
-            }
-        }
-        return (P) this;
-    }
-
     private P addQuery(KeyValuePair keyValuePair) {
         if (queryParam == null) queryParam = new ArrayList<>();
         queryParam.add(keyValuePair);

@@ -227,23 +227,8 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
     return (R)this;
   }
 
-  public R removeAllQuery() {
-    param.removeAllQuery();
-    return (R)this;
-  }
-
-  public R removeAllQuery(String key) {
-    param.removeAllQuery(key);
-    return (R)this;
-  }
-
   public R addQuery(String key, Object value) {
     param.addQuery(key,value);
-    return (R)this;
-  }
-
-  public R setQuery(String key, Object value) {
-    param.setQuery(key,value);
     return (R)this;
   }
 
@@ -252,28 +237,13 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
     return (R)this;
   }
 
-  public R setEncodedQuery(String key, Object value) {
-    param.setEncodedQuery(key,value);
-    return (R)this;
-  }
-
   public R addAllQuery(Map<String, ?> map) {
     param.addAllQuery(map);
     return (R)this;
   }
 
-  public R setAllQuery(Map<String, ?> map) {
-    param.setAllQuery(map);
-    return (R)this;
-  }
-
   public R addAllEncodedQuery(Map<String, ?> map) {
     param.addAllEncodedQuery(map);
-    return (R)this;
-  }
-
-  public R setAllEncodedQuery(Map<String, ?> map) {
-    param.setAllEncodedQuery(map);
     return (R)this;
   }
 
