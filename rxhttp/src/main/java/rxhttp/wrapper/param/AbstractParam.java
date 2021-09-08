@@ -57,14 +57,12 @@ public abstract class AbstractParam<P extends Param<P>> implements Param<P> {
     }
 
     @Override
-    public P addQuery(String key, Object value) {
-        if (value == null) value = "";
+    public P addQuery(String key, @Nullable Object value) {
         return addQuery(new KeyValuePair(key, value));
     }
 
     @Override
-    public P addEncodedQuery(String key, Object value) {
-        if (value == null) value = "";
+    public P addEncodedQuery(String key, @Nullable Object value) {
         return addQuery(new KeyValuePair(key, value, true));
     }
 
@@ -82,7 +80,7 @@ public abstract class AbstractParam<P extends Param<P>> implements Param<P> {
             Iterator<KeyValuePair> iterator = pairs.iterator();
             while (iterator.hasNext()) {
                 KeyValuePair next = iterator.next();
-                if (next.equals(key))
+                if (next.getKey().equals(key))
                     iterator.remove();
             }
         }

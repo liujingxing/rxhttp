@@ -20,7 +20,7 @@ import rxhttp.wrapper.utils.CacheUtil;
  * post、put、patch、delete请求
  * 参数以 { application/x-www-form-urlencoded } 形式提交
  * 当带有文件时，自动以 { multipart/form-data } 形式提交
- *
+ * <p>
  * 当然，亦可调用一系列 setMultiXxx 方法，指定 { multipart/xxx } 形式提交，如：setMultiForm()
  * <p>
  * User: ljx
@@ -44,13 +44,13 @@ public class FormParam extends AbstractBodyParam<FormParam> implements IPart<For
 
     @Override
     public FormParam add(String key, @Nullable Object value) {
-        if (value == null) value = "";
-        return add(new KeyValuePair(key, value));
+        if (value != null) add(new KeyValuePair(key, value));
+        return this;
     }
 
     public FormParam addEncoded(String key, @Nullable Object value) {
-        if (value == null) value = "";
-        return add(new KeyValuePair(key, value, true));
+        if (value != null) add(new KeyValuePair(key, value, true));
+        return this;
     }
 
     public FormParam addAllEncoded(@NonNull Map<String, ?> map) {
