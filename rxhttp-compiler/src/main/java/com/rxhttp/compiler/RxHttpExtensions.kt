@@ -249,8 +249,8 @@ class RxHttpExtensions {
         val flowMemberName = MemberName("kotlinx.coroutines.flow", "flow")
         val toClass = MemberName("rxhttp", "toClass")
         val buffer = MemberName("kotlinx.coroutines.flow", "buffer")
-        val filter = MemberName("kotlinx.coroutines.flow", "filter")
-        val map = MemberName("kotlinx.coroutines.flow", "map")
+        val onEach = MemberName("kotlinx.coroutines.flow", "onEach")
+        val mapNotNull = MemberName("kotlinx.coroutines.flow", "mapNotNull")
         val progressT = ClassName("rxhttp.wrapper.entity", "ProgressT")
         val bufferOverflow = ClassName("kotlinx.coroutines.channels", "BufferOverflow")
         val experimentalCoroutinesApi = ClassName("kotlinx.coroutines", "ExperimentalCoroutinesApi")
@@ -270,20 +270,11 @@ class RxHttpExtensions {
                     """
                     return 
                       %M {                                                      
-                          getParam().setProgressCallback { trySend(%T<T>(it)) }           
+                          getParam().setProgressCallback { trySend(ProgressT<T>(it)) }           
                           %M<T>().await().also { trySend(ProgressT<T>(it)) }           
-                      }                                                                     
-                          .%M(1, %T.DROP_OLDEST)                            
-                          .%M { 
-                              if (it.result == null)
-                                  progress(it)
-                              it.result != null
-                           }    
-                          .%M { it.result }                                                
-                """.trimIndent(),
-                    channelFlow, progressT, toClass, buffer, bufferOverflow, filter, map
+                      }.onEachProgress(progress)                                                      
+                """.trimIndent(), channelFlow, toClass
                 )
-                .returns(flowClassName.parameterizedBy(t))
                 .build()
         )
 
@@ -336,23 +327,27 @@ class RxHttpExtensions {
                         """
                     return 
                       %M {                                                      
-                          getParam().setProgressCallback { trySend(%T<T>(it)) }           
+                          getParam().setProgressCallback { trySend(ProgressT<T>(it)) }           
                           to$parseName<T>($arguments).await().also { trySend(ProgressT<T>(it)) }           
-                      }                                                                     
-                          .%M(1, %T.DROP_OLDEST)                            
-                          .%M { 
-                              if (it.result == null)
-                                  progress(it)
-                              it.result != null
-                           }    
-                          .%M { it.result }                                                
-                """.trimIndent(),
-                        channelFlow, progressT, buffer, bufferOverflow, filter, map
-                    )
-                    .returns(flowClassName.parameterizedBy(t))
+                      }.onEachProgress(progress)                                                                                                               
+                """.trimIndent(), channelFlow)
                     .build()
             )
         }
+        fileBuilder.addFunction(
+            FunSpec.builder("onEachProgress")
+                .addModifiers(KModifier.INLINE)
+                .addTypeVariable(tAny.copy(reified = true))
+                .receiver(flowClassName.parameterizedBy(progressT.parameterizedBy(t)))
+                .addParameter(progressParam)
+                .addStatement("""
+                   return 
+                       %M(1, %T.DROP_OLDEST)
+                       .%M { if (it.result == null) progress(it) }
+                       .%M { it.result }
+                """.trimIndent(),buffer, bufferOverflow, onEach, mapNotNull)
+                .build()
+        )
         fileBuilder.build().writeTo(filer)
     }
 

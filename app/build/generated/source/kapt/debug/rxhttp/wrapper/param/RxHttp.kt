@@ -9,9 +9,9 @@ import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.channelFlow
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import rxhttp.IRxHttp
 import rxhttp.toClass
@@ -49,18 +49,11 @@ public fun <P : AbstractBodyParam<P>, R : RxHttpAbstractBodyParam<P, R>> RxHttpA
 
 @ExperimentalCoroutinesApi
 public inline fun <reified T : Any> RxHttpAbstractBodyParam<*, *>.toFlow(crossinline
-    progress: suspend (Progress) -> Unit): Flow<T> = 
+    progress: suspend (Progress) -> Unit) = 
   channelFlow {                                                      
       getParam().setProgressCallback { trySend(ProgressT<T>(it)) }           
       toClass<T>().await().also { trySend(ProgressT<T>(it)) }           
-  }                                                                     
-      .buffer(1, BufferOverflow.DROP_OLDEST)                            
-      .filter { 
-          if (it.result == null)
-              progress(it)
-          it.result != null
-       }    
-      .map { it.result }                                                
+  }.onEachProgress(progress)                                                      
 
 public inline fun <reified T : Any> IRxHttp.toFlow() = flow<T> { emit(toClass<T>().await()) }       
                                           
@@ -72,15 +65,15 @@ public inline fun <reified T : Any> IRxHttp.toFlowResponse() =
 
 @ExperimentalCoroutinesApi
 public inline fun <reified T : Any> RxHttpAbstractBodyParam<*, *>.toFlowResponse(crossinline
-    progress: suspend (Progress) -> Unit): Flow<T> = 
+    progress: suspend (Progress) -> Unit) = 
   channelFlow {                                                      
       getParam().setProgressCallback { trySend(ProgressT<T>(it)) }           
       toResponse<T>().await().also { trySend(ProgressT<T>(it)) }           
-  }                                                                     
-      .buffer(1, BufferOverflow.DROP_OLDEST)                            
-      .filter { 
-          if (it.result == null)
-              progress(it)
-          it.result != null
-       }    
-      .map { it.result }                                                
+  }.onEachProgress(progress)                                                                        
+                                          
+
+public inline fun <reified T : Any> Flow<ProgressT<T>>.onEachProgress(crossinline progress: suspend
+    (Progress) -> Unit) = 
+    buffer(1, BufferOverflow.DROP_OLDEST)
+    .onEach { if (it.result == null) progress(it) }
+    .mapNotNull { it.result }
