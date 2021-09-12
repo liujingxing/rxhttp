@@ -7,7 +7,7 @@ package rxhttp.wrapper.entity;
  * <p>
  * It is NOT thread safe.
  */
-public class ProgressT<T> extends Progress{
+public class ProgressT<T> extends Progress {
 
     private T result; //http返回结果,上传/下载完成时调用
 
@@ -15,8 +15,12 @@ public class ProgressT<T> extends Progress{
         this.result = result;
     }
 
+    public ProgressT(Progress progress) {
+        super(progress.getProgress(), progress.getCurrentSize(), progress.getTotalSize());
+    }
+
     public ProgressT(int currentProgress, long currentSize, long contentLength) {
-        super(currentProgress,currentSize,contentLength);
+        super(currentProgress, currentSize, contentLength);
     }
 
     public T getResult() {
