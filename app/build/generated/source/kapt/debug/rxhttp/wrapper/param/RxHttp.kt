@@ -6,6 +6,7 @@ import kotlin.Unit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.filter
@@ -48,30 +49,38 @@ public fun <P : AbstractBodyParam<P>, R : RxHttpAbstractBodyParam<P, R>> RxHttpA
 
 @ExperimentalCoroutinesApi
 public inline fun <reified T : Any> RxHttpAbstractBodyParam<*, *>.toFlow(crossinline
-    progress: suspend (Progress) -> Unit) = 
+    progress: suspend (Progress) -> Unit): Flow<T> = 
   channelFlow {                                                      
       getParam().setProgressCallback { trySend(ProgressT<T>(it)) }           
       toClass<T>().await().also { trySend(ProgressT<T>(it)) }           
   }                                                                     
       .buffer(1, BufferOverflow.DROP_OLDEST)                            
-      .filter { it.apply { progress(this) }.run { result != null } }    
+      .filter { 
+          if (it.result == null)
+              progress(it)
+          it.result != null
+       }    
       .map { it.result }                                                
 
-public inline fun <reified T : Any> IRxHttp.toFlow() = flow<T> { toClass<T>().await() }             
-                                    
+public inline fun <reified T : Any> IRxHttp.toFlow() = flow<T> { emit(toClass<T>().await()) }       
+                                          
 
 public inline fun <reified T : Any> IRxHttp.toResponse() = toParser(object: ResponseParser<T>() {})
 
-public inline fun <reified T : Any> IRxHttp.toFlowResponse() = flow<T> { toResponse<T>().await() }  
-                                               
+public inline fun <reified T : Any> IRxHttp.toFlowResponse() = 
+  flow { emit(toResponse<T>().await()) }                                              
 
 @ExperimentalCoroutinesApi
 public inline fun <reified T : Any> RxHttpAbstractBodyParam<*, *>.toFlowResponse(crossinline
-    progress: suspend (Progress) -> Unit) = 
+    progress: suspend (Progress) -> Unit): Flow<T> = 
   channelFlow {                                                      
       getParam().setProgressCallback { trySend(ProgressT<T>(it)) }           
       toResponse<T>().await().also { trySend(ProgressT<T>(it)) }           
   }                                                                     
       .buffer(1, BufferOverflow.DROP_OLDEST)                            
-      .filter { it.apply { progress(this) }.run { result != null } }    
+      .filter { 
+          if (it.result == null)
+              progress(it)
+          it.result != null
+       }    
       .map { it.result }                                                

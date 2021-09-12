@@ -245,7 +245,8 @@ class RxHttpExtensions {
         )
 
         val channelFlow = MemberName("kotlinx.coroutines.flow", "channelFlow")
-        val flow = MemberName("kotlinx.coroutines.flow", "flow")
+        val flowClassName = ClassName("kotlinx.coroutines.flow", "Flow")
+        val flowMemberName = MemberName("kotlinx.coroutines.flow", "flow")
         val toClass = MemberName("rxhttp", "toClass")
         val buffer = MemberName("kotlinx.coroutines.flow", "buffer")
         val filter = MemberName("kotlinx.coroutines.flow", "filter")
@@ -273,11 +274,16 @@ class RxHttpExtensions {
                           %M<T>().await().also { trySend(ProgressT<T>(it)) }           
                       }                                                                     
                           .%M(1, %T.DROP_OLDEST)                            
-                          .%M { it.apply { progress(this) }.run { result != null } }    
+                          .%M { 
+                              if (it.result == null)
+                                  progress(it)
+                              it.result != null
+                           }    
                           .%M { it.result }                                                
                 """.trimIndent(),
                     channelFlow, progressT, toClass, buffer, bufferOverflow, filter, map
                 )
+                .returns(flowClassName.parameterizedBy(t))
                 .build()
         )
 
@@ -289,8 +295,8 @@ class RxHttpExtensions {
                 .addTypeVariable(tAny.copy(reified = true))
                 .addStatement(
                     """
-                    return %M<T> { toClass<T>().await() }                                              
-                """.trimIndent(), flow
+                    return %M<T> { emit(toClass<T>().await()) }                                              
+                """.trimIndent(), flowMemberName
                 )
                 .build()
         )
@@ -312,8 +318,9 @@ class RxHttpExtensions {
                     .addTypeVariable(tAny.copy(reified = true))
                     .addStatement(
                         """
-                    return %M<T> { to$parseName<T>($arguments).await() }                                              
-                """.trimIndent(), flow
+                    return 
+                      %M { emit(to$parseName<T>($arguments).await()) }                                              
+                """.trimIndent(), flowMemberName
                     ).build()
             )
 
@@ -333,11 +340,16 @@ class RxHttpExtensions {
                           to$parseName<T>($arguments).await().also { trySend(ProgressT<T>(it)) }           
                       }                                                                     
                           .%M(1, %T.DROP_OLDEST)                            
-                          .%M { it.apply { progress(this) }.run { result != null } }    
+                          .%M { 
+                              if (it.result == null)
+                                  progress(it)
+                              it.result != null
+                           }    
                           .%M { it.result }                                                
                 """.trimIndent(),
                         channelFlow, progressT, buffer, bufferOverflow, filter, map
                     )
+                    .returns(flowClassName.parameterizedBy(t))
                     .build()
             )
         }
