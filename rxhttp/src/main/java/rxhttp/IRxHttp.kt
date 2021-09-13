@@ -256,8 +256,8 @@ suspend fun IRxHttp.toAppendDownloadFlow(
     return toDownloadFlow(factory, coroutineContext)
 }
 
-inline fun <reified T : Any> Flow<ProgressT<T>>.onEachProgress(
-    crossinline progress: suspend (Progress) -> Unit
+fun <T> Flow<ProgressT<T>>.onEachProgress(
+    progress: suspend (Progress) -> Unit
 ) = buffer(1, BufferOverflow.DROP_OLDEST)
     .onEach { if (it.result == null) progress(it) }
     .mapNotNull { it.result }

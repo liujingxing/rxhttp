@@ -44,8 +44,8 @@ public fun <P : AbstractBodyParam<P>, R : RxHttpAbstractBodyParam<P, R>> RxHttpA
 }
 
 @ExperimentalCoroutinesApi
-public inline fun <reified T : Any> RxHttpAbstractBodyParam<*, *>.toFlow(crossinline
-    progress: suspend (Progress) -> Unit) = 
+public inline fun <reified T : Any> RxHttpAbstractBodyParam<*, *>.toFlow(noinline progress: suspend
+    (Progress) -> Unit) = 
   channelFlow {                                                      
       getParam().setProgressCallback { trySend(ProgressT<T>(it)) }           
       toClass<T>().await().also { trySend(ProgressT<T>(it)) }           
@@ -60,7 +60,7 @@ public inline fun <reified T : Any> IRxHttp.toFlowResponse() =
   flow { emit(toResponse<T>().await()) }                                              
 
 @ExperimentalCoroutinesApi
-public inline fun <reified T : Any> RxHttpAbstractBodyParam<*, *>.toFlowResponse(crossinline
+public inline fun <reified T : Any> RxHttpAbstractBodyParam<*, *>.toFlowResponse(noinline
     progress: suspend (Progress) -> Unit) = 
   channelFlow {                                                      
       getParam().setProgressCallback { trySend(ProgressT<T>(it)) }           
