@@ -4,9 +4,8 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.withContext
 import okhttp3.Call
 import okhttp3.Headers
@@ -256,6 +255,12 @@ suspend fun IRxHttp.toAppendDownloadFlow(
     }
     return toDownloadFlow(factory, coroutineContext)
 }
+
+inline fun <reified T : Any> Flow<ProgressT<T>>.onEachProgress(
+    crossinline progress: suspend (Progress) -> Unit
+) = buffer(1, BufferOverflow.DROP_OLDEST)
+    .onEach { if (it.result == null) progress(it) }
+    .mapNotNull { it.result }
 
 //All of the above methods will eventually call this method.
 fun <T> IRxHttp.toParser(

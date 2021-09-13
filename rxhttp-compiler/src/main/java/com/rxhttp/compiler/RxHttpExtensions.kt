@@ -245,14 +245,10 @@ class RxHttpExtensions {
         )
 
         val channelFlow = MemberName("kotlinx.coroutines.flow", "channelFlow")
-        val flowClassName = ClassName("kotlinx.coroutines.flow", "Flow")
         val flowMemberName = MemberName("kotlinx.coroutines.flow", "flow")
+        val onEachProgress = MemberName("rxhttp", "onEachProgress")
         val toClass = MemberName("rxhttp", "toClass")
-        val buffer = MemberName("kotlinx.coroutines.flow", "buffer")
-        val onEach = MemberName("kotlinx.coroutines.flow", "onEach")
-        val mapNotNull = MemberName("kotlinx.coroutines.flow", "mapNotNull")
         val progressT = ClassName("rxhttp.wrapper.entity", "ProgressT")
-        val bufferOverflow = ClassName("kotlinx.coroutines.channels", "BufferOverflow")
         val experimentalCoroutinesApi = ClassName("kotlinx.coroutines", "ExperimentalCoroutinesApi")
         val progressParam = ParameterSpec.builder(
             "progress",
@@ -270,11 +266,10 @@ class RxHttpExtensions {
                     """
                     return 
                       %M {                                                      
-                          getParam().setProgressCallback { trySend(ProgressT<T>(it)) }           
+                          getParam().setProgressCallback { trySend(%T<T>(it)) }           
                           %M<T>().await().also { trySend(ProgressT<T>(it)) }           
-                      }.onEachProgress(progress)                                                      
-                """.trimIndent(), channelFlow, toClass
-                )
+                      }.%M(progress)                                                      
+                """.trimIndent(), channelFlow, progressT, toClass, onEachProgress)
                 .build()
         )
 
@@ -329,25 +324,11 @@ class RxHttpExtensions {
                       %M {                                                      
                           getParam().setProgressCallback { trySend(ProgressT<T>(it)) }           
                           to$parseName<T>($arguments).await().also { trySend(ProgressT<T>(it)) }           
-                      }.onEachProgress(progress)                                                                                                               
-                """.trimIndent(), channelFlow)
+                      }.%M(progress)                                                                                                               
+                """.trimIndent(), channelFlow, onEachProgress)
                     .build()
             )
         }
-        fileBuilder.addFunction(
-            FunSpec.builder("onEachProgress")
-                .addModifiers(KModifier.INLINE)
-                .addTypeVariable(tAny.copy(reified = true))
-                .receiver(flowClassName.parameterizedBy(progressT.parameterizedBy(t)))
-                .addParameter(progressParam)
-                .addStatement("""
-                   return 
-                       %M(1, %T.DROP_OLDEST)
-                       .%M { if (it.result == null) progress(it) }
-                       .%M { it.result }
-                """.trimIndent(),buffer, bufferOverflow, onEach, mapNotNull)
-                .build()
-        )
         fileBuilder.build().writeTo(filer)
     }
 
