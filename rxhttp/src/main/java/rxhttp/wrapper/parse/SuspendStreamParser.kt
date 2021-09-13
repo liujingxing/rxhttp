@@ -2,14 +2,11 @@
 
 package rxhttp.wrapper.parse
 
-import android.content.Context
-import android.net.Uri
 import kotlinx.coroutines.withContext
 import okhttp3.Response
 import okhttp3.ResponseBody
 import rxhttp.wrapper.OkHttpCompat
 import rxhttp.wrapper.callback.OutputStreamFactory
-import rxhttp.wrapper.callback.newOutputStreamFactory
 import rxhttp.wrapper.entity.OutputStreamWrapper
 import rxhttp.wrapper.entity.ProgressT
 import rxhttp.wrapper.exception.ExceptionHelper
@@ -28,22 +25,6 @@ class SuspendStreamParser<T>(
     private val context: CoroutineContext? = null,
     private val progress: (suspend (ProgressT<T>) -> Unit)? = null,
 ) : SuspendParser<T>() {
-
-    companion object {
-
-        operator fun get(
-            destPath: String,
-            coroutineContext: CoroutineContext? = null,
-            progress: (suspend (ProgressT<String>) -> Unit)? = null,
-        ): SuspendStreamParser<String> = SuspendStreamParser(newOutputStreamFactory(destPath), coroutineContext, progress)
-
-        operator fun get(
-            context: Context,
-            uri: Uri,
-            coroutineContext: CoroutineContext? = null,
-            progress: (suspend (ProgressT<Uri>) -> Unit)? = null,
-        ): SuspendStreamParser<Uri> = SuspendStreamParser(newOutputStreamFactory(context, uri), coroutineContext, progress)
-    }
 
     @Throws(IOException::class)
     override suspend fun onSuspendParse(response: Response): T {
@@ -92,7 +73,6 @@ private suspend fun <T> Response.writeTo(
             if (currentProgress > lastProgress) {
                 lastProgress = currentProgress
                 val p = ProgressT<T>(currentProgress, currentSize, contentLength)
-                if (currentProgress == 100) p.result = osWrapper.result
                 context?.apply {
                     withContext(this) { progress(p) }
                 } ?: progress(p)
@@ -103,7 +83,6 @@ private suspend fun <T> Response.writeTo(
     if (contentLength == -1L) {
         //响应头里取不到contentLength时，保证下载完成事件能回调
         val p = ProgressT<T>(100, lastSize, contentLength)
-        p.result = osWrapper.result
         context?.apply {
             withContext(this) { progress(p) }
         } ?: progress(p)

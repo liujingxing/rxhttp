@@ -196,55 +196,74 @@ suspend fun IRxHttp.toAppendDownload(
 
 fun IRxHttp.toDownloadFlow(
     destPath: String,
-    coroutineContext: CoroutineContext = EmptyCoroutineContext,
-): Flow<ProgressT<String>> =
-    flow {
-        toSyncDownload(newOutputStreamFactory(destPath)) { emit(it) }
-            .await()
-    }.flowOn(Dispatchers.IO + coroutineContext)
+    progress: (suspend (Progress) -> Unit)? = null
+): Flow<String> =
+    if (progress == null) {
+        flow {
+            emit(toSyncDownload(newOutputStreamFactory(destPath)).await())
+        }.flowOn(Dispatchers.IO)
+    } else {
+        flow {
+            toSyncDownload(newOutputStreamFactory(destPath)) { emit(it) }
+                .await().let { emit(ProgressT(it)) }
+        }.onEachProgress(Dispatchers.IO, progress)
+    }
 
 fun IRxHttp.toDownloadFlow(
     context: Context,
     uri: Uri,
-    coroutineContext: CoroutineContext = EmptyCoroutineContext,
-): Flow<ProgressT<Uri>> =
-    flow {
-        toSyncDownload(newOutputStreamFactory(context, uri)) { emit(it) }
-            .await()
-    }.flowOn(Dispatchers.IO + coroutineContext)
+    progress: (suspend (Progress) -> Unit)? = null
+): Flow<Uri> =
+    if (progress == null) {
+        flow {
+            emit(toSyncDownload(newOutputStreamFactory(context, uri)).await())
+        }.flowOn(Dispatchers.IO)
+    } else {
+        flow {
+            toSyncDownload(newOutputStreamFactory(context, uri)) { emit(it) }
+                .await().let { emit(ProgressT(it)) }
+        }.onEachProgress(Dispatchers.IO, progress)
+    }
 
 fun <T> IRxHttp.toDownloadFlow(
     osFactory: OutputStreamFactory<T>,
-    coroutineContext: CoroutineContext = EmptyCoroutineContext,
-): Flow<ProgressT<T>> =
-    flow {
-        toSyncDownload(osFactory) { emit(it) }
-            .await()
-    }.flowOn(Dispatchers.IO + coroutineContext)
+    progress: (suspend (Progress) -> Unit)? = null
+): Flow<T> =
+    if (progress == null) {
+        flow {
+            emit(toSyncDownload(osFactory).await())
+        }.flowOn(Dispatchers.IO)
+    } else {
+        flow {
+            toSyncDownload(osFactory) { emit(it) }
+                .await().let { emit(ProgressT(it)) }
+        }.onEachProgress(Dispatchers.IO, progress)
+    }
+
 
 fun IRxHttp.toAppendDownloadFlow(
     destPath: String,
-    coroutineContext: CoroutineContext = EmptyCoroutineContext,
-): Flow<ProgressT<String>> {
+    progress: (suspend (Progress) -> Unit)? = null
+): Flow<String> {
     val fileLength = File(destPath).length()
     setRangeHeader(fileLength, -1, true)
-    return toDownloadFlow(destPath, coroutineContext)
+    return toDownloadFlow(destPath, progress)
 }
 
 suspend fun IRxHttp.toAppendDownloadFlow(
     context: Context,
     uri: Uri,
-    coroutineContext: CoroutineContext = EmptyCoroutineContext,
-): Flow<ProgressT<Uri>> {
+    progress: (suspend (Progress) -> Unit)? = null
+): Flow<Uri> {
     val length = withContext(Dispatchers.IO) { uri.length(context) }
     if (length >= 0) setRangeHeader(length, -1, true)
-    return toDownloadFlow(context, uri, coroutineContext)
+    return toDownloadFlow(context, uri, progress)
 }
 
 suspend fun IRxHttp.toAppendDownloadFlow(
     uriFactory: UriFactory,
-    coroutineContext: CoroutineContext = EmptyCoroutineContext,
-): Flow<ProgressT<Uri>> {
+    progress: (suspend (Progress) -> Unit)? = null
+): Flow<Uri> {
     val factory: OutputStreamFactory<Uri> = withContext(Dispatchers.IO) {
         uriFactory.query()?.let {
             val length = it.length(uriFactory.context)
@@ -253,7 +272,7 @@ suspend fun IRxHttp.toAppendDownloadFlow(
             newOutputStreamFactory(uriFactory.context, it)
         } ?: uriFactory
     }
-    return toDownloadFlow(factory, coroutineContext)
+    return toDownloadFlow(factory, progress)
 }
 
 fun <T> Flow<ProgressT<T>>.onEachProgress(

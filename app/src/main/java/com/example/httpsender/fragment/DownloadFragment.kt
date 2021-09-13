@@ -17,11 +17,11 @@ import com.example.httpsender.parser.Android10DownloadFactory
 import com.rxjava.rxlife.life
 import com.rxjava.rxlife.lifeOnMain
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import rxhttp.awaitResult
-import rxhttp.toAppendDownload
-import rxhttp.toDownload
+import rxhttp.*
 import rxhttp.wrapper.param.RxSimpleHttp
 
 /**
@@ -49,15 +49,14 @@ class DownloadFragment : BaseFragment<DownloadFragmentBinding>(), View.OnClickLi
             val factory = Android10DownloadFactory(requireContext(), "miaobo.apk")
             //下载使用非默认域名，故这里使用RxSimpleHttp类发送请求，RxSimpleHttp类是通过@Domain注解生成的
             RxSimpleHttp.get(Url.DOWNLOAD_URL)
-                .toDownload(factory)
-                .awaitResult {
-                    tvResult.append("\n下载完成, $it")
-                }.onFailure {
+                .toDownloadFlow(factory)
+                .catch {
+                    //异常回调
                     tvResult.append("\n${it.errorMsg}")
-                    //失败回调
                     it.show()
+                }.collect {
+                    tvResult.append("\n下载完成, $it")
                 }
-
         }
     }
 
@@ -67,18 +66,18 @@ class DownloadFragment : BaseFragment<DownloadFragmentBinding>(), View.OnClickLi
             val factory = Android10DownloadFactory(requireContext(), "miaobo.apk")
             //下载使用非默认域名，故这里使用RxSimpleHttp类发送请求，RxSimpleHttp类是通过注解生成的
             RxSimpleHttp.get(Url.DOWNLOAD_URL)
-                .toDownload(factory, Dispatchers.Main) {
-                    //下载进度回调,0-100，仅在进度有更新时才会回调，最多回调101次，最后一次回调文件存储路径
+                .toDownloadFlow(factory) {
                     val currentProgress = it.progress //当前进度 0-100
                     val currentSize = it.currentSize //当前已下载的字节大小
                     val totalSize = it.totalSize //要下载的总字节大小
                     tvResult.append(it.toString())
-                }.awaitResult {
-                    tvResult.append("\n下载完成, $it")
-                }.onFailure {
+                    delay(500)
+                }.catch {
+                    //异常回调
                     tvResult.append("\n${it.errorMsg}")
-                    //失败回调
                     it.show()
+                }.collect {
+                    tvResult.append("\n下载完成, $it")
                 }
         }
     }
@@ -94,19 +93,17 @@ class DownloadFragment : BaseFragment<DownloadFragmentBinding>(), View.OnClickLi
             val factory = Android10DownloadFactory(requireContext(), "miaobo.apk")
             //下载使用非默认域名，故这里使用RxSimpleHttp类发送请求，RxSimpleHttp类是通过注解生成的
             RxSimpleHttp.get(Url.DOWNLOAD_URL)
-                .toAppendDownload(factory, Dispatchers.Main) {
-                    //下载进度回调,0-100，仅在进度有更新时才会回调，最多回调101次，最后一次回调文件存储路径
+                .toAppendDownloadFlow(factory) {
                     val currentProgress = it.progress //当前进度 0-100
                     val currentSize = it.currentSize //当前已下载的字节大小
                     val totalSize = it.totalSize //要下载的总字节大小
                     tvResult.append(it.toString())
-                }
-                .awaitResult {
-                    tvResult.append("\n下载完成, $it")
-                }.onFailure {
-                    //下载失败
+                }.catch {
+                    //异常回调
                     tvResult.append("\n${it.errorMsg}")
                     it.show()
+                }.collect {
+                    tvResult.append("\n下载完成, $it")
                 }
         }
     }
@@ -131,7 +128,6 @@ class DownloadFragment : BaseFragment<DownloadFragmentBinding>(), View.OnClickLi
         val factory = Android10DownloadFactory(requireContext(), "miaobo.apk")
         RxSimpleHttp.get(Url.DOWNLOAD_URL)
             .asDownload(factory, AndroidSchedulers.mainThread()) {
-                //下载进度回调,0-100，仅在进度有更新时才会回调，最多回调101次，最后一次回调文件存储路径
                 val currentProgress = it.progress //当前进度 0-100
                 val currentSize = it.currentSize //当前已下载的字节大小
                 val totalSize = it.totalSize //要下载的总字节大小
@@ -157,7 +153,6 @@ class DownloadFragment : BaseFragment<DownloadFragmentBinding>(), View.OnClickLi
         val factory = Android10DownloadFactory(requireContext(), "miaobo.apk")
         RxSimpleHttp.get(Url.DOWNLOAD_URL)
             .asAppendDownload(factory, AndroidSchedulers.mainThread()) {
-                //下载进度回调,0-100，仅在进度有更新时才会回调，最多回调101次，最后一次回调文件存储路径
                 val currentProgress = it.progress //当前进度 0-100
                 val currentSize = it.currentSize //当前已下载的字节大小
                 val totalSize = it.totalSize //要下载的总字节大小
@@ -181,13 +176,13 @@ class DownloadFragment : BaseFragment<DownloadFragmentBinding>(), View.OnClickLi
             val destPath = "${requireContext().externalCacheDir}/${System.currentTimeMillis()}.apk"
             //下载使用非默认域名，故这里使用RxSimpleHttp类发送请求，RxSimpleHttp类是通过@Domain注解生成的
             RxSimpleHttp.get(Url.DOWNLOAD_URL)
-                .toDownload(destPath)
-                .awaitResult {
-                    tvResult.append("\n下载完成, $it")
-                }.onFailure {
+                .toDownloadFlow(destPath)
+                .catch {
+                    //异常回调
                     tvResult.append("\n${it.errorMsg}")
-                    //失败回调
                     it.show()
+                }.collect {
+                    tvResult.append("\n下载完成, $it")
                 }
         }
     }
@@ -198,21 +193,18 @@ class DownloadFragment : BaseFragment<DownloadFragmentBinding>(), View.OnClickLi
             val destPath = "${requireContext().externalCacheDir}/${System.currentTimeMillis()}.apk"
             //下载使用非默认域名，故这里使用RxSimpleHttp类发送请求，RxSimpleHttp类是通过注解生成的
             RxSimpleHttp.get(Url.DOWNLOAD_URL)
-                .toDownload(destPath, Dispatchers.Main) {
-                    //下载进度回调,0-100，仅在进度有更新时才会回调，最多回调101次，最后一次回调文件存储路径
+                .toDownloadFlow(destPath) {
                     val currentProgress = it.progress //当前进度 0-100
                     val currentSize = it.currentSize //当前已下载的字节大小
                     val totalSize = it.totalSize //要下载的总字节大小
                     tvResult.append(it.toString())
-                }
-                .awaitResult {
-                    tvResult.append("\n下载完成, $it")
-                }.onFailure {
+                }.catch {
+                    //异常回调
                     tvResult.append("\n${it.errorMsg}")
-                    //失败回调
                     it.show()
+                }.collect {
+                    tvResult.append("\n下载完成, $it")
                 }
-
         }
     }
 
@@ -222,19 +214,17 @@ class DownloadFragment : BaseFragment<DownloadFragmentBinding>(), View.OnClickLi
             val destPath = "${requireContext().externalCacheDir}/Miaobo.apk"
             //下载使用非默认域名，故这里使用RxSimpleHttp类发送请求，RxSimpleHttp类是通过注解生成的
             RxSimpleHttp.get(Url.DOWNLOAD_URL)
-                .toAppendDownload(destPath, Dispatchers.Main) {
-                    //下载进度回调,0-100，仅在进度有更新时才会回调，最多回调101次，最后一次回调文件存储路径
+                .toAppendDownloadFlow(destPath) {
                     val currentProgress = it.progress //当前进度 0-100
                     val currentSize = it.currentSize //当前已下载的字节大小
                     val totalSize = it.totalSize //要下载的总字节大小
                     tvResult.append(it.toString())
-                }
-                .awaitResult {
-                    tvResult.append("\n下载完成, $it")
-                }.onFailure {
-                    //下载失败
+                }.catch {
+                    //异常回调
                     tvResult.append("\n${it.errorMsg}")
                     it.show()
+                }.collect {
+                    tvResult.append("\n下载完成, $it")
                 }
         }
     }
@@ -259,7 +249,6 @@ class DownloadFragment : BaseFragment<DownloadFragmentBinding>(), View.OnClickLi
         val destPath = "${requireContext().externalCacheDir}/${System.currentTimeMillis()}.apk"
         RxSimpleHttp.get(Url.DOWNLOAD_URL)
             .asDownload(destPath, AndroidSchedulers.mainThread()) {
-                //下载进度回调,0-100，仅在进度有更新时才会回调，最多回调101次，最后一次回调文件存储路径
                 val currentProgress = it.progress //当前进度 0-100
                 val currentSize = it.currentSize //当前已下载的字节大小
                 val totalSize = it.totalSize //要下载的总字节大小
@@ -281,7 +270,6 @@ class DownloadFragment : BaseFragment<DownloadFragmentBinding>(), View.OnClickLi
         val destPath = "${requireContext().externalCacheDir}/Miaobo.apk"
         RxSimpleHttp.get(Url.DOWNLOAD_URL)
             .asAppendDownload(destPath, AndroidSchedulers.mainThread()) {
-                //下载进度回调,0-100，仅在进度有更新时才会回调，最多回调101次，最后一次回调文件存储路径
                 val currentProgress = it.progress //当前进度 0-100
                 val currentSize = it.currentSize //当前已下载的字节大小
                 val totalSize = it.totalSize //要下载的总字节大小
