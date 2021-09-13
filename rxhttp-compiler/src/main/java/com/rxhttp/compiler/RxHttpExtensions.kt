@@ -268,7 +268,7 @@ class RxHttpExtensions {
                       %M {                                                      
                           getParam().setProgressCallback { trySend(%T<T>(it)) }           
                           %M<T>().await().also { trySend(ProgressT<T>(it)) }           
-                      }.%M(progress)                                                      
+                      }.%M(progress = progress)                                                      
                 """.trimIndent(), channelFlow, progressT, toClass, onEachProgress)
                 .build()
         )
@@ -324,7 +324,7 @@ class RxHttpExtensions {
                       %M {                                                      
                           getParam().setProgressCallback { trySend(ProgressT<T>(it)) }           
                           to$parseName<T>($arguments).await().also { trySend(ProgressT<T>(it)) }           
-                      }.%M(progress)                                                                                                               
+                      }.%M(progress = progress)                                                                                                               
                 """.trimIndent(), channelFlow, onEachProgress)
                     .build()
             )

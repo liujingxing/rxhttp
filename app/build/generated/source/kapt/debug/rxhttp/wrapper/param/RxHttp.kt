@@ -49,7 +49,7 @@ public inline fun <reified T : Any> RxHttpAbstractBodyParam<*, *>.toFlow(noinlin
   channelFlow {                                                      
       getParam().setProgressCallback { trySend(ProgressT<T>(it)) }           
       toClass<T>().await().also { trySend(ProgressT<T>(it)) }           
-  }.onEachProgress(progress)                                                      
+  }.onEachProgress(progress = progress)                                                      
 
 public inline fun <reified T : Any> IRxHttp.toFlow() = flow<T> { emit(toClass<T>().await()) }       
                                           
@@ -65,5 +65,5 @@ public inline fun <reified T : Any> RxHttpAbstractBodyParam<*, *>.toFlowResponse
   channelFlow {                                                      
       getParam().setProgressCallback { trySend(ProgressT<T>(it)) }           
       toResponse<T>().await().also { trySend(ProgressT<T>(it)) }           
-  }.onEachProgress(progress)                                                                        
-                                          
+  }.onEachProgress(progress = progress)                                                             
+                                                     
