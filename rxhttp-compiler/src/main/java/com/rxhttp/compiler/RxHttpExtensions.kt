@@ -253,7 +253,7 @@ class RxHttpExtensions {
         val progressParam = ParameterSpec.builder(
             "progress",
             progressLambdaName.copy(suspending = true),
-            KModifier.CROSSINLINE
+            KModifier.NOINLINE
         ).build()
         fileBuilder.addFunction(
             FunSpec.builder("toFlow")
