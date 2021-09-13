@@ -35,20 +35,6 @@ interface IRxHttp {
     fun setRangeHeader(startIndex: Long, endIndex: Long, connectLastProgress: Boolean): IRxHttp
 }
 
-suspend fun IRxHttp.awaitBoolean(): Boolean = await()
-
-suspend fun IRxHttp.awaitByte(): Byte = await()
-
-suspend fun IRxHttp.awaitShort(): Short = await()
-
-suspend fun IRxHttp.awaitInt(): Int = await()
-
-suspend fun IRxHttp.awaitLong(): Long = await()
-
-suspend fun IRxHttp.awaitFloat(): Float = await()
-
-suspend fun IRxHttp.awaitDouble(): Double = await()
-
 suspend fun IRxHttp.awaitString(): String = await()
 
 suspend inline fun <reified T : Any> IRxHttp.awaitList(): List<T> = await()
@@ -86,20 +72,6 @@ suspend fun IRxHttp.awaitDownload(
     coroutineContext: CoroutineContext? = null,
     progress: suspend (Progress) -> Unit
 ): Uri = toDownload(context, uri, coroutineContext, progress).await()
-
-fun IRxHttp.toBoolean(): IAwait<Boolean> = toClass()
-
-fun IRxHttp.toByte(): IAwait<Byte> = toClass()
-
-fun IRxHttp.toShort(): IAwait<Short> = toClass()
-
-fun IRxHttp.toInt(): IAwait<Int> = toClass()
-
-fun IRxHttp.toLong(): IAwait<Long> = toClass()
-
-fun IRxHttp.toFloat(): IAwait<Float> = toClass()
-
-fun IRxHttp.toDouble(): IAwait<Double> = toClass()
 
 fun IRxHttp.toStr(): IAwait<String> = toClass()
 

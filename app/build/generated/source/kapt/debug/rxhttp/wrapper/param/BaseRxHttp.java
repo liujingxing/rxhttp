@@ -65,34 +65,6 @@ public abstract class BaseRxHttp implements IRxHttp {
         return asClass(String.class);
     }
 
-    public final Observable<Boolean> asBoolean() {
-        return asClass(Boolean.class);
-    }
-
-    public final Observable<Byte> asByte() {
-        return asClass(Byte.class);
-    }
-
-    public final Observable<Short> asShort() {
-        return asClass(Short.class);
-    }
-
-    public final Observable<Integer> asInteger() {
-        return asClass(Integer.class);
-    }
-
-    public final Observable<Long> asLong() {
-        return asClass(Long.class);
-    }
-
-    public final Observable<Float> asFloat() {
-        return asClass(Float.class);
-    }
-
-    public final Observable<Double> asDouble() {
-        return asClass(Double.class);
-    }
-
     public final <K> Observable<Map<K, K>> asMap(Class<K> kType) {
         return asMap(kType, kType);
     }
