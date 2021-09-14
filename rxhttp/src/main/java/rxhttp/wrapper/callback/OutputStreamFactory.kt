@@ -4,8 +4,8 @@ import android.content.Context
 import android.net.Uri
 import okhttp3.Response
 import rxhttp.wrapper.OkHttpCompat
-import rxhttp.wrapper.entity.OutputStreamWrapper
-import rxhttp.wrapper.entity.toWrapper
+import rxhttp.wrapper.entity.ExpandOutputStream
+import rxhttp.wrapper.entity.toOutputStream
 import java.io.File
 import java.io.IOException
 import java.net.URLDecoder
@@ -18,7 +18,7 @@ import java.net.URLDecoder
 abstract class OutputStreamFactory<T> {
 
     @Throws(IOException::class)
-    abstract fun getOutputStream(response: Response): OutputStreamWrapper<T>
+    abstract fun getOutputStream(response: Response): ExpandOutputStream<T>
 }
 
 abstract class UriFactory(
@@ -30,27 +30,23 @@ abstract class UriFactory(
 
     open fun query(): Uri? = null
 
-    final override fun getOutputStream(response: Response): OutputStreamWrapper<Uri> {
-        val append = OkHttpCompat.header(response, "Content-Range") != null
-        return insert(response).toWrapper(context, append)
+    final override fun getOutputStream(response: Response): ExpandOutputStream<Uri> {
+        return insert(response).toOutputStream(context, response.append)
     }
 }
 
 inline fun <T> newOutputStreamFactory(
-    crossinline uriFactory: (Response) -> OutputStreamWrapper<T>
+    crossinline outputStream: (Response) -> ExpandOutputStream<T>
 ): OutputStreamFactory<T> = object : OutputStreamFactory<T>() {
-    override fun getOutputStream(response: Response): OutputStreamWrapper<T> {
-        return uriFactory(response)
+    override fun getOutputStream(response: Response): ExpandOutputStream<T> {
+        return outputStream(response)
     }
 }
 
 internal fun newOutputStreamFactory(
     context: Context,
     uri: Uri
-): OutputStreamFactory<Uri> = newOutputStreamFactory {
-    val append = OkHttpCompat.header(it, "Content-Range") != null
-    uri.toWrapper(context, append)
-}
+): OutputStreamFactory<Uri> = newOutputStreamFactory { uri.toOutputStream(context, it.append) }
 
 internal fun newOutputStreamFactory(
     localPath: String
@@ -61,14 +57,14 @@ internal fun newOutputStreamFactory(
         if (!parentFile.exists() && !parentFile.mkdirs()) {
             throw IOException("Directory $parentFile create fail")
         }
-        val append = OkHttpCompat.header(it, "Content-Range") != null
-        toWrapper(append)
+        toOutputStream(it.append)
     }
 }
 
 private fun String.replaceSuffix(response: Response): String {
     return if (endsWith("/%s", true)
-        || endsWith("/%1\$s", true)) {
+        || endsWith("/%1\$s", true)
+    ) {
         val filename = response.findFilename()
             ?: OkHttpCompat.pathSegments(response).last()
         format(filename)
@@ -76,6 +72,9 @@ private fun String.replaceSuffix(response: Response): String {
         this
     }
 }
+
+private val Response.append
+    get() = OkHttpCompat.header(this, "Content-Range") != null
 
 /**
  * find filename form Content-Disposition response headers
