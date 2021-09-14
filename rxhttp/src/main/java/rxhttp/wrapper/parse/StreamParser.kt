@@ -41,13 +41,13 @@ class StreamParser<T> @JvmOverloads constructor(
 
     override fun onParse(response: Response): T {
         val body = ExceptionHelper.throwIfFatal(response)
-        val osWrapper = osFactory.getOutputStream(response)
-        val result = osWrapper.result
-        LogUtil.log(response, result.toString())
+        val expandOutputStream = osFactory.getOutputStream(response)
+        val expand = expandOutputStream.expand
+        LogUtil.log(response, expand.toString())
         progressCallback?.let {
-            response.writeTo(body, osWrapper.os, it)
-        } ?: IOUtil.write(body.byteStream(), osWrapper.os)
-        return result
+            response.writeTo(body, expandOutputStream, it)
+        } ?: IOUtil.write(body.byteStream(), expandOutputStream)
+        return expand
     }
 }
 
