@@ -1,13 +1,10 @@
 package rxhttp.wrapper.parse
 
-import android.content.Context
-import android.net.Uri
 import okhttp3.Response
 import okhttp3.ResponseBody
 import rxhttp.wrapper.OkHttpCompat
 import rxhttp.wrapper.callback.OutputStreamFactory
 import rxhttp.wrapper.callback.ProgressCallback
-import rxhttp.wrapper.callback.newOutputStreamFactory
 import rxhttp.wrapper.entity.Progress
 import rxhttp.wrapper.exception.ExceptionHelper
 import rxhttp.wrapper.utils.IOUtil
@@ -24,20 +21,6 @@ class StreamParser<T> @JvmOverloads constructor(
     private val osFactory: OutputStreamFactory<T>,
     var progressCallback: ProgressCallback? = null,
 ) : Parser<T> {
-
-    companion object {
-
-        @JvmStatic
-        operator fun get(
-            destPath: String,
-        ): StreamParser<String> = StreamParser(newOutputStreamFactory(destPath))
-
-        @JvmStatic
-        operator fun get(
-            context: Context,
-            uri: Uri,
-        ): StreamParser<Uri> = StreamParser(newOutputStreamFactory(context, uri))
-    }
 
     override fun onParse(response: Response): T {
         val body = ExceptionHelper.throwIfFatal(response)

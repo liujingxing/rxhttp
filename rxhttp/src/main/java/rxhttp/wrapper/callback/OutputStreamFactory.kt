@@ -6,6 +6,7 @@ import okhttp3.Response
 import rxhttp.wrapper.OkHttpCompat
 import rxhttp.wrapper.entity.ExpandOutputStream
 import rxhttp.wrapper.entity.toOutputStream
+import rxhttp.wrapper.utils.length
 import java.io.File
 import java.io.IOException
 import java.net.URLDecoder
@@ -16,6 +17,9 @@ import java.net.URLDecoder
  * Time: 22:12
  */
 abstract class OutputStreamFactory<T> {
+
+    //断点下载时的偏移量
+    open fun offsetSize(): Long = 0
 
     @Throws(IOException::class)
     abstract fun getOutputStream(response: Response): ExpandOutputStream<T>
@@ -30,35 +34,36 @@ abstract class UriFactory(
 
     open fun query(): Uri? = null
 
+    override fun offsetSize() = query().length(context)
+
     final override fun getOutputStream(response: Response): ExpandOutputStream<Uri> {
         return insert(response).toOutputStream(context, response.append)
     }
 }
 
-inline fun <T> newOutputStreamFactory(
-    crossinline outputStream: (Response) -> ExpandOutputStream<T>
-): OutputStreamFactory<T> = object : OutputStreamFactory<T>() {
-    override fun getOutputStream(response: Response): ExpandOutputStream<T> {
-        return outputStream(response)
-    }
+class UriOutputStreamFactory(
+    private val context: Context,
+    private val uri: Uri
+) : OutputStreamFactory<Uri>() {
+    override fun offsetSize() = uri.length(context)
+
+    override fun getOutputStream(response: Response): ExpandOutputStream<Uri> =
+        uri.toOutputStream(context, response.append)
 }
 
-internal fun newOutputStreamFactory(
-    context: Context,
-    uri: Uri
-): OutputStreamFactory<Uri> = newOutputStreamFactory { uri.toOutputStream(context, it.append) }
+class FileOutputStreamFactory(
+    private val localPath: String
+) : OutputStreamFactory<String>() {
+    override fun offsetSize() = File(localPath).length()
 
-internal fun newOutputStreamFactory(
-    localPath: String
-): OutputStreamFactory<String> = newOutputStreamFactory {
-    val destPath = localPath.replaceSuffix(it)
-    File(destPath).run {
-        val parentFile = parentFile
-        if (!parentFile.exists() && !parentFile.mkdirs()) {
-            throw IOException("Directory $parentFile create fail")
+    override fun getOutputStream(response: Response): ExpandOutputStream<String> =
+        File(localPath.replaceSuffix(response)).run {
+            val parentFile = parentFile
+            if (!parentFile.exists() && !parentFile.mkdirs()) {
+                throw IOException("Directory $parentFile create fail")
+            }
+            toOutputStream(response.append)
         }
-        toOutputStream(it.append)
-    }
 }
 
 private fun String.replaceSuffix(response: Response): String {
