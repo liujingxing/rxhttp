@@ -2,6 +2,8 @@ package rxhttp.wrapper.entity
 
 import android.content.Context
 import android.net.Uri
+import java.io.File
+import java.io.FileOutputStream
 import java.io.OutputStream
 
 /**
@@ -15,9 +17,8 @@ data class OutputStreamWrapper<out T>(
     override fun toString(): String = "($result, $os)"
 }
 
-fun <T> OutputStream.toWrapper(that: T): OutputStreamWrapper<T> = OutputStreamWrapper(that, this)
-
-fun Uri.toWrapper(os: OutputStream): OutputStreamWrapper<Uri> = OutputStreamWrapper(this, os)
+fun File.toWrapper(append: Boolean = false) =
+    OutputStreamWrapper(absolutePath, FileOutputStream(this, append))
 
 fun Uri.toWrapper(
     context: Context,
