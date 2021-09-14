@@ -56,23 +56,6 @@ suspend inline fun <reified T : Any> IRxHttp.await(): T = await(object : SimpleP
 
 suspend fun <T> IRxHttp.await(parser: Parser<T>): T = toParser(parser).await()
 
-suspend fun IRxHttp.awaitDownload(
-    destPath: String
-): String = toDownload(destPath).await()
-
-suspend fun IRxHttp.awaitDownload(
-    destPath: String,
-    context: CoroutineContext? = null,
-    progress: suspend (Progress) -> Unit
-): String = toDownload(destPath, context, progress).await()
-
-suspend fun IRxHttp.awaitDownload(
-    context: Context,
-    uri: Uri,
-    coroutineContext: CoroutineContext? = null,
-    progress: suspend (Progress) -> Unit
-): Uri = toDownload(context, uri, coroutineContext, progress).await()
-
 fun IRxHttp.toStr(): IAwait<String> = toClass()
 
 inline fun <reified T : Any> IRxHttp.toList(): IAwait<List<T>> = toClass()
