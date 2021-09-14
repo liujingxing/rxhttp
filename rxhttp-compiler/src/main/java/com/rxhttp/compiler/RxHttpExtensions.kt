@@ -325,7 +325,7 @@ class RxHttpExtensions {
                     .addTypeVariable(tAny.copy(reified = true))
                     .addParameter("progress", progressSuspendLambdaName, KModifier.NOINLINE)
                     .addStatement(
-                        """return toFlow${parseName}Progress<T>().%M(progress)""", onEachProgress
+                        """return toFlow${parseName}Progress<T>($arguments).%M(progress)""", onEachProgress
                     )
                     .build()
             )
