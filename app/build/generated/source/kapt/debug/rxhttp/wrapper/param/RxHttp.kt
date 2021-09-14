@@ -6,14 +6,12 @@ import kotlin.Unit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.channelFlow
-import kotlinx.coroutines.flow.mapNotNull
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import rxhttp.IAwait
 import rxhttp.IRxHttp
+import rxhttp.onEachProgress
 import rxhttp.toClass
 import rxhttp.toFlow
 import rxhttp.toParser
@@ -71,7 +69,3 @@ public inline fun <reified T : Any> RxHttpAbstractBodyParam<*, *>.toFlowResponse
 @ExperimentalCoroutinesApi
 public inline fun <reified T : Any> RxHttpAbstractBodyParam<*, *>.toFlowResponse(noinline
     progress: suspend (Progress) -> Unit) = toFlowResponseProgress<T>().onEachProgress(progress)
-
-public fun <T> Flow<ProgressT<T>>.onEachProgress(progress: suspend (Progress) -> Unit): Flow<T> =
-    onEach { if (it.result == null) progress(it) }
-    .mapNotNull { it.result }

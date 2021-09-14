@@ -187,8 +187,7 @@ suspend fun <T> IRxHttp.toDownloadFlow(
         }.flowOn(Dispatchers.IO)
     } else {
         toDownloadFlowProgress(osFactory, append)
-            .onEach { if (it.result == null) progress(it) }
-            .mapNotNull { it.result }
+            .onEachProgress(progress)
     }
 
 suspend fun IRxHttp.toDownloadFlowProgress(
@@ -216,6 +215,11 @@ suspend fun <T> IRxHttp.toDownloadFlowProgress(
     }
         .buffer(1, BufferOverflow.DROP_OLDEST)
         .flowOn(Dispatchers.IO)
+
+fun <T> Flow<ProgressT<T>>.onEachProgress(
+    progress: suspend (Progress) -> Unit
+) = onEach { if (it.result == null) progress(it) }
+    .mapNotNull { it.result }
 
 inline fun <reified T : Any> IRxHttp.toFlow(iAwait: IAwait<T> = toClass()) =
     flow { emit(iAwait.await()) }
