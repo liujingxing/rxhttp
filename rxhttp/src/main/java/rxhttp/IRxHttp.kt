@@ -20,7 +20,6 @@ import rxhttp.wrapper.entity.Progress
 import rxhttp.wrapper.entity.ProgressT
 import rxhttp.wrapper.parse.*
 import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.EmptyCoroutineContext
 
 /**
  * User: ljx
@@ -218,13 +217,8 @@ suspend fun <T> IRxHttp.toDownloadFlowProgress(
         .buffer(1, BufferOverflow.DROP_OLDEST)
         .flowOn(Dispatchers.IO)
 
-fun <T> Flow<ProgressT<T>>.onEachProgress(
-    context: CoroutineContext = EmptyCoroutineContext,
-    progress: suspend (Progress) -> Unit
-) = buffer(1, BufferOverflow.DROP_OLDEST)
-    .flowOn(context)
-    .onEach { if (it.result == null) progress(it) }
-    .mapNotNull { it.result }
+inline fun <reified T : Any> IRxHttp.toFlow(iAwait: IAwait<T> = toClass()) =
+    flow { emit(iAwait.await()) }
 
 //All of the above methods will eventually call this method.
 fun <T> IRxHttp.toParser(

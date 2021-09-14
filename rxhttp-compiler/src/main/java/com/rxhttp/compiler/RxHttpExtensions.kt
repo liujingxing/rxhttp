@@ -162,11 +162,10 @@ class RxHttpExtensions {
         val pBound = TypeVariableName("P", bodyParamName)
         val rBound = TypeVariableName("R", rxHttpBodyParamName)
 
-
-        val progressLambdaName = LambdaTypeName.get(
+        val progressSuspendLambdaName = LambdaTypeName.get(
             parameters = arrayOf(progressName),
             returnType = Unit::class.asClassName()
-        )
+        ).copy(suspending = true)
 
         val fileBuilder = FileSpec.builder(rxHttpPackage, "RxHttp")
 
@@ -230,7 +229,7 @@ class RxHttpExtensions {
                 .addTypeVariable(pBound)
                 .addTypeVariable(rBound)
                 .addParameter("coroutine", coroutineScopeName)
-                .addParameter("progress", progressLambdaName.copy(suspending = true))
+                .addParameter("progress", progressSuspendLambdaName)
                 .addCode(
                     """
                     param.setProgressCallback {
@@ -245,45 +244,47 @@ class RxHttpExtensions {
         )
 
         val channelFlow = MemberName("kotlinx.coroutines.flow", "channelFlow")
-        val flowMemberName = MemberName("kotlinx.coroutines.flow", "flow")
-        val onEachProgress = MemberName("rxhttp", "onEachProgress")
         val toClass = MemberName("rxhttp", "toClass")
+        val toFlow = MemberName("rxhttp", "toFlow")
+        val iAwaitT = ClassName("rxhttp", "IAwait").parameterizedBy(t)
+        val buffer = MemberName("kotlinx.coroutines.flow", "buffer")
+        val onEach = MemberName("kotlinx.coroutines.flow", "onEach")
+        val mapNotNull = MemberName("kotlinx.coroutines.flow", "mapNotNull")
         val progressT = ClassName("rxhttp.wrapper.entity", "ProgressT")
+        val flowClassName = ClassName("kotlinx.coroutines.flow", "Flow")
+        val flowProgressTClassName = flowClassName.parameterizedBy(progressT.parameterizedBy(t))
+        val bufferOverflow = ClassName("kotlinx.coroutines.channels", "BufferOverflow")
         val experimentalCoroutinesApi = ClassName("kotlinx.coroutines", "ExperimentalCoroutinesApi")
-        val progressParam = ParameterSpec.builder(
-            "progress",
-            progressLambdaName.copy(suspending = true),
-            KModifier.NOINLINE
-        ).build()
+        val iAwaitParam = ParameterSpec.builder("iAwait", iAwaitT)
+            .defaultValue("""%M<T>()""", toClass)
+            .build()
+        fileBuilder.addFunction(
+            FunSpec.builder("toFlowProgress")
+                .addAnnotation(experimentalCoroutinesApi)
+                .addModifiers(KModifier.INLINE)
+                .receiver(rxHttpBodyWildcardParamName)
+                .addTypeVariable(tAny.copy(reified = true))
+                .addParameter(iAwaitParam)
+                .addStatement(
+                    """
+                    return 
+                      %M {
+                          getParam().setProgressCallback { trySend(%T<T>(it)) }           
+                          iAwait.await().also { trySend(ProgressT<T>(it)) }           
+                      }.%M(1, %T.DROP_OLDEST)                                                     
+                """.trimIndent(), channelFlow, progressT, buffer, bufferOverflow
+                )
+                .build()
+        )
+
         fileBuilder.addFunction(
             FunSpec.builder("toFlow")
                 .addAnnotation(experimentalCoroutinesApi)
                 .addModifiers(KModifier.INLINE)
                 .receiver(rxHttpBodyWildcardParamName)
                 .addTypeVariable(tAny.copy(reified = true))
-                .addParameter(progressParam)
-                .addStatement(
-                    """
-                    return 
-                      %M {
-                          getParam().setProgressCallback { trySend(%T<T>(it)) }           
-                          %M<T>().await().also { trySend(ProgressT<T>(it)) }           
-                      }.%M(progress = progress)                                                      
-                """.trimIndent(), channelFlow, progressT, toClass, onEachProgress)
-                .build()
-        )
-
-
-        fileBuilder.addFunction(
-            FunSpec.builder("toFlow")
-                .addModifiers(KModifier.INLINE)
-                .receiver(iRxHttpName)
-                .addTypeVariable(tAny.copy(reified = true))
-                .addStatement(
-                    """
-                    return %M<T> { emit(toClass<T>().await()) }                                              
-                """.trimIndent(), flowMemberName
-                )
+                .addParameter("progress", progressSuspendLambdaName, KModifier.NOINLINE)
+                .addStatement("""return toFlowProgress<T>().onEachProgress(progress)""")
                 .build()
         )
 
@@ -302,12 +303,19 @@ class RxHttpExtensions {
                     .receiver(iRxHttpName)
                     .addParameters(it.parameters)
                     .addTypeVariable(tAny.copy(reified = true))
-                    .addStatement(
-                        """
-                    return 
-                      %M { emit(to$parseName<T>($arguments).await()) }                                              
-                """.trimIndent(), flowMemberName
-                    ).build()
+                    .addStatement("""return %M(to$parseName<T>($arguments))""", toFlow)
+                    .build()
+            )
+
+            fileBuilder.addFunction(
+                FunSpec.builder("toFlow${parseName}Progress")
+                    .addAnnotation(experimentalCoroutinesApi)
+                    .addModifiers(KModifier.INLINE)
+                    .receiver(rxHttpBodyWildcardParamName)
+                    .addParameters(it.parameters)
+                    .addTypeVariable(tAny.copy(reified = true))
+                    .addStatement("""return toFlowProgress(to$parseName<T>($arguments))""")
+                    .build()
             )
 
             fileBuilder.addFunction(
@@ -317,18 +325,27 @@ class RxHttpExtensions {
                     .receiver(rxHttpBodyWildcardParamName)
                     .addParameters(it.parameters)
                     .addTypeVariable(tAny.copy(reified = true))
-                    .addParameter(progressParam)
+                    .addParameter("progress", progressSuspendLambdaName, KModifier.NOINLINE)
                     .addStatement(
-                        """
-                    return 
-                      %M {
-                          getParam().setProgressCallback { trySend(ProgressT<T>(it)) }           
-                          to$parseName<T>($arguments).await().also { trySend(ProgressT<T>(it)) }           
-                      }.%M(progress = progress)                                                                                                               
-                """.trimIndent(), channelFlow, onEachProgress)
+                        """return toFlow${parseName}Progress<T>().onEachProgress(progress)""",
+                    )
                     .build()
             )
         }
+
+        fileBuilder.addFunction(
+            FunSpec.builder("onEachProgress")
+                .addTypeVariable(t)
+                .receiver(flowProgressTClassName)
+                .addParameter("progress", progressSuspendLambdaName)
+                .addStatement("""
+                    return %M { if (it.result == null) progress(it) }
+                        .%M { it.result }
+                """.trimIndent(), onEach, mapNotNull)
+                .returns(flowClassName.parameterizedBy(t))
+                .build()
+        )
+
         fileBuilder.build().writeTo(filer)
     }
 
