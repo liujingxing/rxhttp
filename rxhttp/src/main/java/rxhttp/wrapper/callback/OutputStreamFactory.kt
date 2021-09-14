@@ -7,7 +7,6 @@ import rxhttp.wrapper.OkHttpCompat
 import rxhttp.wrapper.entity.OutputStreamWrapper
 import rxhttp.wrapper.entity.toWrapper
 import java.io.File
-import java.io.FileOutputStream
 import java.io.IOException
 import java.net.URLDecoder
 
@@ -57,15 +56,14 @@ internal fun newOutputStreamFactory(
     localPath: String
 ): OutputStreamFactory<String> = newOutputStreamFactory {
     val destPath = localPath.replaceSuffix(it)
-    //创建文件
-    val dstFile = File(destPath).apply {
+    File(destPath).run {
         val parentFile = parentFile
         if (!parentFile.exists() && !parentFile.mkdirs()) {
             throw IOException("Directory $parentFile create fail")
         }
+        val append = OkHttpCompat.header(it, "Content-Range") != null
+        toWrapper(append)
     }
-    val append = OkHttpCompat.header(it, "Content-Range") != null
-    FileOutputStream(dstFile, append).toWrapper(destPath)
 }
 
 private fun String.replaceSuffix(response: Response): String {
