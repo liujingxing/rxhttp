@@ -5,12 +5,17 @@ import kotlin.Any
 import kotlin.Unit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.channelFlow
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import rxhttp.IAwait
 import rxhttp.IRxHttp
-import rxhttp.onEachProgress
 import rxhttp.toClass
+import rxhttp.toFlow
 import rxhttp.toParser
 import rxhttp.wrapper.entity.Progress
 import rxhttp.wrapper.entity.ProgressT
@@ -44,26 +49,29 @@ public fun <P : AbstractBodyParam<P>, R : RxHttpAbstractBodyParam<P, R>> RxHttpA
 }
 
 @ExperimentalCoroutinesApi
-public inline fun <reified T : Any> RxHttpAbstractBodyParam<*, *>.toFlow(noinline progress: suspend
-    (Progress) -> Unit) = 
+public inline fun <reified T : Any> RxHttpAbstractBodyParam<*, *>.toFlowProgress(iAwait: IAwait<T> =
+    toClass<T>()) = 
   channelFlow {
       getParam().setProgressCallback { trySend(ProgressT<T>(it)) }           
-      toClass<T>().await().also { trySend(ProgressT<T>(it)) }           
-  }.onEachProgress(progress = progress)                                                      
+      iAwait.await().also { trySend(ProgressT<T>(it)) }           
+  }.buffer(1, BufferOverflow.DROP_OLDEST)                                                     
 
-public inline fun <reified T : Any> IRxHttp.toFlow() = flow<T> { emit(toClass<T>().await()) }       
-                                          
+@ExperimentalCoroutinesApi
+public inline fun <reified T : Any> RxHttpAbstractBodyParam<*, *>.toFlow(noinline progress: suspend
+    (Progress) -> Unit) = toFlowProgress<T>().onEachProgress(progress)
 
 public inline fun <reified T : Any> IRxHttp.toResponse() = toParser(object: ResponseParser<T>() {})
 
-public inline fun <reified T : Any> IRxHttp.toFlowResponse() = 
-  flow { emit(toResponse<T>().await()) }                                              
+public inline fun <reified T : Any> IRxHttp.toFlowResponse() = toFlow(toResponse<T>())
+
+@ExperimentalCoroutinesApi
+public inline fun <reified T : Any> RxHttpAbstractBodyParam<*, *>.toFlowResponseProgress() =
+    toFlowProgress(toResponse<T>())
 
 @ExperimentalCoroutinesApi
 public inline fun <reified T : Any> RxHttpAbstractBodyParam<*, *>.toFlowResponse(noinline
-    progress: suspend (Progress) -> Unit) = 
-  channelFlow {
-      getParam().setProgressCallback { trySend(ProgressT<T>(it)) }           
-      toResponse<T>().await().also { trySend(ProgressT<T>(it)) }           
-  }.onEachProgress(progress = progress)                                                             
-                                                     
+    progress: suspend (Progress) -> Unit) = toFlowResponseProgress<T>().onEachProgress(progress)
+
+public fun <T> Flow<ProgressT<T>>.onEachProgress(progress: suspend (Progress) -> Unit): Flow<T> =
+    onEach { if (it.result == null) progress(it) }
+    .mapNotNull { it.result }
