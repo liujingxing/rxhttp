@@ -27,18 +27,12 @@ fun String.show() {
 }
 
 val Throwable.errorCode: Int
-    get() {
-        val errorCode = when (this) {
+    get() =
+        when (this) {
             is HttpStatusCodeException -> this.statusCode //Http状态码异常
-            is ParseException -> this.errorCode     //业务code异常
-            else -> "-1"
+            is ParseException -> this.errorCode.toIntOrNull() ?: -1     //业务code异常
+            else -> -1
         }
-        return try {
-            errorCode.toInt()
-        } catch (e: Exception) {
-            -1
-        }
-    }
 
 val Throwable.errorMsg: String
     get() {
