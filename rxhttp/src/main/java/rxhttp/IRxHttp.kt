@@ -6,7 +6,6 @@ import android.net.Uri
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.withContext
 import okhttp3.Call
 import okhttp3.Headers
 import okhttp3.Response
@@ -88,7 +87,7 @@ fun <T> IRxHttp.toSyncDownload(
     message = "Use 'toDownload' instead",
     replaceWith = ReplaceWith("toDownload(destPath, context, true) {}")
 )
-suspend fun IRxHttp.toAppendDownload(
+fun IRxHttp.toAppendDownload(
     destPath: String,
     context: CoroutineContext? = null,
     progress: (suspend (Progress) -> Unit)? = null
@@ -99,7 +98,7 @@ suspend fun IRxHttp.toAppendDownload(
     message = "Use 'toDownload' instead",
     replaceWith = ReplaceWith("toDownload(context, uri, coroutineContext, true)")
 )
-suspend fun IRxHttp.toAppendDownload(
+fun IRxHttp.toAppendDownload(
     context: Context,
     uri: Uri,
     coroutineContext: CoroutineContext? = null,
@@ -111,7 +110,7 @@ suspend fun IRxHttp.toAppendDownload(
     message = "Use 'toDownload' instead",
     replaceWith = ReplaceWith("toDownload(uriFactory, coroutineContext, true)")
 )
-suspend fun IRxHttp.toAppendDownload(
+fun IRxHttp.toAppendDownload(
     uriFactory: UriFactory,
     coroutineContext: CoroutineContext? = null,
     progress: (suspend (Progress) -> Unit)? = null
@@ -123,14 +122,14 @@ suspend fun IRxHttp.toAppendDownload(
  * @param append is append download
  * @param progress Progress callback in suspend method, The callback thread depends on the coroutine thread
  */
-suspend fun IRxHttp.toDownload(
+fun IRxHttp.toDownload(
     destPath: String,
     context: CoroutineContext? = null,
     append: Boolean = false,
     progress: (suspend (Progress) -> Unit)? = null
 ): IAwait<String> = toDownload(FileOutputStreamFactory(destPath), context, append, progress)
 
-suspend fun IRxHttp.toDownload(
+fun IRxHttp.toDownload(
     context: Context,
     uri: Uri,
     coroutineContext: CoroutineContext? = null,
@@ -139,19 +138,19 @@ suspend fun IRxHttp.toDownload(
 ): IAwait<Uri> =
     toDownload(UriOutputStreamFactory(context, uri), coroutineContext, append, progress)
 
-suspend fun <T> IRxHttp.toDownload(
+fun <T> IRxHttp.toDownload(
     osFactory: OutputStreamFactory<T>,
     context: CoroutineContext? = null,
     append: Boolean = false,
     progress: (suspend (Progress) -> Unit)? = null
 ): IAwait<T> {
-    if (append) {
-        val offsetSize = withContext(Dispatchers.IO) { osFactory.offsetSize() }
-        if (offsetSize >= 0)
-            setRangeHeader(offsetSize, -1, true)
-    }
     return toSyncDownload(osFactory, context, progress)
-        .flowOn(Dispatchers.IO)
+        .onStart {
+            var offsetSize = 0L
+            if (append && osFactory.offsetSize().also { offsetSize = it } >= 0) {
+                setRangeHeader(offsetSize, -1, true)
+            }
+        }.flowOn(Dispatchers.IO)
 }
 
 /**
@@ -159,20 +158,20 @@ suspend fun <T> IRxHttp.toDownload(
  * @param append is append download
  * @param progress Progress callback in suspend method, The callback thread depends on the coroutine thread
  */
-suspend fun IRxHttp.toDownloadFlow(
+fun IRxHttp.toDownloadFlow(
     destPath: String,
     append: Boolean = false,
     progress: (suspend (Progress) -> Unit)? = null
 ): Flow<String> = toDownloadFlow(FileOutputStreamFactory(destPath), append, progress)
 
-suspend fun IRxHttp.toDownloadFlow(
+fun IRxHttp.toDownloadFlow(
     context: Context,
     uri: Uri,
     append: Boolean = false,
     progress: (suspend (Progress) -> Unit)? = null
 ): Flow<Uri> = toDownloadFlow(UriOutputStreamFactory(context, uri), append, progress)
 
-suspend fun <T> IRxHttp.toDownloadFlow(
+fun <T> IRxHttp.toDownloadFlow(
     osFactory: OutputStreamFactory<T>,
     append: Boolean = false,
     progress: (suspend (Progress) -> Unit)? = null
@@ -190,18 +189,18 @@ suspend fun <T> IRxHttp.toDownloadFlow(
             .onEachProgress(progress)
     }
 
-suspend fun IRxHttp.toDownloadFlowProgress(
+fun IRxHttp.toDownloadFlowProgress(
     destPath: String,
     append: Boolean = false
 ): Flow<ProgressT<String>> = toDownloadFlowProgress(FileOutputStreamFactory(destPath), append)
 
-suspend fun IRxHttp.toDownloadFlowProgress(
+fun IRxHttp.toDownloadFlowProgress(
     context: Context,
     uri: Uri,
     append: Boolean = false
 ): Flow<ProgressT<Uri>> = toDownloadFlowProgress(UriOutputStreamFactory(context, uri), append)
 
-suspend fun <T> IRxHttp.toDownloadFlowProgress(
+fun <T> IRxHttp.toDownloadFlowProgress(
     osFactory: OutputStreamFactory<T>,
     append: Boolean = false
 ): Flow<ProgressT<T>> =
