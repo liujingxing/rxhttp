@@ -49,7 +49,7 @@ class DownloadFragment : BaseFragment<DownloadFragmentBinding>(), View.OnClickLi
             val factory = Android10DownloadFactory(requireContext(), "miaobo.apk")
             //下载使用非默认域名，故这里使用RxSimpleHttp类发送请求，RxSimpleHttp类是通过@Domain注解生成的
             RxSimpleHttp.get(Url.DOWNLOAD_URL)
-                .toDownloadFlow(factory)
+                .toFlow(factory)
                 .catch {
                     //异常回调
                     tvResult.append("\n${it.errorMsg}")
@@ -66,7 +66,7 @@ class DownloadFragment : BaseFragment<DownloadFragmentBinding>(), View.OnClickLi
             val factory = Android10DownloadFactory(requireContext(), "miaobo.apk")
             //下载使用非默认域名，故这里使用RxSimpleHttp类发送请求，RxSimpleHttp类是通过注解生成的
             RxSimpleHttp.get(Url.DOWNLOAD_URL)
-                .toDownloadFlow(factory) {
+                .toFlow(factory) {
                     val currentProgress = it.progress //当前进度 0-100
                     val currentSize = it.currentSize //当前已下载的字节大小
                     val totalSize = it.totalSize //要下载的总字节大小
@@ -93,7 +93,7 @@ class DownloadFragment : BaseFragment<DownloadFragmentBinding>(), View.OnClickLi
             val factory = Android10DownloadFactory(requireContext(), "miaobo.apk")
             //下载使用非默认域名，故这里使用RxSimpleHttp类发送请求，RxSimpleHttp类是通过注解生成的
             RxSimpleHttp.get(Url.DOWNLOAD_URL)
-                .toDownloadFlow(factory, true) {
+                .toFlow(factory, true) {
                     val currentProgress = it.progress //当前进度 0-100
                     val currentSize = it.currentSize //当前已下载的字节大小
                     val totalSize = it.totalSize //要下载的总字节大小
@@ -176,7 +176,7 @@ class DownloadFragment : BaseFragment<DownloadFragmentBinding>(), View.OnClickLi
             val destPath = "${requireContext().externalCacheDir}/${System.currentTimeMillis()}.apk"
             //下载使用非默认域名，故这里使用RxSimpleHttp类发送请求，RxSimpleHttp类是通过@Domain注解生成的
             RxSimpleHttp.get(Url.DOWNLOAD_URL)
-                .toDownloadFlow(destPath)
+                .toFlow(destPath)
                 .catch {
                     //异常回调
                     tvResult.append("\n${it.errorMsg}")
@@ -193,7 +193,7 @@ class DownloadFragment : BaseFragment<DownloadFragmentBinding>(), View.OnClickLi
             val destPath = "${requireContext().externalCacheDir}/${System.currentTimeMillis()}.apk"
             //下载使用非默认域名，故这里使用RxSimpleHttp类发送请求，RxSimpleHttp类是通过注解生成的
             RxSimpleHttp.get(Url.DOWNLOAD_URL)
-                .toDownloadFlow(destPath) {
+                .toFlow(destPath) {
                     val currentProgress = it.progress //当前进度 0-100
                     val currentSize = it.currentSize //当前已下载的字节大小
                     val totalSize = it.totalSize //要下载的总字节大小
@@ -214,7 +214,7 @@ class DownloadFragment : BaseFragment<DownloadFragmentBinding>(), View.OnClickLi
             val destPath = "${requireContext().externalCacheDir}/Miaobo.apk"
             //下载使用非默认域名，故这里使用RxSimpleHttp类发送请求，RxSimpleHttp类是通过注解生成的
             RxSimpleHttp.get(Url.DOWNLOAD_URL)
-                .toDownloadFlow(destPath, true) {
+                .toFlow(destPath, true) {
                     val currentProgress = it.progress //当前进度 0-100
                     val currentSize = it.currentSize //当前已下载的字节大小
                     val totalSize = it.totalSize //要下载的总字节大小

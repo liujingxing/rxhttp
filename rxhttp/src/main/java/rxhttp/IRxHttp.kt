@@ -153,25 +153,28 @@ fun <T> IRxHttp.toDownload(
         }.flowOn(Dispatchers.IO)
 }
 
+inline fun <reified T : Any> IRxHttp.toFlow(iAwait: IAwait<T> = toClass()): Flow<T> =
+    flow { emit(iAwait.await()) }
+
 /**
  * @param destPath Local storage path
  * @param append is append download
  * @param progress Progress callback in suspend method, The callback thread depends on the coroutine thread
  */
-fun IRxHttp.toDownloadFlow(
+fun IRxHttp.toFlow(
     destPath: String,
     append: Boolean = false,
     progress: (suspend (Progress) -> Unit)? = null
-): Flow<String> = toDownloadFlow(FileOutputStreamFactory(destPath), append, progress)
+): Flow<String> = toFlow(FileOutputStreamFactory(destPath), append, progress)
 
-fun IRxHttp.toDownloadFlow(
+fun IRxHttp.toFlow(
     context: Context,
     uri: Uri,
     append: Boolean = false,
     progress: (suspend (Progress) -> Unit)? = null
-): Flow<Uri> = toDownloadFlow(UriOutputStreamFactory(context, uri), append, progress)
+): Flow<Uri> = toFlow(UriOutputStreamFactory(context, uri), append, progress)
 
-fun <T> IRxHttp.toDownloadFlow(
+fun <T> IRxHttp.toFlow(
     osFactory: OutputStreamFactory<T>,
     append: Boolean = false,
     progress: (suspend (Progress) -> Unit)? = null
@@ -185,22 +188,22 @@ fun <T> IRxHttp.toDownloadFlow(
             emit(toSyncDownload(osFactory).await())
         }.flowOn(Dispatchers.IO)
     } else {
-        toDownloadFlowProgress(osFactory, append)
+        toFlowProgress(osFactory, append)
             .onEachProgress(progress)
     }
 
-fun IRxHttp.toDownloadFlowProgress(
+fun IRxHttp.toFlowProgress(
     destPath: String,
     append: Boolean = false
-): Flow<ProgressT<String>> = toDownloadFlowProgress(FileOutputStreamFactory(destPath), append)
+): Flow<ProgressT<String>> = toFlowProgress(FileOutputStreamFactory(destPath), append)
 
-fun IRxHttp.toDownloadFlowProgress(
+fun IRxHttp.toFlowProgress(
     context: Context,
     uri: Uri,
     append: Boolean = false
-): Flow<ProgressT<Uri>> = toDownloadFlowProgress(UriOutputStreamFactory(context, uri), append)
+): Flow<ProgressT<Uri>> = toFlowProgress(UriOutputStreamFactory(context, uri), append)
 
-fun <T> IRxHttp.toDownloadFlowProgress(
+fun <T> IRxHttp.toFlowProgress(
     osFactory: OutputStreamFactory<T>,
     append: Boolean = false
 ): Flow<ProgressT<T>> =
@@ -219,9 +222,6 @@ fun <T> Flow<ProgressT<T>>.onEachProgress(
     progress: suspend (Progress) -> Unit
 ) = onEach { if (it.result == null) progress(it) }
     .mapNotNull { it.result }
-
-inline fun <reified T : Any> IRxHttp.toFlow(iAwait: IAwait<T> = toClass()) =
-    flow { emit(iAwait.await()) }
 
 //All of the above methods will eventually call this method.
 fun <T> IRxHttp.toParser(
