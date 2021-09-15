@@ -54,6 +54,13 @@ fun <T> IAwait<T>.retry(
     }
 }
 
+fun <T> IAwait<T>.onStart(
+    action: suspend () -> Unit
+): IAwait<T> = newAwait {
+    action()
+    await()
+}
+
 /**
  * @param times  repeat times, default Long.MAX_VALUE Always repeat
  * @param period repeat period, default 0, time in milliseconds
