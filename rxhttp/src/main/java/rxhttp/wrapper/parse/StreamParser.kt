@@ -56,6 +56,7 @@ private fun Response.writeTo(
             val curTime = System.currentTimeMillis()
             if (curTime - lastRefreshTime > 500) {
                 val progress = Progress(0, currentSize, contentLength)
+                LogUtil.log(progress)
                 callback.onProgress(progress)
                 lastRefreshTime = curTime
             }
@@ -65,6 +66,7 @@ private fun Response.writeTo(
             if (currentProgress > lastProgress) {
                 lastProgress = currentProgress
                 val progress = Progress(currentProgress, currentSize, contentLength)
+                LogUtil.log(progress)
                 callback.onProgress(progress)
             }
         }
@@ -72,6 +74,7 @@ private fun Response.writeTo(
     if (contentLength == -1L) {
         //响应头里取不到contentLength时，保证下载完成事件能回调
         val progress = Progress(100, lastSize, contentLength)
+        LogUtil.log(progress)
         callback.onProgress(progress)
     }
 }

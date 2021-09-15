@@ -26,6 +26,7 @@ import rxhttp.internal.RxHttpVersion;
 import rxhttp.wrapper.OkHttpCompat;
 import rxhttp.wrapper.annotations.NonNull;
 import rxhttp.wrapper.entity.FileRequestBody;
+import rxhttp.wrapper.entity.Progress;
 import rxhttp.wrapper.entity.UriRequestBody;
 import rxhttp.wrapper.exception.HttpStatusCodeException;
 import rxhttp.wrapper.exception.ParseException;
@@ -81,6 +82,12 @@ public class LogUtil {
         } catch (Throwable e) {
             Platform.get().logd(TAG, "Request error Log printing failed", e);
         }
+    }
+
+    //打印上传/下载进度日志
+    public static void log(Progress progress) {
+        if (!isDebug) return;
+        Platform.get().loge(TAG, progress.toString());
     }
 
     //请求前，打印日志
