@@ -31,7 +31,6 @@ public interface IConverter {
     <T> T convert(@NonNull ResponseBody body, @NonNull Type type, boolean needDecodeResult) throws IOException;
 
     /**
-     * 对象转 RequestBody,目前(RxHttp 1.3.1版本)发送{application/json; charset=utf-8}类型请求前，将会调用此方法
      *
      * @param value T
      * @param <T>   T

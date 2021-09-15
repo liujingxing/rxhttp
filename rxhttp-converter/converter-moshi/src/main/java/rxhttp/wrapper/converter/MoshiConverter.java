@@ -18,17 +18,16 @@ import okio.Buffer;
 import okio.BufferedSource;
 import okio.ByteString;
 import rxhttp.RxHttpPlugins;
-import rxhttp.wrapper.callback.IConverter;
+import rxhttp.wrapper.callback.JsonConverter;
 
 /**
  * User: ljx
  * Date: 2020/08/06
  * Time: 15:34
  */
-public class MoshiConverter implements IConverter {
+public class MoshiConverter implements JsonConverter {
 
     private static final ByteString UTF8_BOM = ByteString.decodeHex("EFBBBF");
-    private static final MediaType MEDIA_TYPE = MediaType.get("application/json; charset=UTF-8");
 
     private final Moshi moshi;
     private final boolean lenient;

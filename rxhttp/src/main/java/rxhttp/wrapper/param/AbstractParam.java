@@ -3,7 +3,6 @@ package rxhttp.wrapper.param;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
@@ -198,13 +197,13 @@ public abstract class AbstractParam<P extends Param<P>> implements Param<P> {
 
     protected IConverter getConverter() {
         Request request = getRequestBuilder().build();
-        return request.tag(IConverter.class);
+        IConverter converter = request.tag(IConverter.class);
+        return Objects.requireNonNull(converter, "converter can not be null");
     }
 
     protected final RequestBody convert(Object object) {
-        IConverter converter = Objects.requireNonNull(getConverter(), "converter can not be null");
         try {
-            return converter.convert(object);
+            return getConverter().convert(object);
         } catch (IOException e) {
             throw new IllegalArgumentException("Unable to convert " + object + " to RequestBody", e);
         }

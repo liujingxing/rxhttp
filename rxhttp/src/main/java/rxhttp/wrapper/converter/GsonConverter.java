@@ -12,13 +12,12 @@ import java.io.Writer;
 import java.lang.reflect.Type;
 
 import kotlin.text.Charsets;
-import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import okio.Buffer;
 import rxhttp.RxHttpPlugins;
 import rxhttp.wrapper.annotations.NonNull;
-import rxhttp.wrapper.callback.IConverter;
+import rxhttp.wrapper.callback.JsonConverter;
 import rxhttp.wrapper.utils.GsonUtil;
 
 /**
@@ -27,9 +26,7 @@ import rxhttp.wrapper.utils.GsonUtil;
  * Date: 2019-11-21
  * Time: 22:19
  */
-public class GsonConverter implements IConverter {
-
-    private static final MediaType MEDIA_TYPE = MediaType.get("application/json; charset=UTF-8");
+public class GsonConverter implements JsonConverter {
 
     private final Gson gson;
 

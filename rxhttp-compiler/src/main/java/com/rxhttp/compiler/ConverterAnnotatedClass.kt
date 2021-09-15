@@ -26,27 +26,43 @@ class ConverterAnnotatedClass {
             for ((key, value) in mElementMap) {
                 methodList.add(MethodSpec.methodBuilder("set$key")
                     .addModifiers(Modifier.PUBLIC)
-                    .addStatement("""
-                            if (${"$"}T.${"$"}L == null)
-                            throw new IllegalArgumentException("converter can not be null");
-                    """.trimIndent(), ClassName.get(value.enclosingElement.asType()), value.simpleName.toString())
-                    .addStatement("this.converter = \$T.\$L",
+                    .addStatement(
+                        """
+                        return setConverter(${"$"}T.${"$"}L)
+                    """.trimIndent(),
                         ClassName.get(value.enclosingElement.asType()),
-                        value.simpleName.toString())
-                    .addStatement("return (R)this")
+                        value.simpleName.toString()
+                    )
                     .returns(r)
                     .build()
                 )
             }
+
+            val converterName = ClassName.get("rxhttp.wrapper.callback", "IConverter")
             methodList.add(
                 MethodSpec.methodBuilder("setConverter")
+                    .addModifiers(Modifier.PUBLIC)
+                    .addParameter(converterName, "converter")
+                    .addCode("""
+                          if (converter == null)
+                              throw new IllegalArgumentException("converter can not be null");
+                          this.converter = converter;
+                          return (R) this;
+                    """.trimIndent())
+                    .returns(r)
+                    .build()
+            )
+
+            methodList.add(
+                MethodSpec.methodBuilder("setConverterToParam")
                     .addJavadoc("给Param设置转换器，此方法会在请求发起前，被RxHttp内部调用\n")
                     .addModifiers(Modifier.PRIVATE)
-                    .addParameter(p, "param")
-                    .addStatement("param.tag(IConverter.class,converter)")
+                    .addParameter(converterName, "converter")
+                    .addStatement("param.tag(IConverter.class, converter)")
                     .addStatement("return (R)this")
                     .returns(r)
-                    .build())
+                    .build()
+            )
             return methodList
         }
 }

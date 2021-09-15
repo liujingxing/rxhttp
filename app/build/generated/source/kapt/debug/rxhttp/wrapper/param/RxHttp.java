@@ -467,7 +467,7 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
    * 请求开始前内部调用，用于添加默认域名等操作
    */
   private final void doOnStart() {
-    setConverter(param);
+    setConverterToParam(converter);
     addDefaultDomainIfAbsent(param);
   }
 
@@ -509,24 +509,25 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
   }
 
   public R setXmlConverter() {
-    if (RxHttpManager.xmlConverter == null)
-        throw new IllegalArgumentException("converter can not be null");;
-    this.converter = RxHttpManager.xmlConverter;
-    return (R)this;
+    return setConverter(RxHttpManager.xmlConverter);
   }
 
   public R setFastJsonConverter() {
-    if (RxHttpManager.fastJsonConverter == null)
-        throw new IllegalArgumentException("converter can not be null");;
-    this.converter = RxHttpManager.fastJsonConverter;
-    return (R)this;
+    return setConverter(RxHttpManager.fastJsonConverter);
+  }
+
+  public R setConverter(IConverter converter) {
+    if (converter == null)
+        throw new IllegalArgumentException("converter can not be null");
+    this.converter = converter;
+    return (R) this;
   }
 
   /**
    * 给Param设置转换器，此方法会在请求发起前，被RxHttp内部调用
    */
-  private R setConverter(P param) {
-    param.tag(IConverter.class,converter);
+  private R setConverterToParam(IConverter converter) {
+    param.tag(IConverter.class, converter);
     return (R)this;
   }
 
