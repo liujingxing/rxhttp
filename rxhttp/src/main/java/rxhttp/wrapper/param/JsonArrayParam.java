@@ -13,7 +13,10 @@ import java.util.Map;
 import okhttp3.HttpUrl;
 import okhttp3.HttpUrl.Builder;
 import okhttp3.RequestBody;
+import rxhttp.RxHttpPlugins;
 import rxhttp.wrapper.annotations.Nullable;
+import rxhttp.wrapper.callback.IConverter;
+import rxhttp.wrapper.callback.JsonConverter;
 import rxhttp.wrapper.entity.KeyValuePair;
 import rxhttp.wrapper.utils.BuildUtil;
 import rxhttp.wrapper.utils.CacheUtil;
@@ -134,6 +137,15 @@ public class JsonArrayParam extends AbstractBodyParam<JsonArrayParam> {
 
     private void initList() {
         if (bodyParam == null) bodyParam = new ArrayList<>();
+    }
+
+    @Override
+    protected IConverter getConverter() {
+        IConverter converter = super.getConverter();
+        if (!(converter instanceof JsonConverter)) {
+            converter = RxHttpPlugins.getConverter();
+        }
+        return converter;
     }
 
     @Override

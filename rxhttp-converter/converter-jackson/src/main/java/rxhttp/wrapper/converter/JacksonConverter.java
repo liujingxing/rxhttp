@@ -8,20 +8,17 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
 
-import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import rxhttp.RxHttpPlugins;
-import rxhttp.wrapper.callback.IConverter;
+import rxhttp.wrapper.callback.JsonConverter;
 
 /**
  * User: ljx
  * Date: 2019-11-24
  * Time: 15:34
  */
-public class JacksonConverter implements IConverter {
-
-    private static final MediaType MEDIA_TYPE = MediaType.get("application/json; charset=UTF-8");
+public class JacksonConverter implements JsonConverter {
 
     public static JacksonConverter create() {
         return create(new ObjectMapper());
