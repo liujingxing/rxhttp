@@ -68,8 +68,17 @@ public class RxHttpBodyParam extends RxHttpAbstractBodyParam<BodyParam, RxHttpBo
         return this;
     }
     
-    public RxHttpBodyParam setJsonBody(Object object) {
-        param.setJsonBody(object);
+
+    public RxHttpBodyParam setBody(Object object) {
+        param.setBody(object);
         return this;
+    }
+    
+    /**
+     * @deprecated please user {@link #setBody(Object)} instead
+     */
+    @Deprecated
+    public RxHttpBodyParam setJsonBody(Object object) {
+        return setBody(object);
     }
 }
