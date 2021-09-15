@@ -22,7 +22,7 @@ import rxhttp.wrapper.annotations.Nullable;
 public final class HttpStatusCodeException extends IOException {
 
     private final Protocol protocol; //http协议
-    private final String statusCode; //Http响应状态吗
+    private final int statusCode; //Http响应状态吗
     private final String result;    //返回结果
     private final String requestMethod; //请求方法，Get/Post等
     private final HttpUrl httpUrl; //请求Url及查询参数
@@ -35,7 +35,7 @@ public final class HttpStatusCodeException extends IOException {
     public HttpStatusCodeException(Response response, String result) {
         super(response.message());
         protocol = response.protocol();
-        statusCode = String.valueOf(response.code());
+        statusCode = response.code();
         Request request = response.request();
         requestMethod = request.method();
         httpUrl = request.url();
@@ -46,10 +46,10 @@ public final class HttpStatusCodeException extends IOException {
     @Nullable
     @Override
     public String getLocalizedMessage() {
-        return statusCode;
+        return String.valueOf(statusCode);
     }
 
-    public String getStatusCode() {
+    public int getStatusCode() {
         return statusCode;
     }
 
