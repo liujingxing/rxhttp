@@ -21,18 +21,27 @@ class BodyParam(
     method: Method,
 ) : AbstractBodyParam<BodyParam>(url, method) {
 
-    private var jsonValue: Any? = null
+    private var body: Any? = null
     private var requestBody: RequestBody? = null
 
-    fun setJsonBody(value: Any): BodyParam {
-        jsonValue = value
+    fun setBody(value: Any): BodyParam {
+        body = value
         requestBody = null
         return this
     }
 
+    @Deprecated(
+        message = "",
+        replaceWith = ReplaceWith("setBody(value)"),
+        level = DeprecationLevel.ERROR
+    )
+    fun setJsonBody(value: Any): BodyParam {
+        return setBody(value)
+    }
+
     fun setBody(requestBody: RequestBody): BodyParam {
         this.requestBody = requestBody
-        jsonValue = null
+        body = null
         return this
     }
 
@@ -63,7 +72,7 @@ class BodyParam(
     ): BodyParam = setBody(FileRequestBody(file, 0, mediaType))
 
     override fun getRequestBody(): RequestBody {
-        jsonValue?.let { requestBody = convert(it) }
+        body?.let { requestBody = convert(it) }
         return requestBody
             ?: throw NullPointerException("requestBody cannot be null, please call the setBody series methods")
     }
