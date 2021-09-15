@@ -62,6 +62,7 @@ private suspend fun <T> Response.writeTo(
             val curTime = System.currentTimeMillis()
             if (curTime - lastRefreshTime > 500) {
                 val p = ProgressT<T>(0, currentSize, contentLength)
+                LogUtil.log(p)
                 context?.apply {
                     withContext(this) { progress(p) }
                 } ?: progress(p)
@@ -73,6 +74,7 @@ private suspend fun <T> Response.writeTo(
             if (currentProgress > lastProgress) {
                 lastProgress = currentProgress
                 val p = ProgressT<T>(currentProgress, currentSize, contentLength)
+                LogUtil.log(p)
                 context?.apply {
                     withContext(this) { progress(p) }
                 } ?: progress(p)
@@ -83,6 +85,7 @@ private suspend fun <T> Response.writeTo(
     if (contentLength == -1L) {
         //响应头里取不到contentLength时，保证下载完成事件能回调
         val p = ProgressT<T>(100, lastSize, contentLength)
+        LogUtil.log(p)
         context?.apply {
             withContext(this) { progress(p) }
         } ?: progress(p)
