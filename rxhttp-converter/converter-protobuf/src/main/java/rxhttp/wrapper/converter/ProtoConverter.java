@@ -11,6 +11,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import rxhttp.wrapper.callback.IConverter;
 
@@ -20,6 +22,8 @@ import rxhttp.wrapper.callback.IConverter;
  * Time: 14:53
  */
 public class ProtoConverter implements IConverter {
+
+    private static final MediaType MEDIA_TYPE = MediaType.get("application/x-protobuf");
 
     private ExtensionRegistryLite registry;
 
@@ -69,5 +73,13 @@ public class ProtoConverter implements IConverter {
         } finally {
             body.close();
         }
+    }
+
+    @Override
+    public <T> RequestBody convert(T value) throws IOException {
+        if (!(value instanceof MessageLite)) return null;
+        MessageLite messageLite = (MessageLite) value;
+        byte[] bytes = messageLite.toByteArray();
+        return RequestBody.create(MEDIA_TYPE, bytes);
     }
 }
