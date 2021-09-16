@@ -6,7 +6,7 @@ import kotlin.Unit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
-import rxhttp.IRxHttp
+import rxhttp.CallFactory
 import rxhttp.onEachProgress
 import rxhttp.toFlow
 import rxhttp.toFlowProgress
@@ -41,9 +41,10 @@ public fun <P : AbstractBodyParam<P>, R : RxHttpAbstractBodyParam<P, R>> RxHttpA
   return this as R
 }
 
-public inline fun <reified T : Any> IRxHttp.toResponse() = toParser(object: ResponseParser<T>() {})
+public inline fun <reified T : Any> CallFactory.toResponse() = toParser(object: ResponseParser<T>()
+    {})
 
-public inline fun <reified T : Any> IRxHttp.toFlowResponse() = toFlow(toResponse<T>())
+public inline fun <reified T : Any> CallFactory.toFlowResponse() = toFlow(toResponse<T>())
 
 @ExperimentalCoroutinesApi
 public inline fun <reified T : Any> BodyParamFactory.toFlowResponseProgress() =

@@ -38,7 +38,7 @@ object ClassHelper {
             generatorClass(filer, "BaseRxHttp", """
                 package $rxHttpPackage;
 
-                import rxhttp.IRxHttp;
+                import rxhttp.CallFactory;
                 import rxhttp.wrapper.param.RangeHeader;
 
                 /**
@@ -48,7 +48,7 @@ object ClassHelper {
                  * Date: 2020/4/11
                  * Time: 18:15
                  */
-                public abstract class BaseRxHttp implements IRxHttp, RangeHeader {
+                public abstract class BaseRxHttp implements CallFactory, RangeHeader {
 
                     
                 }
@@ -74,7 +74,7 @@ object ClassHelper {
             ${if (isAndroid) "import ${getClassPath("Schedulers")};" else ""}
             import okhttp3.Headers;
             import okhttp3.Response;
-            import rxhttp.IRxHttp;
+            import rxhttp.CallFactory;
             import rxhttp.wrapper.OkHttpCompat;
             import rxhttp.wrapper.callback.OutputStreamFactory;
             import rxhttp.wrapper.callback.FileOutputStreamFactory;
@@ -96,7 +96,7 @@ object ClassHelper {
              * Date: 2020/4/11
              * Time: 18:15
              */
-            public abstract class BaseRxHttp implements IRxHttp, RangeHeader {
+            public abstract class BaseRxHttp implements CallFactory, RangeHeader {
 
                 static {                   
                     Consumer<? super Throwable> errorHandler = RxJavaPlugins.getErrorHandler();
@@ -249,7 +249,7 @@ object ClassHelper {
             import okhttp3.Call;
             import okhttp3.Callback;
             import okhttp3.Response;
-            import rxhttp.IRxHttp;
+            import rxhttp.CallFactory;
             import rxhttp.wrapper.callback.ProgressCallback;
             import rxhttp.wrapper.entity.Progress;
             import rxhttp.wrapper.entity.ProgressT;
@@ -262,21 +262,21 @@ object ClassHelper {
              */
             final class ObservableCallEnqueue extends ObservableCall {
 
-                private IRxHttp iRxHttp;
+                private CallFactory callFactory;
                 private boolean callbackUploadProgress;
 
-                ObservableCallEnqueue(IRxHttp iRxHttp) {
-                    this(iRxHttp, false);
+                ObservableCallEnqueue(CallFactory callFactory) {
+                    this(callFactory, false);
                 }
 
-                ObservableCallEnqueue(IRxHttp iRxHttp, boolean callbackUploadProgress) {
-                    this.iRxHttp = iRxHttp;
+                ObservableCallEnqueue(CallFactory callFactory, boolean callbackUploadProgress) {
+                    this.callFactory = callFactory;
                     this.callbackUploadProgress = callbackUploadProgress;
                 }
 
                 @Override
                 public void subscribeActual(Observer<? super Progress> observer) {
-                    HttpDisposable d = new HttpDisposable(observer, iRxHttp, callbackUploadProgress);
+                    HttpDisposable d = new HttpDisposable(observer, callFactory, callbackUploadProgress);
                     observer.onSubscribe(d);
                     if (d.isDisposed()) {
                         return;
@@ -297,13 +297,13 @@ object ClassHelper {
                      *
                      * @param downstream the Observer to wrap, not null (not verified)
                      */
-                    HttpDisposable(Observer<? super Progress> downstream, IRxHttp iRxHttp, boolean callbackUploadProgress) {
-                        if (iRxHttp instanceof RxHttpAbstractBodyParam && callbackUploadProgress) {
-                            RxHttpAbstractBodyParam<?, ?> bodyParam = (RxHttpAbstractBodyParam) iRxHttp;
-                            bodyParam.getParam().setProgressCallback(this);
+                    HttpDisposable(Observer<? super Progress> downstream, CallFactory callFactory, boolean callbackUploadProgress) {
+                        if (callFactory instanceof BodyParamFactory && callbackUploadProgress) {
+                            BodyParamFactory bodyParamFactory = (BodyParamFactory) callFactory;
+                            bodyParamFactory.getParam().setProgressCallback(this);
                         }
                         this.downstream = downstream;
-                        this.call = iRxHttp.newCall();
+                        this.call = callFactory.newCall();
                     }
 
                     @Override
@@ -364,7 +364,7 @@ object ClassHelper {
             import ${getClassPath("RxJavaPlugins")};
             import okhttp3.Call;
             import okhttp3.Response;
-            import rxhttp.IRxHttp;
+            import rxhttp.CallFactory;
             import rxhttp.wrapper.callback.ProgressCallback;
             import rxhttp.wrapper.entity.Progress;
             import rxhttp.wrapper.entity.ProgressT;
@@ -377,21 +377,21 @@ object ClassHelper {
              */
             final class ObservableCallExecute extends ObservableCall {
 
-                private IRxHttp iRxHttp;
+                private CallFactory callFactory;
                 private boolean callbackUploadProgress;
 
-                ObservableCallExecute(IRxHttp iRxHttp) {
-                    this(iRxHttp, false);
+                ObservableCallExecute(CallFactory callFactory) {
+                    this(callFactory, false);
                 }
 
-                ObservableCallExecute(IRxHttp iRxHttp, boolean callbackUploadProgress) {
-                    this.iRxHttp = iRxHttp;
+                ObservableCallExecute(CallFactory callFactory, boolean callbackUploadProgress) {
+                    this.callFactory = callFactory;
                     this.callbackUploadProgress = callbackUploadProgress;
                 }
 
                 @Override
                 public void subscribeActual(Observer<? super Progress> observer) {
-                    HttpDisposable d = new HttpDisposable(observer, iRxHttp, callbackUploadProgress);
+                    HttpDisposable d = new HttpDisposable(observer, callFactory, callbackUploadProgress);
                     observer.onSubscribe(d);
                     if (d.isDisposed()) {
                         return;
@@ -412,13 +412,13 @@ object ClassHelper {
                      *
                      * @param downstream the Observer to wrap, not null (not verified)
                      */
-                    HttpDisposable(Observer<? super Progress> downstream, IRxHttp iRxHttp, boolean callbackUploadProgress) {
-                        if (iRxHttp instanceof RxHttpAbstractBodyParam && callbackUploadProgress) {
-                            RxHttpAbstractBodyParam<?, ?> bodyParam = (RxHttpAbstractBodyParam) iRxHttp;
-                            bodyParam.getParam().setProgressCallback(this);
+                    HttpDisposable(Observer<? super Progress> downstream, CallFactory callFactory, boolean callbackUploadProgress) {
+                        if (callFactory instanceof BodyParamFactory && callbackUploadProgress) {
+                            BodyParamFactory bodyParamFactory = (BodyParamFactory) callFactory;
+                            bodyParamFactory.getParam().setProgressCallback(this);
                         }
                         this.downstream = downstream;
-                        this.call = iRxHttp.newCall();
+                        this.call = callFactory.newCall();
                     }
 
                     @Override

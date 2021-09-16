@@ -15,7 +15,7 @@ import io.reactivex.rxjava3.plugins.RxJavaPlugins;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import okhttp3.Headers;
 import okhttp3.Response;
-import rxhttp.IRxHttp;
+import rxhttp.CallFactory;
 import rxhttp.wrapper.OkHttpCompat;
 import rxhttp.wrapper.callback.OutputStreamFactory;
 import rxhttp.wrapper.callback.FileOutputStreamFactory;
@@ -37,7 +37,7 @@ import rxhttp.wrapper.param.RangeHeader;
  * Date: 2020/4/11
  * Time: 18:15
  */
-public abstract class BaseRxHttp implements IRxHttp, RangeHeader {
+public abstract class BaseRxHttp implements CallFactory, RangeHeader {
 
     static {                   
         Consumer<? super Throwable> errorHandler = RxJavaPlugins.getErrorHandler();

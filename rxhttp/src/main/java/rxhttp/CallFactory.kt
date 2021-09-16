@@ -28,43 +28,43 @@ import kotlin.coroutines.CoroutineContext
  * Date: 2020/3/21
  * Time: 23:56
  */
-interface IRxHttp {
+interface CallFactory {
 
     fun newCall(): Call
 }
 
-suspend fun IRxHttp.awaitString(): String = await()
+suspend fun CallFactory.awaitString(): String = await()
 
-suspend inline fun <reified T : Any> IRxHttp.awaitList(): List<T> = await()
+suspend inline fun <reified T : Any> CallFactory.awaitList(): List<T> = await()
 
-suspend inline fun <reified K : Any, reified V : Any> IRxHttp.awaitMap(): Map<K, V> = await()
+suspend inline fun <reified K : Any, reified V : Any> CallFactory.awaitMap(): Map<K, V> = await()
 
-suspend fun IRxHttp.awaitBitmap(): Bitmap = await(BitmapParser())
+suspend fun CallFactory.awaitBitmap(): Bitmap = await(BitmapParser())
 
-suspend fun IRxHttp.awaitHeaders(): Headers = OkHttpCompat.headers(awaitOkResponse())
+suspend fun CallFactory.awaitHeaders(): Headers = OkHttpCompat.headers(awaitOkResponse())
 
-suspend fun IRxHttp.awaitOkResponse(): Response = await(OkResponseParser())
+suspend fun CallFactory.awaitOkResponse(): Response = await(OkResponseParser())
 
-suspend inline fun <reified T : Any> IRxHttp.awaitResult(): Result<T> = runCatching { await() }
+suspend inline fun <reified T : Any> CallFactory.awaitResult(): Result<T> = runCatching { await() }
 
-suspend inline fun <reified T : Any> IRxHttp.awaitResult(onSuccess: (value: T) -> Unit): Result<T> =
+suspend inline fun <reified T : Any> CallFactory.awaitResult(onSuccess: (value: T) -> Unit): Result<T> =
     awaitResult<T>().onSuccess(onSuccess)
 
-suspend inline fun <reified T : Any> IRxHttp.await(): T = await(object : SimpleParser<T>() {})
+suspend inline fun <reified T : Any> CallFactory.await(): T = await(object : SimpleParser<T>() {})
 
-suspend fun <T> IRxHttp.await(parser: Parser<T>): T = toParser(parser).await()
+suspend fun <T> CallFactory.await(parser: Parser<T>): T = toParser(parser).await()
 
-fun IRxHttp.toStr(): IAwait<String> = toClass()
+fun CallFactory.toStr(): IAwait<String> = toClass()
 
-inline fun <reified T : Any> IRxHttp.toList(): IAwait<List<T>> = toClass()
+inline fun <reified T : Any> CallFactory.toList(): IAwait<List<T>> = toClass()
 
-inline fun <reified T : Any> IRxHttp.toMutableList(): IAwait<MutableList<T>> = toClass()
+inline fun <reified T : Any> CallFactory.toMutableList(): IAwait<MutableList<T>> = toClass()
 
-inline fun <reified K : Any, reified V : Any> IRxHttp.toMap(): IAwait<Map<K, V>> = toClass()
+inline fun <reified K : Any, reified V : Any> CallFactory.toMap(): IAwait<Map<K, V>> = toClass()
 
-fun IRxHttp.toBitmap(): IAwait<Bitmap> = toParser(BitmapParser())
+fun CallFactory.toBitmap(): IAwait<Bitmap> = toParser(BitmapParser())
 
-fun IRxHttp.toHeaders(): IAwait<Headers> = toOkResponse()
+fun CallFactory.toHeaders(): IAwait<Headers> = toOkResponse()
     .map {
         try {
             OkHttpCompat.headers(it)
@@ -73,9 +73,9 @@ fun IRxHttp.toHeaders(): IAwait<Headers> = toOkResponse()
         }
     }
 
-fun IRxHttp.toOkResponse(): IAwait<Response> = toParser(OkResponseParser())
+fun CallFactory.toOkResponse(): IAwait<Response> = toParser(OkResponseParser())
 
-inline fun <reified T : Any> IRxHttp.toClass(): IAwait<T> = toParser(object : SimpleParser<T>() {})
+inline fun <reified T : Any> CallFactory.toClass(): IAwait<T> = toParser(object : SimpleParser<T>() {})
 
 private fun RangeHeader.setRangeHeader(
     osFactory: OutputStreamFactory<*>,
@@ -87,7 +87,7 @@ private fun RangeHeader.setRangeHeader(
     }
 }
 
-fun <T> IRxHttp.toSyncDownload(
+fun <T> CallFactory.toSyncDownload(
     osFactory: OutputStreamFactory<T>,
     context: CoroutineContext? = null,
     progress: (suspend (ProgressT<T>) -> Unit)? = null
@@ -159,7 +159,7 @@ fun <T> RangeHeader.toDownload(
         .onStart { setRangeHeader(osFactory, append) }
         .flowOn(Dispatchers.IO)
 
-inline fun <reified T : Any> IRxHttp.toFlow(iAwait: IAwait<T> = toClass()): Flow<T> =
+inline fun <reified T : Any> CallFactory.toFlow(iAwait: IAwait<T> = toClass()): Flow<T> =
     flow { emit(iAwait.await()) }
 
 @ExperimentalCoroutinesApi
@@ -237,7 +237,7 @@ fun <T> Flow<ProgressT<T>>.onEachProgress(progress: suspend (Progress) -> Unit):
         .mapNotNull { it.result }
 
 //All of the above methods will eventually call this method.
-fun <T> IRxHttp.toParser(
+fun <T> CallFactory.toParser(
     parser: Parser<T>,
 ): IAwait<T> = AwaitImpl(this, parser)
 
