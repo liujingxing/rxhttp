@@ -28,6 +28,7 @@ import rxhttp.wrapper.parse.Parser;
 import rxhttp.wrapper.parse.SimpleParser;
 import rxhttp.wrapper.parse.StreamParser;
 import rxhttp.wrapper.utils.LogUtil;
+import rxhttp.wrapper.param.RangeHeader;
 
 /**
  * 本类存放asXxx方法(需要单独依赖RxJava，并告知RxHttp依赖的RxJava版本)
@@ -36,7 +37,7 @@ import rxhttp.wrapper.utils.LogUtil;
  * Date: 2020/4/11
  * Time: 18:15
  */
-public abstract class BaseRxHttp implements IRxHttp {
+public abstract class BaseRxHttp implements IRxHttp, RangeHeader {
 
     static {                   
         Consumer<? super Throwable> errorHandler = RxJavaPlugins.getErrorHandler();
