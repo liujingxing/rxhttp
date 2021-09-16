@@ -76,6 +76,16 @@ fun IRxHttp.toOkResponse(): IAwait<Response> = toParser(OkResponseParser())
 
 inline fun <reified T : Any> IRxHttp.toClass(): IAwait<T> = toParser(object : SimpleParser<T>() {})
 
+private fun IRxHttp.setRangeHeader(
+    osFactory: OutputStreamFactory<*>,
+    append: Boolean
+) {
+    var offsetSize = 0L
+    if (append && osFactory.offsetSize().also { offsetSize = it } >= 0) {
+        setRangeHeader(offsetSize, -1, true)
+    }
+}
+
 fun <T> IRxHttp.toSyncDownload(
     osFactory: OutputStreamFactory<T>,
     context: CoroutineContext? = null,
@@ -143,15 +153,10 @@ fun <T> IRxHttp.toDownload(
     context: CoroutineContext? = null,
     append: Boolean = false,
     progress: (suspend (Progress) -> Unit)? = null
-): IAwait<T> {
-    return toSyncDownload(osFactory, context, progress)
-        .onStart {
-            var offsetSize = 0L
-            if (append && osFactory.offsetSize().also { offsetSize = it } >= 0) {
-                setRangeHeader(offsetSize, -1, true)
-            }
-        }.flowOn(Dispatchers.IO)
-}
+): IAwait<T> =
+    toSyncDownload(osFactory, context, progress)
+        .onStart { setRangeHeader(osFactory, append) }
+        .flowOn(Dispatchers.IO)
 
 inline fun <reified T : Any> IRxHttp.toFlow(iAwait: IAwait<T> = toClass()): Flow<T> =
     flow { emit(iAwait.await()) }
@@ -181,10 +186,7 @@ fun <T> IRxHttp.toFlow(
 ): Flow<T> =
     if (progress == null) {
         flow {
-            var offsetSize = 0L
-            if (append && osFactory.offsetSize().also { offsetSize = it } >= 0) {
-                setRangeHeader(offsetSize, -1, true)
-            }
+            setRangeHeader(osFactory, append)
             emit(toSyncDownload(osFactory).await())
         }.flowOn(Dispatchers.IO)
     } else {
@@ -208,20 +210,16 @@ fun <T> IRxHttp.toFlowProgress(
     append: Boolean = false
 ): Flow<ProgressT<T>> =
     flow {
-        var offsetSize = 0L
-        if (append && osFactory.offsetSize().also { offsetSize = it } >= 0) {
-            setRangeHeader(offsetSize, -1, true)
-        }
+        setRangeHeader(osFactory, append)
         toSyncDownload(osFactory) { emit(it) }
             .await().let { emit(ProgressT(it)) }
     }
         .buffer(1, BufferOverflow.DROP_OLDEST)
         .flowOn(Dispatchers.IO)
 
-fun <T> Flow<ProgressT<T>>.onEachProgress(
-    progress: suspend (Progress) -> Unit
-) = onEach { if (it.result == null) progress(it) }
-    .mapNotNull { it.result }
+fun <T> Flow<ProgressT<T>>.onEachProgress(progress: suspend (Progress) -> Unit): Flow<T> =
+    onEach { if (it.result == null) progress(it) }
+        .mapNotNull { it.result }
 
 //All of the above methods will eventually call this method.
 fun <T> IRxHttp.toParser(
