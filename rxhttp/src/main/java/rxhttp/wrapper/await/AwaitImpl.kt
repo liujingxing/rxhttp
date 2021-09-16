@@ -1,7 +1,7 @@
 package rxhttp.wrapper.await
 
 import rxhttp.IAwait
-import rxhttp.IRxHttp
+import rxhttp.CallFactory
 import rxhttp.wrapper.OkHttpCompat
 import rxhttp.wrapper.parse.Parser
 import rxhttp.wrapper.parse.SuspendParser
@@ -15,12 +15,12 @@ import rxhttp.wrapper.utils.await
  */
 @Suppress("BlockingMethodInNonBlockingContext")
 internal class AwaitImpl<T>(
-    private val iRxHttp: IRxHttp,
+    private val callFactory: CallFactory,
     private val parser: Parser<T>,
 ) : IAwait<T> {
 
     override suspend fun await(): T {
-        val call = iRxHttp.newCall()
+        val call = callFactory.newCall()
         return try {
             if (parser is SuspendParser) {
                 parser.onSuspendParse(call.await())

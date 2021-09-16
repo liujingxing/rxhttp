@@ -9,7 +9,7 @@ import io.reactivex.rxjava3.plugins.RxJavaPlugins;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
-import rxhttp.IRxHttp;
+import rxhttp.CallFactory;
 import rxhttp.wrapper.callback.ProgressCallback;
 import rxhttp.wrapper.entity.Progress;
 import rxhttp.wrapper.entity.ProgressT;
@@ -22,21 +22,21 @@ import rxhttp.wrapper.utils.LogUtil;
  */
 final class ObservableCallEnqueue extends ObservableCall {
 
-    private IRxHttp iRxHttp;
+    private CallFactory callFactory;
     private boolean callbackUploadProgress;
 
-    ObservableCallEnqueue(IRxHttp iRxHttp) {
-        this(iRxHttp, false);
+    ObservableCallEnqueue(CallFactory callFactory) {
+        this(callFactory, false);
     }
 
-    ObservableCallEnqueue(IRxHttp iRxHttp, boolean callbackUploadProgress) {
-        this.iRxHttp = iRxHttp;
+    ObservableCallEnqueue(CallFactory callFactory, boolean callbackUploadProgress) {
+        this.callFactory = callFactory;
         this.callbackUploadProgress = callbackUploadProgress;
     }
 
     @Override
     public void subscribeActual(Observer<? super Progress> observer) {
-        HttpDisposable d = new HttpDisposable(observer, iRxHttp, callbackUploadProgress);
+        HttpDisposable d = new HttpDisposable(observer, callFactory, callbackUploadProgress);
         observer.onSubscribe(d);
         if (d.isDisposed()) {
             return;
@@ -57,13 +57,13 @@ final class ObservableCallEnqueue extends ObservableCall {
          *
          * @param downstream the Observer to wrap, not null (not verified)
          */
-        HttpDisposable(Observer<? super Progress> downstream, IRxHttp iRxHttp, boolean callbackUploadProgress) {
-            if (iRxHttp instanceof RxHttpAbstractBodyParam && callbackUploadProgress) {
-                RxHttpAbstractBodyParam<?, ?> bodyParam = (RxHttpAbstractBodyParam) iRxHttp;
-                bodyParam.getParam().setProgressCallback(this);
+        HttpDisposable(Observer<? super Progress> downstream, CallFactory callFactory, boolean callbackUploadProgress) {
+            if (callFactory instanceof BodyParamFactory && callbackUploadProgress) {
+                BodyParamFactory bodyParamFactory = (BodyParamFactory) callFactory;
+                bodyParamFactory.getParam().setProgressCallback(this);
             }
             this.downstream = downstream;
-            this.call = iRxHttp.newCall();
+            this.call = callFactory.newCall();
         }
 
         @Override

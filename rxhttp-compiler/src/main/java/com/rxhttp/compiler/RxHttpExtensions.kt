@@ -21,7 +21,7 @@ class RxHttpExtensions {
     private val anyTypeName = Any::class.asTypeName()
 
     private val baseRxHttpName = ClassName(rxHttpPackage, "BaseRxHttp")
-    private val iRxHttpName = ClassName("rxhttp", "IRxHttp")
+    private val callFactoryName = ClassName("rxhttp", "CallFactory")
     private val toFunList = ArrayList<FunSpec>()
     private val asFunList = ArrayList<FunSpec>()
 
@@ -130,7 +130,7 @@ class RxHttpExtensions {
             toFunList.add(
                 FunSpec.builder("to$key")
                     .addModifiers(modifiers)
-                    .receiver(ClassName("rxhttp", "IRxHttp"))
+                    .receiver(callFactoryName)
                     .addParameters(parameterList)
                     .addStatement(funBody, toParserName, typeElement.asClassName())  //方法里面的表达式
                     .addTypeVariables(getTypeVariableNames(typeVariableNames))
@@ -261,7 +261,7 @@ class RxHttpExtensions {
             fileBuilder.addFunction(
                 FunSpec.builder("toFlow$parseName")
                     .addModifiers(KModifier.INLINE)
-                    .receiver(iRxHttpName)
+                    .receiver(callFactoryName)
                     .addParameters(it.parameters)
                     .addTypeVariable(tAny.copy(reified = true))
                     .addStatement("""return %M(to$parseName<T>($arguments))""", toFlow)

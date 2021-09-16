@@ -1,13 +1,13 @@
 package rxhttp.wrapper.param
 
-import rxhttp.IRxHttp
+import rxhttp.CallFactory
 
 /**
  * User: ljx
  * Date: 2021/9/17
  * Time: 00:10
  */
-interface RangeHeader : IRxHttp {
+interface RangeHeader : CallFactory {
 
-    fun setRangeHeader(startIndex: Long, endIndex: Long, connectLastProgress: Boolean): IRxHttp
+    fun setRangeHeader(startIndex: Long, endIndex: Long, connectLastProgress: Boolean): CallFactory
 }
