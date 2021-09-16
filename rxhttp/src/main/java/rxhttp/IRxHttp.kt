@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.*
 import okhttp3.Call
@@ -17,6 +18,7 @@ import rxhttp.wrapper.callback.UriFactory
 import rxhttp.wrapper.callback.UriOutputStreamFactory
 import rxhttp.wrapper.entity.Progress
 import rxhttp.wrapper.entity.ProgressT
+import rxhttp.wrapper.param.BodyParamFactory
 import rxhttp.wrapper.parse.*
 import kotlin.coroutines.CoroutineContext
 
@@ -160,6 +162,20 @@ fun <T> IRxHttp.toDownload(
 
 inline fun <reified T : Any> IRxHttp.toFlow(iAwait: IAwait<T> = toClass()): Flow<T> =
     flow { emit(iAwait.await()) }
+
+@ExperimentalCoroutinesApi
+inline fun <reified T : Any> BodyParamFactory.toFlow(
+    noinline progress: suspend (Progress) -> Unit
+) = toFlowProgress<T>().onEachProgress(progress)
+
+@ExperimentalCoroutinesApi
+inline fun <reified T : Any> BodyParamFactory.toFlowProgress(
+    iAwait: IAwait<T> = toClass()
+) =
+    channelFlow {
+        param.setProgressCallback { trySend(ProgressT<T>(it)) }
+        iAwait.await().also { trySend(ProgressT<T>(it)) }
+    }.buffer(1, BufferOverflow.DROP_OLDEST)
 
 /**
  * @param destPath Local storage path

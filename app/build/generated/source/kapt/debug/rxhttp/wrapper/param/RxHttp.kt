@@ -5,18 +5,13 @@ import kotlin.Any
 import kotlin.Unit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.flow.buffer
-import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.launch
-import rxhttp.IAwait
 import rxhttp.IRxHttp
 import rxhttp.onEachProgress
-import rxhttp.toClass
 import rxhttp.toFlow
+import rxhttp.toFlowProgress
 import rxhttp.toParser
 import rxhttp.wrapper.entity.Progress
-import rxhttp.wrapper.entity.ProgressT
 import rxhttp.wrapper.parse.SimpleParser
 
 public inline fun <reified T> RxHttp<*, *>.executeList() = executeClass<List<T>>()
@@ -46,26 +41,14 @@ public fun <P : AbstractBodyParam<P>, R : RxHttpAbstractBodyParam<P, R>> RxHttpA
   return this as R
 }
 
-@ExperimentalCoroutinesApi
-public inline fun <reified T : Any> RxHttpAbstractBodyParam<*, *>.toFlowProgress(iAwait: IAwait<T> =
-    toClass<T>()) = 
-  channelFlow {
-      getParam().setProgressCallback { trySend(ProgressT<T>(it)) }           
-      iAwait.await().also { trySend(ProgressT<T>(it)) }           
-  }.buffer(1, BufferOverflow.DROP_OLDEST)                                                     
-
-@ExperimentalCoroutinesApi
-public inline fun <reified T : Any> RxHttpAbstractBodyParam<*, *>.toFlow(noinline progress: suspend
-    (Progress) -> Unit) = toFlowProgress<T>().onEachProgress(progress)
-
 public inline fun <reified T : Any> IRxHttp.toResponse() = toParser(object: ResponseParser<T>() {})
 
 public inline fun <reified T : Any> IRxHttp.toFlowResponse() = toFlow(toResponse<T>())
 
 @ExperimentalCoroutinesApi
-public inline fun <reified T : Any> RxHttpAbstractBodyParam<*, *>.toFlowResponseProgress() =
+public inline fun <reified T : Any> BodyParamFactory.toFlowResponseProgress() =
     toFlowProgress(toResponse<T>())
 
 @ExperimentalCoroutinesApi
-public inline fun <reified T : Any> RxHttpAbstractBodyParam<*, *>.toFlowResponse(noinline
-    progress: suspend (Progress) -> Unit) = toFlowResponseProgress<T>().onEachProgress(progress)
+public inline fun <reified T : Any> BodyParamFactory.toFlowResponse(noinline progress: suspend
+    (Progress) -> Unit) = toFlowResponseProgress<T>().onEachProgress(progress)
