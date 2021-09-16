@@ -19,6 +19,7 @@ import rxhttp.wrapper.callback.UriOutputStreamFactory
 import rxhttp.wrapper.entity.Progress
 import rxhttp.wrapper.entity.ProgressT
 import rxhttp.wrapper.param.BodyParamFactory
+import rxhttp.wrapper.param.RangeHeader
 import rxhttp.wrapper.parse.*
 import kotlin.coroutines.CoroutineContext
 
@@ -30,8 +31,6 @@ import kotlin.coroutines.CoroutineContext
 interface IRxHttp {
 
     fun newCall(): Call
-
-    fun setRangeHeader(startIndex: Long, endIndex: Long, connectLastProgress: Boolean): IRxHttp
 }
 
 suspend fun IRxHttp.awaitString(): String = await()
@@ -78,7 +77,7 @@ fun IRxHttp.toOkResponse(): IAwait<Response> = toParser(OkResponseParser())
 
 inline fun <reified T : Any> IRxHttp.toClass(): IAwait<T> = toParser(object : SimpleParser<T>() {})
 
-private fun IRxHttp.setRangeHeader(
+private fun RangeHeader.setRangeHeader(
     osFactory: OutputStreamFactory<*>,
     append: Boolean
 ) {
@@ -99,7 +98,7 @@ fun <T> IRxHttp.toSyncDownload(
     message = "Use 'toDownload' instead",
     replaceWith = ReplaceWith("toDownload(destPath, context, true) {}")
 )
-fun IRxHttp.toAppendDownload(
+fun RangeHeader.toAppendDownload(
     destPath: String,
     context: CoroutineContext? = null,
     progress: (suspend (Progress) -> Unit)? = null
@@ -110,7 +109,7 @@ fun IRxHttp.toAppendDownload(
     message = "Use 'toDownload' instead",
     replaceWith = ReplaceWith("toDownload(context, uri, coroutineContext, true)")
 )
-fun IRxHttp.toAppendDownload(
+fun RangeHeader.toAppendDownload(
     context: Context,
     uri: Uri,
     coroutineContext: CoroutineContext? = null,
@@ -122,7 +121,7 @@ fun IRxHttp.toAppendDownload(
     message = "Use 'toDownload' instead",
     replaceWith = ReplaceWith("toDownload(uriFactory, coroutineContext, true)")
 )
-fun IRxHttp.toAppendDownload(
+fun RangeHeader.toAppendDownload(
     uriFactory: UriFactory,
     coroutineContext: CoroutineContext? = null,
     progress: (suspend (Progress) -> Unit)? = null
@@ -134,14 +133,14 @@ fun IRxHttp.toAppendDownload(
  * @param append is append download
  * @param progress Progress callback in suspend method, The callback thread depends on the coroutine thread
  */
-fun IRxHttp.toDownload(
+fun RangeHeader.toDownload(
     destPath: String,
     context: CoroutineContext? = null,
     append: Boolean = false,
     progress: (suspend (Progress) -> Unit)? = null
 ): IAwait<String> = toDownload(FileOutputStreamFactory(destPath), context, append, progress)
 
-fun IRxHttp.toDownload(
+fun RangeHeader.toDownload(
     context: Context,
     uri: Uri,
     coroutineContext: CoroutineContext? = null,
@@ -150,7 +149,7 @@ fun IRxHttp.toDownload(
 ): IAwait<Uri> =
     toDownload(UriOutputStreamFactory(context, uri), coroutineContext, append, progress)
 
-fun <T> IRxHttp.toDownload(
+fun <T> RangeHeader.toDownload(
     osFactory: OutputStreamFactory<T>,
     context: CoroutineContext? = null,
     append: Boolean = false,
@@ -182,20 +181,20 @@ inline fun <reified T : Any> BodyParamFactory.toFlowProgress(
  * @param append is append download
  * @param progress Progress callback in suspend method, The callback thread depends on the coroutine thread
  */
-fun IRxHttp.toFlow(
+fun RangeHeader.toFlow(
     destPath: String,
     append: Boolean = false,
     progress: (suspend (Progress) -> Unit)? = null
 ): Flow<String> = toFlow(FileOutputStreamFactory(destPath), append, progress)
 
-fun IRxHttp.toFlow(
+fun RangeHeader.toFlow(
     context: Context,
     uri: Uri,
     append: Boolean = false,
     progress: (suspend (Progress) -> Unit)? = null
 ): Flow<Uri> = toFlow(UriOutputStreamFactory(context, uri), append, progress)
 
-fun <T> IRxHttp.toFlow(
+fun <T> RangeHeader.toFlow(
     osFactory: OutputStreamFactory<T>,
     append: Boolean = false,
     progress: (suspend (Progress) -> Unit)? = null
@@ -210,18 +209,18 @@ fun <T> IRxHttp.toFlow(
             .onEachProgress(progress)
     }
 
-fun IRxHttp.toFlowProgress(
+fun RangeHeader.toFlowProgress(
     destPath: String,
     append: Boolean = false
 ): Flow<ProgressT<String>> = toFlowProgress(FileOutputStreamFactory(destPath), append)
 
-fun IRxHttp.toFlowProgress(
+fun RangeHeader.toFlowProgress(
     context: Context,
     uri: Uri,
     append: Boolean = false
 ): Flow<ProgressT<Uri>> = toFlowProgress(UriOutputStreamFactory(context, uri), append)
 
-fun <T> IRxHttp.toFlowProgress(
+fun <T> RangeHeader.toFlowProgress(
     osFactory: OutputStreamFactory<T>,
     append: Boolean = false
 ): Flow<ProgressT<T>> =
