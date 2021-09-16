@@ -17,9 +17,9 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import rxhttp.awaitResult
+import rxhttp.toFlow
 import rxhttp.toStr
 import rxhttp.wrapper.param.RxHttp
-import rxhttp.wrapper.param.toFlow
 import java.io.File
 
 /**
