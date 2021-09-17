@@ -124,10 +124,12 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
    * For example:
    *                                          
    * ```                                                  
-   * RxHttp.get("/service/%1$s/...?pageSize=%2$s", 1, 20)   
+   * RxHttp.get("/service/%d/...", 1)  
+   *     .addQuery("size", 20)
    *     .asString()                                      
    *     .subscribe()                                     
-   * ```                                                  
+   * ```
+   *  url = /service/1/...?size=20
    */
   public static RxHttpNoBodyParam get(String url, Object... formatArgs) {
     return new RxHttpNoBodyParam(Param.get(format(url, formatArgs)));

@@ -68,11 +68,13 @@ class ParamsAnnotatedClass {
                     For example:
                                                              
                     ```                                                  
-                    RxHttp.get("/service/%1${'$'}L/...?pageSize=%2${'$'}L", 1, 20)   
+                    RxHttp.get("/service/%d/...", 1)  
+                        .addQuery("size", 20)
                         .asString()                                      
                         .subscribe()                                     
-                    ```                                                  
-                """.trimIndent(), "${'$'}s", "${'$'}s")
+                    ```
+                     url = /service/1/...?size=20
+                """.trimIndent())
             .build()
 
         for ((key, value) in methodMap) {
