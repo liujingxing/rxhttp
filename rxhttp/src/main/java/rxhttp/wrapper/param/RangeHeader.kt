@@ -7,7 +7,7 @@ import rxhttp.CallFactory
  * Date: 2021/9/17
  * Time: 00:10
  */
-interface RangeHeader : CallFactory {
+interface RangeHeader {
 
     fun setRangeHeader(startIndex: Long, endIndex: Long, connectLastProgress: Boolean): CallFactory
 }
