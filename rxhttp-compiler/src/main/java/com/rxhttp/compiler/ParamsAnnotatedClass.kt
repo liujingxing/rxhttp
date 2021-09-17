@@ -255,6 +255,15 @@ class ParamsAnnotatedClass {
                 .build())
 
         methodList.add(
+            MethodSpec.methodBuilder("addEncodedQuery")
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(String::class.java, "key")
+                .addStatement("param.addEncodedQuery(key, null)")
+                .addStatement("return (R)this")
+                .returns(rxHttp)
+                .build())
+
+        methodList.add(
             MethodSpec.methodBuilder("addQuery")
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(String::class.java, "key")
