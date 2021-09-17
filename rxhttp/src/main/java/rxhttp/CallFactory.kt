@@ -33,6 +33,10 @@ interface CallFactory {
     fun newCall(): Call
 }
 
+fun <T> CallFactory.toParser(
+    parser: Parser<T>,
+): IAwait<T> = AwaitImpl(this, parser)
+
 suspend fun CallFactory.awaitString(): String = await()
 
 suspend inline fun <reified T : Any> CallFactory.awaitList(): List<T> = await()
@@ -235,9 +239,3 @@ fun <T> CallFactory.toFlowProgress(
 fun <T> Flow<ProgressT<T>>.onEachProgress(progress: suspend (Progress) -> Unit): Flow<T> =
     onEach { if (it.result == null) progress(it) }
         .mapNotNull { it.result }
-
-//All of the above methods will eventually call this method.
-fun <T> CallFactory.toParser(
-    parser: Parser<T>,
-): IAwait<T> = AwaitImpl(this, parser)
-
