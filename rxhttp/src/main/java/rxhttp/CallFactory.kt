@@ -77,12 +77,12 @@ fun CallFactory.toOkResponse(): IAwait<Response> = toParser(OkResponseParser())
 
 inline fun <reified T : Any> CallFactory.toClass(): IAwait<T> = toParser(object : SimpleParser<T>() {})
 
-private fun RangeHeader.setRangeHeader(
+private fun CallFactory.setRangeHeader(
     osFactory: OutputStreamFactory<*>,
     append: Boolean
 ) {
     var offsetSize = 0L
-    if (append && osFactory.offsetSize().also { offsetSize = it } >= 0) {
+    if (append && this is RangeHeader && osFactory.offsetSize().also { offsetSize = it } >= 0) {
         setRangeHeader(offsetSize, -1, true)
     }
 }
@@ -98,7 +98,7 @@ fun <T> CallFactory.toSyncDownload(
     message = "Use 'toDownload' instead",
     replaceWith = ReplaceWith("toDownload(destPath, context, true) {}")
 )
-fun RangeHeader.toAppendDownload(
+fun CallFactory.toAppendDownload(
     destPath: String,
     context: CoroutineContext? = null,
     progress: (suspend (Progress) -> Unit)? = null
@@ -109,7 +109,7 @@ fun RangeHeader.toAppendDownload(
     message = "Use 'toDownload' instead",
     replaceWith = ReplaceWith("toDownload(context, uri, coroutineContext, true)")
 )
-fun RangeHeader.toAppendDownload(
+fun CallFactory.toAppendDownload(
     context: Context,
     uri: Uri,
     coroutineContext: CoroutineContext? = null,
@@ -121,7 +121,7 @@ fun RangeHeader.toAppendDownload(
     message = "Use 'toDownload' instead",
     replaceWith = ReplaceWith("toDownload(uriFactory, coroutineContext, true)")
 )
-fun RangeHeader.toAppendDownload(
+fun CallFactory.toAppendDownload(
     uriFactory: UriFactory,
     coroutineContext: CoroutineContext? = null,
     progress: (suspend (Progress) -> Unit)? = null
@@ -133,14 +133,14 @@ fun RangeHeader.toAppendDownload(
  * @param append is append download
  * @param progress Progress callback in suspend method, The callback thread depends on the coroutine thread
  */
-fun RangeHeader.toDownload(
+fun CallFactory.toDownload(
     destPath: String,
     context: CoroutineContext? = null,
     append: Boolean = false,
     progress: (suspend (Progress) -> Unit)? = null
 ): IAwait<String> = toDownload(FileOutputStreamFactory(destPath), context, append, progress)
 
-fun RangeHeader.toDownload(
+fun CallFactory.toDownload(
     context: Context,
     uri: Uri,
     coroutineContext: CoroutineContext? = null,
@@ -149,7 +149,7 @@ fun RangeHeader.toDownload(
 ): IAwait<Uri> =
     toDownload(UriOutputStreamFactory(context, uri), coroutineContext, append, progress)
 
-fun <T> RangeHeader.toDownload(
+fun <T> CallFactory.toDownload(
     osFactory: OutputStreamFactory<T>,
     context: CoroutineContext? = null,
     append: Boolean = false,
@@ -181,20 +181,20 @@ inline fun <reified T : Any> BodyParamFactory.toFlowProgress(
  * @param append is append download
  * @param progress Progress callback in suspend method, The callback thread depends on the coroutine thread
  */
-fun RangeHeader.toFlow(
+fun CallFactory.toFlow(
     destPath: String,
     append: Boolean = false,
     progress: (suspend (Progress) -> Unit)? = null
 ): Flow<String> = toFlow(FileOutputStreamFactory(destPath), append, progress)
 
-fun RangeHeader.toFlow(
+fun CallFactory.toFlow(
     context: Context,
     uri: Uri,
     append: Boolean = false,
     progress: (suspend (Progress) -> Unit)? = null
 ): Flow<Uri> = toFlow(UriOutputStreamFactory(context, uri), append, progress)
 
-fun <T> RangeHeader.toFlow(
+fun <T> CallFactory.toFlow(
     osFactory: OutputStreamFactory<T>,
     append: Boolean = false,
     progress: (suspend (Progress) -> Unit)? = null
@@ -209,18 +209,18 @@ fun <T> RangeHeader.toFlow(
             .onEachProgress(progress)
     }
 
-fun RangeHeader.toFlowProgress(
+fun CallFactory.toFlowProgress(
     destPath: String,
     append: Boolean = false
 ): Flow<ProgressT<String>> = toFlowProgress(FileOutputStreamFactory(destPath), append)
 
-fun RangeHeader.toFlowProgress(
+fun CallFactory.toFlowProgress(
     context: Context,
     uri: Uri,
     append: Boolean = false
 ): Flow<ProgressT<Uri>> = toFlowProgress(UriOutputStreamFactory(context, uri), append)
 
-fun <T> RangeHeader.toFlowProgress(
+fun <T> CallFactory.toFlowProgress(
     osFactory: OutputStreamFactory<T>,
     append: Boolean = false
 ): Flow<ProgressT<T>> =
