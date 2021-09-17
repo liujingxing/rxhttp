@@ -1,5 +1,6 @@
 package rxhttp.wrapper.param;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -29,6 +30,22 @@ public interface IParam<P extends Param<P>> {
     P addQuery(String key, @Nullable Object value);
 
     P addEncodedQuery(String key, @Nullable Object value);
+
+    default P addAllQuery(String key, @NonNull List<?> values) {
+        if (values == null) return addQuery(key, null);
+        for (Object value : values) {
+            addQuery(key, value);
+        }
+        return (P) this;
+    }
+
+    default P addAllEncodedQuery(String key, @NonNull List<?> values) {
+        if (values == null) return addEncodedQuery(key, null);
+        for (Object value : values) {
+            addEncodedQuery(key, value);
+        }
+        return (P) this;
+    }
 
     default P addAllQuery(@NonNull Map<String, ?> map) {
         for (Entry<String, ?> entry : map.entrySet()) {

@@ -242,6 +242,16 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
     return (R)this;
   }
 
+  public R addAllQuery(String key, List<?> list) {
+    param.addAllQuery(key, list);
+    return (R)this;
+  }
+
+  public R addAllEncodedQuery(String key, List<?> list) {
+    param.addAllEncodedQuery(key, list);
+    return (R)this;
+  }
+
   public R addAllQuery(Map<String, ?> map) {
     param.addAllQuery(map);
     return (R)this;

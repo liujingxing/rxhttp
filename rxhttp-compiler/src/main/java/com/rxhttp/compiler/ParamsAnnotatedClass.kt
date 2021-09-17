@@ -39,8 +39,9 @@ class ParamsAnnotatedClass {
         val downloadOffSizeName = ClassName.get("rxhttp.wrapper.entity", "DownloadOffSize")
         val stringName = TypeName.get(String::class.java)
         val subObject = WildcardTypeName.subtypeOf(TypeName.get(Any::class.java))
-        val mapName = ParameterizedTypeName.get(ClassName.get(MutableMap::class.java), stringName, subObject)
-        val mapStringName = ParameterizedTypeName.get(ClassName.get(MutableMap::class.java), stringName, stringName)
+        val listName = ParameterizedTypeName.get(ClassName.get(List::class.java), subObject)
+        val mapName = ParameterizedTypeName.get(ClassName.get(Map::class.java), stringName, subObject)
+        val mapStringName = ParameterizedTypeName.get(ClassName.get(Map::class.java), stringName, stringName)
         val methodList = ArrayList<MethodSpec>()
         val methodMap = LinkedHashMap<String, String>()
         methodMap["get"] = "RxHttpNoBodyParam"
@@ -267,6 +268,26 @@ class ParamsAnnotatedClass {
                 .addParameter(String::class.java, "key")
                 .addParameter(Any::class.java, "value")
                 .addStatement("param.addEncodedQuery(key,value)")
+                .addStatement("return (R)this")
+                .returns(rxHttp)
+                .build())
+
+        methodList.add(
+            MethodSpec.methodBuilder("addAllQuery")
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(String::class.java, "key")
+                .addParameter(listName, "list")
+                .addStatement("param.addAllQuery(key, list)")
+                .addStatement("return (R)this")
+                .returns(rxHttp)
+                .build())
+
+        methodList.add(
+            MethodSpec.methodBuilder("addAllEncodedQuery")
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(String::class.java, "key")
+                .addParameter(listName, "list")
+                .addStatement("param.addAllEncodedQuery(key, list)")
                 .addStatement("return (R)this")
                 .returns(rxHttp)
                 .build())

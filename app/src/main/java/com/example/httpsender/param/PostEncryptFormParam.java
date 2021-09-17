@@ -1,7 +1,5 @@
 package com.example.httpsender.param;
 
-import java.util.List;
-
 import rxhttp.wrapper.annotation.Param;
 import rxhttp.wrapper.param.FormParam;
 import rxhttp.wrapper.param.Method;
@@ -22,13 +20,6 @@ public class PostEncryptFormParam extends FormParam {
 
     public PostEncryptFormParam(String url, Method method) {
         super(url, method);
-    }
-
-    public PostEncryptFormParam addAllQuery(String key, List<String> param) {
-        for (String value : param) {
-            addQuery(key, value);
-        }
-        return this;
     }
 
     public PostEncryptFormParam test1(String s) {
