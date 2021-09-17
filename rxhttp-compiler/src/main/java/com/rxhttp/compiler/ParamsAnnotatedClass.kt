@@ -246,6 +246,15 @@ class ParamsAnnotatedClass {
             MethodSpec.methodBuilder("addQuery")
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(String::class.java, "key")
+                .addStatement("param.addQuery(key, null)")
+                .addStatement("return (R)this")
+                .returns(rxHttp)
+                .build())
+
+        methodList.add(
+            MethodSpec.methodBuilder("addQuery")
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(String::class.java, "key")
                 .addParameter(Any::class.java, "value")
                 .addStatement("param.addQuery(key,value)")
                 .addStatement("return (R)this")
