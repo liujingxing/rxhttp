@@ -234,6 +234,11 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
     return (R)this;
   }
 
+  public R addEncodedQuery(String key) {
+    param.addEncodedQuery(key, null);
+    return (R)this;
+  }
+
   public R addQuery(String key, Object value) {
     param.addQuery(key,value);
     return (R)this;
