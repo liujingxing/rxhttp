@@ -26,7 +26,6 @@ import rxhttp.internal.RxHttpVersion;
 import rxhttp.wrapper.OkHttpCompat;
 import rxhttp.wrapper.annotations.NonNull;
 import rxhttp.wrapper.entity.FileRequestBody;
-import rxhttp.wrapper.entity.Progress;
 import rxhttp.wrapper.entity.UriRequestBody;
 import rxhttp.wrapper.exception.HttpStatusCodeException;
 import rxhttp.wrapper.exception.ParseException;
@@ -84,10 +83,16 @@ public class LogUtil {
         }
     }
 
-    //打印上传/下载进度日志
-    public static void log(Progress progress) {
+    //打印上传进度日志
+    public static void logUpProgress(int progress, long currentSize, long totalSize) {
         if (!isDebug) return;
-        Platform.get().loge(TAG, progress.toString());
+        Platform.get().logd(TAG, "UpProgress{progress=" + progress + ", currentSize=" + currentSize + ", totalSize=" + totalSize + "}");
+    }
+
+    //打印下载进度日志
+    public static void logDownProgress(int progress, long currentSize, long totalSize) {
+        if (!isDebug) return;
+        Platform.get().logd(TAG, "DownProgress{progress=" + progress + ", currentSize=" + currentSize + ", totalSize=" + totalSize + "}");
     }
 
     //请求前，打印日志

@@ -10,7 +10,6 @@ import okio.ForwardingSink;
 import okio.Okio;
 import okio.Sink;
 import rxhttp.wrapper.callback.ProgressCallback;
-import rxhttp.wrapper.entity.Progress;
 import rxhttp.wrapper.utils.LogUtil;
 
 //Track upload progress
@@ -76,8 +75,7 @@ public class ProgressRequestBody extends RequestBody {
 
     private void updateProgress(int progress, long currentSize, long totalSize) {
         if (callback == null) return;
-        Progress p = new Progress(progress, currentSize, totalSize);
-        LogUtil.log(p);
-        callback.onProgress(p);
+        LogUtil.logUpProgress(progress, currentSize, totalSize);
+        callback.onProgress(progress, currentSize, totalSize);
     }
 }

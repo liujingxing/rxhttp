@@ -2,18 +2,15 @@
 
 package rxhttp.wrapper.parse
 
-import kotlinx.coroutines.withContext
 import okhttp3.Response
 import okhttp3.ResponseBody
 import rxhttp.wrapper.OkHttpCompat
 import rxhttp.wrapper.callback.OutputStreamFactory
-import rxhttp.wrapper.entity.ProgressT
 import rxhttp.wrapper.exception.ExceptionHelper
 import rxhttp.wrapper.utils.IOUtil
 import rxhttp.wrapper.utils.LogUtil
 import java.io.IOException
 import java.io.OutputStream
-import kotlin.coroutines.CoroutineContext
 
 /**
  * User: ljx
@@ -22,8 +19,7 @@ import kotlin.coroutines.CoroutineContext
  */
 class SuspendStreamParser<T>(
     private val osFactory: OutputStreamFactory<T>,
-    private val context: CoroutineContext? = null,
-    private val progress: (suspend (ProgressT<T>) -> Unit)? = null,
+    private val progress: (suspend (Int, Long, Long) -> Unit)? = null,
 ) : SuspendParser<T>() {
 
     @Throws(IOException::class)
@@ -33,18 +29,17 @@ class SuspendStreamParser<T>(
         val expand = expandOutputStream.expand
         LogUtil.log(response, expand.toString())
         progress?.let {
-            response.writeTo(body, expandOutputStream, context, it)
+            response.writeTo(body, expandOutputStream, it)
         } ?: IOUtil.write(body.byteStream(), expandOutputStream)
         return expand
     }
 }
 
 @Throws(IOException::class)
-private suspend fun <T> Response.writeTo(
+private suspend fun Response.writeTo(
     body: ResponseBody,
     outStream: OutputStream,
-    context: CoroutineContext? = null,
-    progress: suspend (ProgressT<T>) -> Unit
+    progress: suspend (Int, Long, Long) -> Unit
 ) {
     val offsetSize = OkHttpCompat.getDownloadOffSize(this)?.offSize ?: 0
     var contentLength = OkHttpCompat.getContentLength(this)
@@ -61,11 +56,7 @@ private suspend fun <T> Response.writeTo(
             //响应头里取不到contentLength，仅回调已下载字节数
             val curTime = System.currentTimeMillis()
             if (curTime - lastRefreshTime > 500) {
-                val p = ProgressT<T>(0, currentSize, contentLength)
-                LogUtil.log(p)
-                context?.apply {
-                    withContext(this) { progress(p) }
-                } ?: progress(p)
+                progress(0, currentSize, contentLength)
                 lastRefreshTime = curTime
             }
         } else {
@@ -73,21 +64,13 @@ private suspend fun <T> Response.writeTo(
             val currentProgress = ((currentSize * 100 / contentLength)).toInt()
             if (currentProgress > lastProgress) {
                 lastProgress = currentProgress
-                val p = ProgressT<T>(currentProgress, currentSize, contentLength)
-                LogUtil.log(p)
-                context?.apply {
-                    withContext(this) { progress(p) }
-                } ?: progress(p)
+                progress(currentProgress, currentSize, contentLength)
             }
         }
     }
 
     if (contentLength == -1L) {
         //响应头里取不到contentLength时，保证下载完成事件能回调
-        val p = ProgressT<T>(100, lastSize, contentLength)
-        LogUtil.log(p)
-        context?.apply {
-            withContext(this) { progress(p) }
-        } ?: progress(p)
+        progress(100, lastSize, contentLength)
     }
 }

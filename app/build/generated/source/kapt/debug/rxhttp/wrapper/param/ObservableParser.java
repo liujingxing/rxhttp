@@ -77,12 +77,13 @@ final class ObservableParser<T> extends Observable<T> {
 
         //download progress callback
         @Override
-        public void onProgress(Progress p) {
+        public void onProgress(int progress, long currentSize, long totalSize) {
             if (done) {
                 return;
             }
             try {
-                progressConsumer.accept(p);
+                LogUtil.logDownProgress(progress, currentSize, totalSize);
+                progressConsumer.accept(new Progress(progress, currentSize, totalSize));
             } catch (Throwable t) {
                 fail(t);
             }
@@ -189,11 +190,12 @@ final class ObservableParser<T> extends Observable<T> {
 
         //download progress callback
         @Override
-        public void onProgress(Progress p) {
+        public void onProgress(int progress, long currentSize, long totalSize) {
             if (done) {
                 return;
             }
-            offer(p);
+            LogUtil.logDownProgress(progress, currentSize, totalSize);
+            offer(new Progress(progress,currentSize,totalSize));
         }
 
         @SuppressWarnings("unchecked")

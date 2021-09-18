@@ -7,6 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.withContext
 import okhttp3.Call
 import okhttp3.Headers
 import okhttp3.Response
@@ -21,6 +22,7 @@ import rxhttp.wrapper.entity.ProgressT
 import rxhttp.wrapper.param.BodyParamFactory
 import rxhttp.wrapper.param.RangeHeader
 import rxhttp.wrapper.parse.*
+import rxhttp.wrapper.utils.LogUtil
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -94,8 +96,19 @@ private fun CallFactory.setRangeHeader(
 fun <T> CallFactory.toSyncDownload(
     osFactory: OutputStreamFactory<T>,
     context: CoroutineContext? = null,
-    progress: (suspend (ProgressT<T>) -> Unit)? = null
-): IAwait<T> = toParser(SuspendStreamParser(osFactory, context, progress))
+    progressCallback: (suspend (ProgressT<T>) -> Unit)? = null
+): IAwait<T> {
+    val parser = if (progressCallback != null) {
+        SuspendStreamParser(osFactory) { progress, currentSize, totalSize ->
+            LogUtil.logDownProgress(progress, currentSize, totalSize)
+            val p = ProgressT<T>(progress, currentSize, totalSize)
+            context?.let { withContext(it) { progressCallback(p) } } ?: progressCallback(p)
+        }
+    } else {
+        SuspendStreamParser(osFactory)
+    }
+    return toParser(parser)
+}
 
 @Deprecated(
     level = DeprecationLevel.WARNING,
@@ -176,7 +189,9 @@ inline fun <reified T : Any> BodyParamFactory.toFlowProgress(
     iAwait: IAwait<T> = toClass()
 ) =
     channelFlow {
-        param.setProgressCallback { trySend(ProgressT<T>(it)) }
+        param.setProgressCallback { progress, currentSize, totalSize ->
+            trySend(ProgressT<T>(progress, currentSize, totalSize))
+        }
         iAwait.await().also { trySend(ProgressT<T>(it)) }
     }.buffer(1, BufferOverflow.DROP_OLDEST)
 
