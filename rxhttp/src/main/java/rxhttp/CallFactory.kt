@@ -48,9 +48,7 @@ fun <T> CallFactory.toParser(
 
 fun CallFactory.toStr(): IAwait<String> = toClass()
 
-inline fun <reified T : Any> CallFactory.toList(): IAwait<List<T>> = toClass()
-
-inline fun <reified T : Any> CallFactory.toMutableList(): IAwait<MutableList<T>> = toClass()
+inline fun <reified T : Any> CallFactory.toList(): IAwait<MutableList<T>> = toClass()
 
 inline fun <reified K : Any, reified V : Any> CallFactory.toMap(): IAwait<Map<K, V>> = toClass()
 
