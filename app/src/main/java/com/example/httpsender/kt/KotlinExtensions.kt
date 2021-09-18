@@ -50,7 +50,7 @@ val Throwable.errorMsg: String
         } else if (this is ConnectException) {
             "网络不给力，请稍候重试！"
         } else if (this is HttpStatusCodeException) {               //请求失败异常
-            "Http状态码异常"
+            "Http状态码异常 $message"
         } else if (this is JsonSyntaxException) {  //请求成功，但Json语法异常,导致解析失败
             "数据解析失败,请检查数据是否正确"
         } else if (this is ParseException) {       // ParseException异常表明请求成功，但是数据不正确

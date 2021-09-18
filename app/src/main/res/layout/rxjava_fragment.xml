@@ -71,16 +71,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:onClick="@{v->click.onClick(v)}"
-                    android:text="XmlConverter 解析"
+                    android:text="发送/接收 xml数据"
                     android:textAllCaps="false" />
 
-                <Button
-                    android:id="@+id/fastJsonConverter"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:onClick="@{v->click.onClick(v)}"
-                    android:text="FastJsonConverter 解析"
-                    android:textAllCaps="false" />
 
             </LinearLayout>
         </ScrollView>
