@@ -44,6 +44,9 @@ private suspend fun Response.writeTo(
     val offsetSize = OkHttpCompat.getDownloadOffSize(this)?.offSize ?: 0
     var contentLength = OkHttpCompat.getContentLength(this)
     if (contentLength != -1L) contentLength += offsetSize
+    if (contentLength == -1L) {
+        LogUtil.log("Unable to calculate callback progress without `Content-Length` response header")
+    }
 
     var lastProgress = 0
     var lastSize = 0L
