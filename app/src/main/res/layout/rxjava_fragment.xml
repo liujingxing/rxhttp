@@ -35,14 +35,6 @@
                 android:orientation="vertical">
 
                 <Button
-                    android:id="@+id/bitmap"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:onClick="@{v->click.onClick(v)}"
-                    android:text="请求Bitmap"
-                    android:textAllCaps="false" />
-
-                <Button
                     android:id="@+id/sendGet"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
