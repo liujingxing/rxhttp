@@ -426,7 +426,7 @@ suspend fun <T> Await<T>.tryAwait(onCatch: ((Throwable) -> Unit)?): T? =
     }
 
 //return default value when an error occurs.
-suspend inline fun <T> Deferred<T>.safeAwait(onCatch: (Throwable) -> T): T =
+suspend inline fun <T> Deferred<T>.await(onCatch: (Throwable) -> T): T =
     try {
         await()
     } catch (e: Throwable) {
@@ -434,7 +434,7 @@ suspend inline fun <T> Deferred<T>.safeAwait(onCatch: (Throwable) -> T): T =
     }
 
 //return default value when an error occurs.
-suspend inline fun <T> Await<T>.safeAwait(onCatch: (Throwable) -> T): T =
+suspend inline fun <T> Await<T>.await(onCatch: (Throwable) -> T): T =
     try {
         await()
     } catch (e: Throwable) {
