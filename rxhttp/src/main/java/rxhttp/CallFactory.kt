@@ -46,6 +46,9 @@ fun <T> CallFactory.toParser(
     parser: Parser<T>,
 ): IAwait<T> = AwaitImpl(this, parser)
 
+inline fun <reified T : Any> CallFactory.toClass(): IAwait<T> =
+    toParser(object : SimpleParser<T>() {})
+
 fun CallFactory.toStr(): IAwait<String> = toClass()
 
 inline fun <reified T : Any> CallFactory.toList(): IAwait<MutableList<T>> = toClass()
@@ -53,6 +56,8 @@ inline fun <reified T : Any> CallFactory.toList(): IAwait<MutableList<T>> = toCl
 inline fun <reified K : Any, reified V : Any> CallFactory.toMap(): IAwait<Map<K, V>> = toClass()
 
 fun CallFactory.toBitmap(): IAwait<Bitmap> = toParser(BitmapParser())
+
+fun CallFactory.toOkResponse(): IAwait<Response> = toParser(OkResponseParser())
 
 fun CallFactory.toHeaders(): IAwait<Headers> = toOkResponse()
     .map {
@@ -62,10 +67,6 @@ fun CallFactory.toHeaders(): IAwait<Headers> = toOkResponse()
             OkHttpCompat.closeQuietly(it)
         }
     }
-
-fun CallFactory.toOkResponse(): IAwait<Response> = toParser(OkResponseParser())
-
-inline fun <reified T : Any> CallFactory.toClass(): IAwait<T> = toParser(object : SimpleParser<T>() {})
 
 private fun CallFactory.setRangeHeader(
     osFactory: OutputStreamFactory<*>,
