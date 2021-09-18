@@ -27,22 +27,22 @@ import kotlin.coroutines.CoroutineContext
 
 fun <T> CallFactory.toParser(
     parser: Parser<T>,
-): IAwait<T> = AwaitImpl(this, parser)
+): Await<T> = AwaitImpl(this, parser)
 
-inline fun <reified T : Any> CallFactory.toClass(): IAwait<T> =
+inline fun <reified T : Any> CallFactory.toClass(): Await<T> =
     toParser(object : SimpleParser<T>() {})
 
-fun CallFactory.toStr(): IAwait<String> = toClass()
+fun CallFactory.toStr(): Await<String> = toClass()
 
-inline fun <reified T : Any> CallFactory.toList(): IAwait<MutableList<T>> = toClass()
+inline fun <reified T : Any> CallFactory.toList(): Await<MutableList<T>> = toClass()
 
-inline fun <reified K : Any, reified V : Any> CallFactory.toMap(): IAwait<Map<K, V>> = toClass()
+inline fun <reified K : Any, reified V : Any> CallFactory.toMap(): Await<Map<K, V>> = toClass()
 
-fun CallFactory.toBitmap(): IAwait<Bitmap> = toParser(BitmapParser())
+fun CallFactory.toBitmap(): Await<Bitmap> = toParser(BitmapParser())
 
-fun CallFactory.toOkResponse(): IAwait<Response> = toParser(OkResponseParser())
+fun CallFactory.toOkResponse(): Await<Response> = toParser(OkResponseParser())
 
-fun CallFactory.toHeaders(): IAwait<Headers> = toOkResponse()
+fun CallFactory.toHeaders(): Await<Headers> = toOkResponse()
     .map {
         try {
             OkHttpCompat.headers(it)
@@ -55,7 +55,7 @@ fun <T> CallFactory.toSyncDownload(
     osFactory: OutputStreamFactory<T>,
     context: CoroutineContext? = null,
     progressCallback: (suspend (ProgressT<T>) -> Unit)? = null
-): IAwait<T> {
+): Await<T> {
     val parser = if (progressCallback != null) {
         SuspendStreamParser(osFactory) { progress, currentSize, totalSize ->
             LogUtil.logDownProgress(progress, currentSize, totalSize)
@@ -113,7 +113,7 @@ fun CallFactory.toDownload(
     context: CoroutineContext? = null,
     append: Boolean = false,
     progress: (suspend (Progress) -> Unit)? = null
-): IAwait<String> = toDownload(FileOutputStreamFactory(destPath), context, append, progress)
+): Await<String> = toDownload(FileOutputStreamFactory(destPath), context, append, progress)
 
 fun CallFactory.toDownload(
     context: Context,
@@ -121,7 +121,7 @@ fun CallFactory.toDownload(
     coroutineContext: CoroutineContext? = null,
     append: Boolean = false,
     progress: (suspend (Progress) -> Unit)? = null
-): IAwait<Uri> =
+): Await<Uri> =
     toDownload(UriOutputStreamFactory(context, uri), coroutineContext, append, progress)
 
 fun <T> CallFactory.toDownload(
@@ -129,7 +129,7 @@ fun <T> CallFactory.toDownload(
     context: CoroutineContext? = null,
     append: Boolean = false,
     progress: (suspend (Progress) -> Unit)? = null
-): IAwait<T> =
+): Await<T> =
     toSyncDownload(osFactory, context, progress)
         .onStart { setRangeHeader(osFactory, append) }
         .flowOn(Dispatchers.IO)

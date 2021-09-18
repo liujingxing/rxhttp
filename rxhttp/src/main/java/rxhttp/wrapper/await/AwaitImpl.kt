@@ -1,6 +1,6 @@
 package rxhttp.wrapper.await
 
-import rxhttp.IAwait
+import rxhttp.Await
 import rxhttp.CallFactory
 import rxhttp.wrapper.OkHttpCompat
 import rxhttp.wrapper.parse.Parser
@@ -17,7 +17,7 @@ import rxhttp.wrapper.utils.await
 internal class AwaitImpl<T>(
     private val callFactory: CallFactory,
     private val parser: Parser<T>,
-) : IAwait<T> {
+) : Await<T> {
 
     override suspend fun await(): T {
         val call = callFactory.newCall()
