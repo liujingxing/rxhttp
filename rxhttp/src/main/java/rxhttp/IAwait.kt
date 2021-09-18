@@ -413,18 +413,18 @@ suspend fun <T> Deferred<T>.awaitResult(onSuccess: (value: T) -> Unit): Result<T
  * Try to get the return value and return null when an error occurs.
  */
 suspend fun <T> Deferred<T>.tryAwait(
-    onError: ((exception: Throwable) -> Unit)? = null
+    onError: ((Throwable) -> Unit)? = null
 ): T? = tryAwait(onError) { await() }
 
 /**
  * Try to get the return value and return null when an error occurs.
  */
 suspend fun <T> IAwait<T>.tryAwait(
-    onError: ((exception: Throwable) -> Unit)? = null
+    onError: ((Throwable) -> Unit)? = null
 ): T? = tryAwait(onError) { await() }
 
 private inline fun <T> tryAwait(
-    noinline onError: ((exception: Throwable) -> Unit)? = null,
+    noinline onError: ((Throwable) -> Unit)? = null,
     block: () -> T,
 ): T? {
     return try {
