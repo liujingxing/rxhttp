@@ -1,8 +1,6 @@
 package com.example.httpsender.fragment
 
-import android.graphics.Bitmap
 import android.graphics.Color
-import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
 import android.view.View
 import androidx.lifecycle.lifecycleScope
@@ -22,6 +20,17 @@ import java.util.*
 
 /**
  * 使用 协程(RxHttp + Flow) 发请求
+ *
+ * ```
+ * RxHttp.postXxx("/service/...")
+ *     .add("key", "value")
+ *     .toFlow<User>()
+ *     .catch {
+ *        val throwable = it
+ *     }.collect {
+ *        val user = it
+ *     }
+ *```
  * User: ljx
  * Date: 2021/9/18
  * Time: 20:16
@@ -62,7 +71,7 @@ class FlowFragment : BaseFragment<FlowFragmentBinding>(), View.OnClickListener {
             }
     }
 
-    //发送Post Json请求，此接口不通，仅用于调试参数
+    //发送Post Json请求，此接口不通，通过日志可以看到，发送出去的json对象
     private suspend fun FlowFragmentBinding.sendPostJson(view: View) {
         /*
            发送以下User对象
@@ -91,7 +100,7 @@ class FlowFragment : BaseFragment<FlowFragmentBinding>(), View.OnClickListener {
             }
     }
 
-    //发送Post JsonArray请求，此接口不通，仅用于调试参数
+    //发送Post JsonArray请求，通过日志可以看到，发送出去的json数组
     private suspend fun FlowFragmentBinding.sendPostJsonArray(view: View) {
         /*
            发送以下Json数组
@@ -115,9 +124,10 @@ class FlowFragment : BaseFragment<FlowFragmentBinding>(), View.OnClickListener {
 
     }
 
-    //使用XmlConverter解析数据，此接口返回数据太多，会有点慢
+    //此接口不同，但通过日志可以看到，发送出去的是xml数据，如果收到也是xml数据，则会自动解析为我们指定的对象
     private suspend fun FlowFragmentBinding.xmlConverter(view: View) {
-        RxHttp.get("http://webservices.nextbus.com/service/publicXMLFeed?command=routeConfig&a=sf-muni")
+        RxHttp.postBody("http://webservices.nextbus.com/service/publicXMLFeed?command=routeConfig&a=sf-muni")
+            .setBody(Name("张三"))
             .setXmlConverter()
             .toFlow<NewsDataXml>()
             .catch {
@@ -128,18 +138,6 @@ class FlowFragment : BaseFragment<FlowFragmentBinding>(), View.OnClickListener {
             }
     }
 
-    //使用XmlConverter解析数据
-    private suspend fun FlowFragmentBinding.fastJsonConverter(view: View) {
-        RxHttp.get("/article/list/0/json")
-            .setFastJsonConverter()
-            .toFlowResponse<PageList<Article>>()
-            .catch {
-                tvResult.text = it.errorMsg
-                it.show()
-            }.collect {
-                tvResult.text = Gson().toJson(it)
-            }
-    }
 
     private fun FlowFragmentBinding.clearLog(view: View) {
         tvResult.text = ""
@@ -155,7 +153,6 @@ class FlowFragment : BaseFragment<FlowFragmentBinding>(), View.OnClickListener {
                     R.id.sendPostJson -> sendPostJson(v)
                     R.id.sendPostJsonArray -> sendPostJsonArray(v)
                     R.id.xmlConverter -> xmlConverter(v)
-                    R.id.fastJsonConverter -> fastJsonConverter(v)
                     R.id.bt_clear -> clearLog(v)
                 }
             }

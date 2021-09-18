@@ -25,7 +25,18 @@ import java.util.List;
 import rxhttp.wrapper.param.RxHttp;
 
 /**
- * 使用RxJava+OkHttp发请求
+ * 使用 RxHttp + RxJava 发请求
+ *
+ * ```
+ * RxHttp.postXxx("/service/...")
+ *     .add("key", "value")
+ *     .asClass<User>()
+ *     .subscribe(user ->{
+ *
+ *     }, throwable -> {
+ *
+ *     })
+ *```
  * User: ljx
  * Date: 2020/4/24
  * Time: 18:16
@@ -76,7 +87,7 @@ public class RxJavaFragment extends BaseFragment<RxjavaFragmentBinding> implemen
             });
     }
 
-    //发送Post Json请求，此接口不通，仅用于调试参数
+    //发送Post Json请求，此接口不通，通过日志可以看到，发送出去的json对象
     public void sendPostJson(View view) {
         //发送以下User对象
         /*
@@ -125,7 +136,7 @@ public class RxJavaFragment extends BaseFragment<RxjavaFragmentBinding> implemen
     }
 
 
-    //发送Post JsonArray请求，此接口不通，仅用于调试参数
+    //发送Post JsonArray请求，通过日志可以看到，发送出去的json数组
     public void sendPostJsonArray(View view) {
         //发送以下Json数组
         /*
@@ -166,30 +177,15 @@ public class RxJavaFragment extends BaseFragment<RxjavaFragmentBinding> implemen
             });
     }
 
-    //使用XmlConverter解析数据，此接口返回数据太多，会有点慢
+    //此接口不同，但通过日志可以看到，发送出去的是xml数据，如果收到也是xml数据，则会自动解析为我们指定的对象
     public void xmlConverter(View view) {
-        RxHttp.get("http://webservices.nextbus.com/service/publicXMLFeed?command=routeConfig&a=sf-muni")
+        RxHttp.postBody("http://webservices.nextbus.com/service/publicXMLFeed?command=routeConfig&a=sf-muni")
+            .setBody(new Name("张三"))
             .setXmlConverter()
             .asClass(NewsDataXml.class)
             .to(RxLife.toMain(this))  //感知生命周期，并在主线程回调
             .subscribe(dataXml -> {
                 mBinding.tvResult.setText(new Gson().toJson(dataXml));
-                //成功回调
-            }, (OnError) error -> {
-                mBinding.tvResult.setText(error.getErrorMsg());
-                //失败回调
-                error.show("发送失败,请稍后再试!");
-            });
-    }
-
-    //使用XmlConverter解析数据
-    public void fastJsonConverter(View view) {
-        RxHttp.get("/article/list/0/json")
-            .setFastJsonConverter()
-            .asResponsePageList(Article.class)
-            .to(RxLife.toMain(this))  //感知生命周期，并在主线程回调
-            .subscribe(pageList -> {
-                mBinding.tvResult.setText(new Gson().toJson(pageList));
                 //成功回调
             }, (OnError) error -> {
                 mBinding.tvResult.setText(error.getErrorMsg());
@@ -221,9 +217,6 @@ public class RxJavaFragment extends BaseFragment<RxjavaFragmentBinding> implemen
                 break;
             case R.id.xmlConverter:
                 xmlConverter(v);
-                break;
-            case R.id.fastJsonConverter:
-                fastJsonConverter(v);
                 break;
             case R.id.bt_clear:
                 clearLog(v);

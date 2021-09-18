@@ -19,6 +19,18 @@ import java.util.*
 
 /**
  * 使用 协程(RxHttp + Await) 发请求
+ *
+ * ```
+ * val user = RxHttp.postXxx("/service/...")
+ *     .add("key", "value")
+ *     .toClass<User>()
+ *     .awaitResult {
+ *         val user = it
+ *     }.onFailure {
+ *         val throwable = it
+ *     }
+ *```
+ *
  * User: ljx
  * Date: 2020/4/24
  * Time: 18:16
@@ -61,7 +73,7 @@ class AwaitFragment : BaseFragment<CoroutineFragmentBinding>(), View.OnClickList
             }
     }
 
-    //发送Post Json请求，此接口不通，仅用于调试参数
+    //发送Post Json请求，此接口不通，通过日志可以看到，发送出去的json对象
     private suspend fun CoroutineFragmentBinding.sendPostJson(view: View) {
         /*
            发送以下User对象
@@ -91,7 +103,7 @@ class AwaitFragment : BaseFragment<CoroutineFragmentBinding>(), View.OnClickList
             }
     }
 
-    //发送Post JsonArray请求，此接口不通，仅用于调试参数
+    //发送Post JsonArray请求，通过日志可以看到，发送出去的json数组
     private suspend fun CoroutineFragmentBinding.sendPostJsonArray(view: View) {
         /*
            发送以下Json数组
@@ -116,9 +128,10 @@ class AwaitFragment : BaseFragment<CoroutineFragmentBinding>(), View.OnClickList
 
     }
 
-    //使用XmlConverter解析数据，此接口返回数据太多，会有点慢
+    //此接口不同，但通过日志可以看到，发送出去的是xml数据，如果收到也是xml数据，则会自动解析为我们指定的对象
     private suspend fun CoroutineFragmentBinding.xmlConverter(view: View) {
-        RxHttp.get("http://webservices.nextbus.com/service/publicXMLFeed?command=routeConfig&a=sf-muni")
+        RxHttp.postBody("http://webservices.nextbus.com/service/publicXMLFeed?command=routeConfig&a=sf-muni")
+            .setBody(Name("张三"))
             .setXmlConverter()
             .toClass<NewsDataXml>()
             .awaitResult {
@@ -130,19 +143,6 @@ class AwaitFragment : BaseFragment<CoroutineFragmentBinding>(), View.OnClickList
             }
     }
 
-    //使用XmlConverter解析数据
-    private suspend fun CoroutineFragmentBinding.fastJsonConverter(view: View) {
-        RxHttp.get("/article/list/0/json")
-            .setFastJsonConverter()
-            .toResponse<PageList<Article>>()
-            .awaitResult {
-                tvResult.text = Gson().toJson(it)
-            }.onFailure {
-                tvResult.text = it.errorMsg
-                //失败回调
-                it.show()
-            }
-    }
 
     private fun CoroutineFragmentBinding.clearLog(view: View) {
         tvResult.text = ""
@@ -158,7 +158,6 @@ class AwaitFragment : BaseFragment<CoroutineFragmentBinding>(), View.OnClickList
                     R.id.sendPostJson -> sendPostJson(v)
                     R.id.sendPostJsonArray -> sendPostJsonArray(v)
                     R.id.xmlConverter -> xmlConverter(v)
-                    R.id.fastJsonConverter -> fastJsonConverter(v)
                     R.id.bt_clear -> clearLog(v)
                 }
             }
