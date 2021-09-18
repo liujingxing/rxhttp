@@ -3,9 +3,9 @@ package rxhttp.wrapper.param;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Scheduler;
 import io.reactivex.rxjava3.functions.Consumer;
+import rxhttp.BodyParamFactory;
 import rxhttp.wrapper.entity.Progress;
 import rxhttp.wrapper.param.AbstractBodyParam;
-import rxhttp.wrapper.param.BodyParamFactory;
 import rxhttp.wrapper.parse.Parser;
 
 /**
