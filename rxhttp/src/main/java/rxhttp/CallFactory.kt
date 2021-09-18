@@ -46,27 +46,6 @@ fun <T> CallFactory.toParser(
     parser: Parser<T>,
 ): IAwait<T> = AwaitImpl(this, parser)
 
-suspend fun CallFactory.awaitString(): String = await()
-
-suspend inline fun <reified T : Any> CallFactory.awaitList(): List<T> = await()
-
-suspend inline fun <reified K : Any, reified V : Any> CallFactory.awaitMap(): Map<K, V> = await()
-
-suspend fun CallFactory.awaitBitmap(): Bitmap = await(BitmapParser())
-
-suspend fun CallFactory.awaitHeaders(): Headers = OkHttpCompat.headers(awaitOkResponse())
-
-suspend fun CallFactory.awaitOkResponse(): Response = await(OkResponseParser())
-
-suspend inline fun <reified T : Any> CallFactory.awaitResult(): Result<T> = runCatching { await() }
-
-suspend inline fun <reified T : Any> CallFactory.awaitResult(onSuccess: (value: T) -> Unit): Result<T> =
-    awaitResult<T>().onSuccess(onSuccess)
-
-suspend inline fun <reified T : Any> CallFactory.await(): T = await(object : SimpleParser<T>() {})
-
-suspend fun <T> CallFactory.await(parser: Parser<T>): T = toParser(parser).await()
-
 fun CallFactory.toStr(): IAwait<String> = toClass()
 
 inline fun <reified T : Any> CallFactory.toList(): IAwait<List<T>> = toClass()
