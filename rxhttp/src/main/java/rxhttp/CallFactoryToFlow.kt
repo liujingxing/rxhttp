@@ -19,8 +19,8 @@ import rxhttp.wrapper.entity.ProgressT
  * Date: 2021/9/18
  * Time: 17:31
  */
-inline fun <reified T : Any> CallFactory.toFlow(iAwait: IAwait<T> = toClass()): Flow<T> =
-    flow { emit(iAwait.await()) }
+inline fun <reified T : Any> CallFactory.toFlow(await: Await<T> = toClass()): Flow<T> =
+    flow { emit(await.await()) }
 
 @ExperimentalCoroutinesApi
 inline fun <reified T : Any> BodyParamFactory.toFlow(
@@ -29,13 +29,13 @@ inline fun <reified T : Any> BodyParamFactory.toFlow(
 
 @ExperimentalCoroutinesApi
 inline fun <reified T : Any> BodyParamFactory.toFlowProgress(
-    iAwait: IAwait<T> = toClass()
+    await: Await<T> = toClass()
 ) =
     channelFlow {
         param.setProgressCallback { progress, currentSize, totalSize ->
             trySend(ProgressT<T>(progress, currentSize, totalSize))
         }
-        iAwait.await().also { trySend(ProgressT<T>(it)) }
+        await.await().also { trySend(ProgressT<T>(it)) }
     }.buffer(1, BufferOverflow.DROP_OLDEST)
 
 /**
