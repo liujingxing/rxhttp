@@ -23,7 +23,9 @@ import rxhttp.wrapper.entity.ProgressT
  * Date: 2021/9/18
  * Time: 17:31
  */
-inline fun <reified T : Any> CallFactory.toFlow(await: Await<T> = toClass()): Flow<T> =
+inline fun <reified T : Any> CallFactory.toFlow(): Flow<T> = toFlow(toClass())
+
+inline fun <reified T : Any> CallFactory.toFlow(await: Await<T>): Flow<T> =
     flow { emit(await.await()) }
 
 @ExperimentalCoroutinesApi
