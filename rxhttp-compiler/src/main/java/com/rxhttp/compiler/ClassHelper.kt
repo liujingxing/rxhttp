@@ -39,7 +39,7 @@ object ClassHelper {
                 package $rxHttpPackage;
 
                 import rxhttp.CallFactory;
-                import rxhttp.wrapper.param.RangeHeader;
+                import rxhttp.RangeHeader;
 
                 /**
                  * 本类存放asXxx方法(需要单独依赖RxJava，并告知RxHttp依赖的RxJava版本)
@@ -75,6 +75,7 @@ object ClassHelper {
             import okhttp3.Headers;
             import okhttp3.Response;
             import rxhttp.CallFactory;
+            import rxhttp.RangeHeader;
             import rxhttp.wrapper.OkHttpCompat;
             import rxhttp.wrapper.callback.OutputStreamFactory;
             import rxhttp.wrapper.callback.FileOutputStreamFactory;
@@ -87,7 +88,6 @@ object ClassHelper {
             import rxhttp.wrapper.parse.SimpleParser;
             import rxhttp.wrapper.parse.StreamParser;
             import rxhttp.wrapper.utils.LogUtil;
-            import rxhttp.wrapper.param.RangeHeader;
 
             /**
              * 本类存放asXxx方法(需要单独依赖RxJava，并告知RxHttp依赖的RxJava版本)

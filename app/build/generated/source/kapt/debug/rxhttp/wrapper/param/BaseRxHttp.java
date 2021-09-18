@@ -16,6 +16,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 import okhttp3.Headers;
 import okhttp3.Response;
 import rxhttp.CallFactory;
+import rxhttp.RangeHeader;
 import rxhttp.wrapper.OkHttpCompat;
 import rxhttp.wrapper.callback.OutputStreamFactory;
 import rxhttp.wrapper.callback.FileOutputStreamFactory;
@@ -28,7 +29,6 @@ import rxhttp.wrapper.parse.Parser;
 import rxhttp.wrapper.parse.SimpleParser;
 import rxhttp.wrapper.parse.StreamParser;
 import rxhttp.wrapper.utils.LogUtil;
-import rxhttp.wrapper.param.RangeHeader;
 
 /**
  * 本类存放asXxx方法(需要单独依赖RxJava，并告知RxHttp依赖的RxJava版本)

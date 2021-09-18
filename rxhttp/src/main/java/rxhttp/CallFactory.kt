@@ -20,7 +20,6 @@ import rxhttp.wrapper.callback.UriOutputStreamFactory
 import rxhttp.wrapper.entity.Progress
 import rxhttp.wrapper.entity.ProgressT
 import rxhttp.wrapper.param.AbstractBodyParam
-import rxhttp.wrapper.param.RangeHeader
 import rxhttp.wrapper.parse.*
 import rxhttp.wrapper.utils.LogUtil
 import kotlin.coroutines.CoroutineContext
@@ -30,14 +29,17 @@ import kotlin.coroutines.CoroutineContext
  * Date: 2020/3/21
  * Time: 23:56
  */
+interface CallFactory {
+
+    fun newCall(): Call
+}
 
 interface BodyParamFactory : CallFactory {
     val param: AbstractBodyParam<*>
 }
 
-interface CallFactory {
-
-    fun newCall(): Call
+interface RangeHeader {
+    fun setRangeHeader(startIndex: Long, endIndex: Long, connectLastProgress: Boolean): CallFactory
 }
 
 fun <T> CallFactory.toParser(
