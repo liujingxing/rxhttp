@@ -246,7 +246,7 @@ class RxHttpExtensions {
         val toFlow = MemberName("rxhttp", "toFlow")
         val toFlowProgress = MemberName("rxhttp", "toFlowProgress")
         val onEachProgress = MemberName("rxhttp", "onEachProgress")
-        val bodyParamFactory = ClassName("rxhttp.wrapper.param", "BodyParamFactory")
+        val bodyParamFactory = ClassName("rxhttp", "BodyParamFactory")
         val experimentalCoroutinesApi = ClassName("kotlinx.coroutines", "ExperimentalCoroutinesApi")
 
         toFunList.forEach {

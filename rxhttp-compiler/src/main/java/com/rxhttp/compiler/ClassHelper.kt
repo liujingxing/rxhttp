@@ -249,6 +249,7 @@ object ClassHelper {
             import okhttp3.Call;
             import okhttp3.Callback;
             import okhttp3.Response;
+            import rxhttp.BodyParamFactory;
             import rxhttp.CallFactory;
             import rxhttp.wrapper.callback.ProgressCallback;
             import rxhttp.wrapper.entity.Progress;
@@ -363,6 +364,7 @@ object ClassHelper {
             import ${getClassPath("RxJavaPlugins")};
             import okhttp3.Call;
             import okhttp3.Response;
+            import rxhttp.BodyParamFactory;
             import rxhttp.CallFactory;
             import rxhttp.wrapper.callback.ProgressCallback;
             import rxhttp.wrapper.entity.Progress;
@@ -850,8 +852,8 @@ object ClassHelper {
             generatorClass(filer, "RxHttpAbstractBodyParam", """
                 package $rxHttpPackage;
                 
+                import rxhttp.BodyParamFactory;
                 import rxhttp.wrapper.param.AbstractBodyParam;
-                import rxhttp.wrapper.param.BodyParamFactory;
 
                 /**
                  * Github
@@ -881,9 +883,9 @@ object ClassHelper {
                 import ${getClassPath("Observable")};
                 import ${getClassPath("Scheduler")};
                 import ${getClassPath("Consumer")};
+                import rxhttp.BodyParamFactory;
                 import rxhttp.wrapper.entity.Progress;
                 import rxhttp.wrapper.param.AbstractBodyParam;
-                import rxhttp.wrapper.param.BodyParamFactory;
                 import rxhttp.wrapper.parse.Parser;
                 
                 /**
