@@ -5,7 +5,6 @@ import okhttp3.ResponseBody
 import rxhttp.wrapper.OkHttpCompat
 import rxhttp.wrapper.callback.OutputStreamFactory
 import rxhttp.wrapper.callback.ProgressCallback
-import rxhttp.wrapper.entity.Progress
 import rxhttp.wrapper.exception.ExceptionHelper
 import rxhttp.wrapper.utils.IOUtil
 import rxhttp.wrapper.utils.LogUtil
@@ -43,6 +42,9 @@ private fun Response.writeTo(
     val offsetSize = OkHttpCompat.getDownloadOffSize(this)?.offSize ?: 0
     var contentLength = OkHttpCompat.getContentLength(this)
     if (contentLength != -1L) contentLength += offsetSize
+    if (contentLength == -1L) {
+        LogUtil.log("Unable to calculate callback progress without `Content-Length` response header")
+    }
 
     var lastProgress = 0
     var lastSize = 0L

@@ -83,6 +83,11 @@ public class LogUtil {
         }
     }
 
+    public static void log(String msg) {
+        if (!isDebug()) return;
+        Platform.get().loge(TAG, msg);
+    }
+
     //打印上传进度日志
     public static void logUpProgress(int progress, long currentSize, long totalSize) {
         if (!isDebug) return;
