@@ -1,6 +1,5 @@
-package rxhttp.wrapper.await
+package rxhttp.wrapper.coroutines
 
-import rxhttp.Await
 import rxhttp.CallFactory
 import rxhttp.wrapper.OkHttpCompat
 import rxhttp.wrapper.parse.Parser

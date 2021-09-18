@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.*
 import rxhttp.wrapper.callback.FileOutputStreamFactory
 import rxhttp.wrapper.callback.OutputStreamFactory
 import rxhttp.wrapper.callback.UriOutputStreamFactory
+import rxhttp.wrapper.coroutines.Await
 import rxhttp.wrapper.entity.Progress
 import rxhttp.wrapper.entity.ProgressT
 
