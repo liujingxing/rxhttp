@@ -85,11 +85,13 @@ class AwaitFragment : BaseFragment<CoroutineFragmentBinding>(), View.OnClickList
         val interestList: MutableList<String> = ArrayList() //爱好
         interestList.add("羽毛球")
         interestList.add("游泳")
-        val address = "{\"street\":\"科技园路.\",\"city\":\"江苏苏州\",\"country\":\"中国\"}"
+        val address = """
+            {"street":"科技园路.","city":"江苏苏州","country":"中国"}
+        """.trimIndent()
         RxHttp.postJson("/article/list/0/json")
             .add("name", "张三")
             .add("sex", 1)
-            .addAll("{\"height\":180,\"weight\":70}") //通过addAll系列方法添加多个参数
+            .addAll("""{"height":180,"weight":70}""") //通过addAll系列方法添加多个参数
             .add("interest", interestList) //添加数组对象
             .add("location", Location(120.6788, 30.7866)) //添加位置对象
             .addJsonElement("address", address) //通过字符串添加一个对象
@@ -115,7 +117,7 @@ class AwaitFragment : BaseFragment<CoroutineFragmentBinding>(), View.OnClickList
         RxHttp.postJsonArray("/article/list/0/json")
             .add("name", "张三")
             .add(Name("李四"))
-            .addJsonElement("{\"name\":\"王五\"}")
+            .addJsonElement("""{"name":"王五"}""")
             .addAll(names)
             .toStr()
             .awaitResult {
