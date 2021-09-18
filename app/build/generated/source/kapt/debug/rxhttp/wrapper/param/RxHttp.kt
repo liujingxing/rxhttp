@@ -6,12 +6,12 @@ import kotlin.Unit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
-import rxhttp.BodyParamFactory
-import rxhttp.CallFactory
 import rxhttp.onEachProgress
 import rxhttp.toFlow
 import rxhttp.toFlowProgress
 import rxhttp.toParser
+import rxhttp.wrapper.BodyParamFactory
+import rxhttp.wrapper.CallFactory
 import rxhttp.wrapper.entity.Progress
 import rxhttp.wrapper.parse.SimpleParser
 

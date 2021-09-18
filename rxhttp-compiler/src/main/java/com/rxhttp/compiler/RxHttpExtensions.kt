@@ -21,7 +21,7 @@ class RxHttpExtensions {
     private val anyTypeName = Any::class.asTypeName()
 
     private val baseRxHttpName = ClassName(rxHttpPackage, "BaseRxHttp")
-    private val callFactoryName = ClassName("rxhttp", "CallFactory")
+    private val callFactoryName = ClassName("rxhttp.wrapper", "CallFactory")
     private val toFunList = ArrayList<FunSpec>()
     private val asFunList = ArrayList<FunSpec>()
 
@@ -246,7 +246,7 @@ class RxHttpExtensions {
         val toFlow = MemberName("rxhttp", "toFlow")
         val toFlowProgress = MemberName("rxhttp", "toFlowProgress")
         val onEachProgress = MemberName("rxhttp", "onEachProgress")
-        val bodyParamFactory = ClassName("rxhttp", "BodyParamFactory")
+        val bodyParamFactory = ClassName("rxhttp.wrapper", "BodyParamFactory")
         val experimentalCoroutinesApi = ClassName("kotlinx.coroutines", "ExperimentalCoroutinesApi")
 
         toFunList.forEach {
