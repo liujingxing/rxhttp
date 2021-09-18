@@ -7,12 +7,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.Headers
 import okhttp3.Response
+import rxhttp.wrapper.coroutines.AwaitImpl
 import rxhttp.wrapper.OkHttpCompat
-import rxhttp.wrapper.await.AwaitImpl
 import rxhttp.wrapper.callback.FileOutputStreamFactory
 import rxhttp.wrapper.callback.OutputStreamFactory
 import rxhttp.wrapper.callback.UriFactory
 import rxhttp.wrapper.callback.UriOutputStreamFactory
+import rxhttp.wrapper.coroutines.Await
 import rxhttp.wrapper.entity.Progress
 import rxhttp.wrapper.entity.ProgressT
 import rxhttp.wrapper.parse.*

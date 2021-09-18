@@ -3,17 +3,15 @@ package rxhttp
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import rxhttp.wrapper.coroutines.Await
 import kotlin.coroutines.CoroutineContext
 
 /**
  * User: ljx
- * Date: 2020/3/21
- * Time: 17:06
+ * Date: 2021/9/18
+ * Time: 17:56
  */
-interface Await<T> {
 
-    suspend fun await(): T
-}
 
 inline fun <T, R> Await<T>.newAwait(
     crossinline block: suspend Await<T>.() -> R
