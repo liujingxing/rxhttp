@@ -18,12 +18,12 @@ import rxhttp.wrapper.param.toResponse
 import java.util.*
 
 /**
- * 使用Coroutine+OkHttp发请求
+ * 使用 协程(RxHttp + Await) 发请求
  * User: ljx
  * Date: 2020/4/24
  * Time: 18:16
  */
-class CoroutineFragment : BaseFragment<CoroutineFragmentBinding>(), View.OnClickListener {
+class AwaitFragment : BaseFragment<CoroutineFragmentBinding>(), View.OnClickListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,19 +31,7 @@ class CoroutineFragment : BaseFragment<CoroutineFragmentBinding>(), View.OnClick
     }
 
     override fun CoroutineFragmentBinding.onViewCreated(savedInstanceState: Bundle?) {
-        click = this@CoroutineFragment
-    }
-
-    private suspend fun CoroutineFragmentBinding.bitmap(view: View) {
-        RxHttp.get("http://img2.shelinkme.cn/d3/photos/0/017/022/755_org.jpg@!normal_400_400?1558517697888")
-            .toBitmap()
-            .awaitResult {
-                tvResult.background = BitmapDrawable(it)
-            }.onFailure {
-                tvResult.text = it.errorMsg
-                //失败回调
-                it.show()
-            }
+        click = this@AwaitFragment
     }
 
     //发送Get请求，获取文章列表
@@ -165,7 +153,6 @@ class CoroutineFragment : BaseFragment<CoroutineFragmentBinding>(), View.OnClick
         mBinding.run {
             lifecycleScope.launch {
                 when (v.id) {
-                    R.id.bitmap -> bitmap(v)
                     R.id.sendGet -> sendGet(v)
                     R.id.sendPostForm -> sendPostForm(v)
                     R.id.sendPostJson -> sendPostJson(v)

@@ -1,7 +1,6 @@
 package com.example.httpsender.fragment;
 
 import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -45,21 +44,6 @@ public class RxJavaFragment extends BaseFragment<RxjavaFragmentBinding> implemen
         binding.setClick(this);
     }
 
-    @SuppressWarnings("deprecation")
-    public void bitmap(View view) {
-        String imageUrl = "http://img2.shelinkme.cn/d3/photos/0/017/022/755_org.jpg@!normal_400_400?1558517697888";
-        RxHttp.get(imageUrl) //Get请求
-            .asBitmap()  //这里返回Observable<Bitmap> 对象
-            .to(RxLife.toMain(this))  //感知生命周期，并在主线程回调
-            .subscribe(bitmap -> {
-                mBinding.tvResult.setBackground(new BitmapDrawable(bitmap));
-                //成功回调
-            }, (OnError) error -> {
-                mBinding.tvResult.setText(error.getErrorMsg());
-                //失败回调
-                error.show("图片加载失败,请稍后再试!");
-            });
-    }
 
     //发送Get请求，获取文章列表
     public void sendGet(View view) {
@@ -223,9 +207,6 @@ public class RxJavaFragment extends BaseFragment<RxjavaFragmentBinding> implemen
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.bitmap:
-                bitmap(v);
-                break;
             case R.id.sendGet:
                 sendGet(v);
                 break;

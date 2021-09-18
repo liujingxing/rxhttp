@@ -12,8 +12,9 @@ import androidx.fragment.app.Fragment;
 
 import com.example.httpsender.adapter.FragmentPageAdapter;
 import com.example.httpsender.databinding.MainActivityBinding;
-import com.example.httpsender.fragment.CoroutineFragment;
+import com.example.httpsender.fragment.AwaitFragment;
 import com.example.httpsender.fragment.DownloadFragment;
+import com.example.httpsender.fragment.FlowFragment;
 import com.example.httpsender.fragment.RxJavaFragment;
 import com.example.httpsender.fragment.UploadFragment;
 import com.example.httpsender.view.ScaleTransitionPagerTitleView;
@@ -35,19 +36,21 @@ public class MainActivity extends AppCompatActivity {
 
     private MainActivityBinding mBinding;
 
-    private List<String> mDataList = new ArrayList<>();
+    private final List<String> mDataList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mBinding = DataBindingUtil.setContentView(this, R.layout.main_activity);
         mDataList.add("RxJava");
-        mDataList.add("Coroutine");
+        mDataList.add("Await");
+        mDataList.add("Flow");
         mDataList.add("Upload");
         mDataList.add("Download");
         List<Fragment> fragments = new ArrayList<>();
         fragments.add(new RxJavaFragment());
-        fragments.add(new CoroutineFragment());
+        fragments.add(new AwaitFragment());
+        fragments.add(new FlowFragment());
         fragments.add(new UploadFragment());
         fragments.add(new DownloadFragment());
         mBinding.viewPager.setAdapter(new FragmentPageAdapter(getSupportFragmentManager(), fragments, mDataList));
