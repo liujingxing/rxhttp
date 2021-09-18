@@ -27,7 +27,6 @@ import kotlin.coroutines.CoroutineContext
  * Date: 2021/9/18
  * Time: 17:34
  */
-
 fun <T> CallFactory.toParser(
     parser: Parser<T>,
 ): Await<T> = AwaitImpl(this, parser)
