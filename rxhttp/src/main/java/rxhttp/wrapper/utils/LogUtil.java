@@ -91,13 +91,13 @@ public class LogUtil {
     //打印上传进度日志
     public static void logUpProgress(int progress, long currentSize, long totalSize) {
         if (!isDebug) return;
-        Platform.get().logd(TAG, "UpProgress{progress=" + progress + ", currentSize=" + currentSize + ", totalSize=" + totalSize + "}");
+        Platform.get().logi(TAG, "UpProgress{progress=" + progress + ", currentSize=" + currentSize + ", totalSize=" + totalSize + "}");
     }
 
     //打印下载进度日志
     public static void logDownProgress(int progress, long currentSize, long totalSize) {
         if (!isDebug) return;
-        Platform.get().logd(TAG, "DownProgress{progress=" + progress + ", currentSize=" + currentSize + ", totalSize=" + totalSize + "}");
+        Platform.get().logi(TAG, "DownProgress{progress=" + progress + ", currentSize=" + currentSize + ", totalSize=" + totalSize + "}");
     }
 
     //请求前，打印日志
