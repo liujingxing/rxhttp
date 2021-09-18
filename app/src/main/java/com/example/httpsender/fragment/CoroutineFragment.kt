@@ -93,7 +93,8 @@ class CoroutineFragment : BaseFragment<CoroutineFragmentBinding>(), View.OnClick
             .add("interest", interestList) //添加数组对象
             .add("location", Location(120.6788, 30.7866)) //添加位置对象
             .addJsonElement("address", address) //通过字符串添加一个对象
-            .awaitResult<String> {
+            .toStr()
+            .awaitResult {
                 tvResult.text = it
             }.onFailure {
                 tvResult.text = it.errorMsg
@@ -116,7 +117,8 @@ class CoroutineFragment : BaseFragment<CoroutineFragmentBinding>(), View.OnClick
             .add(Name("李四"))
             .addJsonElement("{\"name\":\"王五\"}")
             .addAll(names)
-            .awaitResult<String> {
+            .toStr()
+            .awaitResult {
                 tvResult.text = it
             }.onFailure {
                 tvResult.text = it.errorMsg
@@ -130,7 +132,8 @@ class CoroutineFragment : BaseFragment<CoroutineFragmentBinding>(), View.OnClick
     private suspend fun CoroutineFragmentBinding.xmlConverter(view: View) {
         RxHttp.get("http://webservices.nextbus.com/service/publicXMLFeed?command=routeConfig&a=sf-muni")
             .setXmlConverter()
-            .awaitResult<NewsDataXml> {
+            .toClass<NewsDataXml>()
+            .awaitResult {
                 tvResult.text = Gson().toJson(it)
             }.onFailure {
                 tvResult.text = it.errorMsg
