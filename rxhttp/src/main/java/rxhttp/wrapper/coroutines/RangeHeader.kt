@@ -1,22 +1,13 @@
-package rxhttp
+package rxhttp.wrapper.coroutines
 
-import okhttp3.Call
+import rxhttp.wrapper.CallFactory
 import rxhttp.wrapper.callback.OutputStreamFactory
-import rxhttp.wrapper.param.AbstractBodyParam
 
 /**
  * User: ljx
- * Date: 2020/3/21
- * Time: 23:56
+ * Date: 2021/9/18
+ * Time: 18:32
  */
-interface CallFactory {
-
-    fun newCall(): Call
-}
-
-interface BodyParamFactory : CallFactory {
-    val param: AbstractBodyParam<*>
-}
 
 interface RangeHeader {
     fun setRangeHeader(startIndex: Long, endIndex: Long, connectLastProgress: Boolean): CallFactory
@@ -31,6 +22,3 @@ internal fun CallFactory.setRangeHeader(
         setRangeHeader(offsetSize, -1, true)
     }
 }
-
-
-

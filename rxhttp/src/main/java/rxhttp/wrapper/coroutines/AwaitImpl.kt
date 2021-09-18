@@ -1,6 +1,6 @@
 package rxhttp.wrapper.coroutines
 
-import rxhttp.CallFactory
+import rxhttp.wrapper.CallFactory
 import rxhttp.wrapper.OkHttpCompat
 import rxhttp.wrapper.parse.Parser
 import rxhttp.wrapper.parse.SuspendParser

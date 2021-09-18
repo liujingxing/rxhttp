@@ -38,8 +38,8 @@ object ClassHelper {
             generatorClass(filer, "BaseRxHttp", """
                 package $rxHttpPackage;
 
-                import rxhttp.CallFactory;
-                import rxhttp.RangeHeader;
+                import rxhttp.wrapper.CallFactory;
+                import rxhttp.wrapper.coroutines.RangeHeader;
 
                 /**
                  * 本类存放asXxx方法(需要单独依赖RxJava，并告知RxHttp依赖的RxJava版本)
@@ -74,13 +74,13 @@ object ClassHelper {
             ${if (isAndroid) "import ${getClassPath("Schedulers")};" else ""}
             import okhttp3.Headers;
             import okhttp3.Response;
-            import rxhttp.CallFactory;
-            import rxhttp.RangeHeader;
+            import rxhttp.wrapper.CallFactory;
             import rxhttp.wrapper.OkHttpCompat;
             import rxhttp.wrapper.callback.OutputStreamFactory;
             import rxhttp.wrapper.callback.FileOutputStreamFactory;
             ${if (isAndroid) "import rxhttp.wrapper.callback.UriOutputStreamFactory;" else ""}
             import rxhttp.wrapper.entity.ParameterizedTypeImpl;
+            import rxhttp.wrapper.coroutines.RangeHeader;
             import rxhttp.wrapper.entity.Progress;
             ${if (isAndroid) "import rxhttp.wrapper.parse.BitmapParser;" else ""}
             import rxhttp.wrapper.parse.OkResponseParser;
@@ -249,8 +249,8 @@ object ClassHelper {
             import okhttp3.Call;
             import okhttp3.Callback;
             import okhttp3.Response;
-            import rxhttp.BodyParamFactory;
-            import rxhttp.CallFactory;
+            import rxhttp.wrapper.BodyParamFactory;
+            import rxhttp.wrapper.CallFactory;
             import rxhttp.wrapper.callback.ProgressCallback;
             import rxhttp.wrapper.entity.Progress;
             import rxhttp.wrapper.entity.ProgressT;
@@ -364,8 +364,8 @@ object ClassHelper {
             import ${getClassPath("RxJavaPlugins")};
             import okhttp3.Call;
             import okhttp3.Response;
-            import rxhttp.BodyParamFactory;
-            import rxhttp.CallFactory;
+            import rxhttp.wrapper.BodyParamFactory;
+            import rxhttp.wrapper.CallFactory;
             import rxhttp.wrapper.callback.ProgressCallback;
             import rxhttp.wrapper.entity.Progress;
             import rxhttp.wrapper.entity.ProgressT;
@@ -852,7 +852,7 @@ object ClassHelper {
             generatorClass(filer, "RxHttpAbstractBodyParam", """
                 package $rxHttpPackage;
                 
-                import rxhttp.BodyParamFactory;
+                import rxhttp.wrapper.BodyParamFactory;
                 import rxhttp.wrapper.param.AbstractBodyParam;
 
                 /**
@@ -883,7 +883,7 @@ object ClassHelper {
                 import ${getClassPath("Observable")};
                 import ${getClassPath("Scheduler")};
                 import ${getClassPath("Consumer")};
-                import rxhttp.BodyParamFactory;
+                import rxhttp.wrapper.BodyParamFactory;
                 import rxhttp.wrapper.entity.Progress;
                 import rxhttp.wrapper.param.AbstractBodyParam;
                 import rxhttp.wrapper.parse.Parser;
