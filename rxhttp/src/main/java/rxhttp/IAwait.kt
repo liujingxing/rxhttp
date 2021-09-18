@@ -409,28 +409,36 @@ suspend fun <T> Deferred<T>.awaitResult(): Result<T> = runCatching { await() }
 suspend fun <T> Deferred<T>.awaitResult(onSuccess: (value: T) -> Unit): Result<T> =
     awaitResult().onSuccess(onSuccess)
 
-/**
- * Try to get the return value and return null when an error occurs.
- */
-suspend fun <T> Deferred<T>.tryAwait(
-    onError: ((Throwable) -> Unit)? = null
-): T? = tryAwait(onError) { await() }
-
-/**
- * Try to get the return value and return null when an error occurs.
- */
-suspend fun <T> IAwait<T>.tryAwait(
-    onError: ((Throwable) -> Unit)? = null
-): T? = tryAwait(onError) { await() }
-
-private inline fun <T> tryAwait(
-    noinline onError: ((Throwable) -> Unit)? = null,
-    block: () -> T,
-): T? {
-    return try {
-        block()
+//return null when an error occurs.
+suspend fun <T> Deferred<T>.tryAwait(onCatch: ((Throwable) -> Unit)?): T? =
+    try {
+        await()
     } catch (e: Throwable) {
-        onError?.invoke(e)
+        onCatch?.invoke(e)
         null
     }
-}
+
+//return null when an error occurs.
+suspend fun <T> IAwait<T>.tryAwait(onCatch: ((Throwable) -> Unit)?): T? =
+    try {
+        await()
+    } catch (e: Throwable) {
+        onCatch?.invoke(e)
+        null
+    }
+
+//return default value when an error occurs.
+suspend inline fun <T> Deferred<T>.safeAwait(onCatch: (Throwable) -> T): T? =
+    try {
+        await()
+    } catch (e: Throwable) {
+        onCatch(e)
+    }
+
+//return default value when an error occurs.
+suspend inline fun <T> IAwait<T>.safeAwait(onCatch: (Throwable) -> T): T =
+    try {
+        await()
+    } catch (e: Throwable) {
+        onCatch(e)
+    }
