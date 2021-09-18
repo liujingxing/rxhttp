@@ -56,17 +56,16 @@ final class ObservableCallExecute extends ObservableCall {
          */
         HttpDisposable(Observer<? super Progress> downstream, CallFactory callFactory, boolean callbackUploadProgress) {
             if (callFactory instanceof BodyParamFactory && callbackUploadProgress) {
-                BodyParamFactory bodyParamFactory = (BodyParamFactory) callFactory;
-                bodyParamFactory.getParam().setProgressCallback(this);
+                ((BodyParamFactory) callFactory).getParam().setProgressCallback(this);
             }
             this.downstream = downstream;
             this.call = callFactory.newCall();
         }
 
         @Override
-        public void onProgress(Progress p) {
+        public void onProgress(int progress, long currentSize, long totalSize) {
             if (!disposed) {
-                downstream.onNext(p);
+                downstream.onNext(new Progress(progress, currentSize, totalSize));
             }
         }
 

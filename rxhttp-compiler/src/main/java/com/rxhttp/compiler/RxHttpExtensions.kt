@@ -229,11 +229,11 @@ class RxHttpExtensions {
                 .addTypeVariable(pBound)
                 .addTypeVariable(rBound)
                 .addParameter("coroutine", coroutineScopeName)
-                .addParameter("progress", progressSuspendLambdaName)
+                .addParameter("progressCallback", progressSuspendLambdaName)
                 .addCode(
                     """
-                    param.setProgressCallback {
-                        coroutine.%T { progress(it) }
+                    param.setProgressCallback { progress, currentSize, totalSize ->
+                        coroutine.%T { progressCallback(Progress(progress, currentSize, totalSize)) }
                     }
                     @Suppress("UNCHECKED_CAST")
                     return this as R

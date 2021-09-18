@@ -1,6 +1,5 @@
 package rxhttp.wrapper.callback;
 
-import rxhttp.wrapper.entity.Progress;
 
 /**
  * User: ljx
@@ -9,5 +8,5 @@ import rxhttp.wrapper.entity.Progress;
  */
 public interface ProgressCallback {
 
-    void onProgress(Progress progress);
+    void onProgress(int progress, long currentSize, long totalSize);
 }

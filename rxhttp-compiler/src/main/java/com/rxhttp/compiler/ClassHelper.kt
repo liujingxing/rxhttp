@@ -299,17 +299,16 @@ object ClassHelper {
                      */
                     HttpDisposable(Observer<? super Progress> downstream, CallFactory callFactory, boolean callbackUploadProgress) {
                         if (callFactory instanceof BodyParamFactory && callbackUploadProgress) {
-                            BodyParamFactory bodyParamFactory = (BodyParamFactory) callFactory;
-                            bodyParamFactory.getParam().setProgressCallback(this);
+                            ((BodyParamFactory) callFactory).getParam().setProgressCallback(this);
                         }
                         this.downstream = downstream;
                         this.call = callFactory.newCall();
                     }
 
                     @Override
-                    public void onProgress(Progress p) {
+                    public void onProgress(int progress, long currentSize, long totalSize) {
                         if (!disposed) {
-                            downstream.onNext(p);
+                            downstream.onNext(new Progress(progress, currentSize, totalSize));
                         }
                     }
 
@@ -414,17 +413,16 @@ object ClassHelper {
                      */
                     HttpDisposable(Observer<? super Progress> downstream, CallFactory callFactory, boolean callbackUploadProgress) {
                         if (callFactory instanceof BodyParamFactory && callbackUploadProgress) {
-                            BodyParamFactory bodyParamFactory = (BodyParamFactory) callFactory;
-                            bodyParamFactory.getParam().setProgressCallback(this);
+                            ((BodyParamFactory) callFactory).getParam().setProgressCallback(this);
                         }
                         this.downstream = downstream;
                         this.call = callFactory.newCall();
                     }
 
                     @Override
-                    public void onProgress(Progress p) {
+                    public void onProgress(int progress, long currentSize, long totalSize) {
                         if (!disposed) {
-                            downstream.onNext(p);
+                            downstream.onNext(new Progress(progress, currentSize, totalSize));
                         }
                     }
 
@@ -580,12 +578,13 @@ object ClassHelper {
 
                     //download progress callback
                     @Override
-                    public void onProgress(Progress p) {
+                    public void onProgress(int progress, long currentSize, long totalSize) {
                         if (done) {
                             return;
                         }
                         try {
-                            progressConsumer.accept(p);
+                            LogUtil.logDownProgress(progress, currentSize, totalSize);
+                            progressConsumer.accept(new Progress(progress, currentSize, totalSize));
                         } catch (Throwable t) {
                             fail(t);
                         }
@@ -692,11 +691,12 @@ object ClassHelper {
 
                     //download progress callback
                     @Override
-                    public void onProgress(Progress p) {
+                    public void onProgress(int progress, long currentSize, long totalSize) {
                         if (done) {
                             return;
                         }
-                        offer(p);
+                        LogUtil.logDownProgress(progress, currentSize, totalSize);
+                        offer(new Progress(progress,currentSize,totalSize));
                     }
 
                     @SuppressWarnings("unchecked")

@@ -33,9 +33,9 @@ public inline fun <reified T : Any> BaseRxHttp.asResponse() = asParser(object: R
  * @param progress 进度回调  
  */
 public fun <P : AbstractBodyParam<P>, R : RxHttpAbstractBodyParam<P, R>> RxHttpAbstractBodyParam<P,
-    R>.upload(coroutine: CoroutineScope, progress: suspend (Progress) -> Unit): R {
-  param.setProgressCallback {
-      coroutine.launch { progress(it) }
+    R>.upload(coroutine: CoroutineScope, progressCallback: suspend (Progress) -> Unit): R {
+  param.setProgressCallback { progress, currentSize, totalSize ->
+      coroutine.launch { progressCallback(Progress(progress, currentSize, totalSize)) }
   }
   @Suppress("UNCHECKED_CAST")
   return this as R
