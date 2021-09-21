@@ -164,6 +164,17 @@ public class RxHttpPlugins {
         return plugins.cache;
     }
 
+    /**
+     * Call {@link RxHttpPlugins#setCache(File,long)} setCache method to set the cache directory and size before using the cache
+     */
+    public static InternalCache getCacheOrThrow() {
+        final InternalCache cache = plugins.cache;
+        if (cache == null) {
+            throw new IllegalArgumentException("Call 'setCache(File,long)' method to set the cache directory and size before using the cache");
+        }
+        return cache;
+    }
+
     public RxHttpPlugins setExcludeCacheKeys(String... keys) {
         excludeCacheKeys = Arrays.asList(keys);
         return plugins;

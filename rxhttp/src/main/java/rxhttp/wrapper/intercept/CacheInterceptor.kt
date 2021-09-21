@@ -21,7 +21,7 @@ class CacheInterceptor(
     private val cacheStrategy: CacheStrategy
 ) : Interceptor {
 
-    private val cache: InternalCache by lazy { RxHttpPlugins.getCache() }  //缓存读取
+    private val cache: InternalCache by lazy { RxHttpPlugins.getCacheOrThrow() }  //缓存读取
 
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request()
