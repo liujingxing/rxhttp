@@ -126,8 +126,7 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
    * ```                                                  
    * RxHttp.get("/service/%d/...", 1)  
    *     .addQuery("size", 20)
-   *     .asString()                                      
-   *     .subscribe()                                     
+   *     ...
    * ```
    *  url = /service/1/...?size=20
    */
