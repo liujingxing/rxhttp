@@ -70,8 +70,7 @@ class ParamsAnnotatedClass {
                     ```                                                  
                     RxHttp.get("/service/%d/...", 1)  
                         .addQuery("size", 20)
-                        .asString()                                      
-                        .subscribe()                                     
+                        ...
                     ```
                      url = /service/1/...?size=20
                 """.trimIndent())
