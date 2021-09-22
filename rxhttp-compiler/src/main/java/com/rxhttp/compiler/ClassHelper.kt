@@ -71,16 +71,16 @@ object ClassHelper {
             import ${getClassPath("Scheduler")};
             import ${getClassPath("Consumer")};
             import ${getClassPath("RxJavaPlugins")};
-            ${if (isAndroid) "import ${getClassPath("Schedulers")};" else ""}
+            import ${getClassPath("Schedulers")};
             import okhttp3.Headers;
             import okhttp3.Response;
             import rxhttp.wrapper.CallFactory;
             import rxhttp.wrapper.OkHttpCompat;
-            import rxhttp.wrapper.callback.OutputStreamFactory;
             import rxhttp.wrapper.callback.FileOutputStreamFactory;
+            import rxhttp.wrapper.callback.OutputStreamFactory;
             ${if (isAndroid) "import rxhttp.wrapper.callback.UriOutputStreamFactory;" else ""}
-            import rxhttp.wrapper.entity.ParameterizedTypeImpl;
             import rxhttp.wrapper.coroutines.RangeHeader;
+            import rxhttp.wrapper.entity.ParameterizedTypeImpl;
             import rxhttp.wrapper.entity.Progress;
             ${if (isAndroid) "import rxhttp.wrapper.parse.BitmapParser;" else ""}
             import rxhttp.wrapper.parse.OkResponseParser;
