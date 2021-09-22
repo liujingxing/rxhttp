@@ -210,8 +210,9 @@ object ClassHelper {
                 public final Observable<Uri> asAppendDownload(Context context, Uri uri, Scheduler scheduler,
                                                               Consumer<Progress> progressConsumer) {        
                     return asAppendDownload(new UriOutputStreamFactory(context, uri), scheduler, progressConsumer);       
-                }                                                                                           
-                    
+                }                                               
+                """ else ""
+            }    
                 public final <T> Observable<T> asAppendDownload(OutputStreamFactory<T> osFactory) {                   
                     return asAppendDownload(osFactory, null, null);                                     
                 }                                                                                        
@@ -227,9 +228,8 @@ object ClassHelper {
                         })
                         .subscribeOn(Schedulers.io())
                         .flatMap(parser -> asParser(parser, scheduler, progressConsumer));
-                }                                                                                            
-                """ else ""
-            }    
+                }
+                
             }
 
         """.trimIndent())
