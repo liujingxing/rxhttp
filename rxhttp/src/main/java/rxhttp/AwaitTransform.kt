@@ -365,6 +365,12 @@ inline fun <T, R> Await<T>.map(
     map(await())
 }
 
+inline fun <T> Await<T>.onEach(
+    crossinline each: suspend (T) -> Unit
+): Await<T> = newAwait {
+    await().also { each(it) }
+}
+
 /**
  * Delay return by [timeMillis] millisecond after await.
  *
