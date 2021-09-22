@@ -1,12 +1,11 @@
 package com.example.httpsender.fragment
 
 import android.graphics.Color
-import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
 import android.view.View
 import androidx.lifecycle.lifecycleScope
 import com.example.httpsender.R
-import com.example.httpsender.databinding.CoroutineFragmentBinding
+import com.example.httpsender.databinding.AwaitFragmentBinding
 import com.example.httpsender.entity.*
 import com.example.httpsender.kt.errorMsg
 import com.example.httpsender.kt.show
@@ -35,19 +34,19 @@ import java.util.*
  * Date: 2020/4/24
  * Time: 18:16
  */
-class AwaitFragment : BaseFragment<CoroutineFragmentBinding>(), View.OnClickListener {
+class AwaitFragment : BaseFragment<AwaitFragmentBinding>(), View.OnClickListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.coroutine_fragment)
+        setContentView(R.layout.await_fragment)
     }
 
-    override fun CoroutineFragmentBinding.onViewCreated(savedInstanceState: Bundle?) {
+    override fun AwaitFragmentBinding.onViewCreated(savedInstanceState: Bundle?) {
         click = this@AwaitFragment
     }
 
     //发送Get请求，获取文章列表
-    private suspend fun CoroutineFragmentBinding.sendGet(view: View) {
+    private suspend fun AwaitFragmentBinding.sendGet(view: View) {
         RxHttp.get("/article/list/0/json")
             .toResponse<PageList<Article>>()
             .awaitResult {
@@ -60,7 +59,7 @@ class AwaitFragment : BaseFragment<CoroutineFragmentBinding>(), View.OnClickList
     }
 
     //发送Post表单请求,根据关键字查询文章
-    private suspend fun CoroutineFragmentBinding.sendPostForm(view: View) {
+    private suspend fun AwaitFragmentBinding.sendPostForm(view: View) {
         RxHttp.postForm("/article/query/0/json")
             .add("k", "性能优化")
             .toResponse<PageList<Article>>()
@@ -74,7 +73,7 @@ class AwaitFragment : BaseFragment<CoroutineFragmentBinding>(), View.OnClickList
     }
 
     //发送Post Json请求，此接口不通，通过日志可以看到，发送出去的json对象
-    private suspend fun CoroutineFragmentBinding.sendPostJson(view: View) {
+    private suspend fun AwaitFragmentBinding.sendPostJson(view: View) {
         /*
            发送以下User对象
            {"name":"张三","sex":1,"height":180,"weight":70,
@@ -106,7 +105,7 @@ class AwaitFragment : BaseFragment<CoroutineFragmentBinding>(), View.OnClickList
     }
 
     //发送Post JsonArray请求，通过日志可以看到，发送出去的json数组
-    private suspend fun CoroutineFragmentBinding.sendPostJsonArray(view: View) {
+    private suspend fun AwaitFragmentBinding.sendPostJsonArray(view: View) {
         /*
            发送以下Json数组
            [{"name":"张三"},{"name":"李四"},{"name":"王五"},{"name":"赵六"},{"name":"杨七"}]
@@ -131,7 +130,7 @@ class AwaitFragment : BaseFragment<CoroutineFragmentBinding>(), View.OnClickList
     }
 
     //此接口不同，但通过日志可以看到，发送出去的是xml数据，如果收到也是xml数据，则会自动解析为我们指定的对象
-    private suspend fun CoroutineFragmentBinding.xmlConverter(view: View) {
+    private suspend fun AwaitFragmentBinding.xmlConverter(view: View) {
         RxHttp.postBody("http://webservices.nextbus.com/service/publicXMLFeed?command=routeConfig&a=sf-muni")
             .setBody(Name("张三"))
             .setXmlConverter()
@@ -146,7 +145,7 @@ class AwaitFragment : BaseFragment<CoroutineFragmentBinding>(), View.OnClickList
     }
 
 
-    private fun CoroutineFragmentBinding.clearLog(view: View) {
+    private fun AwaitFragmentBinding.clearLog(view: View) {
         tvResult.text = ""
         tvResult.setBackgroundColor(Color.TRANSPARENT)
     }
