@@ -146,7 +146,7 @@ public abstract class BaseRxHttp implements CallFactory, RangeHeader {
     public final Observable<Uri> asAppendDownload(Context context, Uri uri, Scheduler scheduler,
                                                   Consumer<Progress> progressConsumer) {        
         return asAppendDownload(new UriOutputStreamFactory(context, uri), scheduler, progressConsumer);       
-    }                                                                                           
+    }                                               
         
     public final <T> Observable<T> asAppendDownload(OutputStreamFactory<T> osFactory) {                   
         return asAppendDownload(osFactory, null, null);                                     
@@ -163,6 +163,6 @@ public abstract class BaseRxHttp implements CallFactory, RangeHeader {
             })
             .subscribeOn(Schedulers.io())
             .flatMap(parser -> asParser(parser, scheduler, progressConsumer));
-    }                                                                                            
-        
+    }
+    
 }
