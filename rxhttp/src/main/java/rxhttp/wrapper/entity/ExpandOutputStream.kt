@@ -12,17 +12,9 @@ import java.io.OutputStream
  */
 class ExpandOutputStream<out T>(
     val expand: T,
-    private val os: OutputStream
-) : OutputStream() {
-
-    override fun write(b: Int) = os.write(b)
-
-    override fun flush() = os.flush()
-
-    override fun close() = os.close()
-
+    val os: OutputStream
+) {
     override fun toString(): String = "($expand, $os)"
-
 }
 
 internal fun File.toOutputStream(append: Boolean = false) =

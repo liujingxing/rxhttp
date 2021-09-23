@@ -28,9 +28,10 @@ class SuspendStreamParser<T>(
         val expandOutputStream = osFactory.getOutputStream(response)
         val expand = expandOutputStream.expand
         LogUtil.log(response, expand.toString())
+        val os = expandOutputStream.os
         progress?.let {
-            response.writeTo(body, expandOutputStream, it)
-        } ?: IOUtil.write(body.byteStream(), expandOutputStream)
+            response.writeTo(body, os, it)
+        } ?: IOUtil.write(body.byteStream(), os)
         return expand
     }
 }

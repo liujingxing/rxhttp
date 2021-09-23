@@ -26,9 +26,10 @@ class StreamParser<T> @JvmOverloads constructor(
         val expandOutputStream = osFactory.getOutputStream(response)
         val expand = expandOutputStream.expand
         LogUtil.log(response, expand.toString())
+        val os = expandOutputStream.os
         progressCallback?.let {
-            response.writeTo(body, expandOutputStream, it)
-        } ?: IOUtil.write(body.byteStream(), expandOutputStream)
+            response.writeTo(body, os, it)
+        } ?: IOUtil.write(body.byteStream(), os)
         return expand
     }
 }
