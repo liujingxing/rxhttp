@@ -143,7 +143,6 @@ class RxHttpExtensions {
         val t = TypeVariableName("T")
         val k = TypeVariableName("K")
         val v = TypeVariableName("V")
-        val tAny = TypeVariableName("T", anyTypeName)
 
         val launchName = ClassName("kotlinx.coroutines", "launch")
         val progressName = ClassName("rxhttp.wrapper.entity", "Progress")
@@ -252,6 +251,7 @@ class RxHttpExtensions {
         toFunList.forEach {
             fileBuilder.addFunction(it)
             val parseName = it.name.substring(2)
+            val typeVariables = it.typeVariables
             val parameters = it.parameters
             val arguments = StringBuilder()
             parameters.forEach { p ->
@@ -260,35 +260,45 @@ class RxHttpExtensions {
             if (arguments.isNotEmpty()) arguments.deleteCharAt(arguments.length - 1)
             fileBuilder.addFunction(
                 FunSpec.builder("toFlow$parseName")
-                    .addModifiers(KModifier.INLINE)
+                    .addModifiers(it.modifiers)
                     .receiver(callFactoryName)
                     .addParameters(it.parameters)
-                    .addTypeVariable(tAny.copy(reified = true))
-                    .addStatement("""return %M(to$parseName<T>($arguments))""", toFlow)
+                    .addTypeVariables(typeVariables)
+                    .addStatement(
+                        """return %M(to$parseName${getTypeVariableString(typeVariables)}($arguments))""",
+                        toFlow
+                    )
                     .build()
             )
 
             fileBuilder.addFunction(
                 FunSpec.builder("toFlow${parseName}Progress")
                     .addAnnotation(experimentalCoroutinesApi)
-                    .addModifiers(KModifier.INLINE)
+                    .addModifiers(it.modifiers)
                     .receiver(bodyParamFactory)
                     .addParameters(it.parameters)
-                    .addTypeVariable(tAny.copy(reified = true))
-                    .addStatement("""return %M(to$parseName<T>($arguments))""", toFlowProgress)
+                    .addTypeVariables(typeVariables)
+                    .addStatement(
+                        """return %M(to$parseName${getTypeVariableString(typeVariables)}($arguments))""",
+                        toFlowProgress
+                    )
                     .build()
             )
 
+            val isInLine = it.modifiers.contains(KModifier.INLINE)
+            val builder = ParameterSpec.builder("progress", progressSuspendLambdaName)
+            if (isInLine) builder.addModifiers(KModifier.NOINLINE)
             fileBuilder.addFunction(
                 FunSpec.builder("toFlow$parseName")
                     .addAnnotation(experimentalCoroutinesApi)
-                    .addModifiers(KModifier.INLINE)
+                    .addModifiers(it.modifiers)
                     .receiver(bodyParamFactory)
                     .addParameters(it.parameters)
-                    .addTypeVariable(tAny.copy(reified = true))
-                    .addParameter("progress", progressSuspendLambdaName, KModifier.NOINLINE)
+                    .addTypeVariables(typeVariables)
+                    .addParameter(builder.build())
                     .addStatement(
-                        """return toFlow${parseName}Progress<T>($arguments).%M(progress)""", onEachProgress
+                        """return toFlow${parseName}Progress${getTypeVariableString(typeVariables)}($arguments).%M(progress)""",
+                        onEachProgress
                     )
                     .build()
             )
@@ -323,7 +333,7 @@ class RxHttpExtensions {
     }
 
     //获取泛型字符串 比如:<T> 、<K,V>等等
-    private fun getTypeVariableString(typeVariableNames: ArrayList<TypeVariableName>): String {
+    private fun getTypeVariableString(typeVariableNames: List<TypeVariableName>): String {
         val type = StringBuilder()
         val size = typeVariableNames.size
         for (i in typeVariableNames.indices) {

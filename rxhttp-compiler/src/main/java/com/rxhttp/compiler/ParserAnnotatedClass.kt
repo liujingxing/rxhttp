@@ -243,7 +243,7 @@ class ParserAnnotatedClass {
                     var methodName = "as$parserAlias"
                     //方法体
                     val methodBody =
-                        "return asParser(new \$T<>(${
+                        "return asParser(new \$T${getTypeVariableString(typeVariableNames)}(${
                             getParamsName(it.parameters, parameterList, typeVariableNames.size)
                         }))"
 
@@ -325,7 +325,7 @@ class ParserAnnotatedClass {
                                     paramsName.append(param.name)
                                 }
                             }
-                            val returnStatement = "return asParser(new \$T<>($paramsName))"
+                            val returnStatement = "return asParser(new \$T${getTypeVariableString(typeVariableNames)}($paramsName))"
                             funBody.addStatement(returnStatement, ClassName.get(typeElement))
 
                             //4、生成asXxx方法
@@ -413,15 +413,16 @@ class ParserAnnotatedClass {
     }
 
     //获取泛型字符串 比如:<T> 、<K,V>等等
-    private fun getTypeVariableString(typeVariableNames: ArrayList<TypeVariableName>): String {
-        val type = StringBuilder()
-        val size = typeVariableNames.size
-        for (i in typeVariableNames.indices) {
-            if (i == 0) type.append("<")
-            type.append(typeVariableNames[i].name)
-            type.append(if (i < size - 1) "," else ">")
-        }
-        return type.toString()
+    private fun getTypeVariableString(typeVariableNames: List<TypeVariableName>): String {
+        return if(typeVariableNames.isNotEmpty()) "<>" else ""
+//        val type = StringBuilder()
+//        val size = typeVariableNames.size
+//        for (i in typeVariableNames.indices) {
+//            if (i == 0) type.append("<")
+//            type.append(typeVariableNames[i].name)
+//            type.append(if (i < size - 1) "," else ">")
+//        }
+//        return type.toString()
     }
 
 
