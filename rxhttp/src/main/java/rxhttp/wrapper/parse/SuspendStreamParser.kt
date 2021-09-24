@@ -19,7 +19,7 @@ import java.io.OutputStream
  */
 class SuspendStreamParser<T>(
     private val osFactory: OutputStreamFactory<T>,
-    private val progress: (suspend (Int, Long, Long) -> Unit)? = null,
+    var progress: (suspend (Int, Long, Long) -> Unit)? = null,
 ) : SuspendParser<T>() {
 
     @Throws(IOException::class)

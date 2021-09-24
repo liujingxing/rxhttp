@@ -22,9 +22,7 @@ import rxhttp.wrapper.utils.LogUtil
  * Date: 2021/9/18
  * Time: 17:34
  */
-fun <T> CallFactory.toParser(
-    parser: Parser<T>,
-): Await<T> = AwaitImpl(this, parser)
+fun <T> CallFactory.toParser(parser: Parser<T>): Await<T> = AwaitImpl(this, parser)
 
 inline fun <reified T : Any> CallFactory.toClass(): Await<T> =
     toParser(object : SimpleParser<T>() {})
@@ -52,14 +50,13 @@ fun <T> CallFactory.toSyncDownload(
     osFactory: OutputStreamFactory<T>,
     progressCallback: (suspend (ProgressT<T>) -> Unit)? = null
 ): Await<T> {
-    val parser = if (progressCallback != null) {
-        SuspendStreamParser(osFactory) { progress, currentSize, totalSize ->
+    val parser = SuspendStreamParser(osFactory)
+    if (progressCallback != null) {
+        parser.progress = { progress, currentSize, totalSize ->
             LogUtil.logDownProgress(progress, currentSize, totalSize)
             val p = ProgressT<T>(progress, currentSize, totalSize)
             progressCallback(p)
         }
-    } else {
-        SuspendStreamParser(osFactory)
     }
     return toParser(parser)
 }
