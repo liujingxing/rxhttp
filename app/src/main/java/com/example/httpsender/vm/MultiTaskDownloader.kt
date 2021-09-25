@@ -69,7 +69,7 @@ object MultiTaskDownloader {
     fun startAllDownloadTask() {
         val allTaskList = getAllTask()
         allTaskList.forEach {
-            if (it.state != COMPLETED) {
+            if (it.state != COMPLETED && it.state != DOWNLOADING) {
                 download(it)
             }
         }
@@ -83,11 +83,11 @@ object MultiTaskDownloader {
             return
         }
         val disposable = RxHttp.get(task.url)
-            .asAppendDownload(task.localPath, AndroidSchedulers.mainThread()) {   //如果需要衔接上次的下载进度，则需要传入上次已下载的字节数length
+            .asAppendDownload(task.localPath, AndroidSchedulers.mainThread()) {
                 //下载进度回调,0-100，仅在进度有更新时才会回调
-                task.progress = it.progress //当前进度 0-100
-                task.currentSize = it.currentSize //当前已下载的字节大小
-                task.totalSize = it.totalSize //要下载的总字节大小
+                task.progress = it.progress        //当前进度 0-100
+                task.currentSize = it.currentSize  //当前已下载的字节大小
+                task.totalSize = it.totalSize      //要下载的总字节大小
                 updateTask()
                 val key = task.url
                 val length = lengthMap[key]

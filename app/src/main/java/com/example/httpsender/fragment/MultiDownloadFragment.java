@@ -30,7 +30,7 @@ public class MultiDownloadFragment extends BaseFragment<MultiDownloadFragmentBin
     private final String[] downloadUrl = {
         "http://update.9158.com/miaolive/Miaolive.apk",//喵播
         "https://apk-ssl.tancdn.com/3.5.3_276/%E6%8E%A2%E6%8E%A2.apk",//探探
-        "https://o8g2z2sa4.qnssl.com/android/momo_8.18.5_c1.apk",//陌陌
+//        "https://o8g2z2sa4.qnssl.com/android/momo_8.18.5_c1.apk",//陌陌
     };
 
     @Override
