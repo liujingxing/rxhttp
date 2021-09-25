@@ -215,6 +215,13 @@ class RxHttpExtensions {
             }
         }
 
+       val deprecatedAnnotation= AnnotationSpec.builder(Deprecated::class)
+            .addMember("""
+                message = "please use 'toFlow(progressCallback)' instead", 
+                level = DeprecationLevel.ERROR
+            """.trimIndent())
+            .build()
+
         fileBuilder.addFunction(
             FunSpec.builder("upload")
                 .addKdoc(
@@ -222,8 +229,26 @@ class RxHttpExtensions {
                     调用此方法监听上传进度                                                    
                     @param coroutine  CoroutineScope对象，用于开启协程回调进度，进度回调所在线程取决于协程所在线程
                     @param progress 进度回调  
+                    
+                    
+                    此方法已废弃，请使用Flow监听上传进度，性能更优，且更简单，如：
+                    
+                    ```
+                    RxHttp.postForm("/server/...")
+                        .addFile("file", File("xxx/1.png"))
+                        .toFlow<T> {   //这里也可选择你解析器对应的toFlowXxx方法
+                            val currentProgress = it.progress //当前进度 0-100
+                            val currentSize = it.currentSize  //当前已上传的字节大小
+                            val totalSize = it.totalSize      //要上传的总字节大小    
+                        }.catch {
+                            //异常回调
+                        }.collect {
+                            //成功回调
+                        }
+                    ```                   
                 """.trimIndent()
                 )
+                .addAnnotation(deprecatedAnnotation)
                 .receiver(rxHttpBodyParamName)
                 .addTypeVariable(pBound)
                 .addTypeVariable(rBound)
