@@ -34,6 +34,19 @@
 
 ![](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/626d78a914ca493cafb0f1b73717f421~tplv-k3u1fbpfcp-watermark.image)
 
+***代码表示***
+```kotlin
+//Kotlin + Await             //Kotlin + Flow              //Kotlin + RxJava            //Java + RxJava
+RxHttp.get("/server/..")     RxHttp.get("/server/..")     RxHttp.get("/server/..")     RxHttp.get("/server/..")   
+    .add("key", "value")         .add("key", "value")         .add("key", "value")         .add("key", "value")
+    .toClass<User>()             .toFlow<User>()              .asClass<User>()             .asClass(User.class)
+    .awaitResult {               .catch {                     .subscribe({                 .subscribe(user -> {
+        //成功回调                     //异常回调                    //成功回调                     //成功回调     
+    }.onFailure {                }.collect {                  }, {                         }, throwable -> { 
+        //异常回调                     //成功回调                    //异常回调                     //异常回调
+    }                            }                            })                           });
+```
+
 # 上手教程
 
 30秒上手教程：[30秒上手新一代Http请求神器RxHttp](https://juejin.im/post/5cfcbbcbe51d455a694f94df)
