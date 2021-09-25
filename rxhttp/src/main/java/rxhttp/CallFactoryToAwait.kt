@@ -64,26 +64,30 @@ fun <T> CallFactory.toSyncDownload(
 /**
  * @param destPath Local storage path
  * @param append is append download
+ * @param capacity capacity of the buffer between coroutines
  * @param progress Progress callback in suspend method, The callback thread depends on the coroutine thread
  */
 fun CallFactory.toDownload(
     destPath: String,
     append: Boolean = false,
+    capacity: Int = 1,
     progress: (suspend (Progress) -> Unit)? = null
-): Await<String> = toFlow(destPath, append, progress).toAwait()
+): Await<String> = toFlow(destPath, append, capacity, progress).toAwait()
 
 fun CallFactory.toDownload(
     context: Context,
     uri: Uri,
     append: Boolean = false,
+    capacity: Int = 1,
     progress: (suspend (Progress) -> Unit)? = null
-): Await<Uri> = toFlow(context, uri, append, progress).toAwait()
+): Await<Uri> = toFlow(context, uri, append, capacity, progress).toAwait()
 
 fun <T> CallFactory.toDownload(
     osFactory: OutputStreamFactory<T>,
     append: Boolean = false,
+    capacity: Int = 1,
     progress: (suspend (Progress) -> Unit)? = null
-): Await<T> = toFlow(osFactory, append, progress).toAwait()
+): Await<T> = toFlow(osFactory, append, capacity, progress).toAwait()
 
 private fun <T> Flow<T>.toAwait(): Await<T> =
     object : Await<T> {
