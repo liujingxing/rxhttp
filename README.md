@@ -151,6 +151,17 @@ val students = RxHttp.postJson("/service/...")  //1、post {application/json; ch
 See the request timing diagram for more
 
 ![sequence_chart_en.jpg](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/79d7af9b0ae84edeb8fb5c2fa7975f20~tplv-k3u1fbpfcp-watermark.image)
+```kotlin
+//Kotlin + Await             //Kotlin + Flow              //Kotlin + RxJava            //Java + RxJava
+RxHttp.get("/server/..")     RxHttp.get("/server/..")     RxHttp.get("/server/..")     RxHttp.get("/server/..")   
+    .add("key", "value")         .add("key", "value")         .add("key", "value")         .add("key", "value")
+    .toClass<User>()             .toFlow<User>()              .asClass<User>()             .asClass(User.class)
+    .awaitResult {               .catch {                     .subscribe({                 .subscribe(user -> {
+        //Success                    //Failure                    //Success                    //Success     
+    }.onFailure {                }.collect {                  }, {                         }, throwable -> { 
+        //Failure                    //Success                    //Failure                    //Failure
+    }                            }                            })                           });
+```
 
 ## 3、Advanced usage
 
