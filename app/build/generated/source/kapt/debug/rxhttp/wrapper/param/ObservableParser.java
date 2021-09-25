@@ -82,7 +82,7 @@ final class ObservableParser<T> extends Observable<T> {
                 return;
             }
             try {
-                LogUtil.logDownProgress(progress, currentSize, totalSize);
+                //LogUtil.logDownProgress(progress, currentSize, totalSize);
                 progressConsumer.accept(new Progress(progress, currentSize, totalSize));
             } catch (Throwable t) {
                 fail(t);
@@ -194,7 +194,7 @@ final class ObservableParser<T> extends Observable<T> {
             if (done) {
                 return;
             }
-            LogUtil.logDownProgress(progress, currentSize, totalSize);
+            //LogUtil.logDownProgress(progress, currentSize, totalSize);
             offer(new Progress(progress,currentSize,totalSize));
         }
 

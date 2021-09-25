@@ -75,7 +75,7 @@ public class ProgressRequestBody extends RequestBody {
 
     private void updateProgress(int progress, long currentSize, long totalSize) {
         if (callback == null) return;
-        LogUtil.logUpProgress(progress, currentSize, totalSize);
+        //LogUtil.logUpProgress(progress, currentSize, totalSize);
         callback.onProgress(progress, currentSize, totalSize);
     }
 }

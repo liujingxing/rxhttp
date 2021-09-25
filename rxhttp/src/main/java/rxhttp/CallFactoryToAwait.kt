@@ -53,7 +53,7 @@ fun <T> CallFactory.toSyncDownload(
     val parser = SuspendStreamParser(osFactory)
     if (progressCallback != null) {
         parser.progress = { progress, currentSize, totalSize ->
-            LogUtil.logDownProgress(progress, currentSize, totalSize)
+            //LogUtil.logDownProgress(progress, currentSize, totalSize)
             val p = ProgressT<T>(progress, currentSize, totalSize)
             progressCallback(p)
         }
