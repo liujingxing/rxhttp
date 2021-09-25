@@ -47,7 +47,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:onClick="@{v->click.onClick(v)}"
-                    android:text="Post 表单请求"
+                    android:text="发送表单请求"
                     android:textAllCaps="false" />
 
                 <Button
@@ -55,7 +55,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:onClick="@{v->click.onClick(v)}"
-                    android:text="Post Json请求"
+                    android:text="发送json对象"
                     android:textAllCaps="false" />
 
                 <Button
@@ -63,7 +63,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:onClick="@{v->click.onClick(v)}"
-                    android:text="Post JsonArray请求"
+                    android:text="发送json数组"
                     android:textAllCaps="false" />
 
                 <Button
@@ -72,6 +72,54 @@
                     android:layout_height="wrap_content"
                     android:onClick="@{v->click.onClick(v)}"
                     android:text="发送/接收 xml数据"
+                    android:textAllCaps="false" />
+
+                <Button
+                    android:id="@+id/upload"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="@{v->click.onClick(v)}"
+                    android:text="文件上传"
+                    android:textAllCaps="false" />
+
+                <Button
+                    android:id="@+id/upload10"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="@{v->click.onClick(v)}"
+                    android:text="Android 10 文件上传"
+                    android:textAllCaps="false" />
+
+                <Button
+                    android:id="@+id/download"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="@{v->click.onClick(v)}"
+                    android:text="文件下载"
+                    android:textAllCaps="false" />
+
+                <Button
+                    android:id="@+id/download_append"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="@{v->click.onClick(v)}"
+                    android:text="文件断点下载"
+                    android:textAllCaps="false" />
+
+                <Button
+                    android:id="@+id/download10"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="@{v->click.onClick(v)}"
+                    android:text="Android 10 文件下载"
+                    android:textAllCaps="false" />
+
+                <Button
+                    android:id="@+id/download10_append"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="@{v->click.onClick(v)}"
+                    android:text="Android 10 断点下载"
                     android:textAllCaps="false" />
 
             </LinearLayout>
