@@ -311,12 +311,11 @@ class RxHttpExtensions {
                     .addParameters(it.parameters)
                     .addParameter(capacityParam)
                     .addParameter(builder.build())
-                    .addCode(
-                        """return %M(to$parseName${getTypeVariableString(typeVariables)}($arguments), capacity)
-                            .%M(progress)
-                        """,
-                        toFlowProgress, onEachProgress
-                    )
+                    .addCode("""
+                        return 
+                            %M(to$parseName${getTypeVariableString(typeVariables)}($arguments), capacity)
+                                .%M(progress)
+                    """.trimIndent(), toFlowProgress, onEachProgress)
                     .build()
             )
 
