@@ -271,20 +271,9 @@ class RxHttpExtensions {
                     .build()
             )
 
-            fileBuilder.addFunction(
-                FunSpec.builder("toFlow${parseName}Progress")
-                    .addAnnotation(experimentalCoroutinesApi)
-                    .addModifiers(it.modifiers)
-                    .receiver(bodyParamFactory)
-                    .addParameters(it.parameters)
-                    .addTypeVariables(typeVariables)
-                    .addStatement(
-                        """return %M(to$parseName${getTypeVariableString(typeVariables)}($arguments))""",
-                        toFlowProgress
-                    )
-                    .build()
-            )
-
+            val capacityParam = ParameterSpec.builder("capacity", Int::class)
+                .defaultValue("1")
+                .build()
             val isInLine = it.modifiers.contains(KModifier.INLINE)
             val builder = ParameterSpec.builder("progress", progressSuspendLambdaName)
             if (isInLine) builder.addModifiers(KModifier.NOINLINE)
@@ -293,12 +282,30 @@ class RxHttpExtensions {
                     .addAnnotation(experimentalCoroutinesApi)
                     .addModifiers(it.modifiers)
                     .receiver(bodyParamFactory)
-                    .addParameters(it.parameters)
                     .addTypeVariables(typeVariables)
+                    .addParameters(it.parameters)
+                    .addParameter(capacityParam)
                     .addParameter(builder.build())
-                    .addStatement(
-                        """return toFlow${parseName}Progress${getTypeVariableString(typeVariables)}($arguments).%M(progress)""",
-                        onEachProgress
+                    .addCode(
+                        """return %M(to$parseName${getTypeVariableString(typeVariables)}($arguments), capacity)
+                            .%M(progress)
+                        """,
+                        toFlowProgress, onEachProgress
+                    )
+                    .build()
+            )
+
+            fileBuilder.addFunction(
+                FunSpec.builder("toFlow${parseName}Progress")
+                    .addAnnotation(experimentalCoroutinesApi)
+                    .addModifiers(it.modifiers)
+                    .receiver(bodyParamFactory)
+                    .addTypeVariables(typeVariables)
+                    .addParameters(it.parameters)
+                    .addParameter(capacityParam)
+                    .addCode(
+                        """return %M(to$parseName${getTypeVariableString(typeVariables)}($arguments), capacity)""",
+                        toFlowProgress
                     )
                     .build()
             )
