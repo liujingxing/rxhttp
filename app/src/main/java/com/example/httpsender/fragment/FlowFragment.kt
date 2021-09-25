@@ -1,6 +1,7 @@
 package com.example.httpsender.fragment
 
 import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import androidx.lifecycle.lifecycleScope
@@ -9,13 +10,16 @@ import com.example.httpsender.databinding.FlowFragmentBinding
 import com.example.httpsender.entity.*
 import com.example.httpsender.kt.errorMsg
 import com.example.httpsender.kt.show
+import com.example.httpsender.parser.Android10DownloadFactory
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import rxhttp.*
 import rxhttp.wrapper.param.RxHttp
+import rxhttp.wrapper.param.RxSimpleHttp
 import rxhttp.wrapper.param.toFlowResponse
+import java.io.File
 import java.util.*
 
 /**
@@ -137,6 +141,144 @@ class FlowFragment : BaseFragment<FlowFragmentBinding>(), View.OnClickListener {
                 it.show()
             }.collect {
                 tvResult.text = Gson().toJson(it)
+            }
+    }
+
+    /**
+     * android 10之前 或 沙盒目录(Android/data/packageName/)下的文件上传
+     *
+     * 如不需要监听进度，toFlow 方法不要传进度回调即可
+     */
+    private suspend fun FlowFragmentBinding.upload(v: View) {
+        RxHttp.postForm(Url.UPLOAD_URL)
+            .addFile("file", File("xxxx/1.png"))
+            .toFlow<String> {
+                //上传进度回调,0-100，仅在进度有更新时才会回调
+                val currentProgress = it.progress //当前进度 0-100
+                val currentSize = it.currentSize //当前已上传的字节大小
+                val totalSize = it.totalSize //要上传的总字节大小
+                tvResult.append(it.toString())
+            }.catch {
+                tvResult.append("\n${it.errorMsg}")
+                //失败回调
+                it.show()
+            }.collect {
+                tvResult.append("\n上传成功 : $it")
+            }
+    }
+
+    /**
+     * android 10 及以上文件上传 ，兼容Android 10以下
+     *
+     * 如不需要监听进度，toFlow 方法不要传进度回调即可
+     */
+    private suspend fun FlowFragmentBinding.uploadAndroid10(v: View) {
+        //真实环境，需要调用文件选择器，拿到Uri对象
+        val uri = Uri.parse("content://media/external/downloads/13417")
+        RxHttp.postForm(Url.UPLOAD_URL)
+            .addPart(requireContext(), "file", uri)
+            .toFlow<String> {
+                //上传进度回调,0-100，仅在进度有更新时才会回调
+                val currentProgress = it.progress //当前进度 0-100
+                val currentSize = it.currentSize //当前已上传的字节大小
+                val totalSize = it.totalSize //要上传的总字节大小
+                tvResult.append(it.toString())
+            }.catch {
+                tvResult.append("\n${it.errorMsg}")
+                //失败回调
+                it.show()
+            }.collect {
+                tvResult.append("\n上传成功 : $it")
+            }
+    }
+
+    /**
+     * Android 10以下 或 下载文件到沙盒目录下，下载可以直接传入file的绝对路径
+     *
+     * 如不需要监听下载进度，toFlow 方法不要传进度回调即可
+     */
+    private suspend fun FlowFragmentBinding.download(view: View) {
+        val destPath = "${requireContext().externalCacheDir}/${System.currentTimeMillis()}.apk"
+        //下载使用非默认域名，故这里使用RxSimpleHttp类发送请求，RxSimpleHttp类是通过注解生成的
+        RxSimpleHttp.get(Url.DOWNLOAD_URL)
+            .toFlow(destPath) {
+                val currentProgress = it.progress //当前进度 0-100
+                val currentSize = it.currentSize //当前已下载的字节大小
+                val totalSize = it.totalSize //要下载的总字节大小
+                tvResult.append(it.toString())
+            }.catch {
+                tvResult.append("\n${it.errorMsg}") //异常回调
+                it.show()
+            }.collect {
+                tvResult.append("\n下载完成, $it")
+            }
+    }
+
+    /**
+     * 断点下载
+     * Android 10以下 或 下载文件到沙盒目录下，下载可以直接传入file的绝对路径
+     *
+     * 如不需要监听下载进度，toFlow 方法不要传进度回调即可
+     */
+    private suspend fun FlowFragmentBinding.appendDownload(view: View) {
+        val destPath = "${requireContext().externalCacheDir}/Miaobo.apk"
+        //下载使用非默认域名，故这里使用RxSimpleHttp类发送请求，RxSimpleHttp类是通过注解生成的
+        RxSimpleHttp.get(Url.DOWNLOAD_URL)
+            .toFlow(destPath, true) {
+                val currentProgress = it.progress //当前进度 0-100
+                val currentSize = it.currentSize //当前已下载的字节大小
+                val totalSize = it.totalSize //要下载的总字节大小
+                tvResult.append(it.toString())
+            }.catch {
+                tvResult.append("\n${it.errorMsg}")
+                it.show()
+            }.collect {
+                tvResult.append("\n下载完成, $it")
+            }
+    }
+
+    /**
+     * Android 10 及以上下载，兼容Android 10以下
+     *
+     * 如不需要监听下载进度，toFlow 方法不要传进度回调即可
+     */
+    private suspend fun FlowFragmentBinding.downloadAndroid10(view: View) {
+        val factory = Android10DownloadFactory(requireContext(), "miaobo.apk")
+        //下载使用非默认域名，故这里使用RxSimpleHttp类发送请求，RxSimpleHttp类是通过注解生成的
+        RxSimpleHttp.get(Url.DOWNLOAD_URL)
+            .toFlow(factory) {
+                val currentProgress = it.progress //当前进度 0-100
+                val currentSize = it.currentSize //当前已下载的字节大小
+                val totalSize = it.totalSize //要下载的总字节大小
+                tvResult.append(it.toString())
+            }.catch {
+                tvResult.append("\n${it.errorMsg}")
+                it.show()
+            }.collect {
+                tvResult.append("\n下载完成, $it")
+            }
+    }
+
+    /**
+     * Android 10 及以上断点下载，兼容Android 10以下
+     *
+     * 如不需要监听下载进度，toFlow 方法不要传进度回调即可
+     */
+    private suspend fun FlowFragmentBinding.appendDownloadAndroid10(view: View) {
+        val factory = Android10DownloadFactory(requireContext(), "miaobo.apk")
+        //下载使用非默认域名，故这里使用RxSimpleHttp类发送请求，RxSimpleHttp类是通过注解生成的
+        RxSimpleHttp.get(Url.DOWNLOAD_URL)
+            .toFlow(factory, true) {
+                val currentProgress = it.progress //当前进度 0-100
+                val currentSize = it.currentSize //当前已下载的字节大小
+                val totalSize = it.totalSize //要下载的总字节大小
+                tvResult.append(it.toString())
+            }.catch {
+                //异常回调
+                tvResult.append("\n${it.errorMsg}")
+                it.show()
+            }.collect {
+                tvResult.append("\n下载完成, $it")
             }
     }
 
