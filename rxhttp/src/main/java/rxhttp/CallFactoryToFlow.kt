@@ -30,19 +30,21 @@ inline fun <reified T : Any> CallFactory.toFlow(await: Await<T>): Flow<T> =
 
 @ExperimentalCoroutinesApi
 inline fun <reified T : Any> BodyParamFactory.toFlow(
+    capacity: Int = 1,
     noinline progress: suspend (Progress) -> Unit
-) = toFlowProgress<T>().onEachProgress(progress)
+) = toFlowProgress<T>(capacity = capacity).onEachProgress(progress)
 
 @ExperimentalCoroutinesApi
 inline fun <reified T : Any> BodyParamFactory.toFlowProgress(
-    await: Await<T> = toClass()
+    await: Await<T> = toClass(),
+    capacity: Int = 1
 ) =
     channelFlow {
         param.setProgressCallback { progress, currentSize, totalSize ->
             trySend(ProgressT<T>(progress, currentSize, totalSize))
         }
         await.await().also { trySend(ProgressT<T>(it)) }
-    }.buffer(1, BufferOverflow.DROP_OLDEST)
+    }.buffer(capacity, BufferOverflow.DROP_OLDEST)
 
 /**
  * @param destPath Local storage path

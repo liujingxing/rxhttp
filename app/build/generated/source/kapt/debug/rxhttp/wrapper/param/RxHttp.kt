@@ -2,6 +2,7 @@ package rxhttp.wrapper.`param`
 
 import com.example.httpsender.parser.ResponseParser
 import kotlin.Any
+import kotlin.Int
 import kotlin.Unit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -48,9 +49,11 @@ public inline fun <reified T : Any> CallFactory.toResponse() = toParser(object: 
 public inline fun <reified T : Any> CallFactory.toFlowResponse() = toFlow(toResponse<T>())
 
 @ExperimentalCoroutinesApi
-public inline fun <reified T : Any> BodyParamFactory.toFlowResponseProgress() =
-    toFlowProgress(toResponse<T>())
+public inline fun <reified T : Any> BodyParamFactory.toFlowResponse(capacity: Int = 1, noinline
+    progress: suspend (Progress) -> Unit) = toFlowProgress(toResponse<T>(), capacity)
+                            .onEachProgress(progress)
+                        
 
 @ExperimentalCoroutinesApi
-public inline fun <reified T : Any> BodyParamFactory.toFlowResponse(noinline progress: suspend
-    (Progress) -> Unit) = toFlowResponseProgress<T>().onEachProgress(progress)
+public inline fun <reified T : Any> BodyParamFactory.toFlowResponseProgress(capacity: Int = 1) =
+    toFlowProgress(toResponse<T>(), capacity)
