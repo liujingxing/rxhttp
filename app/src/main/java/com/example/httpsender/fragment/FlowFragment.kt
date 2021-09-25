@@ -297,6 +297,12 @@ class FlowFragment : BaseFragment<FlowFragmentBinding>(), View.OnClickListener {
                     R.id.sendPostJson -> sendPostJson(v)
                     R.id.sendPostJsonArray -> sendPostJsonArray(v)
                     R.id.xmlConverter -> xmlConverter(v)
+                    R.id.upload -> upload(v)
+                    R.id.upload10 -> uploadAndroid10(v)
+                    R.id.download -> download(v)
+                    R.id.download_append -> appendDownload(v)
+                    R.id.download10 -> downloadAndroid10(v)
+                    R.id.download10_append -> appendDownloadAndroid10(v)
                     R.id.bt_clear -> clearLog(v)
                 }
             }
