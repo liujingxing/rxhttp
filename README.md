@@ -47,9 +47,9 @@ android {
 
 dependencies {
     implementation 'com.squareup.okhttp3:okhttp:4.9.1'
-    implementation 'com.github.liujingxing.rxhttp:rxhttp:2.6.8'
+    implementation 'com.github.liujingxing.rxhttp:rxhttp:2.7.0'
     //Use the annotationProcessor instead of kapt, if you use Java
-    kapt 'com.github.liujingxing.rxhttp:rxhttp-compiler:2.6.8' 
+    kapt 'com.github.liujingxing.rxhttp:rxhttp-compiler:2.7.0' 
  }
 ```
 
@@ -82,11 +82,11 @@ dependencies {
     implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
     implementation 'com.github.liujingxing.rxlife:rxlife-rxjava3:2.2.1' //RxJava3, Automatic close request
 
-    implementation 'com.github.liujingxing.rxhttp:converter-fastjson:2.6.8'
-    implementation 'com.github.liujingxing.rxhttp:converter-jackson:2.6.8'
-    implementation 'com.github.liujingxing.rxhttp:converter-moshi:2.6.8'
-    implementation 'com.github.liujingxing.rxhttp:converter-protobuf:2.6.8'
-    implementation 'com.github.liujingxing.rxhttp:converter-simplexml:2.6.8'
+    implementation 'com.github.liujingxing.rxhttp:converter-fastjson:2.7.0'
+    implementation 'com.github.liujingxing.rxhttp:converter-jackson:2.7.0'
+    implementation 'com.github.liujingxing.rxhttp:converter-moshi:2.7.0'
+    implementation 'com.github.liujingxing.rxhttp:converter-protobuf:2.7.0'
+    implementation 'com.github.liujingxing.rxhttp:converter-simplexml:2.7.0'
 }
 ```
 
@@ -150,7 +150,7 @@ val students = RxHttp.postJson("/service/...")  //1、post {application/json; ch
 
 See the request timing diagram for more
 
-![sequence_chart_en.jpg](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/5c25c03999c4458d8cc79212cdfd34d5~tplv-k3u1fbpfcp-watermark.image)
+![sequence_chart_en.jpg](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/79d7af9b0ae84edeb8fb5c2fa7975f20~tplv-k3u1fbpfcp-watermark.image)
 
 ## 3、Advanced usage
 

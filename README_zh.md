@@ -32,7 +32,7 @@
 
 # 请求三部曲
 
-![](https://p6-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/0863323afac54cb9965aa0175d5c30b1~tplv-k3u1fbpfcp-watermark.image)
+![](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/626d78a914ca493cafb0f1b73717f421~tplv-k3u1fbpfcp-watermark.image)
 
 # 上手教程
 
@@ -86,8 +86,8 @@ android {
 
 dependencies {
     implementation 'com.squareup.okhttp3:okhttp:4.9.1'  
-    implementation 'com.github.liujingxing.rxhttp:rxhttp:2.6.8'
-    kapt 'com.github.liujingxing.rxhttp:rxhttp-compiler:2.6.8' //生成RxHttp类，纯Java项目，请使用annotationProcessor代替kapt
+    implementation 'com.github.liujingxing.rxhttp:rxhttp:2.7.0'
+    kapt 'com.github.liujingxing.rxhttp:rxhttp-compiler:2.7.0' //生成RxHttp类，纯Java项目，请使用annotationProcessor代替kapt
  }
 ```
 
@@ -121,11 +121,11 @@ dependencies {
     implementation 'com.github.liujingxing.rxlife:rxlife-rxjava3:2.2.1' //管理RxJava3生命周期，页面销毁，关闭请求
 
     //非必须，根据自己需求选择 RxHttp默认内置了GsonConverter
-    implementation 'com.github.liujingxing.rxhttp:converter-fastjson:2.6.8'
-    implementation 'com.github.liujingxing.rxhttp:converter-jackson:2.6.8'
-    implementation 'com.github.liujingxing.rxhttp:converter-moshi:2.6.8'
-    implementation 'com.github.liujingxing.rxhttp:converter-protobuf:2.6.8'
-    implementation 'com.github.liujingxing.rxhttp:converter-simplexml:2.6.8'
+    implementation 'com.github.liujingxing.rxhttp:converter-fastjson:2.7.0'
+    implementation 'com.github.liujingxing.rxhttp:converter-jackson:2.7.0'
+    implementation 'com.github.liujingxing.rxhttp:converter-moshi:2.7.0'
+    implementation 'com.github.liujingxing.rxhttp:converter-protobuf:2.7.0'
+    implementation 'com.github.liujingxing.rxhttp:converter-simplexml:2.7.0'
 }
 ```
 
