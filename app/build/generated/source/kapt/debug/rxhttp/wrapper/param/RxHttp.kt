@@ -70,9 +70,9 @@ public inline fun <reified T : Any> CallFactory.toFlowResponse() = toFlow(toResp
 
 @ExperimentalCoroutinesApi
 public inline fun <reified T : Any> BodyParamFactory.toFlowResponse(capacity: Int = 1, noinline
-    progress: suspend (Progress) -> Unit) = toFlowProgress(toResponse<T>(), capacity)
-                            .onEachProgress(progress)
-                        
+    progress: suspend (Progress) -> Unit) = 
+    toFlowProgress(toResponse<T>(), capacity)
+        .onEachProgress(progress)
 
 @ExperimentalCoroutinesApi
 public inline fun <reified T : Any> BodyParamFactory.toFlowResponseProgress(capacity: Int = 1) =
