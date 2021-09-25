@@ -585,7 +585,7 @@ object ClassHelper {
                             return;
                         }
                         try {
-                            LogUtil.logDownProgress(progress, currentSize, totalSize);
+                            //LogUtil.logDownProgress(progress, currentSize, totalSize);
                             progressConsumer.accept(new Progress(progress, currentSize, totalSize));
                         } catch (Throwable t) {
                             fail(t);
@@ -697,7 +697,7 @@ object ClassHelper {
                         if (done) {
                             return;
                         }
-                        LogUtil.logDownProgress(progress, currentSize, totalSize);
+                        //LogUtil.logDownProgress(progress, currentSize, totalSize);
                         offer(new Progress(progress,currentSize,totalSize));
                     }
 
