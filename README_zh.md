@@ -152,7 +152,8 @@ dependencies {
 # Demo演示
 <img src="https://github.com/liujingxing/rxhttp/blob/master/screen/demo.gif" width = "360" height = "640" />
 
-> 更多功能，请下载Demo体验
+
+> 更多功能，请[下载apk](https://github.com/liujingxing/rxhttp/blob/master/screen/app-debug.apk)体验
 
 ## Donations
 如果它对你帮助很大，并且你很想支持库的后续开发和维护，那么你可以扫下方二维码随意打赏我，就当是请我喝杯咖啡或是啤酒，开源不易，感激不尽
