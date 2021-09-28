@@ -150,7 +150,7 @@ dependencies {
 `RxHttp v2.2.8`版本起，无需添加任何混淆规则(内部自带混淆规则)，v2.2.8以下版本，请[查看混淆规则](https://github.com/liujingxing/rxhttp/wiki/关于混淆),并添加到自己项目中
 
 # Demo演示
-<img src="https://github.com/liujingxing/rxhttp/blob/master/screen/screenrecorder-2019-11-27_22_56_26.gif" width = "240" height = "520" />
+<img src="https://github.com/liujingxing/rxhttp/blob/master/screen/demo.gif" width = "240" height = "520" />
 
 > 更多功能，请下载Demo体验
 
