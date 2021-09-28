@@ -28,9 +28,37 @@ import java.util.ArrayList;
 public class MultiDownloadFragment extends BaseFragment<MultiDownloadFragmentBinding> implements OnItemClickListener<DownloadTask>, OnClickListener {
 
     private final String[] downloadUrl = {
+        "https://hnzy4.jinhaiwzhs.com:65/20210625/mndoRF1O/2000kb/hls/uS12nZLR.ts",
+        "https://hnzy4.jinhaiwzhs.com:65/20210625/mndoRF1O/2000kb/hls/BYGanTMW.ts",
+        "https://hnzy4.jinhaiwzhs.com:65/20210625/mndoRF1O/2000kb/hls/Iu9hZLL8.ts",
+        "https://hnzy4.jinhaiwzhs.com:65/20210625/mndoRF1O/2000kb/hls/DdKLk5VX.ts",
+        "https://hnzy4.jinhaiwzhs.com:65/20210625/mndoRF1O/2000kb/hls/Byww5X8k.ts",
         "http://update.9158.com/miaolive/Miaolive.apk",//喵播
         "https://apk-ssl.tancdn.com/3.5.3_276/%E6%8E%A2%E6%8E%A2.apk",//探探
-//        "https://o8g2z2sa4.qnssl.com/android/momo_8.18.5_c1.apk",//陌陌
+//        "https://hnzy4.jinhaiwzhs.com:65/20210625/mndoRF1O/2000kb/hls/OUkREagY.ts",
+//        "https://hnzy4.jinhaiwzhs.com:65/20210625/mndoRF1O/2000kb/hls/ZJUsgPSd.ts",
+//        "https://hnzy4.jinhaiwzhs.com:65/20210625/mndoRF1O/2000kb/hls/I5ivzoXR.ts",
+//        "https://hnzy4.jinhaiwzhs.com:65/20210625/mndoRF1O/2000kb/hls/PFPXapY7.ts",
+//        "https://hnzy4.jinhaiwzhs.com:65/20210625/mndoRF1O/2000kb/hls/tJj2JTVy.ts",
+//        "https://hnzy4.jinhaiwzhs.com:65/20210625/mndoRF1O/2000kb/hls/mj2fFYjH.ts",
+//        "https://hnzy4.jinhaiwzhs.com:65/20210625/mndoRF1O/2000kb/hls/MOXijkzw.ts",
+//        "https://hnzy4.jinhaiwzhs.com:65/20210625/mndoRF1O/2000kb/hls/uiwVyFej.ts",
+//        "https://hnzy4.jinhaiwzhs.com:65/20210625/mndoRF1O/2000kb/hls/HijAOXaK.ts",
+//        "https://hnzy4.jinhaiwzhs.com:65/20210625/mndoRF1O/2000kb/hls/h2mFS6ef.ts",
+//        "https://hnzy4.jinhaiwzhs.com:65/20210625/mndoRF1O/2000kb/hls/vf8fjmJd.ts",
+//        "https://hnzy4.jinhaiwzhs.com:65/20210625/mndoRF1O/2000kb/hls/0jsVXFSa.ts",
+//        "https://hnzy4.jinhaiwzhs.com:65/20210625/mndoRF1O/2000kb/hls/aZfnIVnP.ts",
+//        "https://hnzy4.jinhaiwzhs.com:65/20210625/mndoRF1O/2000kb/hls/l7cddTCQ.ts",
+//        "https://hnzy4.jinhaiwzhs.com:65/20210625/mndoRF1O/2000kb/hls/QaMi23d0.ts",
+//        "https://hnzy4.jinhaiwzhs.com:65/20210625/mndoRF1O/2000kb/hls/ljLywei6.ts",
+//        "https://hnzy4.jinhaiwzhs.com:65/20210625/mndoRF1O/2000kb/hls/FQpwzm4U.ts",
+//        "https://hnzy4.jinhaiwzhs.com:65/20210625/mndoRF1O/2000kb/hls/4oW2C2iZ.ts",
+//        "https://hnzy4.jinhaiwzhs.com:65/20210625/mndoRF1O/2000kb/hls/57OL3KeG.ts",
+//        "https://hnzy4.jinhaiwzhs.com:65/20210625/mndoRF1O/2000kb/hls/vYlV9nTw.ts",
+//        "https://hnzy4.jinhaiwzhs.com:65/20210625/mndoRF1O/2000kb/hls/XUmd5HWF.ts",
+//        "https://hnzy4.jinhaiwzhs.com:65/20210625/mndoRF1O/2000kb/hls/btVvEY5r.ts",
+//        "https://hnzy4.jinhaiwzhs.com:65/20210625/mndoRF1O/2000kb/hls/eJRKGoaP.ts",
+//        "https://hnzy4.jinhaiwzhs.com:65/20210625/mndoRF1O/2000kb/hls/iz5kx1X1.ts",
     };
 
     @Override
@@ -45,8 +73,10 @@ public class MultiDownloadFragment extends BaseFragment<MultiDownloadFragmentBin
         binding.setClick(this);
         ArrayList<DownloadTask> allTask = new ArrayList<>();  //所有下载任务
         for (int i = 0; i < downloadUrl.length; i++) {
-            DownloadTask task = new DownloadTask(downloadUrl[i % downloadUrl.length]);
-            task.setLocalPath(getContext().getExternalCacheDir() + "/" + i + ".apk");
+            String url = downloadUrl[i];
+            DownloadTask task = new DownloadTask(url);
+            String suffix = url.substring(url.lastIndexOf("."));
+            task.setLocalPath(getContext().getExternalCacheDir() + "/" + i + suffix);
             allTask.add(task);
         }
         RecyclerView recyclerView = binding.recyclerView;
