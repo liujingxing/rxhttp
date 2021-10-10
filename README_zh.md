@@ -77,6 +77,7 @@ wiki详细文档：https://github.com/liujingxing/rxhttp/wiki  (此文档会持�
 
 <details>
 <summary>1、配置jitpack到项目的build.gradle文件中</summary>
+ 
 ```java
 allprojects {
     repositories {
