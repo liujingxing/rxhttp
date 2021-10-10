@@ -75,7 +75,8 @@ wiki详细文档：https://github.com/liujingxing/rxhttp/wiki  (此文档会持�
 
 ## 必须
 
-将`jitpack`添加到项目的`build.gradle`文件中，如下：
+<details>
+<summary>1、配置jitpack到项目的build.gradle文件中</summary>
 ```java
 allprojects {
     repositories {
@@ -83,12 +84,12 @@ allprojects {
     }
 }
 ```
-`注：RxHttp 2.6.0版本起，已全面从JCenter迁移至jitpack`
+</details>
 
-```java
-//使用kapt依赖rxhttp-compiler时必须
-apply plugin: 'kotlin-kapt'
-
+<details>
+<summary>2、配置ava 8或更高</summary>
+ 
+```
 android {
     //必须，java 8或更高
     compileOptions {
@@ -96,6 +97,15 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 }
+```
+</details>
+
+<details open>
+<summary>3、添加RxHttp依赖</summary>
+ 
+```java
+//使用kapt依赖rxhttp-compiler时必须
+apply plugin: 'kotlin-kapt'
 
 dependencies {
     implementation 'com.squareup.okhttp3:okhttp:4.9.1'  
@@ -103,44 +113,121 @@ dependencies {
     kapt 'com.github.liujingxing.rxhttp:rxhttp-compiler:2.7.0' //生成RxHttp类，纯Java项目，请使用annotationProcessor代替kapt
  }
 ```
+</details>
 
 ## 可选
-```java
+
+### 1、配置Coverter
+
+```
+//非必须，根据自己需求选择 RxHttp默认内置了GsonConverter
+implementation 'com.github.liujingxing.rxhttp:converter-fastjson:2.7.0'
+implementation 'com.github.liujingxing.rxhttp:converter-jackson:2.7.0'
+implementation 'com.github.liujingxing.rxhttp:converter-moshi:2.7.0'
+implementation 'com.github.liujingxing.rxhttp:converter-protobuf:2.7.0'
+implementation 'com.github.liujingxing.rxhttp:converter-simplexml:2.7.0'
+```
+
+### 2、配置RxJava
+
+<details open>
+<summary>RxHttp + RxJava3</summary>
+ 
+ ```
+implementation 'io.reactivex.rxjava3:rxjava:3.1.1'
+implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
+implementation 'com.github.liujingxing.rxlife:rxlife-rxjava3:2.2.1' //管理RxJava3生命周期，页面销毁，关闭请求
+```
+ 
+</details>
+
+<details>
+<summary>RxHttp + RxJava2</summary>
+ 
+```
+implementation 'io.reactivex.rxjava2:rxjava:2.2.8'
+implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
+implementation 'com.github.liujingxing.rxlife:rxlife-rxjava2:2.2.1' //管理RxJava2生命周期，页面销毁，关闭请求
+```
+ 
+</details>
+
+
+<details open>
+<summary>通过kapt告知RxHttp你依赖的RxJava版本</summary>
+ 
+```
 android {
     kapt {
         arguments {
             //依赖了RxJava时，rxhttp_rxjava参数为必须，传入RxJava版本号
             arg("rxhttp_rxjava", "3.1.1")  
-            arg("rxhttp_package", "rxhttp")  //指定RxHttp类包名，非必须
         }
     }
-    //如果项目未集成kotlin，通过javaCompileOptions方法传参，在defaultConfig标签下
-    annotationProcessorOptions {
-        arguments = [
-            rxhttp_rxjava: '3.1.1',
-            rxhttp_package: 'rxhttp'
-        ]
-    }
-}
-dependencies {
-    //rxjava2   (RxJava2/Rxjava3二选一，使用asXxx方法时必须)
-    implementation 'io.reactivex.rxjava2:rxjava:2.2.8'
-    implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
-    implementation 'com.github.liujingxing.rxlife:rxlife-rxjava2:2.2.1' //管理RxJava2生命周期，页面销毁，关闭请求
-
-    //rxjava3
-    implementation 'io.reactivex.rxjava3:rxjava:3.1.1'
-    implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
-    implementation 'com.github.liujingxing.rxlife:rxlife-rxjava3:2.2.1' //管理RxJava3生命周期，页面销毁，关闭请求
-
-    //非必须，根据自己需求选择 RxHttp默认内置了GsonConverter
-    implementation 'com.github.liujingxing.rxhttp:converter-fastjson:2.7.0'
-    implementation 'com.github.liujingxing.rxhttp:converter-jackson:2.7.0'
-    implementation 'com.github.liujingxing.rxhttp:converter-moshi:2.7.0'
-    implementation 'com.github.liujingxing.rxhttp:converter-protobuf:2.7.0'
-    implementation 'com.github.liujingxing.rxhttp:converter-simplexml:2.7.0'
 }
 ```
+ 
+</details>
+ 
+<details>
+<summary>通过javaCompileOptions告知RxHttp你依赖的RxJava版本</summary>
+ 
+```
+android {
+    defaultConfig {
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = [
+                    //使用asXxx方法时必须，传入你依赖的RxJava版本
+                    rxhttp_rxjava: '3.1.1', 
+                ]
+            }
+        }
+    }
+}
+```
+ 
+</details>
+
+`注：kapt/javaCompileOptions二选一，如果集成了kotlin，就使用kapt`
+
+### 3、指定RxHttp相关类包名
+
+<details open>
+<summary>通过kapt指定RxHttp相关类包名</summary>
+ 
+```
+android {
+    kapt {
+        arguments {
+            arg("rxhttp_package", "rxhttp")  //指定RxHttp类包名，可随意指定
+        }
+    }
+}
+```
+ 
+</details>
+ 
+<details>
+<summary>通过javaCompileOptions指定RxHttp相关类包名</summary>
+ 
+```
+android {
+    defaultConfig {
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = [
+                    rxhttp_package: 'rxhttp',  //指定RxHttp类包名，可随意指定
+                ]
+            }
+        }
+    }
+}
+```
+</details>
+
+`注：kapt/javaCompileOptions二选一，如果集成了kotlin，就使用kapt`
+
 
 最后，***rebuild一下(此步骤是必须的)*** ，就会自动生成RxHttp类
 
