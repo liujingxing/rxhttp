@@ -116,6 +116,8 @@ dependencies {
 ```
 </details>
 
+`注：如果项目未集成kotlin，请使用annotationProcessor代替kapt，且不需要导入kotlin-kapt插件`
+
 ## 可选
 
 ### 1、配置Coverter
