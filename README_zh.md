@@ -89,7 +89,7 @@ allprojects {
 <details>
 <summary>2、配置ava 8或更高</summary>
  
-```
+```java
 android {
     //必须，java 8或更高
     compileOptions {
@@ -119,7 +119,7 @@ dependencies {
 
 ### 1、配置Coverter
 
-```
+```java
 //非必须，根据自己需求选择 RxHttp默认内置了GsonConverter
 implementation 'com.github.liujingxing.rxhttp:converter-fastjson:2.7.0'
 implementation 'com.github.liujingxing.rxhttp:converter-jackson:2.7.0'
@@ -133,7 +133,7 @@ implementation 'com.github.liujingxing.rxhttp:converter-simplexml:2.7.0'
 <details open>
 <summary>RxHttp + RxJava3</summary>
  
- ```
+ ```java
 implementation 'io.reactivex.rxjava3:rxjava:3.1.1'
 implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
 implementation 'com.github.liujingxing.rxlife:rxlife-rxjava3:2.2.1' //管理RxJava3生命周期，页面销毁，关闭请求
@@ -144,19 +144,18 @@ implementation 'com.github.liujingxing.rxlife:rxlife-rxjava3:2.2.1' //管理RxJa
 <details>
 <summary>RxHttp + RxJava2</summary>
  
-```
+```java
 implementation 'io.reactivex.rxjava2:rxjava:2.2.8'
 implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
 implementation 'com.github.liujingxing.rxlife:rxlife-rxjava2:2.2.1' //管理RxJava2生命周期，页面销毁，关闭请求
 ```
- 
 </details>
 
 
 <details open>
 <summary>通过kapt告知RxHttp你依赖的RxJava版本</summary>
  
-```
+```java
 android {
     kapt {
         arguments {
@@ -172,7 +171,7 @@ android {
 <details>
 <summary>通过javaCompileOptions告知RxHttp你依赖的RxJava版本</summary>
  
-```
+```java
 android {
     defaultConfig {
         javaCompileOptions {
@@ -196,7 +195,7 @@ android {
 <details open>
 <summary>通过kapt指定RxHttp相关类包名</summary>
  
-```
+```java
 android {
     kapt {
         arguments {
@@ -211,7 +210,7 @@ android {
 <details>
 <summary>通过javaCompileOptions指定RxHttp相关类包名</summary>
  
-```
+```java
 android {
     defaultConfig {
         javaCompileOptions {
