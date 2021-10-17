@@ -2,8 +2,10 @@ package com.rxhttp.compiler
 
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import javax.lang.model.element.ElementKind
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier
+import javax.lang.model.element.TypeElement
 import javax.lang.model.type.TypeVariable
 
 //将Java的基本类型/常用类型转换为kotlin中对应的类型
@@ -107,9 +109,11 @@ internal fun ExecutableElement.toFunSpecBuilder(): FunSpec.Builder {
 
     if (thrownTypes.isNotEmpty()) {  //异常
         val throwsValueString = thrownTypes.joinToString { "%T::class" }
-        funBuilder.addAnnotation(AnnotationSpec.builder(Throws::class)
-            .addMember(throwsValueString, *thrownTypes.toTypedArray())
-            .build())
+        funBuilder.addAnnotation(
+            AnnotationSpec.builder(Throws::class)
+                .addMember(throwsValueString, *thrownTypes.toTypedArray())
+                .build()
+        )
     }
 
     return funBuilder
@@ -140,4 +144,25 @@ fun List<ExecutableElement>.findTypeArgumentConstructorFun(typeParametersSize: I
         return it
     }
     return null
+}
+
+//获取public构造方法
+fun TypeElement.getPublicConstructorFun() =
+    getVisibleConstructorFun().filter {
+        it.modifiers.contains(Modifier.PUBLIC)
+    }
+
+//获取 public、protected 构造方法
+fun TypeElement.getVisibleConstructorFun(): List<ExecutableElement> {
+    val funList = ArrayList<ExecutableElement>()
+    enclosedElements.forEach {
+        if (it is ExecutableElement
+            && it.kind == ElementKind.CONSTRUCTOR
+            && (it.getModifiers().contains(Modifier.PUBLIC) || it.getModifiers()
+                .contains(Modifier.PROTECTED))
+        ) {
+            funList.add(it)
+        }
+    }
+    return funList
 }

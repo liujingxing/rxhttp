@@ -235,36 +235,10 @@ class ParserVisitor {
         return sb.toString()
     }
 
-    //获取泛型字符串 比如:<T> 、<K,V>等等
-    private fun getTypeVariableString(
-        typeVariableNames: ArrayList<TypeVariableName>,
-        wrapperClass: ClassName
-    ): String {
-        val name = wrapperClass.toString()
-        val simpleName = name.substring(name.lastIndexOf(".") + 1)
-
-        val type = StringBuilder()
-        val size = typeVariableNames.size
-        for (i in typeVariableNames.indices) {
-            if (i == 0) type.append("<")
-            type.append("$simpleName<")
-            type.append("${typeVariableNames[i].name}>")
-            type.append(if (i < size - 1) "," else ">")
-        }
-        return type.toString()
-    }
 
     //获取泛型字符串 比如:<T> 、<K,V>等等
     private fun getTypeVariableString(typeVariableNames: List<TypeVariableName>): String {
         return if(typeVariableNames.isNotEmpty()) "<>" else ""
-//        val type = StringBuilder()
-//        val size = typeVariableNames.size
-//        for (i in typeVariableNames.indices) {
-//            if (i == 0) type.append("<")
-//            type.append(typeVariableNames[i].name)
-//            type.append(if (i < size - 1) "," else ">")
-//        }
-//        return type.toString()
     }
 
 
@@ -279,7 +253,7 @@ class ParserVisitor {
                 && TypeName.get(it.parameters[0].asType())
                     .toString() == "okhttp3.Response"  //参数是okhttp3.Response类型
             ) {
-                return it.returnType;
+                return it.returnType
             }
         }
         return null
@@ -365,25 +339,4 @@ private fun checkParserValidClass(element: TypeElement, types: Types) {
         //TypeMirror转TypeElement
         currentClass = types.asElement(superClassType) as TypeElement
     }
-}
-
-//获取public构造方法
-private fun TypeElement.getPublicConstructorFun() =
-    getVisibleConstructorFun().filter {
-        it.modifiers.contains(Modifier.PUBLIC)
-    }
-
-//获取 public、protected 构造方法
-private fun TypeElement.getVisibleConstructorFun(): List<ExecutableElement> {
-    val funList = ArrayList<ExecutableElement>()
-    enclosedElements.forEach {
-        if (it is ExecutableElement
-            && it.kind == ElementKind.CONSTRUCTOR
-            && (it.getModifiers().contains(Modifier.PUBLIC) || it.getModifiers()
-                .contains(Modifier.PROTECTED))
-        ) {
-            funList.add(it)
-        }
-    }
-    return funList
 }
