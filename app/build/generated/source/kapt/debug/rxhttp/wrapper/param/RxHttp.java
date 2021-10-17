@@ -73,22 +73,22 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
 
   public R setParam(P param) {
     this.param = param;
-    return (R)this;
+    return (R) this;
   }
 
   public R connectTimeout(int connectTimeout) {
     connectTimeoutMillis = connectTimeout;
-    return (R)this;
+    return (R) this;
   }
 
   public R readTimeout(int readTimeout) {
     readTimeoutMillis = readTimeout;
-    return (R)this;
+    return (R) this;
   }
 
   public R writeTimeout(int writeTimeout) {
     writeTimeoutMillis = writeTimeout;
-    return (R)this;
+    return (R) this;
   }
 
   public OkHttpClient getOkHttpClient() {
@@ -97,23 +97,23 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
     OkHttpClient.Builder builder = null;
 
     if (connectTimeoutMillis != 0) {
-      builder = okHttpClient.newBuilder();
-      builder.connectTimeout(connectTimeoutMillis, TimeUnit.MILLISECONDS);
+        builder = okHttpClient.newBuilder();
+        builder.connectTimeout(connectTimeoutMillis, TimeUnit.MILLISECONDS);
     }
 
     if (readTimeoutMillis != 0) {
-      if (builder == null) builder = okHttpClient.newBuilder();
-      builder.readTimeout(readTimeoutMillis, TimeUnit.MILLISECONDS);
+        if (builder == null) builder = okHttpClient.newBuilder();
+        builder.readTimeout(readTimeoutMillis, TimeUnit.MILLISECONDS);
     }
 
     if (writeTimeoutMillis != 0) {
-      if (builder == null) builder = okHttpClient.newBuilder();
-      builder.writeTimeout(writeTimeoutMillis, TimeUnit.MILLISECONDS);
+       if (builder == null) builder = okHttpClient.newBuilder();
+       builder.writeTimeout(writeTimeoutMillis, TimeUnit.MILLISECONDS);
     }
 
     if (param.getCacheMode() != CacheMode.ONLY_NETWORK) {                      
-      if (builder == null) builder = okHttpClient.newBuilder();              
-      builder.addInterceptor(new CacheInterceptor(getCacheStrategy()));
+        if (builder == null) builder = okHttpClient.newBuilder();              
+        builder.addInterceptor(new CacheInterceptor(getCacheStrategy()));
     }
                                                                             
     realOkClient = builder != null ? builder.build() : okHttpClient;
@@ -225,59 +225,58 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
 
   public R setUrl(String url) {
     param.setUrl(url);
-    return (R)this;
+    return (R) this;
   }
 
   public R addQuery(String key) {
     param.addQuery(key, null);
-    return (R)this;
+    return (R) this;
   }
 
   public R addEncodedQuery(String key) {
     param.addEncodedQuery(key, null);
-    return (R)this;
+    return (R) this;
   }
 
   public R addQuery(String key, Object value) {
     param.addQuery(key,value);
-    return (R)this;
+    return (R) this;
   }
 
   public R addEncodedQuery(String key, Object value) {
     param.addEncodedQuery(key,value);
-    return (R)this;
+    return (R) this;
   }
 
   public R addAllQuery(String key, List<?> list) {
     param.addAllQuery(key, list);
-    return (R)this;
+    return (R) this;
   }
 
   public R addAllEncodedQuery(String key, List<?> list) {
     param.addAllEncodedQuery(key, list);
-    return (R)this;
+    return (R) this;
   }
 
   public R addAllQuery(Map<String, ?> map) {
     param.addAllQuery(map);
-    return (R)this;
+    return (R) this;
   }
 
   public R addAllEncodedQuery(Map<String, ?> map) {
     param.addAllEncodedQuery(map);
-    return (R)this;
+    return (R) this;
   }
 
   public R addHeader(String line) {
     param.addHeader(line);
-    return (R)this;
+    return (R) this;
   }
 
   public R addHeader(String line, boolean isAdd) {
-    if(isAdd) {
-      param.addHeader(line);
-    }
-    return (R)this;
+    if (isAdd) 
+        param.addHeader(line);
+    return (R) this;
   }
 
   /**
@@ -285,7 +284,7 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
    */
   public R addNonAsciiHeader(String key, String value) {
     param.addNonAsciiHeader(key,value);
-    return (R)this;
+    return (R) this;
   }
 
   /**
@@ -293,39 +292,38 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
    */
   public R setNonAsciiHeader(String key, String value) {
     param.setNonAsciiHeader(key,value);
-    return (R)this;
+    return (R) this;
   }
 
   public R addHeader(String key, String value) {
     param.addHeader(key,value);
-    return (R)this;
+    return (R) this;
   }
 
   public R addHeader(String key, String value, boolean isAdd) {
-    if(isAdd) {
-      param.addHeader(key,value);
-    }
-    return (R)this;
+    if (isAdd)
+        param.addHeader(key, value);
+    return (R) this;
   }
 
   public R addAllHeader(Map<String, String> headers) {
     param.addAllHeader(headers);
-    return (R)this;
+    return (R) this;
   }
 
   public R addAllHeader(Headers headers) {
     param.addAllHeader(headers);
-    return (R)this;
+    return (R) this;
   }
 
   public R setHeader(String key, String value) {
     param.setHeader(key,value);
-    return (R)this;
+    return (R) this;
   }
 
   public R setAllHeader(Map<String, String> headers) {
     param.setAllHeader(headers);
-    return (R)this;
+    return (R) this;
   }
 
   public R setRangeHeader(long startIndex) {
@@ -349,18 +347,18 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
   public R setRangeHeader(long startIndex, long endIndex, boolean connectLastProgress) {
     param.setRangeHeader(startIndex, endIndex);                         
     if (connectLastProgress)                                            
-      param.tag(DownloadOffSize.class, new DownloadOffSize(startIndex));
+        param.tag(DownloadOffSize.class, new DownloadOffSize(startIndex));
     return (R) this;                                                    
   }
 
   public R removeAllHeader(String key) {
     param.removeAllHeader(key);
-    return (R)this;
+    return (R) this;
   }
 
   public R setHeadersBuilder(Headers.Builder builder) {
     param.setHeadersBuilder(builder);
-    return (R)this;
+    return (R) this;
   }
 
   /**
@@ -369,7 +367,7 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
    */
   public R setAssemblyEnabled(boolean enabled) {
     param.setAssemblyEnabled(enabled);
-    return (R)this;
+    return (R) this;
   }
 
   /**
@@ -378,7 +376,7 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
    */
   public R setDecoderEnabled(boolean enabled) {
     param.addHeader(Param.DATA_DECRYPT,String.valueOf(enabled));
-    return (R)this;
+    return (R) this;
   }
 
   public boolean isAssemblyEnabled() {
@@ -408,17 +406,17 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
 
   public R tag(Object tag) {
     param.tag(tag);
-    return (R)this;
+    return (R) this;
   }
 
   public <T> R tag(Class<? super T> type, T tag) {
     param.tag(type,tag);
-    return (R)this;
+    return (R) this;
   }
 
   public R cacheControl(CacheControl cacheControl) {
     param.cacheControl(cacheControl);
-    return (R)this;
+    return (R) this;
   }
 
   public CacheStrategy getCacheStrategy() {
@@ -427,17 +425,17 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
 
   public R setCacheKey(String cacheKey) {
     param.setCacheKey(cacheKey);
-    return (R)this;
+    return (R) this;
   }
 
   public R setCacheValidTime(long cacheValidTime) {
     param.setCacheValidTime(cacheValidTime);
-    return (R)this;
+    return (R) this;
   }
 
   public R setCacheMode(CacheMode cacheMode) {
     param.setCacheMode(cacheMode);
-    return (R)this;
+    return (R) this;
   }
 
   public Response execute() throws IOException {
@@ -505,7 +503,7 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
    */
   public R setSync() {
     isAsync = false;
-    return (R)this;
+    return (R) this;
   }
 
   public <T> Observable<T> asParser(Parser<T> parser, Scheduler scheduler,
@@ -549,14 +547,14 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
    */
   private R setConverterToParam(IConverter converter) {
     param.tag(IConverter.class, converter);
-    return (R)this;
+    return (R) this;
   }
 
   public R setOkClient(OkHttpClient okClient) {
     if (okClient == null) 
         throw new IllegalArgumentException("okClient can not be null");
     this.okClient = okClient;
-    return (R)this;
+    return (R) this;
   }
 
   public R setSimpleClient() {
