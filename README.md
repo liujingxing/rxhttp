@@ -23,7 +23,9 @@ A type-safe HTTP client for Android. Written based on OkHttp
 
 ### Required
 
-Add it to your build.gradle with:
+<details>
+<summary>1、Add jitpack to your build.gradle</summary>
+ 
 ```java
 allprojects {
     repositories {
@@ -31,64 +33,137 @@ allprojects {
     }
 }
 ```
-and:
-
+</details>
+<details>
+<summary>2、Java 8 or higher</summary>
+ 
 ```java
-//Must be used when using kapt
-apply plugin: 'kotlin-kapt'
-
 android {
-    //Java 8 or higher
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
 }
-
+```
+</details>
+<details open>
+<summary>3、Add RxHttp dependency</summary>
+ 
+```java
+//Must be used when using kapt
+apply plugin: 'kotlin-kapt'
 dependencies {
-    implementation 'com.squareup.okhttp3:okhttp:4.9.1'
+    implementation 'com.squareup.okhttp3:okhttp:4.9.1'  
     implementation 'com.github.liujingxing.rxhttp:rxhttp:2.7.0'
     //Use the annotationProcessor instead of kapt, if you use Java
-    kapt 'com.github.liujingxing.rxhttp:rxhttp-compiler:2.7.0' 
+    kapt 'com.github.liujingxing.rxhttp:rxhttp-compiler:2.7.0'
  }
 ```
+</details>
 
 ### Optional
+
+### 1、Coverter
+```java
+implementation 'com.github.liujingxing.rxhttp:converter-fastjson:2.7.0'
+implementation 'com.github.liujingxing.rxhttp:converter-jackson:2.7.0'
+implementation 'com.github.liujingxing.rxhttp:converter-moshi:2.7.0'
+implementation 'com.github.liujingxing.rxhttp:converter-protobuf:2.7.0'
+implementation 'com.github.liujingxing.rxhttp:converter-simplexml:2.7.0'
+```
+
+### 2、RxJava
+<details open>
+<summary>RxHttp + RxJava3</summary>
+ 
+ ```java
+implementation 'io.reactivex.rxjava3:rxjava:3.1.1'
+implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
+implementation 'com.github.liujingxing.rxlife:rxlife-rxjava3:2.2.1' //RxJava3, Automatic close request
+```
+ 
+</details>
+<details>
+<summary>RxHttp + RxJava2</summary>
+ 
+```java
+implementation 'io.reactivex.rxjava2:rxjava:2.2.8'
+implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
+implementation 'com.github.liujingxing.rxlife:rxlife-rxjava2:2.2.1' //RxJava2, Automatic close request
+```
+</details>
+<details open>
+<summary>Kapt passes the RxJava version</summary>
+ 
 ```java
 android {
     kapt {
         arguments {
-            //Pass in the RxJava version name if you use RxJava 
             arg("rxhttp_rxjava", "3.1.1")  
-            arg("rxhttp_package", "rxhttp")  //Specifies the RxHttp class package
         }
     }
-    //If you uses Java, pass the parameters using javaCompileOptions in defaultConfig
-    annotationProcessorOptions {
-        arguments = [
-            rxhttp_rxjava: '3.1.1',
-            rxhttp_package: 'rxhttp'
-        ]
-    }
-}
-dependencies {
-    //rxjava2   (RxJava2/Rxjava3 select one)
-    implementation 'io.reactivex.rxjava2:rxjava:2.2.8'
-    implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
-    implementation 'com.github.liujingxing.rxlife:rxlife-rxjava2:2.2.1' //RxJava2, Automatic close request
-
-    //rxjava3
-    implementation 'io.reactivex.rxjava3:rxjava:3.1.1'
-    implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
-    implementation 'com.github.liujingxing.rxlife:rxlife-rxjava3:2.2.1' //RxJava3, Automatic close request
-
-    implementation 'com.github.liujingxing.rxhttp:converter-fastjson:2.7.0'
-    implementation 'com.github.liujingxing.rxhttp:converter-jackson:2.7.0'
-    implementation 'com.github.liujingxing.rxhttp:converter-moshi:2.7.0'
-    implementation 'com.github.liujingxing.rxhttp:converter-protobuf:2.7.0'
-    implementation 'com.github.liujingxing.rxhttp:converter-simplexml:2.7.0'
 }
 ```
+ 
+</details>
+ 
+<details>
+<summary>javaCompileOptions passes the RxJava version</summary>
+ 
+```java
+android {
+    defaultConfig {
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = [
+                    rxhttp_rxjava: '3.1.1', 
+                ]
+            }
+        }
+    }
+}
+```
+ 
+</details>
+
+`kapt/javaCompileOptions select one，With Kapt, if you integrate kotlin`
+
+### 3、set RxHttp class package name
+<details open>
+<summary>kapt pass package name</summary>
+ 
+```java
+android {
+    kapt {
+        arguments {
+            arg("rxhttp_package", "rxhttp.xxx") 
+        }
+    }
+}
+```
+ 
+</details>
+ 
+<details>
+<summary>javaCompileOptions pass package name</summary>
+ 
+```java
+android {
+    defaultConfig {
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = [
+                    rxhttp_package: 'rxhttp.xxx'
+                ]
+            }
+        }
+    }
+}
+```
+</details>
+
+`kapt/javaCompileOptions select one，With Kapt, if you integrate kotlin`
+
 
 **Finally, rebuild the project, which is necessary**
 
