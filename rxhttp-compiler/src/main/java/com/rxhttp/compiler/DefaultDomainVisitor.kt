@@ -34,18 +34,15 @@ class DefaultDomainVisitor {
         val methodBuilder = MethodSpec.methodBuilder("addDefaultDomainIfAbsent")
             .addJavadoc("给Param设置默认域名(如果缺席的话)，此方法会在请求发起前，被RxHttp内部调用\n")
             .addModifiers(Modifier.PRIVATE)
-            .addParameter(p, "param")
         element?.apply {
             methodBuilder.addCode(
                 """
                 String newUrl = addDomainIfAbsent(param.getSimpleUrl(), ${"$"}T.${simpleName});
                 param.setUrl(newUrl);
-                return param;
             """.trimIndent(),
                 ClassName.get(enclosingElement.asType())
             )
-        } ?: methodBuilder.addCode("return param;")
-        methodBuilder.returns(p)
+        }
         return methodBuilder.build()
     }
 }
