@@ -1,196 +1,52 @@
 package com.rxhttp.compiler
 
+import com.rxhttp.compiler.exception.ProcessingException
 import com.squareup.javapoet.*
 import rxhttp.wrapper.annotation.Parser
-import java.io.IOException
-import java.lang.Deprecated
 import java.util.*
 import javax.annotation.processing.Filer
 import javax.lang.model.element.*
 import javax.lang.model.type.MirroredTypesException
+import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
-import kotlin.Int
-import kotlin.String
+import javax.lang.model.util.Types
 import kotlin.collections.ArrayList
-import kotlin.require
 
-class ParserAnnotatedClass {
+class ParserVisitor {
 
-    private val mElementMap = LinkedHashMap<String, TypeElement>()
-    private val mTypeMap = LinkedHashMap<String, List<TypeMirror>>()
+    private val elementMap = LinkedHashMap<String, TypeElement>()
+    private val typeMap = LinkedHashMap<String, List<TypeMirror>>()
 
-    fun add(typeElement: TypeElement) {
-        val annotation = typeElement.getAnnotation(Parser::class.java)
+    fun add(element: TypeElement, types: Types) {
+        checkParserValidClass(element, types)
+        val annotation = element.getAnnotation(Parser::class.java)
         val name: String = annotation.name
         require(name.isNotEmpty()) {
-            String.format("methodName() in @%s for class %s is null or empty! that's not allowed",
-                Parser::class.java.simpleName, typeElement.qualifiedName.toString())
+            String.format(
+                "methodName() in @%s for class %s is null or empty! that's not allowed",
+                Parser::class.java.simpleName, element.qualifiedName.toString()
+            )
         }
         try {
             annotation.wrappers
         } catch (e: MirroredTypesException) {
             val typeMirrors = e.typeMirrors
-            mTypeMap[name] = typeMirrors
+            typeMap[name] = typeMirrors
         }
-        mElementMap[name] = typeElement
+        elementMap[name] = element
     }
 
     fun getMethodList(filer: Filer): List<MethodSpec> {
-        val t = TypeVariableName.get("T")
-        val className = ClassName.get(Class::class.java)
-        val classTName = ParameterizedTypeName.get(className, t)
 
-        val listTName = ParameterizedTypeName.get(ClassName.get(List::class.java), t)
-        val callName = ClassName.get("okhttp3", "Call")
-        val responseName = ClassName.get("okhttp3", "Response")
-        val requestName = ClassName.get("okhttp3", "Request")
-        val parserName = ClassName.get("rxhttp.wrapper.parse", "Parser")
-        val progressName = ClassName.get("rxhttp.wrapper.entity", "Progress")
-        val logUtilName = ClassName.get("rxhttp.wrapper.utils", "LogUtil")
-        val logTimeName = ClassName.get("rxhttp.wrapper.utils", "LogTime")
-        val typeName = TypeName.get(String::class.java)
-        val parserTName = ParameterizedTypeName.get(parserName, t)
-        val simpleParserName = ClassName.get("rxhttp.wrapper.parse", "SimpleParser")
         val type = ClassName.get("java.lang.reflect", "Type")
         val parameterizedType = ClassName.get("rxhttp.wrapper.entity", "ParameterizedTypeImpl")
+        val className = ClassName.get(Class::class.java)
+
         val methodList = ArrayList<MethodSpec>()
-
-        methodList.add(
-            MethodSpec.methodBuilder("execute")
-                .addModifiers(Modifier.PUBLIC)
-                .addException(IOException::class.java)
-                .addStatement("return newCall().execute()")
-                .returns(responseName)
-                .build())
-
-        methodList.add(
-            MethodSpec.methodBuilder("execute")
-                .addModifiers(Modifier.PUBLIC)
-                .addTypeVariable(t)
-                .addException(IOException::class.java)
-                .addParameter(parserTName, "parser")
-                .addStatement("return parser.onParse(execute())")
-                .returns(t)
-                .build())
-
-        methodList.add(
-            MethodSpec.methodBuilder("executeString")
-                .addModifiers(Modifier.PUBLIC)
-                .addException(IOException::class.java)
-                .addStatement("return executeClass(String.class)")
-                .returns(typeName)
-                .build())
-
-        methodList.add(
-            MethodSpec.methodBuilder("executeList")
-                .addModifiers(Modifier.PUBLIC)
-                .addTypeVariable(t)
-                .addException(IOException::class.java)
-                .addParameter(classTName, "type")
-                .addStatement("\$T tTypeList = \$T.get(List.class, type)", type, parameterizedType)
-                .addStatement("return execute(new \$T<>(tTypeList))", simpleParserName)
-                .returns(listTName)
-                .build())
-
-        methodList.add(
-            MethodSpec.methodBuilder("executeClass")
-                .addModifiers(Modifier.PUBLIC)
-                .addTypeVariable(t)
-                .addException(IOException::class.java)
-                .addParameter(classTName, "type")
-                .addStatement("return execute(new \$T<>(type))", simpleParserName)
-                .returns(t)
-                .build())
-
-        methodList.add(
-            MethodSpec.methodBuilder("newCall")
-                .addAnnotation(Override::class.java)
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .addCode("""
-                    Request request = buildRequest();
-                    OkHttpClient okClient = getOkHttpClient();
-                    return okClient.newCall(request);
-                """.trimIndent())
-                .returns(callName)
-                .build())
-
-        methodList.add(
-            MethodSpec.methodBuilder("buildRequest")
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .addCode(
-                    """
-                    boolean debug = ${"$"}T.isDebug();    
-                    if (request == null) {
-                        doOnStart();
-                        request = param.buildRequest();
-                        if (debug) 
-                            LogUtil.log(request, getOkHttpClient().cookieJar());
-                    }
-                    if (debug) {
-                        request = request.newBuilder()
-                            .tag(LogTime.class, new ${"$"}T())
-                            .build();
-                    }
-                    return request;
-                """.trimIndent(), logUtilName, logTimeName)
-                .returns(requestName)
-                .build())
-
-        methodList.add(
-            MethodSpec.methodBuilder("doOnStart")
-                .addModifiers(Modifier.PRIVATE, Modifier.FINAL)
-                .addJavadoc("请求开始前内部调用，用于添加默认域名等操作\n")
-                .addStatement("setConverterToParam(converter)")
-                .addStatement("addDefaultDomainIfAbsent(param)")
-                .build())
-
-        if (isDependenceRxJava()) {
-            val schedulerName = getClassName("Scheduler")
-            val observableName = getClassName("Observable")
-            val consumerName = getClassName("Consumer")
-
-            methodList.add(
-                MethodSpec.methodBuilder("subscribeOnCurrent")
-                    .addAnnotation(Deprecated::class.java)
-                    .addJavadoc("@deprecated please user {@link #setSync()} instead\n")
-                    .addModifiers(Modifier.PUBLIC)
-                    .addStatement("return setSync()")
-                    .returns(r)
-                    .build())
-
-            methodList.add(
-                MethodSpec.methodBuilder("setSync")
-                    .addJavadoc("sync request \n")
-                    .addModifiers(Modifier.PUBLIC)
-                    .addStatement("isAsync = false")
-                    .addStatement("return (R)this")
-                    .returns(r)
-                    .build())
-
-            val observableTName = ParameterizedTypeName.get(observableName, t)
-            val consumerProgressName = ParameterizedTypeName.get(consumerName, progressName)
-
-            methodList.add(
-                MethodSpec.methodBuilder("asParser")
-                    .addModifiers(Modifier.PUBLIC)
-                    .addTypeVariable(t)
-                    .addParameter(parserTName, "parser")
-                    .addParameter(schedulerName, "scheduler")
-                    .addParameter(consumerProgressName, "progressConsumer")
-                    .addCode("""
-                        ObservableCall observableCall = isAsync ? new ObservableCallEnqueue(this)
-                            : new ObservableCallExecute(this);                                
-                        return observableCall.asParser(parser, scheduler, progressConsumer);
-                    """.trimIndent())
-                    .returns(observableTName)
-                    .build())
-        }
-
-
         val rxHttpExtensions = RxHttpExtensions()
 
         //获取自定义的解析器
-        for ((parserAlias, typeElement) in mElementMap) {
+        for ((parserAlias, typeElement) in elementMap) {
 
             //生成RxHttp扩展方法(kotlin编写的方法)
             rxHttpExtensions.generateRxHttpExtendFun(typeElement, parserAlias)
@@ -206,7 +62,7 @@ class ParserAnnotatedClass {
                 }
 
                 //遍历public构造方法
-                typeElement.getConstructorFun().forEach {
+                typeElement.getPublicConstructorFun().forEach {
                     //根据构造方法参数，获取asXxx方法需要的参数
                     val parameterList = ArrayList<ParameterSpec>()
                     var typeIndex = 0
@@ -273,7 +129,7 @@ class ParserAnnotatedClass {
                             wrapperListClass.add(ClassName.get("java.util", "List"))
 
                         //泛型的包裹类型，取自Parser注解的wrappers字段
-                        mTypeMap[parserAlias]?.forEach { mirror ->
+                        typeMap[parserAlias]?.forEach { mirror ->
                             val tempClassName = ClassName.bestGuess(mirror.toString())
                             if (!wrapperListClass.contains(tempClassName)) {
                                 wrapperListClass.add(tempClassName)
@@ -348,20 +204,6 @@ class ParserAnnotatedClass {
     }
 
 
-    //获取构造方法
-    private fun TypeElement.getConstructorFun(): MutableList<ExecutableElement> {
-        val funList = ArrayList<ExecutableElement>()
-        enclosedElements.forEach {
-            if (it is ExecutableElement
-                && it.kind == ElementKind.CONSTRUCTOR
-                && it.getModifiers().contains(Modifier.PUBLIC)
-            ) {
-                funList.add(it)
-            }
-        }
-        return funList
-    }
-
     /**
      * @param variableElements 解析器构造方法参数列表
      * @param parameterSpecs 通过解析器构造方法参数列表转换而来的实际参数列表，parameterSpecs.size() >= variableElements.size()
@@ -434,11 +276,114 @@ class ParserAnnotatedClass {
                 && !it.getModifiers().contains(Modifier.STATIC) //非静态
                 && it.simpleName.toString() == "onParse"  //onParse方法
                 && it.parameters.size == 1  //只有一个参数
-                && TypeName.get(it.parameters[0].asType()).toString() == "okhttp3.Response"  //参数是okhttp3.Response类型
+                && TypeName.get(it.parameters[0].asType())
+                    .toString() == "okhttp3.Response"  //参数是okhttp3.Response类型
             ) {
                 return it.returnType;
             }
         }
         return null
     }
+}
+
+
+@Throws(ProcessingException::class)
+private fun checkParserValidClass(element: TypeElement, types: Types) {
+    if (!element.modifiers.contains(Modifier.PUBLIC)) {
+        throw ProcessingException(
+            element,
+            "The class ${Parser::class.java.simpleName} is not public"
+        )
+    }
+    if (element.modifiers.contains(Modifier.ABSTRACT)) {
+        throw ProcessingException(
+            element,
+            "The class ${element.simpleName} is abstract. You can't annotate abstract classes with @${Parser::class.java.simpleName}"
+        )
+    }
+
+    val constructorFun = element.getVisibleConstructorFun()
+    if (element.typeParameters.size > 0) {
+        //有泛型的解析器不能声明为final类型
+        if (element.modifiers.contains(Modifier.FINAL)) {
+            throw ProcessingException(
+                element,
+                "This class ${element.simpleName} cannot be declared final"
+            )
+        }
+        //1、查找无参构造方法
+        val noArgumentConstructorFun = constructorFun.findNoArgumentConstructorFun()
+            ?: throw ProcessingException(
+                element,
+                "This class must be declared 'protected %${element.simpleName}()' constructor method"
+            )
+        if (!noArgumentConstructorFun.modifiers.contains(Modifier.PROTECTED)) {
+            //无参构造方法必须要声明为protected
+            throw ProcessingException(
+                element,
+                "This class ${element.simpleName} no-argument constructor must be declared protected"
+            )
+        }
+
+        if (isDependenceRxJava()) {
+            //2、如果依赖了RxJava，则需要查找带 java.lang.reflect.Type 参数的构造方法
+            val typeArgumentConstructorFun = constructorFun
+                .findTypeArgumentConstructorFun(element.typeParameters.size)
+            if (typeArgumentConstructorFun == null) {
+                val method = StringBuffer("public %s(")
+                for (i in element.typeParameters.indices) {
+                    method.append("java.lang.reflect.Type")
+                    if (i == element.typeParameters.size - 1) {
+                        method.append(")")
+                    } else method.append(", ")
+                }
+                throw ProcessingException(
+                    element,
+                    "This class ${element.simpleName} must declare '$method' constructor method"
+                )
+            }
+        }
+    }
+
+    var currentClass = element
+    while (true) {
+        val interfaces: MutableList<out TypeMirror> = currentClass.interfaces
+        //遍历实现的接口有没有Parser接口
+        for (typeMirror in interfaces) {
+            if (typeMirror.toString().contains("rxhttp.wrapper.parse.Parser")) {
+                return
+            }
+        }
+        //未遍历到Parser，则找到父类继续，一直循环下去，直到最顶层的父类
+        val superClassType = currentClass.superclass
+        if (superClassType.kind == TypeKind.NONE) {
+            throw ProcessingException(
+                element,
+                "The class ${element.qualifiedName} annotated with @${Parser::class.java.simpleName} must inherit from rxhttp.wrapper.parse.Parser<T>"
+            )
+        }
+        //TypeMirror转TypeElement
+        currentClass = types.asElement(superClassType) as TypeElement
+    }
+}
+
+//获取public构造方法
+private fun TypeElement.getPublicConstructorFun() =
+    getVisibleConstructorFun().filter {
+        it.modifiers.contains(Modifier.PUBLIC)
+    }
+
+//获取 public、protected 构造方法
+private fun TypeElement.getVisibleConstructorFun(): List<ExecutableElement> {
+    val funList = ArrayList<ExecutableElement>()
+    enclosedElements.forEach {
+        if (it is ExecutableElement
+            && it.kind == ElementKind.CONSTRUCTOR
+            && (it.getModifiers().contains(Modifier.PUBLIC) || it.getModifiers()
+                .contains(Modifier.PROTECTED))
+        ) {
+            funList.add(it)
+        }
+    }
+    return funList
 }
