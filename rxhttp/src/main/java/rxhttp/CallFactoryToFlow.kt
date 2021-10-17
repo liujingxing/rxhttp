@@ -1,11 +1,14 @@
 package rxhttp
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.net.Uri
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.*
+import okhttp3.Headers
+import okhttp3.Response
 import rxhttp.wrapper.BodyParamFactory
 import rxhttp.wrapper.CallFactory
 import rxhttp.wrapper.callback.FileOutputStreamFactory
@@ -23,6 +26,13 @@ import rxhttp.wrapper.entity.ProgressT
  * Date: 2021/9/18
  * Time: 17:31
  */
+
+fun CallFactory.toFlowBitmap(): Flow<Bitmap> = toFlow(toBitmap())
+
+fun CallFactory.toFlowHeaders(): Flow<Headers> = toFlow(toHeaders())
+
+fun CallFactory.toFlowOkResponse(): Flow<Response> = toFlow(toOkResponse())
+
 inline fun <reified T : Any> CallFactory.toFlow(): Flow<T> = toFlow(toClass())
 
 inline fun <reified T : Any> CallFactory.toFlow(await: Await<T>): Flow<T> =
