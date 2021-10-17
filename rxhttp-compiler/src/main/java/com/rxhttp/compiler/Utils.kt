@@ -115,14 +115,14 @@ internal fun ExecutableElement.toFunSpecBuilder(): FunSpec.Builder {
     return funBuilder
 }
 
-fun MutableList<ExecutableElement>.findNoArgumentConstructorFun(): ExecutableElement? {
+fun List<ExecutableElement>.findNoArgumentConstructorFun(): ExecutableElement? {
     forEach {
         if (it.parameters.size == 0) return it
     }
     return null
 }
 
-fun MutableList<ExecutableElement>.findTypeArgumentConstructorFun(typeParametersSize: Int): ExecutableElement? {
+fun List<ExecutableElement>.findTypeArgumentConstructorFun(typeParametersSize: Int): ExecutableElement? {
     for (it in this) {
         if (!it.modifiers.contains(Modifier.PUBLIC)) continue
         it.parameters.forEach { variableElement ->
