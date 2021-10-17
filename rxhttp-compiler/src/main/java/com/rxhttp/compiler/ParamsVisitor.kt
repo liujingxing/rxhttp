@@ -56,7 +56,7 @@ class ParamsVisitor {
                 rxHttpParamName
             }
             //遍历public构造方法
-            getConstructorFun(typeElement).forEach {
+            typeElement.getPublicConstructorFun().forEach {
                 val parameterSpecs = ArrayList<ParameterSpec>() //构造方法参数
                 val methodBody = StringBuilder("return new \$T(new \$T(") //方法体
                 for ((index, element) in it.parameters.withIndex()) {
@@ -193,19 +193,6 @@ class ParamsVisitor {
         return methodList
     }
 
-    //获取构造方法
-    private fun getConstructorFun(typeElement: TypeElement): MutableList<ExecutableElement> {
-        val funList = ArrayList<ExecutableElement>()
-        typeElement.enclosedElements.forEach {
-            if (it is ExecutableElement
-                && it.kind == ElementKind.CONSTRUCTOR
-                && it.getModifiers().contains(Modifier.PUBLIC)
-            ) {
-                funList.add(it)
-            }
-        }
-        return funList
-    }
 }
 
 
