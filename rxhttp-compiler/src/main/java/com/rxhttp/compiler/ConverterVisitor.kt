@@ -58,24 +58,32 @@ private fun checkConverterValidClass(element: VariableElement, types: Types) {
         )
     }
     var classType = element.asType()
-    if ("rxhttp.wrapper.callback.IConverter" != classType.toString()) {
-        while (true) {
-            //TypeMirror转TypeElement
-            val currentClass = types.asElement(classType) as TypeElement
-            //遍历实现的接口有没有IConverter接口
-            for (mirror in currentClass.interfaces) {
-                if (mirror.toString() == "rxhttp.wrapper.callback.IConverter") {
-                    return
-                }
-            }
-            //未遍历到IConverter，则找到父类继续，一直循环下去，直到最顶层的父类
-            classType = currentClass.superclass
-            if (classType.kind == TypeKind.NONE) {
-                throw ProcessingException(
-                    element,
-                    "The variable ${element.simpleName} is not a IConverter"
-                )
-            }
+    val iConverter = "rxhttp.wrapper.callback.IConverter"
+    while (true) {
+        if (iConverter == classType.toString()) return
+        //TypeMirror转TypeElement
+        val currentClass = types.asElement(classType) as TypeElement
+        //遍历实现的接口有没有IConverter接口
+        if (currentClass.findIConverter(types, iConverter)) return
+        //未遍历到IConverter，则找到父类继续，一直循环下去，直到最顶层的父类
+        classType = currentClass.superclass
+        if (classType.kind == TypeKind.NONE) {
+            throw ProcessingException(
+                element,
+                "The variable ${element.simpleName} is not a IConverter"
+            )
         }
     }
+}
+
+fun TypeElement.findIConverter(types: Types, iConverter: String): Boolean {
+    for (mirror in interfaces) {
+        return if (mirror.toString() == "rxhttp.wrapper.callback.IConverter") {
+            true
+        } else {
+            (types.asElement(mirror) as? TypeElement)?.findIConverter(types, iConverter)
+                ?: return false
+        }
+    }
+    return false
 }
