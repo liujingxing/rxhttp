@@ -33,7 +33,7 @@ class DomainVisitor {
                         """
                         String newUrl = addDomainIfAbsent(param.getSimpleUrl(), ${"$"}T.${value.simpleName});
                         param.setUrl(newUrl);
-                        return (R)this;
+                        return (R) this;
                     """.trimIndent(),
                         ClassName.get(value.enclosingElement.asType()),
                     )

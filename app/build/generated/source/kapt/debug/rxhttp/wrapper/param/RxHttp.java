@@ -569,7 +569,7 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
   public R setDomainToUpdateIfAbsent() {
     String newUrl = addDomainIfAbsent(param.getSimpleUrl(), Url.update);
     param.setUrl(newUrl);
-    return (R)this;
+    return (R) this;
   }
 
   private static String addDomainIfAbsent(String url, String domain) {
