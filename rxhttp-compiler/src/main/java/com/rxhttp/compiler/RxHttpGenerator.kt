@@ -66,7 +66,7 @@ class RxHttpGenerator {
         val parserName = ClassName.get("rxhttp.wrapper.parse", "Parser")
         val progressName = ClassName.get("rxhttp.wrapper.entity", "Progress")
         val logUtilName = ClassName.get("rxhttp.wrapper.utils", "LogUtil")
-        val logTimeName = ClassName.get("rxhttp.wrapper.utils", "LogTime")
+        val logInterceptorName = ClassName.get("rxhttp.wrapper.intercept", "LogInterceptor")
         val parserTName = ParameterizedTypeName.get(parserName, t)
         val simpleParserName = ClassName.get("rxhttp.wrapper.parse", "SimpleParser")
         val type = ClassName.get("java.lang.reflect", "Type")
@@ -129,42 +129,6 @@ class RxHttpGenerator {
                 .addStatement("return (R) this")
                 .returns(r)
                 .build()
-        )
-
-        methodList.add(
-            MethodSpec.methodBuilder("getOkHttpClient")
-                .addModifiers(Modifier.PUBLIC)
-                .addCode(
-                    """
-                    if (realOkClient != null) return realOkClient;
-                    final OkHttpClient okHttpClient = okClient;
-                    OkHttpClient.Builder builder = null;
-                    
-                    if (connectTimeoutMillis != 0) {
-                        builder = okHttpClient.newBuilder();
-                        builder.connectTimeout(connectTimeoutMillis, ${'$'}T.MILLISECONDS);
-                    }
-                    
-                    if (readTimeoutMillis != 0) {
-                        if (builder == null) builder = okHttpClient.newBuilder();
-                        builder.readTimeout(readTimeoutMillis, ${'$'}T.MILLISECONDS);
-                    }
-
-                    if (writeTimeoutMillis != 0) {
-                       if (builder == null) builder = okHttpClient.newBuilder();
-                       builder.writeTimeout(writeTimeoutMillis, ${'$'}T.MILLISECONDS);
-                    }
-                    
-                    if (param.getCacheMode() != CacheMode.ONLY_NETWORK) {                      
-                        if (builder == null) builder = okHttpClient.newBuilder();              
-                        builder.addInterceptor(new ${'$'}T(getCacheStrategy()));
-                    }
-                                                                                            
-                    realOkClient = builder != null ? builder.build() : okHttpClient;
-                    return realOkClient;
-                """.trimIndent(), timeUnitName, timeUnitName, timeUnitName, cacheInterceptorName
-                )
-                .returns(okHttpClientName).build()
         )
 
         val methodMap = LinkedHashMap<String, String>()
@@ -733,23 +697,56 @@ class RxHttpGenerator {
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                 .addCode(
                     """
-                    boolean debug = ${"$"}T.isDebug();    
                     if (request == null) {
                         doOnStart();
                         request = param.buildRequest();
-                        if (debug) 
-                            LogUtil.log(request, getOkHttpClient().cookieJar());
-                    }
-                    if (debug) {
-                        request = request.newBuilder()
-                            .tag(LogTime.class, new ${"$"}T())
-                            .build();
                     }
                     return request;
-                """.trimIndent(), logUtilName, logTimeName
+                """.trimIndent()
                 )
                 .returns(requestName)
                 .build()
+        )
+
+        methodList.add(
+            MethodSpec.methodBuilder("getOkHttpClient")
+                .addModifiers(Modifier.PUBLIC)
+                .addCode(
+                    """
+                    if (realOkClient != null) return realOkClient;
+                    final OkHttpClient okHttpClient = okClient;
+                    OkHttpClient.Builder builder = null;
+                    
+                    if (${'$'}T.isDebug()) {
+                        builder = okHttpClient.newBuilder();
+                        builder.addInterceptor(new ${'$'}T());
+                    }
+                    
+                    if (connectTimeoutMillis != 0) {
+                        if (builder == null) builder = okHttpClient.newBuilder();
+                        builder.connectTimeout(connectTimeoutMillis, ${'$'}T.MILLISECONDS);
+                    }
+                    
+                    if (readTimeoutMillis != 0) {
+                        if (builder == null) builder = okHttpClient.newBuilder();
+                        builder.readTimeout(readTimeoutMillis, ${'$'}T.MILLISECONDS);
+                    }
+
+                    if (writeTimeoutMillis != 0) {
+                       if (builder == null) builder = okHttpClient.newBuilder();
+                       builder.writeTimeout(writeTimeoutMillis, ${'$'}T.MILLISECONDS);
+                    }
+                    
+                    if (param.getCacheMode() != CacheMode.ONLY_NETWORK) {                      
+                        if (builder == null) builder = okHttpClient.newBuilder();              
+                        builder.addInterceptor(new ${'$'}T(getCacheStrategy()));
+                    }
+                                                                                            
+                    realOkClient = builder != null ? builder.build() : okHttpClient;
+                    return realOkClient;
+                """.trimIndent(), logUtilName, logInterceptorName, timeUnitName, timeUnitName, timeUnitName, cacheInterceptorName
+                )
+                .returns(okHttpClientName).build()
         )
 
         methodList.add(
