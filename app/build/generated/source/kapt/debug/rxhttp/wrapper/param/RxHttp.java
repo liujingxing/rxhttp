@@ -384,7 +384,7 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
   }
 
   public String getUrl() {
-    addDefaultDomainIfAbsent(param);
+    addDefaultDomainIfAbsent();
     return param.getUrl();
   }
 
@@ -487,7 +487,7 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
    */
   private final void doOnStart() {
     setConverterToParam(converter);
-    addDefaultDomainIfAbsent(param);
+    addDefaultDomainIfAbsent();
   }
 
   /**
@@ -564,10 +564,9 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
   /**
    * 给Param设置默认域名(如果缺席的话)，此方法会在请求发起前，被RxHttp内部调用
    */
-  private P addDefaultDomainIfAbsent(P param) {
+  private void addDefaultDomainIfAbsent() {
     String newUrl = addDomainIfAbsent(param.getSimpleUrl(), Url.baseUrl);
     param.setUrl(newUrl);
-    return param;
   }
 
   public R setDomainToUpdateIfAbsent() {

@@ -553,7 +553,7 @@ class RxHttpGenerator {
         methodList.add(
             MethodSpec.methodBuilder("getUrl")
                 .addModifiers(Modifier.PUBLIC)
-                .addStatement("addDefaultDomainIfAbsent(param)")
+                .addStatement("addDefaultDomainIfAbsent()")
                 .addStatement("return param.getUrl()")
                 .returns(String::class.java)
                 .build()
@@ -757,7 +757,7 @@ class RxHttpGenerator {
                 .addModifiers(Modifier.PRIVATE, Modifier.FINAL)
                 .addJavadoc("请求开始前内部调用，用于添加默认域名等操作\n")
                 .addStatement("setConverterToParam(converter)")
-                .addStatement("addDefaultDomainIfAbsent(param)")
+                .addStatement("addDefaultDomainIfAbsent()")
                 .build()
         )
 
