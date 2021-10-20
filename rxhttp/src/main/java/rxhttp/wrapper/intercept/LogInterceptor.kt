@@ -2,7 +2,7 @@ package rxhttp.wrapper.intercept
 
 import okhttp3.Interceptor
 import okhttp3.Response
-import rxhttp.RxHttpPlugins
+import okhttp3.internal.connection.RealCall
 import rxhttp.wrapper.utils.LogTime
 import rxhttp.wrapper.utils.LogUtil
 
@@ -17,9 +17,10 @@ import rxhttp.wrapper.utils.LogUtil
 class LogInterceptor : Interceptor {
 
     override fun intercept(chain: Interceptor.Chain): Response {
+        val okHttpClient = (chain.call() as RealCall).client
         var request = chain.request()
         // Prints the request start log
-        LogUtil.log(request, RxHttpPlugins.getOkHttpClient().cookieJar)
+        LogUtil.log(request, okHttpClient.cookieJar)
         // Record the request start time
         request = request.newBuilder()
             .tag(LogTime::class.java, LogTime())
