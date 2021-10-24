@@ -36,10 +36,7 @@ class DefaultDomainVisitor {
             .addModifiers(Modifier.PRIVATE)
         element?.apply {
             methodBuilder.addCode(
-                """
-                String newUrl = addDomainIfAbsent(param.getSimpleUrl(), ${"$"}T.${simpleName});
-                param.setUrl(newUrl);
-            """.trimIndent(),
+                """setDomainIfAbsent(${"$"}T.${simpleName});""",
                 ClassName.get(enclosingElement.asType())
             )
         }
