@@ -26,8 +26,9 @@ class RxHttpWrapper {
         val annotation = typeElement.getAnnotation(Param::class.java)
         val name: String = annotation.methodName
         require(name.isNotEmpty()) {
-            String.format("methodName() in @%s for class %s is null or empty! that's not allowed",
-                Param::class.java.simpleName, typeElement.qualifiedName.toString())
+            """
+                methodName() in @${Param::class.java.simpleName} for class ${typeElement.qualifiedName} is null or empty! that's not allowed
+            """.trimIndent()
         }
         mElementMap[name] = typeElement
     }

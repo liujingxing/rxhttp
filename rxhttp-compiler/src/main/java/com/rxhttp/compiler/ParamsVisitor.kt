@@ -22,10 +22,9 @@ class ParamsVisitor {
         val annotation = element.getAnnotation(Param::class.java)
         val name: String = annotation.methodName
         require(name.isNotEmpty()) {
-            String.format(
-                "methodName() in @%s for class %s is null or empty! that's not allowed",
-                Param::class.java.simpleName, element.qualifiedName.toString()
-            )
+            """
+                methodName() in @${Param::class.java.simpleName} for class ${element.qualifiedName} is null or empty! that's not allowed
+            """.trimIndent()
         }
         elementMap[name] = element
     }
