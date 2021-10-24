@@ -30,11 +30,7 @@ class DomainVisitor {
                 MethodSpec.methodBuilder("setDomainTo${key}IfAbsent")
                     .addModifiers(Modifier.PUBLIC)
                     .addCode(
-                        """
-                        String newUrl = addDomainIfAbsent(param.getSimpleUrl(), ${"$"}T.${value.simpleName});
-                        param.setUrl(newUrl);
-                        return (R) this;
-                    """.trimIndent(),
+                        """return setDomainIfAbsent(${"$"}T.${value.simpleName});""",
                         ClassName.get(value.enclosingElement.asType()),
                     )
                     .returns(r).build()

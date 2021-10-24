@@ -864,6 +864,20 @@ class RxHttpGenerator {
             methodList.addAll(getMethodList())
         }
 
+        methodList.add(
+            MethodSpec.methodBuilder("setDomainIfAbsent")
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(String::class.java, "domain")
+                .addCode(
+                    """
+                    String newUrl = addDomainIfAbsent(param.getSimpleUrl(), domain);
+                    param.setUrl(newUrl);
+                    return (R) this;
+                    """.trimIndent()
+                )
+                .returns(r).build()
+        )
+
         //对url添加域名方法
         methodList.add(
             MethodSpec.methodBuilder("addDomainIfAbsent")
@@ -872,17 +886,17 @@ class RxHttpGenerator {
                 .addParameter(String::class.java, "domain")
                 .addCode(
                     """
-                         if (url.startsWith("http")) return url;
-                         if (url.startsWith("/")) {
-                             if (domain.endsWith("/"))
-                                 return domain + url.substring(1);
-                             else
-                                 return domain + url;
-                         } else if (domain.endsWith("/")) {
-                             return domain + url;
-                         } else {
-                             return domain + "/" + url;
-                         }
+                    if (url.startsWith("http")) return url;
+                    if (url.startsWith("/")) {
+                        if (domain.endsWith("/"))
+                            return domain + url.substring(1);
+                        else
+                            return domain + url;
+                    } else if (domain.endsWith("/")) {
+                        return domain + url;
+                    } else {
+                        return domain + "/" + url;
+                    }
                     """.trimIndent()
                 )
                 .returns(String::class.java).build()
