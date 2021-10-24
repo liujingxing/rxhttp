@@ -25,10 +25,9 @@ class ParserVisitor {
         val annotation = element.getAnnotation(Parser::class.java)
         val name: String = annotation.name
         require(name.isNotEmpty()) {
-            String.format(
-                "methodName() in @%s for class %s is null or empty! that's not allowed",
-                Parser::class.java.simpleName, element.qualifiedName.toString()
-            )
+            """
+                methodName() in @${Parser::class.java.simpleName} for class ${element.qualifiedName} is null or empty! that's not allowed
+            """.trimIndent()
         }
         try {
             annotation.wrappers
