@@ -5,7 +5,10 @@ import com.squareup.javapoet.*
 import rxhttp.wrapper.annotation.Parser
 import java.util.*
 import javax.annotation.processing.Filer
-import javax.lang.model.element.*
+import javax.lang.model.element.ExecutableElement
+import javax.lang.model.element.Modifier
+import javax.lang.model.element.TypeElement
+import javax.lang.model.element.VariableElement
 import javax.lang.model.type.MirroredTypesException
 import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
@@ -289,7 +292,7 @@ private fun checkParserValidClass(element: TypeElement, types: Types) {
         val noArgumentConstructorFun = constructorFun.findNoArgumentConstructorFun()
             ?: throw ProcessingException(
                 element,
-                "This class must be declared 'protected %${element.simpleName}()' constructor method"
+                "This class ${element.simpleName} must be declared 'protected ${element.simpleName}()' constructor method"
             )
         if (!noArgumentConstructorFun.modifiers.contains(Modifier.PROTECTED)) {
             //无参构造方法必须要声明为protected
@@ -304,7 +307,7 @@ private fun checkParserValidClass(element: TypeElement, types: Types) {
             val typeArgumentConstructorFun = constructorFun
                 .findTypeArgumentConstructorFun(element.typeParameters.size)
             if (typeArgumentConstructorFun == null) {
-                val method = StringBuffer("public %s(")
+                val method = StringBuffer("public ${element.simpleName}(")
                 for (i in element.typeParameters.indices) {
                     method.append("java.lang.reflect.Type")
                     if (i == element.typeParameters.size - 1) {
