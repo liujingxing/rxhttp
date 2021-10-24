@@ -447,35 +447,35 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
 
   public OkHttpClient getOkHttpClient() {
     if (realOkClient != null) return realOkClient;
-    final OkHttpClient okHttpClient = okClient;
+    final OkHttpClient okClient = this.okClient;
     OkHttpClient.Builder builder = null;
 
     if (LogUtil.isDebug()) {
-        builder = okHttpClient.newBuilder();
-        builder.addInterceptor(new LogInterceptor());
+        builder = okClient.newBuilder();
+        builder.addInterceptor(new LogInterceptor(okClient.cookieJar()));
     }
 
     if (connectTimeoutMillis != 0) {
-        if (builder == null) builder = okHttpClient.newBuilder();
+        if (builder == null) builder = okClient.newBuilder();
         builder.connectTimeout(connectTimeoutMillis, TimeUnit.MILLISECONDS);
     }
 
     if (readTimeoutMillis != 0) {
-        if (builder == null) builder = okHttpClient.newBuilder();
+        if (builder == null) builder = okClient.newBuilder();
         builder.readTimeout(readTimeoutMillis, TimeUnit.MILLISECONDS);
     }
 
     if (writeTimeoutMillis != 0) {
-       if (builder == null) builder = okHttpClient.newBuilder();
+       if (builder == null) builder = okClient.newBuilder();
        builder.writeTimeout(writeTimeoutMillis, TimeUnit.MILLISECONDS);
     }
 
     if (param.getCacheMode() != CacheMode.ONLY_NETWORK) {                      
-        if (builder == null) builder = okHttpClient.newBuilder();              
+        if (builder == null) builder = okClient.newBuilder();              
         builder.addInterceptor(new CacheInterceptor(getCacheStrategy()));
     }
                                                                             
-    realOkClient = builder != null ? builder.build() : okHttpClient;
+    realOkClient = builder != null ? builder.build() : okClient;
     return realOkClient;
   }
 

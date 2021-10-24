@@ -714,35 +714,35 @@ class RxHttpGenerator {
                 .addCode(
                     """
                     if (realOkClient != null) return realOkClient;
-                    final OkHttpClient okHttpClient = okClient;
+                    final OkHttpClient okClient = this.okClient;
                     OkHttpClient.Builder builder = null;
                     
                     if (${'$'}T.isDebug()) {
-                        builder = okHttpClient.newBuilder();
-                        builder.addInterceptor(new ${'$'}T());
+                        builder = okClient.newBuilder();
+                        builder.addInterceptor(new ${'$'}T(okClient.cookieJar()));
                     }
                     
                     if (connectTimeoutMillis != 0) {
-                        if (builder == null) builder = okHttpClient.newBuilder();
+                        if (builder == null) builder = okClient.newBuilder();
                         builder.connectTimeout(connectTimeoutMillis, ${'$'}T.MILLISECONDS);
                     }
                     
                     if (readTimeoutMillis != 0) {
-                        if (builder == null) builder = okHttpClient.newBuilder();
+                        if (builder == null) builder = okClient.newBuilder();
                         builder.readTimeout(readTimeoutMillis, ${'$'}T.MILLISECONDS);
                     }
 
                     if (writeTimeoutMillis != 0) {
-                       if (builder == null) builder = okHttpClient.newBuilder();
+                       if (builder == null) builder = okClient.newBuilder();
                        builder.writeTimeout(writeTimeoutMillis, ${'$'}T.MILLISECONDS);
                     }
                     
                     if (param.getCacheMode() != CacheMode.ONLY_NETWORK) {                      
-                        if (builder == null) builder = okHttpClient.newBuilder();              
+                        if (builder == null) builder = okClient.newBuilder();              
                         builder.addInterceptor(new ${'$'}T(getCacheStrategy()));
                     }
                                                                                             
-                    realOkClient = builder != null ? builder.build() : okHttpClient;
+                    realOkClient = builder != null ? builder.build() : okClient;
                     return realOkClient;
                 """.trimIndent(), logUtilName, logInterceptorName, timeUnitName, timeUnitName, timeUnitName, cacheInterceptorName
                 )
