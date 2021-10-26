@@ -562,12 +562,15 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
    * 给Param设置默认域名(如果缺席的话)，此方法会在请求发起前，被RxHttp内部调用
    */
   private void addDefaultDomainIfAbsent() {
-    String newUrl = addDomainIfAbsent(param.getSimpleUrl(), Url.baseUrl);
-    param.setUrl(newUrl);
+    setDomainIfAbsent(Url.baseUrl);
   }
 
   public R setDomainToUpdateIfAbsent() {
-    String newUrl = addDomainIfAbsent(param.getSimpleUrl(), Url.update);
+    return setDomainIfAbsent(Url.update);
+  }
+
+  public R setDomainIfAbsent(String domain) {
+    String newUrl = addDomainIfAbsent(param.getSimpleUrl(), domain);
     param.setUrl(newUrl);
     return (R) this;
   }
