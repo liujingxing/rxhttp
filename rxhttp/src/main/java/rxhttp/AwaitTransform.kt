@@ -414,7 +414,7 @@ suspend fun <T> Deferred<T>.awaitResult(onSuccess: (value: T) -> Unit): Result<T
     awaitResult().onSuccess(onSuccess)
 
 //return null when an error occurs.
-suspend fun <T> Deferred<T>.tryAwait(onCatch: ((Throwable) -> Unit)?): T? =
+suspend fun <T> Deferred<T>.tryAwait(onCatch: ((Throwable) -> Unit)? = null): T? =
     try {
         await()
     } catch (e: Throwable) {
@@ -423,7 +423,7 @@ suspend fun <T> Deferred<T>.tryAwait(onCatch: ((Throwable) -> Unit)?): T? =
     }
 
 //return null when an error occurs.
-suspend fun <T> Await<T>.tryAwait(onCatch: ((Throwable) -> Unit)?): T? =
+suspend fun <T> Await<T>.tryAwait(onCatch: ((Throwable) -> Unit)? = null): T? =
     try {
         await()
     } catch (e: Throwable) {
