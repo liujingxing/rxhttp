@@ -23,13 +23,12 @@ import rxhttp.wrapper.utils.BuildUtil;
 import rxhttp.wrapper.utils.CacheUtil;
 
 /**
- * 此类是唯一直接实现Param接口的类
  * User: ljx
  * Date: 2019/1/19
  * Time: 14:35
  */
 @SuppressWarnings("unchecked")
-public abstract class AbstractParam<P extends Param<P>> implements Param<P> {
+public abstract class AbstractParam<P extends Param<P>> extends Param<P> {
 
     private String url;    //链接地址
     private Builder HBuilder; //请求头构造器
