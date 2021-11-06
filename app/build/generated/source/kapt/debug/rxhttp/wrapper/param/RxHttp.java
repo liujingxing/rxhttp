@@ -199,6 +199,26 @@ public class RxHttp<P extends Param, R extends RxHttp> extends BaseRxHttp {
     return (R) this;
   }
 
+  /**
+   * For example:
+   *                                          
+   * ```                                                  
+   * RxHttp.get("/service/{page}/...")  
+   *     .addPath("page", 1)
+   *     ...
+   * ```
+   * url = /service/1/...
+   */
+  public R addPath(String name, Object value) {
+    param.addPath(name, value);
+    return (R) this;
+  }
+
+  public R addEncodedPath(String name, Object value) {
+    param.addEncodedPath(name, value);
+    return (R) this;
+  }
+
   public R addQuery(String key) {
     param.addQuery(key, null);
     return (R) this;

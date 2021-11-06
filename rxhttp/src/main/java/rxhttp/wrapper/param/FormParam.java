@@ -176,11 +176,14 @@ public class FormParam extends AbstractBodyParam<FormParam> implements IPart<For
         if (bodyPairs != null)
             cachePairs.addAll(bodyPairs);
         List<KeyValuePair> pairs = CacheUtil.excludeCacheKey(cachePairs);
-        return BuildUtil.getHttpUrl(getSimpleUrl(), pairs).toString();
+        return BuildUtil.getHttpUrl(getSimpleUrl(), pairs, getPaths()).toString();
     }
 
     @Override
     public String toString() {
-        return BuildUtil.getHttpUrl(getSimpleUrl(), bodyParam).toString();
+        return "FormParam{" +
+            "url = " + getUrl() +
+            "bodyParam = " + bodyParam +
+            '}';
     }
 }
