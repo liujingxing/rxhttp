@@ -211,12 +211,8 @@ private fun checkParamsValidClass(element: TypeElement, types: Types) {
     }
     var currentClass = element
     while (true) {
-        val interfaces = currentClass.interfaces
-        for (typeMirror in interfaces) {
-            if (typeMirror.toString() != "rxhttp.wrapper.param.Param<P>") continue
-            return
-        }
         val superClassType = currentClass.superclass
+        if (superClassType.toString() == "rxhttp.wrapper.param.Param<P>") return
         if (superClassType.kind == TypeKind.NONE) {
             throw ProcessingException(
                 element,
