@@ -201,6 +201,38 @@ class RxHttpGenerator {
         )
 
         methodList.add(
+            MethodSpec.methodBuilder("addPath")
+                .addModifiers(Modifier.PUBLIC)
+                .addJavadoc("""
+                    For example:
+                                                             
+                    ```                                                  
+                    RxHttp.get("/service/{page}/...")  
+                        .addPath("page", 1)
+                        ...
+                    ```
+                    url = /service/1/...
+                """.trimIndent())
+                .addParameter(String::class.java, "name")
+                .addParameter(Object::class.java, "value")
+                .addStatement("param.addPath(name, value)")
+                .addStatement("return (R) this")
+                .returns(rxHttp)
+                .build()
+        )
+
+        methodList.add(
+            MethodSpec.methodBuilder("addEncodedPath")
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(String::class.java, "name")
+                .addParameter(Object::class.java, "value")
+                .addStatement("param.addEncodedPath(name, value)")
+                .addStatement("return (R) this")
+                .returns(rxHttp)
+                .build()
+        )
+
+        methodList.add(
             MethodSpec.methodBuilder("addQuery")
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(String::class.java, "key")

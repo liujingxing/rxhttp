@@ -36,6 +36,7 @@ public abstract class AbstractParam<P extends Param<P>> implements Param<P> {
     private final Method method;  //请求方法
     private final CacheStrategy cacheStrategy;  //缓存策略
     private List<KeyValuePair> queryParam; //查询参数，拼接在Url后面
+    private List<KeyValuePair> paths;      //Replace '{XXX}' in the url
     private final Request.Builder requestBuilder = new Request.Builder(); //请求构造器
 
     private boolean isAssemblyEnabled = true;//是否添加公共参数
@@ -52,6 +53,22 @@ public abstract class AbstractParam<P extends Param<P>> implements Param<P> {
 
     public P setUrl(@NonNull String url) {
         this.url = url;
+        return (P) this;
+    }
+
+    @Override
+    public P addPath(String name, Object value) {
+        return addPath(new KeyValuePair(name, value));
+    }
+
+    @Override
+    public P addEncodedPath(String name, Object value) {
+        return addPath(new KeyValuePair(name, value, true));
+    }
+
+    private P addPath(KeyValuePair keyValuePair) {
+        if (paths == null) paths = new ArrayList<>();
+        paths.add(keyValuePair);
         return (P) this;
     }
 
@@ -76,6 +93,10 @@ public abstract class AbstractParam<P extends Param<P>> implements Param<P> {
         return queryParam;
     }
 
+    public List<KeyValuePair> getPaths() {
+        return paths;
+    }
+
     @Override
     public final String getUrl() {
         return getHttpUrl().toString();
@@ -88,7 +109,7 @@ public abstract class AbstractParam<P extends Param<P>> implements Param<P> {
 
     @Override
     public HttpUrl getHttpUrl() {
-        return BuildUtil.getHttpUrl(url, queryParam);
+        return BuildUtil.getHttpUrl(url, queryParam, paths);
     }
 
     @Override
@@ -164,7 +185,7 @@ public abstract class AbstractParam<P extends Param<P>> implements Param<P> {
     @NonNull
     public String buildCacheKey() {
         List<KeyValuePair> queryPairs = CacheUtil.excludeCacheKey(getQueryParam());
-        return BuildUtil.getHttpUrl(getSimpleUrl(), queryPairs).toString();
+        return BuildUtil.getHttpUrl(getSimpleUrl(), queryPairs, paths).toString();
     }
 
     @Override

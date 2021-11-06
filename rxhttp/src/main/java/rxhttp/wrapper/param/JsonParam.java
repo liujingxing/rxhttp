@@ -91,7 +91,7 @@ public class JsonParam extends AbstractBodyParam<JsonParam> {
     @Override
     public String buildCacheKey() {
         List<KeyValuePair> queryPairs = CacheUtil.excludeCacheKey(getQueryParam());
-        HttpUrl httpUrl = BuildUtil.getHttpUrl(getSimpleUrl(), queryPairs);
+        HttpUrl httpUrl = BuildUtil.getHttpUrl(getSimpleUrl(), queryPairs, getPaths());
         Map<?, ?> param = CacheUtil.excludeCacheKey(bodyParam);
         String json = GsonUtil.toJson(param);
         Builder builder = httpUrl.newBuilder().addQueryParameter("json", json);

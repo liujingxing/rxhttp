@@ -6,6 +6,7 @@ import android.net.Uri;
 
 import java.net.URLConnection;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import okhttp3.FormBody;
 import okhttp3.Headers;
@@ -26,6 +27,8 @@ import rxhttp.wrapper.param.IRequest;
  * Time: 18:36
  */
 public class BuildUtil {
+
+    private static final Pattern PATH_TRAVERSAL = Pattern.compile("(.*/)?(\\.|%2e|%2E){1,2}(/.*)?");
 
     public static Request buildRequest(@NonNull IRequest r, @NonNull Request.Builder builder) {
         builder.url(r.getHttpUrl())
@@ -89,11 +92,28 @@ public class BuildUtil {
         return builder.build();
     }
 
-    public static HttpUrl getHttpUrl(@NonNull String url, @Nullable List<KeyValuePair> pairs) {
+    public static HttpUrl getHttpUrl(@NonNull String url, @Nullable List<KeyValuePair> queryList,
+                                     @Nullable List<KeyValuePair> paths) {
+        if (paths != null) {
+            for (KeyValuePair path : paths) {
+                String name = path.getKey();
+                Object value = path.getValue();
+                if (value == null) {
+                    throw new IllegalArgumentException("Path parameter \"" + name + "\" value must not be null.");
+                }
+                String replacement = PathEncoderKt.canonicalizeForPath(value.toString(), path.isEncoded());
+                String newUrl = url.replace("{" + name + "}", replacement);
+                if (PATH_TRAVERSAL.matcher(newUrl).matches()) {
+                    throw new IllegalArgumentException(
+                        "Path parameters shouldn't perform path traversal ('.' or '..'): " + name + " is " + value);
+                }
+                url = newUrl;
+            }
+        }
         HttpUrl httpUrl = HttpUrl.get(url);
-        if (pairs == null || pairs.size() == 0) return httpUrl;
+        if (queryList == null || queryList.size() == 0) return httpUrl;
         HttpUrl.Builder builder = httpUrl.newBuilder();
-        for (KeyValuePair pair : pairs) {
+        for (KeyValuePair pair : queryList) {
             String name = pair.getKey();
             Object object = pair.getValue();
             String value = object == null ? null : object.toString();
