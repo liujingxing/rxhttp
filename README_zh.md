@@ -51,7 +51,7 @@ RxHttp.get("/server/..")     RxHttp.get("/server/..")     RxHttp.get("/server/..
 
 30秒上手教程：[30秒上手新一代Http请求神器RxHttp](https://juejin.im/post/5cfcbbcbe51d455a694f94df)
 
-Flow文档[RxHttp + Flow 三步搞定任意请求](https://juejin.cn/post/7017604875764629540)
+Flow文档：[RxHttp + Flow 三步搞定任意请求](https://juejin.cn/post/7017604875764629540)
 
 Await文档：[RxHttp ，比Retrofit 更优雅的协程体验](https://juejin.im/post/5e77604fe51d4527066eb81a#heading-2)
 
