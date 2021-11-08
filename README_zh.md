@@ -110,8 +110,8 @@ apply plugin: 'kotlin-kapt'
 
 dependencies {
     implementation 'com.squareup.okhttp3:okhttp:4.9.1'  
-    implementation 'com.github.liujingxing.rxhttp:rxhttp:2.7.2'
-    kapt 'com.github.liujingxing.rxhttp:rxhttp-compiler:2.7.2' //生成RxHttp类，纯Java项目，请使用annotationProcessor代替kapt
+    implementation 'com.github.liujingxing.rxhttp:rxhttp:2.7.3'
+    kapt 'com.github.liujingxing.rxhttp:rxhttp-compiler:2.7.3' //生成RxHttp类，纯Java项目，请使用annotationProcessor代替kapt
  }
 ```
 </details>
@@ -124,11 +124,11 @@ dependencies {
 
 ```java
 //非必须，根据自己需求选择 RxHttp默认内置了GsonConverter
-implementation 'com.github.liujingxing.rxhttp:converter-fastjson:2.7.2'
-implementation 'com.github.liujingxing.rxhttp:converter-jackson:2.7.2'
-implementation 'com.github.liujingxing.rxhttp:converter-moshi:2.7.2'
-implementation 'com.github.liujingxing.rxhttp:converter-protobuf:2.7.2'
-implementation 'com.github.liujingxing.rxhttp:converter-simplexml:2.7.2'
+implementation 'com.github.liujingxing.rxhttp:converter-fastjson:2.7.3'
+implementation 'com.github.liujingxing.rxhttp:converter-jackson:2.7.3'
+implementation 'com.github.liujingxing.rxhttp:converter-moshi:2.7.3'
+implementation 'com.github.liujingxing.rxhttp:converter-protobuf:2.7.3'
+implementation 'com.github.liujingxing.rxhttp:converter-simplexml:2.7.3'
 ```
 
 ### 2、配置RxJava
