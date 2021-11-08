@@ -54,9 +54,9 @@ android {
 apply plugin: 'kotlin-kapt'
 dependencies {
     implementation 'com.squareup.okhttp3:okhttp:4.9.1'  
-    implementation 'com.github.liujingxing.rxhttp:rxhttp:2.7.2'
+    implementation 'com.github.liujingxing.rxhttp:rxhttp:2.7.3'
     //Use the annotationProcessor instead of kapt, if you use Java
-    kapt 'com.github.liujingxing.rxhttp:rxhttp-compiler:2.7.2'
+    kapt 'com.github.liujingxing.rxhttp:rxhttp-compiler:2.7.3'
  }
 ```
 </details>
@@ -65,11 +65,11 @@ dependencies {
 
 ### 1、Coverter
 ```java
-implementation 'com.github.liujingxing.rxhttp:converter-fastjson:2.7.2'
-implementation 'com.github.liujingxing.rxhttp:converter-jackson:2.7.2'
-implementation 'com.github.liujingxing.rxhttp:converter-moshi:2.7.2'
-implementation 'com.github.liujingxing.rxhttp:converter-protobuf:2.7.2'
-implementation 'com.github.liujingxing.rxhttp:converter-simplexml:2.7.2'
+implementation 'com.github.liujingxing.rxhttp:converter-fastjson:2.7.3'
+implementation 'com.github.liujingxing.rxhttp:converter-jackson:2.7.3'
+implementation 'com.github.liujingxing.rxhttp:converter-moshi:2.7.3'
+implementation 'com.github.liujingxing.rxhttp:converter-protobuf:2.7.3'
+implementation 'com.github.liujingxing.rxhttp:converter-simplexml:2.7.3'
 ```
 
 ### 2、RxJava
