@@ -51,9 +51,11 @@ RxHttp.get("/server/..")     RxHttp.get("/server/..")     RxHttp.get("/server/..
 
 30秒上手教程：[30秒上手新一代Http请求神器RxHttp](https://juejin.im/post/5cfcbbcbe51d455a694f94df)
 
-协程文档：[RxHttp ，比Retrofit 更优雅的协程体验](https://juejin.im/post/5e77604fe51d4527066eb81a#heading-2)
+Flow文档[RxHttp + Flow 三步搞定任意请求](https://juejin.cn/post/7017604875764629540)
 
-掘金详细文档：[RxHttp 让你眼前一亮的Http请求框架](https://juejin.im/post/5ded221a518825125d14a1d4)
+Await文档：[RxHttp ，比Retrofit 更优雅的协程体验](https://juejin.im/post/5e77604fe51d4527066eb81a#heading-2)
+
+RxJava及核心Api介绍：[RxHttp 让你眼前一亮的Http请求框架](https://juejin.im/post/5ded221a518825125d14a1d4)
 
 wiki详细文档：https://github.com/liujingxing/rxhttp/wiki  (此文档会持续更新)
 
