@@ -225,7 +225,7 @@ val students = RxHttp.postJson("/service/...")  //1、post {application/json; ch
 
 See the request timing diagram for more
 
-![sequence_chart_en.jpg](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/79d7af9b0ae84edeb8fb5c2fa7975f20~tplv-k3u1fbpfcp-watermark.image)
+![sequence_chart_en.jpg](https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/2c637845930b49d7a7466ec7b5dcdb77~tplv-k3u1fbpfcp-watermark.image)
 ```kotlin
 //Kotlin + Await             //Kotlin + Flow              //Kotlin + RxJava            //Java + RxJava
 RxHttp.get("/server/..")     RxHttp.get("/server/..")     RxHttp.get("/server/..")     RxHttp.get("/server/..")   
