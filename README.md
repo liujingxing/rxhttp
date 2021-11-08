@@ -7,6 +7,20 @@ English | [中文文档](https://github.com/liujingxing/rxhttp/blob/master/READM
 A type-safe HTTP client for Android. Written based on OkHttp
 
 
+![sequence_chart_en.jpg](https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/2c637845930b49d7a7466ec7b5dcdb77~tplv-k3u1fbpfcp-watermark.image)
+```kotlin
+//Kotlin + Await             //Kotlin + Flow              //Kotlin + RxJava            //Java + RxJava
+RxHttp.get("/server/..")     RxHttp.get("/server/..")     RxHttp.get("/server/..")     RxHttp.get("/server/..")   
+    .add("key", "value")         .add("key", "value")         .add("key", "value")         .add("key", "value")
+    .toClass<User>()             .toFlow<User>()              .asClass<User>()             .asClass(User.class)
+    .awaitResult {               .catch {                     .subscribe({                 .subscribe(user -> {
+        //Success                    //Failure                    //Success                    //Success     
+    }.onFailure {                }.collect {                  }, {                         }, throwable -> { 
+        //Failure                    //Success                    //Failure                    //Failure
+    }                            }                            })                           });
+```
+
+
 ## 1、Feature
 
 - Support kotlin coroutines, RxJava2, RxJava3
@@ -221,21 +235,6 @@ RxHttp.postForm("/service/...")          //post FormBody
 val students = RxHttp.postJson("/service/...")  //1、post {application/json; charset=utf-8}
     .toList<Student>()                          //2、Use the toXxx method to determine the return value type, customizable
     .await()                                    //3、Get the return value, await is the suspend method
-```
-
-See the request timing diagram for more
-
-![sequence_chart_en.jpg](https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/2c637845930b49d7a7466ec7b5dcdb77~tplv-k3u1fbpfcp-watermark.image)
-```kotlin
-//Kotlin + Await             //Kotlin + Flow              //Kotlin + RxJava            //Java + RxJava
-RxHttp.get("/server/..")     RxHttp.get("/server/..")     RxHttp.get("/server/..")     RxHttp.get("/server/..")   
-    .add("key", "value")         .add("key", "value")         .add("key", "value")         .add("key", "value")
-    .toClass<User>()             .toFlow<User>()              .asClass<User>()             .asClass(User.class)
-    .awaitResult {               .catch {                     .subscribe({                 .subscribe(user -> {
-        //Success                    //Failure                    //Success                    //Success     
-    }.onFailure {                }.collect {                  }, {                         }, throwable -> { 
-        //Failure                    //Success                    //Failure                    //Failure
-    }                            }                            })                           });
 ```
 
 ## 3、Advanced usage
