@@ -55,12 +55,10 @@ class ParserVisitor {
 
             if (isDependenceRxJava()) { //依赖了RxJava，则生成自定义的asXxx方法
                 //onParser方法返回类型
-                val returnTypeMirror = getOnParserFunReturnType(typeElement) ?: continue
-                val onParserFunReturnType = TypeName.get(returnTypeMirror)
+                val onParserFunReturnType = typeElement.getOnParserFunReturnType() ?: continue
 
-                val typeVariableNames = ArrayList<TypeVariableName>()
-                typeElement.typeParameters.forEach {
-                    typeVariableNames.add(TypeVariableName.get(it))
+                val typeVariableNames = typeElement.typeParameters.map {
+                    TypeVariableName.get(it)
                 }
 
                 //遍历public构造方法
@@ -89,9 +87,9 @@ class ParserVisitor {
                                 className, typeVariableNames[typeIndex++]
                             )
                             val variableName = variableElement.simpleName.toString()
-                            val parameterSpec =
+                            parameterList.add(
                                 ParameterSpec.builder(classTypeName, variableName).build()
-                            parameterList.add(parameterSpec)
+                            )
                         } else {
                             parameterList.add(ParameterSpec.get(variableElement))
                         }
@@ -107,7 +105,8 @@ class ParserVisitor {
 
                     //生成的as方法返回类型(Observable<T>类型)
                     var asFunReturnType = ParameterizedTypeName.get(
-                        getClassName("Observable"), onParserFunReturnType)
+                        getClassName("Observable"), onParserFunReturnType
+                    )
                     methodList.add(
                         MethodSpec.methodBuilder(methodName)
                             .addModifiers(Modifier.PUBLIC)
@@ -116,14 +115,12 @@ class ParserVisitor {
                             .varargs(it.isVarArgs && parameterList.last().type is ArrayTypeName)
                             .addStatement(methodBody, ClassName.get(typeElement))  //方法里面的表达式
                             .returns(asFunReturnType)
-                            .build())
+                            .build()
+                    )
 
-                    var haveClassTypeParam = false
-                    parameterList.forEach { p ->
-                        if (p.type.toString().startsWith("java.lang.Class")) {
-                            haveClassTypeParam = true
-                        }
-                    }
+                    val haveClassTypeParam = parameterList.find { p ->
+                        p.type.toString().startsWith("java.lang.Class")
+                    } != null
                     //有泛型且有Class类型参数
                     if (typeVariableNames.size == 1 && haveClassTypeParam) {
                         val wrapperListClass = mutableListOf<ClassName>()
@@ -141,17 +138,22 @@ class ParserVisitor {
                         wrapperListClass.forEach { wrapperClass ->
 
                             //1、asXxx方法返回值
-                            val onParserFunReturnWrapperType = if (onParserFunReturnType is ParameterizedTypeName) {
-                                //返回类型有n个泛型，需要对每个泛型再次包装
-                                val typeNames = ArrayList<TypeName>()
-                                for (typeArg in onParserFunReturnType.typeArguments) {
-                                    typeNames.add(ParameterizedTypeName.get(wrapperClass, typeArg))
+                            val onParserFunReturnWrapperType =
+                                if (onParserFunReturnType is ParameterizedTypeName) {
+                                    //返回类型有n个泛型，需要对每个泛型再次包装
+                                    val typeNames = onParserFunReturnType.typeArguments.map { typeArg->
+                                        ParameterizedTypeName.get(wrapperClass, typeArg)
+                                    }
+                                    ParameterizedTypeName.get(onParserFunReturnType.rawType,
+                                        *typeNames.toTypedArray()
+                                    )
+                                } else {
+                                    ParameterizedTypeName.get(wrapperClass, onParserFunReturnType)
                                 }
-                                ParameterizedTypeName.get(onParserFunReturnType.rawType, *typeNames.toTypedArray())
-                            } else {
-                                ParameterizedTypeName.get(wrapperClass, onParserFunReturnType)
-                            }
-                            asFunReturnType = ParameterizedTypeName.get(getClassName("Observable"), onParserFunReturnWrapperType)
+                            asFunReturnType = ParameterizedTypeName.get(
+                                getClassName("Observable"),
+                                onParserFunReturnWrapperType
+                            )
 
                             //2、asXxx方法名
                             val name = wrapperClass.toString()
@@ -183,7 +185,8 @@ class ParserVisitor {
                                     paramsName.append(param.name)
                                 }
                             }
-                            val returnStatement = "return asParser(new \$T${getTypeVariableString(typeVariableNames)}($paramsName))"
+                            val returnStatement =
+                                "return asParser(new \$T${getTypeVariableString(typeVariableNames)}($paramsName))"
                             funBody.addStatement(returnStatement, ClassName.get(typeElement))
 
                             //4、生成asXxx方法
@@ -195,7 +198,8 @@ class ParserVisitor {
                                     .varargs(it.isVarArgs && parameterList.last().type is ArrayTypeName)
                                     .addCode(funBody.build())  //方法里面的表达式
                                     .returns(asFunReturnType)
-                                    .build())
+                                    .build()
+                            )
                         }
                     }
                 }
@@ -240,28 +244,24 @@ class ParserVisitor {
 
     //获取泛型字符串 比如:<T> 、<K,V>等等
     private fun getTypeVariableString(typeVariableNames: List<TypeVariableName>): String {
-        return if(typeVariableNames.isNotEmpty()) "<>" else ""
+        return if (typeVariableNames.isNotEmpty()) "<>" else ""
     }
 
-
-    //获取onParser方法返回类型
-    private fun getOnParserFunReturnType(typeElement: TypeElement): TypeMirror? {
-        typeElement.enclosedElements.forEach {
-            if (it is ExecutableElement   //是方法
-                && it.getModifiers().contains(Modifier.PUBLIC)  //public修饰
-                && !it.getModifiers().contains(Modifier.STATIC) //非静态
-                && it.simpleName.toString() == "onParse"  //onParse方法
-                && it.parameters.size == 1  //只有一个参数
-                && TypeName.get(it.parameters[0].asType())
-                    .toString() == "okhttp3.Response"  //参数是okhttp3.Response类型
-            ) {
-                return it.returnType
-            }
-        }
-        return null
-    }
 }
 
+//获取onParser方法返回类型
+private fun TypeElement.getOnParserFunReturnType(): TypeName? {
+    val function = enclosedElements.find {
+        it is ExecutableElement   //是方法
+            && it.getModifiers().contains(Modifier.PUBLIC)  //public修饰
+            && !it.getModifiers().contains(Modifier.STATIC) //非静态
+            && it.simpleName.toString() == "onParse"  //onParse方法
+            && it.parameters.size == 1  //只有一个参数
+            && TypeName.get(it.parameters[0].asType())
+            .toString() == "okhttp3.Response"  //参数是okhttp3.Response类型
+    } ?: return null
+    return TypeName.get((function as ExecutableElement).returnType)
+}
 
 @Throws(ProcessingException::class)
 private fun checkParserValidClass(element: TypeElement, types: Types) {
