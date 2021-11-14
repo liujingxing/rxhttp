@@ -18,27 +18,25 @@ import javax.lang.model.type.TypeKind
 class RxHttpExtensions {
 
     private val classTypeName = Class::class.asClassName()
-    private val anyTypeName = Any::class.asTypeName()
 
     private val baseRxHttpName = ClassName(rxHttpPackage, "BaseRxHttp")
     private val callFactoryName = ClassName("rxhttp.wrapper", "CallFactory")
     private val toFunList = ArrayList<FunSpec>()
     private val asFunList = ArrayList<FunSpec>()
 
-    //根据@Parser注解，生成asXxx()、awaitXxx()类型方法
+    //根据@Parser注解，生成asXxx()、toXxx()、toFlowXxx()系列方法
     fun generateRxHttpExtendFun(typeElement: TypeElement, key: String) {
 
-        val typeVariableNames = ArrayList<TypeVariableName>()
         //遍历获取泛型类型
-        typeElement.typeParameters.forEach {
-            typeVariableNames.add(it.asTypeVariableName())
+        val typeVariableNames = typeElement.typeParameters.map {
+            it.asTypeVariableName()
         }
 
         //遍历构造方法
-        for (executableElement in getConstructorFun(typeElement)) {
+        for (executableElement in typeElement.getConstructorFun()) {
 
-            if (typeVariableNames.size > 0
-                && executableElement.modifiers.contains(Modifier.PUBLIC)
+            if (typeVariableNames.isNotEmpty()
+                && Modifier.PUBLIC in executableElement.modifiers
             ) {
                 if (executableElement.parameters.size == 1
                     && executableElement.parameters[0].asType()
@@ -47,17 +45,13 @@ class RxHttpExtensions {
                     continue
                 }
 
-                var allTypeArg = true
                 //构造方法参数数量等于泛型数量
-                if (executableElement.parameters.size > typeVariableNames.size) {
-                    for (variableElement in executableElement.parameters) {
-                        if (variableElement.asType().toString() != "java.lang.reflect.Type") {
-                            allTypeArg = false
-                            break
-                        }
-                    }
+                if (executableElement.parameters.size >= typeVariableNames.size) {
+                    val allTypeArg = executableElement.parameters.find {
+                        it.asType().toString() != "java.lang.reflect.Type"
+                    } == null
+                    if (allTypeArg) continue
                 }
-                if (allTypeArg) continue
             }
 
             //根据构造方法参数，获取asXxx方法需要的参数
@@ -99,28 +93,29 @@ class RxHttpExtensions {
             }
 
             val modifiers = ArrayList<KModifier>()
-            if (typeVariableNames.size > 0) {
+            if (typeVariableNames.isNotEmpty()) {
                 modifiers.add(KModifier.INLINE)
             }
 
-            var funBody = if (typeVariableNames.size == 0 || executableElement.modifiers.contains(Modifier.PUBLIC)) {
+            var funBody = if (typeVariableNames.isEmpty() || executableElement.modifiers.contains(Modifier.PUBLIC)) {
                 "return asParser(%T${getTypeVariableString(typeVariableNames)}(${getParamsName(parameterList)}))"
             } else {
                 "return asParser(object: %T${getTypeVariableString(typeVariableNames)}(${getParamsName(parameterList)}) {})"
             }
 
-            if (typeVariableNames.size > 0) {  //对声明了泛型的解析器，生成kotlin编写的asXxx方法
+            if (typeVariableNames.isNotEmpty()) {  //对声明了泛型的解析器，生成kotlin编写的asXxx方法
                 asFunList.add(
                     FunSpec.builder("as$key")
                         .addModifiers(modifiers)
                         .receiver(baseRxHttpName)
                         .addParameters(parameterList)
                         .addStatement(funBody, typeElement.asClassName()) //方法里面的表达式
-                        .addTypeVariables(getTypeVariableNames(typeVariableNames))
-                        .build())
+                        .addTypeVariables(typeVariableNames.getTypeVariableNames())
+                        .build()
+                )
             }
 
-            funBody = if (typeVariableNames.size == 0 || executableElement.modifiers.contains(Modifier.PUBLIC)) {
+            funBody = if (typeVariableNames.isEmpty() || executableElement.modifiers.contains(Modifier.PUBLIC)) {
                 "return %T(%T${getTypeVariableString(typeVariableNames)}(${getParamsName(parameterList)}))"
             } else {
                 "return %T(object: %T${getTypeVariableString(typeVariableNames)}(${getParamsName(parameterList)}) {})"
@@ -133,8 +128,9 @@ class RxHttpExtensions {
                     .receiver(callFactoryName)
                     .addParameters(parameterList)
                     .addStatement(funBody, toParserName, typeElement.asClassName())  //方法里面的表达式
-                    .addTypeVariables(getTypeVariableNames(typeVariableNames))
-                    .build())
+                    .addTypeVariables(typeVariableNames.getTypeVariableNames())
+                    .build()
+            )
         }
     }
 
@@ -185,41 +181,50 @@ class RxHttpExtensions {
                 .receiver(rxHttpName)
                 .addTypeVariable(t.copy(reified = true))
                 .addStatement("return execute(object : %T<T>() {})", simpleParserName)
-                .build())
+                .build()
+        )
 
         if (isDependenceRxJava()) {
-            fileBuilder.addFunction(FunSpec.builder("asList")
-                .addModifiers(KModifier.INLINE)
-                .receiver(baseRxHttpName)
-                .addTypeVariable(t.copy(reified = true))
-                .addStatement("return asClass<List<T>>()")
-                .build())
+            fileBuilder.addFunction(
+                FunSpec.builder("asList")
+                    .addModifiers(KModifier.INLINE)
+                    .receiver(baseRxHttpName)
+                    .addTypeVariable(t.copy(reified = true))
+                    .addStatement("return asClass<List<T>>()")
+                    .build()
+            )
 
-            fileBuilder.addFunction(FunSpec.builder("asMap")
-                .addModifiers(KModifier.INLINE)
-                .receiver(baseRxHttpName)
-                .addTypeVariable(k.copy(reified = true))
-                .addTypeVariable(v.copy(reified = true))
-                .addStatement("return asClass<Map<K,V>>()")
-                .build())
+            fileBuilder.addFunction(
+                FunSpec.builder("asMap")
+                    .addModifiers(KModifier.INLINE)
+                    .receiver(baseRxHttpName)
+                    .addTypeVariable(k.copy(reified = true))
+                    .addTypeVariable(v.copy(reified = true))
+                    .addStatement("return asClass<Map<K,V>>()")
+                    .build()
+            )
 
-            fileBuilder.addFunction(FunSpec.builder("asClass")
-                .addModifiers(KModifier.INLINE)
-                .receiver(baseRxHttpName)
-                .addTypeVariable(t.copy(reified = true))
-                .addStatement("return asParser(object : %T<T>() {})", simpleParserName)
-                .build())
+            fileBuilder.addFunction(
+                FunSpec.builder("asClass")
+                    .addModifiers(KModifier.INLINE)
+                    .receiver(baseRxHttpName)
+                    .addTypeVariable(t.copy(reified = true))
+                    .addStatement("return asParser(object : %T<T>() {})", simpleParserName)
+                    .build()
+            )
 
             asFunList.forEach {
                 fileBuilder.addFunction(it)
             }
         }
 
-       val deprecatedAnnotation= AnnotationSpec.builder(Deprecated::class)
-            .addMember("""
+        val deprecatedAnnotation = AnnotationSpec.builder(Deprecated::class)
+            .addMember(
+                """
                 message = "please use 'toFlow(progressCallback)' instead", 
                 level = DeprecationLevel.ERROR
-            """.trimIndent())
+            """.trimIndent()
+            )
             .build()
 
         fileBuilder.addFunction(
@@ -279,7 +284,7 @@ class RxHttpExtensions {
             val typeVariables = it.typeVariables
             val arguments = StringBuilder()
             it.parameters.forEach { p ->
-                if (p.modifiers.contains(KModifier.VARARG)) {
+                if (KModifier.VARARG in p.modifiers) {
                     arguments.append("*")
                 }
                 arguments.append(p.name).append(",")
@@ -301,7 +306,7 @@ class RxHttpExtensions {
             val capacityParam = ParameterSpec.builder("capacity", Int::class)
                 .defaultValue("1")
                 .build()
-            val isInLine = it.modifiers.contains(KModifier.INLINE)
+            val isInLine = KModifier.INLINE in it.modifiers
             val builder = ParameterSpec.builder("progress", progressSuspendLambdaName)
             if (isInLine) builder.addModifiers(KModifier.NOINLINE)
             fileBuilder.addFunction(
@@ -340,21 +345,6 @@ class RxHttpExtensions {
         fileBuilder.build().writeTo(filer)
     }
 
-
-    //获取构造方法
-    private fun getConstructorFun(typeElement: TypeElement): MutableList<ExecutableElement> {
-        val funList = ArrayList<ExecutableElement>()
-        typeElement.enclosedElements.forEach {
-            if (it is ExecutableElement
-                && it.kind == ElementKind.CONSTRUCTOR
-                && (it.getModifiers().contains(Modifier.PUBLIC) || it.getModifiers().contains(Modifier.PROTECTED))
-            ) {
-                funList.add(it)
-            }
-        }
-        return funList
-    }
-
     private fun getParamsName(parameterSpecs: MutableList<ParameterSpec>): String {
         val paramsName = StringBuilder()
         parameterSpecs.forEachIndexed { index, parameterSpec ->
@@ -376,20 +366,27 @@ class RxHttpExtensions {
         }
         return type.toString()
     }
+}
 
-    //获取泛型对象列表
-    private fun getTypeVariableNames(typeVariableNames: ArrayList<TypeVariableName>): ArrayList<TypeVariableName> {
-        val newTypeVariableNames = ArrayList<TypeVariableName>()
-        typeVariableNames.forEach {
-            val bounds = it.bounds //泛型边界
-            val typeVariableName =
-                if (bounds.isEmpty() || (bounds.size == 1 && bounds[0].toString() == "java.lang.Object")) {
-                    TypeVariableName(it.name, anyTypeName).copy(reified = true)
-                } else {
-                    (it.toKClassTypeName() as TypeVariableName).copy(reified = true)
-                }
-            newTypeVariableNames.add(typeVariableName)
+//获取泛型对象列表
+private fun List<TypeVariableName>.getTypeVariableNames(): List<TypeVariableName> {
+    val anyTypeName = Any::class.asTypeName()
+    return map {
+        val bounds = it.bounds //泛型边界
+        if (bounds.isEmpty() || (bounds.size == 1 && bounds[0].toString() == "java.lang.Object")) {
+            TypeVariableName(it.name, anyTypeName).copy(reified = true)
+        } else {
+            (it.toKClassTypeName() as TypeVariableName).copy(reified = true)
         }
-        return newTypeVariableNames
     }
+}
+
+//获取构造方法
+private fun TypeElement.getConstructorFun(): List<ExecutableElement> {
+    return enclosedElements.filter {
+        it is ExecutableElement &&
+            it.kind == ElementKind.CONSTRUCTOR &&
+            (Modifier.PUBLIC in it.getModifiers() ||
+                Modifier.PROTECTED in it.getModifiers())
+    }.map { it as ExecutableElement }
 }
