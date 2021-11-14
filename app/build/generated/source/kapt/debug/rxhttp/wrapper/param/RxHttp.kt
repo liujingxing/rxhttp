@@ -54,8 +54,9 @@ public inline fun <reified T : Any> BaseRxHttp.asResponse() = asParser(object: R
  */
 @Deprecated(message = "please use 'toFlow(progressCallback)' instead", 
 level = DeprecationLevel.ERROR)
-public fun <P : AbstractBodyParam<P>, R : RxHttpAbstractBodyParam<P, R>> RxHttpAbstractBodyParam<P,
-    R>.upload(coroutine: CoroutineScope, progressCallback: suspend (Progress) -> Unit): R {
+public fun <P : AbstractBodyParam<P>, R : RxHttpAbstractBodyParam<P, R>>
+    RxHttpAbstractBodyParam<P, R>.upload(coroutine: CoroutineScope,
+    progressCallback: suspend (Progress) -> Unit): R {
   param.setProgressCallback { progress, currentSize, totalSize ->
       coroutine.launch { progressCallback(Progress(progress, currentSize, totalSize)) }
   }
