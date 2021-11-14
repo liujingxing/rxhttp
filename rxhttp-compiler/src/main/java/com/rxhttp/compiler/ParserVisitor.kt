@@ -18,7 +18,7 @@ import kotlin.collections.ArrayList
 class ParserVisitor {
 
     private val elementMap = LinkedHashMap<String, TypeElement>()
-    private val typeMap = LinkedHashMap<String, List<TypeMirror>>()
+    private val typeMap = LinkedHashMap<String, List<ClassName>>()
 
     fun add(element: TypeElement, types: Types) {
         checkParserValidClass(element, types)
@@ -33,220 +33,255 @@ class ParserVisitor {
             annotation.wrappers
         } catch (e: MirroredTypesException) {
             val typeMirrors = e.typeMirrors
-            typeMap[name] = typeMirrors
+            typeMap[name] = typeMirrors.map { ClassName.bestGuess(it.toString()) }
         }
         elementMap[name] = element
     }
 
     fun getMethodList(filer: Filer): List<MethodSpec> {
 
-        val type = ClassName.get("java.lang.reflect", "Type")
-        val parameterizedType = ClassName.get("rxhttp.wrapper.entity", "ParameterizedTypeImpl")
-        val className = ClassName.get(Class::class.java)
-
         val methodList = ArrayList<MethodSpec>()
         val rxHttpExtensions = RxHttpExtensions()
 
         //获取自定义的解析器
         for ((parserAlias, typeElement) in elementMap) {
-
-            //生成RxHttp扩展方法(kotlin编写的方法)
+            //生成kotlin编写的asXxx/toXxx/toFlowXxx方法
             rxHttpExtensions.generateRxHttpExtendFun(typeElement, parserAlias)
-
-            if (isDependenceRxJava()) { //依赖了RxJava，则生成自定义的asXxx方法
-                //onParser方法返回类型
-                val onParserFunReturnType = typeElement.getOnParserFunReturnType() ?: continue
-
-                val typeVariableNames = typeElement.typeParameters.map {
-                    TypeVariableName.get(it)
-                }
-
-                //遍历public构造方法
-                typeElement.getPublicConstructorFun().forEach {
-                    //根据构造方法参数，获取asXxx方法需要的参数
-                    val parameterList = ArrayList<ParameterSpec>()
-                    var typeIndex = 0
-                    it.parameters.forEach { variableElement ->
-                        val variableType = variableElement.asType()
-                        if (variableType.toString() == "java.lang.reflect.Type[]") {
-                            typeVariableNames.forEach { typeVariableName ->
-                                //Type类型参数转Class<T>类型
-                                val classTypeName =
-                                    ParameterizedTypeName.get(className, typeVariableName)
-                                val variableName =
-                                    "${typeVariableName.name.lowercase(Locale.getDefault())}Type"
-                                val parameterSpec =
-                                    ParameterSpec.builder(classTypeName, variableName).build()
-                                parameterList.add(parameterSpec)
-                            }
-                        } else if (variableType.toString() == "java.lang.reflect.Type"
-                            && typeIndex < typeVariableNames.size
-                        ) {
-                            //Type类型参数转Class<T>类型
-                            val classTypeName = ParameterizedTypeName.get(
-                                className, typeVariableNames[typeIndex++]
-                            )
-                            val variableName = variableElement.simpleName.toString()
-                            parameterList.add(
-                                ParameterSpec.builder(classTypeName, variableName).build()
-                            )
-                        } else {
-                            parameterList.add(ParameterSpec.get(variableElement))
-                        }
-                    }
-
-                    //方法名
-                    var methodName = "as$parserAlias"
-                    //方法体
-                    val methodBody =
-                        "return asParser(new \$T${getTypeVariableString(typeVariableNames)}(${
-                            getParamsName(it.parameters, parameterList, typeVariableNames.size)
-                        }))"
-
-                    //生成的as方法返回类型(Observable<T>类型)
-                    var asFunReturnType = ParameterizedTypeName.get(
-                        getClassName("Observable"), onParserFunReturnType
-                    )
-                    methodList.add(
-                        MethodSpec.methodBuilder(methodName)
-                            .addModifiers(Modifier.PUBLIC)
-                            .addTypeVariables(typeVariableNames)
-                            .addParameters(parameterList)
-                            .varargs(it.isVarArgs && parameterList.last().type is ArrayTypeName)
-                            .addStatement(methodBody, ClassName.get(typeElement))  //方法里面的表达式
-                            .returns(asFunReturnType)
-                            .build()
-                    )
-
-                    val haveClassTypeParam = parameterList.find { p ->
-                        p.type.toString().startsWith("java.lang.Class")
-                    } != null
-                    //有泛型且有Class类型参数
-                    if (typeVariableNames.size == 1 && haveClassTypeParam) {
-                        val wrapperListClass = mutableListOf<ClassName>()
-                        if (typeVariableNames.size == 1)
-                            wrapperListClass.add(ClassName.get("java.util", "List"))
-
-                        //泛型的包裹类型，取自Parser注解的wrappers字段
-                        typeMap[parserAlias]?.forEach { mirror ->
-                            val tempClassName = ClassName.bestGuess(mirror.toString())
-                            if (!wrapperListClass.contains(tempClassName)) {
-                                wrapperListClass.add(tempClassName)
-                            }
-                        }
-
-                        wrapperListClass.forEach { wrapperClass ->
-
-                            //1、asXxx方法返回值
-                            val onParserFunReturnWrapperType =
-                                if (onParserFunReturnType is ParameterizedTypeName) {
-                                    //返回类型有n个泛型，需要对每个泛型再次包装
-                                    val typeNames = onParserFunReturnType.typeArguments.map { typeArg->
-                                        ParameterizedTypeName.get(wrapperClass, typeArg)
-                                    }
-                                    ParameterizedTypeName.get(onParserFunReturnType.rawType,
-                                        *typeNames.toTypedArray()
-                                    )
-                                } else {
-                                    ParameterizedTypeName.get(wrapperClass, onParserFunReturnType)
-                                }
-                            asFunReturnType = ParameterizedTypeName.get(
-                                getClassName("Observable"),
-                                onParserFunReturnWrapperType
-                            )
-
-                            //2、asXxx方法名
-                            val name = wrapperClass.toString()
-                            val simpleName = name.substring(name.lastIndexOf(".") + 1)
-                            methodName = "as$parserAlias${simpleName}"
-
-                            //3、asXxx方法体
-                            val funBody = CodeBlock.builder()
-                            val paramsName = StringBuilder()
-                            //遍历参数，取出参数名
-                            parameterList.forEachIndexed { index, param ->
-                                if (index > 0) paramsName.append(", ")
-                                if (param.type.toString().startsWith("java.lang.Class")) {
-                                    /*
-                                     * Class类型参数，需要进行再次包装，最后再取参数名
-                                     * 格式：Type tTypeList = ParameterizedTypeImpl.get(List.class, tType);
-                                     */
-                                    val variableName = "${param.name}$simpleName"
-                                    val expression =
-                                        "\$T $variableName = \$T.get($simpleName.class, ${param.name})"
-                                    funBody.addStatement(expression, type, parameterizedType)
-                                    val parameterType = it.parameters[index].asType()
-                                    if ("java.lang.reflect.Type[]" == parameterType.toString()) {
-                                        paramsName.append("new Type[]{$variableName}")
-                                    } else {
-                                        paramsName.append(variableName)
-                                    }
-                                } else {
-                                    paramsName.append(param.name)
-                                }
-                            }
-                            val returnStatement =
-                                "return asParser(new \$T${getTypeVariableString(typeVariableNames)}($paramsName))"
-                            funBody.addStatement(returnStatement, ClassName.get(typeElement))
-
-                            //4、生成asXxx方法
-                            methodList.add(
-                                MethodSpec.methodBuilder(methodName)
-                                    .addModifiers(Modifier.PUBLIC)
-                                    .addTypeVariables(typeVariableNames)
-                                    .addParameters(parameterList)
-                                    .varargs(it.isVarArgs && parameterList.last().type is ArrayTypeName)
-                                    .addCode(funBody.build())  //方法里面的表达式
-                                    .returns(asFunReturnType)
-                                    .build()
-                            )
-                        }
-                    }
-                }
+            if (isDependenceRxJava()) {
+                //依赖了RxJava，则生成Java语言编写的asXxx方法
+                methodList.addAll(typeElement.getAsXxxFun(parserAlias, typeMap))
             }
         }
         rxHttpExtensions.generateClassFile(filer)
         return methodList
     }
+}
+
+//生成Java语言编写的asXxx方法
+private fun TypeElement.getAsXxxFun(
+    parserAlias: String,
+    typeMap: LinkedHashMap<String, List<ClassName>>
+): List<MethodSpec> {
+    val methodList = ArrayList<MethodSpec>()
+
+    //onParser方法返回类型
+    val onParserFunReturnType = getOnParserFunReturnType() ?: return emptyList()
+
+    val typeVariableNames = typeParameters.map { TypeVariableName.get(it) }
+
+    //遍历public构造方法
+    getPublicConstructorFun().forEach {
+        //根据构造方法参数，获取asXxx方法需要的参数
+        val parameterList = it.getParameterSpecs(typeVariableNames)
+
+        //方法名
+        val methodName = "as$parserAlias"
+        //方法体
+        val methodBody =
+            "return asParser(new \$T${getTypeVariableString(typeVariableNames)}(${
+                getParamsName(it.parameters, parameterList, typeVariableNames.size)
+            }))"
+
+        //生成的as方法返回类型(Observable<T>类型)
+        val asFunReturnType = ParameterizedTypeName.get(
+            getClassName("Observable"), onParserFunReturnType
+        )
+
+        val varargs = it.isVarArgs && parameterList.last().type is ArrayTypeName
+        val parserClassName = ClassName.get(this)
+
+        val methodSpec = MethodSpec.methodBuilder(methodName)
+            .addModifiers(Modifier.PUBLIC)
+            .addTypeVariables(typeVariableNames)
+            .addParameters(parameterList)
+            .varargs(varargs)
+            .addStatement(methodBody, parserClassName)  //方法里面的表达式
+            .returns(asFunReturnType)
+            .build()
+        methodList.add(methodSpec)
 
 
-    /**
-     * @param variableElements 解析器构造方法参数列表
-     * @param parameterSpecs 通过解析器构造方法参数列表转换而来的实际参数列表，parameterSpecs.size() >= variableElements.size()
-     * @param typeCount 解析器泛型数量
-     */
-    private fun getParamsName(
-        variableElements: List<VariableElement>,
-        parameterSpecs: MutableList<ParameterSpec>,
-        typeCount: Int
-    ): String {
-        val sb = StringBuilder()
-        var paramIndex = 0
-        var variableIndex = 0
-        val variableSize = variableElements.size
-        val paramSize = parameterSpecs.size
-        while (paramIndex < paramSize && variableIndex < variableSize) {
-            if (variableIndex > 0) sb.append(", ")
-            val type = variableElements[variableIndex++].asType()
-            if ("java.lang.reflect.Type[]" == type.toString()) {
-                sb.append("new Type[]{")
-                for (i in 0 until typeCount) {
-                    if (i > 0) sb.append(", ")
-                    sb.append(parameterSpecs[paramIndex++].name)
-                }
-                sb.append("}")
-            } else
-                sb.append(parameterSpecs[paramIndex++].name)
+        val haveClassTypeParam = parameterList.find { p ->
+            p.type.toString().startsWith("java.lang.Class")
+        } != null
+
+        if (haveClassTypeParam && typeVariableNames.size == 1) {
+            //有Class类型参数 且 泛型数量等于1 ，才去生成Parser注解里wrappers字段对应的asXxx方法
+            it.getAsXxxFun(
+                parserAlias, methodSpec, parserClassName,
+                onParserFunReturnType, typeMap, methodList
+            )
         }
-        return sb.toString()
+
+    }
+    return methodList
+}
+
+
+/**
+ * 生成Parser注解里wrappers字段指定类对应的asXxx方法
+ * @param parserAlias 解析器别名
+ * @param methodSpec 解析器对应的asXxx方法，没有经过wrappers字段包裹前的
+ * @param parserClassName 解析器对应的ClassName对象
+ * @param onParserFunReturnType 解析器里onParser方法的返回类型
+ * @param typeMap Parser注解里wrappers字段集合
+ * @param methodList MethodSpecs
+ */
+private fun ExecutableElement.getAsXxxFun(
+    parserAlias: String,
+    methodSpec: MethodSpec,
+    parserClassName: ClassName,
+    onParserFunReturnType: TypeName,
+    typeMap: LinkedHashMap<String, List<ClassName>>,
+    methodList: MutableList<MethodSpec>
+) {
+    val parameterList = methodSpec.parameters
+    val typeVariableNames = methodSpec.typeVariables
+
+    val type = ClassName.get("java.lang.reflect", "Type")
+    val parameterizedType = ClassName.get("rxhttp.wrapper.entity", "ParameterizedTypeImpl")
+
+    val wrapperListClass = arrayListOf<ClassName>()
+    typeMap[parserAlias]?.apply { wrapperListClass.addAll(this) }
+    val listClassName = ClassName.get("java.util", "List")
+    if (listClassName !in wrapperListClass) {
+        wrapperListClass.add(0, listClassName)
     }
 
+    wrapperListClass.forEach { wrapperClass ->
 
-    //获取泛型字符串 比如:<T> 、<K,V>等等
-    private fun getTypeVariableString(typeVariableNames: List<TypeVariableName>): String {
-        return if (typeVariableNames.isNotEmpty()) "<>" else ""
+        //1、asXxx方法返回值
+        val onParserFunReturnWrapperType =
+            if (onParserFunReturnType is ParameterizedTypeName) {
+                //返回类型有n个泛型，需要对每个泛型再次包装
+                val typeNames = onParserFunReturnType.typeArguments.map { typeArg ->
+                    ParameterizedTypeName.get(wrapperClass, typeArg)
+                }
+                ParameterizedTypeName.get(onParserFunReturnType.rawType, *typeNames.toTypedArray())
+            } else {
+                ParameterizedTypeName.get(wrapperClass, onParserFunReturnType)
+            }
+        val asFunReturnType =
+            ParameterizedTypeName.get(getClassName("Observable"), onParserFunReturnWrapperType)
+
+        //2、asXxx方法名
+        val name = wrapperClass.toString()
+        val simpleName = name.substring(name.lastIndexOf(".") + 1)
+        val methodName = "as$parserAlias${simpleName}"
+
+        //3、asXxx方法体
+        val funBody = CodeBlock.builder()
+        val paramsName = StringBuilder()
+        //遍历参数，取出参数名
+        parameterList.forEachIndexed { index, param ->
+            if (index > 0) paramsName.append(", ")
+            if (param.type.toString().startsWith("java.lang.Class")) {
+                /*
+                 * Class类型参数，需要进行再次包装，最后再取参数名
+                 * 格式：Type tTypeList = ParameterizedTypeImpl.get(List.class, tType);
+                 */
+                val variableName = "${param.name}$simpleName"
+                val expression =
+                    "\$T $variableName = \$T.get($simpleName.class, ${param.name})"
+                funBody.addStatement(expression, type, parameterizedType)
+                val parameterType = parameters[index].asType()
+                if ("java.lang.reflect.Type[]" == parameterType.toString()) {
+                    paramsName.append("new Type[]{$variableName}")
+                } else {
+                    paramsName.append(variableName)
+                }
+            } else {
+                paramsName.append(param.name)
+            }
+        }
+        val returnStatement =
+            "return asParser(new \$T${getTypeVariableString(typeVariableNames)}($paramsName))"
+        funBody.addStatement(returnStatement, parserClassName)
+
+        //4、生成asXxx方法
+        MethodSpec.methodBuilder(methodName)
+            .addModifiers(Modifier.PUBLIC)
+            .addTypeVariables(typeVariableNames)
+            .addParameters(parameterList)
+            .varargs(methodSpec.varargs)
+            .addCode(funBody.build())  //方法里面的表达式
+            .returns(asFunReturnType)
+            .build()
+            .apply { methodList.add(this) }
     }
+}
 
+private fun ExecutableElement.getParameterSpecs(
+    typeVariableNames: List<TypeVariableName>
+): List<ParameterSpec> {
+    val parameterList = ArrayList<ParameterSpec>()
+    var typeIndex = 0
+    val className = ClassName.get(Class::class.java)
+    parameters.forEach { variableElement ->
+        val variableType = variableElement.asType()
+        if (variableType.toString() == "java.lang.reflect.Type[]") {
+            typeVariableNames.forEach { typeVariableName ->
+                //Type类型参数转Class<T>类型
+                val classTypeName =
+                    ParameterizedTypeName.get(className, typeVariableName)
+                val variableName =
+                    "${typeVariableName.name.lowercase(Locale.getDefault())}Type"
+                val parameterSpec =
+                    ParameterSpec.builder(classTypeName, variableName).build()
+                parameterList.add(parameterSpec)
+            }
+        } else if (variableType.toString() == "java.lang.reflect.Type"
+            && typeIndex < typeVariableNames.size
+        ) {
+            //Type类型参数转Class<T>类型
+            val classTypeName = ParameterizedTypeName.get(
+                className, typeVariableNames[typeIndex++]
+            )
+            val variableName = variableElement.simpleName.toString()
+            parameterList.add(
+                ParameterSpec.builder(classTypeName, variableName).build()
+            )
+        } else {
+            parameterList.add(ParameterSpec.get(variableElement))
+        }
+    }
+    return parameterList
+}
+
+/**
+ * @param variableElements 解析器构造方法参数列表
+ * @param parameterSpecs 通过解析器构造方法参数列表转换而来的实际参数列表，parameterSpecs.size() >= variableElements.size()
+ * @param typeCount 解析器泛型数量
+ */
+private fun getParamsName(
+    variableElements: List<VariableElement>,
+    parameterSpecs: List<ParameterSpec>,
+    typeCount: Int
+): String {
+    val sb = StringBuilder()
+    var paramIndex = 0
+    var variableIndex = 0
+    val variableSize = variableElements.size
+    val paramSize = parameterSpecs.size
+    while (paramIndex < paramSize && variableIndex < variableSize) {
+        if (variableIndex > 0) sb.append(", ")
+        val type = variableElements[variableIndex++].asType()
+        if ("java.lang.reflect.Type[]" == type.toString()) {
+            sb.append("new Type[]{")
+            for (i in 0 until typeCount) {
+                if (i > 0) sb.append(", ")
+                sb.append(parameterSpecs[paramIndex++].name)
+            }
+            sb.append("}")
+        } else
+            sb.append(parameterSpecs[paramIndex++].name)
+    }
+    return sb.toString()
+}
+
+//获取泛型字符串 比如:<T> 、<K,V>等等
+private fun getTypeVariableString(typeVariableNames: List<TypeVariableName>): String {
+    return if (typeVariableNames.isNotEmpty()) "<>" else ""
 }
 
 //获取onParser方法返回类型
