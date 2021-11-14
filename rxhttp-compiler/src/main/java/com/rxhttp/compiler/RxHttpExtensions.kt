@@ -277,9 +277,11 @@ class RxHttpExtensions {
             fileBuilder.addFunction(it)
             val parseName = it.name.substring(2)
             val typeVariables = it.typeVariables
-            val parameters = it.parameters
             val arguments = StringBuilder()
-            parameters.forEach { p ->
+            it.parameters.forEach { p ->
+                if (p.modifiers.contains(KModifier.VARARG)) {
+                    arguments.append("*")
+                }
                 arguments.append(p.name).append(",")
             }
             if (arguments.isNotEmpty()) arguments.deleteCharAt(arguments.length - 1)
