@@ -33,19 +33,19 @@ fun CallFactory.toFlowHeaders(): Flow<Headers> = toFlow(toHeaders())
 
 fun CallFactory.toFlowOkResponse(): Flow<Response> = toFlow(toOkResponse())
 
-inline fun <reified T : Any> CallFactory.toFlow(): Flow<T> = toFlow(toClass())
+inline fun <reified T> CallFactory.toFlow(): Flow<T> = toFlow(toClass())
 
-inline fun <reified T : Any> CallFactory.toFlow(await: Await<T>): Flow<T> =
+inline fun <reified T> CallFactory.toFlow(await: Await<T>): Flow<T> =
     flow { emit(await.await()) }
 
 @ExperimentalCoroutinesApi
-inline fun <reified T : Any> BodyParamFactory.toFlow(
+inline fun <reified T> BodyParamFactory.toFlow(
     capacity: Int = 1,
     noinline progress: suspend (Progress) -> Unit
 ) = toFlowProgress<T>(capacity = capacity).onEachProgress(progress)
 
 @ExperimentalCoroutinesApi
-inline fun <reified T : Any> BodyParamFactory.toFlowProgress(
+inline fun <reified T> BodyParamFactory.toFlowProgress(
     await: Await<T> = toClass(),
     capacity: Int = 1
 ) =
