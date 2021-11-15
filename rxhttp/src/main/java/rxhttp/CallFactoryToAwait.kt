@@ -15,7 +15,6 @@ import rxhttp.wrapper.coroutines.AwaitImpl
 import rxhttp.wrapper.entity.Progress
 import rxhttp.wrapper.entity.ProgressT
 import rxhttp.wrapper.parse.*
-import rxhttp.wrapper.utils.LogUtil
 
 /**
  * User: ljx
@@ -24,14 +23,14 @@ import rxhttp.wrapper.utils.LogUtil
  */
 fun <T> CallFactory.toParser(parser: Parser<T>): Await<T> = AwaitImpl(this, parser)
 
-inline fun <reified T : Any> CallFactory.toClass(): Await<T> =
+inline fun <reified T> CallFactory.toClass(): Await<T> =
     toParser(object : SimpleParser<T>() {})
 
 fun CallFactory.toStr(): Await<String> = toClass()
 
-inline fun <reified T : Any> CallFactory.toList(): Await<MutableList<T>> = toClass()
+inline fun <reified T> CallFactory.toList(): Await<MutableList<T>> = toClass()
 
-inline fun <reified K : Any, reified V : Any> CallFactory.toMap(): Await<Map<K, V>> = toClass()
+inline fun <reified K, reified V> CallFactory.toMap(): Await<Map<K, V>> = toClass()
 
 fun CallFactory.toBitmap(): Await<Bitmap> = toParser(BitmapParser())
 
