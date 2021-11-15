@@ -83,7 +83,8 @@ class ParamsVisitor {
                         .varargs()
                 }
                 methodSpec.addStatement(methodBody.toString(), rxHttpParamName, param)
-                methodList.add(methodSpec.build())
+                    .build()
+                    .apply { methodList.add(this) }
             }
             val superclass = typeElement.superclass
             var prefix = "((" + param.simpleName() + ")param)."
@@ -113,13 +114,12 @@ class ParamsVisitor {
                 }
             }
             val rxHttpPostCustomMethod = ArrayList<MethodSpec>()
-            rxHttpPostCustomMethod.add(
-                MethodSpec.constructorBuilder()
-                    .addModifiers(Modifier.PUBLIC)
-                    .addParameter(param, "param")
-                    .addStatement("super(param)")
-                    .build()
-            )
+            MethodSpec.constructorBuilder()
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(param, "param")
+                .addStatement("super(param)")
+                .build()
+                .apply { rxHttpPostCustomMethod.add(this) }
             for (enclosedElement in typeElement.enclosedElements) {
                 if (enclosedElement !is ExecutableElement
                     || enclosedElement.getKind() != ElementKind.METHOD //过滤非方法，

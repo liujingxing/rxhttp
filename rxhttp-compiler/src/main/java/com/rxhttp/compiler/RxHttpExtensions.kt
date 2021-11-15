@@ -104,15 +104,14 @@ class RxHttpExtensions {
             }
 
             if (typeVariableNames.isNotEmpty()) {  //对声明了泛型的解析器，生成kotlin编写的asXxx方法
-                asFunList.add(
-                    FunSpec.builder("as$key")
-                        .addModifiers(modifiers)
-                        .receiver(baseRxHttpName)
-                        .addParameters(parameterList)
-                        .addStatement(funBody, typeElement.asClassName()) //方法里面的表达式
-                        .addTypeVariables(typeVariableNames.getTypeVariableNames())
-                        .build()
-                )
+                FunSpec.builder("as$key")
+                    .addModifiers(modifiers)
+                    .receiver(baseRxHttpName)
+                    .addParameters(parameterList)
+                    .addStatement(funBody, typeElement.asClassName()) //方法里面的表达式
+                    .addTypeVariables(typeVariableNames.getTypeVariableNames())
+                    .build()
+                    .apply { asFunList.add(this) }
             }
 
             funBody = if (typeVariableNames.isEmpty() || executableElement.modifiers.contains(Modifier.PUBLIC)) {
@@ -122,15 +121,14 @@ class RxHttpExtensions {
             }
 
             val toParserName = ClassName("rxhttp", "toParser")
-            toFunList.add(
-                FunSpec.builder("to$key")
-                    .addModifiers(modifiers)
-                    .receiver(callFactoryName)
-                    .addParameters(parameterList)
-                    .addStatement(funBody, toParserName, typeElement.asClassName())  //方法里面的表达式
-                    .addTypeVariables(typeVariableNames.getTypeVariableNames())
-                    .build()
-            )
+            FunSpec.builder("to$key")
+                .addModifiers(modifiers)
+                .receiver(callFactoryName)
+                .addParameters(parameterList)
+                .addStatement(funBody, toParserName, typeElement.asClassName())  //方法里面的表达式
+                .addTypeVariables(typeVariableNames.getTypeVariableNames())
+                .build()
+                .apply { toFunList.add(this) }
         }
     }
 
@@ -166,52 +164,47 @@ class RxHttpExtensions {
 
         val rxHttpName =
             ClassName(rxHttpPackage, RXHttp_CLASS_NAME).parameterizedBy(wildcard, wildcard)
-        fileBuilder.addFunction(
-            FunSpec.builder("executeList")
-                .addModifiers(KModifier.INLINE)
-                .receiver(rxHttpName)
-                .addTypeVariable(t.copy(reified = true))
-                .addStatement("return executeClass<List<T>>()")
-                .build()
-        )
+        FunSpec.builder("executeList")
+            .addModifiers(KModifier.INLINE)
+            .receiver(rxHttpName)
+            .addTypeVariable(t.copy(reified = true))
+            .addStatement("return executeClass<List<T>>()")
+            .build()
+            .apply { fileBuilder.addFunction(this) }
 
-        fileBuilder.addFunction(
-            FunSpec.builder("executeClass")
-                .addModifiers(KModifier.INLINE)
-                .receiver(rxHttpName)
-                .addTypeVariable(t.copy(reified = true))
-                .addStatement("return execute(object : %T<T>() {})", simpleParserName)
-                .build()
-        )
+        FunSpec.builder("executeClass")
+            .addModifiers(KModifier.INLINE)
+            .receiver(rxHttpName)
+            .addTypeVariable(t.copy(reified = true))
+            .addStatement("return execute(object : %T<T>() {})", simpleParserName)
+            .build()
+            .apply { fileBuilder.addFunction(this) }
 
         if (isDependenceRxJava()) {
-            fileBuilder.addFunction(
-                FunSpec.builder("asList")
-                    .addModifiers(KModifier.INLINE)
-                    .receiver(baseRxHttpName)
-                    .addTypeVariable(t.copy(reified = true))
-                    .addStatement("return asClass<List<T>>()")
-                    .build()
-            )
+            FunSpec.builder("asList")
+                .addModifiers(KModifier.INLINE)
+                .receiver(baseRxHttpName)
+                .addTypeVariable(t.copy(reified = true))
+                .addStatement("return asClass<List<T>>()")
+                .build()
+                .apply { fileBuilder.addFunction(this) }
 
-            fileBuilder.addFunction(
-                FunSpec.builder("asMap")
-                    .addModifiers(KModifier.INLINE)
-                    .receiver(baseRxHttpName)
-                    .addTypeVariable(k.copy(reified = true))
-                    .addTypeVariable(v.copy(reified = true))
-                    .addStatement("return asClass<Map<K,V>>()")
-                    .build()
-            )
+            FunSpec.builder("asMap")
+                .addModifiers(KModifier.INLINE)
+                .receiver(baseRxHttpName)
+                .addTypeVariable(k.copy(reified = true))
+                .addTypeVariable(v.copy(reified = true))
+                .addStatement("return asClass<Map<K,V>>()")
+                .build()
+                .apply { fileBuilder.addFunction(this) }
 
-            fileBuilder.addFunction(
-                FunSpec.builder("asClass")
-                    .addModifiers(KModifier.INLINE)
-                    .receiver(baseRxHttpName)
-                    .addTypeVariable(t.copy(reified = true))
-                    .addStatement("return asParser(object : %T<T>() {})", simpleParserName)
-                    .build()
-            )
+            FunSpec.builder("asClass")
+                .addModifiers(KModifier.INLINE)
+                .receiver(baseRxHttpName)
+                .addTypeVariable(t.copy(reified = true))
+                .addStatement("return asParser(object : %T<T>() {})", simpleParserName)
+                .build()
+                .apply { fileBuilder.addFunction(this) }
 
             asFunList.forEach {
                 fileBuilder.addFunction(it)
@@ -227,50 +220,49 @@ class RxHttpExtensions {
             )
             .build()
 
-        fileBuilder.addFunction(
-            FunSpec.builder("upload")
-                .addKdoc(
-                    """
-                    调用此方法监听上传进度                                                    
-                    @param coroutine  CoroutineScope对象，用于开启协程回调进度，进度回调所在线程取决于协程所在线程
-                    @param progress 进度回调  
-                    
-                    
-                    此方法已废弃，请使用Flow监听上传进度，性能更优，且更简单，如：
-                    
-                    ```
-                    RxHttp.postForm("/server/...")
-                        .addFile("file", File("xxx/1.png"))
-                        .toFlow<T> {   //这里也可选择你解析器对应的toFlowXxx方法
-                            val currentProgress = it.progress //当前进度 0-100
-                            val currentSize = it.currentSize  //当前已上传的字节大小
-                            val totalSize = it.totalSize      //要上传的总字节大小    
-                        }.catch {
-                            //异常回调
-                        }.collect {
-                            //成功回调
-                        }
-                    ```                   
-                """.trimIndent()
-                )
-                .addAnnotation(deprecatedAnnotation)
-                .receiver(rxHttpBodyParamName)
-                .addTypeVariable(pBound)
-                .addTypeVariable(rBound)
-                .addParameter("coroutine", coroutineScopeName)
-                .addParameter("progressCallback", progressSuspendLambdaName)
-                .addCode(
-                    """
-                    param.setProgressCallback { progress, currentSize, totalSize ->
-                        coroutine.%T { progressCallback(Progress(progress, currentSize, totalSize)) }
+        FunSpec.builder("upload")
+            .addKdoc(
+                """
+                调用此方法监听上传进度                                                    
+                @param coroutine  CoroutineScope对象，用于开启协程回调进度，进度回调所在线程取决于协程所在线程
+                @param progress 进度回调  
+                
+                
+                此方法已废弃，请使用Flow监听上传进度，性能更优，且更简单，如：
+                
+                ```
+                RxHttp.postForm("/server/...")
+                    .addFile("file", File("xxx/1.png"))
+                    .toFlow<T> {   //这里也可选择你解析器对应的toFlowXxx方法
+                        val currentProgress = it.progress //当前进度 0-100
+                        val currentSize = it.currentSize  //当前已上传的字节大小
+                        val totalSize = it.totalSize      //要上传的总字节大小    
+                    }.catch {
+                        //异常回调
+                    }.collect {
+                        //成功回调
                     }
-                    @Suppress("UNCHECKED_CAST")
-                    return this as R
-                    """.trimIndent(), launchName
-                )
-                .returns(r)
-                .build()
-        )
+                ```                   
+                """.trimIndent()
+            )
+            .addAnnotation(deprecatedAnnotation)
+            .receiver(rxHttpBodyParamName)
+            .addTypeVariable(pBound)
+            .addTypeVariable(rBound)
+            .addParameter("coroutine", coroutineScopeName)
+            .addParameter("progressCallback", progressSuspendLambdaName)
+            .addCode(
+                """
+                param.setProgressCallback { progress, currentSize, totalSize ->
+                    coroutine.%T { progressCallback(Progress(progress, currentSize, totalSize)) }
+                }
+                @Suppress("UNCHECKED_CAST")
+                return this as R
+                """.trimIndent(), launchName
+            )
+            .returns(r)
+            .build()
+            .apply { fileBuilder.addFunction(this) }
 
         val toFlow = MemberName("rxhttp", "toFlow")
         val toFlowProgress = MemberName("rxhttp", "toFlowProgress")
@@ -290,18 +282,17 @@ class RxHttpExtensions {
                 arguments.append(p.name).append(",")
             }
             if (arguments.isNotEmpty()) arguments.deleteCharAt(arguments.length - 1)
-            fileBuilder.addFunction(
-                FunSpec.builder("toFlow$parseName")
-                    .addModifiers(it.modifiers)
-                    .receiver(callFactoryName)
-                    .addParameters(it.parameters)
-                    .addTypeVariables(typeVariables)
-                    .addStatement(
-                        """return %M(to$parseName${getTypeVariableString(typeVariables)}($arguments))""",
-                        toFlow
-                    )
-                    .build()
-            )
+            FunSpec.builder("toFlow$parseName")
+                .addModifiers(it.modifiers)
+                .receiver(callFactoryName)
+                .addParameters(it.parameters)
+                .addTypeVariables(typeVariables)
+                .addStatement(
+                    """return %M(to$parseName${getTypeVariableString(typeVariables)}($arguments))""",
+                    toFlow
+                )
+                .build()
+                .apply { fileBuilder.addFunction(this) }
 
             val capacityParam = ParameterSpec.builder("capacity", Int::class)
                 .defaultValue("1")
@@ -309,37 +300,37 @@ class RxHttpExtensions {
             val isInLine = KModifier.INLINE in it.modifiers
             val builder = ParameterSpec.builder("progress", progressSuspendLambdaName)
             if (isInLine) builder.addModifiers(KModifier.NOINLINE)
-            fileBuilder.addFunction(
-                FunSpec.builder("toFlow$parseName")
-                    .addAnnotation(experimentalCoroutinesApi)
-                    .addModifiers(it.modifiers)
-                    .receiver(bodyParamFactory)
-                    .addTypeVariables(typeVariables)
-                    .addParameters(it.parameters)
-                    .addParameter(capacityParam)
-                    .addParameter(builder.build())
-                    .addCode("""
-                        return 
-                            %M(to$parseName${getTypeVariableString(typeVariables)}($arguments), capacity)
-                                .%M(progress)
-                    """.trimIndent(), toFlowProgress, onEachProgress)
-                    .build()
-            )
+            FunSpec.builder("toFlow$parseName")
+                .addAnnotation(experimentalCoroutinesApi)
+                .addModifiers(it.modifiers)
+                .receiver(bodyParamFactory)
+                .addTypeVariables(typeVariables)
+                .addParameters(it.parameters)
+                .addParameter(capacityParam)
+                .addParameter(builder.build())
+                .addCode(
+                    """
+                    return 
+                        %M(to$parseName${getTypeVariableString(typeVariables)}($arguments), capacity)
+                            .%M(progress)
+                    """.trimIndent(), toFlowProgress, onEachProgress
+                )
+                .build()
+                .apply { fileBuilder.addFunction(this) }
 
-            fileBuilder.addFunction(
-                FunSpec.builder("toFlow${parseName}Progress")
-                    .addAnnotation(experimentalCoroutinesApi)
-                    .addModifiers(it.modifiers)
-                    .receiver(bodyParamFactory)
-                    .addTypeVariables(typeVariables)
-                    .addParameters(it.parameters)
-                    .addParameter(capacityParam)
-                    .addCode(
-                        """return %M(to$parseName${getTypeVariableString(typeVariables)}($arguments), capacity)""",
-                        toFlowProgress
-                    )
-                    .build()
-            )
+            FunSpec.builder("toFlow${parseName}Progress")
+                .addAnnotation(experimentalCoroutinesApi)
+                .addModifiers(it.modifiers)
+                .receiver(bodyParamFactory)
+                .addTypeVariables(typeVariables)
+                .addParameters(it.parameters)
+                .addParameter(capacityParam)
+                .addCode(
+                    """return %M(to$parseName${getTypeVariableString(typeVariables)}($arguments), capacity)""",
+                    toFlowProgress
+                )
+                .build()
+                .apply { fileBuilder.addFunction(this) }
         }
 
         fileBuilder.build().writeTo(filer)

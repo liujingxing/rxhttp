@@ -95,15 +95,15 @@ class RxHttpWrapper {
                 funBody.addStatement("rxHttp.setDomainTo${wrapper.domainName}IfAbsent()")
             }
             val methodList = ArrayList<MethodSpec>()
-            methodList.add(
-                MethodSpec.methodBuilder("wrapper")
-                    .addJavadoc("本类所有方法都会调用本方法\n")
-                    .addTypeVariable(r)
-                    .addModifiers(Modifier.PRIVATE, Modifier.STATIC)
-                    .addParameter(r, "rxHttp")
-                    .addCode(funBody.build())
-                    .returns(Void.TYPE)
-                    .build())
+            MethodSpec.methodBuilder("wrapper")
+                .addJavadoc("本类所有方法都会调用本方法\n")
+                .addTypeVariable(r)
+                .addModifiers(Modifier.PRIVATE, Modifier.STATIC)
+                .addParameter(r, "rxHttp")
+                .addCode(funBody.build())
+                .returns(Void.TYPE)
+                .build()
+                .apply { methodList.add(this) }
             methodList.addAll(requestFunList)
 
             val rxHttpBuilder = TypeSpec.classBuilder("Rx${className}Http")
@@ -148,17 +148,16 @@ class RxHttpWrapper {
         methodMap["deleteJsonArray"] = "RxHttpJsonArrayParam"
         for ((key, value) in methodMap) {
             val returnType = ClassName.get(rxHttpPackage, value);
-            methodList.add(
-                MethodSpec.methodBuilder(key)
-                    .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                    .addParameter(String::class.java, "url")
-                    .addParameter(ArrayTypeName.of(Any::class.java), "formatArgs")
-                    .varargs()
-                    .addStatement("\$T rxHttp = RxHttp.${key}(url, formatArgs)", returnType)
-                    .addStatement("wrapper(rxHttp)")
-                    .addStatement("return rxHttp")
-                    .returns(returnType)
-                    .build())
+            MethodSpec.methodBuilder(key)
+                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                .addParameter(String::class.java, "url")
+                .addParameter(ArrayTypeName.of(Any::class.java), "formatArgs")
+                .varargs()
+                .addStatement("\$T rxHttp = RxHttp.${key}(url, formatArgs)", returnType)
+                .addStatement("wrapper(rxHttp)")
+                .addStatement("return rxHttp")
+                .returns(returnType)
+                .build().apply { methodList.add(this) }
         }
 
         for ((key, typeElement) in mElementMap) {
@@ -204,7 +203,8 @@ class RxHttpWrapper {
                 methodSpec.addStatement(methodBody.toString(), rxHttpParamName)
                     .addStatement("wrapper(rxHttp)")
                     .addStatement("return rxHttp")
-                methodList.add(methodSpec.build())
+                    .build()
+                    .apply { methodList.add(this) }
             }
         }
         return methodList
