@@ -26,15 +26,15 @@ class DomainVisitor {
     fun getMethodList(): List<MethodSpec> {
         val methodList = ArrayList<MethodSpec>()
         for ((key, value) in elementMap) {
-            methodList.add(
-                MethodSpec.methodBuilder("setDomainTo${key}IfAbsent")
-                    .addModifiers(Modifier.PUBLIC)
-                    .addCode(
-                        """return setDomainIfAbsent(${"$"}T.${value.simpleName});""",
-                        ClassName.get(value.enclosingElement.asType()),
-                    )
-                    .returns(r).build()
-            )
+            MethodSpec.methodBuilder("setDomainTo${key}IfAbsent")
+                .addModifiers(Modifier.PUBLIC)
+                .addCode(
+                    """return setDomainIfAbsent(${"$"}T.${value.simpleName});""",
+                    ClassName.get(value.enclosingElement.asType()),
+                )
+                .returns(r)
+                .build()
+                .apply { methodList.add(this) }
         }
         return methodList
     }

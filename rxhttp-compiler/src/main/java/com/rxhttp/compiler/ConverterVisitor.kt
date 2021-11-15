@@ -28,16 +28,15 @@ class ConverterVisitor {
     fun getMethodList(): List<MethodSpec> {
         val methodList = ArrayList<MethodSpec>()
         for ((key, value) in elementMap) {
-            methodList.add(
-                MethodSpec.methodBuilder("set$key")
-                    .addModifiers(Modifier.PUBLIC)
-                    .addStatement(
-                        "return setConverter(\$T.${value.simpleName})",
-                        ClassName.get(value.enclosingElement.asType()),
-                    )
-                    .returns(r)
-                    .build()
-            )
+            MethodSpec.methodBuilder("set$key")
+                .addModifiers(Modifier.PUBLIC)
+                .addStatement(
+                    "return setConverter(\$T.${value.simpleName})",
+                    ClassName.get(value.enclosingElement.asType()),
+                )
+                .returns(r)
+                .build()
+                .apply { methodList.add(this) }
         }
         return methodList
     }

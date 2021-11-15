@@ -26,13 +26,12 @@ class OkClientVisitor {
         val methodList = ArrayList<MethodSpec>()
         for ((key, value) in elementMap) {
             val className = ClassName.get(value.enclosingElement.asType())
-            methodList.add(
-                MethodSpec.methodBuilder("set$key")
-                    .addModifiers(Modifier.PUBLIC)
-                    .addStatement("return setOkClient(\$T.${value.simpleName})", className)
-                    .returns(r)
-                    .build()
-            )
+            MethodSpec.methodBuilder("set$key")
+                .addModifiers(Modifier.PUBLIC)
+                .addStatement("return setOkClient(\$T.${value.simpleName})", className)
+                .returns(r)
+                .build()
+                .apply { methodList.add(this) }
         }
         return methodList
     }

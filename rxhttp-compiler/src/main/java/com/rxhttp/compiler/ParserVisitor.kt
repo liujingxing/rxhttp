@@ -98,8 +98,7 @@ private fun TypeElement.getAsXxxFun(
             .addStatement(methodBody, parserClassName)  //方法里面的表达式
             .returns(asFunReturnType)
             .build()
-        methodList.add(methodSpec)
-
+            .apply { methodList.add(this) }
 
         val haveClassTypeParam = parameterList.find { p ->
             p.type.toString().startsWith("java.lang.Class")
