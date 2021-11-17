@@ -11,7 +11,6 @@ import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.TypeKind
-import javax.lang.model.type.TypeVariable
 import javax.lang.model.util.Types
 
 class ParamsVisitor {
@@ -33,23 +32,20 @@ class ParamsVisitor {
     fun getMethodList(filer: Filer): List<MethodSpec> {
         val methodList = ArrayList<MethodSpec>()
         var method: MethodSpec.Builder
-        for ((key, typeElement) in elementMap) {
+        elementMap.forEach { (key, typeElement) ->
             val type = StringBuilder()
-            val rxHttpTypeNames = ArrayList<TypeVariableName>()
-            val size = typeElement.typeParameters.size;
-            for ((i, parameterElement) in typeElement.typeParameters.withIndex()) {
-                val typeVariableName = TypeVariableName.get(parameterElement)
-                rxHttpTypeNames.add(typeVariableName)
-                type.append(if (i == 0) "<" else ",")
-                type.append(typeVariableName.name)
-                if (i == size - 1) {
-                    type.append(">")
+            val size = typeElement.typeParameters.size
+            val rxHttpTypeNames = typeElement.typeParameters.mapIndexed { i, parameterElement ->
+                TypeVariableName.get(parameterElement).also {
+                    type.append(if (i == 0) "<" else ",")
+                    type.append(it.name)
+                    if (i == size - 1) type.append(">")
                 }
             }
             val param = ClassName.get(typeElement)
             val rxHttpName = "RxHttp${typeElement.simpleName}"
             val rxHttpParamName = ClassName.get(rxHttpPackage, rxHttpName)
-            val methodReturnType = if (rxHttpTypeNames.size > 0) {
+            val methodReturnType = if (rxHttpTypeNames.isNotEmpty()) {
                 ParameterizedTypeName.get(rxHttpParamName, *rxHttpTypeNames.toTypedArray())
             } else {
                 rxHttpParamName
@@ -61,8 +57,8 @@ class ParamsVisitor {
                 for ((index, element) in it.parameters.withIndex()) {
                     val parameterSpec = ParameterSpec.get(element)
                     parameterSpecs.add(parameterSpec)
-                    if (index == 0 && parameterSpec.type.toString().contains("String")) {
-                        methodBody.append("format(" + parameterSpecs[0].name + ", formatArgs)")
+                    if (index == 0 && parameterSpec.type.toString() == "java.lang.String") {
+                        methodBody.append("format(" + parameterSpec.name + ", formatArgs)")
                         continue
                     } else if (index > 0) {
                         methodBody.append(", ")
@@ -76,10 +72,8 @@ class ParamsVisitor {
                     .addTypeVariables(rxHttpTypeNames)
                     .returns(methodReturnType)
 
-                if (parameterSpecs.size > 0 && parameterSpecs[0].type.toString()
-                        .contains("String")
-                ) {
-                    methodSpec.addParameter(ArrayTypeName.of(Any::class.java), "formatArgs")
+                if (parameterSpecs.firstOrNull()?.type.toString() == "java.lang.String") {
+                    methodSpec.addParameter(ArrayTypeName.of(TypeName.OBJECT), "formatArgs")
                         .varargs()
                 }
                 methodSpec.addStatement(methodBody.toString(), rxHttpParamName, param)
@@ -87,19 +81,15 @@ class ParamsVisitor {
                     .apply { methodList.add(this) }
             }
             val superclass = typeElement.superclass
-            var prefix = "((" + param.simpleName() + ")param)."
+            var prefix = "((" + typeElement.simpleName + ")param)."
             val rxHttpParam = when (superclass.toString()) {
                 "rxhttp.wrapper.param.BodyParam" -> ClassName.get(rxHttpPackage, "RxHttpBodyParam")
                 "rxhttp.wrapper.param.FormParam" -> ClassName.get(rxHttpPackage, "RxHttpFormParam")
                 "rxhttp.wrapper.param.JsonParam" -> ClassName.get(rxHttpPackage, "RxHttpJsonParam")
-                "rxhttp.wrapper.param.JsonArrayParam" -> ClassName.get(
-                    rxHttpPackage,
-                    "RxHttpJsonArrayParam"
-                )
-                "rxhttp.wrapper.param.NoBodyParam" -> ClassName.get(
-                    rxHttpPackage,
-                    "RxHttpNoBodyParam"
-                )
+                "rxhttp.wrapper.param.JsonArrayParam" ->
+                    ClassName.get(rxHttpPackage, "RxHttpJsonArrayParam")
+                "rxhttp.wrapper.param.NoBodyParam" ->
+                    ClassName.get(rxHttpPackage, "RxHttpNoBodyParam")
                 else -> {
                     val typeName = TypeName.get(superclass)
                     if ((typeName as? ParameterizedTypeName)?.rawType?.toString() == "rxhttp.wrapper.param.AbstractBodyParam") {
@@ -126,47 +116,45 @@ class ParamsVisitor {
                     || !enclosedElement.getModifiers().contains(Modifier.PUBLIC) //过滤非public修饰符
                     || enclosedElement.getAnnotation(Override::class.java) != null //过滤重写的方法
                 ) continue
-                var returnType = TypeName.get(enclosedElement.returnType) //方法返回值
-                if (returnType.toString() == param.toString()) {
-                    returnType = rxHttpParamName
+                val returnType = TypeName.get(enclosedElement.returnType).let {
+                    if (it == param) rxHttpParamName else it
                 }
-                val parameterSpecs: MutableList<ParameterSpec> = ArrayList() //方法参数
-                val methodBody = StringBuilder(enclosedElement.getSimpleName().toString()) //方法体
-                    .append("(")
-                for (element in enclosedElement.parameters) {
-                    val parameterSpec = ParameterSpec.get(element)
-                    parameterSpecs.add(parameterSpec)
-                    methodBody.append(parameterSpec.name).append(",")
+
+                val parametersSize = enclosedElement.parameters.size
+                //方法体
+                val methodBody = StringBuilder(enclosedElement.getSimpleName().toString())
+                    .append(if (parametersSize == 0) "()" else "")
+                //方法参数
+                val parameterSpecs = enclosedElement.parameters.mapIndexed { i, variableElement ->
+                    ParameterSpec.get(variableElement).apply {
+                        methodBody.append(if (i == 0) "(" else ",")
+                        methodBody.append(this.name)
+                        if (i == parametersSize - 1) methodBody.append(")")
+                    }
                 }
-                if (methodBody.toString().endsWith(",")) {
-                    methodBody.deleteCharAt(methodBody.length - 1)
+                //方法声明的泛型
+                val typeVariableNames = enclosedElement.typeParameters.map {
+                    TypeVariableName.get(it)
                 }
-                methodBody.append(")")
-                val typeVariableNames: MutableList<TypeVariableName> = ArrayList() //方法声明的泛型
-                for (element in enclosedElement.typeParameters) {
-                    val typeVariableName = TypeVariableName.get(element.asType() as TypeVariable)
-                    typeVariableNames.add(typeVariableName)
-                }
-                val throwTypeName: MutableList<TypeName> = ArrayList() //方法要抛出的异常
-                for (mirror in enclosedElement.thrownTypes) {
-                    val typeName = TypeName.get(mirror)
-                    throwTypeName.add(typeName)
-                }
+                //方法要抛出的异常
+                val throwTypeNames = enclosedElement.thrownTypes.map { TypeName.get(it) }
                 method = MethodSpec.methodBuilder(enclosedElement.getSimpleName().toString())
                     .addModifiers(enclosedElement.getModifiers())
                     .addTypeVariables(typeVariableNames)
-                    .addExceptions(throwTypeName)
+                    .addExceptions(throwTypeNames)
                     .addParameters(parameterSpecs)
-                if (enclosedElement.isVarArgs) {
-                    method.varargs()
-                }
-                if (returnType === rxHttpParamName) {
-                    method.addStatement(prefix + methodBody, param)
-                        .addStatement("return this")
-                } else if (returnType.toString() == "void") {
-                    method.addStatement(prefix + methodBody)
-                } else {
-                    method.addStatement("return $prefix$methodBody", param)
+                    .varargs(enclosedElement.isVarArgs)
+                when {
+                    returnType === rxHttpParamName -> {
+                        method.addStatement(prefix + methodBody, param)
+                            .addStatement("return this")
+                    }
+                    returnType == TypeName.VOID -> {
+                        method.addStatement(prefix + methodBody)
+                    }
+                    else -> {
+                        method.addStatement("return $prefix$methodBody", param)
+                    }
                 }
                 method.returns(returnType)
                 rxHttpPostCustomMethod.add(method.build())
@@ -188,12 +176,9 @@ class ParamsVisitor {
                 .skipJavaLangImports(true)
                 .build().writeTo(filer)
         }
-
         return methodList
     }
-
 }
-
 
 @Throws(ProcessingException::class)
 private fun checkParamsValidClass(element: TypeElement, types: Types) {
