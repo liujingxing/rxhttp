@@ -6,14 +6,16 @@ import com.squareup.javapoet.MethodSpec
 import rxhttp.wrapper.annotation.OkClient
 import java.util.*
 import javax.lang.model.element.Modifier
+import javax.lang.model.element.TypeElement
 import javax.lang.model.element.VariableElement
+import javax.lang.model.util.Types
 
 class OkClientVisitor {
 
     private val elementMap = LinkedHashMap<String, VariableElement>()
 
-    fun add(element: VariableElement) {
-        checkOkClientValidClass(element)
+    fun add(element: VariableElement, types: Types) {
+        checkOkClientValidClass(element, types)
         val annotation = element.getAnnotation(OkClient::class.java)
         var name = annotation.name
         if (name.isEmpty()) {
@@ -38,7 +40,7 @@ class OkClientVisitor {
 }
 
 @Throws(ProcessingException::class)
-private fun checkOkClientValidClass(element: VariableElement) {
+private fun checkOkClientValidClass(element: VariableElement, types: Types) {
     if (!element.modifiers.contains(Modifier.PUBLIC)) {
         throw ProcessingException(
             element,
@@ -51,8 +53,10 @@ private fun checkOkClientValidClass(element: VariableElement) {
             "The variable ${element.simpleName} is not static"
         )
     }
-    val classType = element.asType()
-    if ("okhttp3.OkHttpClient" != classType.toString()) {
+
+    val className = "okhttp3.OkHttpClient"
+    val typeElement = types.asElement(element.asType()) as TypeElement
+    if (!typeElement.instanceOf(className, types)) {
         throw ProcessingException(
             element,
             "The variable ${element.simpleName} is not a OkHttpClient"

@@ -8,7 +8,6 @@ import java.util.*
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
 import javax.lang.model.element.VariableElement
-import javax.lang.model.type.TypeKind
 import javax.lang.model.util.Types
 
 class ConverterVisitor {
@@ -56,33 +55,13 @@ private fun checkConverterValidClass(element: VariableElement, types: Types) {
             "The variable ${element.simpleName} is not static"
         )
     }
-    var classType = element.asType()
-    val iConverter = "rxhttp.wrapper.callback.IConverter"
-    while (true) {
-        if (iConverter == classType.toString()) return
-        //TypeMirror转TypeElement
-        val currentClass = types.asElement(classType) as TypeElement
-        //遍历实现的接口有没有IConverter接口
-        if (currentClass.findIConverter(types, iConverter)) return
-        //未遍历到IConverter，则找到父类继续，一直循环下去，直到最顶层的父类
-        classType = currentClass.superclass
-        if (classType.kind == TypeKind.NONE) {
-            throw ProcessingException(
-                element,
-                "The variable ${element.simpleName} is not a IConverter"
-            )
-        }
+    val className = "rxhttp.wrapper.callback.IConverter"
+    val typeElement = types.asElement(element.asType()) as TypeElement
+    if (!typeElement.instanceOf(className, types)) {
+        throw ProcessingException(
+            element,
+            "The variable ${element.simpleName} is not a IConverter"
+        )
     }
 }
 
-fun TypeElement.findIConverter(types: Types, iConverter: String): Boolean {
-    for (mirror in interfaces) {
-        return if (mirror.toString() == "rxhttp.wrapper.callback.IConverter") {
-            true
-        } else {
-            (types.asElement(mirror) as? TypeElement)?.findIConverter(types, iConverter)
-                ?: return false
-        }
-    }
-    return false
-}
