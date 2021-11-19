@@ -4,9 +4,18 @@ import com.rxhttp.compiler.ClassHelper.generatorStaticClass
 import com.rxhttp.compiler.exception.ProcessingException
 import net.ltgt.gradle.incap.IncrementalAnnotationProcessor
 import net.ltgt.gradle.incap.IncrementalAnnotationProcessorType
-import rxhttp.wrapper.annotation.*
+import rxhttp.wrapper.annotation.Converter
+import rxhttp.wrapper.annotation.DefaultDomain
+import rxhttp.wrapper.annotation.Domain
+import rxhttp.wrapper.annotation.OkClient
+import rxhttp.wrapper.annotation.Param
+import rxhttp.wrapper.annotation.Parser
 import java.util.*
-import javax.annotation.processing.*
+import javax.annotation.processing.AbstractProcessor
+import javax.annotation.processing.Filer
+import javax.annotation.processing.Messager
+import javax.annotation.processing.ProcessingEnvironment
+import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.SourceVersion
 import javax.lang.model.element.Element
 import javax.lang.model.element.TypeElement
@@ -129,7 +138,7 @@ open class AnnotationProcessor : AbstractProcessor() {
             val okClientVisitor = OkClientVisitor().apply {
                 roundEnv.getElementsAnnotatedWith(OkClient::class.java).forEach {
                     val variableElement = it as VariableElement
-                    add(variableElement)
+                    add(variableElement, types)
                     rxHttpWrapper.addOkClient(variableElement)
                 }
             }

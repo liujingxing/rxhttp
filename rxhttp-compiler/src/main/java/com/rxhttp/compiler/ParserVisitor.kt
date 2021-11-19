@@ -1,7 +1,14 @@
 package com.rxhttp.compiler
 
 import com.rxhttp.compiler.exception.ProcessingException
-import com.squareup.javapoet.*
+import com.squareup.javapoet.ArrayTypeName
+import com.squareup.javapoet.ClassName
+import com.squareup.javapoet.CodeBlock
+import com.squareup.javapoet.MethodSpec
+import com.squareup.javapoet.ParameterSpec
+import com.squareup.javapoet.ParameterizedTypeName
+import com.squareup.javapoet.TypeName
+import com.squareup.javapoet.TypeVariableName
 import rxhttp.wrapper.annotation.Parser
 import java.util.*
 import javax.annotation.processing.Filer
@@ -10,8 +17,6 @@ import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
 import javax.lang.model.element.VariableElement
 import javax.lang.model.type.MirroredTypesException
-import javax.lang.model.type.TypeKind
-import javax.lang.model.type.TypeMirror
 import javax.lang.model.util.Types
 import kotlin.collections.ArrayList
 
@@ -299,16 +304,17 @@ private fun TypeElement.getOnParserFunReturnType(): TypeName? {
 
 @Throws(ProcessingException::class)
 private fun checkParserValidClass(element: TypeElement, types: Types) {
+    val elementQualifiedName = element.qualifiedName.toString()
     if (!element.modifiers.contains(Modifier.PUBLIC)) {
         throw ProcessingException(
             element,
-            "The class ${Parser::class.java.simpleName} is not public"
+            "The class '$elementQualifiedName' must be public"
         )
     }
     if (element.modifiers.contains(Modifier.ABSTRACT)) {
         throw ProcessingException(
             element,
-            "The class ${element.simpleName} is abstract. You can't annotate abstract classes with @${Parser::class.java.simpleName}"
+            "The class '$elementQualifiedName' is abstract. You can't annotate abstract classes with @${Parser::class.java.simpleName}"
         )
     }
 
@@ -318,20 +324,20 @@ private fun checkParserValidClass(element: TypeElement, types: Types) {
         if (element.modifiers.contains(Modifier.FINAL)) {
             throw ProcessingException(
                 element,
-                "This class ${element.simpleName} cannot be declared final"
+                "This class '$elementQualifiedName' cannot be declared final"
             )
         }
         //1、查找无参构造方法
         val noArgumentConstructorFun = constructorFun.findNoArgumentConstructorFun()
             ?: throw ProcessingException(
                 element,
-                "This class ${element.simpleName} must be declared 'protected ${element.simpleName}()' constructor method"
+                "This class '$elementQualifiedName' must be declared 'protected $elementQualifiedName()' constructor method"
             )
         if (!noArgumentConstructorFun.modifiers.contains(Modifier.PROTECTED)) {
             //无参构造方法必须要声明为protected
             throw ProcessingException(
                 element,
-                "This class ${element.simpleName} no-argument constructor must be declared protected"
+                "This class '$elementQualifiedName' no-argument constructor must be declared protected"
             )
         }
 
@@ -349,30 +355,17 @@ private fun checkParserValidClass(element: TypeElement, types: Types) {
                 }
                 throw ProcessingException(
                     element,
-                    "This class ${element.simpleName} must declare '$method' constructor method"
+                    "This class '$elementQualifiedName' must declare '$method' constructor method"
                 )
             }
         }
     }
 
-    var currentClass = element
-    while (true) {
-        val interfaces: MutableList<out TypeMirror> = currentClass.interfaces
-        //遍历实现的接口有没有Parser接口
-        for (typeMirror in interfaces) {
-            if (typeMirror.toString().contains("rxhttp.wrapper.parse.Parser")) {
-                return
-            }
-        }
-        //未遍历到Parser，则找到父类继续，一直循环下去，直到最顶层的父类
-        val superClassType = currentClass.superclass
-        if (superClassType.kind == TypeKind.NONE) {
-            throw ProcessingException(
-                element,
-                "The class ${element.qualifiedName} annotated with @${Parser::class.java.simpleName} must inherit from rxhttp.wrapper.parse.Parser<T>"
-            )
-        }
-        //TypeMirror转TypeElement
-        currentClass = types.asElement(superClassType) as TypeElement
+    val className = "rxhttp.wrapper.parse.Parser"
+    if (!element.instanceOf(className, types)) {
+        throw ProcessingException(
+            element,
+            "The class '$elementQualifiedName' annotated with @${Parser::class.java.simpleName} must inherit from $className"
+        )
     }
 }

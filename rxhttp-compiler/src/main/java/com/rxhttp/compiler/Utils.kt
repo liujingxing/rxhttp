@@ -1,12 +1,46 @@
 package com.rxhttp.compiler
 
-import com.squareup.kotlinpoet.*
+import com.squareup.kotlinpoet.ANY
+import com.squareup.kotlinpoet.AnnotationSpec
+import com.squareup.kotlinpoet.BOOLEAN
+import com.squareup.kotlinpoet.BOOLEAN_ARRAY
+import com.squareup.kotlinpoet.BYTE
+import com.squareup.kotlinpoet.BYTE_ARRAY
+import com.squareup.kotlinpoet.CHAR
+import com.squareup.kotlinpoet.CHAR_ARRAY
+import com.squareup.kotlinpoet.CHAR_SEQUENCE
+import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.DOUBLE
+import com.squareup.kotlinpoet.DOUBLE_ARRAY
+import com.squareup.kotlinpoet.FLOAT
+import com.squareup.kotlinpoet.FLOAT_ARRAY
+import com.squareup.kotlinpoet.FunSpec
+import com.squareup.kotlinpoet.INT
+import com.squareup.kotlinpoet.INT_ARRAY
+import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.LIST
+import com.squareup.kotlinpoet.LONG
+import com.squareup.kotlinpoet.LONG_ARRAY
+import com.squareup.kotlinpoet.MAP
+import com.squareup.kotlinpoet.NUMBER
+import com.squareup.kotlinpoet.ParameterSpec
+import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import com.squareup.kotlinpoet.SHORT
+import com.squareup.kotlinpoet.SHORT_ARRAY
+import com.squareup.kotlinpoet.STRING
+import com.squareup.kotlinpoet.TypeName
+import com.squareup.kotlinpoet.TypeVariableName
+import com.squareup.kotlinpoet.WildcardTypeName
+import com.squareup.kotlinpoet.asTypeName
+import com.squareup.kotlinpoet.asTypeVariableName
 import javax.lang.model.element.ElementKind
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
+import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeVariable
+import javax.lang.model.util.Types
 
 //将Java的基本类型/常用类型转换为kotlin中对应的类型
 fun TypeName.toKClassTypeName(): TypeName =
@@ -166,3 +200,19 @@ fun TypeElement.getVisibleConstructorFun(): List<ExecutableElement> {
     }
     return funList
 }
+
+internal fun TypeElement.instanceOf(className: String, types: Types): Boolean {
+    if (className == qualifiedName.toString()) return true
+    superTypes().forEach {
+        (types.asElement(it) as? TypeElement)?.apply {
+            if (instanceOf(className, types)) return true
+        }
+    }
+    return false
+}
+
+internal fun TypeElement.superTypes() =
+    interfaces.toMutableList().apply {
+        if (superclass.kind != TypeKind.NONE)
+            add(0, superclass)
+    }

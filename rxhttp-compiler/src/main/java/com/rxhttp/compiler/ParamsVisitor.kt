@@ -1,7 +1,15 @@
 package com.rxhttp.compiler
 
 import com.rxhttp.compiler.exception.ProcessingException
-import com.squareup.javapoet.*
+import com.squareup.javapoet.ArrayTypeName
+import com.squareup.javapoet.ClassName
+import com.squareup.javapoet.JavaFile
+import com.squareup.javapoet.MethodSpec
+import com.squareup.javapoet.ParameterSpec
+import com.squareup.javapoet.ParameterizedTypeName
+import com.squareup.javapoet.TypeName
+import com.squareup.javapoet.TypeSpec
+import com.squareup.javapoet.TypeVariableName
 import rxhttp.wrapper.annotation.Param
 import java.io.IOException
 import java.util.*
@@ -10,7 +18,6 @@ import javax.lang.model.element.ElementKind
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
-import javax.lang.model.type.TypeKind
 import javax.lang.model.util.Types
 
 class ParamsVisitor {
@@ -182,28 +189,25 @@ class ParamsVisitor {
 
 @Throws(ProcessingException::class)
 private fun checkParamsValidClass(element: TypeElement, types: Types) {
+    val paramSimpleName = Param::class.java.simpleName
+    val elementQualifiedName = element.qualifiedName.toString()
     if (!element.modifiers.contains(Modifier.PUBLIC)) {
         throw ProcessingException(
             element,
-            "The class ${Param::class.java.simpleName} is not public"
+            "The class '$elementQualifiedName' must be public"
         )
     }
     if (element.modifiers.contains(Modifier.ABSTRACT)) {
         throw ProcessingException(
             element,
-            "The class ${element.simpleName} is abstract. You can't annotate abstract classes with @${Param::class.java.simpleName}"
+            "The class '$elementQualifiedName' is abstract. You can't annotate abstract classes with @$paramSimpleName"
         )
     }
-    var currentClass = element
-    while (true) {
-        val superClassType = currentClass.superclass
-        if (superClassType.toString() == "rxhttp.wrapper.param.Param<P>") return
-        if (superClassType.kind == TypeKind.NONE) {
-            throw ProcessingException(
-                element,
-                "The class ${element.qualifiedName} annotated with @${Param::class.java.simpleName} must inherit from rxhttp.wrapper.param.Param"
-            )
-        }
-        currentClass = types.asElement(superClassType) as TypeElement
+    val className = "rxhttp.wrapper.param.Param"
+    if (!element.instanceOf(className, types)) {
+        throw ProcessingException(
+            element,
+            "The class '$elementQualifiedName' annotated with @$paramSimpleName must inherit from $className"
+        )
     }
 }
