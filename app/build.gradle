@@ -1,6 +1,9 @@
-apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-kapt'
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+    id 'kotlin-kapt'
+    id("com.google.devtools.ksp") version "1.6.0-RC-1.0.0"
+}
 
 android {
     compileSdkVersion 30
@@ -14,6 +17,12 @@ android {
         multiDexEnabled true
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+
+    ksp {
+        arg("rxhttp_rxjava", "3.1.1")
+        arg("rxhttp_package", "rxhttp")
     }
 
     kapt {
@@ -59,6 +68,7 @@ dependencies {
 
     implementation project(":rxhttp")
     kapt project(':rxhttp-compiler')
+    ksp project(':rxhttp-ksp')
 //    implementation "com.squareup.okhttp3:logging-interceptor:${okhttp_version}"
 
     implementation "com.squareup.okhttp3:okhttp:${okhttp_version}"
