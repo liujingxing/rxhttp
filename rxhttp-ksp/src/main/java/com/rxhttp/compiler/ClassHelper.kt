@@ -1538,11 +1538,7 @@ object ClassHelper {
             className,
             "java"
         ).use { 
-            it.appendText(content)
+            it.write(content.toByteArray())
         }
     }
-}
-
-fun OutputStream.appendText(str: String) {
-    this.write(str.toByteArray())
 }

@@ -34,14 +34,13 @@ lateinit var rxHttpPackage: String //RxHttp相关类的包名
  *
  */
 class RxHttpProcessor(
-    val options: Map<String, String>,
-    val kotlinVersion: KotlinVersion,
-    val codeGenerator: CodeGenerator,
-    val logger: KSPLogger
+    private val options: Map<String, String>,
+    private val kotlinVersion: KotlinVersion,
+    private val codeGenerator: CodeGenerator,
+    private val logger: KSPLogger
 ) : SymbolProcessor {
 
     companion object {
-        private const val TAG = "KspProcessor"
         const val rxhttp_rxjava = "rxhttp_rxjava"
         const val rxhttp_package = "rxhttp_package"
         const val rxhttp_incremental = "rxhttp_incremental"
@@ -49,8 +48,6 @@ class RxHttpProcessor(
     }
 
     private var called: Boolean = false
-
-    private val rxHttpGenerator = RxHttpGenerator()
 
 
     @OptIn(
@@ -115,6 +112,7 @@ class RxHttpProcessor(
                 rxHttpWrapper.add(it)
             }
         }
+        val rxHttpGenerator = RxHttpGenerator()
         rxHttpGenerator.paramsVisitor = paramsVisitor
         rxHttpGenerator.parserVisitor = parserVisitor
         rxHttpGenerator.domainVisitor = domainVisitor
@@ -130,10 +128,7 @@ class RxHttpProcessor(
 
     override fun finish() {}
 
-    override fun onError() {
-
-    }
-
+    override fun onError() {}
 
     class Provider : SymbolProcessorProvider {
 
