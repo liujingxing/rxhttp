@@ -8,11 +8,11 @@ import com.google.devtools.ksp.isAbstract
 import com.google.devtools.ksp.isConstructor
 import com.google.devtools.ksp.isPublic
 import com.google.devtools.ksp.processing.CodeGenerator
-import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSVisitorVoid
+import com.google.devtools.ksp.symbol.Modifier
 import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.JavaFile
@@ -31,7 +31,6 @@ import com.squareup.kotlinpoet.ksp.toTypeVariableName
 import rxhttp.wrapper.annotation.Param
 import java.io.IOException
 import java.util.*
-import javax.lang.model.element.Modifier
 import kotlin.NoSuchElementException
 
 class ParamsVisitor(
@@ -89,8 +88,7 @@ class ParamsVisitor(
             ksClass.getConstructors().filter { it.isPublic() }.forEach {
                 val parameterSpecs = arrayListOf<ParameterSpec>() //构造方法参数
                 val methodBody = StringBuilder("return new \$T(new \$T(") //方法体
-                val functionTypeParams =
-                    it.typeParameters.toTypeParameterResolver(classTypeParams)
+                val functionTypeParams = it.typeParameters.toTypeParameterResolver(classTypeParams)
                 for ((index, ksValueParameter) in it.parameters.withIndex()) {
                     val parameterSpec = ksValueParameter.toJParameterSpec(functionTypeParams)
                     parameterSpecs.add(parameterSpec)
@@ -104,7 +102,7 @@ class ParamsVisitor(
                 }
                 methodBody.append("))")
                 val methodSpec = MethodSpec.methodBuilder(key)
-                    .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                    .addModifiers(JModifier.PUBLIC, JModifier.STATIC)
                     .addParameters(parameterSpecs)
                     .addTypeVariables(rxHttpTypeNames)
                     .returns(methodReturnType)
@@ -142,24 +140,22 @@ class ParamsVisitor(
             }
             val rxHttpPostCustomMethod = ArrayList<MethodSpec>()
             MethodSpec.constructorBuilder()
-                .addModifiers(Modifier.PUBLIC)
+                .addModifiers(JModifier.PUBLIC)
                 .addParameter(param, "param")
                 .addStatement("super(param)")
                 .build()
                 .apply { rxHttpPostCustomMethod.add(this) }
 
-            for (ksFunction in ksClass.getDeclaredFunctions()) {
-                if (!ksFunction.isPublic() ||
-                    ksFunction.isConstructor() ||
-                    ksFunction.getAnnotationsByType(Override::class).firstOrNull() != null //过滤重写的方法
-                ) continue
-
+            ksClass.getDeclaredFunctions().filter {
+                it.isPublic() && !it.isConstructor() &&
+                        Modifier.OVERRIDE !in it.modifiers &&
+                        it.getAnnotationsByType(Override::class).firstOrNull() == null
+            }.forEach { ksFunction ->
                 val returnType = ksFunction.returnType?.toJavaTypeName().let {
                     if (it == param) rxHttpParamName else it
                 }
 
                 val parametersSize = ksFunction.parameters.size
-                val classTypeParams = ksClass.typeParameters.toTypeParameterResolver()
                 val functionTypeParams =
                     ksFunction.typeParameters.toTypeParameterResolver(classTypeParams)
                 //方法体
@@ -212,7 +208,7 @@ class ParamsVisitor(
                     https://github.com/liujingxing/rxlife
                 """.trimIndent()
                 )
-                .addModifiers(Modifier.PUBLIC)
+                .addModifiers(JModifier.PUBLIC)
                 .addTypeVariables(rxHttpTypeNames)
                 .superclass(rxHttpParam)
                 .addMethods(rxHttpPostCustomMethod)
