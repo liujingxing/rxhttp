@@ -140,7 +140,7 @@ internal fun KSNode.isKotlin() = origin == Origin.KOTLIN || origin == Origin.KOT
 internal fun KSClassDeclaration.superclass(): KSTypeReference? {
     return superTypes.find {
         val declaration = it.resolve().declaration
-        declaration is KSClassDeclaration && declaration.classKind == ClassKind.CLASS
+        (declaration as? KSClassDeclaration)?.classKind == ClassKind.CLASS
     }
 }
 
