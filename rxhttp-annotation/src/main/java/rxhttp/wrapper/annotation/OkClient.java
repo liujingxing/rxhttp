@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.CLASS)
 public @interface OkClient {
 
-    String name();
+    String name() default "";
 
     //通过该方法将生成RxXxxHttp类，通过该类发请求，将默认使用指定的OkHttpClient对象
     String className() default "";

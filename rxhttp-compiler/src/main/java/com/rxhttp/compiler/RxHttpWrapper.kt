@@ -1,6 +1,5 @@
 package com.rxhttp.compiler
 
-import com.rxhttp.compiler.exception.ProcessingException
 import com.squareup.javapoet.*
 import rxhttp.wrapper.annotation.Converter
 import rxhttp.wrapper.annotation.Domain
@@ -8,6 +7,7 @@ import rxhttp.wrapper.annotation.OkClient
 import rxhttp.wrapper.annotation.Param
 import java.util.*
 import javax.annotation.processing.Filer
+import javax.annotation.processing.Messager
 import javax.lang.model.element.*
 import kotlin.collections.ArrayList
 
@@ -16,7 +16,7 @@ import kotlin.collections.ArrayList
  * Date: 2020/5/30
  * Time: 19:03
  */
-class RxHttpWrapper {
+class RxHttpWrapper(private val logger: Messager) {
 
     private val classMap = LinkedHashMap<String, Wrapper>()
 
@@ -25,11 +25,6 @@ class RxHttpWrapper {
     fun add(typeElement: TypeElement) {
         val annotation = typeElement.getAnnotation(Param::class.java)
         val name: String = annotation.methodName
-        require(name.isNotEmpty()) {
-            """
-                methodName() in @${Param::class.java.simpleName} for class ${typeElement.qualifiedName} is null or empty! that's not allowed
-            """.trimIndent()
-        }
         mElementMap[name] = typeElement
     }
 
@@ -42,10 +37,14 @@ class RxHttpWrapper {
             classMap[okClient.className] = wrapper
         }
         if (wrapper.okClientName != null) {
-            throw ProcessingException(variableElement,
-                "@OkClient annotation className cannot be the same")
+            val msg = "@OkClient annotation className cannot be the same"
+            logger.error(msg,variableElement)
         }
-        wrapper.okClientName = okClient.name
+        var name = okClient.name
+        if (name.isBlank()) {
+            name = variableElement.simpleName.toString().firstLetterUpperCase()
+        }
+        wrapper.okClientName = name
     }
 
 
@@ -58,10 +57,14 @@ class RxHttpWrapper {
             classMap[converter.className] = wrapper
         }
         if (wrapper.converterName != null) {
-            throw ProcessingException(variableElement,
-                "@Converter annotation className cannot be the same")
+            val msg = "@Converter annotation className cannot be the same"
+            logger.error(msg,variableElement)
         }
-        wrapper.converterName = converter.name
+        var name = converter.name
+        if (name.isBlank()) {
+            name = variableElement.simpleName.toString().firstLetterUpperCase()
+        }
+        wrapper.converterName = name
     }
 
     fun addDomain(variableElement: VariableElement) {
@@ -73,10 +76,14 @@ class RxHttpWrapper {
             classMap[domain.className] = wrapper
         }
         if (wrapper.domainName != null) {
-            throw ProcessingException(variableElement,
-                "@Domain annotation className cannot be the same")
+            val msg = "@Domain annotation className cannot be the same"
+            logger.error(msg,variableElement)
         }
-        wrapper.domainName = if (domain.name.isEmpty()) variableElement.simpleName.toString() else domain.name
+        var name = domain.name
+        if (name.isBlank()) {
+            name = variableElement.simpleName.toString().firstLetterUpperCase()
+        }
+        wrapper.domainName = name
     }
 
     fun generateRxWrapper(filer: Filer) {
@@ -161,13 +168,12 @@ class RxHttpWrapper {
         }
 
         for ((key, typeElement) in mElementMap) {
-            val rxHttpTypeNames = ArrayList<TypeVariableName>()
-            typeElement.typeParameters.forEach {
-                rxHttpTypeNames.add(TypeVariableName.get(it))
+            val rxHttpTypeNames = typeElement.typeParameters.map {
+                TypeVariableName.get(it)
             }
 
             val rxHttpParamName = ClassName.get(rxHttpPackage, "RxHttp${typeElement.simpleName}")
-            val methodReturnType = if (rxHttpTypeNames.size > 0) {
+            val methodReturnType = if (rxHttpTypeNames.isNotEmpty()) {
                 ParameterizedTypeName.get(rxHttpParamName, *rxHttpTypeNames.toTypedArray())
             } else {
                 rxHttpParamName
@@ -185,7 +191,7 @@ class RxHttpWrapper {
                     }
                     methodBody.append(parameterSpec.name)
                 }
-                if (parameterSpecs.size > 0 && parameterSpecs[0].type.toString().contains("String")) {
+                if (parameterSpecs.firstOrNull()?.type.toString() == "java.lang.String") {
                     methodBody.append(", formatArgs")
                 }
                 methodBody.append(")")
@@ -196,7 +202,7 @@ class RxHttpWrapper {
                     .addTypeVariables(rxHttpTypeNames)
                     .returns(methodReturnType)
 
-                if (parameterSpecs.size > 0 && parameterSpecs[0].type.toString().contains("String")) {
+                if (parameterSpecs.firstOrNull()?.type.toString() == "java.lang.String") {
                     methodSpec.addParameter(ArrayTypeName.of(Any::class.java), "formatArgs")
                         .varargs()
                 }

@@ -1,6 +1,5 @@
 package com.rxhttp.compiler
 
-import com.rxhttp.compiler.exception.ProcessingException
 import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.JavaFile
@@ -14,25 +13,31 @@ import rxhttp.wrapper.annotation.Param
 import java.io.IOException
 import java.util.*
 import javax.annotation.processing.Filer
+import javax.annotation.processing.Messager
 import javax.lang.model.element.ElementKind
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
 import javax.lang.model.util.Types
 
-class ParamsVisitor {
+class ParamsVisitor(private val logger: Messager) {
+
     private val elementMap = LinkedHashMap<String, TypeElement>()
 
     fun add(element: TypeElement, types: Types) {
-        checkParamsValidClass(element, types)
-        val annotation = element.getAnnotation(Param::class.java)
-        val name: String = annotation.methodName
-        require(name.isNotEmpty()) {
-            """
-                methodName() in @${Param::class.java.simpleName} for class ${element.qualifiedName} is null or empty! that's not allowed
-            """.trimIndent()
+        try {
+            element.checkParamsValidClass(types)
+            val annotation = element.getAnnotation(Param::class.java)
+            val name = annotation.methodName
+            if (name.isBlank()) {
+                val msg = "methodName() in @${Param::class.java.simpleName} for class " +
+                        "'${element.qualifiedName}' is null or empty! that's not allowed"
+                throw NoSuchElementException(msg)
+            }
+            elementMap[name] = element
+        } catch (e: NoSuchElementException) {
+            logger.error(e.message, element)
         }
-        elementMap[name] = element
     }
 
     @Throws(IOException::class)
@@ -187,27 +192,22 @@ class ParamsVisitor {
     }
 }
 
-@Throws(ProcessingException::class)
-private fun checkParamsValidClass(element: TypeElement, types: Types) {
+@Throws(NoSuchElementException::class)
+private fun TypeElement.checkParamsValidClass(types: Types) {
     val paramSimpleName = Param::class.java.simpleName
-    val elementQualifiedName = element.qualifiedName.toString()
-    if (!element.modifiers.contains(Modifier.PUBLIC)) {
-        throw ProcessingException(
-            element,
-            "The class '$elementQualifiedName' must be public"
-        )
+    val elementQualifiedName = qualifiedName.toString()
+    if (!modifiers.contains(Modifier.PUBLIC)) {
+        throw NoSuchElementException("The class '$elementQualifiedName' must be public")
     }
-    if (element.modifiers.contains(Modifier.ABSTRACT)) {
-        throw ProcessingException(
-            element,
+    if (modifiers.contains(Modifier.ABSTRACT)) {
+        val msg =
             "The class '$elementQualifiedName' is abstract. You can't annotate abstract classes with @$paramSimpleName"
-        )
+        throw NoSuchElementException(msg)
     }
     val className = "rxhttp.wrapper.param.Param"
-    if (!element.instanceOf(className, types)) {
-        throw ProcessingException(
-            element,
+    if (!instanceOf(className, types)) {
+        val msg =
             "The class '$elementQualifiedName' annotated with @$paramSimpleName must inherit from $className"
-        )
+        throw NoSuchElementException(msg)
     }
 }

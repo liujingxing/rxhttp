@@ -1,6 +1,5 @@
 package com.rxhttp.compiler
 
-import com.rxhttp.compiler.exception.ProcessingException
 import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
@@ -12,35 +11,41 @@ import com.squareup.javapoet.TypeVariableName
 import rxhttp.wrapper.annotation.Parser
 import java.util.*
 import javax.annotation.processing.Filer
+import javax.annotation.processing.Messager
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
 import javax.lang.model.element.VariableElement
 import javax.lang.model.type.MirroredTypesException
 import javax.lang.model.util.Types
+import kotlin.NoSuchElementException
 import kotlin.collections.ArrayList
 
-class ParserVisitor {
+class ParserVisitor(private val logger: Messager) {
 
     private val elementMap = LinkedHashMap<String, TypeElement>()
     private val typeMap = LinkedHashMap<String, List<ClassName>>()
 
     fun add(element: TypeElement, types: Types) {
-        checkParserValidClass(element, types)
-        val annotation = element.getAnnotation(Parser::class.java)
-        val name: String = annotation.name
-        require(name.isNotEmpty()) {
-            """
-                methodName() in @${Parser::class.java.simpleName} for class ${element.qualifiedName} is null or empty! that's not allowed
-            """.trimIndent()
-        }
         try {
-            annotation.wrappers
-        } catch (e: MirroredTypesException) {
-            val typeMirrors = e.typeMirrors
-            typeMap[name] = typeMirrors.map { ClassName.bestGuess(it.toString()) }
+            element.checkParserValidClass(types)
+            val annotation = element.getAnnotation(Parser::class.java)
+            val name: String = annotation.name
+            if (name.isBlank()) {
+                val msg = "methodName() in @${Parser::class.java.simpleName} for class " +
+                        "${element.qualifiedName} is null or empty! that's not allowed"
+                throw NoSuchElementException(msg)
+            }
+            try {
+                annotation.wrappers
+            } catch (e: MirroredTypesException) {
+                val typeMirrors = e.typeMirrors
+                typeMap[name] = typeMirrors.map { ClassName.bestGuess(it.toString()) }
+            }
+            elementMap[name] = element
+        } catch (e: NoSuchElementException) {
+            logger.error(e.message, element)
         }
-        elementMap[name] = element
     }
 
     fun getMethodList(filer: Filer): List<MethodSpec> {
@@ -302,70 +307,63 @@ private fun TypeElement.getOnParserFunReturnType(): TypeName? {
     return TypeName.get((function as ExecutableElement).returnType)
 }
 
-@Throws(ProcessingException::class)
-private fun checkParserValidClass(element: TypeElement, types: Types) {
-    val elementQualifiedName = element.qualifiedName.toString()
-    if (!element.modifiers.contains(Modifier.PUBLIC)) {
-        throw ProcessingException(
-            element,
-            "The class '$elementQualifiedName' must be public"
-        )
+@Throws(NoSuchElementException::class)
+private fun TypeElement.checkParserValidClass(types: Types) {
+    val elementQualifiedName = qualifiedName.toString()
+    if (!modifiers.contains(Modifier.PUBLIC)) {
+        throw NoSuchElementException("The class '$elementQualifiedName' must be public")
     }
-    if (element.modifiers.contains(Modifier.ABSTRACT)) {
-        throw ProcessingException(
-            element,
+    if (modifiers.contains(Modifier.ABSTRACT)) {
+        val msg =
             "The class '$elementQualifiedName' is abstract. You can't annotate abstract classes with @${Parser::class.java.simpleName}"
-        )
+        throw NoSuchElementException(msg)
     }
 
-    val constructorFun = element.getVisibleConstructorFun()
-    if (element.typeParameters.size > 0) {
+    val constructorFun = getVisibleConstructorFun()
+    if (typeParameters.size > 0) {
         //有泛型的解析器不能声明为final类型
-        if (element.modifiers.contains(Modifier.FINAL)) {
-            throw ProcessingException(
-                element,
-                "This class '$elementQualifiedName' cannot be declared final"
-            )
+        if (modifiers.contains(Modifier.FINAL)) {
+            val msg = "This class '$elementQualifiedName' cannot be declared final"
+            throw NoSuchElementException(msg)
         }
         //1、查找无参构造方法
         val noArgumentConstructorFun = constructorFun.findNoArgumentConstructorFun()
-            ?: throw ProcessingException(
-                element,
+
+        //未声明无参构造方法，抛出异常
+        if (noArgumentConstructorFun == null) {
+            val msg =
                 "This class '$elementQualifiedName' must be declared 'protected $elementQualifiedName()' constructor method"
-            )
+            throw NoSuchElementException(msg)
+        }
         if (!noArgumentConstructorFun.modifiers.contains(Modifier.PROTECTED)) {
             //无参构造方法必须要声明为protected
-            throw ProcessingException(
-                element,
+            val msg =
                 "This class '$elementQualifiedName' no-argument constructor must be declared protected"
-            )
+            throw NoSuchElementException(msg)
         }
 
         if (isDependenceRxJava()) {
             //2、如果依赖了RxJava，则需要查找带 java.lang.reflect.Type 参数的构造方法
+            val typeParameterList = typeParameters
             val typeArgumentConstructorFun = constructorFun
-                .findTypeArgumentConstructorFun(element.typeParameters.size)
+                .findTypeArgumentConstructorFun(typeParameterList.size)
             if (typeArgumentConstructorFun == null) {
-                val method = StringBuffer("public ${element.simpleName}(")
-                for (i in element.typeParameters.indices) {
+                val method = StringBuffer("public ${simpleName}(")
+                for (i in typeParameterList.indices) {
                     method.append("java.lang.reflect.Type")
-                    if (i == element.typeParameters.size - 1) {
-                        method.append(")")
-                    } else method.append(", ")
+                    method.append(if (i == typeParameterList.lastIndex) ")" else ",")
                 }
-                throw ProcessingException(
-                    element,
+                val msg =
                     "This class '$elementQualifiedName' must declare '$method' constructor method"
-                )
+                throw NoSuchElementException(msg)
             }
         }
     }
 
     val className = "rxhttp.wrapper.parse.Parser"
-    if (!element.instanceOf(className, types)) {
-        throw ProcessingException(
-            element,
+    if (!instanceOf(className, types)) {
+        val msg =
             "The class '$elementQualifiedName' annotated with @${Parser::class.java.simpleName} must inherit from $className"
-        )
+        throw NoSuchElementException(msg)
     }
 }

@@ -34,6 +34,8 @@ import com.squareup.kotlinpoet.TypeVariableName
 import com.squareup.kotlinpoet.WildcardTypeName
 import com.squareup.kotlinpoet.asTypeName
 import com.squareup.kotlinpoet.asTypeVariableName
+import javax.annotation.processing.Messager
+import javax.lang.model.element.Element
 import javax.lang.model.element.ElementKind
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier
@@ -41,6 +43,7 @@ import javax.lang.model.element.TypeElement
 import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeVariable
 import javax.lang.model.util.Types
+import javax.tools.Diagnostic.Kind
 
 //将Java的基本类型/常用类型转换为kotlin中对应的类型
 fun TypeName.toKClassTypeName(): TypeName =
@@ -201,12 +204,12 @@ fun TypeElement.getVisibleConstructorFun(): List<ExecutableElement> {
     return funList
 }
 
-internal fun TypeElement.instanceOf(className: String, types: Types): Boolean {
+internal fun TypeElement?.instanceOf(className: String, types: Types): Boolean {
+    if (this == null) return false
     if (className == qualifiedName.toString()) return true
     superTypes().forEach {
-        (types.asElement(it) as? TypeElement)?.apply {
-            if (instanceOf(className, types)) return true
-        }
+        val typeElement = types.asElement(it) as? TypeElement
+        if (typeElement.instanceOf(className, types)) return true
     }
     return false
 }
@@ -216,3 +219,16 @@ internal fun TypeElement.superTypes() =
         if (superclass.kind != TypeKind.NONE)
             add(0, superclass)
     }
+
+internal fun Messager.error(msg: CharSequence?, e: Element) {
+    printMessage(Kind.ERROR, msg ?: "", e)
+}
+
+internal fun String.firstLetterUpperCase(): String {
+    val charArray = toCharArray()
+    val firstChar = charArray.firstOrNull() ?: return this
+    if (firstChar.code in 97..122) {
+        charArray[0] = firstChar.minus(32)
+    }
+    return String(charArray)
+}
