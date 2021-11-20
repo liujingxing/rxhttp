@@ -119,7 +119,7 @@ class ParamsVisitor(
             }
             val superclass = ksClass.superclass()
             var prefix = "((" + ksClass.simpleName.asString() + ")param)."
-            val rxHttpParam = when (superclass.toString()) {
+            val rxHttpParam = when (superclass?.getQualifiedName()) {
                 "rxhttp.wrapper.param.BodyParam" -> ClassName.get(rxHttpPackage, "RxHttpBodyParam")
                 "rxhttp.wrapper.param.FormParam" -> ClassName.get(rxHttpPackage, "RxHttpFormParam")
                 "rxhttp.wrapper.param.JsonParam" -> ClassName.get(rxHttpPackage, "RxHttpJsonParam")
