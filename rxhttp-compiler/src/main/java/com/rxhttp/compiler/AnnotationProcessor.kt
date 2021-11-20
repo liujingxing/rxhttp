@@ -1,7 +1,6 @@
 package com.rxhttp.compiler
 
 import com.rxhttp.compiler.ClassHelper.generatorStaticClass
-import com.rxhttp.compiler.exception.ProcessingException
 import net.ltgt.gradle.incap.IncrementalAnnotationProcessor
 import net.ltgt.gradle.incap.IncrementalAnnotationProcessorType
 import rxhttp.wrapper.annotation.Converter
@@ -17,7 +16,6 @@ import javax.annotation.processing.Messager
 import javax.annotation.processing.ProcessingEnvironment
 import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.SourceVersion
-import javax.lang.model.element.Element
 import javax.lang.model.element.TypeElement
 import javax.lang.model.element.VariableElement
 import javax.lang.model.util.Elements
@@ -43,7 +41,7 @@ open class AnnotationProcessor : AbstractProcessor() {
     }
 
     private lateinit var types: Types
-    private lateinit var messager: Messager
+    private lateinit var logger: Messager
     private lateinit var filer: Filer
     private lateinit var elementUtils: Elements
     private var debug = false
@@ -54,7 +52,7 @@ open class AnnotationProcessor : AbstractProcessor() {
     override fun init(processingEnvironment: ProcessingEnvironment) {
         super.init(processingEnvironment)
         types = processingEnvironment.typeUtils
-        messager = processingEnvironment.messager
+        logger = processingEnvironment.messager
         filer = processingEnvironment.filer
         elementUtils = processingEnvironment.elementUtils
         val map = processingEnvironment.options
@@ -97,7 +95,7 @@ open class AnnotationProcessor : AbstractProcessor() {
 
     override fun process(annotations: Set<TypeElement>, roundEnv: RoundEnvironment): Boolean {
         if (debug) {
-            messager.printMessage(
+            logger.printMessage(
                 Diagnostic.Kind.WARNING,
                 """
                     process isOver = ${roundEnv.processingOver()}     
@@ -110,9 +108,9 @@ open class AnnotationProcessor : AbstractProcessor() {
         if (annotations.isEmpty() || processed) return true
         generatorStaticClass(filer, isAndroidPlatform())
         try {
-            val rxHttpWrapper = RxHttpWrapper()
+            val rxHttpWrapper = RxHttpWrapper(logger)
 
-            val paramsVisitor = ParamsVisitor().apply {
+            val paramsVisitor = ParamsVisitor(logger).apply {
                 roundEnv.getElementsAnnotatedWith(Param::class.java).forEach {
                     val typeElement = it as TypeElement
                     add(typeElement, types)
@@ -120,14 +118,14 @@ open class AnnotationProcessor : AbstractProcessor() {
                 }
             }
 
-            val parserVisitor = ParserVisitor().apply {
+            val parserVisitor = ParserVisitor(logger).apply {
                 roundEnv.getElementsAnnotatedWith(Parser::class.java).forEach {
                     val typeElement = it as TypeElement
                     add(typeElement, types)
                 }
             }
 
-            val converterVisitor = ConverterVisitor().apply {
+            val converterVisitor = ConverterVisitor(logger).apply {
                 roundEnv.getElementsAnnotatedWith(Converter::class.java).forEach {
                     val variableElement = it as VariableElement
                     add(variableElement, types)
@@ -135,7 +133,7 @@ open class AnnotationProcessor : AbstractProcessor() {
                 }
             }
 
-            val okClientVisitor = OkClientVisitor().apply {
+            val okClientVisitor = OkClientVisitor(logger).apply {
                 roundEnv.getElementsAnnotatedWith(OkClient::class.java).forEach {
                     val variableElement = it as VariableElement
                     add(variableElement, types)
@@ -143,7 +141,7 @@ open class AnnotationProcessor : AbstractProcessor() {
                 }
             }
 
-            val domainVisitor = DomainVisitor().apply {
+            val domainVisitor = DomainVisitor(logger).apply {
                 roundEnv.getElementsAnnotatedWith(Domain::class.java).forEach {
                     val variableElement = it as VariableElement
                     add(variableElement)
@@ -151,7 +149,7 @@ open class AnnotationProcessor : AbstractProcessor() {
                 }
             }
 
-            val defaultDomainVisitor = DefaultDomainVisitor().apply {
+            val defaultDomainVisitor = DefaultDomainVisitor(logger).apply {
                 set(roundEnv.getElementsAnnotatedWith(DefaultDomain::class.java))
             }
 
@@ -168,16 +166,10 @@ open class AnnotationProcessor : AbstractProcessor() {
             // 生成 RxHttp 封装类
             rxHttpWrapper.generateRxWrapper(filer)
             processed = true
-        } catch (e: ProcessingException) {
-            error(e.element, e.message)
         } catch (e: Throwable) {
             e.printStackTrace()
-            messager.printMessage(Diagnostic.Kind.ERROR, e.message)
+            logger.printMessage(Diagnostic.Kind.ERROR, e.message)
         }
         return true
-    }
-
-    private fun error(e: Element, msg: String?, vararg args: Any) {
-        messager.printMessage(Diagnostic.Kind.ERROR, String.format(msg ?: "", *args), e)
     }
 }

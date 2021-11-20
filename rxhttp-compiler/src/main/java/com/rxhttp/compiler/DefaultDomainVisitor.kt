@@ -1,8 +1,8 @@
 package com.rxhttp.compiler
 
-import com.rxhttp.compiler.exception.ProcessingException
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.MethodSpec
+import javax.annotation.processing.Messager
 import javax.lang.model.element.Element
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.VariableElement
@@ -12,20 +12,22 @@ import javax.lang.model.element.VariableElement
  * Date: 2021/10/17
  * Time: 12:30
  */
-class DefaultDomainVisitor {
+class DefaultDomainVisitor(private val logger: Messager) {
 
     private var element: VariableElement? = null
 
     fun set(elements: Set<Element>) {
-        if (elements.size > 1) {
-            throw ProcessingException(
-                elements.iterator().next(),
-                "@DefaultDomain annotations can only be used once"
-            )
-        } else if (elements.isNotEmpty()) {
-            val variableElement = elements.first() as VariableElement
-            checkVariableValidClass(variableElement)
-            element = variableElement
+        try {
+            if (elements.size > 1) {
+                val msg = "@DefaultDomain annotations can only be used once"
+                throw NoSuchElementException(msg)
+            }
+            (elements.firstOrNull() as? VariableElement)?.apply {
+                checkVariableValidClass()
+                element = this
+            }
+        } catch (e: NoSuchElementException) {
+            logger.error(e.message, elements.first())
         }
     }
 

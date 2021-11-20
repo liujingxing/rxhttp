@@ -1,25 +1,29 @@
 package com.rxhttp.compiler
 
-import com.rxhttp.compiler.exception.ProcessingException
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.MethodSpec
 import rxhttp.wrapper.annotation.Domain
 import java.util.*
+import javax.annotation.processing.Messager
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.VariableElement
 
-class DomainVisitor {
+class DomainVisitor(private val logger: Messager) {
 
     private val elementMap = LinkedHashMap<String, VariableElement>()
 
     fun add(element: VariableElement) {
-        checkVariableValidClass(element)
-        val annotation = element.getAnnotation(Domain::class.java)
-        var name: String = annotation.name
-        if (name.isEmpty()) {
-            name = element.simpleName.toString()
+        try {
+            element.checkVariableValidClass()
+            val annotation = element.getAnnotation(Domain::class.java)
+            var name: String = annotation.name
+            if (name.isBlank()) {
+                name = element.simpleName.toString().firstLetterUpperCase()
+            }
+            elementMap[name] = element
+        } catch (e: NoSuchElementException) {
+            logger.error(e.message, element)
         }
-        elementMap[name] = element
     }
 
     //对url添加域名方法
@@ -40,18 +44,14 @@ class DomainVisitor {
     }
 }
 
-@Throws(ProcessingException::class)
-fun checkVariableValidClass(element: VariableElement) {
-    if (!element.modifiers.contains(Modifier.PUBLIC)) {
-        throw ProcessingException(
-            element,
-            "The variable ${element.simpleName} is not public, please add @JvmField annotation if you use kotlin"
-        )
+@Throws(NoSuchElementException::class)
+fun VariableElement.checkVariableValidClass() {
+    if (!modifiers.contains(Modifier.PUBLIC)) {
+        val msg =
+            "The variable '$simpleName' must be public, please add @JvmField annotation if you use kotlin"
+        throw NoSuchElementException(msg)
     }
-    if (!element.modifiers.contains(Modifier.STATIC)) {
-        throw ProcessingException(
-            element,
-            "The variable ${element.simpleName} is not static"
-        )
+    if (!modifiers.contains(Modifier.STATIC)) {
+        throw NoSuchElementException("The variable '$simpleName' is not static")
     }
 }
