@@ -63,7 +63,7 @@ class RxHttpProcessor(
             return emptyList()
         }
         val map = options
-        rxHttpPackage = map[rxhttp_package] ?: "com.example.httpsender"
+        rxHttpPackage = map[rxhttp_package] ?: "rxhttp.wrapper.param"
         val incremental = "false" != map[rxhttp_incremental]
         val debug = "true" == map[rxhttp_debug]
         initRxJavaVersion(map[rxhttp_rxjava])
