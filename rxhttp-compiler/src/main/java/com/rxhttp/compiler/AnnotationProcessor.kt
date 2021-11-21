@@ -1,8 +1,6 @@
 package com.rxhttp.compiler
 
 import com.rxhttp.compiler.ClassHelper.generatorStaticClass
-import net.ltgt.gradle.incap.IncrementalAnnotationProcessor
-import net.ltgt.gradle.incap.IncrementalAnnotationProcessorType
 import rxhttp.wrapper.annotation.Converter
 import rxhttp.wrapper.annotation.DefaultDomain
 import rxhttp.wrapper.annotation.Domain
@@ -30,9 +28,8 @@ lateinit var rxHttpPackage: String  //RxHttp相关类的包名
  * Date: 2019/3/21
  * Time: 20:36
  */
-//@SupportedOptions(value = ["rxhttp_rxjava", "rxhttp_package", "rxhttp_incremental", "rxhttp_debug"])
-@IncrementalAnnotationProcessor(IncrementalAnnotationProcessorType.DYNAMIC)
 open class AnnotationProcessor : AbstractProcessor() {
+
     companion object {
         const val rxhttp_rxjava = "rxhttp_rxjava"
         const val rxhttp_package = "rxhttp_package"
@@ -76,14 +73,11 @@ open class AnnotationProcessor : AbstractProcessor() {
 
     override fun getSupportedOptions(): MutableSet<String> {
         return mutableSetOf(
-            rxhttp_rxjava,
-            rxhttp_package,
-            rxhttp_incremental,
-            rxhttp_debug
+            rxhttp_rxjava, rxhttp_package,
+            rxhttp_incremental, rxhttp_debug
         ).apply {
-            if (incremental) {
+            if (incremental)
                 add("org.gradle.annotation.processing.aggregating")
-            }
         }
     }
 
