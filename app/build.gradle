@@ -2,7 +2,7 @@ plugins {
     id 'com.android.application'
     id 'kotlin-android'
     id 'kotlin-kapt'
-    id("com.google.devtools.ksp") version "1.6.0-RC-1.0.0"
+    id("com.google.devtools.ksp") version "1.6.0-1.0.1"
 }
 
 android {
@@ -17,6 +17,14 @@ android {
         multiDexEnabled true
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        sourceSets {
+            main {
+                java {
+                    srcDirs "build/generated/ksp"
+                }
+            }
+        }
     }
 
 

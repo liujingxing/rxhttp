@@ -13,7 +13,7 @@ dependencies {
     compileOnly 'net.ltgt.gradle.incap:incap:0.3'
     kapt 'net.ltgt.gradle.incap:incap-processor:0.3'
     implementation project(":rxhttp-annotation")
-    implementation "com.google.devtools.ksp:symbol-processing-api:1.6.0-RC-1.0.0"
+    implementation "com.google.devtools.ksp:symbol-processing-api:1.6.0-1.0.1"
 }
 
 java {

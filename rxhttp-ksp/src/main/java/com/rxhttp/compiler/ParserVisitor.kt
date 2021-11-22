@@ -1,5 +1,6 @@
 package com.rxhttp.compiler
 
+import com.google.devtools.ksp.KSTypesNotPresentException
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.getAnnotationsByType
 import com.google.devtools.ksp.getConstructors
@@ -52,21 +53,22 @@ class ParserVisitor(
     override fun visitClassDeclaration(classDeclaration: KSClassDeclaration, data: Unit) {
         try {
             classDeclaration.checkParserValidClass()
-            val annotation = classDeclaration.getAnnotationsByType(Parser::class)
-            var name = annotation.firstOrNull()?.name
+            val annotation = classDeclaration.getAnnotationsByType(Parser::class).firstOrNull()
+            var name = annotation?.name
             if (name.isNullOrBlank()) {
                 name = classDeclaration.simpleName.toString()
             }
             ksClassMap[name] = classDeclaration
-//        try {
-//            annotation.wrappers
-//        } catch (e: UndeclaredThrowableException) {
-//            logger.warn("LJX " + e.undeclaredThrowable.message)
-//        }
-//        val classNames = annotation.wrappers.map {
-//            ClassName.bestGuess(it.qualifiedName)
-//        }
-//        typeMap[name] = classNames
+            val classNames =
+                try {
+                    annotation?.wrappers?.map { ClassName.get(it.java) }
+                } catch (e: KSTypesNotPresentException) {
+                    e.ksTypes.mapNotNull {
+                        ClassName.bestGuess(it.declaration.qualifiedName?.asString())
+                    }
+                }
+            classNames?.let { classNameMap[name] = it }
+
         } catch (e: NoSuchElementException) {
             logger.error(e, classDeclaration)
         }
