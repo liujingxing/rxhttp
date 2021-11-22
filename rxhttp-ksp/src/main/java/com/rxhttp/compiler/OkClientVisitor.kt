@@ -5,6 +5,7 @@ import com.google.devtools.ksp.getAnnotationsByType
 import com.google.devtools.ksp.isPublic
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSFile
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.KSVisitorVoid
 import com.google.devtools.ksp.symbol.Modifier
@@ -18,6 +19,10 @@ class OkClientVisitor(
 ) : KSVisitorVoid() {
 
     private val elementMap = LinkedHashMap<String, KSPropertyDeclaration>()
+
+    fun originatingFiles(): List<KSFile> {
+        return elementMap.values.mapNotNull { it.containingFile }
+    }
 
     @OptIn(KspExperimental::class)
     override fun visitPropertyDeclaration(property: KSPropertyDeclaration, data: Unit) {

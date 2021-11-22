@@ -8,9 +8,11 @@ import com.google.devtools.ksp.isAbstract
 import com.google.devtools.ksp.isConstructor
 import com.google.devtools.ksp.isPublic
 import com.google.devtools.ksp.processing.CodeGenerator
+import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSFile
 import com.google.devtools.ksp.symbol.KSVisitorVoid
 import com.google.devtools.ksp.symbol.Modifier
 import com.squareup.javapoet.ArrayTypeName
@@ -39,6 +41,10 @@ class ParamsVisitor(
 ) : KSVisitorVoid() {
 
     private val ksClassMap = LinkedHashMap<String, KSClassDeclaration>()
+
+    fun originatingFiles(): List<KSFile> {
+        return ksClassMap.values.mapNotNull { it.containingFile }
+    }
 
     @OptIn(KspExperimental::class)
     override fun visitClassDeclaration(classDeclaration: KSClassDeclaration, data: Unit) {
@@ -213,10 +219,11 @@ class ParamsVisitor(
                 .superclass(rxHttpParam)
                 .addMethods(rxHttpPostCustomMethod)
                 .build()
+            logger.warn("LJX Param= ${ksClass.containingFile}")
             JavaFile.builder(rxHttpPackage, rxHttpPostEncryptFormParamSpec)
                 .skipJavaLangImports(true)
                 .build()
-                .writeTo(codeGenerator)
+                .writeTo(codeGenerator, Dependencies(false, ksClass.containingFile!!))
         }
         return methodList
     }

@@ -9,6 +9,7 @@ import com.google.devtools.ksp.isPublic
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSFile
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSValueParameter
 import com.google.devtools.ksp.symbol.KSVisitorVoid
@@ -30,7 +31,6 @@ import com.squareup.kotlinpoet.ksp.toTypeParameterResolver
 import com.squareup.kotlinpoet.ksp.toTypeVariableName
 import rxhttp.wrapper.annotation.Parser
 import java.util.*
-import javax.lang.model.type.MirroredTypesException
 
 /**
  * User: ljx
@@ -43,6 +43,10 @@ class ParserVisitor(
 
     private val ksClassMap = LinkedHashMap<String, KSClassDeclaration>()
     private val classNameMap = LinkedHashMap<String, List<ClassName>>()
+
+    fun originatingFiles(): List<KSFile> {
+        return ksClassMap.values.mapNotNull { it.containingFile }
+    }
 
     @OptIn(KspExperimental::class)
     override fun visitClassDeclaration(classDeclaration: KSClassDeclaration, data: Unit) {
@@ -73,7 +77,7 @@ class ParserVisitor(
     @KotlinPoetJavaPoetPreview
     fun getMethodList(codeGenerator: CodeGenerator): List<MethodSpec> {
         val methodList = ArrayList<MethodSpec>()
-        val rxHttpExtensions = RxHttpExtensions()
+        val rxHttpExtensions = RxHttpExtensions(logger)
         ksClassMap.forEach { (parserAlias, ksClass) ->
             rxHttpExtensions.generateRxHttpExtendFun(ksClass, parserAlias)
             if (isDependenceRxJava()) {

@@ -8,6 +8,7 @@ import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSFile
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.ClassName
@@ -38,6 +39,7 @@ class RxHttpWrapper(private val logger: KSPLogger) {
     private val classMap = LinkedHashMap<String, Wrapper>()
 
     private val elementMap = LinkedHashMap<String, KSClassDeclaration>()
+    private val ksFiles = mutableSetOf<KSFile>()
 
     @OptIn(KspExperimental::class)
     fun add(ksClassDeclaration: KSClassDeclaration) {
@@ -45,6 +47,7 @@ class RxHttpWrapper(private val logger: KSPLogger) {
             ksClassDeclaration.getAnnotationsByType(Param::class).firstOrNull() ?: return
         val name: String = annotation.methodName
         elementMap[name] = ksClassDeclaration
+        ksFiles.add(ksClassDeclaration.containingFile!!)
     }
 
     @OptIn(KspExperimental::class)
@@ -65,6 +68,7 @@ class RxHttpWrapper(private val logger: KSPLogger) {
             name = property.simpleName.toString().firstLetterUpperCase()
         }
         wrapper.okClientName = name
+        ksFiles.add(property.containingFile!!)
     }
 
     @OptIn(KspExperimental::class)
@@ -85,6 +89,7 @@ class RxHttpWrapper(private val logger: KSPLogger) {
             name = property.simpleName.toString().firstLetterUpperCase()
         }
         wrapper.converterName = name
+        ksFiles.add(property.containingFile!!)
     }
 
     @OptIn(KspExperimental::class)
@@ -105,6 +110,7 @@ class RxHttpWrapper(private val logger: KSPLogger) {
             name = property.simpleName.toString().firstLetterUpperCase()
         }
         wrapper.domainName = name
+        ksFiles.add(property.containingFile!!)
     }
 
     @KspExperimental
@@ -116,14 +122,14 @@ class RxHttpWrapper(private val logger: KSPLogger) {
         //生成多个RxHttp的包装类
         for ((className, wrapper) in classMap) {
             val funBody = CodeBlock.builder()
-            if (wrapper.converterName != null) {
-                funBody.addStatement("rxHttp.set${wrapper.converterName}()")
+            wrapper.converterName?.let {
+                funBody.addStatement("rxHttp.set$it()")
             }
-            if (wrapper.okClientName != null) {
-                funBody.addStatement("rxHttp.set${wrapper.okClientName}()")
+            wrapper.okClientName?.let {
+                funBody.addStatement("rxHttp.set$it()")
             }
-            if (wrapper.domainName != null) {
-                funBody.addStatement("rxHttp.setDomainTo${wrapper.domainName}IfAbsent()")
+            wrapper.domainName?.let {
+                funBody.addStatement("rxHttp.setDomainTo${it}IfAbsent()")
             }
             val methodList = ArrayList<MethodSpec>()
             MethodSpec.methodBuilder("wrapper")
@@ -151,10 +157,11 @@ class RxHttpWrapper(private val logger: KSPLogger) {
                 .addModifiers(Modifier.PUBLIC)
                 .addMethods(methodList)
 
+            logger.warn("LJX wrapper = $ksFiles")
             JavaFile.builder(rxHttpPackage, rxHttpBuilder.build())
                 .skipJavaLangImports(true)
                 .build()
-                .writeTo(codeGenerator)
+                .writeTo(codeGenerator, Dependencies(true, *ksFiles.toTypedArray()))
         }
     }
 

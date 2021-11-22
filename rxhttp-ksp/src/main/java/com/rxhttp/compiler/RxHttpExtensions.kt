@@ -4,7 +4,7 @@ import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.getConstructors
 import com.google.devtools.ksp.isPublic
 import com.google.devtools.ksp.processing.CodeGenerator
-import com.google.devtools.ksp.processing.Dependencies
+import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.ClassName
@@ -19,6 +19,8 @@ import com.squareup.kotlinpoet.TypeVariableName
 import com.squareup.kotlinpoet.asClassName
 import com.squareup.kotlinpoet.asTypeName
 import com.squareup.kotlinpoet.ksp.KotlinPoetKspPreview
+import com.squareup.kotlinpoet.ksp.addOriginatingKSFile
+import com.squareup.kotlinpoet.ksp.kspDependencies
 import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.toTypeParameterResolver
 import com.squareup.kotlinpoet.ksp.toTypeVariableName
@@ -29,7 +31,7 @@ import com.squareup.kotlinpoet.ksp.writeTo
  * Date: 2020/3/9
  * Time: 17:04
  */
-class RxHttpExtensions {
+class RxHttpExtensions(private val logger: KSPLogger) {
 
     private val classTypeName = Class::class.asClassName()
 
@@ -131,6 +133,7 @@ class RxHttpExtensions {
 
             val toParserName = ClassName("rxhttp", "toParser")
             FunSpec.builder("to$key")
+                .addOriginatingKSFile(ksClass.containingFile!!)
                 .addModifiers(modifiers)
                 .receiver(callFactoryName)
                 .addParameters(parameterList)
@@ -340,8 +343,10 @@ class RxHttpExtensions {
                 .build()
                 .apply { fileBuilder.addFunction(this) }
         }
-
-        fileBuilder.build().writeTo(codeGenerator, Dependencies(false))
+        val fileSpec = fileBuilder.build()
+        val dependencies = fileSpec.kspDependencies(true)
+        logger.warn("LJX Extensions ${dependencies.originatingFiles}")
+        fileSpec.writeTo(codeGenerator, dependencies)
     }
 
     private fun getParamsName(parameterSpecs: MutableList<ParameterSpec>): String {

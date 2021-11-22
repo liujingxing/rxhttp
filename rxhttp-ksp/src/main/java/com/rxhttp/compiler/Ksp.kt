@@ -188,15 +188,10 @@ internal fun String.firstLetterUpperCase(): String {
     return String(charArray)
 }
 
-internal fun JavaFile.writeTo(codeGenerator: CodeGenerator) {
-    codeGenerator.createNewFile(
-        Dependencies(false),
-        packageName,
-        typeSpec.name,
-        "java"
-    ).use { outputStream ->
-        outputStream.bufferedWriter(Charsets.UTF_8).use {
-            writeTo(it)
-        }
-    }
+internal fun JavaFile.writeTo(
+    codeGenerator: CodeGenerator,
+    dependencies: Dependencies = Dependencies(false)
+) {
+    val fos = codeGenerator.createNewFile(dependencies, packageName, typeSpec.name, "java")
+    fos.bufferedWriter(Charsets.UTF_8).use(this::writeTo)
 }
