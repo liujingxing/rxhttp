@@ -10,7 +10,6 @@ import com.google.devtools.ksp.processing.SymbolProcessorProvider
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
-import com.google.devtools.ksp.validate
 import com.squareup.kotlinpoet.javapoet.KotlinPoetJavaPoetPreview
 import com.squareup.kotlinpoet.ksp.KotlinPoetKspPreview
 import rxhttp.wrapper.annotation.Converter
@@ -56,6 +55,11 @@ class RxHttpProcessor(
         KotlinPoetKspPreview::class
     )
     override fun process(resolver: Resolver): List<KSAnnotated> {
+        logger.warn(
+            "LJX process getAllFiles.size=${
+                resolver.getAllFiles().toList().size
+            } newFiles.size=${resolver.getNewFiles().toList().size}"
+        )
         if (called) {
             return emptyList()
         }
@@ -69,7 +73,7 @@ class RxHttpProcessor(
 
         val domainVisitor = DomainVisitor(logger)
         resolver.getSymbolsWithAnnotation(Domain::class.java.name).forEach {
-            if (it is KSPropertyDeclaration && it.validate()) {
+            if (it is KSPropertyDeclaration) {
                 it.accept(domainVisitor, Unit)
                 rxHttpWrapper.addDomain(it)
             }
@@ -77,14 +81,14 @@ class RxHttpProcessor(
 
         val defaultDomainVisitor = DefaultDomainVisitor(logger)
         resolver.getSymbolsWithAnnotation(DefaultDomain::class.java.name).forEach {
-            if (it is KSPropertyDeclaration && it.validate()) {
+            if (it is KSPropertyDeclaration) {
                 it.accept(defaultDomainVisitor, Unit)
             }
         }
 
         val okClientVisitor = OkClientVisitor(logger)
         resolver.getSymbolsWithAnnotation(OkClient::class.java.name).forEach {
-            if (it is KSPropertyDeclaration && it.validate()) {
+            if (it is KSPropertyDeclaration) {
                 it.accept(okClientVisitor, Unit)
                 rxHttpWrapper.addOkClient(it)
             }
@@ -92,7 +96,7 @@ class RxHttpProcessor(
 
         val converterVisitor = ConverterVisitor(logger)
         resolver.getSymbolsWithAnnotation(Converter::class.java.name).forEach {
-            if (it is KSPropertyDeclaration && it.validate()) {
+            if (it is KSPropertyDeclaration) {
                 it.accept(converterVisitor, Unit)
                 rxHttpWrapper.addConverter(it)
             }
@@ -100,28 +104,29 @@ class RxHttpProcessor(
 
         val parserVisitor = ParserVisitor(logger)
         resolver.getSymbolsWithAnnotation(Parser::class.java.name).forEach {
-            if (it is KSClassDeclaration && it.validate()) {
+            if (it is KSClassDeclaration) {
                 it.accept(parserVisitor, Unit)
             }
         }
 
         val paramsVisitor = ParamsVisitor(logger, resolver)
         resolver.getSymbolsWithAnnotation(Param::class.java.name).forEach {
-            if (it is KSClassDeclaration && it.validate()) {
+            if (it is KSClassDeclaration) {
                 it.accept(paramsVisitor, Unit)
                 rxHttpWrapper.add(it)
             }
         }
-        val rxHttpGenerator = RxHttpGenerator()
-        rxHttpGenerator.paramsVisitor = paramsVisitor
-        rxHttpGenerator.parserVisitor = parserVisitor
-        rxHttpGenerator.domainVisitor = domainVisitor
-        rxHttpGenerator.okClientVisitor = okClientVisitor
-        rxHttpGenerator.converterVisitor = converterVisitor
-        rxHttpGenerator.defaultDomainVisitor = defaultDomainVisitor
-        rxHttpGenerator.generateCode(codeGenerator)
-        ClassHelper.generatorStaticClass(codeGenerator, true)
         rxHttpWrapper.generateRxWrapper(codeGenerator)
+        ClassHelper.generatorStaticClass(codeGenerator, true)
+        RxHttpGenerator(logger).apply {
+            this.paramsVisitor = paramsVisitor
+            this.parserVisitor = parserVisitor
+            this.domainVisitor = domainVisitor
+            this.okClientVisitor = okClientVisitor
+            this.converterVisitor = converterVisitor
+            this.defaultDomainVisitor = defaultDomainVisitor
+            this.generateCode(codeGenerator)
+        }
         called = true
         return emptyList()
     }

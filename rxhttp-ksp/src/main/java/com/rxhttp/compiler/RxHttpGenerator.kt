@@ -3,7 +3,20 @@ package com.rxhttp.compiler
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
-import com.squareup.javapoet.*
+import com.google.devtools.ksp.processing.KSPLogger
+import com.google.devtools.ksp.symbol.KSFile
+import com.squareup.javapoet.AnnotationSpec
+import com.squareup.javapoet.ArrayTypeName
+import com.squareup.javapoet.ClassName
+import com.squareup.javapoet.CodeBlock
+import com.squareup.javapoet.FieldSpec
+import com.squareup.javapoet.JavaFile
+import com.squareup.javapoet.MethodSpec
+import com.squareup.javapoet.ParameterizedTypeName
+import com.squareup.javapoet.TypeName
+import com.squareup.javapoet.TypeSpec
+import com.squareup.javapoet.TypeVariableName
+import com.squareup.javapoet.WildcardTypeName
 import com.squareup.kotlinpoet.javapoet.KotlinPoetJavaPoetPreview
 import com.squareup.kotlinpoet.ksp.KotlinPoetKspPreview
 import java.io.IOException
@@ -17,8 +30,9 @@ import kotlin.Long
 import kotlin.String
 import kotlin.Throws
 import kotlin.apply
+import kotlin.let
 
-class RxHttpGenerator {
+class RxHttpGenerator(private val logger: KSPLogger) {
 
     var paramsVisitor: ParamsVisitor? = null
     var parserVisitor: ParserVisitor? = null
@@ -946,11 +960,19 @@ class RxHttpGenerator {
             .addTypeVariable(r)
             .addMethods(methodList)
 
+        val ksFiles = mutableSetOf<KSFile>()
+        paramsVisitor?.originatingFiles()?.let { ksFiles.addAll(it) }
+        parserVisitor?.originatingFiles()?.let { ksFiles.addAll(it) }
+        domainVisitor?.originatingFiles()?.let { ksFiles.addAll(it) }
+        converterVisitor?.originatingFiles()?.let { ksFiles.addAll(it) }
+        okClientVisitor?.originatingFiles()?.let { ksFiles.addAll(it) }
+        defaultDomainVisitor?.originatingFile()?.let { ksFiles.add(it) }
+        logger.warn("LJX rxhttp ksFiles=$ksFiles")
         // Write file
         JavaFile.builder(rxHttpPackage, rxHttpBuilder.build())
             .skipJavaLangImports(true)
             .build()
-            .writeTo(codeGenerator)
+            .writeTo(codeGenerator, Dependencies(true, *ksFiles.toTypedArray()))
     }
 }
 
