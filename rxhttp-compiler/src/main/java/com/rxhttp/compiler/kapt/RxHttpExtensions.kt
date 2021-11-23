@@ -154,8 +154,6 @@ class RxHttpExtensions {
             ClassName("rxhttp.wrapper.param", "AbstractBodyParam").parameterizedBy(p)
         val rxHttpBodyParamName =
             ClassName(rxHttpPackage, "RxHttpAbstractBodyParam").parameterizedBy(p, r)
-        val rxHttpBodyWildcardParamName = ClassName(rxHttpPackage, "RxHttpAbstractBodyParam")
-            .parameterizedBy(wildcard, wildcard)
         val pBound = TypeVariableName("P", bodyParamName)
         val rBound = TypeVariableName("R", rxHttpBodyParamName)
 
