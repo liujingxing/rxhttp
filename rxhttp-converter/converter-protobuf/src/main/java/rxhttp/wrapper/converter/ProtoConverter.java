@@ -75,6 +75,7 @@ public class ProtoConverter implements IConverter {
         }
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public <T> RequestBody convert(T value) throws IOException {
         if (!(value instanceof MessageLite)) return null;

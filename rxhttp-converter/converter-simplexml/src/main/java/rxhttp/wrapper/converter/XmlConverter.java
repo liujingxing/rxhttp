@@ -77,6 +77,7 @@ public class XmlConverter implements IConverter {
         }
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public <T> RequestBody convert(T value) throws IOException {
         Buffer buffer = new Buffer();

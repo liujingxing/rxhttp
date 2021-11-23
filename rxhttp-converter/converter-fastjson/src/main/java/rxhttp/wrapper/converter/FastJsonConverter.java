@@ -59,6 +59,7 @@ public class FastJsonConverter implements JsonConverter {
         }
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public <T> RequestBody convert(T value) throws IOException {
         return RequestBody.create(MEDIA_TYPE, JSON.toJSONBytes(value, serializeConfig));

@@ -11,7 +11,6 @@ import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 
-import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import okio.Buffer;
@@ -128,7 +127,7 @@ public class MoshiConverter implements JsonConverter {
         }
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "deprecation"})
     @Override
     public <T> RequestBody convert(T value) throws IOException {
         Class<T> clazz;
@@ -139,7 +138,7 @@ public class MoshiConverter implements JsonConverter {
         } else {
             clazz = (Class<T>) value.getClass();
         }
-        JsonAdapter<T> adapter = (JsonAdapter<T>) moshi.adapter(clazz);
+        JsonAdapter<T> adapter = moshi.adapter(clazz);
         if (lenient) {
             adapter = adapter.lenient();
         }
