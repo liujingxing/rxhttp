@@ -30,7 +30,7 @@ class DefaultDomainVisitor(
                 val msg = "@DefaultDomain annotations can only be used once"
                 throw NoSuchElementException(msg)
             }
-            property.checkProperty()
+            property.checkDomainProperty()
             this.property = property
         } catch (e: NoSuchElementException) {
             logger.error(e, property)

@@ -10,17 +10,25 @@ import javax.lang.model.element.TypeElement
 import javax.lang.model.element.VariableElement
 import javax.lang.model.util.Types
 
-class OkClientVisitor(private val logger: Messager) {
+class OkClientVisitor(
+    private val types: Types,
+    private val logger: Messager
+) {
 
     private val elementMap = LinkedHashMap<String, VariableElement>()
 
-    fun add(element: VariableElement, types: Types) {
+    fun add(element: VariableElement) {
         try {
             element.checkOkClientValidClass(types)
             val annotation = element.getAnnotation(OkClient::class.java)
             var name = annotation.name
             if (name.isBlank()) {
                 name = element.simpleName.toString().firstLetterUpperCase()
+            }
+            if (elementMap.containsKey(name)) {
+                val msg =
+                    "The variable '${element.simpleName}' in the @OkClient annotation 'name = $name' is duplicated"
+                throw NoSuchElementException(msg)
             }
             elementMap[name] = element
         } catch (e: NoSuchElementException) {
@@ -45,18 +53,29 @@ class OkClientVisitor(private val logger: Messager) {
 
 @Throws(NoSuchElementException::class)
 private fun VariableElement.checkOkClientValidClass(types: Types) {
-    if (!modifiers.contains(Modifier.PUBLIC)) {
-        val msg =
-            "The variable '$simpleName' must be public, please add @JvmField annotation if you use kotlin"
-        throw NoSuchElementException(msg)
-    }
-    if (!modifiers.contains(Modifier.STATIC)) {
-        throw NoSuchElementException("The variable '$simpleName' is not static")
-    }
+    val variableName = simpleName.toString()
 
     val className = "okhttp3.OkHttpClient"
     val typeElement = types.asElement(asType()) as? TypeElement
     if (!typeElement.instanceOf(className, types)) {
-        throw NoSuchElementException("The variable '$simpleName' is not a OkHttpClient")
+        throw NoSuchElementException("The variable '$variableName' must be OkHttpClient")
+    }
+
+    var curParent = enclosingElement
+    while (curParent is TypeElement) {
+        if (!curParent.modifiers.contains(Modifier.PUBLIC)) {
+            val msg = "The class '${curParent.qualifiedName}' must be public"
+            throw NoSuchElementException(msg)
+        }
+        curParent = curParent.enclosingElement
+    }
+
+    if (!modifiers.contains(Modifier.PUBLIC)) {
+        val msg =
+            "The variable '$variableName' must be public, please add @JvmField annotation if you use kotlin"
+        throw NoSuchElementException(msg)
+    }
+    if (!modifiers.contains(Modifier.STATIC)) {
+        throw NoSuchElementException("The variable '$variableName' must be static")
     }
 }

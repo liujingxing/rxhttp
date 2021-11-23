@@ -6,13 +6,17 @@ import javax.annotation.processing.Messager
 import javax.lang.model.element.Element
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.VariableElement
+import javax.lang.model.util.Types
 
 /**
  * User: ljx
  * Date: 2021/10/17
  * Time: 12:30
  */
-class DefaultDomainVisitor(private val logger: Messager) {
+class DefaultDomainVisitor(
+    private val types: Types,
+    private val logger: Messager
+) {
 
     private var element: VariableElement? = null
 
@@ -23,7 +27,7 @@ class DefaultDomainVisitor(private val logger: Messager) {
                 throw NoSuchElementException(msg)
             }
             (elements.firstOrNull() as? VariableElement)?.apply {
-                checkVariableValidClass()
+                checkVariableValidClass(types)
                 element = this
             }
         } catch (e: NoSuchElementException) {
