@@ -1,7 +1,6 @@
 include ':app',
         ':rxhttp',
         ':rxhttp-compiler',
-        ':rxhttp-ksp',
         ':rxhttp-annotation',
         'rxhttp-converter:converter-fastjson',
         'rxhttp-converter:converter-jackson',

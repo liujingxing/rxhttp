@@ -1,1 +1,1 @@
-com.rxhttp.compiler.AnnotationProcessor,dynamic
+com.rxhttp.compiler.KaptProcessor,dynamic
