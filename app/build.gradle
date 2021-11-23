@@ -64,6 +64,10 @@ android {
     }
 }
 
+//configurations.all {
+//    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+//}
+
 dependencies {
     implementation fileTree(include: ['*.jar', '*.aar'], dir: 'libs')
     implementation 'androidx.multidex:multidex:2.0.1'
@@ -78,13 +82,14 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-service:2.3.1'
 
     implementation project(":rxhttp")
-//    ksp project(':rxhttp-compiler')
-    kapt project(':rxhttp-compiler')
+    ksp project(':rxhttp-compiler')
+//    kapt project(':rxhttp-compiler')
 //    implementation "com.squareup.okhttp3:logging-interceptor:${okhttp_version}"
 
     implementation "com.squareup.okhttp3:okhttp:${okhttp_version}"
 
 //    implementation "com.github.liujingxing.rxhttp:rxhttp:${rxhttp_version}"
+//    ksp "com.github.liujingxing.rxhttp:rxhttp-compiler:${rxhttp_version}"
 //    kapt "com.github.liujingxing.rxhttp:rxhttp-compiler:${rxhttp_version}"
 
     //管理RxJava及生命周期，Activity/Fragment 销毁，自动关闭未完成的请求
