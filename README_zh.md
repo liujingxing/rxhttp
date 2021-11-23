@@ -162,15 +162,23 @@ implementation 'com.github.liujingxing.rxlife:rxlife-rxjava2:2.2.1' //管理RxJa
 
 
 <details open>
-<summary>通过kapt告知RxHttp你依赖的RxJava版本</summary>
+<summary>通过ksp传递RxJava版本</summary>
  
 ```java
-android {
-    kapt {
-        arguments {
-            //依赖了RxJava时，rxhttp_rxjava参数为必须，传入RxJava版本号
-            arg("rxhttp_rxjava", "3.1.1")  
-        }
+ksp {
+    arg("rxhttp_rxjava", "3.1.1")
+}
+```
+ 
+</details>
+
+<details>
+<summary>通过kapt传递RxJava版本</summary>
+ 
+```java
+kapt {
+    arguments {
+        arg("rxhttp_rxjava", "3.1.1")
     }
 }
 ```
@@ -178,7 +186,7 @@ android {
 </details>
  
 <details>
-<summary>通过javaCompileOptions告知RxHttp你依赖的RxJava版本</summary>
+<summary>通过javaCompileOptions传递RxJava版本</summary>
  
 ```java
 android {
@@ -202,14 +210,24 @@ android {
 ### 3、指定RxHttp相关类包名
 
 <details open>
+<summary>通过ksp指定RxHttp相关类包名</summary>
+ 
+```java
+ksp {
+    arg("rxhttp_package", "rxhttp")  //指定RxHttp类包名，可随意指定 
+}
+```
+ 
+</details>
+
+<details>
 <summary>通过kapt指定RxHttp相关类包名</summary>
  
 ```java
-android {
-    kapt {
-        arguments {
-            arg("rxhttp_package", "rxhttp")  //指定RxHttp类包名，可随意指定
-        }
+ 
+kapt {
+    arguments {
+        arg("rxhttp_package", "rxhttp")  //指定RxHttp类包名，可随意指定
     }
 }
 ```
@@ -234,7 +252,7 @@ android {
 ```
 </details>
 
-`注：kapt/javaCompileOptions二选一，如果集成了kotlin，就使用kapt`
+`注：ksp/kapt/javaCompileOptions 三选一`
 
 
 最后，***rebuild一下(此步骤是必须的)*** ，就会自动生成RxHttp类
