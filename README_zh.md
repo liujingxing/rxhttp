@@ -122,7 +122,7 @@ dependencies {
 ```
 </details>
 
-`注：如果项目未集成kotlin，请使用annotationProcessor代替kapt，且不需要导入kotlin-kapt插件`
+[ksp、kapt、annotationProcessor 如何选择点击这里](https://github.com/liujingxing/rxhttp/wiki/ksp%E3%80%81kapt%E3%80%81annotationProcessor-%E7%94%A8%E6%B3%95%E5%8F%8A%E5%8C%BA%E5%88%AB)
 
 ## 可选
 
