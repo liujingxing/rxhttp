@@ -111,15 +111,25 @@ implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
 implementation 'com.github.liujingxing.rxlife:rxlife-rxjava2:2.2.1' //RxJava2, Automatic close request
 ```
 </details>
+
 <details open>
+<summary>ksp passes the RxJava version</summary>
+ 
+```java
+ksp {
+    arg("rxhttp_rxjava", "3.1.1")
+}
+```
+ 
+</details>
+
+<details>
 <summary>Kapt passes the RxJava version</summary>
  
 ```java
-android {
-    kapt {
-        arguments {
-            arg("rxhttp_rxjava", "3.1.1")  
-        }
+kapt {
+    arguments {
+        arg("rxhttp_rxjava", "3.1.1")
     }
 }
 ```
