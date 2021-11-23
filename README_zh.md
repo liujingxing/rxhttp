@@ -107,13 +107,17 @@ android {
 <summary>3、添加RxHttp依赖</summary>
  
 ```java
-//使用kapt依赖rxhttp-compiler时必须
-apply plugin: 'kotlin-kapt'
+plugins {
+    // kapt/ksp 选其一
+    // id 'kotlin-kapt'
+    id("com.google.devtools.ksp") version "1.6.0-1.0.1"
+}    
 
 dependencies {
     implementation 'com.squareup.okhttp3:okhttp:4.9.1'  
-    implementation 'com.github.liujingxing.rxhttp:rxhttp:2.7.3'
-    kapt 'com.github.liujingxing.rxhttp:rxhttp-compiler:2.7.3' //生成RxHttp类，纯Java项目，请使用annotationProcessor代替kapt
+    implementation 'com.github.liujingxing.rxhttp:rxhttp:2.8.0'
+    // ksp/kpat/annotationProcessor 选其一
+    ksp 'com.github.liujingxing.rxhttp:rxhttp-compiler:2.8.0' 
  }
 ```
 </details>
@@ -126,11 +130,11 @@ dependencies {
 
 ```java
 //非必须，根据自己需求选择 RxHttp默认内置了GsonConverter
-implementation 'com.github.liujingxing.rxhttp:converter-fastjson:2.7.3'
-implementation 'com.github.liujingxing.rxhttp:converter-jackson:2.7.3'
-implementation 'com.github.liujingxing.rxhttp:converter-moshi:2.7.3'
-implementation 'com.github.liujingxing.rxhttp:converter-protobuf:2.7.3'
-implementation 'com.github.liujingxing.rxhttp:converter-simplexml:2.7.3'
+implementation 'com.github.liujingxing.rxhttp:converter-fastjson:2.8.0'
+implementation 'com.github.liujingxing.rxhttp:converter-jackson:2.8.0'
+implementation 'com.github.liujingxing.rxhttp:converter-moshi:2.8.0'
+implementation 'com.github.liujingxing.rxhttp:converter-protobuf:2.8.0'
+implementation 'com.github.liujingxing.rxhttp:converter-simplexml:2.8.0'
 ```
 
 ### 2、配置RxJava

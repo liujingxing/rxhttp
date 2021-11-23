@@ -64,13 +64,18 @@ android {
 <summary>3、Add RxHttp dependency</summary>
  
 ```java
-//Must be used when using kapt
-apply plugin: 'kotlin-kapt'
+plugins {
+    // kapt/ksp choose one
+    // id 'kotlin-kapt'
+    id("com.google.devtools.ksp") version "1.6.0-1.0.1"
+}
+
+    
 dependencies {
     implementation 'com.squareup.okhttp3:okhttp:4.9.1'  
-    implementation 'com.github.liujingxing.rxhttp:rxhttp:2.7.3'
-    //Use the annotationProcessor instead of kapt, if you use Java
-    kapt 'com.github.liujingxing.rxhttp:rxhttp-compiler:2.7.3'
+    implementation 'com.github.liujingxing.rxhttp:rxhttp:2.8.0'
+    // ksp/kpat/annotationProcessor choose one
+    ksp 'com.github.liujingxing.rxhttp:rxhttp-compiler:2.8.0'
  }
 ```
 </details>
@@ -79,11 +84,11 @@ dependencies {
 
 ### 1、Coverter
 ```java
-implementation 'com.github.liujingxing.rxhttp:converter-fastjson:2.7.3'
-implementation 'com.github.liujingxing.rxhttp:converter-jackson:2.7.3'
-implementation 'com.github.liujingxing.rxhttp:converter-moshi:2.7.3'
-implementation 'com.github.liujingxing.rxhttp:converter-protobuf:2.7.3'
-implementation 'com.github.liujingxing.rxhttp:converter-simplexml:2.7.3'
+implementation 'com.github.liujingxing.rxhttp:converter-fastjson:2.8.0'
+implementation 'com.github.liujingxing.rxhttp:converter-jackson:2.8.0'
+implementation 'com.github.liujingxing.rxhttp:converter-moshi:2.8.0'
+implementation 'com.github.liujingxing.rxhttp:converter-protobuf:2.8.0'
+implementation 'com.github.liujingxing.rxhttp:converter-simplexml:2.8.0'
 ```
 
 ### 2、RxJava
