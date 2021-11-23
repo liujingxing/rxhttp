@@ -1,2 +1,9 @@
-if (maven == "1")
-    apply plugin: 'maven-publish'
+apply plugin: 'maven-publish'
+
+publishing {
+    publications {
+        release(MavenPublication) {
+            from components.java
+        }
+    }
+}
