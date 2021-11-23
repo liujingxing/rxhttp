@@ -959,7 +959,6 @@ object ClassHelper {
         generatorClass(codeGenerator, "RxHttpNoBodyParam", """
             package $rxHttpPackage;
 
-            import java.util.List;
             import java.util.Map;
             
             import rxhttp.wrapper.annotations.NonNull;

@@ -960,7 +960,6 @@ object ClassHelper {
         generatorClass(filer, "RxHttpNoBodyParam", """
             package $rxHttpPackage;
 
-            import java.util.List;
             import java.util.Map;
             
             import rxhttp.wrapper.annotations.NonNull;
