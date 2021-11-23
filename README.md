@@ -155,18 +155,25 @@ android {
  
 </details>
 
-`kapt/javaCompileOptions select one，With Kapt, if you integrate kotlin`
 
 ### 3、set RxHttp class package name
+
 <details open>
+<summary>ksp pass package name</summary>
+ 
+```java
+ksp {
+     arg("rxhttp_package", "rxhttp.xxx")
+}
+```
+    
+<details>
 <summary>kapt pass package name</summary>
  
 ```java
-android {
-    kapt {
-        arguments {
-            arg("rxhttp_package", "rxhttp.xxx") 
-        }
+kapt {
+    arguments {
+       arg("rxhttp_package", "rxhttp.xxx") 
     }
 }
 ```
@@ -190,8 +197,6 @@ android {
 }
 ```
 </details>
-
-`kapt/javaCompileOptions select one，With Kapt, if you integrate kotlin`
 
 
 **Finally, rebuild the project, which is necessary**
