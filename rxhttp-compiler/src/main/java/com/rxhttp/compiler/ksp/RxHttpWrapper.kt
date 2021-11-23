@@ -159,7 +159,6 @@ class RxHttpWrapper(private val logger: KSPLogger) {
                 .addModifiers(Modifier.PUBLIC)
                 .addMethods(methodList)
 
-            logger.warn("LJX wrapper = $ksFiles")
             JavaFile.builder(rxHttpPackage, rxHttpBuilder.build())
                 .skipJavaLangImports(true)
                 .build()

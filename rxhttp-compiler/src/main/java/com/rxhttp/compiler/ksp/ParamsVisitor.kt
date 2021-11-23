@@ -15,8 +15,8 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFile
 import com.google.devtools.ksp.symbol.KSVisitorVoid
 import com.google.devtools.ksp.symbol.Modifier
-import com.rxhttp.compiler.rxhttpClassName
 import com.rxhttp.compiler.rxHttpPackage
+import com.rxhttp.compiler.rxhttpClassName
 import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.JavaFile
@@ -221,7 +221,6 @@ class ParamsVisitor(
                 .superclass(rxHttpParam)
                 .addMethods(rxHttpPostCustomMethod)
                 .build()
-            logger.warn("LJX Param= ${ksClass.containingFile}")
             JavaFile.builder(rxHttpPackage, rxHttpPostEncryptFormParamSpec)
                 .skipJavaLangImports(true)
                 .build()

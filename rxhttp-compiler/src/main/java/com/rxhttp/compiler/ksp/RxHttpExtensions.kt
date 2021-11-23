@@ -348,7 +348,6 @@ class RxHttpExtensions(private val logger: KSPLogger) {
         }
         val fileSpec = fileBuilder.build()
         val dependencies = fileSpec.kspDependencies(true)
-        logger.warn("LJX Extensions ${dependencies.originatingFiles}")
         fileSpec.writeTo(codeGenerator, dependencies)
     }
 
