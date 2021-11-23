@@ -24,7 +24,6 @@ public class JacksonConverter implements JsonConverter {
         return create(new ObjectMapper());
     }
 
-    @SuppressWarnings("ConstantConditions") // Guarding public API nullability.
     public static JacksonConverter create(ObjectMapper mapper) {
         if (mapper == null) throw new NullPointerException("mapper == null");
         return new JacksonConverter(mapper);
@@ -51,6 +50,7 @@ public class JacksonConverter implements JsonConverter {
         }
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public <T> RequestBody convert(T value) throws IOException {
         JavaType javaType = mapper.getTypeFactory().constructType(value.getClass());
