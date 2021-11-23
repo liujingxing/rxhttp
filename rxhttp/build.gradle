@@ -24,7 +24,7 @@ dependencies {
     compileOnly "com.squareup.okhttp3:okhttp:${okhttp_version}"
 //    api "com.github.liujingxing.rxhttp:rxhttp-annotation:${rxhttp_version}"
     api project(":rxhttp-annotation")
-    api 'com.google.code.gson:gson:2.8.7'
+    api 'com.google.code.gson:gson:2.8.9'
     api "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.0"
 }
 
