@@ -972,7 +972,6 @@ class RxHttpGenerator(private val logger: KSPLogger) {
         converterVisitor?.originatingFiles()?.let { ksFiles.addAll(it) }
         okClientVisitor?.originatingFiles()?.let { ksFiles.addAll(it) }
         defaultDomainVisitor?.originatingFile()?.let { ksFiles.add(it) }
-        logger.warn("LJX rxhttp ksFiles=$ksFiles")
         // Write file
         JavaFile.builder(rxHttpPackage, rxHttpBuilder.build())
             .skipJavaLangImports(true)
