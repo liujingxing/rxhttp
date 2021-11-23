@@ -119,23 +119,23 @@ open class AnnotationProcessor : AbstractProcessor() {
                 }
             }
 
-            val converterVisitor = ConverterVisitor(logger).apply {
+            val converterVisitor = ConverterVisitor(types, logger).apply {
                 roundEnv.getElementsAnnotatedWith(Converter::class.java).forEach {
                     val variableElement = it as VariableElement
-                    add(variableElement, types)
+                    add(variableElement)
                     rxHttpWrapper.addConverter(variableElement)
                 }
             }
 
-            val okClientVisitor = OkClientVisitor(logger).apply {
+            val okClientVisitor = OkClientVisitor(types, logger).apply {
                 roundEnv.getElementsAnnotatedWith(OkClient::class.java).forEach {
                     val variableElement = it as VariableElement
-                    add(variableElement, types)
+                    add(variableElement)
                     rxHttpWrapper.addOkClient(variableElement)
                 }
             }
 
-            val domainVisitor = DomainVisitor(logger).apply {
+            val domainVisitor = DomainVisitor(types, logger).apply {
                 roundEnv.getElementsAnnotatedWith(Domain::class.java).forEach {
                     val variableElement = it as VariableElement
                     add(variableElement)
@@ -143,7 +143,7 @@ open class AnnotationProcessor : AbstractProcessor() {
                 }
             }
 
-            val defaultDomainVisitor = DefaultDomainVisitor(logger).apply {
+            val defaultDomainVisitor = DefaultDomainVisitor(types, logger).apply {
                 set(roundEnv.getElementsAnnotatedWith(DefaultDomain::class.java))
             }
 

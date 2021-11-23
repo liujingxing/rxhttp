@@ -4,6 +4,8 @@ import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.getAnnotationsByType
 import com.google.devtools.ksp.isPublic
 import com.google.devtools.ksp.processing.KSPLogger
+import com.google.devtools.ksp.processing.Resolver
+import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFile
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
@@ -15,6 +17,7 @@ import rxhttp.wrapper.annotation.Converter
 import java.util.*
 
 class ConverterVisitor(
+    private val resolver: Resolver,
     private val logger: KSPLogger
 ) : KSVisitorVoid() {
 
@@ -27,11 +30,16 @@ class ConverterVisitor(
     @OptIn(KspExperimental::class)
     override fun visitPropertyDeclaration(property: KSPropertyDeclaration, data: Unit) {
         try {
-            property.checkConverterValidClass()
+            property.checkConverterProperty()
             val annotation = property.getAnnotationsByType(Converter::class).firstOrNull()
             var name = annotation?.name
             if (name.isNullOrBlank()) {
-                name = property.simpleName.toString().firstLetterUpperCase()
+                name = property.simpleName.asString().firstLetterUpperCase()
+            }
+            if (elementMap.containsKey(name)) {
+                val msg =
+                    "The variable '${property.simpleName.asString()}' in the @Converter annotation 'name = $name' is duplicated"
+                throw NoSuchElementException(msg)
             }
             elementMap[name] = property
         } catch (e: NoSuchElementException) {
@@ -44,24 +52,31 @@ class ConverterVisitor(
         val methodList = ArrayList<MethodSpec>()
         for ((key, value) in elementMap) {
             val parent = value.parent
-            var className = parent.toString()
+            var className = if (value.isJava()) {
+                (parent as? KSClassDeclaration)?.qualifiedName?.asString()
+            } else {
+                resolver.getOwnerJvmClassName(value)
+            } ?: continue
             var fieldName = value.simpleName.asString()
-            if (parent is KSClassDeclaration && parent.isCompanionObject) {
-                //伴生对象需要额外处理 类名及字段名
-                if (value.getAnnotationsByType(JvmField::class).toList().isEmpty()) {
+            if (parent is KSFile) {
+                if (!value.inStaticToJava()) {
                     //没有使用JvmField注解
-                    fieldName = "$className.get${
-                        fieldName.substring(0, 1).uppercase()
-                    }${fieldName.substring(1)}()"
+                    fieldName = "get${fieldName.firstLetterUpperCase()}()"
                 }
-                className = parent.parent.toString()
+            } else if ((parent as? KSClassDeclaration)?.isCompanionObject == true) {
+                //伴生对象需要额外处理 类名及字段名
+                className = className.replace("$", ".")
+                if (!value.inStaticToJava()) {
+                    //没有使用JvmField注解
+                    fieldName = "get${fieldName.firstLetterUpperCase()}()"
+                } else {
+                    className = className.substring(0, className.lastIndexOf("."))
+                }
             }
-
             MethodSpec.methodBuilder("set$key")
                 .addModifiers(JModifier.PUBLIC)
                 .addStatement(
-                    "return setConverter(\$T.${fieldName})",
-                    ClassName.get(value.packageName.asString(), className),
+                    "return setConverter(\$T.${fieldName})", ClassName.bestGuess(className),
                 )
                 .returns(r)
                 .build()
@@ -71,20 +86,51 @@ class ConverterVisitor(
     }
 }
 
-@Throws(KspException::class)
-private fun KSPropertyDeclaration.checkConverterValidClass() {
-    val simpleName = simpleName.asString()
-    if (!isPublic()) {
-        val msg =
-            "The variable '$simpleName' must be public, please add @JvmField annotation if you use kotlin"
-        throw NoSuchElementException(msg)
-    }
-    if (isJava() && Modifier.JAVA_STATIC !in modifiers) {
-        throw NoSuchElementException("The variable '$simpleName' is not static")
-    }
+@KspExperimental
+@Throws(NoSuchElementException::class)
+private fun KSPropertyDeclaration.checkConverterProperty() {
+    val variableName = simpleName.asString()
+
     val className = "rxhttp.wrapper.callback.IConverter"
     val ksClass = type.resolve().declaration as? KSClassDeclaration
     if (!ksClass.instanceOf(className)) {
-        throw NoSuchElementException("The variable '$simpleName' is not a IConverter")
+        throw NoSuchElementException("The variable '$variableName' must be IConverter")
     }
+
+    var curParent = parent
+    while (curParent is KSClassDeclaration) {
+        if (!curParent.isPublic()) {
+            val msg = "The class '${curParent.qualifiedName?.asString()}' must be public"
+            throw NoSuchElementException(msg)
+        }
+        curParent = curParent.parent
+    }
+
+    if (!isPublic()) {
+        throw NoSuchElementException("The variable '$variableName' must be public")
+    }
+
+    if (isJava() && Modifier.JAVA_STATIC !in modifiers) {
+        throw NoSuchElementException("The variable '$variableName' must be static")
+    }
+
+    if (isKotlin()) {
+        val parent = parent
+        //在kt文件里，说明是顶级变量，属于合法，直接返回
+        if (parent is KSFile) return
+        //在伴生对象里面，是合法的，直接返回
+        if ((parent as? KSClassDeclaration)?.isCompanionObject == true) return
+
+        if ((parent as? KSClassDeclaration)?.classKind != ClassKind.OBJECT) {
+            //必需要声明在object对象里
+            throw NoSuchElementException("The variable '$variableName' must be declared in the object")
+        }
+        //在object对象里，必需要使用const修饰或添加@JvmField注解
+        if (getAnnotationsByType(JvmField::class).firstOrNull() == null) {
+            val msg =
+                "Please add the 'const' or @JvmField annotation to the '$variableName' variable"
+            throw NoSuchElementException(msg)
+        }
+    }
+
 }

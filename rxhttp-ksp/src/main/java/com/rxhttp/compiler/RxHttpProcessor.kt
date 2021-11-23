@@ -71,7 +71,7 @@ class RxHttpProcessor(
 
         val rxHttpWrapper = RxHttpWrapper(logger)
 
-        val domainVisitor = DomainVisitor(logger)
+        val domainVisitor = DomainVisitor(resolver, logger)
         resolver.getSymbolsWithAnnotation(Domain::class.java.name).forEach {
             if (it is KSPropertyDeclaration) {
                 it.accept(domainVisitor, Unit)
@@ -86,7 +86,7 @@ class RxHttpProcessor(
             }
         }
 
-        val okClientVisitor = OkClientVisitor(logger)
+        val okClientVisitor = OkClientVisitor(resolver, logger)
         resolver.getSymbolsWithAnnotation(OkClient::class.java.name).forEach {
             if (it is KSPropertyDeclaration) {
                 it.accept(okClientVisitor, Unit)
@@ -94,7 +94,7 @@ class RxHttpProcessor(
             }
         }
 
-        val converterVisitor = ConverterVisitor(logger)
+        val converterVisitor = ConverterVisitor(resolver, logger)
         resolver.getSymbolsWithAnnotation(Converter::class.java.name).forEach {
             if (it is KSPropertyDeclaration) {
                 it.accept(converterVisitor, Unit)

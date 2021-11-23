@@ -65,7 +65,7 @@ class RxHttpWrapper(private val logger: KSPLogger) {
         }
         var name = okClient.name
         if (name.isBlank()) {
-            name = property.simpleName.toString().firstLetterUpperCase()
+            name = property.simpleName.asString().firstLetterUpperCase()
         }
         wrapper.okClientName = name
         ksFiles.add(property.containingFile!!)
@@ -86,7 +86,7 @@ class RxHttpWrapper(private val logger: KSPLogger) {
         }
         var name = converter.name
         if (name.isBlank()) {
-            name = property.simpleName.toString().firstLetterUpperCase()
+            name = property.simpleName.asString().firstLetterUpperCase()
         }
         wrapper.converterName = name
         ksFiles.add(property.containingFile!!)
@@ -107,7 +107,7 @@ class RxHttpWrapper(private val logger: KSPLogger) {
         }
         var name = domain.name
         if (name.isBlank()) {
-            name = property.simpleName.toString().firstLetterUpperCase()
+            name = property.simpleName.asString().firstLetterUpperCase()
         }
         wrapper.domainName = name
         ksFiles.add(property.containingFile!!)
