@@ -205,7 +205,6 @@ android {
  
 </details>
 
-`注：kapt/javaCompileOptions二选一，如果集成了kotlin，就使用kapt`
 
 ### 3、指定RxHttp相关类包名
 
@@ -251,8 +250,6 @@ android {
 }
 ```
 </details>
-
-`注：ksp/kapt/javaCompileOptions 三选一`
 
 
 最后，***rebuild一下(此步骤是必须的)*** ，就会自动生成RxHttp类
