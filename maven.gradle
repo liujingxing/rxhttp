@@ -1,2 +1,2 @@
 if (maven == "1")
-    apply plugin: 'maven'
+    apply plugin: 'maven-publish'
