@@ -107,6 +107,7 @@ android {
 <summary>3、添加RxHttp依赖</summary>
  
 ```java
+//annotationProcessor无需依赖额外插件
 plugins {
     // kapt/ksp 选其一
     // id 'kotlin-kapt'
