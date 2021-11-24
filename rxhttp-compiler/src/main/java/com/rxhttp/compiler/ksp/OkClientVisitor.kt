@@ -50,41 +50,21 @@ class OkClientVisitor(
 
     @KspExperimental
     fun getMethodList(): List<MethodSpec> {
-        val methodList = ArrayList<MethodSpec>()
-        for ((key, value) in elementMap) {
-            val parent = value.parent
-            var className = if (value.isJava()) {
-                (parent as? KSClassDeclaration)?.qualifiedName?.asString()
-            } else {
-                resolver.getOwnerJvmClassName(value)
-            } ?: continue
-            var fieldName = value.simpleName.asString()
-            if (parent is KSFile) {
-                if (!value.inStaticToJava()) {
-                    //没有使用JvmField注解
-                    fieldName = "get${fieldName.firstLetterUpperCase()}()"
-                }
-            } else if ((parent as? KSClassDeclaration)?.isCompanionObject == true) {
-                //伴生对象需要额外处理 类名及字段名
-                className = className.replace("$", ".")
-                if (!value.inStaticToJava()) {
-                    //没有使用JvmField注解
-                    fieldName = "get${fieldName.firstLetterUpperCase()}()"
-                } else {
-                    className = className.substring(0, className.lastIndexOf("."))
-                }
-            }
+        return elementMap.mapNotNull { entry ->
+            val key = entry.key
+            val value = entry.value
+            val classAndFieldName = value.getClassAndFieldName(resolver) ?: return@mapNotNull null
+            val className = classAndFieldName.first
+            val fieldName = classAndFieldName.second
 
             MethodSpec.methodBuilder("set$key")
                 .addModifiers(JModifier.PUBLIC)
                 .addStatement(
-                    "return setOkClient(\$T.${fieldName})", ClassName.bestGuess(className)
+                    "return setOkClient(\$T.$fieldName)", ClassName.bestGuess(className)
                 )
                 .returns(r)
                 .build()
-                .apply { methodList.add(this) }
         }
-        return methodList
     }
 }
 
@@ -126,12 +106,6 @@ private fun KSPropertyDeclaration.checkOkClientProperty() {
         if ((parent as? KSClassDeclaration)?.classKind != ClassKind.OBJECT) {
             //必需要声明在object对象里
             throw NoSuchElementException("The variable '$variableName' must be declared in the object")
-        }
-        //在object对象里，必需要使用const修饰或添加@JvmField注解
-        if (getAnnotationsByType(JvmField::class).firstOrNull() == null) {
-            val msg =
-                "Please add the 'const' or @JvmField annotation to the '$variableName' variable"
-            throw NoSuchElementException(msg)
         }
     }
 }

@@ -125,6 +125,12 @@ public class RxSimpleHttp {
     return rxHttp;
   }
 
+  public static RxHttpPostEncryptJsonParam postEncryptJson(String url, Object... formatArgs) {
+    RxHttpPostEncryptJsonParam rxHttp = RxHttp.postEncryptJson(url, formatArgs);
+    wrapper(rxHttp);
+    return rxHttp;
+  }
+
   public static RxHttpPostEncryptFormParam postEncryptForm(String url, Object... formatArgs) {
     RxHttpPostEncryptFormParam rxHttp = RxHttp.postEncryptForm(url, formatArgs);
     wrapper(rxHttp);
@@ -146,12 +152,6 @@ public class RxSimpleHttp {
 
   public static RxHttpPostEncryptJsonParam1 postEncryptJson1(String url, Object... formatArgs) {
     RxHttpPostEncryptJsonParam1 rxHttp = RxHttp.postEncryptJson1(url, formatArgs);
-    wrapper(rxHttp);
-    return rxHttp;
-  }
-
-  public static RxHttpPostEncryptJsonParam postEncryptJson(String url, Object... formatArgs) {
-    RxHttpPostEncryptJsonParam rxHttp = RxHttp.postEncryptJson(url, formatArgs);
     wrapper(rxHttp);
     return rxHttp;
   }

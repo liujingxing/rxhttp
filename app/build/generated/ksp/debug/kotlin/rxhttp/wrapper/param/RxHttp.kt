@@ -1,7 +1,6 @@
 package rxhttp.wrapper.`param`
 
 import com.example.httpsender.parser.ResponseParser
-import kotlin.Any
 import kotlin.Deprecated
 import kotlin.Int
 import kotlin.Unit
@@ -27,8 +26,7 @@ public inline fun <reified K, reified V> BaseRxHttp.asMap() = asClass<Map<K,V>>(
 
 public inline fun <reified T> BaseRxHttp.asClass() = asParser(object : SimpleParser<T>() {})
 
-public inline fun <reified T : Any> BaseRxHttp.asResponse() = asParser(object: ResponseParser<T>()
-    {})
+public inline fun <reified T> BaseRxHttp.asResponse() = asParser(object: ResponseParser<T>() {})
 
 /**
  * 调用此方法监听上传进度                                                    
@@ -64,17 +62,16 @@ public fun <P : AbstractBodyParam<P>, R : RxHttpAbstractBodyParam<P, R>>
   return this as R
 }
 
-public inline fun <reified T : Any> CallFactory.toResponse() = toParser(object: ResponseParser<T>()
-    {})
+public inline fun <reified T> CallFactory.toResponse() = toParser(object: ResponseParser<T>() {})
 
-public inline fun <reified T : Any> CallFactory.toFlowResponse() = toFlow(toResponse<T>())
+public inline fun <reified T> CallFactory.toFlowResponse() = toFlow(toResponse<T>())
 
 @ExperimentalCoroutinesApi
-public inline fun <reified T : Any> BodyParamFactory.toFlowResponse(capacity: Int = 1, noinline
+public inline fun <reified T> BodyParamFactory.toFlowResponse(capacity: Int = 1, noinline
     progress: suspend (Progress) -> Unit) = 
     toFlowProgress(toResponse<T>(), capacity)
         .onEachProgress(progress)
 
 @ExperimentalCoroutinesApi
-public inline fun <reified T : Any> BodyParamFactory.toFlowResponseProgress(capacity: Int = 1) =
+public inline fun <reified T> BodyParamFactory.toFlowResponseProgress(capacity: Int = 1) =
     toFlowProgress(toResponse<T>(), capacity)

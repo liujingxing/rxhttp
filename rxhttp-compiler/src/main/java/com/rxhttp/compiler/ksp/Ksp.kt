@@ -6,8 +6,10 @@ import com.google.devtools.ksp.isPublic
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.KSPLogger
+import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSFile
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSNode
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
@@ -176,9 +178,44 @@ internal fun KSClassDeclaration?.instanceOf(className: String): Boolean {
 }
 
 @KspExperimental
-internal fun KSPropertyDeclaration.inStaticToJava(): Boolean {
+internal fun KSPropertyDeclaration.isStaticToJava(): Boolean {
     return getAnnotationsByType(JvmField::class).firstOrNull() != null
             || Modifier.CONST in modifiers
+}
+
+@KspExperimental
+internal fun KSPropertyDeclaration?.getClassAndFieldName(resolver: Resolver): Pair<String, String>? {
+    if (this == null) return null
+    val parent = parent
+    var className = if (isJava()) {
+        (parent as? KSClassDeclaration)?.qualifiedName?.asString()
+    } else {
+        resolver.getOwnerJvmClassName(this)
+    } ?: return null
+    var fieldName = simpleName.asString()
+    if (parent is KSFile) {
+        if (!isStaticToJava()) {
+            //没有使用JvmField注解
+            fieldName = "get${fieldName.firstLetterUpperCase()}()"
+        }
+    } else if (parent is KSClassDeclaration) {
+        if (parent.isCompanionObject) {
+            //伴生对象需要额外处理 类名及字段名
+            className = className.replace("$", ".")
+            if (!isStaticToJava()) {
+                //没有使用JvmField注解
+                fieldName = "get${fieldName.firstLetterUpperCase()}()"
+            } else { //去除伴生对象类名, 如Companion
+                className = className.substring(0, className.lastIndexOf("."))
+            }
+        } else if (parent.classKind == ClassKind.OBJECT) {
+            if (!isStaticToJava()) {
+                fieldName = "get${fieldName.firstLetterUpperCase()}()"
+                className += ".INSTANCE"
+            }
+        }
+    }
+    return Pair(className, fieldName)
 }
 
 internal fun KSPLogger.error(throwable: Throwable, ksNode: KSNode) {

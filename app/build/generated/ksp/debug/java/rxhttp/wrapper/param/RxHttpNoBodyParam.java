@@ -1,6 +1,5 @@
 package rxhttp.wrapper.param;
 
-import java.util.List;
 import java.util.Map;
 
 import rxhttp.wrapper.annotations.NonNull;

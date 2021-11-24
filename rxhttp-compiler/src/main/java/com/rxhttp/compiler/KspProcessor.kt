@@ -68,7 +68,7 @@ class KspProcessor(private val env: SymbolProcessorEnvironment) : SymbolProcesso
             }
         }
 
-        val defaultDomainVisitor = DefaultDomainVisitor(logger)
+        val defaultDomainVisitor = DefaultDomainVisitor(resolver, logger)
         resolver.getSymbolsWithAnnotation(DefaultDomain::class.java.name).forEach {
             if (it is KSPropertyDeclaration) {
                 it.accept(defaultDomainVisitor, Unit)
