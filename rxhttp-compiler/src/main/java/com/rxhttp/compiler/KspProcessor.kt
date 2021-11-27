@@ -106,7 +106,7 @@ class KspProcessor(private val env: SymbolProcessorEnvironment) : SymbolProcesso
             }
         }
         rxHttpWrapper.generateRxWrapper(codeGenerator)
-        ClassHelper.generatorStaticClass(codeGenerator, true)
+        ClassHelper(true).generatorStaticClass(codeGenerator)
         RxHttpGenerator(logger).apply {
             this.paramsVisitor = paramsVisitor
             this.parserVisitor = parserVisitor

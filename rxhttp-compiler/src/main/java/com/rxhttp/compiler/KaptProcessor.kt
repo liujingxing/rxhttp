@@ -1,6 +1,6 @@
 package com.rxhttp.compiler
 
-import com.rxhttp.compiler.kapt.ClassHelper.generatorStaticClass
+import com.rxhttp.compiler.kapt.ClassHelper
 import com.rxhttp.compiler.kapt.ConverterVisitor
 import com.rxhttp.compiler.kapt.DefaultDomainVisitor
 import com.rxhttp.compiler.kapt.DomainVisitor
@@ -99,7 +99,7 @@ open class KaptProcessor : AbstractProcessor() {
             )
         }
         if (annotations.isEmpty() || processed) return true
-        generatorStaticClass(filer, isAndroidPlatform())
+        ClassHelper(isAndroidPlatform()).generatorStaticClass(filer)
         try {
             val rxHttpWrapper = RxHttpWrapper(logger)
 

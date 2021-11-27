@@ -138,7 +138,7 @@ public abstract class BaseRxHttp implements CallFactory, RangeHeader {
                                                      Consumer<Progress> progressConsumer) {
         return asAppendDownload(new FileOutputStreamFactory(destPath), scheduler, progressConsumer);         
     }                                                                       
-     
+    
     public final Observable<Uri> asAppendDownload(Context context, Uri uri) {                   
         return asAppendDownload(context, uri, null, null);                                      
     }                                                                                           
@@ -147,7 +147,7 @@ public abstract class BaseRxHttp implements CallFactory, RangeHeader {
                                                   Consumer<Progress> progressConsumer) {        
         return asAppendDownload(new UriOutputStreamFactory(context, uri), scheduler, progressConsumer);       
     }                                               
-        
+    
     public final <T> Observable<T> asAppendDownload(OutputStreamFactory<T> osFactory) {                   
         return asAppendDownload(osFactory, null, null);                                     
     }                                                                                        

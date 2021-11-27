@@ -13,14 +13,15 @@ import javax.annotation.processing.Filer
  * Date: 2020/3/31
  * Time: 23:36
  */
-object ClassHelper {
+class ClassHelper(private val isAndroidPlatform: Boolean) {
 
-    @JvmStatic
-    fun generatorStaticClass(filer: Filer, isAndroid: Boolean) {
-        generatorBaseRxHttp(filer, isAndroid)
+    private fun isAndroid(s: String) = if (isAndroidPlatform) s else ""
+
+    fun generatorStaticClass(filer: Filer) {
+        generatorBaseRxHttp(filer)
         generatorRxHttpAbstractBodyParam(filer)
-        generatorRxHttpBodyParam(filer, isAndroid)
-        generatorRxHttpFormParam(filer, isAndroid)
+        generatorRxHttpBodyParam(filer)
+        generatorRxHttpFormParam(filer)
         generatorRxHttpNoBodyParam(filer)
         generatorRxHttpJsonParam(filer)
         generatorRxHttpJsonArrayParam(filer)
@@ -36,9 +37,10 @@ object ClassHelper {
         generatorObservableParser(filer)
     }
 
-    private fun generatorBaseRxHttp(filer: Filer, isAndroid: Boolean) {
+    private fun generatorBaseRxHttp(filer: Filer) {
         if (!isDependenceRxJava()) {
-            generatorClass(filer, "BaseRxHttp", """
+            generatorClass(
+                filer, "BaseRxHttp", """
                 package $rxHttpPackage;
 
                 import rxhttp.wrapper.CallFactory;
@@ -59,13 +61,11 @@ object ClassHelper {
         } else {
             generatorClass(filer, "BaseRxHttp", """
             package $rxHttpPackage;
-            ${
-                if (isAndroid) """
+            ${isAndroid("""
             import android.content.Context;
             import android.graphics.Bitmap;
             import android.net.Uri;
-            """ else ""
-            }
+            """)}
             import java.lang.reflect.Type;
             import java.util.List;
             import java.util.Map;
@@ -81,11 +81,11 @@ object ClassHelper {
             import rxhttp.wrapper.OkHttpCompat;
             import rxhttp.wrapper.callback.FileOutputStreamFactory;
             import rxhttp.wrapper.callback.OutputStreamFactory;
-            ${if (isAndroid) "import rxhttp.wrapper.callback.UriOutputStreamFactory;" else ""}
+            ${isAndroid("import rxhttp.wrapper.callback.UriOutputStreamFactory;")}
             import rxhttp.wrapper.coroutines.RangeHeader;
             import rxhttp.wrapper.entity.ParameterizedTypeImpl;
             import rxhttp.wrapper.entity.Progress;
-            ${if (isAndroid) "import rxhttp.wrapper.parse.BitmapParser;" else ""}
+            ${isAndroid("import rxhttp.wrapper.parse.BitmapParser;")}
             import rxhttp.wrapper.parse.OkResponseParser;
             import rxhttp.wrapper.parse.Parser;
             import rxhttp.wrapper.parse.SimpleParser;
@@ -140,13 +140,11 @@ object ClassHelper {
                     Type tTypeList = ParameterizedTypeImpl.get(List.class, tType);
                     return asParser(new SimpleParser<>(tTypeList));
                 }
-                ${
-                if (isAndroid) """
+                ${isAndroid("""
                 public final <T> Observable<Bitmap> asBitmap() {
                     return asParser(new BitmapParser());
                 }
-                """ else ""
-            }
+                """)}
                 public final Observable<Response> asOkResponse() {
                     return asParser(new OkResponseParser());
                 }
@@ -175,8 +173,7 @@ object ClassHelper {
                                                            Consumer<Progress> progressConsumer) {
                     return asDownload(new FileOutputStreamFactory(destPath), scheduler, progressConsumer);
                 }
-                ${
-                if (isAndroid) """
+                ${isAndroid("""
                 public final Observable<Uri> asDownload(Context context, Uri uri) {
                     return asDownload(context, uri, null, null);   
                 }                                                                  
@@ -185,8 +182,7 @@ object ClassHelper {
                                                            Consumer<Progress> progressConsumer) {            
                     return asDownload(new UriOutputStreamFactory(context, uri), scheduler, progressConsumer);
                 }                                                                                            
-                """ else ""
-            }
+                """)}
                 public final <T> Observable<T> asDownload(OutputStreamFactory<T> osFactory) {
                     return asDownload(osFactory, null, null);             
                 } 
@@ -204,8 +200,7 @@ object ClassHelper {
                                                                  Consumer<Progress> progressConsumer) {
                     return asAppendDownload(new FileOutputStreamFactory(destPath), scheduler, progressConsumer);         
                 }                                                                       
-                ${
-                if (isAndroid) """ 
+                ${isAndroid("""
                 public final Observable<Uri> asAppendDownload(Context context, Uri uri) {                   
                     return asAppendDownload(context, uri, null, null);                                      
                 }                                                                                           
@@ -214,8 +209,7 @@ object ClassHelper {
                                                               Consumer<Progress> progressConsumer) {        
                     return asAppendDownload(new UriOutputStreamFactory(context, uri), scheduler, progressConsumer);       
                 }                                               
-                """ else ""
-            }    
+                """)}
                 public final <T> Observable<T> asAppendDownload(OutputStreamFactory<T> osFactory) {                   
                     return asAppendDownload(osFactory, null, null);                                     
                 }                                                                                        
@@ -1004,18 +998,15 @@ object ClassHelper {
         """.trimIndent())
     }
 
-    @JvmStatic
-    private fun generatorRxHttpBodyParam(filer: Filer, isAndroid: Boolean) {
+    private fun generatorRxHttpBodyParam(filer: Filer) {
         generatorClass(
             filer, "RxHttpBodyParam", """
             package $rxHttpPackage;
-            ${
-                if (isAndroid) """
+            ${isAndroid("""
             import android.content.Context;
             import android.net.Uri;
             import rxhttp.wrapper.utils.UriUtil;
-            """ else ""
-            }
+            """)}
             import rxhttp.wrapper.annotations.Nullable;
             import rxhttp.wrapper.param.BodyParam;
 
@@ -1069,8 +1060,7 @@ object ClassHelper {
                     param.setBody(file, mediaType);
                     return this;
                 }
-                ${
-                if (isAndroid) """
+                ${isAndroid("""
                 public RxHttpBodyParam setBody(Uri uri, Context context) {
                     param.setBody(UriUtil.asRequestBody(uri, context));
                     return this;
@@ -1080,8 +1070,7 @@ object ClassHelper {
                     param.setBody(UriUtil.asRequestBody(uri, context, 0, contentType));
                     return this;
                 }
-                """ else ""
-            }
+                """)}
             
                 public RxHttpBodyParam setBody(Object object) {
                     param.setBody(object);
@@ -1097,15 +1086,16 @@ object ClassHelper {
                 }
             }
 
-        """.trimIndent())
+        """.trimIndent()
+        )
     }
 
-    private fun generatorRxHttpFormParam(filer: Filer, isAndroid: Boolean) {
+    private fun generatorRxHttpFormParam(filer: Filer) {
         generatorClass(filer, "RxHttpFormParam", """
             package $rxHttpPackage;
 
-            ${if (isAndroid) "import android.content.Context;" else ""}
-            ${if (isAndroid) "import android.net.Uri;" else ""}
+            ${isAndroid("import android.content.Context;")}
+            ${isAndroid("import android.net.Uri;")}
 
             import java.io.File;
             import java.util.List;
@@ -1242,8 +1232,7 @@ object ClassHelper {
                     param.addPart(contentType, content, offset, byteCount);
                     return this;
                 }
-                ${
-            if (isAndroid) """
+                ${isAndroid("""
                 public RxHttpFormParam addPart(Context context, Uri uri) {
                     param.addPart(UriUtil.asRequestBody(uri, context));
                     return this;
@@ -1312,8 +1301,7 @@ object ClassHelper {
                     }
                     return this;
                 }
-                """ else ""
-        }
+                """)}
                 public RxHttpFormParam addPart(Part part) {
                     param.addPart(part);
                     return this;
