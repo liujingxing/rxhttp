@@ -141,7 +141,7 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
                     return asParser(new SimpleParser<>(tTypeList));
                 }
                 ${isAndroid("""
-                public final <T> Observable<Bitmap> asBitmap() {
+                public final Observable<Bitmap> asBitmap() {
                     return asParser(new BitmapParser());
                 }
                 """)}

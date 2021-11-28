@@ -37,27 +37,33 @@ import rxhttp.wrapper.utils.LogUtil
  */
 abstract class BaseRxHttp : CallFactory, RangeHeader {
 
+    companion object {
+        init {
+            val errorHandler = RxJavaPlugins.getErrorHandler()
+            if (errorHandler == null) {
+                /*                                                                     
+                 RxJava2的一个重要的设计理念是：不吃掉任何一个异常, 即抛出的异常无人处理，便会导致程序崩溃                      
+                 这就会导致一个问题，当RxJava2“downStream”取消订阅后，“upStream”仍有可能抛出异常，                
+                 这时由于已经取消订阅，“downStream”无法处理异常，此时的异常无人处理，便会导致程序崩溃                       
+                */
+                RxJavaPlugins.setErrorHandler { LogUtil.log(it) }
+            }
+        }
+    }
+
     abstract fun <T> asParser(
         parser: Parser<T>,
         scheduler: Scheduler?,
         progressConsumer: Consumer<Progress>?
     ): Observable<T>
 
-    open fun <T> asParser(parser: Parser<T>): Observable<T> {
-        return asParser(parser, null, null)
-    }
+    open fun <T> asParser(parser: Parser<T>) = asParser(parser, null, null)
 
-    fun <T> asClass(type: Class<T>): Observable<T> {
-        return asParser(SimpleParser(type))
-    }
+    fun <T> asClass(type: Class<T>) = asParser(SimpleParser<T>(type))
 
-    fun asString(): Observable<String> {
-        return asClass(String::class.java)
-    }
+    fun asString() = asClass(String::class.java)
 
-    fun <K> asMap(kType: Class<K>): Observable<Map<K, K>> {
-        return asMap(kType, kType)
-    }
+    fun <K> asMap(kType: Class<K>) = asMap(kType, kType)
 
     fun <K, V> asMap(kType: Class<K>, vType: Class<V>): Observable<Map<K, V>> {
         val tTypeMap: Type = ParameterizedTypeImpl.getParameterized(MutableMap::class.java, kType, vType)
@@ -69,16 +75,12 @@ abstract class BaseRxHttp : CallFactory, RangeHeader {
         return asParser(SimpleParser(tTypeList))
     }
     
-    fun <T> asBitmap(): Observable<Bitmap> {
-        return asParser(BitmapParser())
-    }
+    fun asBitmap() = asParser(BitmapParser())
     
-    fun asOkResponse(): Observable<Response> {
-        return asParser(OkResponseParser())
-    }
+    fun asOkResponse() = asParser(OkResponseParser())
 
-    fun asHeaders(): Observable<Headers> {
-        return asOkResponse()
+    fun asHeaders(): Observable<Headers> =
+        asOkResponse()
             .map { response: Response ->
                 try {
                     return@map response.headers
@@ -86,23 +88,20 @@ abstract class BaseRxHttp : CallFactory, RangeHeader {
                     OkHttpCompat.closeQuietly(response)
                 }
             }
-    }
 
     fun asDownload(
         destPath: String,
         progressConsumer: Consumer<Progress>?
-    ): Observable<String> {
-        return asDownload(destPath, null, progressConsumer)
-    }
+    ): Observable<String> =
+        asDownload(destPath, null, progressConsumer)
 
     @JvmOverloads
     fun asDownload(
         destPath: String,
         scheduler: Scheduler? = null,
         progressConsumer: Consumer<Progress>? = null
-    ): Observable<String> {
-        return asDownload(FileOutputStreamFactory(destPath), scheduler, progressConsumer)
-    }
+    ): Observable<String> =
+        asDownload(FileOutputStreamFactory(destPath), scheduler, progressConsumer)
     
     @JvmOverloads
     fun asDownload(
@@ -110,30 +109,24 @@ abstract class BaseRxHttp : CallFactory, RangeHeader {
         uri: Uri,
         scheduler: Scheduler? = null,
         progressConsumer: Consumer<Progress>? = null
-    ): Observable<Uri> {
-        return asDownload(UriOutputStreamFactory(context, uri), scheduler, progressConsumer)
-    }
+    ): Observable<Uri> =
+        asDownload(UriOutputStreamFactory(context, uri), scheduler, progressConsumer)
     
-    fun <T> asDownload(osFactory: OutputStreamFactory<T>): Observable<T> {
-        return asDownload(osFactory, null, null)
-    }
-
+    @JvmOverloads
     fun <T> asDownload(
         osFactory: OutputStreamFactory<T>,
-        scheduler: Scheduler?,
-        progressConsumer: Consumer<Progress>?
-    ): Observable<T> {
-        return asParser(StreamParser(osFactory), scheduler, progressConsumer)
-    }
+        scheduler: Scheduler? = null,
+        progressConsumer: Consumer<Progress>? = null
+    ): Observable<T> =
+        asParser(StreamParser(osFactory), scheduler, progressConsumer)
 
     @JvmOverloads
     fun asAppendDownload(
         destPath: String,
         scheduler: Scheduler? = null,
         progressConsumer: Consumer<Progress>? = null
-    ): Observable<String> {
-        return asAppendDownload(FileOutputStreamFactory(destPath), scheduler, progressConsumer)
-    }
+    ): Observable<String> =
+        asAppendDownload(FileOutputStreamFactory(destPath), scheduler, progressConsumer)
     
     @JvmOverloads
     fun asAppendDownload(
@@ -141,23 +134,16 @@ abstract class BaseRxHttp : CallFactory, RangeHeader {
         uri: Uri,
         scheduler: Scheduler? = null,
         progressConsumer: Consumer<Progress>? = null
-    ): Observable<Uri> {
-        return asAppendDownload(
-            UriOutputStreamFactory(context, uri),
-            scheduler,
-            progressConsumer
-        )
-    } 
+    ): Observable<Uri> =
+        asAppendDownload(UriOutputStreamFactory(context, uri), scheduler, progressConsumer)
     
-    fun <T> asAppendDownload(osFactory: OutputStreamFactory<T>): Observable<T> {
-        return asAppendDownload(osFactory, null, null)
-    }
-
+    @JvmOverloads
     fun <T> asAppendDownload(
-        osFactory: OutputStreamFactory<T>, scheduler: Scheduler?,
-        progressConsumer: Consumer<Progress>?
-    ): Observable<T> {
-        return Observable
+        osFactory: OutputStreamFactory<T>, 
+        scheduler: Scheduler? = null,
+        progressConsumer: Consumer<Progress>? = null
+    ): Observable<T> =
+        Observable
             .fromCallable {
                 val offsetSize = osFactory.offsetSize()
                 if (offsetSize >= 0) setRangeHeader(offsetSize, -1, true)
@@ -165,5 +151,4 @@ abstract class BaseRxHttp : CallFactory, RangeHeader {
             }
             .subscribeOn(Schedulers.io())
             .flatMap { asParser(it, scheduler, progressConsumer) }
-    }
 }    
