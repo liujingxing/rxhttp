@@ -6,38 +6,35 @@ import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.KSFile
 import com.rxhttp.compiler.RXHttp
-import com.rxhttp.compiler.getClassName
+import com.rxhttp.compiler.getKClassName
 import com.rxhttp.compiler.isDependenceRxJava
-import com.rxhttp.compiler.p
-import com.rxhttp.compiler.paramClassName
-import com.rxhttp.compiler.r
+import com.rxhttp.compiler.kP
+import com.rxhttp.compiler.kR
+import com.rxhttp.compiler.paramKClassName
 import com.rxhttp.compiler.rxHttpPackage
-import com.squareup.javapoet.AnnotationSpec
-import com.squareup.javapoet.ArrayTypeName
-import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.CodeBlock
-import com.squareup.javapoet.FieldSpec
-import com.squareup.javapoet.JavaFile
-import com.squareup.javapoet.MethodSpec
-import com.squareup.javapoet.ParameterizedTypeName
-import com.squareup.javapoet.TypeName
-import com.squareup.javapoet.TypeSpec
-import com.squareup.javapoet.TypeVariableName
-import com.squareup.javapoet.WildcardTypeName
-import com.squareup.kotlinpoet.javapoet.KotlinPoetJavaPoetPreview
+import com.squareup.kotlinpoet.ANY
+import com.squareup.kotlinpoet.AnnotationSpec
+import com.squareup.kotlinpoet.BOOLEAN
+import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.FileSpec
+import com.squareup.kotlinpoet.FunSpec
+import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.LIST
+import com.squareup.kotlinpoet.LONG
+import com.squareup.kotlinpoet.MAP
+import com.squareup.kotlinpoet.ParameterSpec
+import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import com.squareup.kotlinpoet.PropertySpec
+import com.squareup.kotlinpoet.STRING
+import com.squareup.kotlinpoet.TypeSpec
+import com.squareup.kotlinpoet.TypeVariableName
+import com.squareup.kotlinpoet.WildcardTypeName
+import com.squareup.kotlinpoet.asClassName
+import com.squareup.kotlinpoet.jvm.throws
 import com.squareup.kotlinpoet.ksp.KotlinPoetKspPreview
+import com.squareup.kotlinpoet.ksp.writeTo
 import java.io.IOException
-import java.lang.Deprecated
 import java.util.*
-import javax.lang.model.element.Modifier
-import kotlin.Any
-import kotlin.Boolean
-import kotlin.Int
-import kotlin.Long
-import kotlin.String
-import kotlin.Throws
-import kotlin.apply
-import kotlin.let
 
 class RxHttpGenerator(private val logger: KSPLogger) {
 
@@ -50,108 +47,78 @@ class RxHttpGenerator(private val logger: KSPLogger) {
 
     //生成RxHttp类
     @KotlinPoetKspPreview
-    @KotlinPoetJavaPoetPreview
     @KspExperimental
     @Throws(IOException::class)
     fun generateCode(codeGenerator: CodeGenerator) {
 
-        val okHttpClientName = ClassName.get("okhttp3", "OkHttpClient")
-        val requestName = ClassName.get("okhttp3", "Request")
-        val headerName = ClassName.get("okhttp3", "Headers")
-        val headerBuilderName = ClassName.get("okhttp3", "Headers.Builder")
-        val cacheControlName = ClassName.get("okhttp3", "CacheControl")
-        val callName = ClassName.get("okhttp3", "Call")
-        val responseName = ClassName.get("okhttp3", "Response")
+        val okHttpClientName = ClassName("okhttp3", "OkHttpClient")
+        val requestName = ClassName("okhttp3", "Request")
+        val headerName = ClassName("okhttp3", "Headers")
+        val headerBuilderName = ClassName("okhttp3", "Headers.Builder")
+        val cacheControlName = ClassName("okhttp3", "CacheControl")
+        val callName = ClassName("okhttp3", "Call")
+        val responseName = ClassName("okhttp3", "Response")
 
-        val timeUnitName = ClassName.get("java.util.concurrent", "TimeUnit")
+        val timeUnitName = ClassName("java.util.concurrent", "TimeUnit")
 
-        val rxHttpPluginsName = ClassName.get("rxhttp", "RxHttpPlugins")
-        val converterName = ClassName.get("rxhttp.wrapper.callback", "IConverter")
-        val cacheInterceptorName = ClassName.get("rxhttp.wrapper.intercept", "CacheInterceptor")
-        val cacheModeName = ClassName.get("rxhttp.wrapper.cahce", "CacheMode")
-        val cacheStrategyName = ClassName.get("rxhttp.wrapper.cahce", "CacheStrategy")
-        val downloadOffSizeName = ClassName.get("rxhttp.wrapper.entity", "DownloadOffSize")
+        val rxHttpPluginsName = ClassName("rxhttp", "RxHttpPlugins")
+        val converterName = ClassName("rxhttp.wrapper.callback", "IConverter")
+        val cacheInterceptorName = ClassName("rxhttp.wrapper.intercept", "CacheInterceptor")
+        val cacheModeName = ClassName("rxhttp.wrapper.cahce", "CacheMode")
+        val downloadOffSizeName = ClassName("rxhttp.wrapper.entity", "DownloadOffSize")
 
-        val rxHttp = r
-        val t = TypeVariableName.get("T")
-        val className = ClassName.get(Class::class.java)
-        val superT = WildcardTypeName.supertypeOf(t)
-        val classSuperTName = ParameterizedTypeName.get(className, superT)
+        val rxHttp = kR
+        val t = TypeVariableName("T")
+        val className = Class::class.asClassName()
+        val superT = WildcardTypeName.consumerOf(t)
+        val classTName = className.parameterizedBy("T")
+        val classSuperTName = className.parameterizedBy(superT)
 
-        val stringName = TypeName.get(String::class.java)
-        val subObject = WildcardTypeName.subtypeOf(TypeName.get(Any::class.java))
-        val listName = ParameterizedTypeName.get(ClassName.get(List::class.java), subObject)
-        val mapName =
-            ParameterizedTypeName.get(ClassName.get(Map::class.java), stringName, subObject)
-        val mapStringName =
-            ParameterizedTypeName.get(ClassName.get(Map::class.java), stringName, stringName)
+        val wildcard = TypeVariableName("*")
+        val listName = LIST.parameterizedBy("*")
+        val mapName = MAP.parameterizedBy(STRING, wildcard)
+        val mapStringName = MAP.parameterizedBy(STRING, STRING)
+        val listTName = LIST.parameterizedBy("T")
 
-        val classTName = ParameterizedTypeName.get(className, t)
+        val parserName = ClassName("rxhttp.wrapper.parse", "Parser")
+        val progressName = ClassName("rxhttp.wrapper.entity", "Progress")
+        val logUtilName = ClassName("rxhttp.wrapper.utils", "LogUtil")
+        val logInterceptorName = ClassName("rxhttp.wrapper.intercept", "LogInterceptor")
+        val parserTName = parserName.parameterizedBy("T")
+        val simpleParserName = ClassName("rxhttp.wrapper.parse", "SimpleParser")
+        val parameterizedType = ClassName("rxhttp.wrapper.entity", "ParameterizedTypeImpl")
 
-        val listTName = ParameterizedTypeName.get(ClassName.get(List::class.java), t)
-
-        val parserName = ClassName.get("rxhttp.wrapper.parse", "Parser")
-        val progressName = ClassName.get("rxhttp.wrapper.entity", "Progress")
-        val logUtilName = ClassName.get("rxhttp.wrapper.utils", "LogUtil")
-        val logInterceptorName = ClassName.get("rxhttp.wrapper.intercept", "LogInterceptor")
-        val parserTName = ParameterizedTypeName.get(parserName, t)
-        val simpleParserName = ClassName.get("rxhttp.wrapper.parse", "SimpleParser")
-        val type = ClassName.get("java.lang.reflect", "Type")
-        val parameterizedType = ClassName.get("rxhttp.wrapper.entity", "ParameterizedTypeImpl")
-
-
-        val methodList = ArrayList<MethodSpec>() //方法集合
+        val methodList = ArrayList<FunSpec>() //方法集合
 
         //添加构造方法
-        MethodSpec.constructorBuilder()
-            .addModifiers(Modifier.PROTECTED)
-            .addParameter(p, "param")
-            .addStatement("this.param = param")
+        val constructorFun = FunSpec.constructorBuilder()
+            .addModifiers(KModifier.PROTECTED)
+            .addParameter("param", kP)
             .build()
-            .apply { methodList.add(this) }
 
-        MethodSpec.methodBuilder("getParam")
-            .addModifiers(Modifier.PUBLIC)
-            .addStatement("return param")
-            .returns(p)
-            .build()
-            .apply { methodList.add(this) }
-
-        MethodSpec.methodBuilder("setParam")
-            .addModifiers(Modifier.PUBLIC)
-            .addParameter(p, "param")
-            .addStatement("this.param = param")
-            .addStatement("return (R) this")
-            .returns(r)
-            .build()
-            .apply { methodList.add(this) }
-
-        MethodSpec.methodBuilder("connectTimeout")
-            .addModifiers(Modifier.PUBLIC)
-            .addParameter(Int::class.javaPrimitiveType, "connectTimeout")
+        FunSpec.builder("connectTimeout")
+            .addParameter("connectTimeout", LONG)
             .addStatement("connectTimeoutMillis = connectTimeout")
-            .addStatement("return (R) this")
-            .returns(r)
+            .addStatement("return this as R")
+            .returns(kR)
             .build()
-            .apply { methodList.add(this) }
+            .let { methodList.add(it) }
 
-        MethodSpec.methodBuilder("readTimeout")
-            .addModifiers(Modifier.PUBLIC)
-            .addParameter(Int::class.javaPrimitiveType, "readTimeout")
+        FunSpec.builder("readTimeout")
+            .addParameter("readTimeout", LONG)
             .addStatement("readTimeoutMillis = readTimeout")
-            .addStatement("return (R) this")
-            .returns(r)
+            .addStatement("return this as R")
+            .returns(kR)
             .build()
-            .apply { methodList.add(this) }
+            .let { methodList.add(it) }
 
-        MethodSpec.methodBuilder("writeTimeout")
-            .addModifiers(Modifier.PUBLIC)
-            .addParameter(Int::class.javaPrimitiveType, "writeTimeout")
+        FunSpec.builder("writeTimeout")
+            .addParameter("writeTimeout", LONG)
             .addStatement("writeTimeoutMillis = writeTimeout")
-            .addStatement("return (R) this")
-            .returns(r)
+            .addStatement("return this as R")
+            .returns(kR)
             .build()
-            .apply { methodList.add(this) }
+            .let { methodList.add(it) }
 
         val methodMap = LinkedHashMap<String, String>()
         methodMap["get"] = "RxHttpNoBodyParam"
@@ -173,56 +140,58 @@ class RxHttpGenerator(private val logger: KSPLogger) {
         methodMap["patchJsonArray"] = "RxHttpJsonArrayParam"
         methodMap["deleteJsonArray"] = "RxHttpJsonArrayParam"
 
-        val codeBlock = CodeBlock.builder()
-            .add(
-                """
+        val codeBlock =
+            """
                 For example:
                                                          
                 ```                                                  
-                RxHttp.get("/service/%d/...", 1)  
+                RxHttp.get("/service/%L/...", 1)  
                     .addQuery("size", 20)
                     ...
                 ```
                  url = /service/1/...?size=20
-                """.trimIndent()
-            )
-            .build()
+            """.trimIndent()
+
+        val companionBuilder = TypeSpec.companionObjectBuilder()
 
         for ((key, value) in methodMap) {
-            val methodBuilder = MethodSpec.methodBuilder(key)
+            val methodBuilder = FunSpec.builder(key)
             if (key == "get") {
-                methodBuilder.addJavadoc(codeBlock)
+                methodBuilder.addKdoc(codeBlock, "%d")
             }
-            methodBuilder
-                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                .addParameter(String::class.java, "url")
-                .addParameter(ArrayTypeName.of(Any::class.java), "formatArgs")
-                .varargs()
+            methodBuilder.addAnnotation(JvmStatic::class)
+                .addParameter("url", STRING)
+                .addParameter("formatArgs", ANY, KModifier.VARARG)
                 .addStatement(
-                    "return new $value(\$T.${key}(format(url, formatArgs)))",
-                    paramClassName,
+                    "return $value(%T.${key}(format(url, formatArgs)))", paramKClassName,
                 )
-                .returns(ClassName.get(rxHttpPackage, value))
                 .build()
-                .apply { methodList.add(this) }
+                .let { companionBuilder.addFunction(it) }
         }
 
         paramsVisitor?.apply {
-            methodList.addAll(getMethodList(codeGenerator))
+            companionBuilder.addFunctions(getFunList(codeGenerator))
         }
 
-        MethodSpec.methodBuilder("setUrl")
-            .addModifiers(Modifier.PUBLIC)
-            .addParameter(String::class.java, "url")
+        FunSpec.builder("format")
+            .addKdoc("Returns a formatted string using the specified format string and arguments.")
+            .addModifiers(KModifier.PRIVATE)
+            .addParameter("url", STRING)
+            .addParameter("formatArgs", ANY, KModifier.VARARG)
+            .addStatement("return if(formatArgs.isNullOrEmpty()) url else String.format(url, formatArgs)")
+            .build()
+            .let { companionBuilder.addFunction(it) }
+
+        FunSpec.builder("setUrl")
+            .addParameter("url", STRING)
             .addStatement("param.setUrl(url)")
-            .addStatement("return (R) this")
+            .addStatement("return this as R")
             .returns(rxHttp)
             .build()
-            .apply { methodList.add(this) }
+            .let { methodList.add(it) }
 
-        MethodSpec.methodBuilder("addPath")
-            .addModifiers(Modifier.PUBLIC)
-            .addJavadoc(
+        FunSpec.builder("addPath")
+            .addKdoc(
                 """
                 For example:
                                                          
@@ -234,235 +203,197 @@ class RxHttpGenerator(private val logger: KSPLogger) {
                 url = /service/1/...
                 """.trimIndent()
             )
-            .addParameter(String::class.java, "name")
-            .addParameter(Object::class.java, "value")
+            .addParameter("name", STRING)
+            .addParameter("value", ANY)
             .addStatement("param.addPath(name, value)")
-            .addStatement("return (R) this")
+            .addStatement("return this as R")
             .returns(rxHttp)
             .build()
-            .apply { methodList.add(this) }
+            .let { methodList.add(it) }
 
-        MethodSpec.methodBuilder("addEncodedPath")
-            .addModifiers(Modifier.PUBLIC)
-            .addParameter(String::class.java, "name")
-            .addParameter(Object::class.java, "value")
+        FunSpec.builder("addEncodedPath")
+            .addParameter("name", STRING)
+            .addParameter("value", ANY)
             .addStatement("param.addEncodedPath(name, value)")
-            .addStatement("return (R) this")
+            .addStatement("return this as R")
             .returns(rxHttp)
             .build()
-            .apply { methodList.add(this) }
+            .let { methodList.add(it) }
 
-        MethodSpec.methodBuilder("addQuery")
-            .addModifiers(Modifier.PUBLIC)
-            .addParameter(String::class.java, "key")
+        FunSpec.builder("addQuery")
+            .addParameter("key", STRING)
             .addStatement("param.addQuery(key, null)")
-            .addStatement("return (R) this")
+            .addStatement("return this as R")
             .returns(rxHttp)
             .build()
-            .apply { methodList.add(this) }
+            .let { methodList.add(it) }
 
-        MethodSpec.methodBuilder("addEncodedQuery")
-            .addModifiers(Modifier.PUBLIC)
-            .addParameter(String::class.java, "key")
+        FunSpec.builder("addEncodedQuery")
+            .addParameter("key", STRING)
             .addStatement("param.addEncodedQuery(key, null)")
-            .addStatement("return (R) this")
+            .addStatement("return this as R")
             .returns(rxHttp)
             .build()
-            .apply { methodList.add(this) }
+            .let { methodList.add(it) }
 
-        MethodSpec.methodBuilder("addQuery")
-            .addModifiers(Modifier.PUBLIC)
-            .addParameter(String::class.java, "key")
-            .addParameter(Any::class.java, "value")
-            .addStatement("param.addQuery(key,value)")
-            .addStatement("return (R) this")
+        FunSpec.builder("addQuery")
+            .addParameter("key", STRING)
+            .addParameter("value", ANY, true)
+            .addStatement("param.addQuery(key, value)")
+            .addStatement("return this as R")
             .returns(rxHttp)
             .build()
-            .apply { methodList.add(this) }
+            .let { methodList.add(it) }
 
-        MethodSpec.methodBuilder("addEncodedQuery")
-            .addModifiers(Modifier.PUBLIC)
-            .addParameter(String::class.java, "key")
-            .addParameter(Any::class.java, "value")
-            .addStatement("param.addEncodedQuery(key,value)")
-            .addStatement("return (R) this")
+        FunSpec.builder("addEncodedQuery")
+            .addParameter("key", STRING)
+            .addParameter("value", ANY, true)
+            .addStatement("param.addEncodedQuery(key, value)")
+            .addStatement("return this as R")
             .returns(rxHttp)
             .build()
-            .apply { methodList.add(this) }
+            .let { methodList.add(it) }
 
-        MethodSpec.methodBuilder("addAllQuery")
-            .addModifiers(Modifier.PUBLIC)
-            .addParameter(String::class.java, "key")
-            .addParameter(listName, "list")
+        FunSpec.builder("addAllQuery")
+            .addParameter("key", STRING)
+            .addParameter("list", listName)
             .addStatement("param.addAllQuery(key, list)")
-            .addStatement("return (R) this")
+            .addStatement("return this as R")
             .returns(rxHttp)
             .build()
-            .apply { methodList.add(this) }
+            .let { methodList.add(it) }
 
-        MethodSpec.methodBuilder("addAllEncodedQuery")
-            .addModifiers(Modifier.PUBLIC)
-            .addParameter(String::class.java, "key")
-            .addParameter(listName, "list")
+        FunSpec.builder("addAllEncodedQuery")
+            .addParameter("key", STRING)
+            .addParameter("list", listName)
             .addStatement("param.addAllEncodedQuery(key, list)")
-            .addStatement("return (R) this")
+            .addStatement("return this as R")
             .returns(rxHttp)
             .build()
-            .apply { methodList.add(this) }
+            .let { methodList.add(it) }
 
-        MethodSpec.methodBuilder("addAllQuery")
-            .addModifiers(Modifier.PUBLIC)
-            .addParameter(mapName, "map")
+        FunSpec.builder("addAllQuery")
+            .addParameter("map", mapName)
             .addStatement("param.addAllQuery(map)")
-            .addStatement("return (R) this")
+            .addStatement("return this as R")
             .returns(rxHttp)
             .build()
-            .apply { methodList.add(this) }
+            .let { methodList.add(it) }
 
-        MethodSpec.methodBuilder("addAllEncodedQuery")
-            .addModifiers(Modifier.PUBLIC)
-            .addParameter(mapName, "map")
+        FunSpec.builder("addAllEncodedQuery")
+            .addParameter("map", mapName)
             .addStatement("param.addAllEncodedQuery(map)")
-            .addStatement("return (R) this")
+            .addStatement("return this as R")
             .returns(rxHttp)
             .build()
-            .apply { methodList.add(this) }
+            .let { methodList.add(it) }
 
-        MethodSpec.methodBuilder("addHeader")
-            .addModifiers(Modifier.PUBLIC)
-            .addParameter(String::class.java, "line")
-            .addStatement("param.addHeader(line)")
-            .addStatement("return (R) this")
-            .returns(rxHttp)
+        val isAddParam = ParameterSpec.builder("isAdd", BOOLEAN)
+            .defaultValue("true")
             .build()
-            .apply { methodList.add(this) }
-
-        MethodSpec.methodBuilder("addHeader")
-            .addModifiers(Modifier.PUBLIC)
-            .addParameter(String::class.java, "line")
-            .addParameter(Boolean::class.javaPrimitiveType, "isAdd")
+        FunSpec.builder("addHeader")
+            .addAnnotation(JvmOverloads::class)
+            .addParameter("line", STRING)
+            .addParameter(isAddParam)
             .addCode(
                 """
-                if (isAdd) 
-                    param.addHeader(line);
-                return (R) this;
+                if (isAdd) param.addHeader(line);
+                return this as R;
                 """.trimIndent()
             )
             .returns(rxHttp)
             .build()
-            .apply { methodList.add(this) }
+            .let { methodList.add(it) }
 
-        MethodSpec.methodBuilder("addNonAsciiHeader")
-            .addJavadoc("Add a header with the specified name and value. Does validation of header names, allowing non-ASCII values.")
-            .addModifiers(Modifier.PUBLIC)
-            .addParameter(String::class.java, "key")
-            .addParameter(String::class.java, "value")
+        FunSpec.builder("addNonAsciiHeader")
+            .addKdoc("Add a header with the specified name and value. Does validation of header names, allowing non-ASCII values.")
+            .addParameter("key", STRING)
+            .addParameter("value", STRING)
             .addStatement("param.addNonAsciiHeader(key,value)")
-            .addStatement("return (R) this")
+            .addStatement("return this as R")
             .returns(rxHttp)
             .build()
-            .apply { methodList.add(this) }
+            .let { methodList.add(it) }
 
-        MethodSpec.methodBuilder("setNonAsciiHeader")
-            .addJavadoc("Set a header with the specified name and value. Does validation of header names, allowing non-ASCII values.")
-            .addModifiers(Modifier.PUBLIC)
-            .addParameter(String::class.java, "key")
-            .addParameter(String::class.java, "value")
+        FunSpec.builder("setNonAsciiHeader")
+            .addKdoc("Set a header with the specified name and value. Does validation of header names, allowing non-ASCII values.")
+            .addParameter("key", STRING)
+            .addParameter("value", STRING)
             .addStatement("param.setNonAsciiHeader(key,value)")
-            .addStatement("return (R) this")
+            .addStatement("return this as R")
             .returns(rxHttp)
             .build()
-            .apply { methodList.add(this) }
+            .let { methodList.add(it) }
 
-        MethodSpec.methodBuilder("addHeader")
-            .addModifiers(Modifier.PUBLIC)
-            .addParameter(String::class.java, "key")
-            .addParameter(String::class.java, "value")
-            .addStatement("param.addHeader(key,value)")
-            .addStatement("return (R) this")
-            .returns(rxHttp)
-            .build()
-            .apply { methodList.add(this) }
-
-        MethodSpec.methodBuilder("addHeader")
-            .addModifiers(Modifier.PUBLIC)
-            .addParameter(String::class.java, "key")
-            .addParameter(String::class.java, "value")
-            .addParameter(Boolean::class.javaPrimitiveType, "isAdd")
+        FunSpec.builder("addHeader")
+            .addAnnotation(JvmOverloads::class)
+            .addParameter("key", STRING)
+            .addParameter("value", STRING)
+            .addParameter(isAddParam)
             .addCode(
                 """
-                if (isAdd)
-                    param.addHeader(key, value);
-                return (R) this;
+                if (isAdd) param.addHeader(key, value);
+                return this as R;
                 """.trimIndent()
             )
             .returns(rxHttp)
             .build()
-            .apply { methodList.add(this) }
+            .let { methodList.add(it) }
 
-        MethodSpec.methodBuilder("addAllHeader")
-            .addModifiers(Modifier.PUBLIC)
-            .addParameter(mapStringName, "headers")
+        FunSpec.builder("addAllHeader")
+            .addParameter("headers", mapStringName)
             .addStatement("param.addAllHeader(headers)")
-            .addStatement("return (R) this")
+            .addStatement("return this as R")
             .returns(rxHttp)
             .build()
-            .apply { methodList.add(this) }
+            .let { methodList.add(it) }
 
-        MethodSpec.methodBuilder("addAllHeader")
-            .addModifiers(Modifier.PUBLIC)
-            .addParameter(headerName, "headers")
+        FunSpec.builder("addAllHeader")
+            .addParameter("headers", headerName)
             .addStatement("param.addAllHeader(headers)")
-            .addStatement("return (R) this")
+            .addStatement("return this as R")
             .returns(rxHttp)
             .build()
-            .apply { methodList.add(this) }
+            .let { methodList.add(it) }
 
-        MethodSpec.methodBuilder("setHeader")
-            .addModifiers(Modifier.PUBLIC)
-            .addParameter(String::class.java, "key")
-            .addParameter(String::class.java, "value")
+        FunSpec.builder("setHeader")
+            .addParameter("key", STRING)
+            .addParameter("value", STRING)
             .addStatement("param.setHeader(key,value)")
-            .addStatement("return (R) this")
+            .addStatement("return this as R")
             .returns(rxHttp)
             .build()
-            .apply { methodList.add(this) }
+            .let { methodList.add(it) }
 
-        MethodSpec.methodBuilder("setAllHeader")
-            .addModifiers(Modifier.PUBLIC)
-            .addParameter(mapStringName, "headers")
+        FunSpec.builder("setAllHeader")
+            .addParameter("headers", mapStringName)
             .addStatement("param.setAllHeader(headers)")
-            .addStatement("return (R) this")
+            .addStatement("return this as R")
             .returns(rxHttp)
             .build()
-            .apply { methodList.add(this) }
+            .let { methodList.add(it) }
 
-        MethodSpec.methodBuilder("setRangeHeader")
-            .addModifiers(Modifier.PUBLIC)
-            .addParameter(Long::class.javaPrimitiveType, "startIndex")
-            .addStatement("return setRangeHeader(startIndex, -1, false)")
-            .returns(rxHttp)
+        val endIndex = ParameterSpec.builder("endIndex", LONG)
+            .defaultValue("-1L")
             .build()
-            .apply { methodList.add(this) }
 
-        MethodSpec.methodBuilder("setRangeHeader")
-            .addModifiers(Modifier.PUBLIC)
-            .addParameter(Long::class.javaPrimitiveType, "startIndex")
-            .addParameter(Long::class.javaPrimitiveType, "endIndex")
+        FunSpec.builder("setRangeHeader")
+            .addAnnotation(JvmOverloads::class)
+            .addParameter("startIndex", LONG)
+            .addParameter(endIndex)
             .addStatement("return setRangeHeader(startIndex, endIndex, false)")
-            .returns(rxHttp).build()
-            .apply { methodList.add(this) }
+            .build()
+            .let { methodList.add(it) }
 
-        MethodSpec.methodBuilder("setRangeHeader")
-            .addModifiers(Modifier.PUBLIC)
-            .addParameter(Long::class.javaPrimitiveType, "startIndex")
-            .addParameter(Boolean::class.javaPrimitiveType, "connectLastProgress")
+        FunSpec.builder("setRangeHeader")
+            .addParameter("startIndex", LONG)
+            .addParameter("connectLastProgress", BOOLEAN)
             .addStatement("return setRangeHeader(startIndex, -1, connectLastProgress)")
-            .returns(rxHttp).build()
-            .apply { methodList.add(this) }
+            .build()
+            .let { methodList.add(it) }
 
-        MethodSpec.methodBuilder("setRangeHeader")
-            .addJavadoc(
+        FunSpec.builder("setRangeHeader")
+            .addKdoc(
                 """
                 设置断点下载开始/结束位置
                 @param startIndex 断点下载开始位置
@@ -470,287 +401,260 @@ class RxHttpGenerator(private val logger: KSPLogger) {
                 @param connectLastProgress 是否衔接上次的下载进度，该参数仅在带进度断点下载时生效
                 """.trimIndent()
             )
-            .addModifiers(Modifier.PUBLIC)
-            .addParameter(Long::class.javaPrimitiveType, "startIndex")
-            .addParameter(Long::class.javaPrimitiveType, "endIndex")
-            .addParameter(Boolean::class.javaPrimitiveType, "connectLastProgress")
+            .addModifiers(KModifier.OVERRIDE)
+            .addParameter("startIndex", LONG)
+            .addParameter("endIndex", LONG)
+            .addParameter("connectLastProgress", BOOLEAN)
             .addCode(
                 """
                 param.setRangeHeader(startIndex, endIndex);                         
                 if (connectLastProgress)                                            
-                    param.tag(DownloadOffSize.class, new ${'$'}T(startIndex));
-                return (R) this;                                                    
+                    param.tag(DownloadOffSize::class.java, %T(startIndex));
+                return this as R;                                                    
                 """.trimIndent(), downloadOffSizeName
             )
-            .returns(rxHttp).build()
-            .apply { methodList.add(this) }
+            .returns(rxHttp)
+            .build()
+            .let { methodList.add(it) }
 
-        MethodSpec.methodBuilder("removeAllHeader")
-            .addModifiers(Modifier.PUBLIC)
-            .addParameter(String::class.java, "key")
+        FunSpec.builder("removeAllHeader")
+            .addParameter("key", STRING)
             .addStatement("param.removeAllHeader(key)")
-            .addStatement("return (R) this")
+            .addStatement("return this as R")
             .returns(rxHttp)
             .build()
-            .apply { methodList.add(this) }
+            .let { methodList.add(it) }
 
-        MethodSpec.methodBuilder("setHeadersBuilder")
-            .addModifiers(Modifier.PUBLIC)
-            .addParameter(headerBuilderName, "builder")
+        FunSpec.builder("setHeadersBuilder")
+            .addParameter("builder", headerBuilderName)
             .addStatement("param.setHeadersBuilder(builder)")
-            .addStatement("return (R) this")
+            .addStatement("return this as R")
             .returns(rxHttp)
             .build()
-            .apply { methodList.add(this) }
+            .let { methodList.add(it) }
 
-        MethodSpec.methodBuilder("setAssemblyEnabled")
-            .addJavadoc(
+        FunSpec.builder("setAssemblyEnabled")
+            .addKdoc(
                 """
                 设置单个接口是否需要添加公共参数,
                 即是否回调通过{@link RxHttpPlugins#setOnParamAssembly(Function)}方法设置的接口,默认为true
                 """.trimIndent()
             )
-            .addModifiers(Modifier.PUBLIC)
-            .addParameter(Boolean::class.javaPrimitiveType, "enabled")
+            .addParameter("enabled", BOOLEAN)
             .addStatement("param.setAssemblyEnabled(enabled)")
-            .addStatement("return (R) this")
+            .addStatement("return this as R")
             .returns(rxHttp)
             .build()
-            .apply { methodList.add(this) }
+            .let { methodList.add(it) }
 
-        MethodSpec.methodBuilder("setDecoderEnabled")
-            .addJavadoc(
+        FunSpec.builder("setDecoderEnabled")
+            .addKdoc(
                 """
                 设置单个接口是否需要对Http返回的数据进行解码/解密,
                 即是否回调通过{@link RxHttpPlugins#setResultDecoder(Function)}方法设置的接口,默认为true
                 """.trimIndent()
             )
-            .addModifiers(Modifier.PUBLIC)
-            .addParameter(Boolean::class.javaPrimitiveType, "enabled")
+            .addParameter("enabled", BOOLEAN)
             .addStatement(
-                "param.addHeader(\$T.DATA_DECRYPT,String.valueOf(enabled))",
-                com.rxhttp.compiler.paramClassName
+                "param.addHeader(%T.DATA_DECRYPT, enabled.toString())", paramKClassName
             )
-            .addStatement("return (R) this")
+            .addStatement("return this as R")
             .returns(rxHttp)
             .build()
-            .apply { methodList.add(this) }
+            .let { methodList.add(it) }
 
-        MethodSpec.methodBuilder("isAssemblyEnabled")
-            .addModifiers(Modifier.PUBLIC)
+        FunSpec.builder("isAssemblyEnabled")
             .addStatement("return param.isAssemblyEnabled()")
-            .returns(Boolean::class.javaPrimitiveType)
             .build()
-            .apply { methodList.add(this) }
+            .let { methodList.add(it) }
 
-        MethodSpec.methodBuilder("getUrl")
-            .addModifiers(Modifier.PUBLIC)
+        FunSpec.builder("getUrl")
             .addStatement("addDefaultDomainIfAbsent()")
             .addStatement("return param.getUrl()")
-            .returns(String::class.java)
+            .returns(STRING)
             .build()
-            .apply { methodList.add(this) }
+            .let { methodList.add(it) }
 
-        MethodSpec.methodBuilder("getSimpleUrl")
-            .addModifiers(Modifier.PUBLIC)
+        FunSpec.builder("getSimpleUrl")
             .addStatement("return param.getSimpleUrl()")
-            .returns(String::class.java)
             .build()
-            .apply { methodList.add(this) }
+            .let { methodList.add(it) }
 
-        MethodSpec.methodBuilder("getHeader")
-            .addModifiers(Modifier.PUBLIC)
-            .addParameter(String::class.java, "key")
+        FunSpec.builder("getHeader")
+            .addParameter("key", STRING)
             .addStatement("return param.getHeader(key)")
-            .returns(String::class.java).build()
-            .apply { methodList.add(this) }
+            .build()
+            .let { methodList.add(it) }
 
-        MethodSpec.methodBuilder("getHeaders")
-            .addModifiers(Modifier.PUBLIC)
+        FunSpec.builder("getHeaders")
             .addStatement("return param.getHeaders()")
-            .returns(headerName)
             .build()
-            .apply { methodList.add(this) }
+            .let { methodList.add(it) }
 
-        MethodSpec.methodBuilder("getHeadersBuilder")
-            .addModifiers(Modifier.PUBLIC)
+        FunSpec.builder("getHeadersBuilder")
             .addStatement("return param.getHeadersBuilder()")
-            .returns(headerBuilderName).build()
-            .apply { methodList.add(this) }
+            .build()
+            .let { methodList.add(it) }
 
-        MethodSpec.methodBuilder("tag")
-            .addModifiers(Modifier.PUBLIC)
-            .addParameter(Any::class.java, "tag")
+        FunSpec.builder("tag")
+            .addParameter("tag", ANY)
             .addStatement("param.tag(tag)")
-            .addStatement("return (R) this")
+            .addStatement("return this as R")
             .returns(rxHttp)
             .build()
-            .apply { methodList.add(this) }
+            .let { methodList.add(it) }
 
-        MethodSpec.methodBuilder("tag")
-            .addModifiers(Modifier.PUBLIC)
+        FunSpec.builder("tag")
             .addTypeVariable(t)
-            .addParameter(classSuperTName, "type")
-            .addParameter(t, "tag")
-            .addStatement("param.tag(type,tag)")
-            .addStatement("return (R) this")
-            .returns(rxHttp).build()
-            .apply { methodList.add(this) }
+            .addParameter("type", classSuperTName)
+            .addParameter("tag", t)
+            .addStatement("param.tag(type, tag)")
+            .addStatement("return this as R")
+            .returns(rxHttp)
+            .build()
+            .let { methodList.add(it) }
 
-        MethodSpec.methodBuilder("cacheControl")
-            .addModifiers(Modifier.PUBLIC)
-            .addParameter(cacheControlName, "cacheControl")
+        FunSpec.builder("cacheControl")
+            .addParameter("cacheControl", cacheControlName)
             .addStatement("param.cacheControl(cacheControl)")
-            .addStatement("return (R) this")
+            .addStatement("return this as R")
             .returns(rxHttp)
             .build()
-            .apply { methodList.add(this) }
+            .let { methodList.add(it) }
 
-        MethodSpec.methodBuilder("getCacheStrategy")
-            .addModifiers(Modifier.PUBLIC)
+        FunSpec.builder("getCacheStrategy")
             .addStatement("return param.getCacheStrategy()")
-            .returns(cacheStrategyName)
             .build()
-            .apply { methodList.add(this) }
+            .let { methodList.add(it) }
 
-        MethodSpec.methodBuilder("setCacheKey")
-            .addModifiers(Modifier.PUBLIC)
-            .addParameter(String::class.java, "cacheKey")
+        FunSpec.builder("setCacheKey")
+            .addParameter("cacheKey", STRING)
             .addStatement("param.setCacheKey(cacheKey)")
-            .addStatement("return (R) this")
+            .addStatement("return this as R")
             .returns(rxHttp)
             .build()
-            .apply { methodList.add(this) }
+            .let { methodList.add(it) }
 
-        MethodSpec.methodBuilder("setCacheValidTime")
-            .addModifiers(Modifier.PUBLIC)
-            .addParameter(Long::class.javaPrimitiveType, "cacheValidTime")
+        FunSpec.builder("setCacheValidTime")
+            .addParameter("cacheValidTime", LONG)
             .addStatement("param.setCacheValidTime(cacheValidTime)")
-            .addStatement("return (R) this")
+            .addStatement("return this as R")
             .returns(rxHttp)
             .build()
-            .apply { methodList.add(this) }
+            .let { methodList.add(it) }
 
-        MethodSpec.methodBuilder("setCacheMode")
-            .addModifiers(Modifier.PUBLIC)
-            .addParameter(cacheModeName, "cacheMode")
+        FunSpec.builder("setCacheMode")
+            .addParameter("cacheMode", cacheModeName)
             .addStatement("param.setCacheMode(cacheMode)")
-            .addStatement("return (R) this")
+            .addStatement("return this as R")
             .returns(rxHttp)
             .build()
-            .apply { methodList.add(this) }
+            .let { methodList.add(it) }
 
-        MethodSpec.methodBuilder("execute")
-            .addModifiers(Modifier.PUBLIC)
-            .addException(IOException::class.java)
+        FunSpec.builder("execute")
+            .throws(IOException::class)
             .addStatement("return newCall().execute()")
             .returns(responseName)
             .build()
-            .apply { methodList.add(this) }
+            .let { methodList.add(it) }
 
-        MethodSpec.methodBuilder("execute")
-            .addModifiers(Modifier.PUBLIC)
+        FunSpec.builder("execute")
             .addTypeVariable(t)
-            .addException(IOException::class.java)
-            .addParameter(parserTName, "parser")
+            .throws(IOException::class)
+            .addParameter("parser", parserTName)
             .addStatement("return parser.onParse(execute())")
             .returns(t)
             .build()
-            .apply { methodList.add(this) }
+            .let { methodList.add(it) }
 
-        MethodSpec.methodBuilder("executeString")
-            .addModifiers(Modifier.PUBLIC)
-            .addException(IOException::class.java)
-            .addStatement("return executeClass(String.class)")
-            .returns(stringName)
+        FunSpec.builder("executeString")
+            .throws(IOException::class)
+            .addStatement("return executeClass(String::class.java)")
+            .returns(STRING)
             .build()
-            .apply { methodList.add(this) }
+            .let { methodList.add(it) }
 
-        MethodSpec.methodBuilder("executeList")
-            .addModifiers(Modifier.PUBLIC)
+        FunSpec.builder("executeList")
             .addTypeVariable(t)
-            .addException(IOException::class.java)
-            .addParameter(classTName, "type")
-            .addStatement("\$T tTypeList = \$T.get(List.class, type)", type, parameterizedType)
-            .addStatement("return execute(new \$T<>(tTypeList))", simpleParserName)
+            .throws(IOException::class)
+            .addParameter("type", classTName)
+            .addStatement("val tTypeList = %T.get(List::class.java, type)", parameterizedType)
+            .addStatement("return execute(%T(tTypeList))", simpleParserName)
             .returns(listTName)
             .build()
-            .apply { methodList.add(this) }
+            .let { methodList.add(it) }
 
-        MethodSpec.methodBuilder("executeClass")
-            .addModifiers(Modifier.PUBLIC)
+        FunSpec.builder("executeClass")
             .addTypeVariable(t)
-            .addException(IOException::class.java)
-            .addParameter(classTName, "type")
-            .addStatement("return execute(new \$T<>(type))", simpleParserName)
+            .throws(IOException::class)
+            .addParameter("type", classTName)
+            .addStatement("return execute(%T(type))", simpleParserName)
             .returns(t)
             .build()
-            .apply { methodList.add(this) }
+            .let { methodList.add(it) }
 
-        MethodSpec.methodBuilder("newCall")
-            .addAnnotation(Override::class.java)
-            .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+        FunSpec.builder("newCall")
+            .addModifiers(KModifier.OVERRIDE)
             .addCode(
                 """
-                Request request = buildRequest();
-                OkHttpClient okClient = getOkHttpClient();
+                val request = buildRequest();
+                val okClient = getOkHttpClient();
                 return okClient.newCall(request);
                 """.trimIndent()
             )
             .returns(callName)
             .build()
-            .apply { methodList.add(this) }
+            .let { methodList.add(it) }
 
-        MethodSpec.methodBuilder("buildRequest")
-            .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+        FunSpec.builder("buildRequest")
             .addCode(
                 """
                 if (request == null) {
-                    doOnStart();
-                    request = param.buildRequest();
+                    doOnStart()
+                    request = param.buildRequest()
                 }
-                return request;
+                return request!!
                 """.trimIndent()
             )
             .returns(requestName)
             .build()
-            .apply { methodList.add(this) }
+            .let { methodList.add(it) }
 
-        MethodSpec.methodBuilder("getOkHttpClient")
-            .addModifiers(Modifier.PUBLIC)
+        FunSpec.builder("getOkHttpClient")
             .addCode(
                 """
-                if (realOkClient != null) return realOkClient;
-                final OkHttpClient okClient = this.okClient;
-                OkHttpClient.Builder builder = null;
+                if (realOkClient != null) return realOkClient!!
+                val okClient = this.okClient
+                var builder : OkHttpClient.Builder? = null
                 
-                if (${'$'}T.isDebug()) {
-                    builder = okClient.newBuilder();
-                    builder.addInterceptor(new ${'$'}T(okClient.cookieJar()));
+                if (%T.isDebug()) {
+                    builder = okClient.newBuilder()
+                    //TODO okClient.cookieJar()
+                    builder.addInterceptor(%T(okClient.cookieJar))
                 }
                 
-                if (connectTimeoutMillis != 0) {
-                    if (builder == null) builder = okClient.newBuilder();
-                    builder.connectTimeout(connectTimeoutMillis, ${'$'}T.MILLISECONDS);
+                if (connectTimeoutMillis != 0L) {
+                    if (builder == null) builder = okClient.newBuilder()
+                    builder.connectTimeout(connectTimeoutMillis, %T.MILLISECONDS)
                 }
                 
-                if (readTimeoutMillis != 0) {
-                    if (builder == null) builder = okClient.newBuilder();
-                    builder.readTimeout(readTimeoutMillis, ${'$'}T.MILLISECONDS);
+                if (readTimeoutMillis != 0L) {
+                    if (builder == null) builder = okClient.newBuilder()
+                    builder.readTimeout(readTimeoutMillis, %T.MILLISECONDS)
                 }
 
-                if (writeTimeoutMillis != 0) {
-                   if (builder == null) builder = okClient.newBuilder();
-                   builder.writeTimeout(writeTimeoutMillis, ${'$'}T.MILLISECONDS);
+                if (writeTimeoutMillis != 0L) {
+                   if (builder == null) builder = okClient.newBuilder()
+                   builder.writeTimeout(writeTimeoutMillis, %T.MILLISECONDS)
                 }
                 
                 if (param.getCacheMode() != CacheMode.ONLY_NETWORK) {                      
-                    if (builder == null) builder = okClient.newBuilder();              
-                    builder.addInterceptor(new ${'$'}T(getCacheStrategy()));
+                    if (builder == null) builder = okClient.newBuilder()           
+                    builder.addInterceptor(%T(getCacheStrategy()))
                 }
                                                                                         
-                realOkClient = builder != null ? builder.build() : okClient;
-                return realOkClient;
+                realOkClient = builder?.build() ?: okClient
+                return realOkClient!!
                 """.trimIndent(),
                 logUtilName,
                 logInterceptorName,
@@ -761,186 +665,210 @@ class RxHttpGenerator(private val logger: KSPLogger) {
             )
             .returns(okHttpClientName)
             .build()
-            .apply { methodList.add(this) }
+            .let { methodList.add(it) }
 
-        MethodSpec.methodBuilder("doOnStart")
-            .addModifiers(Modifier.PRIVATE, Modifier.FINAL)
-            .addJavadoc("请求开始前内部调用，用于添加默认域名等操作\n")
+        FunSpec.builder("doOnStart")
+            .addModifiers(KModifier.PRIVATE)
+            .addKdoc("请求开始前内部调用，用于添加默认域名等操作\n")
             .addStatement("setConverterToParam(converter)")
             .addStatement("addDefaultDomainIfAbsent()")
             .build()
-            .apply { methodList.add(this) }
+            .let { methodList.add(it) }
 
         if (isDependenceRxJava()) {
-            val schedulerName = getClassName("Scheduler")
-            val observableName = getClassName("Observable")
-            val consumerName = getClassName("Consumer")
+            val schedulerName = getKClassName("Scheduler")
+            val observableName = getKClassName("Observable")
+            val consumerName = getKClassName("Consumer")
 
-            MethodSpec.methodBuilder("subscribeOnCurrent")
-                .addAnnotation(Deprecated::class.java)
-                .addJavadoc("@deprecated please user {@link #setSync()} instead\n")
-                .addModifiers(Modifier.PUBLIC)
+            val deprecatedAnnotation = AnnotationSpec.builder(Deprecated::class)
+                .addMember(
+                    """
+                    "please use [setSync()] instead",
+                    ReplaceWith("setSync()"),
+                    DeprecationLevel.ERROR
+                """.trimIndent()
+                )
+                .build()
+
+            FunSpec.builder("subscribeOnCurrent")
+                .addAnnotation(deprecatedAnnotation)
                 .addStatement("return setSync()")
-                .returns(r)
                 .build()
-                .apply { methodList.add(this) }
+                .let { methodList.add(it) }
 
-            MethodSpec.methodBuilder("setSync")
-                .addJavadoc("sync request \n")
-                .addModifiers(Modifier.PUBLIC)
+            FunSpec.builder("setSync")
+                .addKdoc("sync request \n")
                 .addStatement("isAsync = false")
-                .addStatement("return (R) this")
-                .returns(r)
+                .addStatement("return this as R")
+                .returns(kR)
                 .build()
-                .apply { methodList.add(this) }
+                .let { methodList.add(it) }
 
-            val observableTName = ParameterizedTypeName.get(observableName, t)
-            val consumerProgressName = ParameterizedTypeName.get(consumerName, progressName)
+            val observableTName = observableName.parameterizedBy(t)
+            val consumerProgressName = consumerName.parameterizedBy(progressName)
 
-            MethodSpec.methodBuilder("asParser")
-                .addModifiers(Modifier.PUBLIC)
+            FunSpec.builder("asParser")
+                .addModifiers(KModifier.OVERRIDE)
                 .addTypeVariable(t)
-                .addParameter(parserTName, "parser")
-                .addParameter(schedulerName, "scheduler")
-                .addParameter(consumerProgressName, "progressConsumer")
+                .addParameter("parser", parserTName)
+                .addParameter("scheduler", schedulerName.copy(true))
+                .addParameter("progressConsumer", consumerProgressName.copy(true))
                 .addCode(
                     """
-                    ObservableCall observableCall = isAsync ? new ObservableCallEnqueue(this)
-                        : new ObservableCallExecute(this);                                
+                    val observableCall = if(isAsync) ObservableCallEnqueue(this)
+                        else ObservableCallExecute(this);                                
                     return observableCall.asParser(parser, scheduler, progressConsumer);
                     """.trimIndent()
                 )
                 .returns(observableTName)
                 .build()
-                .apply { methodList.add(this) }
+                .let { methodList.add(it) }
         }
 
         parserVisitor?.apply {
-            methodList.addAll(getMethodList(codeGenerator))
+            methodList.addAll(getFunList(codeGenerator))
         }
 
         converterVisitor?.apply {
-            methodList.addAll(getMethodList())
+            methodList.addAll(getFunList())
         }
 
-        MethodSpec.methodBuilder("setConverter")
-            .addModifiers(Modifier.PUBLIC)
-            .addParameter(converterName, "converter")
+        FunSpec.builder("setConverter")
+            .addParameter("converter", converterName)
             .addCode(
                 """
-                if (converter == null)
-                    throw new IllegalArgumentException("converter can not be null");
                 this.converter = converter;
-                return (R) this;
+                return this as R;
                 """.trimIndent()
             )
-            .returns(r)
+            .returns(kR)
             .build()
-            .apply { methodList.add(this) }
+            .let { methodList.add(it) }
 
-        MethodSpec.methodBuilder("setConverterToParam")
-            .addJavadoc("给Param设置转换器，此方法会在请求发起前，被RxHttp内部调用\n")
-            .addModifiers(Modifier.PRIVATE)
-            .addParameter(converterName, "converter")
-            .addStatement("param.tag(IConverter.class, converter)")
-            .addStatement("return (R) this")
-            .returns(r)
+        FunSpec.builder("setConverterToParam")
+            .addKdoc("给Param设置转换器，此方法会在请求发起前，被RxHttp内部调用\n")
+            .addModifiers(KModifier.PRIVATE)
+            .addParameter("converter", converterName)
+            .addStatement("param.tag(IConverter::class.java, converter)")
+            .addStatement("return this as R")
+            .returns(kR)
             .build()
-            .apply { methodList.add(this) }
+            .let { methodList.add(it) }
 
-        MethodSpec.methodBuilder("setOkClient")
-            .addModifiers(Modifier.PUBLIC)
-            .addParameter(okHttpClientName, "okClient")
+        FunSpec.builder("setOkClient")
+            .addParameter("okClient", okHttpClientName)
             .addCode(
                 """
-                if (okClient == null) 
-                    throw new IllegalArgumentException("okClient can not be null");
                 this.okClient = okClient;
-                return (R) this;
+                return this as R;
                 """.trimIndent()
             )
-            .returns(r)
+            .returns(kR)
             .build()
-            .apply { methodList.add(this) }
+            .let { methodList.add(it) }
 
         okClientVisitor?.apply {
-            methodList.addAll(getMethodList())
+            methodList.addAll(getFunList())
         }
 
         defaultDomainVisitor?.apply {
-            methodList.add(getMethod())
+            methodList.add(getFun())
         }
 
         domainVisitor?.apply {
-            methodList.addAll(getMethodList())
+            methodList.addAll(getFunList())
         }
 
-        MethodSpec.methodBuilder("setDomainIfAbsent")
-            .addModifiers(Modifier.PUBLIC)
-            .addParameter(String::class.java, "domain")
+        FunSpec.builder("setDomainIfAbsent")
+            .addParameter("domain", STRING)
             .addCode(
                 """
-                String newUrl = addDomainIfAbsent(param.getSimpleUrl(), domain);
+                val newUrl = addDomainIfAbsent(param.getSimpleUrl(), domain);
                 param.setUrl(newUrl);
-                return (R) this;
+                return this as R;
                 """.trimIndent()
             )
-            .returns(r)
+            .returns(kR)
             .build()
-            .apply { methodList.add(this) }
+            .let { methodList.add(it) }
 
         //对url添加域名方法
-        MethodSpec.methodBuilder("addDomainIfAbsent")
-            .addModifiers(Modifier.PRIVATE, Modifier.STATIC)
-            .addParameter(String::class.java, "url")
-            .addParameter(String::class.java, "domain")
-            .addCode(
+        FunSpec.builder("addDomainIfAbsent")
+            .addModifiers(KModifier.PRIVATE)
+            .addParameter("url", STRING)
+            .addParameter("domain", STRING)
+            .addStatement(
                 """
-                if (url.startsWith("http")) return url;
-                if (url.startsWith("/")) {
-                    if (domain.endsWith("/"))
-                        return domain + url.substring(1);
-                    else
-                        return domain + url;
-                } else if (domain.endsWith("/")) {
-                    return domain + url;
-                } else {
-                    return domain + "/" + url;
-                }
+                return if (url.startsWith("http")) {
+                    url                             
+                } else if (url.startsWith("/")) {   
+                    if (domain.endsWith("/"))       
+                        domain + url.substring(1);  
+                    else                            
+                        domain + url;               
+                } else if (domain.endsWith("/")) {  
+                    domain + url;                   
+                } else {                            
+                    domain + "/" + url;             
+                }                                   
                 """.trimIndent()
             )
-            .returns(String::class.java).build()
-            .apply { methodList.add(this) }
+            .returns(STRING)
+            .build()
+            .let { methodList.add(it) }
 
-        MethodSpec.methodBuilder("format")
-            .addJavadoc("Returns a formatted string using the specified format string and arguments.")
-            .addModifiers(Modifier.PRIVATE, Modifier.STATIC)
-            .addParameter(String::class.java, "url")
-            .addParameter(ArrayTypeName.of(Any::class.java), "formatArgs")
-            .varargs()
-            .addStatement("return formatArgs == null || formatArgs.length == 0 ? url : String.format(url, formatArgs)")
-            .returns(String::class.java)
-            .build()
-            .apply { methodList.add(this) }
-        val converterSpec = FieldSpec.builder(converterName, "converter", Modifier.PROTECTED)
-            .initializer("\$T.getConverter()", rxHttpPluginsName)
+        val connectTimeoutMillis =
+            PropertySpec.builder("connectTimeoutMillis", LONG, KModifier.PRIVATE)
+                .initializer("0L")
+                .mutable(true).build()
+
+        val readTimeoutMillis =
+            PropertySpec.builder("readTimeoutMillis", LONG, KModifier.PRIVATE)
+                .initializer("0L")
+                .mutable(true).build()
+
+        val writeTimeoutMillis =
+            PropertySpec.builder("writeTimeoutMillis", LONG, KModifier.PRIVATE)
+                .initializer("0L")
+                .mutable(true).build()
+
+        val converterSpec = PropertySpec.builder("converter", converterName, KModifier.PROTECTED)
+            .mutable(true)
+            .setter(FunSpec.setterBuilder().addModifiers(KModifier.PRIVATE).build())
+            .initializer("%T.getConverter()", rxHttpPluginsName)
             .build()
 
-        val okHttpClientSpec = FieldSpec.builder(okHttpClientName, "okClient", Modifier.PRIVATE)
-            .initializer("\$T.getOkHttpClient()", rxHttpPluginsName)
-            .build()
-        val suppressWarningsAnnotation = AnnotationSpec.builder(SuppressWarnings::class.java)
-            .addMember("value", "\"unchecked\"")
-            .build()
-        val baseRxHttpName = ClassName.get(rxHttpPackage, "BaseRxHttp")
+        val realOkClient =
+            PropertySpec.builder("realOkClient", okHttpClientName.copy(true), KModifier.PRIVATE)
+                .mutable(true)
+                .initializer("null")
+                .build()
 
-        val isAsyncField = FieldSpec
-            .builder(Boolean::class.javaPrimitiveType, "isAsync", Modifier.PROTECTED)
+        val okHttpClientSpec = PropertySpec.builder("okClient", okHttpClientName, KModifier.PRIVATE)
+            .mutable(true)
+            .initializer("%T.getOkHttpClient()", rxHttpPluginsName)
+            .build()
+
+        val baseRxHttpName = ClassName(rxHttpPackage, "BaseRxHttp")
+
+        val isAsyncField = PropertySpec.builder("isAsync", BOOLEAN, KModifier.PROTECTED)
+            .mutable(true)
             .initializer("true")
             .build()
 
+        val param = PropertySpec.builder("param", kP)
+            .initializer("param")
+            .build()
+
+        val request = PropertySpec.builder("request", requestName.copy(true))
+            .mutable(true)
+            .initializer("null")
+            .build()
+
         val rxHttpBuilder = TypeSpec.classBuilder(RXHttp)
-            .addJavadoc(
+            .primaryConstructor(constructorFun)
+            .addType(companionBuilder.build())
+            .addKdoc(
                 """
                 Github
                 https://github.com/liujingxing/rxhttp
@@ -949,21 +877,21 @@ class RxHttpGenerator(private val logger: KSPLogger) {
                 https://github.com/liujingxing/rxhttp/wiki/更新日志
             """.trimIndent()
             )
-            .addModifiers(Modifier.PUBLIC)
-            .addAnnotation(suppressWarningsAnnotation)
-            .addField(Int::class.javaPrimitiveType, "connectTimeoutMillis", Modifier.PRIVATE)
-            .addField(Int::class.javaPrimitiveType, "readTimeoutMillis", Modifier.PRIVATE)
-            .addField(Int::class.javaPrimitiveType, "writeTimeoutMillis", Modifier.PRIVATE)
-            .addField(okHttpClientName, "realOkClient", Modifier.PRIVATE)
-            .addField(okHttpClientSpec)
-            .addField(converterSpec)
-            .addField(isAsyncField)
-            .addField(p, "param", Modifier.PROTECTED)
-            .addField(requestName, "request", Modifier.PUBLIC)
+            .addModifiers(KModifier.OPEN)
+            .addProperty(connectTimeoutMillis)
+            .addProperty(readTimeoutMillis)
+            .addProperty(writeTimeoutMillis)
+            .addProperty(realOkClient)
+            .addProperty(okHttpClientSpec)
+            .addProperty(converterSpec)
+            .addProperty(isAsyncField)
+            .addProperty(param)
+            .addProperty(request)
             .superclass(baseRxHttpName)
-            .addTypeVariable(p)
-            .addTypeVariable(r)
-            .addMethods(methodList)
+            .addTypeVariable(kP)
+            .addTypeVariable(kR)
+            .addFunctions(methodList)
+            .build()
 
         val ksFiles = mutableSetOf<KSFile>()
         paramsVisitor?.originatingFiles()?.let { ksFiles.addAll(it) }
@@ -972,10 +900,11 @@ class RxHttpGenerator(private val logger: KSPLogger) {
         converterVisitor?.originatingFiles()?.let { ksFiles.addAll(it) }
         okClientVisitor?.originatingFiles()?.let { ksFiles.addAll(it) }
         defaultDomainVisitor?.originatingFile()?.let { ksFiles.add(it) }
-        // Write file
-        JavaFile.builder(rxHttpPackage, rxHttpBuilder.build())
-            .skipJavaLangImports(true)
+
+        val dependencies = Dependencies(true, *ksFiles.toTypedArray())
+        FileSpec.builder(rxHttpPackage, RXHttp)
+            .addType(rxHttpBuilder)
             .build()
-            .writeTo(codeGenerator, Dependencies(true, *ksFiles.toTypedArray()))
+            .writeTo(codeGenerator, dependencies)
     }
 }

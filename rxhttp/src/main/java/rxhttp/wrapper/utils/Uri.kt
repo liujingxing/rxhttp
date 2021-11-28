@@ -58,7 +58,7 @@ fun Uri?.length(contentResolver: ContentResolver): Long {
     }
 }
 
-internal fun Uri.displayName(context: Context): String? {
+fun Uri.displayName(context: Context): String? {
     if (scheme == ContentResolver.SCHEME_FILE) {
         return lastPathSegment
     }

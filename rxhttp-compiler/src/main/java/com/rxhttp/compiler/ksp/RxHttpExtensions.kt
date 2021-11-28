@@ -6,7 +6,6 @@ import com.google.devtools.ksp.isPublic
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.KSClassDeclaration
-import com.rxhttp.compiler.RXHttp
 import com.rxhttp.compiler.isDependenceRxJava
 import com.rxhttp.compiler.rxHttpPackage
 import com.rxhttp.compiler.rxhttpKClassName
@@ -14,14 +13,15 @@ import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
+import com.squareup.kotlinpoet.INT
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.LambdaTypeName
 import com.squareup.kotlinpoet.MemberName
 import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.TypeVariableName
+import com.squareup.kotlinpoet.UNIT
 import com.squareup.kotlinpoet.asClassName
-import com.squareup.kotlinpoet.asTypeName
 import com.squareup.kotlinpoet.ksp.KotlinPoetKspPreview
 import com.squareup.kotlinpoet.ksp.addOriginatingKSFile
 import com.squareup.kotlinpoet.ksp.kspDependencies
@@ -50,27 +50,23 @@ class RxHttpExtensions(private val logger: KSPLogger) {
     fun generateRxHttpExtendFun(ksClass: KSClassDeclaration, key: String) {
 
         //遍历获取泛型类型
-        val typeVariableNames = ksClass.typeParameters.map {
-            it.toTypeVariableName()
-        }
+        val typeVariableNames = ksClass.typeParameters
+            .map { it.toTypeVariableName().copy(reified = true) }
 
         //遍历构造方法
         for (ksFunction in ksClass.getConstructors()) {
 
-            if (typeVariableNames.isNotEmpty()
-                && ksFunction.isPublic()
-            ) {
-                if (ksFunction.parameters.size == 1
-                    && ksFunction.parameters[0].type.getQualifiedName() == "java.lang.reflect.Type[]"
+            if (typeVariableNames.isNotEmpty() && ksFunction.isPublic()) {
+                if (ksFunction.parameters.size == 1 &&
+                    ksFunction.parameters[0].type.getQualifiedName() == "java.lang.reflect.Type[]"
                 ) {
                     continue
                 }
 
                 //构造方法参数数量等于泛型数量
                 if (ksFunction.parameters.size >= typeVariableNames.size) {
-                    val allTypeArg = ksFunction.parameters.find {
-                        it.type.getQualifiedName() != "java.lang.reflect.Type"
-                    } == null
+                    val allTypeArg = ksFunction.parameters
+                        .find { it.type.getQualifiedName() != "java.lang.reflect.Type" } == null
                     if (allTypeArg) continue
                 }
             }
@@ -84,8 +80,8 @@ class RxHttpExtensions(private val logger: KSPLogger) {
             ksFunction.parameters.forEach { ksValueParameter ->
                 val variableTypeName = ksValueParameter.type.getQualifiedName()
                 val parameterSpec =
-                    if ("java.lang.reflect.Type" == variableTypeName
-                        && typeIndex < typeVariableNames.size
+                    if ("java.lang.reflect.Type" == variableTypeName &&
+                        typeIndex < typeVariableNames.size
                     ) {  //Type类型参数转Class<T>类型
                         ParameterSpec.builder(
                             ksValueParameter.name?.asString().toString(),
@@ -119,7 +115,7 @@ class RxHttpExtensions(private val logger: KSPLogger) {
                     .receiver(baseRxHttpName)
                     .addParameters(parameterList)
                     .addStatement(funBody, ksClass.toClassName()) //方法里面的表达式
-                    .addTypeVariables(typeVariableNames.getTypeVariableNames())
+                    .addTypeVariables(typeVariableNames)
                     .build()
                     .apply { asFunList.add(this) }
             }
@@ -142,7 +138,7 @@ class RxHttpExtensions(private val logger: KSPLogger) {
                 .receiver(callFactoryName)
                 .addParameters(parameterList)
                 .addStatement(funBody, toParserName, ksClass.toClassName())  //方法里面的表达式
-                .addTypeVariables(typeVariableNames.getTypeVariableNames())
+                .addTypeVariables(typeVariableNames)
                 .build()
                 .apply { toFunList.add(this) }
         }
@@ -172,10 +168,10 @@ class RxHttpExtensions(private val logger: KSPLogger) {
 
         val progressSuspendLambdaName = LambdaTypeName.get(
             parameters = arrayOf(progressName),
-            returnType = Unit::class.asClassName()
+            returnType = UNIT
         ).copy(suspending = true)
 
-        val fileBuilder = FileSpec.builder(rxHttpPackage, "RxHttp")
+        val fileBuilder = FileSpec.builder(rxHttpPackage, "RxHttpExtension")
 
         val rxHttpName = rxhttpKClassName.parameterizedBy(wildcard, wildcard)
         FunSpec.builder("executeList")
@@ -220,9 +216,7 @@ class RxHttpExtensions(private val logger: KSPLogger) {
                 .build()
                 .apply { fileBuilder.addFunction(this) }
 
-            asFunList.forEach {
-                fileBuilder.addFunction(it)
-            }
+            asFunList.forEach { fileBuilder.addFunction(it) }
         }
 
         val deprecatedAnnotation = AnnotationSpec.builder(Deprecated::class)
@@ -308,7 +302,7 @@ class RxHttpExtensions(private val logger: KSPLogger) {
                 .build()
                 .apply { fileBuilder.addFunction(this) }
 
-            val capacityParam = ParameterSpec.builder("capacity", Int::class)
+            val capacityParam = ParameterSpec.builder("capacity", INT)
                 .defaultValue("1")
                 .build()
             val isInLine = KModifier.INLINE in it.modifiers
@@ -371,18 +365,5 @@ class RxHttpExtensions(private val logger: KSPLogger) {
             type.append(if (i < size - 1) "," else ">")
         }
         return type.toString()
-    }
-}
-
-//获取泛型对象列表
-private fun List<TypeVariableName>.getTypeVariableNames(): List<TypeVariableName> {
-    val anyTypeName = Any::class.asTypeName()
-    return map {
-        val bounds = it.bounds //泛型边界
-        if (bounds.isEmpty() || (bounds.size == 1 && bounds[0].toString() == "java.lang.Object")) {
-            TypeVariableName(it.name, anyTypeName).copy(reified = true)
-        } else {
-            it.copy(reified = true)
-        }
     }
 }

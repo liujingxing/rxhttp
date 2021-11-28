@@ -17,13 +17,13 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
     private fun isAndroid(s: String) = if (isAndroidPlatform) s else ""
 
     fun generatorStaticClass(codeGenerator: CodeGenerator) {
-        generatorBaseRxHttp(codeGenerator)
-        generatorRxHttpAbstractBodyParam(codeGenerator)
-        generatorRxHttpBodyParam(codeGenerator)
-        generatorRxHttpFormParam(codeGenerator)
-        generatorRxHttpNoBodyParam(codeGenerator)
-        generatorRxHttpJsonParam(codeGenerator)
-        generatorRxHttpJsonArrayParam(codeGenerator)
+//        generatorBaseRxHttp(codeGenerator)
+//        generatorRxHttpAbstractBodyParam(codeGenerator)
+//        generatorRxHttpBodyParam(codeGenerator)
+//        generatorRxHttpFormParam(codeGenerator)
+//        generatorRxHttpNoBodyParam(codeGenerator)
+//        generatorRxHttpJsonParam(codeGenerator)
+//        generatorRxHttpJsonArrayParam(codeGenerator)
         if (isDependenceRxJava()) {
             generatorObservableClass(codeGenerator)
         }

@@ -16,22 +16,26 @@ import com.google.devtools.ksp.symbol.KSFile
 import com.google.devtools.ksp.symbol.KSVisitorVoid
 import com.google.devtools.ksp.symbol.Modifier
 import com.rxhttp.compiler.rxHttpPackage
-import com.rxhttp.compiler.rxhttpClassName
-import com.squareup.javapoet.ArrayTypeName
-import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.JavaFile
-import com.squareup.javapoet.MethodSpec
-import com.squareup.javapoet.ParameterSpec
-import com.squareup.javapoet.ParameterizedTypeName
-import com.squareup.javapoet.TypeSpec
-import com.squareup.kotlinpoet.javapoet.JTypeName
-import com.squareup.kotlinpoet.javapoet.KotlinPoetJavaPoetPreview
-import com.squareup.kotlinpoet.javapoet.toJClassName
-import com.squareup.kotlinpoet.javapoet.toJTypeVariableName
+import com.rxhttp.compiler.rxhttpKClassName
+import com.squareup.kotlinpoet.ANY
+import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.FileSpec
+import com.squareup.kotlinpoet.FunSpec
+import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.ParameterSpec
+import com.squareup.kotlinpoet.ParameterizedTypeName
+import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import com.squareup.kotlinpoet.STRING
+import com.squareup.kotlinpoet.TypeSpec
+import com.squareup.kotlinpoet.UNIT
+import com.squareup.kotlinpoet.jvm.throws
 import com.squareup.kotlinpoet.ksp.KotlinPoetKspPreview
 import com.squareup.kotlinpoet.ksp.toClassName
+import com.squareup.kotlinpoet.ksp.toKModifier
+import com.squareup.kotlinpoet.ksp.toTypeName
 import com.squareup.kotlinpoet.ksp.toTypeParameterResolver
 import com.squareup.kotlinpoet.ksp.toTypeVariableName
+import com.squareup.kotlinpoet.ksp.writeTo
 import rxhttp.wrapper.annotation.Param
 import java.io.IOException
 import java.util.*
@@ -66,42 +70,36 @@ class ParamsVisitor(
     }
 
     @KspExperimental
-    @KotlinPoetJavaPoetPreview
     @KotlinPoetKspPreview
     @Throws(IOException::class)
-    fun getMethodList(codeGenerator: CodeGenerator): List<MethodSpec> {
-        val methodList = ArrayList<MethodSpec>()
-        var method: MethodSpec.Builder
+    fun getFunList(codeGenerator: CodeGenerator): List<FunSpec> {
+        val funList = ArrayList<FunSpec>()
+        var funSpecBuilder: FunSpec.Builder
         ksClassMap.forEach { (key, ksClass) ->
             val type = StringBuilder()
             val size = ksClass.typeParameters.size
             val rxHttpTypeNames = ksClass.typeParameters.mapIndexed { i, typeParameter ->
-                typeParameter.toTypeVariableName().toJTypeVariableName().also {
+                typeParameter.toTypeVariableName().also {
                     type.append(if (i == 0) "<" else ",")
                     type.append(it.name)
                     if (i == size - 1) type.append(">")
                 }
             }
-            val param = ksClass.toClassName().toJClassName()
+            val param = ksClass.toClassName()
             val rxHttpName = "RxHttp${ksClass.simpleName.asString()}"
-            val rxHttpParamName = ClassName.get(rxHttpPackage, rxHttpName)
-            val methodReturnType = if (rxHttpTypeNames.isNotEmpty()) {
-                ParameterizedTypeName.get(rxHttpParamName, *rxHttpTypeNames.toTypedArray())
-            } else {
-                rxHttpParamName
-            }
+            val rxHttpParamName = ClassName(rxHttpPackage, rxHttpName)
 
             val classTypeParams = ksClass.typeParameters.toTypeParameterResolver()
             //遍历public构造方法
             ksClass.getConstructors().filter { it.isPublic() }.forEach {
                 val parameterSpecs = arrayListOf<ParameterSpec>() //构造方法参数
-                val methodBody = StringBuilder("return new \$T(new \$T(") //方法体
+                val methodBody = StringBuilder("return %T(%T(") //方法体
                 val functionTypeParams = it.typeParameters.toTypeParameterResolver(classTypeParams)
                 for ((index, ksValueParameter) in it.parameters.withIndex()) {
-                    val parameterSpec = ksValueParameter.toJParameterSpec(functionTypeParams)
+                    val parameterSpec = ksValueParameter.toKParameterSpec(functionTypeParams)
                     parameterSpecs.add(parameterSpec)
-                    if (index == 0 && parameterSpec.type.toString() == "java.lang.String") {
-                        methodBody.append("format(" + parameterSpecs[0].name + ", formatArgs)")
+                    if (index == 0 && STRING == parameterSpec.type) {
+                        methodBody.append("format(${parameterSpecs[0].name}, formatArgs)")
                         continue
                     } else if (index > 0) {
                         methodBody.append(", ")
@@ -109,57 +107,53 @@ class ParamsVisitor(
                     methodBody.append(parameterSpec.name)
                 }
                 methodBody.append("))")
-                val methodSpec = MethodSpec.methodBuilder(key)
-                    .addModifiers(JModifier.PUBLIC, JModifier.STATIC)
+                val methodSpec = FunSpec.builder(key)
+                    .addAnnotation(JvmStatic::class)
                     .addParameters(parameterSpecs)
                     .addTypeVariables(rxHttpTypeNames)
-                    .returns(methodReturnType)
 
-                if (parameterSpecs.firstOrNull()?.type.toString() == "java.lang.String") {
-                    methodSpec.addParameter(ArrayTypeName.of(JTypeName.OBJECT), "formatArgs")
-                        .varargs()
+                if (STRING == parameterSpecs.firstOrNull()?.type) {
+                    methodSpec.addParameter("formatArgs", ANY, KModifier.VARARG)
                 }
                 methodSpec.addStatement(methodBody.toString(), rxHttpParamName, param)
                     .build()
-                    .apply { methodList.add(this) }
+                    .apply { funList.add(this) }
             }
             val superclass = ksClass.superclass()
-            var prefix = "((" + ksClass.simpleName.asString() + ")param)."
+            var prefix = "(param as ${ksClass.simpleName.asString()})."
             val rxHttpParam = when (superclass?.getQualifiedName()) {
-                "rxhttp.wrapper.param.BodyParam" -> ClassName.get(rxHttpPackage, "RxHttpBodyParam")
-                "rxhttp.wrapper.param.FormParam" -> ClassName.get(rxHttpPackage, "RxHttpFormParam")
-                "rxhttp.wrapper.param.JsonParam" -> ClassName.get(rxHttpPackage, "RxHttpJsonParam")
+                "rxhttp.wrapper.param.BodyParam" -> ClassName(rxHttpPackage, "RxHttpBodyParam")
+                "rxhttp.wrapper.param.FormParam" -> ClassName(rxHttpPackage, "RxHttpFormParam")
+                "rxhttp.wrapper.param.JsonParam" -> ClassName(rxHttpPackage, "RxHttpJsonParam")
                 "rxhttp.wrapper.param.JsonArrayParam" ->
-                    ClassName.get(rxHttpPackage, "RxHttpJsonArrayParam")
+                    ClassName(rxHttpPackage, "RxHttpJsonArrayParam")
                 "rxhttp.wrapper.param.NoBodyParam" ->
-                    ClassName.get(rxHttpPackage, "RxHttpNoBodyParam")
+                    ClassName(rxHttpPackage, "RxHttpNoBodyParam")
                 else -> {
-                    val typeName = superclass?.toJavaTypeName()
+                    val typeName = superclass?.toTypeName()
                     if ((typeName as? ParameterizedTypeName)?.rawType?.toString() == "rxhttp.wrapper.param.AbstractBodyParam") {
                         prefix = "param."
-                        ClassName.get(rxHttpPackage, "RxHttpAbstractBodyParam").let {
-                            ParameterizedTypeName.get(it, param, rxHttpParamName)
-                        }
+                        ClassName(rxHttpPackage, "RxHttpAbstractBodyParam")
+                            .parameterizedBy(param, rxHttpParamName)
                     } else {
                         prefix = "param."
-                        ParameterizedTypeName.get(rxhttpClassName, param, rxHttpParamName)
+                        rxhttpKClassName.parameterizedBy(param, rxHttpParamName)
                     }
                 }
             }
-            val rxHttpPostCustomMethod = ArrayList<MethodSpec>()
-            MethodSpec.constructorBuilder()
-                .addModifiers(JModifier.PUBLIC)
-                .addParameter(param, "param")
-                .addStatement("super(param)")
+            val rxHttpPostCustomFun = ArrayList<FunSpec>()
+            FunSpec.constructorBuilder()
+                .addParameter("param", param)
+                .callSuperConstructor("param")
                 .build()
-                .apply { rxHttpPostCustomMethod.add(this) }
+                .apply { rxHttpPostCustomFun.add(this) }
 
             ksClass.getDeclaredFunctions().filter {
                 it.isPublic() && !it.isConstructor() &&
                         Modifier.OVERRIDE !in it.modifiers &&
                         it.getAnnotationsByType(Override::class).firstOrNull() == null
             }.forEach { ksFunction ->
-                val returnType = ksFunction.returnType?.toJavaTypeName().let {
+                val returnType = ksFunction.returnType?.toTypeName().let {
                     if (it == param) rxHttpParamName else it
                 }
 
@@ -171,62 +165,63 @@ class ParamsVisitor(
                     .append(if (parametersSize == 0) "()" else "")
                 //方法参数
                 val parameterSpecs = ksFunction.parameters.mapIndexed { i, ksValueParameter ->
-                    ksValueParameter.toJParameterSpec(functionTypeParams).apply {
+                    ksValueParameter.toKParameterSpec(functionTypeParams).apply {
                         methodBody.append(if (i == 0) "(" else ",")
+                        if (KModifier.VARARG in modifiers) methodBody.append("*")
                         methodBody.append(this.name)
                         if (i == parametersSize - 1) methodBody.append(")")
                     }
                 }
-                val typeVariableNames = ksFunction.typeParameters.map {
-                    it.toJavaTypeVariableName()
-                }
+                val typeVariableNames = ksFunction.typeParameters
+                    .map { it.toTypeVariableName() }
 
-                val throwTypeNames = resolver.getJvmCheckedException(ksFunction).map {
-                    it.toClassName().toJClassName()
-                }.toList()
+                val throwTypeNames = resolver.getJvmCheckedException(ksFunction)
+                    .map { it.toClassName() }.toList()
 
-                val modifiers = ksFunction.modifiers.mapNotNull { it.toJModifier() }
+                val modifiers = ksFunction.modifiers.mapNotNull { it.toKModifier() }
 
-                method = MethodSpec.methodBuilder(ksFunction.simpleName.asString())
+                funSpecBuilder = FunSpec.builder(ksFunction.simpleName.asString())
                     .addModifiers(modifiers)
                     .addTypeVariables(typeVariableNames)
-                    .addExceptions(throwTypeNames)
                     .addParameters(parameterSpecs)
-                    .varargs(ksFunction.parameters.lastOrNull()?.isVararg == true)
+
+                if (!throwTypeNames.isNullOrEmpty()) {
+                    funSpecBuilder.throws(throwTypeNames)
+                }
                 when {
                     returnType === rxHttpParamName -> {
-                        method.addStatement(prefix + methodBody, param)
+                        funSpecBuilder.addStatement(prefix + methodBody, param)
                             .addStatement("return this")
                     }
-                    returnType == JTypeName.VOID -> {
-                        method.addStatement(prefix + methodBody)
+                    returnType == UNIT -> {
+                        funSpecBuilder.addStatement(prefix + methodBody)
                     }
                     else -> {
-                        method.addStatement("return $prefix$methodBody", param)
+                        funSpecBuilder.addStatement("return $prefix$methodBody", param)
                     }
                 }
-                method.returns(returnType)
-                rxHttpPostCustomMethod.add(method.build())
+                returnType?.apply { funSpecBuilder.returns(this) }
+
+                rxHttpPostCustomFun.add(funSpecBuilder.build())
             }
             val rxHttpPostEncryptFormParamSpec = TypeSpec.classBuilder(rxHttpName)
-                .addJavadoc(
+                .addKdoc(
                     """
                     Github
                     https://github.com/liujingxing/rxhttp
                     https://github.com/liujingxing/rxlife
                 """.trimIndent()
                 )
-                .addModifiers(JModifier.PUBLIC)
                 .addTypeVariables(rxHttpTypeNames)
                 .superclass(rxHttpParam)
-                .addMethods(rxHttpPostCustomMethod)
+                .addFunctions(rxHttpPostCustomFun)
                 .build()
-            JavaFile.builder(rxHttpPackage, rxHttpPostEncryptFormParamSpec)
-                .skipJavaLangImports(true)
-                .build()
-                .writeTo(codeGenerator, Dependencies(false, ksClass.containingFile!!))
+
+            FileSpec.builder(rxHttpPackage, rxHttpName)
+                .addType(rxHttpPostEncryptFormParamSpec)
+                .build().writeTo(codeGenerator, Dependencies(false, ksClass.containingFile!!))
         }
-        return methodList
+        return funList
     }
 }
 

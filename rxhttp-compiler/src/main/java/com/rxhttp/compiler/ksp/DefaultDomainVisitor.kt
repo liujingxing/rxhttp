@@ -5,9 +5,9 @@ import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.KSVisitorVoid
-import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.MethodSpec
-import javax.lang.model.element.Modifier
+import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.FunSpec
+import com.squareup.kotlinpoet.KModifier
 
 /**
  * User: ljx
@@ -39,16 +39,15 @@ class DefaultDomainVisitor(
 
     //对url添加域名方法
     @KspExperimental
-    fun getMethod(): MethodSpec {
-        val methodBuilder = MethodSpec.methodBuilder("addDefaultDomainIfAbsent")
-            .addJavadoc("给Param设置默认域名(如果缺席的话)，此方法会在请求发起前，被RxHttp内部调用\n")
-            .addModifiers(Modifier.PRIVATE)
+    fun getFun(): FunSpec {
+        val methodBuilder = FunSpec.builder("addDefaultDomainIfAbsent")
+            .addKdoc("给Param设置默认域名(如果缺席的话)，此方法会在请求发起前，被RxHttp内部调用\n")
+            .addModifiers(KModifier.PRIVATE)
         property?.getClassAndFieldName(resolver)?.apply {
             val className = first
             val fieldName = second
-            methodBuilder.addCode(
-                "setDomainIfAbsent(\$T.$fieldName);", ClassName.bestGuess(className),
-            )
+            val code = "return setDomainIfAbsent(%T.$fieldName);"
+            methodBuilder.addCode(code, ClassName.bestGuess(className))
         }
         return methodBuilder.build()
     }

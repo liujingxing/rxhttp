@@ -12,6 +12,7 @@ import com.rxhttp.compiler.ksp.ClassHelper
 import com.rxhttp.compiler.ksp.ConverterVisitor
 import com.rxhttp.compiler.ksp.DefaultDomainVisitor
 import com.rxhttp.compiler.ksp.DomainVisitor
+import com.rxhttp.compiler.ksp.KClassHelper
 import com.rxhttp.compiler.ksp.OkClientVisitor
 import com.rxhttp.compiler.ksp.ParamsVisitor
 import com.rxhttp.compiler.ksp.ParserVisitor
@@ -37,7 +38,6 @@ class KspProcessor(private val env: SymbolProcessorEnvironment) : SymbolProcesso
 
     @OptIn(
         KspExperimental::class,
-        KotlinPoetJavaPoetPreview::class,
         KotlinPoetKspPreview::class
     )
     override fun process(resolver: Resolver): List<KSAnnotated> {
@@ -107,6 +107,7 @@ class KspProcessor(private val env: SymbolProcessorEnvironment) : SymbolProcesso
         }
         rxHttpWrapper.generateRxWrapper(codeGenerator)
         ClassHelper(true).generatorStaticClass(codeGenerator)
+        KClassHelper(true).generatorStaticClass(codeGenerator)
         RxHttpGenerator(logger).apply {
             this.paramsVisitor = paramsVisitor
             this.parserVisitor = parserVisitor
@@ -114,8 +115,7 @@ class KspProcessor(private val env: SymbolProcessorEnvironment) : SymbolProcesso
             this.okClientVisitor = okClientVisitor
             this.converterVisitor = converterVisitor
             this.defaultDomainVisitor = defaultDomainVisitor
-            this.generateCode(codeGenerator)
-        }
+        }.generateCode(codeGenerator)
         processed = true
         return emptyList()
     }

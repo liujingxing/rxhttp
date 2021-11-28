@@ -11,9 +11,8 @@ import com.google.devtools.ksp.symbol.KSFile
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.KSVisitorVoid
 import com.google.devtools.ksp.symbol.Modifier
-import com.rxhttp.compiler.r
-import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.MethodSpec
+import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.FunSpec
 import rxhttp.wrapper.annotation.Converter
 import java.util.*
 
@@ -49,7 +48,7 @@ class ConverterVisitor(
     }
 
     @KspExperimental
-    fun getMethodList(): List<MethodSpec> {
+    fun getFunList(): List<FunSpec> {
         return elementMap.mapNotNull { entry ->
             val key = entry.key
             val value = entry.value
@@ -57,12 +56,10 @@ class ConverterVisitor(
             val className = classAndFieldName.first
             val fieldName = classAndFieldName.second
 
-            MethodSpec.methodBuilder("set$key")
-                .addModifiers(JModifier.PUBLIC)
+            FunSpec.builder("set$key")
                 .addStatement(
-                    "return setConverter(\$T.$fieldName)", ClassName.bestGuess(className),
+                    "return setConverter(%T.$fieldName)", ClassName.bestGuess(className),
                 )
-                .returns(r)
                 .build()
         }
     }

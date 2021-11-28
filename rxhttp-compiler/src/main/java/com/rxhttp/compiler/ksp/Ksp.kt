@@ -20,8 +20,34 @@ import com.google.devtools.ksp.symbol.Modifier
 import com.google.devtools.ksp.symbol.Origin
 import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.JavaFile
+import com.squareup.kotlinpoet.BOOLEAN
+import com.squareup.kotlinpoet.BOOLEAN_ARRAY
+import com.squareup.kotlinpoet.BYTE
+import com.squareup.kotlinpoet.BYTE_ARRAY
+import com.squareup.kotlinpoet.CHAR
+import com.squareup.kotlinpoet.CHAR_ARRAY
+import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.DOUBLE
+import com.squareup.kotlinpoet.DOUBLE_ARRAY
+import com.squareup.kotlinpoet.FLOAT
+import com.squareup.kotlinpoet.FLOAT_ARRAY
+import com.squareup.kotlinpoet.FunSpec
+import com.squareup.kotlinpoet.INT
+import com.squareup.kotlinpoet.INT_ARRAY
 import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.LONG
+import com.squareup.kotlinpoet.LONG_ARRAY
 import com.squareup.kotlinpoet.ParameterSpec
+import com.squareup.kotlinpoet.ParameterizedTypeName
+import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import com.squareup.kotlinpoet.SHORT
+import com.squareup.kotlinpoet.SHORT_ARRAY
+import com.squareup.kotlinpoet.TypeName
+import com.squareup.kotlinpoet.TypeVariableName
+import com.squareup.kotlinpoet.U_BYTE_ARRAY
+import com.squareup.kotlinpoet.U_INT_ARRAY
+import com.squareup.kotlinpoet.U_LONG_ARRAY
+import com.squareup.kotlinpoet.U_SHORT_ARRAY
 import com.squareup.kotlinpoet.javapoet.JClassName
 import com.squareup.kotlinpoet.javapoet.JTypeName
 import com.squareup.kotlinpoet.javapoet.JTypeVariableName
@@ -125,6 +151,20 @@ internal fun KSValueParameter.toKParameterSpec(
     val variableName = name!!.asString()
     val isNullable = getAnnotationsByType(Nullable::class).firstOrNull() != null
     var typeName = type.toTypeName(typeParamResolver)
+    if (isVararg && isJava()) {
+        typeName = when (typeName) {
+            BOOLEAN_ARRAY -> BOOLEAN
+            BYTE_ARRAY, U_BYTE_ARRAY -> BYTE
+            CHAR_ARRAY -> CHAR
+            SHORT_ARRAY, U_SHORT_ARRAY -> SHORT
+            INT_ARRAY, U_INT_ARRAY -> INT
+            LONG_ARRAY, U_LONG_ARRAY -> LONG
+            FLOAT_ARRAY -> FLOAT
+            DOUBLE_ARRAY -> DOUBLE
+            is ParameterizedTypeName -> typeName.typeArguments.first()
+            else -> typeName
+        }
+    }
     if (isNullable) typeName = typeName.copy(true)
     return ParameterSpec.builder(variableName, typeName).apply {
         if (isVararg)
@@ -135,6 +175,9 @@ internal fun KSValueParameter.toKParameterSpec(
             addModifiers(KModifier.CROSSINLINE)
     }.build()
 }
+
+internal fun ClassName.parameterizedBy(vararg s: String) =
+    parameterizedBy(s.map { TypeVariableName(it) })
 
 internal fun KSNode.isJava() = origin == Origin.JAVA || origin == Origin.JAVA_LIB
 
@@ -182,6 +225,13 @@ internal fun KSPropertyDeclaration.isStaticToJava(): Boolean {
     return getAnnotationsByType(JvmField::class).firstOrNull() != null
             || Modifier.CONST in modifiers
 }
+
+internal fun FunSpec.Builder.addParameter(
+    name: String,
+    typeName: TypeName,
+    nullable: Boolean = false,
+    vararg modifiers: KModifier
+) = addParameter(name, typeName.copy(nullable), *modifiers)
 
 @KspExperimental
 internal fun KSPropertyDeclaration?.getClassAndFieldName(resolver: Resolver): Pair<String, String>? {
