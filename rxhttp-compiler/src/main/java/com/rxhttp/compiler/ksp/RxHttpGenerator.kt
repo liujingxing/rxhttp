@@ -629,8 +629,7 @@ class RxHttpGenerator(private val logger: KSPLogger) {
                 
                 if (%T.isDebug()) {
                     builder = okClient.newBuilder()
-                    //TODO okClient.cookieJar()
-                    builder.addInterceptor(%T(okClient.cookieJar))
+                    builder.addInterceptor(%T(okClient))
                 }
                 
                 if (connectTimeoutMillis != 0L) {

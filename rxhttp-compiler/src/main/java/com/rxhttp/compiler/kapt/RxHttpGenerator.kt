@@ -705,7 +705,7 @@ class RxHttpGenerator {
                 
                 if (${'$'}T.isDebug()) {
                     builder = okClient.newBuilder();
-                    builder.addInterceptor(new ${'$'}T(okClient.cookieJar()));
+                    builder.addInterceptor(new ${'$'}T(okClient));
                 }
                 
                 if (connectTimeoutMillis != 0) {

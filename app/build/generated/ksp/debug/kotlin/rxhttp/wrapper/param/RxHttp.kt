@@ -343,8 +343,7 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
 
     if (LogUtil.isDebug()) {
         builder = okClient.newBuilder()
-        //TODO okClient.cookieJar()
-        builder.addInterceptor(LogInterceptor(okClient.cookieJar))
+        builder.addInterceptor(LogInterceptor(okClient))
     }
 
     if (connectTimeoutMillis != 0L) {

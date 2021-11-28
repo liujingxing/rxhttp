@@ -8,10 +8,12 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Objects;
 
+import okhttp3.CookieJar;
 import okhttp3.Headers;
 import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
@@ -99,6 +101,10 @@ public class OkHttpCompat {
 
     public static Headers headers(Response response) {
         return response.headers();
+    }
+
+    public static CookieJar cookieJar(OkHttpClient okHttpClient){
+        return okHttpClient.cookieJar();
     }
 
     public static ResponseBody requireBody(Response response) {
