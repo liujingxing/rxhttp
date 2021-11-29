@@ -58,7 +58,7 @@ class RxHttpExtensions(private val logger: KSPLogger) {
 
             if (typeVariableNames.isNotEmpty() && ksFunction.isPublic()) {
                 if (ksFunction.parameters.size == 1 &&
-                    ksFunction.parameters[0].type.getQualifiedName() == "java.lang.reflect.Type[]"
+                    "java.lang.reflect.Type[]" != ksFunction.parameters[0].type.getQualifiedName()
                 ) {
                     continue
                 }
@@ -66,7 +66,7 @@ class RxHttpExtensions(private val logger: KSPLogger) {
                 //构造方法参数数量等于泛型数量
                 if (ksFunction.parameters.size >= typeVariableNames.size) {
                     val allTypeArg = ksFunction.parameters
-                        .find { it.type.getQualifiedName() != "java.lang.reflect.Type" } == null
+                        .find {  "java.lang.reflect.Type" != it.type.getQualifiedName() } == null
                     if (allTypeArg) continue
                 }
             }

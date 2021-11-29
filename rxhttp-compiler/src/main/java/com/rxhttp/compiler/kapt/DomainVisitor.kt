@@ -1,8 +1,9 @@
 package com.rxhttp.compiler.kapt
 
-import com.rxhttp.compiler.r
+import com.rxhttp.compiler.rxhttpClassName
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.MethodSpec
+import com.squareup.javapoet.TypeVariableName
 import rxhttp.wrapper.annotation.Domain
 import java.util.*
 import javax.annotation.processing.Messager
@@ -39,19 +40,17 @@ class DomainVisitor(
 
     //对url添加域名方法
     fun getMethodList(): List<MethodSpec> {
-        val methodList = ArrayList<MethodSpec>()
-        for ((key, value) in elementMap) {
+        val typeVariableR = TypeVariableName.get("R", rxhttpClassName)     //泛型R
+        return elementMap.mapNotNull { entry ->
+            val key = entry.key
+            val variableElement = entry.value
+            val className = ClassName.get(variableElement.enclosingElement.asType())
             MethodSpec.methodBuilder("setDomainTo${key}IfAbsent")
                 .addModifiers(Modifier.PUBLIC)
-                .addCode(
-                    """return setDomainIfAbsent(${"$"}T.${value.simpleName});""",
-                    ClassName.get(value.enclosingElement.asType()),
-                )
-                .returns(r)
+                .addCode("return setDomainIfAbsent(\$T.${variableElement.simpleName});", className)
+                .returns(typeVariableR)
                 .build()
-                .apply { methodList.add(this) }
         }
-        return methodList
     }
 }
 

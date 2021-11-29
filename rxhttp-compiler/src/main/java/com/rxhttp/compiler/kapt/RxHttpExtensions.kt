@@ -1,11 +1,22 @@
 package com.rxhttp.compiler.kapt
 
-import com.rxhttp.compiler.RXHttp
 import com.rxhttp.compiler.isDependenceRxJava
 import com.rxhttp.compiler.rxHttpPackage
 import com.rxhttp.compiler.rxhttpKClassName
-import com.squareup.kotlinpoet.*
+import com.squareup.kotlinpoet.AnnotationSpec
+import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.FileSpec
+import com.squareup.kotlinpoet.FunSpec
+import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.LambdaTypeName
+import com.squareup.kotlinpoet.MemberName
+import com.squareup.kotlinpoet.ParameterSpec
+import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import com.squareup.kotlinpoet.TypeVariableName
+import com.squareup.kotlinpoet.asClassName
+import com.squareup.kotlinpoet.asTypeName
+import com.squareup.kotlinpoet.asTypeVariableName
 import org.jetbrains.annotations.Nullable
 import javax.annotation.processing.Filer
 import javax.lang.model.element.ElementKind
@@ -39,21 +50,18 @@ class RxHttpExtensions {
         //遍历构造方法
         for (executableElement in typeElement.getConstructorFun()) {
 
-            if (typeVariableNames.isNotEmpty()
-                && Modifier.PUBLIC in executableElement.modifiers
-            ) {
-                if (executableElement.parameters.size == 1
-                    && executableElement.parameters[0].asType()
-                        .toString() == "java.lang.reflect.Type[]"
+            if (typeVariableNames.isNotEmpty() && Modifier.PUBLIC in executableElement.modifiers) {
+                if (executableElement.parameters.size == 1 &&
+                    "java.lang.reflect.Type[]" == executableElement.parameters[0].asType()
+                        .toString()
                 ) {
                     continue
                 }
 
                 //构造方法参数数量等于泛型数量
                 if (executableElement.parameters.size >= typeVariableNames.size) {
-                    val allTypeArg = executableElement.parameters.find {
-                        it.asType().toString() != "java.lang.reflect.Type"
-                    } == null
+                    val allTypeArg = executableElement.parameters
+                        .find { "java.lang.reflect.Type" == it.asType().toString() } == null
                     if (allTypeArg) continue
                 }
             }

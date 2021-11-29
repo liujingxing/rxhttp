@@ -3,20 +3,25 @@ package com.rxhttp.compiler.kapt
 import com.rxhttp.compiler.RXHttp
 import com.rxhttp.compiler.getClassName
 import com.rxhttp.compiler.isDependenceRxJava
-import com.rxhttp.compiler.p
-import com.rxhttp.compiler.paramClassName
-import com.rxhttp.compiler.r
 import com.rxhttp.compiler.rxHttpPackage
-import com.squareup.javapoet.*
+import com.rxhttp.compiler.rxhttpClassName
+import com.squareup.javapoet.AnnotationSpec
+import com.squareup.javapoet.ArrayTypeName
+import com.squareup.javapoet.ClassName
+import com.squareup.javapoet.CodeBlock
+import com.squareup.javapoet.FieldSpec
+import com.squareup.javapoet.JavaFile
+import com.squareup.javapoet.MethodSpec
+import com.squareup.javapoet.ParameterizedTypeName
+import com.squareup.javapoet.TypeName
+import com.squareup.javapoet.TypeSpec
+import com.squareup.javapoet.TypeVariableName
+import com.squareup.javapoet.WildcardTypeName
 import java.io.IOException
 import java.lang.Deprecated
 import java.util.*
 import javax.annotation.processing.Filer
 import javax.lang.model.element.Modifier
-import kotlin.Any
-import kotlin.Boolean
-import kotlin.Int
-import kotlin.Long
 import kotlin.String
 import kotlin.Throws
 import kotlin.apply
@@ -32,6 +37,10 @@ class RxHttpGenerator {
     //生成RxHttp类
     @Throws(IOException::class)
     fun generateCode(filer: Filer) {
+
+        val paramClassName = ClassName.get("rxhttp.wrapper.param", "Param")
+        val typeVariableP = TypeVariableName.get("P", paramClassName)      //泛型P
+        val typeVariableR = TypeVariableName.get("R", rxhttpClassName)     //泛型R
 
         val okHttpClientName = ClassName.get("okhttp3", "OkHttpClient")
         val requestName = ClassName.get("okhttp3", "Request")
@@ -50,23 +59,22 @@ class RxHttpGenerator {
         val cacheStrategyName = ClassName.get("rxhttp.wrapper.cahce", "CacheStrategy")
         val downloadOffSizeName = ClassName.get("rxhttp.wrapper.entity", "DownloadOffSize")
 
-        val rxHttp = r
         val t = TypeVariableName.get("T")
+        val wildcard = TypeVariableName.get("?")
         val className = ClassName.get(Class::class.java)
         val superT = WildcardTypeName.supertypeOf(t)
         val classSuperTName = ParameterizedTypeName.get(className, superT)
 
-        val stringName = TypeName.get(String::class.java)
-        val subObject = WildcardTypeName.subtypeOf(TypeName.get(Any::class.java))
-        val listName = ParameterizedTypeName.get(ClassName.get(List::class.java), subObject)
-        val mapName =
-            ParameterizedTypeName.get(ClassName.get(Map::class.java), stringName, subObject)
-        val mapStringName =
-            ParameterizedTypeName.get(ClassName.get(Map::class.java), stringName, stringName)
+        val list = ClassName.get(List::class.java)
+        val map = ClassName.get(Map::class.java)
+        val string = TypeName.get(String::class.java)
+        val listName = ParameterizedTypeName.get(list, wildcard)
+        val mapName = ParameterizedTypeName.get(map, string, wildcard)
+        val mapStringName = ParameterizedTypeName.get(map, string, string)
 
         val classTName = ParameterizedTypeName.get(className, t)
 
-        val listTName = ParameterizedTypeName.get(ClassName.get(List::class.java), t)
+        val listTName = ParameterizedTypeName.get(list, t)
 
         val parserName = ClassName.get("rxhttp.wrapper.parse", "Parser")
         val progressName = ClassName.get("rxhttp.wrapper.entity", "Progress")
@@ -82,7 +90,7 @@ class RxHttpGenerator {
 
         MethodSpec.constructorBuilder()
             .addModifiers(Modifier.PROTECTED)
-            .addParameter(p, "param")
+            .addParameter(typeVariableP, "param")
             .addStatement("this.param = param")
             .build()
             .apply { methodList.add(this) }
@@ -90,44 +98,44 @@ class RxHttpGenerator {
         MethodSpec.methodBuilder("getParam")
             .addModifiers(Modifier.PUBLIC)
             .addStatement("return param")
-            .returns(p)
+            .returns(typeVariableP)
             .build()
             .apply { methodList.add(this) }
 
 
         MethodSpec.methodBuilder("setParam")
             .addModifiers(Modifier.PUBLIC)
-            .addParameter(p, "param")
+            .addParameter(typeVariableP, "param")
             .addStatement("this.param = param")
             .addStatement("return (R) this")
-            .returns(r)
+            .returns(typeVariableR)
             .build()
             .apply { methodList.add(this) }
 
         MethodSpec.methodBuilder("connectTimeout")
             .addModifiers(Modifier.PUBLIC)
-            .addParameter(Int::class.javaPrimitiveType, "connectTimeout")
+            .addParameter(TypeName.LONG, "connectTimeout")
             .addStatement("connectTimeoutMillis = connectTimeout")
             .addStatement("return (R) this")
-            .returns(r)
+            .returns(typeVariableR)
             .build()
             .apply { methodList.add(this) }
 
         MethodSpec.methodBuilder("readTimeout")
             .addModifiers(Modifier.PUBLIC)
-            .addParameter(Int::class.javaPrimitiveType, "readTimeout")
+            .addParameter(TypeName.LONG, "readTimeout")
             .addStatement("readTimeoutMillis = readTimeout")
             .addStatement("return (R) this")
-            .returns(r)
+            .returns(typeVariableR)
             .build()
             .apply { methodList.add(this) }
 
         MethodSpec.methodBuilder("writeTimeout")
             .addModifiers(Modifier.PUBLIC)
-            .addParameter(Int::class.javaPrimitiveType, "writeTimeout")
+            .addParameter(TypeName.LONG, "writeTimeout")
             .addStatement("writeTimeoutMillis = writeTimeout")
             .addStatement("return (R) this")
-            .returns(r)
+            .returns(typeVariableR)
             .build()
             .apply { methodList.add(this) }
 
@@ -173,8 +181,8 @@ class RxHttpGenerator {
             }
             methodBuilder
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                .addParameter(String::class.java, "url")
-                .addParameter(ArrayTypeName.of(Any::class.java), "formatArgs")
+                .addParameter(string, "url")
+                .addParameter(ArrayTypeName.of(TypeName.OBJECT), "formatArgs")
                 .varargs()
                 .addStatement(
                     "return new $value(\$T.${key}(format(url, formatArgs)))",
@@ -191,10 +199,10 @@ class RxHttpGenerator {
 
         MethodSpec.methodBuilder("setUrl")
             .addModifiers(Modifier.PUBLIC)
-            .addParameter(String::class.java, "url")
+            .addParameter(string, "url")
             .addStatement("param.setUrl(url)")
             .addStatement("return (R) this")
-            .returns(rxHttp)
+            .returns(typeVariableR)
             .build()
             .apply { methodList.add(this) }
 
@@ -212,79 +220,79 @@ class RxHttpGenerator {
                 url = /service/1/...
                 """.trimIndent()
             )
-            .addParameter(String::class.java, "name")
-            .addParameter(Object::class.java, "value")
+            .addParameter(string, "name")
+            .addParameter(TypeName.OBJECT, "value")
             .addStatement("param.addPath(name, value)")
             .addStatement("return (R) this")
-            .returns(rxHttp)
+            .returns(typeVariableR)
             .build()
             .apply { methodList.add(this) }
 
         MethodSpec.methodBuilder("addEncodedPath")
             .addModifiers(Modifier.PUBLIC)
-            .addParameter(String::class.java, "name")
-            .addParameter(Object::class.java, "value")
+            .addParameter(string, "name")
+            .addParameter(TypeName.OBJECT, "value")
             .addStatement("param.addEncodedPath(name, value)")
             .addStatement("return (R) this")
-            .returns(rxHttp)
+            .returns(typeVariableR)
             .build()
             .apply { methodList.add(this) }
 
         MethodSpec.methodBuilder("addQuery")
             .addModifiers(Modifier.PUBLIC)
-            .addParameter(String::class.java, "key")
+            .addParameter(string, "key")
             .addStatement("param.addQuery(key, null)")
             .addStatement("return (R) this")
-            .returns(rxHttp)
+            .returns(typeVariableR)
             .build()
             .apply { methodList.add(this) }
 
         MethodSpec.methodBuilder("addEncodedQuery")
             .addModifiers(Modifier.PUBLIC)
-            .addParameter(String::class.java, "key")
+            .addParameter(string, "key")
             .addStatement("param.addEncodedQuery(key, null)")
             .addStatement("return (R) this")
-            .returns(rxHttp)
+            .returns(typeVariableR)
             .build()
             .apply { methodList.add(this) }
 
         MethodSpec.methodBuilder("addQuery")
             .addModifiers(Modifier.PUBLIC)
-            .addParameter(String::class.java, "key")
-            .addParameter(Any::class.java, "value")
+            .addParameter(string, "key")
+            .addParameter(TypeName.OBJECT, "value")
             .addStatement("param.addQuery(key,value)")
             .addStatement("return (R) this")
-            .returns(rxHttp)
+            .returns(typeVariableR)
             .build()
             .apply { methodList.add(this) }
 
         MethodSpec.methodBuilder("addEncodedQuery")
             .addModifiers(Modifier.PUBLIC)
-            .addParameter(String::class.java, "key")
-            .addParameter(Any::class.java, "value")
+            .addParameter(string, "key")
+            .addParameter(TypeName.OBJECT, "value")
             .addStatement("param.addEncodedQuery(key,value)")
             .addStatement("return (R) this")
-            .returns(rxHttp)
+            .returns(typeVariableR)
             .build()
             .apply { methodList.add(this) }
 
         MethodSpec.methodBuilder("addAllQuery")
             .addModifiers(Modifier.PUBLIC)
-            .addParameter(String::class.java, "key")
+            .addParameter(string, "key")
             .addParameter(listName, "list")
             .addStatement("param.addAllQuery(key, list)")
             .addStatement("return (R) this")
-            .returns(rxHttp)
+            .returns(typeVariableR)
             .build()
             .apply { methodList.add(this) }
 
         MethodSpec.methodBuilder("addAllEncodedQuery")
             .addModifiers(Modifier.PUBLIC)
-            .addParameter(String::class.java, "key")
+            .addParameter(string, "key")
             .addParameter(listName, "list")
             .addStatement("param.addAllEncodedQuery(key, list)")
             .addStatement("return (R) this")
-            .returns(rxHttp)
+            .returns(typeVariableR)
             .build()
             .apply { methodList.add(this) }
 
@@ -293,7 +301,7 @@ class RxHttpGenerator {
             .addParameter(mapName, "map")
             .addStatement("param.addAllQuery(map)")
             .addStatement("return (R) this")
-            .returns(rxHttp)
+            .returns(typeVariableR)
             .build()
             .apply { methodList.add(this) }
 
@@ -302,23 +310,23 @@ class RxHttpGenerator {
             .addParameter(mapName, "map")
             .addStatement("param.addAllEncodedQuery(map)")
             .addStatement("return (R) this")
-            .returns(rxHttp)
+            .returns(typeVariableR)
             .build()
             .apply { methodList.add(this) }
 
         MethodSpec.methodBuilder("addHeader")
             .addModifiers(Modifier.PUBLIC)
-            .addParameter(String::class.java, "line")
+            .addParameter(string, "line")
             .addStatement("param.addHeader(line)")
             .addStatement("return (R) this")
-            .returns(rxHttp)
+            .returns(typeVariableR)
             .build()
             .apply { methodList.add(this) }
 
         MethodSpec.methodBuilder("addHeader")
             .addModifiers(Modifier.PUBLIC)
-            .addParameter(String::class.java, "line")
-            .addParameter(Boolean::class.javaPrimitiveType, "isAdd")
+            .addParameter(string, "line")
+            .addParameter(TypeName.BOOLEAN, "isAdd")
             .addCode(
                 """
                 if (isAdd) 
@@ -326,47 +334,47 @@ class RxHttpGenerator {
                 return (R) this;
                 """.trimIndent()
             )
-            .returns(rxHttp)
+            .returns(typeVariableR)
             .build()
             .apply { methodList.add(this) }
 
         MethodSpec.methodBuilder("addNonAsciiHeader")
             .addJavadoc("Add a header with the specified name and value. Does validation of header names, allowing non-ASCII values.")
             .addModifiers(Modifier.PUBLIC)
-            .addParameter(String::class.java, "key")
-            .addParameter(String::class.java, "value")
+            .addParameter(string, "key")
+            .addParameter(string, "value")
             .addStatement("param.addNonAsciiHeader(key,value)")
             .addStatement("return (R) this")
-            .returns(rxHttp)
+            .returns(typeVariableR)
             .build()
             .apply { methodList.add(this) }
 
         MethodSpec.methodBuilder("setNonAsciiHeader")
             .addJavadoc("Set a header with the specified name and value. Does validation of header names, allowing non-ASCII values.")
             .addModifiers(Modifier.PUBLIC)
-            .addParameter(String::class.java, "key")
-            .addParameter(String::class.java, "value")
+            .addParameter(string, "key")
+            .addParameter(string, "value")
             .addStatement("param.setNonAsciiHeader(key,value)")
             .addStatement("return (R) this")
-            .returns(rxHttp)
+            .returns(typeVariableR)
             .build()
             .apply { methodList.add(this) }
 
         MethodSpec.methodBuilder("addHeader")
             .addModifiers(Modifier.PUBLIC)
-            .addParameter(String::class.java, "key")
-            .addParameter(String::class.java, "value")
+            .addParameter(string, "key")
+            .addParameter(string, "value")
             .addStatement("param.addHeader(key,value)")
             .addStatement("return (R) this")
-            .returns(rxHttp)
+            .returns(typeVariableR)
             .build()
             .apply { methodList.add(this) }
 
         MethodSpec.methodBuilder("addHeader")
             .addModifiers(Modifier.PUBLIC)
-            .addParameter(String::class.java, "key")
-            .addParameter(String::class.java, "value")
-            .addParameter(Boolean::class.javaPrimitiveType, "isAdd")
+            .addParameter(string, "key")
+            .addParameter(string, "value")
+            .addParameter(TypeName.BOOLEAN, "isAdd")
             .addCode(
                 """
                 if (isAdd)
@@ -374,7 +382,7 @@ class RxHttpGenerator {
                 return (R) this;
                 """.trimIndent()
             )
-            .returns(rxHttp)
+            .returns(typeVariableR)
             .build()
             .apply { methodList.add(this) }
 
@@ -383,7 +391,7 @@ class RxHttpGenerator {
             .addParameter(mapStringName, "headers")
             .addStatement("param.addAllHeader(headers)")
             .addStatement("return (R) this")
-            .returns(rxHttp)
+            .returns(typeVariableR)
             .build()
             .apply { methodList.add(this) }
 
@@ -392,17 +400,17 @@ class RxHttpGenerator {
             .addParameter(headerName, "headers")
             .addStatement("param.addAllHeader(headers)")
             .addStatement("return (R) this")
-            .returns(rxHttp)
+            .returns(typeVariableR)
             .build()
             .apply { methodList.add(this) }
 
         MethodSpec.methodBuilder("setHeader")
             .addModifiers(Modifier.PUBLIC)
-            .addParameter(String::class.java, "key")
-            .addParameter(String::class.java, "value")
+            .addParameter(string, "key")
+            .addParameter(string, "value")
             .addStatement("param.setHeader(key,value)")
             .addStatement("return (R) this")
-            .returns(rxHttp)
+            .returns(typeVariableR)
             .build()
             .apply { methodList.add(this) }
 
@@ -411,32 +419,34 @@ class RxHttpGenerator {
             .addParameter(mapStringName, "headers")
             .addStatement("param.setAllHeader(headers)")
             .addStatement("return (R) this")
-            .returns(rxHttp)
+            .returns(typeVariableR)
             .build()
             .apply { methodList.add(this) }
 
         MethodSpec.methodBuilder("setRangeHeader")
             .addModifiers(Modifier.PUBLIC)
-            .addParameter(Long::class.javaPrimitiveType, "startIndex")
+            .addParameter(TypeName.LONG, "startIndex")
             .addStatement("return setRangeHeader(startIndex, -1, false)")
-            .returns(rxHttp)
+            .returns(typeVariableR)
             .build()
             .apply { methodList.add(this) }
 
         MethodSpec.methodBuilder("setRangeHeader")
             .addModifiers(Modifier.PUBLIC)
-            .addParameter(Long::class.javaPrimitiveType, "startIndex")
-            .addParameter(Long::class.javaPrimitiveType, "endIndex")
+            .addParameter(TypeName.LONG, "startIndex")
+            .addParameter(TypeName.LONG, "endIndex")
             .addStatement("return setRangeHeader(startIndex, endIndex, false)")
-            .returns(rxHttp).build()
+            .returns(typeVariableR)
+            .build()
             .apply { methodList.add(this) }
 
         MethodSpec.methodBuilder("setRangeHeader")
             .addModifiers(Modifier.PUBLIC)
-            .addParameter(Long::class.javaPrimitiveType, "startIndex")
-            .addParameter(Boolean::class.javaPrimitiveType, "connectLastProgress")
+            .addParameter(TypeName.LONG, "startIndex")
+            .addParameter(TypeName.BOOLEAN, "connectLastProgress")
             .addStatement("return setRangeHeader(startIndex, -1, connectLastProgress)")
-            .returns(rxHttp).build()
+            .returns(typeVariableR)
+            .build()
             .apply { methodList.add(this) }
 
         MethodSpec.methodBuilder("setRangeHeader")
@@ -449,9 +459,9 @@ class RxHttpGenerator {
                 """.trimIndent()
             )
             .addModifiers(Modifier.PUBLIC)
-            .addParameter(Long::class.javaPrimitiveType, "startIndex")
-            .addParameter(Long::class.javaPrimitiveType, "endIndex")
-            .addParameter(Boolean::class.javaPrimitiveType, "connectLastProgress")
+            .addParameter(TypeName.LONG, "startIndex")
+            .addParameter(TypeName.LONG, "endIndex")
+            .addParameter(TypeName.BOOLEAN, "connectLastProgress")
             .addCode(
                 """
                 param.setRangeHeader(startIndex, endIndex);                         
@@ -460,16 +470,16 @@ class RxHttpGenerator {
                 return (R) this;                                                    
                 """.trimIndent(), downloadOffSizeName
             )
-            .returns(rxHttp)
+            .returns(typeVariableR)
             .build()
             .apply { methodList.add(this) }
 
         MethodSpec.methodBuilder("removeAllHeader")
             .addModifiers(Modifier.PUBLIC)
-            .addParameter(String::class.java, "key")
+            .addParameter(string, "key")
             .addStatement("param.removeAllHeader(key)")
             .addStatement("return (R) this")
-            .returns(rxHttp)
+            .returns(typeVariableR)
             .build()
             .apply { methodList.add(this) }
 
@@ -478,7 +488,7 @@ class RxHttpGenerator {
             .addParameter(headerBuilderName, "builder")
             .addStatement("param.setHeadersBuilder(builder)")
             .addStatement("return (R) this")
-            .returns(rxHttp)
+            .returns(typeVariableR)
             .build()
             .apply { methodList.add(this) }
 
@@ -490,10 +500,10 @@ class RxHttpGenerator {
                 """.trimIndent()
             )
             .addModifiers(Modifier.PUBLIC)
-            .addParameter(Boolean::class.javaPrimitiveType, "enabled")
+            .addParameter(TypeName.BOOLEAN, "enabled")
             .addStatement("param.setAssemblyEnabled(enabled)")
             .addStatement("return (R) this")
-            .returns(rxHttp)
+            .returns(typeVariableR)
             .build()
             .apply { methodList.add(this) }
 
@@ -505,20 +515,20 @@ class RxHttpGenerator {
                 """.trimIndent()
             )
             .addModifiers(Modifier.PUBLIC)
-            .addParameter(Boolean::class.javaPrimitiveType, "enabled")
+            .addParameter(TypeName.BOOLEAN, "enabled")
             .addStatement(
                 "param.addHeader(\$T.DATA_DECRYPT,String.valueOf(enabled))",
-                com.rxhttp.compiler.paramClassName
+                paramClassName
             )
             .addStatement("return (R) this")
-            .returns(rxHttp)
+            .returns(typeVariableR)
             .build()
             .apply { methodList.add(this) }
 
         MethodSpec.methodBuilder("isAssemblyEnabled")
             .addModifiers(Modifier.PUBLIC)
             .addStatement("return param.isAssemblyEnabled()")
-            .returns(Boolean::class.javaPrimitiveType)
+            .returns(TypeName.BOOLEAN)
             .build()
             .apply { methodList.add(this) }
 
@@ -526,22 +536,22 @@ class RxHttpGenerator {
             .addModifiers(Modifier.PUBLIC)
             .addStatement("addDefaultDomainIfAbsent()")
             .addStatement("return param.getUrl()")
-            .returns(String::class.java)
+            .returns(string)
             .build()
             .apply { methodList.add(this) }
 
         MethodSpec.methodBuilder("getSimpleUrl")
             .addModifiers(Modifier.PUBLIC)
             .addStatement("return param.getSimpleUrl()")
-            .returns(String::class.java)
+            .returns(string)
             .build()
             .apply { methodList.add(this) }
 
         MethodSpec.methodBuilder("getHeader")
             .addModifiers(Modifier.PUBLIC)
-            .addParameter(String::class.java, "key")
+            .addParameter(string, "key")
             .addStatement("return param.getHeader(key)")
-            .returns(String::class.java).build()
+            .returns(string).build()
             .apply { methodList.add(this) }
 
         MethodSpec.methodBuilder("getHeaders")
@@ -559,10 +569,10 @@ class RxHttpGenerator {
 
         MethodSpec.methodBuilder("tag")
             .addModifiers(Modifier.PUBLIC)
-            .addParameter(Any::class.java, "tag")
+            .addParameter(TypeName.OBJECT, "tag")
             .addStatement("param.tag(tag)")
             .addStatement("return (R) this")
-            .returns(rxHttp)
+            .returns(typeVariableR)
             .build()
             .apply { methodList.add(this) }
 
@@ -573,7 +583,8 @@ class RxHttpGenerator {
             .addParameter(t, "tag")
             .addStatement("param.tag(type,tag)")
             .addStatement("return (R) this")
-            .returns(rxHttp).build()
+            .returns(typeVariableR)
+            .build()
             .apply { methodList.add(this) }
 
         MethodSpec.methodBuilder("cacheControl")
@@ -581,7 +592,7 @@ class RxHttpGenerator {
             .addParameter(cacheControlName, "cacheControl")
             .addStatement("param.cacheControl(cacheControl)")
             .addStatement("return (R) this")
-            .returns(rxHttp)
+            .returns(typeVariableR)
             .build()
             .apply { methodList.add(this) }
 
@@ -594,19 +605,19 @@ class RxHttpGenerator {
 
         MethodSpec.methodBuilder("setCacheKey")
             .addModifiers(Modifier.PUBLIC)
-            .addParameter(String::class.java, "cacheKey")
+            .addParameter(string, "cacheKey")
             .addStatement("param.setCacheKey(cacheKey)")
             .addStatement("return (R) this")
-            .returns(rxHttp)
+            .returns(typeVariableR)
             .build()
             .apply { methodList.add(this) }
 
         MethodSpec.methodBuilder("setCacheValidTime")
             .addModifiers(Modifier.PUBLIC)
-            .addParameter(Long::class.javaPrimitiveType, "cacheValidTime")
+            .addParameter(TypeName.LONG, "cacheValidTime")
             .addStatement("param.setCacheValidTime(cacheValidTime)")
             .addStatement("return (R) this")
-            .returns(rxHttp)
+            .returns(typeVariableR)
             .build()
             .apply { methodList.add(this) }
 
@@ -615,7 +626,7 @@ class RxHttpGenerator {
             .addParameter(cacheModeName, "cacheMode")
             .addStatement("param.setCacheMode(cacheMode)")
             .addStatement("return (R) this")
-            .returns(rxHttp)
+            .returns(typeVariableR)
             .build()
             .apply { methodList.add(this) }
 
@@ -641,7 +652,7 @@ class RxHttpGenerator {
             .addModifiers(Modifier.PUBLIC)
             .addException(IOException::class.java)
             .addStatement("return executeClass(String.class)")
-            .returns(stringName)
+            .returns(string)
             .build()
             .apply { methodList.add(this) }
 
@@ -708,17 +719,17 @@ class RxHttpGenerator {
                     builder.addInterceptor(new ${'$'}T(okClient));
                 }
                 
-                if (connectTimeoutMillis != 0) {
+                if (connectTimeoutMillis != 0L) {
                     if (builder == null) builder = okClient.newBuilder();
                     builder.connectTimeout(connectTimeoutMillis, ${'$'}T.MILLISECONDS);
                 }
                 
-                if (readTimeoutMillis != 0) {
+                if (readTimeoutMillis != 0L) {
                     if (builder == null) builder = okClient.newBuilder();
                     builder.readTimeout(readTimeoutMillis, ${'$'}T.MILLISECONDS);
                 }
 
-                if (writeTimeoutMillis != 0) {
+                if (writeTimeoutMillis != 0L) {
                    if (builder == null) builder = okClient.newBuilder();
                    builder.writeTimeout(writeTimeoutMillis, ${'$'}T.MILLISECONDS);
                 }
@@ -760,7 +771,7 @@ class RxHttpGenerator {
                 .addJavadoc("@deprecated please user {@link #setSync()} instead\n")
                 .addModifiers(Modifier.PUBLIC)
                 .addStatement("return setSync()")
-                .returns(r)
+                .returns(typeVariableR)
                 .build()
                 .apply { methodList.add(this) }
 
@@ -769,7 +780,7 @@ class RxHttpGenerator {
                 .addModifiers(Modifier.PUBLIC)
                 .addStatement("isAsync = false")
                 .addStatement("return (R) this")
-                .returns(r)
+                .returns(typeVariableR)
                 .build()
                 .apply { methodList.add(this) }
 
@@ -812,7 +823,7 @@ class RxHttpGenerator {
                 return (R) this;
                 """.trimIndent()
             )
-            .returns(r)
+            .returns(typeVariableR)
             .build()
             .apply { methodList.add(this) }
 
@@ -822,7 +833,7 @@ class RxHttpGenerator {
             .addParameter(converterName, "converter")
             .addStatement("param.tag(IConverter.class, converter)")
             .addStatement("return (R) this")
-            .returns(r)
+            .returns(typeVariableR)
             .build()
             .apply { methodList.add(this) }
 
@@ -837,7 +848,7 @@ class RxHttpGenerator {
                 return (R) this;
                 """.trimIndent()
             )
-            .returns(r)
+            .returns(typeVariableR)
             .build()
             .apply { methodList.add(this) }
 
@@ -853,7 +864,7 @@ class RxHttpGenerator {
 
         MethodSpec.methodBuilder("setDomainIfAbsent")
             .addModifiers(Modifier.PUBLIC)
-            .addParameter(String::class.java, "domain")
+            .addParameter(string, "domain")
             .addCode(
                 """
                 String newUrl = addDomainIfAbsent(param.getSimpleUrl(), domain);
@@ -861,15 +872,15 @@ class RxHttpGenerator {
                 return (R) this;
                 """.trimIndent()
             )
-            .returns(r)
+            .returns(typeVariableR)
             .build()
             .apply { methodList.add(this) }
 
         //对url添加域名方法
         MethodSpec.methodBuilder("addDomainIfAbsent")
             .addModifiers(Modifier.PRIVATE, Modifier.STATIC)
-            .addParameter(String::class.java, "url")
-            .addParameter(String::class.java, "domain")
+            .addParameter(string, "url")
+            .addParameter(string, "domain")
             .addCode(
                 """
                 if (url.startsWith("http")) return url;
@@ -885,18 +896,18 @@ class RxHttpGenerator {
                 }
                 """.trimIndent()
             )
-            .returns(String::class.java)
+            .returns(string)
             .build()
             .apply { methodList.add(this) }
 
         MethodSpec.methodBuilder("format")
             .addJavadoc("Returns a formatted string using the specified format string and arguments.")
             .addModifiers(Modifier.PRIVATE, Modifier.STATIC)
-            .addParameter(String::class.java, "url")
-            .addParameter(ArrayTypeName.of(Any::class.java), "formatArgs")
+            .addParameter(string, "url")
+            .addParameter(ArrayTypeName.of(TypeName.OBJECT), "formatArgs")
             .varargs()
             .addStatement("return formatArgs == null || formatArgs.length == 0 ? url : String.format(url, formatArgs)")
-            .returns(String::class.java)
+            .returns(string)
             .build()
             .apply { methodList.add(this) }
 
@@ -913,7 +924,7 @@ class RxHttpGenerator {
         val baseRxHttpName = ClassName.get(rxHttpPackage, "BaseRxHttp")
 
         val isAsyncField = FieldSpec
-            .builder(Boolean::class.javaPrimitiveType, "isAsync", Modifier.PROTECTED)
+            .builder(TypeName.BOOLEAN, "isAsync", Modifier.PROTECTED)
             .initializer("true")
             .build()
 
@@ -929,18 +940,18 @@ class RxHttpGenerator {
             )
             .addModifiers(Modifier.PUBLIC)
             .addAnnotation(suppressWarningsAnnotation)
-            .addField(Int::class.javaPrimitiveType, "connectTimeoutMillis", Modifier.PRIVATE)
-            .addField(Int::class.javaPrimitiveType, "readTimeoutMillis", Modifier.PRIVATE)
-            .addField(Int::class.javaPrimitiveType, "writeTimeoutMillis", Modifier.PRIVATE)
+            .addField(TypeName.LONG, "connectTimeoutMillis", Modifier.PRIVATE)
+            .addField(TypeName.LONG, "readTimeoutMillis", Modifier.PRIVATE)
+            .addField(TypeName.LONG, "writeTimeoutMillis", Modifier.PRIVATE)
             .addField(okHttpClientName, "realOkClient", Modifier.PRIVATE)
             .addField(okHttpClientSpec)
             .addField(converterSpec)
             .addField(isAsyncField)
-            .addField(p, "param", Modifier.PROTECTED)
+            .addField(typeVariableP, "param", Modifier.PROTECTED)
             .addField(requestName, "request", Modifier.PUBLIC)
             .superclass(baseRxHttpName)
-            .addTypeVariable(p)
-            .addTypeVariable(r)
+            .addTypeVariable(typeVariableP)
+            .addTypeVariable(typeVariableR)
             .addMethods(methodList)
 
         // Write file

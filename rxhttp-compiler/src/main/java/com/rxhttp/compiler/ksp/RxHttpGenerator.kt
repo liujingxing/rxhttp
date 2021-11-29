@@ -8,10 +8,8 @@ import com.google.devtools.ksp.symbol.KSFile
 import com.rxhttp.compiler.RXHttp
 import com.rxhttp.compiler.getKClassName
 import com.rxhttp.compiler.isDependenceRxJava
-import com.rxhttp.compiler.kP
-import com.rxhttp.compiler.kR
-import com.rxhttp.compiler.paramKClassName
 import com.rxhttp.compiler.rxHttpPackage
+import com.rxhttp.compiler.rxhttpKClassName
 import com.squareup.kotlinpoet.ANY
 import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.BOOLEAN
@@ -51,6 +49,10 @@ class RxHttpGenerator(private val logger: KSPLogger) {
     @Throws(IOException::class)
     fun generateCode(codeGenerator: CodeGenerator) {
 
+        val paramClassName = ClassName("rxhttp.wrapper.param", "Param")
+        val typeVariableP = TypeVariableName("P", paramClassName.parameterizedBy("P"))      //泛型P
+        val typeVariableR = TypeVariableName("R", rxhttpKClassName.parameterizedBy("P","R")) //泛型R
+
         val okHttpClientName = ClassName("okhttp3", "OkHttpClient")
         val requestName = ClassName("okhttp3", "Request")
         val headerName = ClassName("okhttp3", "Headers")
@@ -67,7 +69,6 @@ class RxHttpGenerator(private val logger: KSPLogger) {
         val cacheModeName = ClassName("rxhttp.wrapper.cahce", "CacheMode")
         val downloadOffSizeName = ClassName("rxhttp.wrapper.entity", "DownloadOffSize")
 
-        val rxHttp = kR
         val t = TypeVariableName("T")
         val className = Class::class.asClassName()
         val superT = WildcardTypeName.consumerOf(t)
@@ -93,14 +94,14 @@ class RxHttpGenerator(private val logger: KSPLogger) {
         //添加构造方法
         val constructorFun = FunSpec.constructorBuilder()
             .addModifiers(KModifier.PROTECTED)
-            .addParameter("param", kP)
+            .addParameter("param", typeVariableP)
             .build()
 
         FunSpec.builder("connectTimeout")
             .addParameter("connectTimeout", LONG)
             .addStatement("connectTimeoutMillis = connectTimeout")
             .addStatement("return this as R")
-            .returns(kR)
+            .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
 
@@ -108,7 +109,7 @@ class RxHttpGenerator(private val logger: KSPLogger) {
             .addParameter("readTimeout", LONG)
             .addStatement("readTimeoutMillis = readTimeout")
             .addStatement("return this as R")
-            .returns(kR)
+            .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
 
@@ -116,7 +117,7 @@ class RxHttpGenerator(private val logger: KSPLogger) {
             .addParameter("writeTimeout", LONG)
             .addStatement("writeTimeoutMillis = writeTimeout")
             .addStatement("return this as R")
-            .returns(kR)
+            .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
 
@@ -163,7 +164,7 @@ class RxHttpGenerator(private val logger: KSPLogger) {
                 .addParameter("url", STRING)
                 .addParameter("formatArgs", ANY, KModifier.VARARG)
                 .addStatement(
-                    "return $value(%T.${key}(format(url, formatArgs)))", paramKClassName,
+                    "return $value(%T.${key}(format(url, formatArgs)))", paramClassName,
                 )
                 .build()
                 .let { companionBuilder.addFunction(it) }
@@ -186,7 +187,7 @@ class RxHttpGenerator(private val logger: KSPLogger) {
             .addParameter("url", STRING)
             .addStatement("param.setUrl(url)")
             .addStatement("return this as R")
-            .returns(rxHttp)
+            .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
 
@@ -207,7 +208,7 @@ class RxHttpGenerator(private val logger: KSPLogger) {
             .addParameter("value", ANY)
             .addStatement("param.addPath(name, value)")
             .addStatement("return this as R")
-            .returns(rxHttp)
+            .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
 
@@ -216,7 +217,7 @@ class RxHttpGenerator(private val logger: KSPLogger) {
             .addParameter("value", ANY)
             .addStatement("param.addEncodedPath(name, value)")
             .addStatement("return this as R")
-            .returns(rxHttp)
+            .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
 
@@ -224,7 +225,7 @@ class RxHttpGenerator(private val logger: KSPLogger) {
             .addParameter("key", STRING)
             .addStatement("param.addQuery(key, null)")
             .addStatement("return this as R")
-            .returns(rxHttp)
+            .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
 
@@ -232,7 +233,7 @@ class RxHttpGenerator(private val logger: KSPLogger) {
             .addParameter("key", STRING)
             .addStatement("param.addEncodedQuery(key, null)")
             .addStatement("return this as R")
-            .returns(rxHttp)
+            .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
 
@@ -241,7 +242,7 @@ class RxHttpGenerator(private val logger: KSPLogger) {
             .addParameter("value", ANY, true)
             .addStatement("param.addQuery(key, value)")
             .addStatement("return this as R")
-            .returns(rxHttp)
+            .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
 
@@ -250,7 +251,7 @@ class RxHttpGenerator(private val logger: KSPLogger) {
             .addParameter("value", ANY, true)
             .addStatement("param.addEncodedQuery(key, value)")
             .addStatement("return this as R")
-            .returns(rxHttp)
+            .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
 
@@ -259,7 +260,7 @@ class RxHttpGenerator(private val logger: KSPLogger) {
             .addParameter("list", listName)
             .addStatement("param.addAllQuery(key, list)")
             .addStatement("return this as R")
-            .returns(rxHttp)
+            .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
 
@@ -268,7 +269,7 @@ class RxHttpGenerator(private val logger: KSPLogger) {
             .addParameter("list", listName)
             .addStatement("param.addAllEncodedQuery(key, list)")
             .addStatement("return this as R")
-            .returns(rxHttp)
+            .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
 
@@ -276,7 +277,7 @@ class RxHttpGenerator(private val logger: KSPLogger) {
             .addParameter("map", mapName)
             .addStatement("param.addAllQuery(map)")
             .addStatement("return this as R")
-            .returns(rxHttp)
+            .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
 
@@ -284,7 +285,7 @@ class RxHttpGenerator(private val logger: KSPLogger) {
             .addParameter("map", mapName)
             .addStatement("param.addAllEncodedQuery(map)")
             .addStatement("return this as R")
-            .returns(rxHttp)
+            .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
 
@@ -301,7 +302,7 @@ class RxHttpGenerator(private val logger: KSPLogger) {
                 return this as R
                 """.trimIndent()
             )
-            .returns(rxHttp)
+            .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
 
@@ -311,7 +312,7 @@ class RxHttpGenerator(private val logger: KSPLogger) {
             .addParameter("value", STRING)
             .addStatement("param.addNonAsciiHeader(key,value)")
             .addStatement("return this as R")
-            .returns(rxHttp)
+            .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
 
@@ -321,7 +322,7 @@ class RxHttpGenerator(private val logger: KSPLogger) {
             .addParameter("value", STRING)
             .addStatement("param.setNonAsciiHeader(key,value)")
             .addStatement("return this as R")
-            .returns(rxHttp)
+            .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
 
@@ -336,7 +337,7 @@ class RxHttpGenerator(private val logger: KSPLogger) {
                 return this as R
                 """.trimIndent()
             )
-            .returns(rxHttp)
+            .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
 
@@ -344,7 +345,7 @@ class RxHttpGenerator(private val logger: KSPLogger) {
             .addParameter("headers", mapStringName)
             .addStatement("param.addAllHeader(headers)")
             .addStatement("return this as R")
-            .returns(rxHttp)
+            .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
 
@@ -352,7 +353,7 @@ class RxHttpGenerator(private val logger: KSPLogger) {
             .addParameter("headers", headerName)
             .addStatement("param.addAllHeader(headers)")
             .addStatement("return this as R")
-            .returns(rxHttp)
+            .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
 
@@ -361,7 +362,7 @@ class RxHttpGenerator(private val logger: KSPLogger) {
             .addParameter("value", STRING)
             .addStatement("param.setHeader(key,value)")
             .addStatement("return this as R")
-            .returns(rxHttp)
+            .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
 
@@ -369,7 +370,7 @@ class RxHttpGenerator(private val logger: KSPLogger) {
             .addParameter("headers", mapStringName)
             .addStatement("param.setAllHeader(headers)")
             .addStatement("return this as R")
-            .returns(rxHttp)
+            .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
 
@@ -413,7 +414,7 @@ class RxHttpGenerator(private val logger: KSPLogger) {
                 return this as R                                                    
                 """.trimIndent(), downloadOffSizeName
             )
-            .returns(rxHttp)
+            .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
 
@@ -421,7 +422,7 @@ class RxHttpGenerator(private val logger: KSPLogger) {
             .addParameter("key", STRING)
             .addStatement("param.removeAllHeader(key)")
             .addStatement("return this as R")
-            .returns(rxHttp)
+            .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
 
@@ -429,7 +430,7 @@ class RxHttpGenerator(private val logger: KSPLogger) {
             .addParameter("builder", headerBuilderName)
             .addStatement("param.setHeadersBuilder(builder)")
             .addStatement("return this as R")
-            .returns(rxHttp)
+            .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
 
@@ -443,7 +444,7 @@ class RxHttpGenerator(private val logger: KSPLogger) {
             .addParameter("enabled", BOOLEAN)
             .addStatement("param.setAssemblyEnabled(enabled)")
             .addStatement("return this as R")
-            .returns(rxHttp)
+            .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
 
@@ -456,10 +457,10 @@ class RxHttpGenerator(private val logger: KSPLogger) {
             )
             .addParameter("enabled", BOOLEAN)
             .addStatement(
-                "param.addHeader(%T.DATA_DECRYPT, enabled.toString())", paramKClassName
+                "param.addHeader(%T.DATA_DECRYPT, enabled.toString())", paramClassName
             )
             .addStatement("return this as R")
-            .returns(rxHttp)
+            .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
 
@@ -500,7 +501,7 @@ class RxHttpGenerator(private val logger: KSPLogger) {
             .addParameter("tag", ANY)
             .addStatement("param.tag(tag)")
             .addStatement("return this as R")
-            .returns(rxHttp)
+            .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
 
@@ -510,7 +511,7 @@ class RxHttpGenerator(private val logger: KSPLogger) {
             .addParameter("tag", t)
             .addStatement("param.tag(type, tag)")
             .addStatement("return this as R")
-            .returns(rxHttp)
+            .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
 
@@ -518,7 +519,7 @@ class RxHttpGenerator(private val logger: KSPLogger) {
             .addParameter("cacheControl", cacheControlName)
             .addStatement("param.cacheControl(cacheControl)")
             .addStatement("return this as R")
-            .returns(rxHttp)
+            .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
 
@@ -531,7 +532,7 @@ class RxHttpGenerator(private val logger: KSPLogger) {
             .addParameter("cacheKey", STRING)
             .addStatement("param.setCacheKey(cacheKey)")
             .addStatement("return this as R")
-            .returns(rxHttp)
+            .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
 
@@ -539,7 +540,7 @@ class RxHttpGenerator(private val logger: KSPLogger) {
             .addParameter("cacheValidTime", LONG)
             .addStatement("param.setCacheValidTime(cacheValidTime)")
             .addStatement("return this as R")
-            .returns(rxHttp)
+            .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
 
@@ -547,7 +548,7 @@ class RxHttpGenerator(private val logger: KSPLogger) {
             .addParameter("cacheMode", cacheModeName)
             .addStatement("param.setCacheMode(cacheMode)")
             .addStatement("return this as R")
-            .returns(rxHttp)
+            .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
 
@@ -699,7 +700,7 @@ class RxHttpGenerator(private val logger: KSPLogger) {
                 .addKdoc("sync request \n")
                 .addStatement("isAsync = false")
                 .addStatement("return this as R")
-                .returns(kR)
+                .returns(typeVariableR)
                 .build()
                 .let { methodList.add(it) }
 
@@ -740,7 +741,7 @@ class RxHttpGenerator(private val logger: KSPLogger) {
                 return this as R
                 """.trimIndent()
             )
-            .returns(kR)
+            .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
 
@@ -750,7 +751,7 @@ class RxHttpGenerator(private val logger: KSPLogger) {
             .addParameter("converter", converterName)
             .addStatement("param.tag(IConverter::class.java, converter)")
             .addStatement("return this as R")
-            .returns(kR)
+            .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
 
@@ -762,7 +763,7 @@ class RxHttpGenerator(private val logger: KSPLogger) {
                 return this as R
                 """.trimIndent()
             )
-            .returns(kR)
+            .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
 
@@ -787,7 +788,7 @@ class RxHttpGenerator(private val logger: KSPLogger) {
                 return this as R
                 """.trimIndent()
             )
-            .returns(kR)
+            .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
 
@@ -855,7 +856,7 @@ class RxHttpGenerator(private val logger: KSPLogger) {
             .initializer("true")
             .build()
 
-        val param = PropertySpec.builder("param", kP)
+        val param = PropertySpec.builder("param", typeVariableP)
             .initializer("param")
             .build()
 
@@ -887,8 +888,8 @@ class RxHttpGenerator(private val logger: KSPLogger) {
             .addProperty(param)
             .addProperty(request)
             .superclass(baseRxHttpName)
-            .addTypeVariable(kP)
-            .addTypeVariable(kR)
+            .addTypeVariable(typeVariableP)
+            .addTypeVariable(typeVariableR)
             .addFunctions(methodList)
             .build()
 

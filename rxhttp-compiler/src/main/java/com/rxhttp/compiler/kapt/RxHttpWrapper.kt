@@ -1,8 +1,16 @@
 package com.rxhttp.compiler.kapt
 
-import com.rxhttp.compiler.r
 import com.rxhttp.compiler.rxHttpPackage
-import com.squareup.javapoet.*
+import com.rxhttp.compiler.rxhttpClassName
+import com.squareup.javapoet.ArrayTypeName
+import com.squareup.javapoet.ClassName
+import com.squareup.javapoet.CodeBlock
+import com.squareup.javapoet.JavaFile
+import com.squareup.javapoet.MethodSpec
+import com.squareup.javapoet.ParameterSpec
+import com.squareup.javapoet.ParameterizedTypeName
+import com.squareup.javapoet.TypeSpec
+import com.squareup.javapoet.TypeVariableName
 import rxhttp.wrapper.annotation.Converter
 import rxhttp.wrapper.annotation.Domain
 import rxhttp.wrapper.annotation.OkClient
@@ -10,7 +18,11 @@ import rxhttp.wrapper.annotation.Param
 import java.util.*
 import javax.annotation.processing.Filer
 import javax.annotation.processing.Messager
-import javax.lang.model.element.*
+import javax.lang.model.element.ElementKind
+import javax.lang.model.element.ExecutableElement
+import javax.lang.model.element.Modifier
+import javax.lang.model.element.TypeElement
+import javax.lang.model.element.VariableElement
 import kotlin.collections.ArrayList
 
 /**
@@ -40,7 +52,7 @@ class RxHttpWrapper(private val logger: Messager) {
         }
         if (wrapper.okClientName != null) {
             val msg = "@OkClient annotation className cannot be the same"
-            logger.error(msg,variableElement)
+            logger.error(msg, variableElement)
         }
         var name = okClient.name
         if (name.isBlank()) {
@@ -60,7 +72,7 @@ class RxHttpWrapper(private val logger: Messager) {
         }
         if (wrapper.converterName != null) {
             val msg = "@Converter annotation className cannot be the same"
-            logger.error(msg,variableElement)
+            logger.error(msg, variableElement)
         }
         var name = converter.name
         if (name.isBlank()) {
@@ -79,7 +91,7 @@ class RxHttpWrapper(private val logger: Messager) {
         }
         if (wrapper.domainName != null) {
             val msg = "@Domain annotation className cannot be the same"
-            logger.error(msg,variableElement)
+            logger.error(msg, variableElement)
         }
         var name = domain.name
         if (name.isBlank()) {
@@ -90,7 +102,7 @@ class RxHttpWrapper(private val logger: Messager) {
 
     fun generateRxWrapper(filer: Filer) {
         val requestFunList = generateRequestFunList()
-
+        val typeVariableR = TypeVariableName.get("R", rxhttpClassName)     //泛型R
         //生成多个RxHttp的包装类
         for ((className, wrapper) in classMap) {
             val funBody = CodeBlock.builder()
@@ -106,9 +118,9 @@ class RxHttpWrapper(private val logger: Messager) {
             val methodList = ArrayList<MethodSpec>()
             MethodSpec.methodBuilder("wrapper")
                 .addJavadoc("本类所有方法都会调用本方法\n")
-                .addTypeVariable(r)
+                .addTypeVariable(typeVariableR)
                 .addModifiers(Modifier.PRIVATE, Modifier.STATIC)
-                .addParameter(r, "rxHttp")
+                .addParameter(typeVariableR, "rxHttp")
                 .addCode(funBody.build())
                 .returns(Void.TYPE)
                 .build()
@@ -116,14 +128,16 @@ class RxHttpWrapper(private val logger: Messager) {
             methodList.addAll(requestFunList)
 
             val rxHttpBuilder = TypeSpec.classBuilder("Rx${className}Http")
-                .addJavadoc("""
+                .addJavadoc(
+                    """
                     本类由@Converter、@Domain、@OkClient注解中的className字段生成  类命名方式: Rx + {className字段值} + Http
                     Github
                     https://github.com/liujingxing/rxhttp
                     https://github.com/liujingxing/rxlife
                     https://github.com/liujingxing/rxhttp/wiki/FAQ
                     https://github.com/liujingxing/rxhttp/wiki/更新日志
-                """.trimIndent())
+                """.trimIndent()
+                )
                 .addModifiers(Modifier.PUBLIC)
                 .addMethods(methodList)
 
