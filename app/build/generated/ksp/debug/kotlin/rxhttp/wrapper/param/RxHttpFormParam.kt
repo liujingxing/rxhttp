@@ -2,21 +2,17 @@ package rxhttp.wrapper.param
 
 import android.content.Context
 import android.net.Uri
-
-import java.io.File
-
 import okhttp3.Headers
 import okhttp3.MediaType
 import okhttp3.MultipartBody
-import okhttp3.MultipartBody.Part
 import okhttp3.RequestBody
-import rxhttp.wrapper.annotations.NonNull
-import rxhttp.wrapper.annotations.Nullable
 import rxhttp.wrapper.entity.UpFile
 import rxhttp.wrapper.param.FormParam
+import rxhttp.wrapper.utils.BuildUtil
 import rxhttp.wrapper.utils.asPart
 import rxhttp.wrapper.utils.asRequestBody
-import rxhttp.wrapper.utils.displayName
+import java.io.File
+
 
 /**
  * Github
@@ -88,12 +84,20 @@ open class RxHttpFormParam(param: FormParam) : RxHttpAbstractBodyParam<FormParam
         return this
     }
 
-    @Deprecated("please user {@link #addFiles(List)} instead")
+    @Deprecated(
+        "use `addFiles(List)` instead",
+        ReplaceWith("addFiles(fileList)"),
+        DeprecationLevel.WARNING
+    )
     fun addFile(fileList: List<UpFile>): RxHttpFormParam {
         return addFiles(fileList)
     }
 
-    @Deprecated("please user {@link #addFiles(String, List)} instead")
+    @Deprecated(
+        "use `addFiles(String, List)` instead",
+        ReplaceWith("addFiles(key, fileList)"),
+        DeprecationLevel.WARNING
+    )
     fun <T> addFile(key: String, fileList: List<T>): RxHttpFormParam {
         return addFiles(key, fileList)
     }
@@ -119,8 +123,8 @@ open class RxHttpFormParam(param: FormParam) : RxHttpAbstractBodyParam<FormParam
     }
 
     fun addPart(
-        contentType: MediaType?, 
-        content: ByteArray, 
+        contentType: MediaType?,
+        content: ByteArray,
         offset: Int,
         byteCount: Int
     ): RxHttpFormParam {
@@ -128,88 +132,61 @@ open class RxHttpFormParam(param: FormParam) : RxHttpAbstractBodyParam<FormParam
         return this
     }
     
-    fun addPart(context: Context, uri: Uri): RxHttpFormParam {
-        param.addPart(uri.asRequestBody(context))
-        return this
-    }
-
-    fun addPart(context: Context, key: String, uri: Uri): RxHttpFormParam {
-        param.addPart(uri.asPart(context, key))
-        return this
-    }
-
-    fun addPart(context: Context, key: String, fileName: String?, uri: Uri): RxHttpFormParam {
-        param.addPart(uri.asPart(context, key, fileName))
-        return this
-    }
-
-    fun addPart(context: Context, uri: Uri, contentType: MediaType?): RxHttpFormParam {
+    @JvmOverloads
+    fun addPart(
+        context: Context, 
+        uri: Uri, 
+        contentType: MediaType? = BuildUtil.getMediaTypeByUri(context, uri)
+    ): RxHttpFormParam {
         param.addPart(uri.asRequestBody(context, 0, contentType))
         return this
     }
 
+    @JvmOverloads
     fun addPart(
         context: Context,
         key: String,
         uri: Uri,
-        contentType: MediaType?
+        contentType: MediaType? = BuildUtil.getMediaTypeByUri(context, uri)
     ): RxHttpFormParam {
-        param.addPart(uri.asPart(context, key, uri.displayName(context), 0, contentType))
+        param.addPart(uri.asPart(context, key, skipSize = 0, contentType = contentType))
         return this
     }
 
+    @JvmOverloads
     fun addPart(
         context: Context,
         key: String,
-        filename: String,
+        filename: String?,
         uri: Uri,
-        contentType: MediaType?
+        contentType: MediaType? = BuildUtil.getMediaTypeByUri(context, uri)
     ): RxHttpFormParam {
         param.addPart(uri.asPart(context, key, filename, 0, contentType))
         return this
     }
 
     fun addParts(context: Context, uriMap: Map<String, Uri>): RxHttpFormParam {
-        for ((key, value) in uriMap) {
-            addPart(context, key, value)
-        }
+        uriMap.forEach { key, value -> addPart(context, key, value) }
         return this
     }
 
     fun addParts(context: Context, uris: List<Uri>): RxHttpFormParam {
-        for (uri in uris) {
-            addPart(context, uri)
-        }
+        uris.forEach { addPart(context, it) }
         return this
     }
-
+    
+    fun addParts(context: Context, uris: List<Uri>, contentType: MediaType?): RxHttpFormParam {
+        uris.forEach { addPart(context, it, contentType) }
+        return this
+    }
+    
     fun addParts(context: Context, key: String, uris: List<Uri>): RxHttpFormParam {
-        for (uri in uris) {
-            addPart(context, key, uri)
-        }
+        uris.forEach { addPart(context, key, it) }
         return this
     }
-
-    fun addParts(
-        context: Context, 
-        uris: List<Uri>,
-        contentType: MediaType?
-    ): RxHttpFormParam {
-        for (uri in uris) {
-            addPart(context, uri, contentType)
-        }
-        return this
-    }
-
-    fun addParts(
-        context: Context,
-        key: String, 
-        uris: List<Uri>,
-        contentType: MediaType?
-    ): RxHttpFormParam {
-        for (uri in uris) {
-            addPart(context, key, uri, contentType)
-        }
+    
+    fun addParts(context: Context, key: String, uris: List<Uri>, contentType: MediaType?): RxHttpFormParam {
+        uris.forEach { addPart(context, key, it, contentType) }
         return this
     }
     
@@ -218,12 +195,12 @@ open class RxHttpFormParam(param: FormParam) : RxHttpAbstractBodyParam<FormParam
         return this
     }
 
-    fun addPart(requestBody: RequestBody?): RxHttpFormParam {
+    fun addPart(requestBody: RequestBody): RxHttpFormParam {
         param.addPart(requestBody)
         return this
     }
 
-    fun addPart(headers: Headers?, requestBody: RequestBody?): RxHttpFormParam {
+    fun addPart(headers: Headers?, requestBody: RequestBody): RxHttpFormParam {
         param.addPart(headers, requestBody)
         return this
     }
@@ -231,7 +208,7 @@ open class RxHttpFormParam(param: FormParam) : RxHttpAbstractBodyParam<FormParam
     fun addFormDataPart(
         key: String,
         fileName: String?,
-        requestBody: RequestBody?
+        requestBody: RequestBody
     ): RxHttpFormParam {
         param.addFormDataPart(key, fileName, requestBody)
         return this

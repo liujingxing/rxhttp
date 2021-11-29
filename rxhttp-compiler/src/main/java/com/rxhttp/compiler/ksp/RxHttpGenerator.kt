@@ -682,7 +682,7 @@ class RxHttpGenerator(private val logger: KSPLogger) {
             val deprecatedAnnotation = AnnotationSpec.builder(Deprecated::class)
                 .addMember(
                     """
-                    "please use [setSync()] instead",
+                    "please use `setSync()` instead",
                     ReplaceWith("setSync()"),
                     DeprecationLevel.ERROR
                 """.trimIndent()

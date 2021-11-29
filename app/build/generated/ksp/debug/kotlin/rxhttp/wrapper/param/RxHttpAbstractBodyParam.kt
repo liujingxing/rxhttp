@@ -30,23 +30,20 @@ protected constructor(
         return this as R
     }
 
-    fun upload(progressConsumer: Consumer<Progress>?): R {
-        return upload(null, progressConsumer)
-    }
+    fun upload(progressConsumer: Consumer<Progress>) = upload(null, progressConsumer)
 
     /**
      * @param progressConsumer   Upload progress callback
      * @param observeOnScheduler Controls the downstream callback thread
      */
-    fun upload(observeOnScheduler: Scheduler?, progressConsumer: Consumer<Progress>?): R {
+    fun upload(observeOnScheduler: Scheduler?, progressConsumer: Consumer<Progress>): R {
         this.progressConsumer = progressConsumer
         this.observeOnScheduler = observeOnScheduler
         return this as R
     }
 
-    override fun <T> asParser(parser: Parser<T>): Observable<T> {
-        return asParser(parser, observeOnScheduler, progressConsumer)
-    }
+    override fun <T> asParser(parser: Parser<T>): Observable<T> =
+        asParser(parser, observeOnScheduler, progressConsumer)
 
     override fun <T> asParser(
         parser: Parser<T>,
@@ -56,8 +53,7 @@ protected constructor(
         if (progressConsumer == null) {
             return super.asParser(parser, scheduler, null)
         }
-        val observableCall: ObservableCall
-        observableCall = if (isAsync) {
+        val observableCall: ObservableCall = if (isAsync) {
             ObservableCallEnqueue(this, true)
         } else {
             ObservableCallExecute(this, true)

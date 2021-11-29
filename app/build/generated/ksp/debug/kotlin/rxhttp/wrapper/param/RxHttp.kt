@@ -378,7 +378,7 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
     addDefaultDomainIfAbsent()
   }
 
-  @Deprecated("please use [setSync()] instead",
+  @Deprecated("please use `setSync()` instead",
   ReplaceWith("setSync()"),
   DeprecationLevel.ERROR)
   public fun subscribeOnCurrent() = setSync()

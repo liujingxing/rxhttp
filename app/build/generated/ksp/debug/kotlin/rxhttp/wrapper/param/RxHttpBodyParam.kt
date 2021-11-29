@@ -7,8 +7,8 @@ import rxhttp.wrapper.utils.asRequestBody
 import okhttp3.MediaType
 import okhttp3.RequestBody
 import okio.ByteString
-import rxhttp.wrapper.annotations.Nullable
 import rxhttp.wrapper.param.BodyParam
+import rxhttp.wrapper.utils.BuildUtil
 import java.io.File
 
 /**
@@ -17,63 +17,62 @@ import java.io.File
  * https://github.com/liujingxing/rxlife
  */
 open class RxHttpBodyParam(param: BodyParam) : RxHttpAbstractBodyParam<BodyParam, RxHttpBodyParam>(param) {
+    
     fun setBody(requestBody: RequestBody): RxHttpBodyParam {
         param.setBody(requestBody)
         return this
     }
 
-    fun setBody(content: String, @Nullable mediaType: MediaType?): RxHttpBodyParam {
-        param.setBody(content, mediaType)
-        return this
-    }
-
-    fun setBody(content: ByteString, @Nullable mediaType: MediaType?): RxHttpBodyParam {
-        param.setBody(content, mediaType)
-        return this
-    }
-
-    fun setBody(content: ByteArray, @Nullable mediaType: MediaType?): RxHttpBodyParam {
-        param.setBody(content, mediaType)
-        return this
-    }
-
-    fun setBody(
-        content: ByteArray,
-        @Nullable mediaType: MediaType?,
-        offset: Int,
-        byteCount: Int
-    ): RxHttpBodyParam {
-        param.setBody(content, mediaType, offset, byteCount)
-        return this
-    }
-
-    fun setBody(file: File): RxHttpBodyParam {
-        param.setBody(file)
-        return this
-    }
-
-    fun setBody(file: File, @Nullable mediaType: MediaType?): RxHttpBodyParam {
-        param.setBody(file, mediaType)
+    fun setBody(content: String, contentType: MediaType? = null): RxHttpBodyParam {
+        param.setBody(content, contentType)
         return this
     }
     
-    fun setBody(uri: Uri, context: Context): RxHttpBodyParam {
-        param.setBody(uri.asRequestBody(context))
+    fun setBody(content: ByteString, contentType: MediaType? = null): RxHttpBodyParam {
+        param.setBody(content, contentType)
         return this
     }
 
-    fun setBody(uri: Uri, context: Context, @Nullable contentType: MediaType?): RxHttpBodyParam {
+    @JvmOverloads
+    fun setBody(
+        content: ByteArray,
+        contentType: MediaType?,
+        offset: Int = 0,
+        byteCount: Int = content.size,
+    ): RxHttpBodyParam {
+        param.setBody(content, contentType, offset, byteCount)
+        return this
+    }
+
+    @JvmOverloads
+    fun setBody(
+        file: File,
+        contentType: MediaType? = BuildUtil.getMediaType(file.name),
+    ): RxHttpBodyParam {
+        param.setBody(file, contentType)
+        return this
+    }
+    
+    @JvmOverloads
+    fun setBody(
+        uri: Uri,
+        context: Context,
+        contentType: MediaType? = BuildUtil.getMediaTypeByUri(context, uri),
+    ): RxHttpBodyParam {
         param.setBody(uri.asRequestBody(context, 0, contentType))
         return this
     }
     
-
     fun setBody(any: Any): RxHttpBodyParam {
         param.setBody(any)
         return this
     }
 
-    @Deprecated("please user {@link #setBody(Object)} instead")
+    @Deprecated(
+        message = "use `setBody(Any)` instead",
+        replaceWith = ReplaceWith("setBody(any)"),
+        level = DeprecationLevel.ERROR
+    )
     fun setJsonBody(any: Any): RxHttpBodyParam {
         return setBody(any)
     }

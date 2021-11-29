@@ -1,10 +1,7 @@
 package rxhttp.wrapper.param
 
 import android.content.Context
-import android.graphics.Bitmap
 import android.net.Uri
-
-import java.lang.reflect.Type
 
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Scheduler
@@ -27,6 +24,7 @@ import rxhttp.wrapper.parse.Parser
 import rxhttp.wrapper.parse.SimpleParser
 import rxhttp.wrapper.parse.StreamParser
 import rxhttp.wrapper.utils.LogUtil
+import java.lang.reflect.Type
 
 /**
  * 本类存放asXxx方法(需要单独依赖RxJava，并告知RxHttp依赖的RxJava版本)

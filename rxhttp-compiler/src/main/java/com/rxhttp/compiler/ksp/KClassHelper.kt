@@ -64,11 +64,8 @@ class KClassHelper(private val isAndroidPlatform: Boolean) {
             package $rxHttpPackage
             ${isAndroid("""
             import android.content.Context
-            import android.graphics.Bitmap
             import android.net.Uri
             """)}
-            import java.lang.reflect.Type
-
             import ${getClassPath("Observable")}
             import ${getClassPath("Scheduler")}
             import ${getClassPath("Consumer")}
@@ -90,6 +87,7 @@ class KClassHelper(private val isAndroidPlatform: Boolean) {
             import rxhttp.wrapper.parse.SimpleParser
             import rxhttp.wrapper.parse.StreamParser
             import rxhttp.wrapper.utils.LogUtil
+            import java.lang.reflect.Type
 
             /**
              * 本类存放asXxx方法(需要单独依赖RxJava，并告知RxHttp依赖的RxJava版本)
@@ -904,23 +902,20 @@ class KClassHelper(private val isAndroidPlatform: Boolean) {
                         return this as R
                     }
                 
-                    fun upload(progressConsumer: Consumer<Progress>?): R {
-                        return upload(null, progressConsumer)
-                    }
+                    fun upload(progressConsumer: Consumer<Progress>) = upload(null, progressConsumer)
                 
                     /**
                      * @param progressConsumer   Upload progress callback
                      * @param observeOnScheduler Controls the downstream callback thread
                      */
-                    fun upload(observeOnScheduler: Scheduler?, progressConsumer: Consumer<Progress>?): R {
+                    fun upload(observeOnScheduler: Scheduler?, progressConsumer: Consumer<Progress>): R {
                         this.progressConsumer = progressConsumer
                         this.observeOnScheduler = observeOnScheduler
                         return this as R
                     }
                 
-                    override fun <T> asParser(parser: Parser<T>): Observable<T> {
-                        return asParser(parser, observeOnScheduler, progressConsumer)
-                    }
+                    override fun <T> asParser(parser: Parser<T>): Observable<T> =
+                        asParser(parser, observeOnScheduler, progressConsumer)
                 
                     override fun <T> asParser(
                         parser: Parser<T>,
@@ -930,8 +925,7 @@ class KClassHelper(private val isAndroidPlatform: Boolean) {
                         if (progressConsumer == null) {
                             return super.asParser(parser, scheduler, null)
                         }
-                        val observableCall: ObservableCall
-                        observableCall = if (isAsync) {
+                        val observableCall: ObservableCall = if (isAsync) {
                             ObservableCallEnqueue(this, true)
                         } else {
                             ObservableCallExecute(this, true)
@@ -991,8 +985,8 @@ class KClassHelper(private val isAndroidPlatform: Boolean) {
             import okhttp3.MediaType
             import okhttp3.RequestBody
             import okio.ByteString
-            import rxhttp.wrapper.annotations.Nullable
             import rxhttp.wrapper.param.BodyParam
+            import rxhttp.wrapper.utils.BuildUtil
             import java.io.File
 
             /**
@@ -1001,63 +995,62 @@ class KClassHelper(private val isAndroidPlatform: Boolean) {
              * https://github.com/liujingxing/rxlife
              */
             open class RxHttpBodyParam(param: BodyParam) : RxHttpAbstractBodyParam<BodyParam, RxHttpBodyParam>(param) {
+                
                 fun setBody(requestBody: RequestBody): RxHttpBodyParam {
                     param.setBody(requestBody)
                     return this
                 }
             
-                fun setBody(content: String, @Nullable mediaType: MediaType?): RxHttpBodyParam {
-                    param.setBody(content, mediaType)
+                fun setBody(content: String, contentType: MediaType? = null): RxHttpBodyParam {
+                    param.setBody(content, contentType)
+                    return this
+                }
+                
+                fun setBody(content: ByteString, contentType: MediaType? = null): RxHttpBodyParam {
+                    param.setBody(content, contentType)
                     return this
                 }
             
-                fun setBody(content: ByteString, @Nullable mediaType: MediaType?): RxHttpBodyParam {
-                    param.setBody(content, mediaType)
-                    return this
-                }
-            
-                fun setBody(content: ByteArray, @Nullable mediaType: MediaType?): RxHttpBodyParam {
-                    param.setBody(content, mediaType)
-                    return this
-                }
-            
+                @JvmOverloads
                 fun setBody(
                     content: ByteArray,
-                    @Nullable mediaType: MediaType?,
-                    offset: Int,
-                    byteCount: Int
+                    contentType: MediaType?,
+                    offset: Int = 0,
+                    byteCount: Int = content.size,
                 ): RxHttpBodyParam {
-                    param.setBody(content, mediaType, offset, byteCount)
+                    param.setBody(content, contentType, offset, byteCount)
                     return this
                 }
             
-                fun setBody(file: File): RxHttpBodyParam {
-                    param.setBody(file)
-                    return this
-                }
-            
-                fun setBody(file: File, @Nullable mediaType: MediaType?): RxHttpBodyParam {
-                    param.setBody(file, mediaType)
+                @JvmOverloads
+                fun setBody(
+                    file: File,
+                    contentType: MediaType? = BuildUtil.getMediaType(file.name),
+                ): RxHttpBodyParam {
+                    param.setBody(file, contentType)
                     return this
                 }
                 ${isAndroid("""
-                fun setBody(uri: Uri, context: Context): RxHttpBodyParam {
-                    param.setBody(uri.asRequestBody(context))
-                    return this
-                }
-            
-                fun setBody(uri: Uri, context: Context, @Nullable contentType: MediaType?): RxHttpBodyParam {
+                @JvmOverloads
+                fun setBody(
+                    uri: Uri,
+                    context: Context,
+                    contentType: MediaType? = BuildUtil.getMediaTypeByUri(context, uri),
+                ): RxHttpBodyParam {
                     param.setBody(uri.asRequestBody(context, 0, contentType))
                     return this
                 }
                 """)}
-            
                 fun setBody(any: Any): RxHttpBodyParam {
                     param.setBody(any)
                     return this
                 }
             
-                @Deprecated("please user {@link #setBody(Object)} instead")
+                @Deprecated(
+                    message = "use `setBody(Any)` instead",
+                    replaceWith = ReplaceWith("setBody(any)"),
+                    level = DeprecationLevel.ERROR
+                )
                 fun setJsonBody(any: Any): RxHttpBodyParam {
                     return setBody(any)
                 }
@@ -1074,21 +1067,17 @@ class KClassHelper(private val isAndroidPlatform: Boolean) {
 
             ${isAndroid("import android.content.Context")}
             ${isAndroid("import android.net.Uri")}
-
-            import java.io.File
-
             import okhttp3.Headers
             import okhttp3.MediaType
             import okhttp3.MultipartBody
-            import okhttp3.MultipartBody.Part
             import okhttp3.RequestBody
-            import rxhttp.wrapper.annotations.NonNull
-            import rxhttp.wrapper.annotations.Nullable
             import rxhttp.wrapper.entity.UpFile
             import rxhttp.wrapper.param.FormParam
+            import rxhttp.wrapper.utils.BuildUtil
             import rxhttp.wrapper.utils.asPart
             import rxhttp.wrapper.utils.asRequestBody
-            import rxhttp.wrapper.utils.displayName
+            import java.io.File
+
 
             /**
              * Github
@@ -1160,12 +1149,20 @@ class KClassHelper(private val isAndroidPlatform: Boolean) {
                     return this
                 }
             
-                @Deprecated("please user {@link #addFiles(List)} instead")
+                @Deprecated(
+                    "use `addFiles(List)` instead",
+                    ReplaceWith("addFiles(fileList)"),
+                    DeprecationLevel.WARNING
+                )
                 fun addFile(fileList: List<UpFile>): RxHttpFormParam {
                     return addFiles(fileList)
                 }
             
-                @Deprecated("please user {@link #addFiles(String, List)} instead")
+                @Deprecated(
+                    "use `addFiles(String, List)` instead",
+                    ReplaceWith("addFiles(key, fileList)"),
+                    DeprecationLevel.WARNING
+                )
                 fun <T> addFile(key: String, fileList: List<T>): RxHttpFormParam {
                     return addFiles(key, fileList)
                 }
@@ -1191,8 +1188,8 @@ class KClassHelper(private val isAndroidPlatform: Boolean) {
                 }
             
                 fun addPart(
-                    contentType: MediaType?, 
-                    content: ByteArray, 
+                    contentType: MediaType?,
+                    content: ByteArray,
                     offset: Int,
                     byteCount: Int
                 ): RxHttpFormParam {
@@ -1200,88 +1197,61 @@ class KClassHelper(private val isAndroidPlatform: Boolean) {
                     return this
                 }
                 ${isAndroid("""
-                fun addPart(context: Context, uri: Uri): RxHttpFormParam {
-                    param.addPart(uri.asRequestBody(context))
-                    return this
-                }
-            
-                fun addPart(context: Context, key: String, uri: Uri): RxHttpFormParam {
-                    param.addPart(uri.asPart(context, key))
-                    return this
-                }
-            
-                fun addPart(context: Context, key: String, fileName: String?, uri: Uri): RxHttpFormParam {
-                    param.addPart(uri.asPart(context, key, fileName))
-                    return this
-                }
-            
-                fun addPart(context: Context, uri: Uri, contentType: MediaType?): RxHttpFormParam {
+                @JvmOverloads
+                fun addPart(
+                    context: Context, 
+                    uri: Uri, 
+                    contentType: MediaType? = BuildUtil.getMediaTypeByUri(context, uri)
+                ): RxHttpFormParam {
                     param.addPart(uri.asRequestBody(context, 0, contentType))
                     return this
                 }
             
+                @JvmOverloads
                 fun addPart(
                     context: Context,
                     key: String,
                     uri: Uri,
-                    contentType: MediaType?
+                    contentType: MediaType? = BuildUtil.getMediaTypeByUri(context, uri)
                 ): RxHttpFormParam {
-                    param.addPart(uri.asPart(context, key, uri.displayName(context), 0, contentType))
+                    param.addPart(uri.asPart(context, key, skipSize = 0, contentType = contentType))
                     return this
                 }
             
+                @JvmOverloads
                 fun addPart(
                     context: Context,
                     key: String,
-                    filename: String,
+                    filename: String?,
                     uri: Uri,
-                    contentType: MediaType?
+                    contentType: MediaType? = BuildUtil.getMediaTypeByUri(context, uri)
                 ): RxHttpFormParam {
                     param.addPart(uri.asPart(context, key, filename, 0, contentType))
                     return this
                 }
             
                 fun addParts(context: Context, uriMap: Map<String, Uri>): RxHttpFormParam {
-                    for ((key, value) in uriMap) {
-                        addPart(context, key, value)
-                    }
+                    uriMap.forEach { key, value -> addPart(context, key, value) }
                     return this
                 }
             
                 fun addParts(context: Context, uris: List<Uri>): RxHttpFormParam {
-                    for (uri in uris) {
-                        addPart(context, uri)
-                    }
+                    uris.forEach { addPart(context, it) }
                     return this
                 }
-            
+                
+                fun addParts(context: Context, uris: List<Uri>, contentType: MediaType?): RxHttpFormParam {
+                    uris.forEach { addPart(context, it, contentType) }
+                    return this
+                }
+                
                 fun addParts(context: Context, key: String, uris: List<Uri>): RxHttpFormParam {
-                    for (uri in uris) {
-                        addPart(context, key, uri)
-                    }
+                    uris.forEach { addPart(context, key, it) }
                     return this
                 }
-            
-                fun addParts(
-                    context: Context, 
-                    uris: List<Uri>,
-                    contentType: MediaType?
-                ): RxHttpFormParam {
-                    for (uri in uris) {
-                        addPart(context, uri, contentType)
-                    }
-                    return this
-                }
-            
-                fun addParts(
-                    context: Context,
-                    key: String, 
-                    uris: List<Uri>,
-                    contentType: MediaType?
-                ): RxHttpFormParam {
-                    for (uri in uris) {
-                        addPart(context, key, uri, contentType)
-                    }
+                
+                fun addParts(context: Context, key: String, uris: List<Uri>, contentType: MediaType?): RxHttpFormParam {
+                    uris.forEach { addPart(context, key, it, contentType) }
                     return this
                 }
                 """)}
@@ -1290,12 +1260,12 @@ class KClassHelper(private val isAndroidPlatform: Boolean) {
                     return this
                 }
             
-                fun addPart(requestBody: RequestBody?): RxHttpFormParam {
+                fun addPart(requestBody: RequestBody): RxHttpFormParam {
                     param.addPart(requestBody)
                     return this
                 }
             
-                fun addPart(headers: Headers?, requestBody: RequestBody?): RxHttpFormParam {
+                fun addPart(headers: Headers?, requestBody: RequestBody): RxHttpFormParam {
                     param.addPart(headers, requestBody)
                     return this
                 }
@@ -1303,7 +1273,7 @@ class KClassHelper(private val isAndroidPlatform: Boolean) {
                 fun addFormDataPart(
                     key: String,
                     fileName: String?,
-                    requestBody: RequestBody?
+                    requestBody: RequestBody
                 ): RxHttpFormParam {
                     param.addFormDataPart(key, fileName, requestBody)
                     return this
