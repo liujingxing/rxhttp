@@ -18,7 +18,6 @@ import com.rxhttp.compiler.ksp.ParamsVisitor
 import com.rxhttp.compiler.ksp.ParserVisitor
 import com.rxhttp.compiler.ksp.RxHttpGenerator
 import com.rxhttp.compiler.ksp.RxHttpWrapper
-import com.squareup.kotlinpoet.javapoet.KotlinPoetJavaPoetPreview
 import com.squareup.kotlinpoet.ksp.KotlinPoetKspPreview
 import rxhttp.wrapper.annotation.Converter
 import rxhttp.wrapper.annotation.DefaultDomain

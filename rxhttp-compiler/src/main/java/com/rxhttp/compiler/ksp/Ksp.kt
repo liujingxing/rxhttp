@@ -11,12 +11,10 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSNode
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
-import com.google.devtools.ksp.symbol.KSTypeParameter
 import com.google.devtools.ksp.symbol.KSTypeReference
 import com.google.devtools.ksp.symbol.KSValueParameter
 import com.google.devtools.ksp.symbol.Modifier
 import com.google.devtools.ksp.symbol.Origin
-import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.JavaFile
 import com.squareup.kotlinpoet.BOOLEAN
 import com.squareup.kotlinpoet.BOOLEAN_ARRAY
@@ -47,18 +45,10 @@ import com.squareup.kotlinpoet.U_BYTE_ARRAY
 import com.squareup.kotlinpoet.U_INT_ARRAY
 import com.squareup.kotlinpoet.U_LONG_ARRAY
 import com.squareup.kotlinpoet.U_SHORT_ARRAY
-import com.squareup.kotlinpoet.javapoet.JClassName
-import com.squareup.kotlinpoet.javapoet.JTypeName
-import com.squareup.kotlinpoet.javapoet.JTypeVariableName
-import com.squareup.kotlinpoet.javapoet.KTypeName
-import com.squareup.kotlinpoet.javapoet.KotlinPoetJavaPoetPreview
-import com.squareup.kotlinpoet.javapoet.toJClassName
-import com.squareup.kotlinpoet.javapoet.toJTypeName
 import com.squareup.kotlinpoet.ksp.KotlinPoetKspPreview
 import com.squareup.kotlinpoet.ksp.TypeParameterResolver
 import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.toTypeName
-import com.squareup.kotlinpoet.ksp.toTypeVariableName
 import org.jetbrains.annotations.Nullable
 
 /**
@@ -72,75 +62,6 @@ internal fun KSTypeReference.getQualifiedName() =
 
 //获取方法名
 internal fun KSFunctionDeclaration.getFunName() = simpleName.asString()
-
-@KotlinPoetKspPreview
-@KotlinPoetJavaPoetPreview
-internal fun KSClassDeclaration.toJClassName(): JTypeName {
-    return toClassName().toJClassName()
-}
-
-internal typealias JModifier = javax.lang.model.element.Modifier
-internal typealias JParameterSpec = com.squareup.javapoet.ParameterSpec
-
-internal fun Modifier.toJModifier(): JModifier? {
-    return when (this) {
-        Modifier.PUBLIC -> JModifier.PUBLIC
-        Modifier.PROTECTED -> JModifier.PROTECTED
-        Modifier.PRIVATE -> JModifier.PRIVATE
-        Modifier.ABSTRACT -> JModifier.ABSTRACT
-        Modifier.JAVA_DEFAULT -> JModifier.DEFAULT
-        Modifier.JAVA_STATIC -> JModifier.STATIC
-        Modifier.FINAL -> JModifier.FINAL
-        Modifier.JAVA_TRANSIENT -> JModifier.TRANSIENT
-        Modifier.JAVA_VOLATILE -> JModifier.VOLATILE
-        Modifier.JAVA_SYNCHRONIZED -> JModifier.SYNCHRONIZED
-        Modifier.JAVA_NATIVE -> JModifier.NATIVE
-        Modifier.JAVA_STRICT -> JModifier.STATIC
-        else -> null
-    }
-}
-
-//kotlinpoet 1.10.2版本 对于 kotlin.Unit、kotlin.CharSequence 类型，不会正确转换，所以需要手动处理
-@KotlinPoetJavaPoetPreview
-@KotlinPoetKspPreview
-internal fun KSTypeReference.toJavaTypeName(
-    typeParamResolver: TypeParameterResolver = TypeParameterResolver.EMPTY
-) = toTypeName(typeParamResolver).toJavaTypeName()
-
-@KotlinPoetJavaPoetPreview
-internal fun KTypeName.toJavaTypeName(boxIfPrimitive: Boolean = false) =
-    toJTypeName(boxIfPrimitive).let {
-        when {
-            it.toString() == "kotlin.Unit" -> JTypeName.VOID
-            it.toString() == "kotlin.CharSequence" ->
-                JClassName.bestGuess("java.lang.CharSequence")
-            else -> it
-        }
-    }
-
-@KotlinPoetJavaPoetPreview
-@KotlinPoetKspPreview
-internal fun KSTypeParameter.toJavaTypeVariableName(): JTypeVariableName {
-    return toTypeVariableName().run {
-        JTypeVariableName.get(
-            name,
-            *bounds.map { it.toJavaTypeName(boxIfPrimitive = true) }.toTypedArray()
-        )
-    }
-}
-
-@KotlinPoetJavaPoetPreview
-@KotlinPoetKspPreview
-internal fun KSValueParameter.toJParameterSpec(
-    typeParamResolver: TypeParameterResolver = TypeParameterResolver.EMPTY
-): JParameterSpec {
-    val variableName = name?.asString()
-    var variableTypeName = type.toTypeName(typeParamResolver).toJavaTypeName()
-    if (isVararg && variableTypeName !is ArrayTypeName) {
-        variableTypeName = ArrayTypeName.of(variableTypeName)
-    }
-    return JParameterSpec.builder(variableTypeName, variableName).build()
-}
 
 @KspExperimental
 @KotlinPoetKspPreview
