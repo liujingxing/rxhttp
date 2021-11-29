@@ -200,7 +200,7 @@ private fun KSFunctionDeclaration.getAsXxxFun(
             if (param.type.toString().startsWith("java.lang.Class")) {
                 /*
                  * Class类型参数，需要进行再次包装，最后再取参数名
-                 * 格式：Type tTypeList = ParameterizedTypeImpl.get(List.class, tType);
+                 * 格式：val tTypeList = ParameterizedTypeImpl.get(List.class, tType)
                  */
                 val variableName = "${param.name}$simpleName"
                 val expression =

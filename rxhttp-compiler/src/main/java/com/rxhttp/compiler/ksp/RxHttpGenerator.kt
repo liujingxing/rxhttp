@@ -297,8 +297,8 @@ class RxHttpGenerator(private val logger: KSPLogger) {
             .addParameter(isAddParam)
             .addCode(
                 """
-                if (isAdd) param.addHeader(line);
-                return this as R;
+                if (isAdd) param.addHeader(line)
+                return this as R
                 """.trimIndent()
             )
             .returns(rxHttp)
@@ -332,8 +332,8 @@ class RxHttpGenerator(private val logger: KSPLogger) {
             .addParameter(isAddParam)
             .addCode(
                 """
-                if (isAdd) param.addHeader(key, value);
-                return this as R;
+                if (isAdd) param.addHeader(key, value)
+                return this as R
                 """.trimIndent()
             )
             .returns(rxHttp)
@@ -407,10 +407,10 @@ class RxHttpGenerator(private val logger: KSPLogger) {
             .addParameter("connectLastProgress", BOOLEAN)
             .addCode(
                 """
-                param.setRangeHeader(startIndex, endIndex);                         
+                param.setRangeHeader(startIndex, endIndex)                         
                 if (connectLastProgress)                                            
-                    param.tag(DownloadOffSize::class.java, %T(startIndex));
-                return this as R;                                                    
+                    param.tag(DownloadOffSize::class.java, %T(startIndex))
+                return this as R                                                    
                 """.trimIndent(), downloadOffSizeName
             )
             .returns(rxHttp)
@@ -597,9 +597,9 @@ class RxHttpGenerator(private val logger: KSPLogger) {
             .addModifiers(KModifier.OVERRIDE)
             .addCode(
                 """
-                val request = buildRequest();
-                val okClient = getOkHttpClient();
-                return okClient.newCall(request);
+                val request = buildRequest()
+                val okClient = getOkHttpClient()
+                return okClient.newCall(request)
                 """.trimIndent()
             )
             .returns(callName)
@@ -715,8 +715,8 @@ class RxHttpGenerator(private val logger: KSPLogger) {
                 .addCode(
                     """
                     val observableCall = if(isAsync) ObservableCallEnqueue(this)
-                        else ObservableCallExecute(this);                                
-                    return observableCall.asParser(parser, scheduler, progressConsumer);
+                        else ObservableCallExecute(this)                                
+                    return observableCall.asParser(parser, scheduler, progressConsumer)
                     """.trimIndent()
                 )
                 .returns(observableTName)
@@ -736,8 +736,8 @@ class RxHttpGenerator(private val logger: KSPLogger) {
             .addParameter("converter", converterName)
             .addCode(
                 """
-                this.converter = converter;
-                return this as R;
+                this.converter = converter
+                return this as R
                 """.trimIndent()
             )
             .returns(kR)
@@ -758,8 +758,8 @@ class RxHttpGenerator(private val logger: KSPLogger) {
             .addParameter("okClient", okHttpClientName)
             .addCode(
                 """
-                this.okClient = okClient;
-                return this as R;
+                this.okClient = okClient
+                return this as R
                 """.trimIndent()
             )
             .returns(kR)
@@ -782,9 +782,9 @@ class RxHttpGenerator(private val logger: KSPLogger) {
             .addParameter("domain", STRING)
             .addCode(
                 """
-                val newUrl = addDomainIfAbsent(param.getSimpleUrl(), domain);
-                param.setUrl(newUrl);
-                return this as R;
+                val newUrl = addDomainIfAbsent(param.getSimpleUrl(), domain)
+                param.setUrl(newUrl)
+                return this as R
                 """.trimIndent()
             )
             .returns(kR)
@@ -802,13 +802,13 @@ class RxHttpGenerator(private val logger: KSPLogger) {
                     url                             
                 } else if (url.startsWith("/")) {   
                     if (domain.endsWith("/"))       
-                        domain + url.substring(1);  
+                        domain + url.substring(1)  
                     else                            
-                        domain + url;               
+                        domain + url               
                 } else if (domain.endsWith("/")) {  
-                    domain + url;                   
+                    domain + url                   
                 } else {                            
-                    domain + "/" + url;             
+                    domain + "/" + url             
                 }                                   
                 """.trimIndent()
             )

@@ -156,8 +156,8 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
 
   @JvmOverloads
   public fun addHeader(line: String, isAdd: Boolean = true): R {
-    if (isAdd) param.addHeader(line);
-    return this as R;
+    if (isAdd) param.addHeader(line)
+    return this as R
   }
 
   /**
@@ -184,8 +184,8 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
     `value`: String,
     isAdd: Boolean = true
   ): R {
-    if (isAdd) param.addHeader(key, value);
-    return this as R;
+    if (isAdd) param.addHeader(key, value)
+    return this as R
   }
 
   public fun addAllHeader(headers: Map<String, String>): R {
@@ -226,10 +226,10 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
     endIndex: Long,
     connectLastProgress: Boolean
   ): R {
-    param.setRangeHeader(startIndex, endIndex);                         
+    param.setRangeHeader(startIndex, endIndex)                         
     if (connectLastProgress)                                            
-        param.tag(DownloadOffSize::class.java, DownloadOffSize(startIndex));
-    return this as R;                                                    
+        param.tag(DownloadOffSize::class.java, DownloadOffSize(startIndex))
+    return this as R                                                    
   }
 
   public fun removeAllHeader(key: String): R {
@@ -326,9 +326,9 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
   public fun <T> executeClass(type: Class<T>): T = execute(SimpleParser(type))
 
   public override fun newCall(): Call {
-    val request = buildRequest();
-    val okClient = getOkHttpClient();
-    return okClient.newCall(request);
+    val request = buildRequest()
+    val okClient = getOkHttpClient()
+    return okClient.newCall(request)
   }
 
   public fun buildRequest(): Request {
@@ -400,8 +400,8 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
     progressConsumer: Consumer<Progress>?
   ): Observable<T> {
     val observableCall = if(isAsync) ObservableCallEnqueue(this)
-        else ObservableCallExecute(this);                                
-    return observableCall.asParser(parser, scheduler, progressConsumer);
+        else ObservableCallExecute(this)                                
+    return observableCall.asParser(parser, scheduler, progressConsumer)
   }
 
   public fun <T> asResponse(type: Class<T>): Observable<T> = asParser(ResponseParser(type))
@@ -421,8 +421,8 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
   public fun setFastJsonConverter() = setConverter(fastJsonConverter)
 
   public fun setConverter(converter: IConverter): R {
-    this.converter = converter;
-    return this as R;
+    this.converter = converter
+    return this as R
   }
 
   /**
@@ -434,8 +434,8 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
   }
 
   public fun setOkClient(okClient: OkHttpClient): R {
-    this.okClient = okClient;
-    return this as R;
+    this.okClient = okClient
+    return this as R
   }
 
   public fun setSimpleClient() = setOkClient(simpleClient)
@@ -448,22 +448,22 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
   public fun setDomainToUpdateIfAbsent() = setDomainIfAbsent(update)
 
   public fun setDomainIfAbsent(domain: String): R {
-    val newUrl = addDomainIfAbsent(param.getSimpleUrl(), domain);
-    param.setUrl(newUrl);
-    return this as R;
+    val newUrl = addDomainIfAbsent(param.getSimpleUrl(), domain)
+    param.setUrl(newUrl)
+    return this as R
   }
 
   private fun addDomainIfAbsent(url: String, domain: String): String = if (url.startsWith("http")) {
       url                             
   } else if (url.startsWith("/")) {   
       if (domain.endsWith("/"))       
-          domain + url.substring(1);  
+          domain + url.substring(1)  
       else                            
-          domain + url;               
+          domain + url               
   } else if (domain.endsWith("/")) {  
-      domain + url;                   
+      domain + url                   
   } else {                            
-      domain + "/" + url;             
+      domain + "/" + url             
   }                                   
 
   public companion object {
