@@ -6,10 +6,8 @@ import com.google.devtools.ksp.isPublic
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.KSPLogger
-import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSClassDeclaration
-import com.google.devtools.ksp.symbol.KSFile
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSNode
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
@@ -37,6 +35,7 @@ import com.squareup.kotlinpoet.INT_ARRAY
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.LONG
 import com.squareup.kotlinpoet.LONG_ARRAY
+import com.squareup.kotlinpoet.MemberName
 import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
@@ -233,39 +232,16 @@ internal fun FunSpec.Builder.addParameter(
     vararg modifiers: KModifier
 ) = addParameter(name, typeName.copy(nullable), *modifiers)
 
-@KspExperimental
-internal fun KSPropertyDeclaration?.getClassAndFieldName(resolver: Resolver): Pair<String, String>? {
-    if (this == null) return null
-    val parent = parent
-    var className = if (isJava()) {
-        (parent as? KSClassDeclaration)?.qualifiedName?.asString()
+@KotlinPoetKspPreview
+internal fun KSPropertyDeclaration.toMemberName(): MemberName {
+    val className = (parent as? KSClassDeclaration)?.toClassName()
+    val fieldName = simpleName.asString()
+    return if (className != null) {
+        MemberName(className, fieldName)
     } else {
-        resolver.getOwnerJvmClassName(this)
-    } ?: return null
-    var fieldName = simpleName.asString()
-    if (parent is KSFile) {
-        if (!isStaticToJava()) {
-            //没有使用JvmField注解
-            fieldName = "get${fieldName.firstLetterUpperCase()}()"
-        }
-    } else if (parent is KSClassDeclaration) {
-        if (parent.isCompanionObject) {
-            //伴生对象需要额外处理 类名及字段名
-            className = className.replace("$", ".")
-            if (!isStaticToJava()) {
-                //没有使用JvmField注解
-                fieldName = "get${fieldName.firstLetterUpperCase()}()"
-            } else { //去除伴生对象类名, 如Companion
-                className = className.substring(0, className.lastIndexOf("."))
-            }
-        } else if (parent.classKind == ClassKind.OBJECT) {
-            if (!isStaticToJava()) {
-                fieldName = "get${fieldName.firstLetterUpperCase()}()"
-                className += ".INSTANCE"
-            }
-        }
+        //kotlin top property
+        MemberName(packageName.asString(), fieldName)
     }
-    return Pair(className, fieldName)
 }
 
 internal fun KSPLogger.error(throwable: Throwable, ksNode: KSNode) {

@@ -11,8 +11,8 @@ import com.google.devtools.ksp.symbol.KSFile
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.KSVisitorVoid
 import com.google.devtools.ksp.symbol.Modifier
-import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FunSpec
+import com.squareup.kotlinpoet.ksp.KotlinPoetKspPreview
 import rxhttp.wrapper.annotation.Domain
 import java.util.*
 
@@ -54,19 +54,14 @@ class DomainVisitor(
 
 
     //对url添加域名方法
-    @KspExperimental
+    @KotlinPoetKspPreview
     fun getFunList(): List<FunSpec> {
         return elementMap.mapNotNull { entry ->
             val key = entry.key
-            val value = entry.value
-            val classAndFieldName = value.getClassAndFieldName(resolver) ?: return@mapNotNull null
-            val className = classAndFieldName.first
-            val fieldName = classAndFieldName.second
-
+            val ksProperty = entry.value
+            val memberName = ksProperty.toMemberName()
             FunSpec.builder("setDomainTo${key}IfAbsent")
-                .addCode(
-                    "return setDomainIfAbsent(%T.$fieldName);", ClassName.bestGuess(className),
-                )
+                .addCode("return setDomainIfAbsent(%M)", memberName)
                 .build()
         }
     }

@@ -1,12 +1,15 @@
 package rxhttp.wrapper.`param`
 
-import com.example.httpsender.RxHttpManager
+import com.example.httpsender.RxHttpManager.fastJsonConverter
+import com.example.httpsender.RxHttpManager.simpleClient
+import com.example.httpsender.RxHttpManager.xmlConverter
 import com.example.httpsender.`param`.GetEncryptParam
 import com.example.httpsender.`param`.PostEncryptFormParam
 import com.example.httpsender.`param`.PostEncryptJsonParam
 import com.example.httpsender.`param`.PostEncryptJsonParam1
 import com.example.httpsender.entity.PageList
-import com.example.httpsender.entity.Url
+import com.example.httpsender.entity.Url.baseUrl
+import com.example.httpsender.entity.Url.update
 import com.example.httpsender.parser.ResponseParser
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Scheduler
@@ -413,9 +416,9 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
     return asParser(ResponseParser(typePageList))
   }
 
-  public fun setXmlConverter() = setConverter(RxHttpManager.xmlConverter)
+  public fun setXmlConverter() = setConverter(xmlConverter)
 
-  public fun setFastJsonConverter() = setConverter(RxHttpManager.fastJsonConverter)
+  public fun setFastJsonConverter() = setConverter(fastJsonConverter)
 
   public fun setConverter(converter: IConverter): R {
     this.converter = converter;
@@ -435,14 +438,14 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
     return this as R;
   }
 
-  public fun setSimpleClient() = setOkClient(RxHttpManager.simpleClient)
+  public fun setSimpleClient() = setOkClient(simpleClient)
 
   /**
    * 给Param设置默认域名(如果缺席的话)，此方法会在请求发起前，被RxHttp内部调用
    */
-  private fun addDefaultDomainIfAbsent() = setDomainIfAbsent(Url.baseUrl);
+  private fun addDefaultDomainIfAbsent() = setDomainIfAbsent(baseUrl)
 
-  public fun setDomainToUpdateIfAbsent() = setDomainIfAbsent(Url.update);
+  public fun setDomainToUpdateIfAbsent() = setDomainIfAbsent(update)
 
   public fun setDomainIfAbsent(domain: String): R {
     val newUrl = addDomainIfAbsent(param.getSimpleUrl(), domain);

@@ -11,8 +11,8 @@ import com.google.devtools.ksp.symbol.KSFile
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.KSVisitorVoid
 import com.google.devtools.ksp.symbol.Modifier
-import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FunSpec
+import com.squareup.kotlinpoet.ksp.KotlinPoetKspPreview
 import rxhttp.wrapper.annotation.OkClient
 import java.util.*
 
@@ -47,19 +47,14 @@ class OkClientVisitor(
         }
     }
 
-    @KspExperimental
+    @KotlinPoetKspPreview
     fun getFunList(): List<FunSpec> {
         return elementMap.mapNotNull { entry ->
             val key = entry.key
-            val value = entry.value
-            val classAndFieldName = value.getClassAndFieldName(resolver) ?: return@mapNotNull null
-            val className = classAndFieldName.first
-            val fieldName = classAndFieldName.second
-
+            val ksProperty = entry.value
+            val memberName = ksProperty.toMemberName()
             FunSpec.builder("set$key")
-                .addStatement(
-                    "return setOkClient(%T.$fieldName)", ClassName.bestGuess(className)
-                )
+                .addStatement("return setOkClient(%M)", memberName)
                 .build()
         }
     }
