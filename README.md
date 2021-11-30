@@ -74,7 +74,7 @@ plugins {
 dependencies {
     implementation 'com.squareup.okhttp3:okhttp:4.9.1'  
     implementation 'com.github.liujingxing.rxhttp:rxhttp:2.8.0'
-    // ksp/kpat/annotationProcessor choose one
+    // ksp/kapt/annotationProcessor choose one
     ksp 'com.github.liujingxing.rxhttp:rxhttp-compiler:2.8.0'
  }
 ```
