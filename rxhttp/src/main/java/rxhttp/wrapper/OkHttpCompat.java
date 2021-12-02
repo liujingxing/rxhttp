@@ -99,7 +99,8 @@ public class OkHttpCompat {
         return request.url();
     }
 
-    public static Headers headers(Response response) {
+    public static Headers getHeadersAndCloseBody(Response response) {
+        OkHttpCompat.closeQuietly(response);
         return response.headers();
     }
 

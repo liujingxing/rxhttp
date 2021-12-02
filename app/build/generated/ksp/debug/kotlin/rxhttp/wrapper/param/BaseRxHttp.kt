@@ -8,8 +8,6 @@ import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.functions.Consumer
 import io.reactivex.rxjava3.plugins.RxJavaPlugins
 import io.reactivex.rxjava3.schedulers.Schedulers
-import okhttp3.Headers
-import okhttp3.Response
 import rxhttp.wrapper.CallFactory
 import rxhttp.wrapper.OkHttpCompat
 import rxhttp.wrapper.callback.FileOutputStreamFactory
@@ -77,15 +75,7 @@ abstract class BaseRxHttp : CallFactory, RangeHeader {
     
     fun asOkResponse() = asParser(OkResponseParser())
 
-    fun asHeaders(): Observable<Headers> =
-        asOkResponse()
-            .map { response: Response ->
-                try {
-                    return@map response.headers
-                } finally {
-                    OkHttpCompat.closeQuietly(response)
-                }
-            }
+    fun asHeaders() = asOkResponse().map { OkHttpCompat.getHeadersAndCloseBody(it) }
 
     fun asDownload(
         destPath: String,

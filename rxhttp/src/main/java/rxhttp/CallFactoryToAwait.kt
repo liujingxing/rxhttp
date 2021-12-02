@@ -1,12 +1,9 @@
 package rxhttp
 
 import android.content.Context
-import android.graphics.Bitmap
 import android.net.Uri
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
-import okhttp3.Headers
-import okhttp3.Response
 import rxhttp.wrapper.CallFactory
 import rxhttp.wrapper.OkHttpCompat
 import rxhttp.wrapper.callback.OutputStreamFactory
@@ -14,7 +11,11 @@ import rxhttp.wrapper.coroutines.Await
 import rxhttp.wrapper.coroutines.AwaitImpl
 import rxhttp.wrapper.entity.Progress
 import rxhttp.wrapper.entity.ProgressT
-import rxhttp.wrapper.parse.*
+import rxhttp.wrapper.parse.BitmapParser
+import rxhttp.wrapper.parse.OkResponseParser
+import rxhttp.wrapper.parse.Parser
+import rxhttp.wrapper.parse.SimpleParser
+import rxhttp.wrapper.parse.SuspendStreamParser
 
 /**
  * User: ljx
@@ -32,18 +33,11 @@ inline fun <reified T> CallFactory.toList(): Await<MutableList<T>> = toClass()
 
 inline fun <reified K, reified V> CallFactory.toMap(): Await<Map<K, V>> = toClass()
 
-fun CallFactory.toBitmap(): Await<Bitmap> = toParser(BitmapParser())
+fun CallFactory.toBitmap() = toParser(BitmapParser())
 
-fun CallFactory.toOkResponse(): Await<Response> = toParser(OkResponseParser())
+fun CallFactory.toOkResponse() = toParser(OkResponseParser())
 
-fun CallFactory.toHeaders(): Await<Headers> = toOkResponse()
-    .map {
-        try {
-            OkHttpCompat.headers(it)
-        } finally {
-            OkHttpCompat.closeQuietly(it)
-        }
-    }
+fun CallFactory.toHeaders() = toOkResponse().map { OkHttpCompat.getHeadersAndCloseBody(it) }
 
 fun <T> CallFactory.toSyncDownload(
     osFactory: OutputStreamFactory<T>,

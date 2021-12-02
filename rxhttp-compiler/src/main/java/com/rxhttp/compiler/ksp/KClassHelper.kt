@@ -71,8 +71,6 @@ class KClassHelper(private val isAndroidPlatform: Boolean) {
             import ${getClassPath("Consumer")}
             import ${getClassPath("RxJavaPlugins")}
             import ${getClassPath("Schedulers")}
-            import okhttp3.Headers
-            import okhttp3.Response
             import rxhttp.wrapper.CallFactory
             import rxhttp.wrapper.OkHttpCompat
             import rxhttp.wrapper.callback.FileOutputStreamFactory
@@ -140,15 +138,7 @@ class KClassHelper(private val isAndroidPlatform: Boolean) {
                 """)}
                 fun asOkResponse() = asParser(OkResponseParser())
             
-                fun asHeaders(): Observable<Headers> =
-                    asOkResponse()
-                        .map { response: Response ->
-                            try {
-                                return@map response.headers
-                            } finally {
-                                OkHttpCompat.closeQuietly(response)
-                            }
-                        }
+                fun asHeaders() = asOkResponse().map { OkHttpCompat.getHeadersAndCloseBody(it) }
             
                 fun asDownload(
                     destPath: String,
