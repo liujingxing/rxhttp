@@ -17,10 +17,6 @@ android {
         multiDexEnabled true
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-
-        sourceSets.main {
-            java.srcDir("build/generated/ksp")
-        }
     }
 
 
@@ -61,6 +57,12 @@ android {
         // Or, if you prefer, you can continue to check for errors in release builds,
         // but continue the build even when errors are found:
         abortOnError false
+    }
+}
+
+kotlin {
+    sourceSets.debug {
+        kotlin.srcDir("build/generated/ksp/debug/kotlin")
     }
 }
 

@@ -112,7 +112,15 @@ plugins {
     // kapt/ksp 选其一
     // id 'kotlin-kapt'
     id("com.google.devtools.ksp") version "1.6.0-1.0.1"
-}    
+}
+
+//让IDE知道ksp生成的kotlin代码(仅使用ksp时才需要)
+kotlin {
+    sourceSets.debug {
+        //如果通过productFlavors配置了多渠道，则配置 /../ksp/xxxDebug/kotlin
+        kotlin.srcDir("build/generated/ksp/debug/kotlin")
+    }
+}
 
 dependencies {
     implementation 'com.squareup.okhttp3:okhttp:4.9.1'  

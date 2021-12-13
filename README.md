@@ -70,6 +70,12 @@ plugins {
     id("com.google.devtools.ksp") version "1.6.0-1.0.1"
 }
 
+//Make IDE aware of generated code if you use ksp
+kotlin {
+    sourceSets.debug {
+        kotlin.srcDir("build/generated/ksp/debug/kotlin")
+    }
+}
     
 dependencies {
     implementation 'com.squareup.okhttp3:okhttp:4.9.1'  
