@@ -10,7 +10,7 @@ import rxhttp.wrapper.param.JsonParam
  * https://github.com/liujingxing/rxhttp/wiki/FAQ
  * https://github.com/liujingxing/rxhttp/wiki/更新日志
  */
-open class RxHttpJsonParam(param: JsonParam) : RxHttpAbstractBodyParam<JsonParam>(param) {
+open class RxHttpJsonParam(param: JsonParam) : RxHttpAbstractBodyParam<JsonParam, RxHttpJsonParam>(param) {
 
     @JvmOverloads
     fun add(key: String, value: Any?, isAdd: Boolean = true) = apply {

@@ -135,7 +135,7 @@ class RxHttpWrapper(private val logger: KSPLogger) {
                 funBody.addStatement("setDomainTo${it}IfAbsent()")
             }
             val wildcard = TypeVariableName("*")
-            val rxHttpName = rxhttpKClassName.parameterizedBy(wildcard)
+            val rxHttpName = rxhttpKClassName.parameterizedBy(wildcard, wildcard)
             val typeVariable = TypeVariableName("R", rxHttpName)
             val funList = ArrayList<FunSpec>()
             FunSpec.builder("wrapper")

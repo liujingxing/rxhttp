@@ -158,7 +158,7 @@ class RxHttpExtensions(private val logger: KSPLogger) {
 
         val wildcard = TypeVariableName("*")
         val rxHttpBodyParamName = ClassName(rxHttpPackage, "RxHttpAbstractBodyParam")
-            .parameterizedBy(wildcard)
+            .parameterizedBy(wildcard, wildcard)
 
         val progressSuspendLambdaName = LambdaTypeName.get(
             parameters = arrayOf(progressName),
@@ -167,7 +167,7 @@ class RxHttpExtensions(private val logger: KSPLogger) {
 
         val fileBuilder = FileSpec.builder(rxHttpPackage, "RxHttpExtension")
 
-        val rxHttpName = rxhttpKClassName.parameterizedBy(wildcard)
+        val rxHttpName = rxhttpKClassName.parameterizedBy(wildcard, wildcard)
         FunSpec.builder("executeList")
             .addModifiers(KModifier.INLINE)
             .receiver(rxHttpName)

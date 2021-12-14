@@ -15,18 +15,19 @@ import rxhttp.wrapper.parse.Parser
  * https://github.com/liujingxing/rxhttp/wiki/FAQ
  * https://github.com/liujingxing/rxhttp/wiki/更新日志
  */
-open class RxHttpAbstractBodyParam<P : AbstractBodyParam<P>> 
+open class RxHttpAbstractBodyParam<P : AbstractBodyParam<P>, R : RxHttpAbstractBodyParam<P, R>> 
 protected constructor(
     param: P
-) : RxHttp<P>(param), BodyParamFactory {
+) : RxHttp<P, R>(param), BodyParamFactory {
     //Controls the downstream callback thread
     private var observeOnScheduler: Scheduler? = null
 
     //Upload progress callback
     private var progressConsumer: Consumer<Progress>? = null
     
-    fun setUploadMaxLength(maxLength: Long) = apply {
+    fun setUploadMaxLength(maxLength: Long): R {
         param.setUploadMaxLength(maxLength)
+        return this as R
     }
 
     fun upload(progressConsumer: Consumer<Progress>) = upload(null, progressConsumer)
@@ -35,9 +36,10 @@ protected constructor(
      * @param progressConsumer   Upload progress callback
      * @param observeOnScheduler Controls the downstream callback thread
      */
-    fun upload(observeOnScheduler: Scheduler?, progressConsumer: Consumer<Progress>) = apply {
+    fun upload(observeOnScheduler: Scheduler?, progressConsumer: Consumer<Progress>): R {
         this.progressConsumer = progressConsumer
         this.observeOnScheduler = observeOnScheduler
+        return this as R
     }
 
     override fun <T> asParser(parser: Parser<T>): Observable<T> =

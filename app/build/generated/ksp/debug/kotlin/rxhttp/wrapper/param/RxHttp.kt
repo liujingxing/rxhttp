@@ -56,7 +56,7 @@ import rxhttp.wrapper.utils.LogUtil
  * https://github.com/liujingxing/rxhttp/wiki/FAQ
  * https://github.com/liujingxing/rxhttp/wiki/更新日志
  */
-public open class RxHttp<P : Param<P>> protected constructor(
+public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
   public val `param`: P
 ) : BaseRxHttp() {
   private var connectTimeoutMillis: Long = 0L
@@ -134,13 +134,25 @@ public open class RxHttp<P : Param<P>> protected constructor(
       return _okHttpClient!!
     }
 
-  public fun connectTimeout(connectTimeout: Long) = apply { connectTimeoutMillis = connectTimeout }
+  public fun connectTimeout(connectTimeout: Long): R {
+    connectTimeoutMillis = connectTimeout
+    return this as R
+  }
 
-  public fun readTimeout(readTimeout: Long) = apply { readTimeoutMillis = readTimeout }
+  public fun readTimeout(readTimeout: Long): R {
+    readTimeoutMillis = readTimeout
+    return this as R
+  }
 
-  public fun writeTimeout(writeTimeout: Long) = apply { writeTimeoutMillis = writeTimeout }
+  public fun writeTimeout(writeTimeout: Long): R {
+    writeTimeoutMillis = writeTimeout
+    return this as R
+  }
 
-  public fun setUrl(url: String) = apply { param.setUrl(url) }
+  public fun setUrl(url: String): R {
+    param.setUrl(url)
+    return this as R
+  }
 
   /**
    * For example:
@@ -152,53 +164,78 @@ public open class RxHttp<P : Param<P>> protected constructor(
    * ```
    * url = /service/1/...
    */
-  public fun addPath(name: String, `value`: Any) = apply { param.addPath(name, value) }
+  public fun addPath(name: String, `value`: Any): R {
+    param.addPath(name, value)
+    return this as R
+  }
 
-  public fun addEncodedPath(name: String, `value`: Any) = apply {
+  public fun addEncodedPath(name: String, `value`: Any): R {
     param.addEncodedPath(name, value)
+    return this as R
   }
 
-  public fun addQuery(key: String) = apply { param.addQuery(key, null) }
+  public fun addQuery(key: String): R {
+    param.addQuery(key, null)
+    return this as R
+  }
 
-  public fun addEncodedQuery(key: String) = apply {
+  public fun addEncodedQuery(key: String): R {
     param.addEncodedQuery(key, null)
+    return this as R
   }
 
-  public fun addQuery(key: String, `value`: Any?) = apply { param.addQuery(key, value) }
+  public fun addQuery(key: String, `value`: Any?): R {
+    param.addQuery(key, value)
+    return this as R
+  }
 
-  public fun addEncodedQuery(key: String, `value`: Any?) = apply {
+  public fun addEncodedQuery(key: String, `value`: Any?): R {
     param.addEncodedQuery(key, value)
+    return this as R
   }
 
-  public fun addAllQuery(key: String, list: List<*>) = apply { param.addAllQuery(key, list) }
+  public fun addAllQuery(key: String, list: List<*>): R {
+    param.addAllQuery(key, list)
+    return this as R
+  }
 
-  public fun addAllEncodedQuery(key: String, list: List<*>) = apply {
+  public fun addAllEncodedQuery(key: String, list: List<*>): R {
     param.addAllEncodedQuery(key, list)
+    return this as R
   }
 
-  public fun addAllQuery(map: Map<String, *>) = apply { param.addAllQuery(map) }
+  public fun addAllQuery(map: Map<String, *>): R {
+    param.addAllQuery(map)
+    return this as R
+  }
 
-  public fun addAllEncodedQuery(map: Map<String, *>) = apply { param.addAllEncodedQuery(map) }
+  public fun addAllEncodedQuery(map: Map<String, *>): R {
+    param.addAllEncodedQuery(map)
+    return this as R
+  }
 
   @JvmOverloads
-  public fun addHeader(line: String, isAdd: Boolean = true) = apply {
+  public fun addHeader(line: String, isAdd: Boolean = true): R {
     if (isAdd) param.addHeader(line)
+    return this as R
   }
 
   /**
    * Add a header with the specified name and value. Does validation of header names, allowing
    * non-ASCII values.
    */
-  public fun addNonAsciiHeader(key: String, `value`: String) = apply {
-    param.addNonAsciiHeader(key, value)
+  public fun addNonAsciiHeader(key: String, `value`: String): R {
+    param.addNonAsciiHeader(key,value)
+    return this as R
   }
 
   /**
    * Set a header with the specified name and value. Does validation of header names, allowing
    * non-ASCII values.
    */
-  public fun setNonAsciiHeader(key: String, `value`: String) = apply {
-    param.setNonAsciiHeader(key, value)
+  public fun setNonAsciiHeader(key: String, `value`: String): R {
+    param.setNonAsciiHeader(key,value)
+    return this as R
   }
 
   @JvmOverloads
@@ -206,17 +243,30 @@ public open class RxHttp<P : Param<P>> protected constructor(
     key: String,
     `value`: String,
     isAdd: Boolean = true
-  ) = apply {
+  ): R {
     if (isAdd) param.addHeader(key, value)
+    return this as R
   }
 
-  public fun addAllHeader(headers: Map<String, String>) = apply { param.addAllHeader(headers) }
+  public fun addAllHeader(headers: Map<String, String>): R {
+    param.addAllHeader(headers)
+    return this as R
+  }
 
-  public fun addAllHeader(headers: Headers) = apply { param.addAllHeader(headers) }
+  public fun addAllHeader(headers: Headers): R {
+    param.addAllHeader(headers)
+    return this as R
+  }
 
-  public fun setHeader(key: String, `value`: String) = apply { param.setHeader(key, value) }
+  public fun setHeader(key: String, `value`: String): R {
+    param.setHeader(key,value)
+    return this as R
+  }
 
-  public fun setAllHeader(headers: Map<String, String>) = apply { param.setAllHeader(headers) }
+  public fun setAllHeader(headers: Map<String, String>): R {
+    param.setAllHeader(headers)
+    return this as R
+  }
 
   @JvmOverloads
   public fun setRangeHeader(startIndex: Long, endIndex: Long = -1L) = setRangeHeader(startIndex,
@@ -235,49 +285,74 @@ public open class RxHttp<P : Param<P>> protected constructor(
     startIndex: Long,
     endIndex: Long,
     connectLastProgress: Boolean
-  ) = apply {
+  ): R {
     param.setRangeHeader(startIndex, endIndex)                         
     if (connectLastProgress)                                            
         param.tag(DownloadOffSize::class.java, DownloadOffSize(startIndex))
-  }    
+    return this as R                                                    
+  }
 
-  public fun removeAllHeader(key: String) = apply { param.removeAllHeader(key) }
+  public fun removeAllHeader(key: String): R {
+    param.removeAllHeader(key)
+    return this as R
+  }
 
-  public fun setHeadersBuilder(builder: Headers.Builder) = apply {
+  public fun setHeadersBuilder(builder: Headers.Builder): R {
     param.setHeadersBuilder(builder)
+    return this as R
   }
 
   /**
    * 设置单个接口是否需要添加公共参数,
    * 即是否回调通过{@link RxHttpPlugins#setOnParamAssembly(Function)}方法设置的接口,默认为true
    */
-  public fun setAssemblyEnabled(enabled: Boolean) = apply { param.setAssemblyEnabled(enabled) }
+  public fun setAssemblyEnabled(enabled: Boolean): R {
+    param.setAssemblyEnabled(enabled)
+    return this as R
+  }
 
   /**
    * 设置单个接口是否需要对Http返回的数据进行解码/解密,
    * 即是否回调通过{@link RxHttpPlugins#setResultDecoder(Function)}方法设置的接口,默认为true
    */
-  public fun setDecoderEnabled(enabled: Boolean) = apply {
+  public fun setDecoderEnabled(enabled: Boolean): R {
     param.addHeader(Param.DATA_DECRYPT, enabled.toString())
+    return this as R
   }
 
   public fun isAssemblyEnabled() = param.isAssemblyEnabled()
 
   public fun getHeader(key: String) = param.getHeader(key)
 
-  public fun tag(tag: Any) = apply { param.tag(tag) }
-
-  public fun <T> tag(type: Class<in T>, tag: T) = apply { param.tag(type, tag) }
-
-  public fun cacheControl(cacheControl: CacheControl) = apply { param.cacheControl(cacheControl) }
-
-  public fun setCacheKey(cacheKey: String) = apply { param.setCacheKey(cacheKey) }
-
-  public fun setCacheValidTime(cacheValidTime: Long) = apply {
-    param.setCacheValidTime(cacheValidTime)
+  public fun tag(tag: Any): R {
+    param.tag(tag)
+    return this as R
   }
 
-  public fun setCacheMode(cacheMode: CacheMode) = apply { param.setCacheMode(cacheMode) }
+  public fun <T> tag(type: Class<in T>, tag: T): R {
+    param.tag(type, tag)
+    return this as R
+  }
+
+  public fun cacheControl(cacheControl: CacheControl): R {
+    param.cacheControl(cacheControl)
+    return this as R
+  }
+
+  public fun setCacheKey(cacheKey: String): R {
+    param.setCacheKey(cacheKey)
+    return this as R
+  }
+
+  public fun setCacheValidTime(cacheValidTime: Long): R {
+    param.setCacheValidTime(cacheValidTime)
+    return this as R
+  }
+
+  public fun setCacheMode(cacheMode: CacheMode): R {
+    param.setCacheMode(cacheMode)
+    return this as R
+  }
 
   @Throws(IOException::class)
   public fun execute(): Response = newCall().execute()
@@ -326,7 +401,10 @@ public open class RxHttp<P : Param<P>> protected constructor(
   /**
    * sync request 
    */
-  public fun setSync() = apply { isAsync = false }
+  public fun setSync(): R {
+    isAsync = false
+    return this as R
+  }
 
   public override fun <T> asParser(
     parser: Parser<T>,
@@ -354,16 +432,23 @@ public open class RxHttp<P : Param<P>> protected constructor(
 
   public fun setFastJsonConverter() = setConverter(fastJsonConverter)
 
-  public fun setConverter(converter: IConverter) = apply { this.converter = converter }
+  public fun setConverter(converter: IConverter): R {
+    this.converter = converter
+    return this as R
+  }
 
   /**
    * 给Param设置转换器，此方法会在请求发起前，被RxHttp内部调用
    */
-  private fun setConverterToParam(converter: IConverter) = apply {
+  private fun setConverterToParam(converter: IConverter): R {
     param.tag(IConverter::class.java, converter)
+    return this as R
   }
 
-  public fun setOkClient(okClient: OkHttpClient) = apply { this.okClient = okClient }
+  public fun setOkClient(okClient: OkHttpClient): R {
+    this.okClient = okClient
+    return this as R
+  }
 
   public fun setSimpleClient() = setOkClient(simpleClient)
 
@@ -374,9 +459,10 @@ public open class RxHttp<P : Param<P>> protected constructor(
 
   public fun setDomainToUpdateIfAbsent() = setDomainIfAbsent(update)
 
-  public fun setDomainIfAbsent(domain: String) = apply {    
+  public fun setDomainIfAbsent(domain: String): R {
     val newUrl = addDomainIfAbsent(param.getSimpleUrl(), domain)
     param.setUrl(newUrl)
+    return this as R
   }
 
   private fun addDomainIfAbsent(url: String, domain: String): String = if (url.startsWith("http")) {
