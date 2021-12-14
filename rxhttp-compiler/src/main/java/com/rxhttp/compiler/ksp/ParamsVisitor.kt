@@ -190,8 +190,11 @@ class ParamsVisitor(
                 }
                 when {
                     returnType === rxHttpParamName -> {
-                        funSpecBuilder.addStatement(prefix + methodBody, param)
-                            .addStatement("return this")
+                        funSpecBuilder.addCode("""
+                            return apply {
+                              $prefix$methodBody 
+                            }
+                        """.trimIndent(), param)
                     }
                     returnType == UNIT -> {
                         funSpecBuilder.addStatement(prefix + methodBody)
@@ -200,7 +203,7 @@ class ParamsVisitor(
                         funSpecBuilder.addStatement("return $prefix$methodBody", param)
                     }
                 }
-                returnType?.apply { funSpecBuilder.returns(this) }
+                // returnType?.apply { funSpecBuilder.returns(this) }
 
                 rxHttpPostCustomFun.add(funSpecBuilder.build())
             }

@@ -25,9 +25,8 @@ protected constructor(
     //Upload progress callback
     private var progressConsumer: Consumer<Progress>? = null
     
-    fun setUploadMaxLength(maxLength: Long): R {
+    fun setUploadMaxLength(maxLength: Long) = apply {
         param.setUploadMaxLength(maxLength)
-        return this as R
     }
 
     fun upload(progressConsumer: Consumer<Progress>) = upload(null, progressConsumer)
@@ -36,10 +35,9 @@ protected constructor(
      * @param progressConsumer   Upload progress callback
      * @param observeOnScheduler Controls the downstream callback thread
      */
-    fun upload(observeOnScheduler: Scheduler?, progressConsumer: Consumer<Progress>): R {
+    fun upload(observeOnScheduler: Scheduler?, progressConsumer: Consumer<Progress>) = apply {
         this.progressConsumer = progressConsumer
         this.observeOnScheduler = observeOnScheduler
-        return this as R
     }
 
     override fun <T> asParser(parser: Parser<T>): Observable<T> =

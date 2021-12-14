@@ -13,38 +13,27 @@ import rxhttp.wrapper.param.JsonParam
 open class RxHttpJsonParam(param: JsonParam) : RxHttpAbstractBodyParam<JsonParam, RxHttpJsonParam>(param) {
 
     @JvmOverloads
-    fun add(key: String, value: Any?, isAdd: Boolean = true): RxHttpJsonParam {
+    fun add(key: String, value: Any?, isAdd: Boolean = true) = apply {
         if (isAdd) param.add(key, value)
-        return this
     }
 
-    fun addAll(map: Map<String, *>): RxHttpJsonParam {
-        param.addAll(map)
-        return this
-    }
+    fun addAll(map: Map<String, *>) = apply { param.addAll(map) }
 
     /**
      * 将Json对象里面的key-value逐一取出，添加到另一个Json对象中，
      * 输入非Json对象将抛出[IllegalStateException]异常
      */
-    fun addAll(jsonObject: String): RxHttpJsonParam {
-        param.addAll(jsonObject)
-        return this
-    }
+    fun addAll(jsonObject: String) = apply { param.addAll(jsonObject) }
 
     /**
      * 将Json对象里面的key-value逐一取出，添加到另一个Json对象中
      */
-    fun addAll(jsonObject: JsonObject): RxHttpJsonParam {
-        param.addAll(jsonObject)
-        return this
-    }
+    fun addAll(jsonObject: JsonObject) = apply { param.addAll(jsonObject) }
 
     /**
      * 添加一个JsonElement对象(Json对象、json数组等)
      */
-    fun addJsonElement(key: String, jsonElement: String): RxHttpJsonParam {
+    fun addJsonElement(key: String, jsonElement: String) = apply {
         param.addJsonElement(key, jsonElement)
-        return this
     }
 }

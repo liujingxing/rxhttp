@@ -54,12 +54,10 @@ public inline fun <reified T> BaseRxHttp.asResponse() = asParser(object: Respons
 level = DeprecationLevel.ERROR)
 public fun <P : AbstractBodyParam<P>, R : RxHttpAbstractBodyParam<P, R>>
     RxHttpAbstractBodyParam<P, R>.upload(coroutine: CoroutineScope,
-    progressCallback: suspend (Progress) -> Unit): R {
-  param.setProgressCallback { progress, currentSize, totalSize ->
-      coroutine.launch { progressCallback(Progress(progress, currentSize, totalSize)) }
-  }
-  @Suppress("UNCHECKED_CAST")
-  return this as R
+    progressCallback: suspend (Progress) -> Unit) = apply {
+    param.setProgressCallback { progress, currentSize, totalSize ->
+        coroutine.launch { progressCallback(Progress(progress, currentSize, totalSize)) }
+    }
 }
 
 public inline fun <reified T> CallFactory.toResponse() = toParser(object: ResponseParser<T>() {})

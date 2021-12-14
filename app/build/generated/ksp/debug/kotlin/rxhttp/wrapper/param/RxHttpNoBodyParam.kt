@@ -12,9 +12,8 @@ import rxhttp.wrapper.param.NoBodyParam
 open class RxHttpNoBodyParam(param: NoBodyParam) : RxHttp<NoBodyParam, RxHttpNoBodyParam>(param) {
 
     @JvmOverloads
-    fun add(key: String, value: Any?, isAdd: Boolean = true): RxHttpNoBodyParam {
+    fun add(key: String, value: Any?, isAdd: Boolean = true) = apply {
         if (isAdd) addQuery(key, value)
-        return this
     }
 
     fun addAll(map: Map<String, *>) = addAllQuery(map)

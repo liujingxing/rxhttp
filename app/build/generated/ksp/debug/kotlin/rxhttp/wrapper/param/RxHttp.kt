@@ -74,25 +74,13 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
 
   public var request: Request? = null
 
-  public fun connectTimeout(connectTimeout: Long): R {
-    connectTimeoutMillis = connectTimeout
-    return this as R
-  }
+  public fun connectTimeout(connectTimeout: Long) = apply { connectTimeoutMillis = connectTimeout }
 
-  public fun readTimeout(readTimeout: Long): R {
-    readTimeoutMillis = readTimeout
-    return this as R
-  }
+  public fun readTimeout(readTimeout: Long) = apply { readTimeoutMillis = readTimeout }
 
-  public fun writeTimeout(writeTimeout: Long): R {
-    writeTimeoutMillis = writeTimeout
-    return this as R
-  }
+  public fun writeTimeout(writeTimeout: Long) = apply { writeTimeoutMillis = writeTimeout }
 
-  public fun setUrl(url: String): R {
-    param.setUrl(url)
-    return this as R
-  }
+  public fun setUrl(url: String) = apply { param.setUrl(url) }
 
   /**
    * For example:
@@ -104,78 +92,53 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
    * ```
    * url = /service/1/...
    */
-  public fun addPath(name: String, `value`: Any): R {
-    param.addPath(name, value)
-    return this as R
-  }
+  public fun addPath(name: String, `value`: Any) = apply { param.addPath(name, value) }
 
-  public fun addEncodedPath(name: String, `value`: Any): R {
+  public fun addEncodedPath(name: String, `value`: Any) = apply {
     param.addEncodedPath(name, value)
-    return this as R
   }
 
-  public fun addQuery(key: String): R {
-    param.addQuery(key, null)
-    return this as R
-  }
+  public fun addQuery(key: String) = apply { param.addQuery(key, null) }
 
-  public fun addEncodedQuery(key: String): R {
+  public fun addEncodedQuery(key: String) = apply {
     param.addEncodedQuery(key, null)
-    return this as R
   }
 
-  public fun addQuery(key: String, `value`: Any?): R {
-    param.addQuery(key, value)
-    return this as R
-  }
+  public fun addQuery(key: String, `value`: Any?) = apply { param.addQuery(key, value) }
 
-  public fun addEncodedQuery(key: String, `value`: Any?): R {
+  public fun addEncodedQuery(key: String, `value`: Any?) = apply {
     param.addEncodedQuery(key, value)
-    return this as R
   }
 
-  public fun addAllQuery(key: String, list: List<*>): R {
-    param.addAllQuery(key, list)
-    return this as R
-  }
+  public fun addAllQuery(key: String, list: List<*>) = apply { param.addAllQuery(key, list) }
 
-  public fun addAllEncodedQuery(key: String, list: List<*>): R {
+  public fun addAllEncodedQuery(key: String, list: List<*>) = apply {
     param.addAllEncodedQuery(key, list)
-    return this as R
   }
 
-  public fun addAllQuery(map: Map<String, *>): R {
-    param.addAllQuery(map)
-    return this as R
-  }
+  public fun addAllQuery(map: Map<String, *>) = apply { param.addAllQuery(map) }
 
-  public fun addAllEncodedQuery(map: Map<String, *>): R {
-    param.addAllEncodedQuery(map)
-    return this as R
-  }
+  public fun addAllEncodedQuery(map: Map<String, *>) = apply { param.addAllEncodedQuery(map) }
 
   @JvmOverloads
-  public fun addHeader(line: String, isAdd: Boolean = true): R {
+  public fun addHeader(line: String, isAdd: Boolean = true) = apply {
     if (isAdd) param.addHeader(line)
-    return this as R
   }
 
   /**
    * Add a header with the specified name and value. Does validation of header names, allowing
    * non-ASCII values.
    */
-  public fun addNonAsciiHeader(key: String, `value`: String): R {
-    param.addNonAsciiHeader(key,value)
-    return this as R
+  public fun addNonAsciiHeader(key: String, `value`: String) = apply {
+    param.addNonAsciiHeader(key, value)
   }
 
   /**
    * Set a header with the specified name and value. Does validation of header names, allowing
    * non-ASCII values.
    */
-  public fun setNonAsciiHeader(key: String, `value`: String): R {
-    param.setNonAsciiHeader(key,value)
-    return this as R
+  public fun setNonAsciiHeader(key: String, `value`: String) = apply {
+    param.setNonAsciiHeader(key, value)
   }
 
   @JvmOverloads
@@ -183,30 +146,17 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
     key: String,
     `value`: String,
     isAdd: Boolean = true
-  ): R {
+  ) = apply {
     if (isAdd) param.addHeader(key, value)
-    return this as R
   }
 
-  public fun addAllHeader(headers: Map<String, String>): R {
-    param.addAllHeader(headers)
-    return this as R
-  }
+  public fun addAllHeader(headers: Map<String, String>) = apply { param.addAllHeader(headers) }
 
-  public fun addAllHeader(headers: Headers): R {
-    param.addAllHeader(headers)
-    return this as R
-  }
+  public fun addAllHeader(headers: Headers) = apply { param.addAllHeader(headers) }
 
-  public fun setHeader(key: String, `value`: String): R {
-    param.setHeader(key,value)
-    return this as R
-  }
+  public fun setHeader(key: String, `value`: String) = apply { param.setHeader(key, value) }
 
-  public fun setAllHeader(headers: Map<String, String>): R {
-    param.setAllHeader(headers)
-    return this as R
-  }
+  public fun setAllHeader(headers: Map<String, String>) = apply { param.setAllHeader(headers) }
 
   @JvmOverloads
   public fun setRangeHeader(startIndex: Long, endIndex: Long = -1L) = setRangeHeader(startIndex,
@@ -225,39 +175,30 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
     startIndex: Long,
     endIndex: Long,
     connectLastProgress: Boolean
-  ): R {
+  ) = apply {
     param.setRangeHeader(startIndex, endIndex)                         
     if (connectLastProgress)                                            
         param.tag(DownloadOffSize::class.java, DownloadOffSize(startIndex))
-    return this as R                                                    
-  }
+  }    
 
-  public fun removeAllHeader(key: String): R {
-    param.removeAllHeader(key)
-    return this as R
-  }
+  public fun removeAllHeader(key: String) = apply { param.removeAllHeader(key) }
 
-  public fun setHeadersBuilder(builder: Headers.Builder): R {
+  public fun setHeadersBuilder(builder: Headers.Builder) = apply {
     param.setHeadersBuilder(builder)
-    return this as R
   }
 
   /**
    * 设置单个接口是否需要添加公共参数,
    * 即是否回调通过{@link RxHttpPlugins#setOnParamAssembly(Function)}方法设置的接口,默认为true
    */
-  public fun setAssemblyEnabled(enabled: Boolean): R {
-    param.setAssemblyEnabled(enabled)
-    return this as R
-  }
+  public fun setAssemblyEnabled(enabled: Boolean) = apply { param.setAssemblyEnabled(enabled) }
 
   /**
    * 设置单个接口是否需要对Http返回的数据进行解码/解密,
    * 即是否回调通过{@link RxHttpPlugins#setResultDecoder(Function)}方法设置的接口,默认为true
    */
-  public fun setDecoderEnabled(enabled: Boolean): R {
+  public fun setDecoderEnabled(enabled: Boolean) = apply {
     param.addHeader(Param.DATA_DECRYPT, enabled.toString())
-    return this as R
   }
 
   public fun isAssemblyEnabled() = param.isAssemblyEnabled()
@@ -275,37 +216,21 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
 
   public fun getHeadersBuilder() = param.getHeadersBuilder()
 
-  public fun tag(tag: Any): R {
-    param.tag(tag)
-    return this as R
-  }
+  public fun tag(tag: Any) = apply { param.tag(tag) }
 
-  public fun <T> tag(type: Class<in T>, tag: T): R {
-    param.tag(type, tag)
-    return this as R
-  }
+  public fun <T> tag(type: Class<in T>, tag: T) = apply { param.tag(type, tag) }
 
-  public fun cacheControl(cacheControl: CacheControl): R {
-    param.cacheControl(cacheControl)
-    return this as R
-  }
+  public fun cacheControl(cacheControl: CacheControl) = apply { param.cacheControl(cacheControl) }
 
   public fun getCacheStrategy() = param.getCacheStrategy()
 
-  public fun setCacheKey(cacheKey: String): R {
-    param.setCacheKey(cacheKey)
-    return this as R
-  }
+  public fun setCacheKey(cacheKey: String) = apply { param.setCacheKey(cacheKey) }
 
-  public fun setCacheValidTime(cacheValidTime: Long): R {
+  public fun setCacheValidTime(cacheValidTime: Long) = apply {
     param.setCacheValidTime(cacheValidTime)
-    return this as R
   }
 
-  public fun setCacheMode(cacheMode: CacheMode): R {
-    param.setCacheMode(cacheMode)
-    return this as R
-  }
+  public fun setCacheMode(cacheMode: CacheMode) = apply { param.setCacheMode(cacheMode) }
 
   @Throws(IOException::class)
   public fun execute(): Response = newCall().execute()
@@ -389,10 +314,7 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
   /**
    * sync request 
    */
-  public fun setSync(): R {
-    isAsync = false
-    return this as R
-  }
+  public fun setSync() = apply { isAsync = false }
 
   public override fun <T> asParser(
     parser: Parser<T>,
@@ -420,23 +342,16 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
 
   public fun setFastJsonConverter() = setConverter(fastJsonConverter)
 
-  public fun setConverter(converter: IConverter): R {
-    this.converter = converter
-    return this as R
-  }
+  public fun setConverter(converter: IConverter) = apply { this.converter = converter }
 
   /**
    * 给Param设置转换器，此方法会在请求发起前，被RxHttp内部调用
    */
-  private fun setConverterToParam(converter: IConverter): R {
+  private fun setConverterToParam(converter: IConverter) = apply {
     param.tag(IConverter::class.java, converter)
-    return this as R
   }
 
-  public fun setOkClient(okClient: OkHttpClient): R {
-    this.okClient = okClient
-    return this as R
-  }
+  public fun setOkClient(okClient: OkHttpClient) = apply { this.okClient = okClient }
 
   public fun setSimpleClient() = setOkClient(simpleClient)
 
@@ -447,10 +362,9 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
 
   public fun setDomainToUpdateIfAbsent() = setDomainIfAbsent(update)
 
-  public fun setDomainIfAbsent(domain: String): R {
+  public fun setDomainIfAbsent(domain: String) = apply {    
     val newUrl = addDomainIfAbsent(param.getSimpleUrl(), domain)
     param.setUrl(newUrl)
-    return this as R
   }
 
   private fun addDomainIfAbsent(url: String, domain: String): String = if (url.startsWith("http")) {

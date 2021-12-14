@@ -24,102 +24,56 @@ import java.io.File
 open class RxHttpFormParam(param: FormParam) : RxHttpAbstractBodyParam<FormParam, RxHttpFormParam>(param) {
     
     @JvmOverloads
-    fun add(key: String, value: Any?, isAdd: Boolean = true): RxHttpFormParam {
+    fun add(key: String, value: Any?, isAdd: Boolean = true) = apply {
         if (isAdd) param.add(key, value)
-        return this
     }
 
-    fun addAll(map: Map<String, *>): RxHttpFormParam {
-        param.addAll(map)
-        return this
-    }
+    fun addAll(map: Map<String, *>) = apply { param.addAll(map) }
 
-    fun addEncoded(key: String, value: Any?): RxHttpFormParam {
-        param.addEncoded(key, value)
-        return this
-    }
+    fun addEncoded(key: String, value: Any?) = apply { param.addEncoded(key, value) }
 
-    fun addAllEncoded(map: Map<String, *>): RxHttpFormParam {
-        param.addAllEncoded(map)
-        return this
-    }
+    fun addAllEncoded(map: Map<String, *>) = apply { param.addAllEncoded(map) }
 
-    fun removeAllBody(): RxHttpFormParam {
-        param.removeAllBody()
-        return this
-    }
+    fun removeAllBody() = apply { param.removeAllBody() }
 
-    fun removeAllBody(key: String): RxHttpFormParam {
-        param.removeAllBody(key)
-        return this
-    }
+    fun removeAllBody(key: String) = apply { param.removeAllBody(key) }
 
-    operator fun set(key: String, value: Any?): RxHttpFormParam {
-        param[key] = value
-        return this
-    }
+    operator fun set(key: String, value: Any?) = apply { param[key] = value }
 
-    fun setEncoded(key: String, value: Any?): RxHttpFormParam {
-        param.setEncoded(key, value)
-        return this
-    }
+    fun setEncoded(key: String, value: Any?) = apply { param.setEncoded(key, value) }
 
-    fun addFile(key: String, file: File): RxHttpFormParam {
-        param.addFile(key, file)
-        return this
-    }
+    fun addFile(key: String, file: File) = apply { param.addFile(key, file) }
 
-    fun addFile(key: String, filePath: String): RxHttpFormParam {
-        param.addFile(key, filePath)
-        return this
-    }
+    fun addFile(key: String, filePath: String) = apply { param.addFile(key, filePath) }
 
-    fun addFile(key: String, file: File, filename: String): RxHttpFormParam {
+    fun addFile(key: String, file: File, filename: String) = apply { 
         param.addFile(key, file, filename)
-        return this
     }
 
-    fun addFile(file: UpFile): RxHttpFormParam {
-        param.addFile(file)
-        return this
-    }
+    fun addFile(file: UpFile) = apply { param.addFile(file) }
 
     @Deprecated(
         "use `addFiles(List)` instead",
         ReplaceWith("addFiles(fileList)"),
         DeprecationLevel.WARNING
     )
-    fun addFile(fileList: List<UpFile>): RxHttpFormParam {
-        return addFiles(fileList)
-    }
+    fun addFile(fileList: List<UpFile>) = addFiles(fileList)
 
     @Deprecated(
         "use `addFiles(String, List)` instead",
         ReplaceWith("addFiles(key, fileList)"),
         DeprecationLevel.WARNING
     )
-    fun <T> addFile(key: String, fileList: List<T>): RxHttpFormParam {
-        return addFiles(key, fileList)
-    }
+    fun <T> addFile(key: String, fileList: List<T>) = addFiles(key, fileList)
 
-    fun addFiles(fileList: List<UpFile>): RxHttpFormParam {
-        param.addFiles(fileList)
-        return this
-    }
+    fun addFiles(fileList: List<UpFile>) = apply { param.addFiles(fileList) }
 
-    fun <T> addFiles(fileMap: Map<String, T>): RxHttpFormParam {
-        param.addFiles(fileMap)
-        return this
-    }
+    fun <T> addFiles(fileMap: Map<String, T>) = apply { param.addFiles(fileMap) }
 
-    fun <T> addFiles(key: String, fileList: List<T>): RxHttpFormParam {
-        param.addFiles(key, fileList)
-        return this
-    }
+    fun <T> addFiles(key: String, fileList: List<T>) = apply { param.addFiles(key, fileList) }
 
-    fun addPart(contentType: MediaType?, content: ByteArray): RxHttpFormParam {
+    fun addPart(contentType: MediaType?, content: ByteArray) = apply {
         param.addPart(contentType, content)
-        return this
     }
 
     fun addPart(
@@ -127,20 +81,14 @@ open class RxHttpFormParam(param: FormParam) : RxHttpAbstractBodyParam<FormParam
         content: ByteArray,
         offset: Int,
         byteCount: Int
-    ): RxHttpFormParam {
-        param.addPart(contentType, content, offset, byteCount)
-        return this
-    }
+    ) = apply { param.addPart(contentType, content, offset, byteCount) }
     
     @JvmOverloads
     fun addPart(
         context: Context, 
         uri: Uri, 
         contentType: MediaType? = BuildUtil.getMediaTypeByUri(context, uri)
-    ): RxHttpFormParam {
-        param.addPart(uri.asRequestBody(context, 0, contentType))
-        return this
-    }
+    ) = apply { param.addPart(uri.asRequestBody(context, 0, contentType)) }
 
     @JvmOverloads
     fun addPart(
@@ -148,9 +96,8 @@ open class RxHttpFormParam(param: FormParam) : RxHttpAbstractBodyParam<FormParam
         key: String,
         uri: Uri,
         contentType: MediaType? = BuildUtil.getMediaTypeByUri(context, uri)
-    ): RxHttpFormParam {
+    ) = apply {
         param.addPart(uri.asPart(context, key, skipSize = 0, contentType = contentType))
-        return this
     }
 
     @JvmOverloads
@@ -160,93 +107,59 @@ open class RxHttpFormParam(param: FormParam) : RxHttpAbstractBodyParam<FormParam
         filename: String?,
         uri: Uri,
         contentType: MediaType? = BuildUtil.getMediaTypeByUri(context, uri)
-    ): RxHttpFormParam {
+    ) = apply {
         param.addPart(uri.asPart(context, key, filename, 0, contentType))
-        return this
     }
 
-    fun addParts(context: Context, uriMap: Map<String, Uri>): RxHttpFormParam {
+    fun addParts(context: Context, uriMap: Map<String, Uri>) = apply {
         uriMap.forEach { key, value -> addPart(context, key, value) }
-        return this
     }
 
-    fun addParts(context: Context, uris: List<Uri>): RxHttpFormParam {
+    fun addParts(context: Context, uris: List<Uri>) = apply {
         uris.forEach { addPart(context, it) }
-        return this
     }
     
-    fun addParts(context: Context, uris: List<Uri>, contentType: MediaType?): RxHttpFormParam {
+    fun addParts(context: Context, uris: List<Uri>, contentType: MediaType?) = apply {
         uris.forEach { addPart(context, it, contentType) }
-        return this
     }
     
-    fun addParts(context: Context, key: String, uris: List<Uri>): RxHttpFormParam {
+    fun addParts(context: Context, key: String, uris: List<Uri>) = apply {
         uris.forEach { addPart(context, key, it) }
-        return this
     }
     
-    fun addParts(context: Context, key: String, uris: List<Uri>, contentType: MediaType?): RxHttpFormParam {
+    fun addParts(context: Context, key: String, uris: List<Uri>, contentType: MediaType?) = apply {
         uris.forEach { addPart(context, key, it, contentType) }
-        return this
     }
     
-    fun addPart(part: MultipartBody.Part): RxHttpFormParam {
-        param.addPart(part)
-        return this
-    }
+    fun addPart(part: MultipartBody.Part) = apply { param.addPart(part) }
 
-    fun addPart(requestBody: RequestBody): RxHttpFormParam {
-        param.addPart(requestBody)
-        return this
-    }
+    fun addPart(requestBody: RequestBody) = apply { param.addPart(requestBody) }
 
-    fun addPart(headers: Headers?, requestBody: RequestBody): RxHttpFormParam {
+    fun addPart(headers: Headers?, requestBody: RequestBody) = apply {
         param.addPart(headers, requestBody)
-        return this
     }
 
     fun addFormDataPart(
         key: String,
         fileName: String?,
         requestBody: RequestBody
-    ): RxHttpFormParam {
-        param.addFormDataPart(key, fileName, requestBody)
-        return this
-    }
+    ) = apply { param.addFormDataPart(key, fileName, requestBody) }
 
     //Set content-type to multipart/form-data
-    fun setMultiForm(): RxHttpFormParam {
-        param.setMultiForm()
-        return this
-    }
+    fun setMultiForm() = apply { param.setMultiForm() }
 
     //Set content-type to multipart/mixed
-    fun setMultiMixed(): RxHttpFormParam {
-        param.setMultiMixed()
-        return this
-    }
+    fun setMultiMixed() = apply { param.setMultiMixed() }
 
     //Set content-type to multipart/alternative
-    fun setMultiAlternative(): RxHttpFormParam {
-        param.setMultiAlternative()
-        return this
-    }
+    fun setMultiAlternative() = apply { param.setMultiAlternative() }
 
     //Set content-type to multipart/digest
-    fun setMultiDigest(): RxHttpFormParam {
-        param.setMultiDigest()
-        return this
-    }
+    fun setMultiDigest() = apply { param.setMultiDigest() }
 
     //Set content-type to multipart/parallel
-    fun setMultiParallel(): RxHttpFormParam {
-        param.setMultiParallel()
-        return this
-    }
+    fun setMultiParallel() = apply { param.setMultiParallel() }
 
     //Set the MIME type
-    fun setMultiType(multiType: MediaType?): RxHttpFormParam {
-        param.setMultiType(multiType)
-        return this
-    }
+    fun setMultiType(multiType: MediaType?) = apply { param.setMultiType(multiType) }
 }

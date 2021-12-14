@@ -259,16 +259,13 @@ class RxHttpExtensions(private val logger: KSPLogger) {
             .addTypeVariable(rBound)
             .addParameter("coroutine", coroutineScopeName)
             .addParameter("progressCallback", progressSuspendLambdaName)
-            .addCode(
-                """
-                param.setProgressCallback { progress, currentSize, totalSize ->
-                    coroutine.%T { progressCallback(Progress(progress, currentSize, totalSize)) }
+            .addCode("""
+                return apply {
+                    param.setProgressCallback { progress, currentSize, totalSize ->
+                        coroutine.%T { progressCallback(Progress(progress, currentSize, totalSize)) }
+                    }
                 }
-                @Suppress("UNCHECKED_CAST")
-                return this as R
-                """.trimIndent(), launchName
-            )
-            .returns(r)
+            """.trimIndent(), launchName)
             .build()
             .apply { fileBuilder.addFunction(this) }
 

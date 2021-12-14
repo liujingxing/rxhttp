@@ -18,19 +18,14 @@ import java.io.File
  */
 open class RxHttpBodyParam(param: BodyParam) : RxHttpAbstractBodyParam<BodyParam, RxHttpBodyParam>(param) {
     
-    fun setBody(requestBody: RequestBody): RxHttpBodyParam {
-        param.setBody(requestBody)
-        return this
-    }
+    fun setBody(requestBody: RequestBody) = apply { param.setBody(requestBody) }
 
-    fun setBody(content: String, contentType: MediaType? = null): RxHttpBodyParam {
+    fun setBody(content: String, contentType: MediaType? = null) = apply {
         param.setBody(content, contentType)
-        return this
     }
     
-    fun setBody(content: ByteString, contentType: MediaType? = null): RxHttpBodyParam {
+    fun setBody(content: ByteString, contentType: MediaType? = null) = apply {
         param.setBody(content, contentType)
-        return this
     }
 
     @JvmOverloads
@@ -39,41 +34,27 @@ open class RxHttpBodyParam(param: BodyParam) : RxHttpAbstractBodyParam<BodyParam
         contentType: MediaType?,
         offset: Int = 0,
         byteCount: Int = content.size,
-    ): RxHttpBodyParam {
-        param.setBody(content, contentType, offset, byteCount)
-        return this
-    }
+    ) = apply { param.setBody(content, contentType, offset, byteCount) }
 
     @JvmOverloads
     fun setBody(
         file: File,
         contentType: MediaType? = BuildUtil.getMediaType(file.name),
-    ): RxHttpBodyParam {
-        param.setBody(file, contentType)
-        return this
-    }
+    ) = apply { param.setBody(file, contentType) }
     
     @JvmOverloads
     fun setBody(
         uri: Uri,
         context: Context,
         contentType: MediaType? = BuildUtil.getMediaTypeByUri(context, uri),
-    ): RxHttpBodyParam {
-        param.setBody(uri.asRequestBody(context, 0, contentType))
-        return this
-    }
+    ) = apply { param.setBody(uri.asRequestBody(context, 0, contentType)) }
     
-    fun setBody(any: Any): RxHttpBodyParam {
-        param.setBody(any)
-        return this
-    }
+    fun setBody(any: Any) = apply { param.setBody(any) }
 
     @Deprecated(
         message = "use `setBody(Any)` instead",
         replaceWith = ReplaceWith("setBody(any)"),
         level = DeprecationLevel.ERROR
     )
-    fun setJsonBody(any: Any): RxHttpBodyParam {
-        return setBody(any)
-    }
+    fun setJsonBody(any: Any) = setBody(any)
 }

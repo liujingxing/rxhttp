@@ -14,15 +14,13 @@ import kotlin.String
 public class RxHttpPostEncryptFormParam : RxHttpFormParam {
   public constructor(`param`: PostEncryptFormParam) : super(param)
 
-  public fun test1(s: String): RxHttpPostEncryptFormParam {
-    (param as PostEncryptFormParam).test1(s)
-    return this
+  public fun test1(s: String) = apply {
+    (param as PostEncryptFormParam).test1(s) 
   }
 
-  public fun test2(a: Long, b: Float): RxHttpPostEncryptFormParam {
-    (param as PostEncryptFormParam).test2(a,b)
-    return this
+  public fun test2(a: Long, b: Float) = apply {
+    (param as PostEncryptFormParam).test2(a,b) 
   }
 
-  public fun add(a: Int, b: Int): Int = (param as PostEncryptFormParam).add(a,b)
+  public fun add(a: Int, b: Int) = (param as PostEncryptFormParam).add(a,b)
 }
