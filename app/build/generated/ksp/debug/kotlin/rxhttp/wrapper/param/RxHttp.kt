@@ -67,8 +67,7 @@ public open class RxHttp<P : Param<P>> protected constructor(
 
   private var okClient: OkHttpClient = RxHttpPlugins.getOkHttpClient()
 
-  protected var converter: IConverter = RxHttpPlugins.getConverter()
-    private set
+  private var converter: IConverter = RxHttpPlugins.getConverter()
 
   protected var isAsync: Boolean = true
 

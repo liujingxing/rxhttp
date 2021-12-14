@@ -783,9 +783,8 @@ class RxHttpGenerator(private val logger: KSPLogger) {
                 .initializer("0L")
                 .mutable(true).build()
 
-        val converterSpec = PropertySpec.builder("converter", converterName, KModifier.PROTECTED)
+        val converterSpec = PropertySpec.builder("converter", converterName, KModifier.PRIVATE)
             .mutable(true)
-            .setter(FunSpec.setterBuilder().addModifiers(KModifier.PRIVATE).build())
             .initializer("%T.getConverter()", rxHttpPluginsName)
             .build()
 
