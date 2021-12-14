@@ -51,7 +51,6 @@ class RxHttpGenerator(private val logger: KSPLogger) {
 
         val paramClassName = ClassName("rxhttp.wrapper.param", "Param")
         val typeVariableP = TypeVariableName("P", paramClassName.parameterizedBy("P"))      //泛型P
-        val typeVariableR = TypeVariableName("R", rxhttpKClassName.parameterizedBy("P","R")) //泛型R
 
         val okHttpClientName = ClassName("okhttp3", "OkHttpClient")
         val requestName = ClassName("okhttp3", "Request")
@@ -841,7 +840,6 @@ class RxHttpGenerator(private val logger: KSPLogger) {
             .addProperty(request)
             .superclass(baseRxHttpName)
             .addTypeVariable(typeVariableP)
-            .addTypeVariable(typeVariableR)
             .addFunctions(methodList)
             .build()
 

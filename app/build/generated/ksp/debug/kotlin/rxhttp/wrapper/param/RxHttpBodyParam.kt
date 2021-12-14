@@ -16,7 +16,7 @@ import java.io.File
  * https://github.com/liujingxing/rxhttp
  * https://github.com/liujingxing/rxlife
  */
-open class RxHttpBodyParam(param: BodyParam) : RxHttpAbstractBodyParam<BodyParam, RxHttpBodyParam>(param) {
+open class RxHttpBodyParam(param: BodyParam) : RxHttpAbstractBodyParam<BodyParam>(param) {
     
     fun setBody(requestBody: RequestBody) = apply { param.setBody(requestBody) }
 

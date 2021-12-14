@@ -845,10 +845,10 @@ class KClassHelper(private val isAndroidPlatform: Boolean) {
                  * https://github.com/liujingxing/rxhttp/wiki/更新日志
                  */
                 @SuppressWarnings("unchecked")
-                open class RxHttpAbstractBodyParam<P : AbstractBodyParam<P>, R : RxHttpAbstractBodyParam<P, R>> 
+                open class RxHttpAbstractBodyParam<P : AbstractBodyParam<P>> 
                 protected constructor(
                     param: P
-                ) : RxHttp<P, R>(param), BodyParamFactory {
+                ) : RxHttp<P>(param), BodyParamFactory {
 
                     fun setUploadMaxLength(maxLength: Long) = apply {
                         param.setUploadMaxLength(maxLength)
@@ -876,10 +876,10 @@ class KClassHelper(private val isAndroidPlatform: Boolean) {
                  * https://github.com/liujingxing/rxhttp/wiki/FAQ
                  * https://github.com/liujingxing/rxhttp/wiki/更新日志
                  */
-                open class RxHttpAbstractBodyParam<P : AbstractBodyParam<P>, R : RxHttpAbstractBodyParam<P, R>> 
+                open class RxHttpAbstractBodyParam<P : AbstractBodyParam<P>> 
                 protected constructor(
                     param: P
-                ) : RxHttp<P, R>(param), BodyParamFactory {
+                ) : RxHttp<P>(param), BodyParamFactory {
                     //Controls the downstream callback thread
                     private var observeOnScheduler: Scheduler? = null
                 
@@ -940,7 +940,7 @@ class KClassHelper(private val isAndroidPlatform: Boolean) {
              * https://github.com/liujingxing/rxhttp/wiki/FAQ
              * https://github.com/liujingxing/rxhttp/wiki/更新日志
              */
-            open class RxHttpNoBodyParam(param: NoBodyParam) : RxHttp<NoBodyParam, RxHttpNoBodyParam>(param) {
+            open class RxHttpNoBodyParam(param: NoBodyParam) : RxHttp<NoBodyParam>(param) {
             
                 @JvmOverloads
                 fun add(key: String, value: Any?, isAdd: Boolean = true) = apply {
@@ -980,7 +980,7 @@ class KClassHelper(private val isAndroidPlatform: Boolean) {
              * https://github.com/liujingxing/rxhttp
              * https://github.com/liujingxing/rxlife
              */
-            open class RxHttpBodyParam(param: BodyParam) : RxHttpAbstractBodyParam<BodyParam, RxHttpBodyParam>(param) {
+            open class RxHttpBodyParam(param: BodyParam) : RxHttpAbstractBodyParam<BodyParam>(param) {
                 
                 fun setBody(requestBody: RequestBody) = apply { param.setBody(requestBody) }
             
@@ -1053,7 +1053,7 @@ class KClassHelper(private val isAndroidPlatform: Boolean) {
              * https://github.com/liujingxing/rxhttp/wiki/FAQ
              * https://github.com/liujingxing/rxhttp/wiki/更新日志
              */
-            open class RxHttpFormParam(param: FormParam) : RxHttpAbstractBodyParam<FormParam, RxHttpFormParam>(param) {
+            open class RxHttpFormParam(param: FormParam) : RxHttpAbstractBodyParam<FormParam>(param) {
                 
                 @JvmOverloads
                 fun add(key: String, value: Any?, isAdd: Boolean = true) = apply {
@@ -1215,7 +1215,7 @@ class KClassHelper(private val isAndroidPlatform: Boolean) {
              * https://github.com/liujingxing/rxhttp/wiki/FAQ
              * https://github.com/liujingxing/rxhttp/wiki/更新日志
              */
-            open class RxHttpJsonParam(param: JsonParam) : RxHttpAbstractBodyParam<JsonParam, RxHttpJsonParam>(param) {
+            open class RxHttpJsonParam(param: JsonParam) : RxHttpAbstractBodyParam<JsonParam>(param) {
             
                 @JvmOverloads
                 fun add(key: String, value: Any?, isAdd: Boolean = true) = apply {
@@ -1264,7 +1264,7 @@ class KClassHelper(private val isAndroidPlatform: Boolean) {
              * https://github.com/liujingxing/rxhttp/wiki/FAQ
              * https://github.com/liujingxing/rxhttp/wiki/更新日志
              */
-            class RxHttpJsonArrayParam(param: JsonArrayParam) : RxHttpAbstractBodyParam<JsonArrayParam, RxHttpJsonArrayParam>(param) {
+            class RxHttpJsonArrayParam(param: JsonArrayParam) : RxHttpAbstractBodyParam<JsonArrayParam>(param) {
             
                 @JvmOverloads
                 fun add(key: String, value: Any?, isAdd: Boolean = true) = apply {

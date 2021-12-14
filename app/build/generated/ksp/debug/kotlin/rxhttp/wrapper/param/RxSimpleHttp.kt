@@ -16,7 +16,7 @@ public object RxSimpleHttp {
   /**
    * 本类所有方法都会调用本方法
    */
-  private fun <R : RxHttp<*, *>> R.wrapper(): R {
+  private fun <R : RxHttp<*>> R.wrapper(): R {
     setSimpleClient()
     setDomainToUpdateIfAbsent()
     return this

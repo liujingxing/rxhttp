@@ -9,7 +9,7 @@ import rxhttp.wrapper.param.NoBodyParam
  * https://github.com/liujingxing/rxhttp/wiki/FAQ
  * https://github.com/liujingxing/rxhttp/wiki/更新日志
  */
-open class RxHttpNoBodyParam(param: NoBodyParam) : RxHttp<NoBodyParam, RxHttpNoBodyParam>(param) {
+open class RxHttpNoBodyParam(param: NoBodyParam) : RxHttp<NoBodyParam>(param) {
 
     @JvmOverloads
     fun add(key: String, value: Any?, isAdd: Boolean = true) = apply {

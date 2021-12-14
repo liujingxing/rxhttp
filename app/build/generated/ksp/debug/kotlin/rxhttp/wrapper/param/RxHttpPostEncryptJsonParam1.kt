@@ -8,8 +8,7 @@ import kotlin.Unit
  * https://github.com/liujingxing/rxhttp
  * https://github.com/liujingxing/rxlife
  */
-public class RxHttpPostEncryptJsonParam1 :
-    RxHttp<PostEncryptJsonParam1, RxHttpPostEncryptJsonParam1> {
+public class RxHttpPostEncryptJsonParam1 : RxHttp<PostEncryptJsonParam1> {
   public constructor(`param`: PostEncryptJsonParam1) : super(param)
 
   public fun test(): Unit {

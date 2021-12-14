@@ -156,15 +156,9 @@ class RxHttpExtensions(private val logger: KSPLogger) {
         val simpleParserName = ClassName("rxhttp.wrapper.parse", "SimpleParser")
         val coroutineScopeName = ClassName("kotlinx.coroutines", "CoroutineScope")
 
-        val p = TypeVariableName("P")
-        val r = TypeVariableName("R")
         val wildcard = TypeVariableName("*")
-        val bodyParamName =
-            ClassName("rxhttp.wrapper.param", "AbstractBodyParam").parameterizedBy(p)
-        val rxHttpBodyParamName =
-            ClassName(rxHttpPackage, "RxHttpAbstractBodyParam").parameterizedBy(p, r)
-        val pBound = TypeVariableName("P", bodyParamName)
-        val rBound = TypeVariableName("R", rxHttpBodyParamName)
+        val rxHttpBodyParamName = ClassName(rxHttpPackage, "RxHttpAbstractBodyParam")
+            .parameterizedBy(wildcard)
 
         val progressSuspendLambdaName = LambdaTypeName.get(
             parameters = arrayOf(progressName),
@@ -173,7 +167,7 @@ class RxHttpExtensions(private val logger: KSPLogger) {
 
         val fileBuilder = FileSpec.builder(rxHttpPackage, "RxHttpExtension")
 
-        val rxHttpName = rxhttpKClassName.parameterizedBy(wildcard, wildcard)
+        val rxHttpName = rxhttpKClassName.parameterizedBy(wildcard)
         FunSpec.builder("executeList")
             .addModifiers(KModifier.INLINE)
             .receiver(rxHttpName)
@@ -228,6 +222,8 @@ class RxHttpExtensions(private val logger: KSPLogger) {
             )
             .build()
 
+        val typeVariable = TypeVariableName("R", rxHttpBodyParamName)
+
         FunSpec.builder("upload")
             .addKdoc(
                 """
@@ -254,9 +250,8 @@ class RxHttpExtensions(private val logger: KSPLogger) {
                 """.trimIndent()
             )
             .addAnnotation(deprecatedAnnotation)
-            .receiver(rxHttpBodyParamName)
-            .addTypeVariable(pBound)
-            .addTypeVariable(rBound)
+            .receiver(typeVariable)
+            .addTypeVariable(typeVariable)
             .addParameter("coroutine", coroutineScopeName)
             .addParameter("progressCallback", progressSuspendLambdaName)
             .addCode("""

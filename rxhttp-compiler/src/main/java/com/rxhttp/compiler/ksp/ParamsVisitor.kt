@@ -133,11 +133,10 @@ class ParamsVisitor(
                     val typeName = superclass?.toTypeName()
                     if ((typeName as? ParameterizedTypeName)?.rawType?.toString() == "rxhttp.wrapper.param.AbstractBodyParam") {
                         prefix = "param."
-                        ClassName(rxHttpPackage, "RxHttpAbstractBodyParam")
-                            .parameterizedBy(param, rxHttpParamName)
+                        ClassName(rxHttpPackage, "RxHttpAbstractBodyParam").parameterizedBy(param)
                     } else {
                         prefix = "param."
-                        rxhttpKClassName.parameterizedBy(param, rxHttpParamName)
+                        rxhttpKClassName.parameterizedBy(param)
                     }
                 }
             }

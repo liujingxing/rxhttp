@@ -16,9 +16,9 @@ import rxhttp.wrapper.CallFactory
 import rxhttp.wrapper.entity.Progress
 import rxhttp.wrapper.parse.SimpleParser
 
-public inline fun <reified T> RxHttp<*, *>.executeList() = executeClass<List<T>>()
+public inline fun <reified T> RxHttp<*>.executeList() = executeClass<List<T>>()
 
-public inline fun <reified T> RxHttp<*, *>.executeClass() = execute(object : SimpleParser<T>() {})
+public inline fun <reified T> RxHttp<*>.executeClass() = execute(object : SimpleParser<T>() {})
 
 public inline fun <reified T> BaseRxHttp.asList() = asClass<List<T>>()
 
@@ -52,8 +52,7 @@ public inline fun <reified T> BaseRxHttp.asResponse() = asParser(object: Respons
  */
 @Deprecated(message = "please use 'toFlow(progressCallback)' instead", 
 level = DeprecationLevel.ERROR)
-public fun <P : AbstractBodyParam<P>, R : RxHttpAbstractBodyParam<P, R>>
-    RxHttpAbstractBodyParam<P, R>.upload(coroutine: CoroutineScope,
+public fun <R : RxHttpAbstractBodyParam<*>> R.upload(coroutine: CoroutineScope,
     progressCallback: suspend (Progress) -> Unit) = apply {
     param.setProgressCallback { progress, currentSize, totalSize ->
         coroutine.launch { progressCallback(Progress(progress, currentSize, totalSize)) }

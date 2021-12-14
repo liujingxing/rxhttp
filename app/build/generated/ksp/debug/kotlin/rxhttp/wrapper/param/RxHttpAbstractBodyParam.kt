@@ -15,10 +15,10 @@ import rxhttp.wrapper.parse.Parser
  * https://github.com/liujingxing/rxhttp/wiki/FAQ
  * https://github.com/liujingxing/rxhttp/wiki/更新日志
  */
-open class RxHttpAbstractBodyParam<P : AbstractBodyParam<P>, R : RxHttpAbstractBodyParam<P, R>> 
+open class RxHttpAbstractBodyParam<P : AbstractBodyParam<P>> 
 protected constructor(
     param: P
-) : RxHttp<P, R>(param), BodyParamFactory {
+) : RxHttp<P>(param), BodyParamFactory {
     //Controls the downstream callback thread
     private var observeOnScheduler: Scheduler? = null
 

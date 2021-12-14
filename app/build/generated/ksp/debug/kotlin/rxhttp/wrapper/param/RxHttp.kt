@@ -54,7 +54,7 @@ import rxhttp.wrapper.utils.LogUtil
  * https://github.com/liujingxing/rxhttp/wiki/FAQ
  * https://github.com/liujingxing/rxhttp/wiki/更新日志
  */
-public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
+public open class RxHttp<P : Param<P>> protected constructor(
   public val `param`: P
 ) : BaseRxHttp() {
   private var connectTimeoutMillis: Long = 0L
