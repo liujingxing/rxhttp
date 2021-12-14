@@ -1264,7 +1264,7 @@ class KClassHelper(private val isAndroidPlatform: Boolean) {
              * https://github.com/liujingxing/rxhttp/wiki/FAQ
              * https://github.com/liujingxing/rxhttp/wiki/更新日志
              */
-            class RxHttpJsonArrayParam(param: JsonArrayParam) : RxHttpAbstractBodyParam<JsonArrayParam>(param) {
+            open class RxHttpJsonArrayParam(param: JsonArrayParam) : RxHttpAbstractBodyParam<JsonArrayParam>(param) {
             
                 @JvmOverloads
                 fun add(key: String, value: Any?, isAdd: Boolean = true) = apply {
