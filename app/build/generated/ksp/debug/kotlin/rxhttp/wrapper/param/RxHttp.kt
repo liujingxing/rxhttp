@@ -25,6 +25,7 @@ import kotlin.String
 import kotlin.Unit
 import kotlin.collections.List
 import kotlin.collections.Map
+import kotlin.jvm.JvmName
 import kotlin.jvm.JvmOverloads
 import kotlin.jvm.JvmStatic
 import kotlin.jvm.Throws
@@ -37,6 +38,7 @@ import okhttp3.Request
 import okhttp3.Response
 import rxhttp.RxHttpPlugins
 import rxhttp.wrapper.cahce.CacheMode
+import rxhttp.wrapper.cahce.CacheStrategy
 import rxhttp.wrapper.callback.IConverter
 import rxhttp.wrapper.entity.DownloadOffSize
 import rxhttp.wrapper.entity.ParameterizedTypeImpl
@@ -63,15 +65,74 @@ public open class RxHttp<P : Param<P>> protected constructor(
 
   private var writeTimeoutMillis: Long = 0L
 
-  private var realOkClient: OkHttpClient? = null
+  private var converter: IConverter = RxHttpPlugins.getConverter()
 
   private var okClient: OkHttpClient = RxHttpPlugins.getOkHttpClient()
-
-  private var converter: IConverter = RxHttpPlugins.getConverter()
 
   protected var isAsync: Boolean = true
 
   public var request: Request? = null
+
+  @get:JvmName("getUrl")
+  public val url: String
+    get() {
+      addDefaultDomainIfAbsent()
+      return param.getUrl()
+    }
+
+  @get:JvmName("getSimpleUrl")
+  public val simpleUrl: String
+    get() = param.getSimpleUrl()
+
+  @get:JvmName("getHeaders")
+  public val headers: Headers
+    get() = param.getHeaders()
+
+  @get:JvmName("getHeadersBuilder")
+  public val headersBuilder: Headers.Builder
+    get() = param.getHeadersBuilder()
+
+  @get:JvmName("getCacheStrategy")
+  public val cacheStrategy: CacheStrategy
+    get() = param.getCacheStrategy()
+
+  private var _okHttpClient: OkHttpClient? = null
+
+  @get:JvmName("getOkHttpClient")
+  public val okHttpClient: OkHttpClient
+    get() {
+      if (_okHttpClient != null) return _okHttpClient!!
+      val okClient = this.okClient
+      var builder : OkHttpClient.Builder? = null
+
+      if (LogUtil.isDebug()) {
+          builder = okClient.newBuilder()
+          builder.addInterceptor(LogInterceptor(okClient))
+      }
+
+      if (connectTimeoutMillis != 0L) {
+          if (builder == null) builder = okClient.newBuilder()
+          builder.connectTimeout(connectTimeoutMillis, TimeUnit.MILLISECONDS)
+      }
+
+      if (readTimeoutMillis != 0L) {
+          if (builder == null) builder = okClient.newBuilder()
+          builder.readTimeout(readTimeoutMillis, TimeUnit.MILLISECONDS)
+      }
+
+      if (writeTimeoutMillis != 0L) {
+         if (builder == null) builder = okClient.newBuilder()
+         builder.writeTimeout(writeTimeoutMillis, TimeUnit.MILLISECONDS)
+      }
+
+      if (param.getCacheMode() != CacheMode.ONLY_NETWORK) {                      
+          if (builder == null) builder = okClient.newBuilder()           
+          builder.addInterceptor(CacheInterceptor(cacheStrategy))
+      }
+                                                                              
+      _okHttpClient = builder?.build() ?: okClient
+      return _okHttpClient!!
+    }
 
   public fun connectTimeout(connectTimeout: Long) = apply { connectTimeoutMillis = connectTimeout }
 
@@ -202,26 +263,13 @@ public open class RxHttp<P : Param<P>> protected constructor(
 
   public fun isAssemblyEnabled() = param.isAssemblyEnabled()
 
-  public fun getUrl(): String {
-    addDefaultDomainIfAbsent()
-    return param.getUrl()
-  }
-
-  public fun getSimpleUrl() = param.getSimpleUrl()
-
   public fun getHeader(key: String) = param.getHeader(key)
-
-  public fun getHeaders() = param.getHeaders()
-
-  public fun getHeadersBuilder() = param.getHeadersBuilder()
 
   public fun tag(tag: Any) = apply { param.tag(tag) }
 
   public fun <T> tag(type: Class<in T>, tag: T) = apply { param.tag(type, tag) }
 
   public fun cacheControl(cacheControl: CacheControl) = apply { param.cacheControl(cacheControl) }
-
-  public fun getCacheStrategy() = param.getCacheStrategy()
 
   public fun setCacheKey(cacheKey: String) = apply { param.setCacheKey(cacheKey) }
 
@@ -251,8 +299,7 @@ public open class RxHttp<P : Param<P>> protected constructor(
 
   public override fun newCall(): Call {
     val request = buildRequest()
-    val okClient = getOkHttpClient()
-    return okClient.newCall(request)
+    return okHttpClient.newCall(request)
   }
 
   public fun buildRequest(): Request {
@@ -261,40 +308,6 @@ public open class RxHttp<P : Param<P>> protected constructor(
         request = param.buildRequest()
     }
     return request!!
-  }
-
-  public fun getOkHttpClient(): OkHttpClient {
-    if (realOkClient != null) return realOkClient!!
-    val okClient = this.okClient
-    var builder : OkHttpClient.Builder? = null
-
-    if (LogUtil.isDebug()) {
-        builder = okClient.newBuilder()
-        builder.addInterceptor(LogInterceptor(okClient))
-    }
-
-    if (connectTimeoutMillis != 0L) {
-        if (builder == null) builder = okClient.newBuilder()
-        builder.connectTimeout(connectTimeoutMillis, TimeUnit.MILLISECONDS)
-    }
-
-    if (readTimeoutMillis != 0L) {
-        if (builder == null) builder = okClient.newBuilder()
-        builder.readTimeout(readTimeoutMillis, TimeUnit.MILLISECONDS)
-    }
-
-    if (writeTimeoutMillis != 0L) {
-       if (builder == null) builder = okClient.newBuilder()
-       builder.writeTimeout(writeTimeoutMillis, TimeUnit.MILLISECONDS)
-    }
-
-    if (param.getCacheMode() != CacheMode.ONLY_NETWORK) {                      
-        if (builder == null) builder = okClient.newBuilder()           
-        builder.addInterceptor(CacheInterceptor(getCacheStrategy()))
-    }
-                                                                            
-    realOkClient = builder?.build() ?: okClient
-    return realOkClient!!
   }
 
   /**

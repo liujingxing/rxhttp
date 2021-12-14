@@ -9,7 +9,6 @@ import com.rxhttp.compiler.RXHttp
 import com.rxhttp.compiler.getKClassName
 import com.rxhttp.compiler.isDependenceRxJava
 import com.rxhttp.compiler.rxHttpPackage
-import com.rxhttp.compiler.rxhttpKClassName
 import com.squareup.kotlinpoet.ANY
 import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.BOOLEAN
@@ -66,6 +65,7 @@ class RxHttpGenerator(private val logger: KSPLogger) {
         val converterName = ClassName("rxhttp.wrapper.callback", "IConverter")
         val cacheInterceptorName = ClassName("rxhttp.wrapper.intercept", "CacheInterceptor")
         val cacheModeName = ClassName("rxhttp.wrapper.cahce", "CacheMode")
+        val cacheStrategyName = ClassName("rxhttp.wrapper.cahce", "CacheStrategy")
         val downloadOffSizeName = ClassName("rxhttp.wrapper.entity", "DownloadOffSize")
 
         val t = TypeVariableName("T")
@@ -95,6 +95,163 @@ class RxHttpGenerator(private val logger: KSPLogger) {
             .addModifiers(KModifier.PROTECTED)
             .addParameter("param", typeVariableP)
             .build()
+
+        val propertySpecs = mutableListOf<PropertySpec>()
+
+        PropertySpec.builder("connectTimeoutMillis", LONG, KModifier.PRIVATE)
+            .initializer("0L")
+            .mutable(true)
+            .build()
+            .let { propertySpecs.add(it) }
+
+        PropertySpec.builder("readTimeoutMillis", LONG, KModifier.PRIVATE)
+            .initializer("0L")
+            .mutable(true)
+            .build()
+            .let { propertySpecs.add(it) }
+
+        PropertySpec.builder("writeTimeoutMillis", LONG, KModifier.PRIVATE)
+            .initializer("0L")
+            .mutable(true)
+            .build()
+            .let { propertySpecs.add(it) }
+
+        PropertySpec.builder("converter", converterName, KModifier.PRIVATE)
+            .mutable(true)
+            .initializer("%T.getConverter()", rxHttpPluginsName)
+            .build()
+            .let { propertySpecs.add(it) }
+
+        PropertySpec.builder("okClient", okHttpClientName, KModifier.PRIVATE)
+            .mutable(true)
+            .initializer("%T.getOkHttpClient()", rxHttpPluginsName)
+            .build()
+            .let { propertySpecs.add(it) }
+
+        PropertySpec.builder("isAsync", BOOLEAN, KModifier.PROTECTED)
+            .mutable(true)
+            .initializer("true")
+            .build()
+            .let { propertySpecs.add(it) }
+
+        PropertySpec.builder("param", typeVariableP)
+            .initializer("param")
+            .build()
+            .let { propertySpecs.add(it) }
+
+        PropertySpec.builder("request", requestName.copy(true))
+            .mutable(true)
+            .initializer("null")
+            .build()
+            .let { propertySpecs.add(it) }
+
+        val getUrlFun = FunSpec.getterBuilder()
+            .addStatement("addDefaultDomainIfAbsent()")
+            .addStatement("return param.getUrl()")
+            .build()
+
+        PropertySpec.builder("url", STRING)
+            .addAnnotation(getJvmName("getUrl"))
+            .getter(getUrlFun)
+            .build()
+            .let { propertySpecs.add(it) }
+
+        val simpleUrlFun = FunSpec.getterBuilder()
+            .addStatement("return param.getSimpleUrl()")
+            .build()
+
+        PropertySpec.builder("simpleUrl", STRING)
+            .addAnnotation(getJvmName("getSimpleUrl"))
+            .getter(simpleUrlFun)
+            .build()
+            .let { propertySpecs.add(it) }
+
+        val headersFun = FunSpec.getterBuilder()
+            .addStatement("return param.getHeaders()")
+            .build()
+
+        PropertySpec.builder("headers", headerName)
+            .addAnnotation(getJvmName("getHeaders"))
+            .getter(headersFun)
+            .build()
+            .let { propertySpecs.add(it) }
+
+        val headersBuilderFun = FunSpec.getterBuilder()
+            .addStatement("return param.getHeadersBuilder()")
+            .build()
+
+        PropertySpec.builder("headersBuilder", headerBuilderName)
+            .addAnnotation(getJvmName("getHeadersBuilder"))
+            .getter(headersBuilderFun)
+            .build()
+            .let { propertySpecs.add(it) }
+
+        val cacheStrategyFun = FunSpec.getterBuilder()
+            .addStatement("return param.getCacheStrategy()")
+            .build()
+
+        PropertySpec.builder("cacheStrategy", cacheStrategyName)
+            .addAnnotation(getJvmName("getCacheStrategy"))
+            .getter(cacheStrategyFun)
+            .build()
+            .let { propertySpecs.add(it) }
+
+        val okClientFun = FunSpec.getterBuilder()
+            .addCode(
+                """
+                if (_okHttpClient != null) return _okHttpClient!!
+                val okClient = this.okClient
+                var builder : OkHttpClient.Builder? = null
+                
+                if (%T.isDebug()) {
+                    builder = okClient.newBuilder()
+                    builder.addInterceptor(%T(okClient))
+                }
+                
+                if (connectTimeoutMillis != 0L) {
+                    if (builder == null) builder = okClient.newBuilder()
+                    builder.connectTimeout(connectTimeoutMillis, %T.MILLISECONDS)
+                }
+                
+                if (readTimeoutMillis != 0L) {
+                    if (builder == null) builder = okClient.newBuilder()
+                    builder.readTimeout(readTimeoutMillis, %T.MILLISECONDS)
+                }
+
+                if (writeTimeoutMillis != 0L) {
+                   if (builder == null) builder = okClient.newBuilder()
+                   builder.writeTimeout(writeTimeoutMillis, %T.MILLISECONDS)
+                }
+                
+                if (param.getCacheMode() != CacheMode.ONLY_NETWORK) {                      
+                    if (builder == null) builder = okClient.newBuilder()           
+                    builder.addInterceptor(%T(cacheStrategy))
+                }
+                                                                                        
+                _okHttpClient = builder?.build() ?: okClient
+                return _okHttpClient!!
+                """.trimIndent(),
+                logUtilName,
+                logInterceptorName,
+                timeUnitName,
+                timeUnitName,
+                timeUnitName,
+                cacheInterceptorName
+            )
+            .build()
+
+
+        PropertySpec.builder("_okHttpClient", okHttpClientName.copy(true), KModifier.PRIVATE)
+            .mutable(true)
+            .initializer("null")
+            .build()
+            .let { propertySpecs.add(it) }
+
+        PropertySpec.builder("okHttpClient", okHttpClientName)
+            .addAnnotation(getJvmName("getOkHttpClient"))
+            .getter(okClientFun)
+            .build()
+            .let { propertySpecs.add(it) }
 
         FunSpec.builder("connectTimeout")
             .addParameter("connectTimeout", LONG)
@@ -444,31 +601,9 @@ class RxHttpGenerator(private val logger: KSPLogger) {
             .build()
             .let { methodList.add(it) }
 
-        FunSpec.builder("getUrl")
-            .addStatement("addDefaultDomainIfAbsent()")
-            .addStatement("return param.getUrl()")
-            .returns(STRING)
-            .build()
-            .let { methodList.add(it) }
-
-        FunSpec.builder("getSimpleUrl")
-            .addStatement("return param.getSimpleUrl()")
-            .build()
-            .let { methodList.add(it) }
-
         FunSpec.builder("getHeader")
             .addParameter("key", STRING)
             .addStatement("return param.getHeader(key)")
-            .build()
-            .let { methodList.add(it) }
-
-        FunSpec.builder("getHeaders")
-            .addStatement("return param.getHeaders()")
-            .build()
-            .let { methodList.add(it) }
-
-        FunSpec.builder("getHeadersBuilder")
-            .addStatement("return param.getHeadersBuilder()")
             .build()
             .let { methodList.add(it) }
 
@@ -489,11 +624,6 @@ class RxHttpGenerator(private val logger: KSPLogger) {
         FunSpec.builder("cacheControl")
             .addParameter("cacheControl", cacheControlName)
             .addStatement("return apply { param.cacheControl(cacheControl) }")
-            .build()
-            .let { methodList.add(it) }
-
-        FunSpec.builder("getCacheStrategy")
-            .addStatement("return param.getCacheStrategy()")
             .build()
             .let { methodList.add(it) }
 
@@ -566,8 +696,7 @@ class RxHttpGenerator(private val logger: KSPLogger) {
             .addCode(
                 """
                 val request = buildRequest()
-                val okClient = getOkHttpClient()
-                return okClient.newCall(request)
+                return okHttpClient.newCall(request)
                 """.trimIndent()
             )
             .returns(callName)
@@ -585,52 +714,6 @@ class RxHttpGenerator(private val logger: KSPLogger) {
                 """.trimIndent()
             )
             .returns(requestName)
-            .build()
-            .let { methodList.add(it) }
-
-        FunSpec.builder("getOkHttpClient")
-            .addCode(
-                """
-                if (realOkClient != null) return realOkClient!!
-                val okClient = this.okClient
-                var builder : OkHttpClient.Builder? = null
-                
-                if (%T.isDebug()) {
-                    builder = okClient.newBuilder()
-                    builder.addInterceptor(%T(okClient))
-                }
-                
-                if (connectTimeoutMillis != 0L) {
-                    if (builder == null) builder = okClient.newBuilder()
-                    builder.connectTimeout(connectTimeoutMillis, %T.MILLISECONDS)
-                }
-                
-                if (readTimeoutMillis != 0L) {
-                    if (builder == null) builder = okClient.newBuilder()
-                    builder.readTimeout(readTimeoutMillis, %T.MILLISECONDS)
-                }
-
-                if (writeTimeoutMillis != 0L) {
-                   if (builder == null) builder = okClient.newBuilder()
-                   builder.writeTimeout(writeTimeoutMillis, %T.MILLISECONDS)
-                }
-                
-                if (param.getCacheMode() != CacheMode.ONLY_NETWORK) {                      
-                    if (builder == null) builder = okClient.newBuilder()           
-                    builder.addInterceptor(%T(getCacheStrategy()))
-                }
-                                                                                        
-                realOkClient = builder?.build() ?: okClient
-                return realOkClient!!
-                """.trimIndent(),
-                logUtilName,
-                logInterceptorName,
-                timeUnitName,
-                timeUnitName,
-                timeUnitName,
-                cacheInterceptorName
-            )
-            .returns(okHttpClientName)
             .build()
             .let { methodList.add(it) }
 
@@ -768,52 +851,7 @@ class RxHttpGenerator(private val logger: KSPLogger) {
             .build()
             .let { methodList.add(it) }
 
-        val connectTimeoutMillis =
-            PropertySpec.builder("connectTimeoutMillis", LONG, KModifier.PRIVATE)
-                .initializer("0L")
-                .mutable(true).build()
-
-        val readTimeoutMillis =
-            PropertySpec.builder("readTimeoutMillis", LONG, KModifier.PRIVATE)
-                .initializer("0L")
-                .mutable(true).build()
-
-        val writeTimeoutMillis =
-            PropertySpec.builder("writeTimeoutMillis", LONG, KModifier.PRIVATE)
-                .initializer("0L")
-                .mutable(true).build()
-
-        val converterSpec = PropertySpec.builder("converter", converterName, KModifier.PRIVATE)
-            .mutable(true)
-            .initializer("%T.getConverter()", rxHttpPluginsName)
-            .build()
-
-        val realOkClient =
-            PropertySpec.builder("realOkClient", okHttpClientName.copy(true), KModifier.PRIVATE)
-                .mutable(true)
-                .initializer("null")
-                .build()
-
-        val okHttpClientSpec = PropertySpec.builder("okClient", okHttpClientName, KModifier.PRIVATE)
-            .mutable(true)
-            .initializer("%T.getOkHttpClient()", rxHttpPluginsName)
-            .build()
-
         val baseRxHttpName = ClassName(rxHttpPackage, "BaseRxHttp")
-
-        val isAsyncField = PropertySpec.builder("isAsync", BOOLEAN, KModifier.PROTECTED)
-            .mutable(true)
-            .initializer("true")
-            .build()
-
-        val param = PropertySpec.builder("param", typeVariableP)
-            .initializer("param")
-            .build()
-
-        val request = PropertySpec.builder("request", requestName.copy(true))
-            .mutable(true)
-            .initializer("null")
-            .build()
 
         val rxHttpBuilder = TypeSpec.classBuilder(RXHttp)
             .primaryConstructor(constructorFun)
@@ -828,17 +866,9 @@ class RxHttpGenerator(private val logger: KSPLogger) {
             """.trimIndent()
             )
             .addModifiers(KModifier.OPEN)
-            .addProperty(connectTimeoutMillis)
-            .addProperty(readTimeoutMillis)
-            .addProperty(writeTimeoutMillis)
-            .addProperty(realOkClient)
-            .addProperty(okHttpClientSpec)
-            .addProperty(converterSpec)
-            .addProperty(isAsyncField)
-            .addProperty(param)
-            .addProperty(request)
-            .superclass(baseRxHttpName)
             .addTypeVariable(typeVariableP)
+            .superclass(baseRxHttpName)
+            .addProperties(propertySpecs)
             .addFunctions(methodList)
             .build()
 

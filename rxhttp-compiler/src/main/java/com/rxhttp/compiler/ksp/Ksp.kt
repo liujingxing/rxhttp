@@ -16,6 +16,7 @@ import com.google.devtools.ksp.symbol.KSValueParameter
 import com.google.devtools.ksp.symbol.Modifier
 import com.google.devtools.ksp.symbol.Origin
 import com.squareup.javapoet.JavaFile
+import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.BOOLEAN
 import com.squareup.kotlinpoet.BOOLEAN_ARRAY
 import com.squareup.kotlinpoet.BYTE
@@ -185,4 +186,11 @@ internal fun JavaFile.writeTo(
 ) {
     val fos = codeGenerator.createNewFile(dependencies, packageName, typeSpec.name, "java")
     fos.bufferedWriter(Charsets.UTF_8).use(this::writeTo)
+}
+
+internal fun getJvmName(name: String): AnnotationSpec {
+    return AnnotationSpec.builder(JvmName::class)
+        .addMember("\"$name\"")
+        .useSiteTarget(AnnotationSpec.UseSiteTarget.GET)
+        .build()
 }
