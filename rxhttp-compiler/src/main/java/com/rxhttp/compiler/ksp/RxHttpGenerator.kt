@@ -903,7 +903,12 @@ class RxHttpGenerator(private val logger: KSPLogger) {
 
         val baseRxHttpName = ClassName(rxHttpPackage, "BaseRxHttp")
 
+        val suppressAnnotation = AnnotationSpec.builder(Suppress::class)
+            .addMember("\"UNCHECKED_CAST\", \"UPPER_BOUND_VIOLATED_BASED_ON_JAVA_ANNOTATIONS\"")
+            .build()
+
         val rxHttpBuilder = TypeSpec.classBuilder(RXHttp)
+            .addAnnotation(suppressAnnotation)
             .primaryConstructor(constructorFun)
             .addType(companionBuilder.build())
             .addKdoc(

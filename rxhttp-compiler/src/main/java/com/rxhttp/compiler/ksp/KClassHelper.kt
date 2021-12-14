@@ -94,6 +94,7 @@ class KClassHelper(private val isAndroidPlatform: Boolean) {
              * Date: 2020/4/11
              * Time: 18:15
              */
+            @Suppress("UPPER_BOUND_VIOLATED_BASED_ON_JAVA_ANNOTATIONS")
             abstract class BaseRxHttp : CallFactory, RangeHeader {
             
                 companion object {
@@ -877,6 +878,7 @@ class KClassHelper(private val isAndroidPlatform: Boolean) {
                  * https://github.com/liujingxing/rxhttp/wiki/FAQ
                  * https://github.com/liujingxing/rxhttp/wiki/更新日志
                  */
+                @Suppress("UNCHECKED_CAST", "UPPER_BOUND_VIOLATED_BASED_ON_JAVA_ANNOTATIONS")
                 open class RxHttpAbstractBodyParam<P : AbstractBodyParam<P>, R : RxHttpAbstractBodyParam<P, R>> 
                 protected constructor(
                     param: P

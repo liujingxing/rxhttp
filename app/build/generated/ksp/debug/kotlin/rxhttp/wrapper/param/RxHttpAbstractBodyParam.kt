@@ -15,6 +15,7 @@ import rxhttp.wrapper.parse.Parser
  * https://github.com/liujingxing/rxhttp/wiki/FAQ
  * https://github.com/liujingxing/rxhttp/wiki/更新日志
  */
+@Suppress("UNCHECKED_CAST", "UPPER_BOUND_VIOLATED_BASED_ON_JAVA_ANNOTATIONS")
 open class RxHttpAbstractBodyParam<P : AbstractBodyParam<P>, R : RxHttpAbstractBodyParam<P, R>> 
 protected constructor(
     param: P

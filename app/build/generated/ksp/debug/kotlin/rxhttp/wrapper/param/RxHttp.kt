@@ -22,6 +22,7 @@ import kotlin.Boolean
 import kotlin.Deprecated
 import kotlin.Long
 import kotlin.String
+import kotlin.Suppress
 import kotlin.Unit
 import kotlin.collections.List
 import kotlin.collections.Map
@@ -56,6 +57,7 @@ import rxhttp.wrapper.utils.LogUtil
  * https://github.com/liujingxing/rxhttp/wiki/FAQ
  * https://github.com/liujingxing/rxhttp/wiki/更新日志
  */
+@Suppress("UNCHECKED_CAST", "UPPER_BOUND_VIOLATED_BASED_ON_JAVA_ANNOTATIONS")
 public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
   public val `param`: P
 ) : BaseRxHttp() {
