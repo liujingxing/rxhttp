@@ -67,7 +67,7 @@ android {
 plugins {
     // kapt/ksp choose one
     // id 'kotlin-kapt'
-    id("com.google.devtools.ksp") version "1.6.0-1.0.1"
+    id("com.google.devtools.ksp") version "1.6.0-1.0.2"
 }
 
 //Make IDE aware of generated code if you use ksp

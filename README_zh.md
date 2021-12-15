@@ -111,7 +111,7 @@ android {
 plugins {
     // kapt/ksp 选其一
     // id 'kotlin-kapt'
-    id("com.google.devtools.ksp") version "1.6.0-1.0.1"
+    id("com.google.devtools.ksp") version "1.6.0-1.0.2"
 }
 
 //让IDE知道ksp生成的kotlin代码(仅使用ksp时才需要)
