@@ -48,10 +48,6 @@ class ParamsVisitor(
 
     private val ksClassMap = LinkedHashMap<String, KSClassDeclaration>()
 
-    fun originatingFiles(): List<KSFile> {
-        return ksClassMap.values.mapNotNull { it.containingFile }
-    }
-
     @OptIn(KspExperimental::class)
     override fun visitClassDeclaration(classDeclaration: KSClassDeclaration, data: Unit) {
         try {

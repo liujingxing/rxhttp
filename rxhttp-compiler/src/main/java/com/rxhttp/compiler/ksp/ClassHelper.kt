@@ -2,6 +2,7 @@ package com.rxhttp.compiler.ksp
 
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
+import com.google.devtools.ksp.symbol.KSFile
 import com.rxhttp.compiler.getClassPath
 import com.rxhttp.compiler.isDependenceRxJava
 import com.rxhttp.compiler.rxHttpPackage
@@ -12,7 +13,10 @@ import com.rxhttp.compiler.rxHttpPackage
  * Date: 2020/3/31
  * Time: 23:36
  */
-class ClassHelper(private val isAndroidPlatform: Boolean) {
+class ClassHelper(
+    private val isAndroidPlatform: Boolean,
+    private val ksFiles: Collection<KSFile>
+) {
 
     private fun isAndroid(s: String) = if (isAndroidPlatform) s else ""
 
@@ -1519,7 +1523,7 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
 
     private fun generatorClass(codeGenerator: CodeGenerator, className: String, content: String) {
         codeGenerator.createNewFile(
-            Dependencies(false),
+            Dependencies(false, *ksFiles.toTypedArray()),
             rxHttpPackage,
             className,
             "java"

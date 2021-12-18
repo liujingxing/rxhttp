@@ -7,24 +7,11 @@ import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.processing.SymbolProcessorProvider
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSFile
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
-import com.rxhttp.compiler.ksp.ClassHelper
-import com.rxhttp.compiler.ksp.ConverterVisitor
-import com.rxhttp.compiler.ksp.DefaultDomainVisitor
-import com.rxhttp.compiler.ksp.DomainVisitor
-import com.rxhttp.compiler.ksp.KClassHelper
-import com.rxhttp.compiler.ksp.OkClientVisitor
-import com.rxhttp.compiler.ksp.ParamsVisitor
-import com.rxhttp.compiler.ksp.ParserVisitor
-import com.rxhttp.compiler.ksp.RxHttpGenerator
-import com.rxhttp.compiler.ksp.RxHttpWrapper
+import com.rxhttp.compiler.ksp.*
 import com.squareup.kotlinpoet.ksp.KotlinPoetKspPreview
-import rxhttp.wrapper.annotation.Converter
-import rxhttp.wrapper.annotation.DefaultDomain
-import rxhttp.wrapper.annotation.Domain
-import rxhttp.wrapper.annotation.OkClient
-import rxhttp.wrapper.annotation.Param
-import rxhttp.wrapper.annotation.Parser
+import rxhttp.wrapper.annotation.*
 
 /**
  * User: ljx
@@ -47,21 +34,22 @@ class KspProcessor(private val env: SymbolProcessorEnvironment) : SymbolProcesso
         val debug = "true" == options[rxhttp_debug]
         if (debug) {
             logger.warn(
-                "LJX process getAllFiles.size=${
-                    resolver.getAllFiles().toList().size
-                } newFiles.size=${resolver.getNewFiles().toList().size}"
+                "LJX process getAllFiles.size=${resolver.getAllFiles().toList().size} " +
+                        "newFiles.size=${resolver.getNewFiles().toList().size}"
             )
         }
-        if (processed) return emptyList()
+        if (processed || resolver.getAllFiles().toList().isEmpty()) return emptyList()
 
         rxHttpPackage = options[rxhttp_package] ?: defaultPackageName
         initRxJavaVersion(options[rxhttp_rxjava])
 
+        val ksFileSet = HashSet<KSFile>()
         val rxHttpWrapper = RxHttpWrapper(logger)
 
         val domainVisitor = DomainVisitor(resolver, logger)
         resolver.getSymbolsWithAnnotation(Domain::class.java.name).forEach {
             if (it is KSPropertyDeclaration) {
+                ksFileSet.add(it.containingFile!!)
                 it.accept(domainVisitor, Unit)
                 rxHttpWrapper.addDomain(it)
             }
@@ -70,6 +58,7 @@ class KspProcessor(private val env: SymbolProcessorEnvironment) : SymbolProcesso
         val defaultDomainVisitor = DefaultDomainVisitor(resolver, logger)
         resolver.getSymbolsWithAnnotation(DefaultDomain::class.java.name).forEach {
             if (it is KSPropertyDeclaration) {
+                ksFileSet.add(it.containingFile!!)
                 it.accept(defaultDomainVisitor, Unit)
             }
         }
@@ -77,6 +66,7 @@ class KspProcessor(private val env: SymbolProcessorEnvironment) : SymbolProcesso
         val okClientVisitor = OkClientVisitor(resolver, logger)
         resolver.getSymbolsWithAnnotation(OkClient::class.java.name).forEach {
             if (it is KSPropertyDeclaration) {
+                ksFileSet.add(it.containingFile!!)
                 it.accept(okClientVisitor, Unit)
                 rxHttpWrapper.addOkClient(it)
             }
@@ -85,6 +75,7 @@ class KspProcessor(private val env: SymbolProcessorEnvironment) : SymbolProcesso
         val converterVisitor = ConverterVisitor(resolver, logger)
         resolver.getSymbolsWithAnnotation(Converter::class.java.name).forEach {
             if (it is KSPropertyDeclaration) {
+                ksFileSet.add(it.containingFile!!)
                 it.accept(converterVisitor, Unit)
                 rxHttpWrapper.addConverter(it)
             }
@@ -93,6 +84,7 @@ class KspProcessor(private val env: SymbolProcessorEnvironment) : SymbolProcesso
         val parserVisitor = ParserVisitor(logger)
         resolver.getSymbolsWithAnnotation(Parser::class.java.name).forEach {
             if (it is KSClassDeclaration) {
+                ksFileSet.add(it.containingFile!!)
                 it.accept(parserVisitor, Unit)
             }
         }
@@ -100,14 +92,15 @@ class KspProcessor(private val env: SymbolProcessorEnvironment) : SymbolProcesso
         val paramsVisitor = ParamsVisitor(logger, resolver)
         resolver.getSymbolsWithAnnotation(Param::class.java.name).forEach {
             if (it is KSClassDeclaration) {
+                ksFileSet.add(it.containingFile!!)
                 it.accept(paramsVisitor, Unit)
                 rxHttpWrapper.add(it)
             }
         }
         rxHttpWrapper.generateRxWrapper(codeGenerator)
-        ClassHelper(true).generatorStaticClass(codeGenerator)
-        KClassHelper(true).generatorStaticClass(codeGenerator)
-        RxHttpGenerator(logger).apply {
+        ClassHelper(true, ksFileSet).generatorStaticClass(codeGenerator)
+        KClassHelper(true, ksFileSet).generatorStaticClass(codeGenerator)
+        RxHttpGenerator(logger, ksFileSet).apply {
             this.paramsVisitor = paramsVisitor
             this.parserVisitor = parserVisitor
             this.domainVisitor = domainVisitor

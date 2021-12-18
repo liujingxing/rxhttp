@@ -49,10 +49,6 @@ class ParserVisitor(
     private val ksClassMap = LinkedHashMap<String, KSClassDeclaration>()
     private val classNameMap = LinkedHashMap<String, List<ClassName>>()
 
-    fun originatingFiles(): List<KSFile> {
-        return ksClassMap.values.mapNotNull { it.containingFile }
-    }
-
     @OptIn(KspExperimental::class)
     override fun visitClassDeclaration(classDeclaration: KSClassDeclaration, data: Unit) {
         try {

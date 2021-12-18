@@ -166,7 +166,7 @@ class RxHttpWrapper(private val logger: KSPLogger) {
             FileSpec.builder(rxHttpPackage, "Rx${className}Http")
                 .addType(rxHttpBuilder.build())
                 .build()
-                .writeTo(codeGenerator, Dependencies(true, *ksFiles.toTypedArray()))
+                .writeTo(codeGenerator, Dependencies(false, *ksFiles.toTypedArray()))
         }
     }
 

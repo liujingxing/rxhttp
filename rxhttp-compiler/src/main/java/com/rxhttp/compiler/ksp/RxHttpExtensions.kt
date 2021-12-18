@@ -333,7 +333,7 @@ class RxHttpExtensions(private val logger: KSPLogger) {
                 .apply { fileBuilder.addFunction(this) }
         }
         val fileSpec = fileBuilder.build()
-        val dependencies = fileSpec.kspDependencies(true)
+        val dependencies = fileSpec.kspDependencies(false)
         fileSpec.writeTo(codeGenerator, dependencies)
     }
 

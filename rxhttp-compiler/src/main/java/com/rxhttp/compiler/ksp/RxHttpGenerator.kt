@@ -5,36 +5,19 @@ import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.KSFile
-import com.rxhttp.compiler.RXHttp
-import com.rxhttp.compiler.getKClassName
-import com.rxhttp.compiler.isDependenceRxJava
-import com.rxhttp.compiler.rxHttpPackage
-import com.rxhttp.compiler.rxhttpKClassName
-import com.squareup.kotlinpoet.ANY
-import com.squareup.kotlinpoet.AnnotationSpec
-import com.squareup.kotlinpoet.BOOLEAN
-import com.squareup.kotlinpoet.ClassName
-import com.squareup.kotlinpoet.FileSpec
-import com.squareup.kotlinpoet.FunSpec
-import com.squareup.kotlinpoet.KModifier
-import com.squareup.kotlinpoet.LIST
-import com.squareup.kotlinpoet.LONG
-import com.squareup.kotlinpoet.MAP
-import com.squareup.kotlinpoet.ParameterSpec
+import com.rxhttp.compiler.*
+import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
-import com.squareup.kotlinpoet.PropertySpec
-import com.squareup.kotlinpoet.STRING
-import com.squareup.kotlinpoet.TypeSpec
-import com.squareup.kotlinpoet.TypeVariableName
-import com.squareup.kotlinpoet.WildcardTypeName
-import com.squareup.kotlinpoet.asClassName
 import com.squareup.kotlinpoet.jvm.throws
 import com.squareup.kotlinpoet.ksp.KotlinPoetKspPreview
 import com.squareup.kotlinpoet.ksp.writeTo
 import java.io.IOException
 import java.util.*
 
-class RxHttpGenerator(private val logger: KSPLogger) {
+class RxHttpGenerator(
+    private val logger: KSPLogger,
+    private val ksFiles: Collection<KSFile>
+) {
 
     var paramsVisitor: ParamsVisitor? = null
     var parserVisitor: ParserVisitor? = null
@@ -927,14 +910,6 @@ class RxHttpGenerator(private val logger: KSPLogger) {
             .addProperties(propertySpecs)
             .addFunctions(methodList)
             .build()
-
-        val ksFiles = mutableSetOf<KSFile>()
-        paramsVisitor?.originatingFiles()?.let { ksFiles.addAll(it) }
-        parserVisitor?.originatingFiles()?.let { ksFiles.addAll(it) }
-        domainVisitor?.originatingFiles()?.let { ksFiles.addAll(it) }
-        converterVisitor?.originatingFiles()?.let { ksFiles.addAll(it) }
-        okClientVisitor?.originatingFiles()?.let { ksFiles.addAll(it) }
-        defaultDomainVisitor?.originatingFile()?.let { ksFiles.add(it) }
 
         val dependencies = Dependencies(true, *ksFiles.toTypedArray())
         FileSpec.builder(rxHttpPackage, RXHttp)

@@ -21,8 +21,6 @@ class DefaultDomainVisitor(
 
     private var property: KSPropertyDeclaration? = null
 
-    fun originatingFile() = property?.containingFile
-
     @OptIn(KspExperimental::class)
     override fun visitPropertyDeclaration(property: KSPropertyDeclaration, data: Unit) {
         try {
