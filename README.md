@@ -67,7 +67,7 @@ android {
 plugins {
     // kapt/ksp choose one
     // id 'kotlin-kapt'
-    id("com.google.devtools.ksp") version "1.6.0-1.0.2"
+    id("com.google.devtools.ksp") version "1.6.10-1.0.2"
 }
 
 //Make IDE aware of generated code if you use ksp
@@ -79,9 +79,9 @@ kotlin {
     
 dependencies {
     implementation 'com.squareup.okhttp3:okhttp:4.9.1'  
-    implementation 'com.github.liujingxing.rxhttp:rxhttp:2.8.1'
+    implementation 'com.github.liujingxing.rxhttp:rxhttp:2.8.2'
     // ksp/kapt/annotationProcessor choose one
-    ksp 'com.github.liujingxing.rxhttp:rxhttp-compiler:2.8.1'
+    ksp 'com.github.liujingxing.rxhttp:rxhttp-compiler:2.8.2'
  }
 ```
 </details>
@@ -90,11 +90,11 @@ dependencies {
 
 ### 1、Coverter
 ```java
-implementation 'com.github.liujingxing.rxhttp:converter-fastjson:2.8.1'
-implementation 'com.github.liujingxing.rxhttp:converter-jackson:2.8.1'
-implementation 'com.github.liujingxing.rxhttp:converter-moshi:2.8.1'
-implementation 'com.github.liujingxing.rxhttp:converter-protobuf:2.8.1'
-implementation 'com.github.liujingxing.rxhttp:converter-simplexml:2.8.1'
+implementation 'com.github.liujingxing.rxhttp:converter-fastjson:2.8.2'
+implementation 'com.github.liujingxing.rxhttp:converter-jackson:2.8.2'
+implementation 'com.github.liujingxing.rxhttp:converter-moshi:2.8.2'
+implementation 'com.github.liujingxing.rxhttp:converter-protobuf:2.8.2'
+implementation 'com.github.liujingxing.rxhttp:converter-simplexml:2.8.2'
 ```
 
 ### 2、RxJava
