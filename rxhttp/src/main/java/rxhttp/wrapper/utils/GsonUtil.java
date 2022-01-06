@@ -66,8 +66,11 @@ public class GsonUtil {
             gson = new GsonBuilder()
                 .disableHtmlEscaping()
                 .registerTypeAdapter(String.class, new StringAdapter())
+                .registerTypeAdapter(int.class, new IntegerDefault0Adapter())
                 .registerTypeAdapter(Integer.class, new IntegerDefault0Adapter())
+                .registerTypeAdapter(double.class, new DoubleDefault0Adapter())
                 .registerTypeAdapter(Double.class, new DoubleDefault0Adapter())
+                .registerTypeAdapter(long.class, new LongDefault0Adapter())
                 .registerTypeAdapter(Long.class, new LongDefault0Adapter())
                 .create();
         }
@@ -96,16 +99,13 @@ public class GsonUtil {
         public Integer deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
             throws JsonParseException {
             try {
-                if (json.getAsString().equals("") || json.getAsString().equals("null")) {//定义为int类型,如果后台返回""或者null,则返回0
+                String str = json.getAsString();
+                if ("".equals(str) || "null".equals(str)) {//定义为int类型,如果后台返回""或者null,则返回0
                     return 0;
                 }
             } catch (Exception ignore) {
             }
-            try {
-                return json.getAsInt();
-            } catch (NumberFormatException e) {
-                throw new JsonSyntaxException(e);
-            }
+            return json.getAsInt();
         }
 
         @Override
@@ -118,16 +118,13 @@ public class GsonUtil {
         @Override
         public Double deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
             try {
-                if (json.getAsString().equals("") || json.getAsString().equals("null")) {//定义为double类型,如果后台返回""或者null,则返回0.00
+                String str = json.getAsString();
+                if ("".equals(str) || "null".equals(str)) {//定义为double类型,如果后台返回""或者null,则返回0.00
                     return 0.00;
                 }
             } catch (Exception ignore) {
             }
-            try {
-                return json.getAsDouble();
-            } catch (NumberFormatException e) {
-                throw new JsonSyntaxException(e);
-            }
+            return json.getAsDouble();
         }
 
         @Override
@@ -141,16 +138,13 @@ public class GsonUtil {
         public Long deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
             throws JsonParseException {
             try {
-                if (json.getAsString().equals("") || json.getAsString().equals("null")) {//定义为long类型,如果后台返回""或者null,则返回0
+                String str = json.getAsString();
+                if ("".equals(str) || "null".equals(str)) { //定义为long类型,如果后台返回""或者null,则返回0
                     return 0L;
                 }
             } catch (Exception ignore) {
             }
-            try {
-                return json.getAsLong();
-            } catch (NumberFormatException e) {
-                throw new JsonSyntaxException(e);
-            }
+            return json.getAsLong();
         }
 
         @Override
