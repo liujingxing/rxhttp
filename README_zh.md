@@ -124,9 +124,9 @@ kotlin {
 
 dependencies {
     implementation 'com.squareup.okhttp3:okhttp:4.9.1'  
-    implementation 'com.github.liujingxing.rxhttp:rxhttp:2.8.2'
+    implementation 'com.github.liujingxing.rxhttp:rxhttp:2.8.3'
     // ksp/kapt/annotationProcessor 选其一
-    ksp 'com.github.liujingxing.rxhttp:rxhttp-compiler:2.8.2' 
+    ksp 'com.github.liujingxing.rxhttp:rxhttp-compiler:2.8.3' 
  }
 ```
 </details>
@@ -139,11 +139,11 @@ dependencies {
 
 ```java
 //非必须，根据自己需求选择 RxHttp默认内置了GsonConverter
-implementation 'com.github.liujingxing.rxhttp:converter-fastjson:2.8.2'
-implementation 'com.github.liujingxing.rxhttp:converter-jackson:2.8.2'
-implementation 'com.github.liujingxing.rxhttp:converter-moshi:2.8.2'
-implementation 'com.github.liujingxing.rxhttp:converter-protobuf:2.8.2'
-implementation 'com.github.liujingxing.rxhttp:converter-simplexml:2.8.2'
+implementation 'com.github.liujingxing.rxhttp:converter-fastjson:2.8.3'
+implementation 'com.github.liujingxing.rxhttp:converter-jackson:2.8.3'
+implementation 'com.github.liujingxing.rxhttp:converter-moshi:2.8.3'
+implementation 'com.github.liujingxing.rxhttp:converter-protobuf:2.8.3'
+implementation 'com.github.liujingxing.rxhttp:converter-simplexml:2.8.3'
 ```
 
 ### 2、配置RxJava

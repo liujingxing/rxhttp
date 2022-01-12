@@ -79,9 +79,9 @@ kotlin {
     
 dependencies {
     implementation 'com.squareup.okhttp3:okhttp:4.9.1'  
-    implementation 'com.github.liujingxing.rxhttp:rxhttp:2.8.2'
+    implementation 'com.github.liujingxing.rxhttp:rxhttp:2.8.3'
     // ksp/kapt/annotationProcessor choose one
-    ksp 'com.github.liujingxing.rxhttp:rxhttp-compiler:2.8.2'
+    ksp 'com.github.liujingxing.rxhttp:rxhttp-compiler:2.8.3'
  }
 ```
 </details>
@@ -90,11 +90,11 @@ dependencies {
 
 ### 1、Coverter
 ```java
-implementation 'com.github.liujingxing.rxhttp:converter-fastjson:2.8.2'
-implementation 'com.github.liujingxing.rxhttp:converter-jackson:2.8.2'
-implementation 'com.github.liujingxing.rxhttp:converter-moshi:2.8.2'
-implementation 'com.github.liujingxing.rxhttp:converter-protobuf:2.8.2'
-implementation 'com.github.liujingxing.rxhttp:converter-simplexml:2.8.2'
+implementation 'com.github.liujingxing.rxhttp:converter-fastjson:2.8.3'
+implementation 'com.github.liujingxing.rxhttp:converter-jackson:2.8.3'
+implementation 'com.github.liujingxing.rxhttp:converter-moshi:2.8.3'
+implementation 'com.github.liujingxing.rxhttp:converter-protobuf:2.8.3'
+implementation 'com.github.liujingxing.rxhttp:converter-simplexml:2.8.3'
 ```
 
 ### 2、RxJava
