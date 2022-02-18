@@ -189,28 +189,28 @@ class RxHttpGenerator(
                 var builder : OkHttpClient.Builder? = null
                 
                 if (%T.isDebug()) {
-                    builder = okClient.newBuilder()
-                    builder.addInterceptor(%T(okClient))
+                    val b = builder ?: okClient.newBuilder().also { builder = it }
+                    b.addInterceptor(%T(okClient))
                 }
                 
                 if (connectTimeoutMillis != 0L) {
-                    if (builder == null) builder = okClient.newBuilder()
-                    builder.connectTimeout(connectTimeoutMillis, %T.MILLISECONDS)
+                    val b = builder ?: okClient.newBuilder().also { builder = it }
+                    b.connectTimeout(connectTimeoutMillis, %T.MILLISECONDS)
                 }
                 
                 if (readTimeoutMillis != 0L) {
-                    if (builder == null) builder = okClient.newBuilder()
-                    builder.readTimeout(readTimeoutMillis, %T.MILLISECONDS)
+                    val b = builder ?: okClient.newBuilder().also { builder = it }
+                    b.readTimeout(readTimeoutMillis, %T.MILLISECONDS)
                 }
 
                 if (writeTimeoutMillis != 0L) {
-                   if (builder == null) builder = okClient.newBuilder()
-                   builder.writeTimeout(writeTimeoutMillis, %T.MILLISECONDS)
+                   val b = builder ?: okClient.newBuilder().also { builder = it }
+                   b.writeTimeout(writeTimeoutMillis, %T.MILLISECONDS)
                 }
                 
                 if (param.getCacheMode() != CacheMode.ONLY_NETWORK) {                      
-                    if (builder == null) builder = okClient.newBuilder()           
-                    builder.addInterceptor(%T(cacheStrategy))
+                    val b = builder ?: okClient.newBuilder().also { builder = it }        
+                    b.addInterceptor(%T(cacheStrategy))
                 }
                                                                                         
                 _okHttpClient = builder?.build() ?: okClient

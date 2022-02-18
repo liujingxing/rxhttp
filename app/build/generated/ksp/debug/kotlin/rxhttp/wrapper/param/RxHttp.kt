@@ -108,28 +108,28 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
       var builder : OkHttpClient.Builder? = null
 
       if (LogUtil.isDebug()) {
-          builder = okClient.newBuilder()
-          builder.addInterceptor(LogInterceptor(okClient))
+          val b = builder ?: okClient.newBuilder().also { builder = it }
+          b.addInterceptor(LogInterceptor(okClient))
       }
 
       if (connectTimeoutMillis != 0L) {
-          if (builder == null) builder = okClient.newBuilder()
-          builder.connectTimeout(connectTimeoutMillis, TimeUnit.MILLISECONDS)
+          val b = builder ?: okClient.newBuilder().also { builder = it }
+          b.connectTimeout(connectTimeoutMillis, TimeUnit.MILLISECONDS)
       }
 
       if (readTimeoutMillis != 0L) {
-          if (builder == null) builder = okClient.newBuilder()
-          builder.readTimeout(readTimeoutMillis, TimeUnit.MILLISECONDS)
+          val b = builder ?: okClient.newBuilder().also { builder = it }
+          b.readTimeout(readTimeoutMillis, TimeUnit.MILLISECONDS)
       }
 
       if (writeTimeoutMillis != 0L) {
-         if (builder == null) builder = okClient.newBuilder()
-         builder.writeTimeout(writeTimeoutMillis, TimeUnit.MILLISECONDS)
+         val b = builder ?: okClient.newBuilder().also { builder = it }
+         b.writeTimeout(writeTimeoutMillis, TimeUnit.MILLISECONDS)
       }
 
       if (param.getCacheMode() != CacheMode.ONLY_NETWORK) {                      
-          if (builder == null) builder = okClient.newBuilder()           
-          builder.addInterceptor(CacheInterceptor(cacheStrategy))
+          val b = builder ?: okClient.newBuilder().also { builder = it }        
+          b.addInterceptor(CacheInterceptor(cacheStrategy))
       }
                                                                               
       _okHttpClient = builder?.build() ?: okClient
