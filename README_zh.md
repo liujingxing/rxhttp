@@ -90,7 +90,7 @@ allprojects {
 </details>
 
 <details>
-<summary>2、配置ava 8或更高</summary>
+<summary>2、配置java 8或更高</summary>
  
 ```java
 android {
