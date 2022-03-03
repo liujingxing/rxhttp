@@ -365,7 +365,7 @@ private fun KSClassDeclaration.checkParserValidClass() {
             val typeArgumentConstructorFun = constructorFun
                 .findTypeArgumentConstructorFun(typeParameterList.size)
             if (typeArgumentConstructorFun == null) {
-                val funBody = StringBuffer("public ${simpleName}(")
+                val funBody = StringBuffer("public ${simpleName.asString()}(")
                 for (i in typeParameterList.indices) {
                     funBody.append("java.lang.reflect.Type")
                     funBody.append(if (i == typeParameterList.lastIndex) ")" else ",")
