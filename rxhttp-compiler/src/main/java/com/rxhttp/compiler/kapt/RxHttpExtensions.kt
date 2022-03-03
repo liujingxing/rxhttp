@@ -49,20 +49,20 @@ class RxHttpExtensions {
 
         //遍历构造方法
         for (executableElement in typeElement.getConstructorFun()) {
-
+            val parameters = executableElement.parameters
             if (typeVariableNames.isNotEmpty() && Modifier.PUBLIC in executableElement.modifiers) {
-                if (executableElement.parameters.size == 1 &&
-                    "java.lang.reflect.Type[]" == executableElement.parameters[0].asType()
-                        .toString()
+                if (parameters.size == 1 &&
+                    "java.lang.reflect.Type[]" == parameters[0].asType().toString()
                 ) {
+                    //构造方法仅有一个Type[]类型参数，跳过
                     continue
                 }
 
                 //构造方法参数数量等于泛型数量
-                if (executableElement.parameters.size >= typeVariableNames.size) {
-                    val allTypeArg = executableElement.parameters
-                        .find { "java.lang.reflect.Type" == it.asType().toString() } == null
-                    if (allTypeArg) continue
+                if (parameters.size >= typeVariableNames.size) {
+                    //构造方法没有非Type类型参数，跳过
+                    parameters.find { "java.lang.reflect.Type" != it.asType().toString() }
+                        ?: continue
                 }
             }
 
@@ -70,7 +70,7 @@ class RxHttpExtensions {
             val parameterList = ArrayList<ParameterSpec>()
             var typeIndex = 0
             val varArgsFun = executableElement.isVarArgs  //该构造方法是否携带可变参数，即是否为可变参数方法
-            executableElement.parameters.forEachIndexed { index, variableElement ->
+            parameters.forEachIndexed { index, variableElement ->
                 val variableType = variableElement.asType()
                 val variableName = variableElement.simpleName.toString()
                 val parameterSpec = if (variableType.toString() == "java.lang.reflect.Type"

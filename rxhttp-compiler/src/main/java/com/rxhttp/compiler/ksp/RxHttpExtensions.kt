@@ -26,6 +26,7 @@ import com.squareup.kotlinpoet.ksp.KotlinPoetKspPreview
 import com.squareup.kotlinpoet.ksp.addOriginatingKSFile
 import com.squareup.kotlinpoet.ksp.kspDependencies
 import com.squareup.kotlinpoet.ksp.toClassName
+import com.squareup.kotlinpoet.ksp.toTypeName
 import com.squareup.kotlinpoet.ksp.toTypeParameterResolver
 import com.squareup.kotlinpoet.ksp.toTypeVariableName
 import com.squareup.kotlinpoet.ksp.writeTo
@@ -55,19 +56,20 @@ class RxHttpExtensions(private val logger: KSPLogger) {
 
         //遍历构造方法
         for (ksFunction in ksClass.getConstructors()) {
-
+            val parameters = ksFunction.parameters
             if (typeVariableNames.isNotEmpty() && ksFunction.isPublic()) {
-                if (ksFunction.parameters.size == 1 &&
-                    "java.lang.reflect.Type[]" != ksFunction.parameters[0].type.getQualifiedName()
+                if (parameters.size == 1 &&
+                    "kotlin.Array<java.lang.reflect.Type>" == parameters[0].type.toTypeName()
+                        .toString()
                 ) {
+                    //构造方法仅有一个Array<Type>类型参数，跳过
                     continue
                 }
 
-                //构造方法参数数量等于泛型数量
-                if (ksFunction.parameters.size >= typeVariableNames.size) {
-                    val allTypeArg = ksFunction.parameters
-                        .find {  "java.lang.reflect.Type" != it.type.getQualifiedName() } == null
-                    if (allTypeArg) continue
+                if (parameters.size >= typeVariableNames.size) {
+                    //构造方法没有非Type类型参数，跳过
+                    parameters.find { "java.lang.reflect.Type" != it.type.getQualifiedName() }
+                        ?: continue
                 }
             }
 
@@ -77,7 +79,7 @@ class RxHttpExtensions(private val logger: KSPLogger) {
             val classTypeParams = ksClass.typeParameters.toTypeParameterResolver()
             val functionTypeParams =
                 ksFunction.typeParameters.toTypeParameterResolver(classTypeParams)
-            ksFunction.parameters.forEach { ksValueParameter ->
+            parameters.forEach { ksValueParameter ->
                 val variableTypeName = ksValueParameter.type.getQualifiedName()
                 val parameterSpec =
                     if ("java.lang.reflect.Type" == variableTypeName &&
