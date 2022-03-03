@@ -193,10 +193,9 @@ fun TypeElement.getPublicConstructorFun() =
 fun TypeElement.getVisibleConstructorFun(): List<ExecutableElement> {
     val funList = ArrayList<ExecutableElement>()
     enclosedElements.forEach {
-        if (it is ExecutableElement
-            && it.kind == ElementKind.CONSTRUCTOR
-            && (it.getModifiers().contains(Modifier.PUBLIC) || it.getModifiers()
-                .contains(Modifier.PROTECTED))
+        if (it is ExecutableElement &&
+            it.kind == ElementKind.CONSTRUCTOR &&
+            (Modifier.PUBLIC in it.getModifiers() || Modifier.PROTECTED in it.getModifiers())
         ) {
             funList.add(it)
         }

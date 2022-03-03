@@ -48,7 +48,7 @@ class RxHttpExtensions {
         }
 
         //遍历构造方法
-        for (executableElement in typeElement.getConstructorFun()) {
+        for (executableElement in typeElement.getVisibleConstructorFun()) {
             val parameters = executableElement.parameters
             if (typeVariableNames.isNotEmpty() && Modifier.PUBLIC in executableElement.modifiers) {
                 if (parameters.size == 1 &&
@@ -379,14 +379,4 @@ private fun List<TypeVariableName>.getTypeVariableNames(): List<TypeVariableName
             (it.toKClassTypeName() as TypeVariableName).copy(reified = true)
         }
     }
-}
-
-//获取构造方法
-private fun TypeElement.getConstructorFun(): List<ExecutableElement> {
-    return enclosedElements.filter {
-        it is ExecutableElement &&
-            it.kind == ElementKind.CONSTRUCTOR &&
-            (Modifier.PUBLIC in it.getModifiers() ||
-                Modifier.PROTECTED in it.getModifiers())
-    }.map { it as ExecutableElement }
 }
