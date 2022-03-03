@@ -10,7 +10,6 @@ import com.google.devtools.ksp.isPublic
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.KSClassDeclaration
-import com.google.devtools.ksp.symbol.KSFile
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSValueParameter
 import com.google.devtools.ksp.symbol.KSVisitorVoid
@@ -131,8 +130,15 @@ private fun KSClassDeclaration.getAsXxxFun(
             .find { p -> p.type.toString().startsWith("java.lang.Class") } != null
 
         if (haveClassTypeParam && typeVariableNames.size == 1) {
-            //有Class类型参数 且 泛型数量等于1 ，才去生成Parser注解里wrappers字段对应的asXxx方法
-            it.getAsXxxFun(parserAlias, funSpec, onParserFunReturnType, typeMap, funList)
+            //查找非Any类型参数
+            val nonAnyType = typeVariableNames.first().bounds.find { typeName ->
+                val name = typeName.toString()
+                name != "kotlin.Any" && name != "kotlin.Any?"
+            }
+            //有Class类型参数 且 泛型数量等于1 且没有为泛型指定边界(Any类型边界除外)，才去生成Parser注解里wrappers字段对应的asXxx方法
+            if (nonAnyType == null) {
+                it.getAsXxxFun(parserAlias, funSpec, onParserFunReturnType, typeMap, funList)
+            }
         }
     }
 
