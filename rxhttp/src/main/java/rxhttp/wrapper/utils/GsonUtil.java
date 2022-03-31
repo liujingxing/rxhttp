@@ -54,7 +54,11 @@ public class GsonUtil {
     @NonNull
     public static <T> T fromJson(String json, Type type) {
         Gson gson = buildGson();
-        return gson.fromJson(json, type);
+        T t = gson.fromJson(json, type);
+        if (t == null) {
+            throw new JsonSyntaxException("The string '" + json + "' could not be deserialized to " + type + " object");
+        }
+        return t;
     }
 
     public static String toJson(Object object) {
