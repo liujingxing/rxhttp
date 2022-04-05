@@ -53,7 +53,11 @@ public class FastJsonConverter implements JsonConverter {
             if (needDecodeResult) {
                 result = RxHttpPlugins.onResultDecoder(result);
             }
-            return JSON.parseObject(result, type, parserConfig);
+            T t = JSON.parseObject(result, type, parserConfig);
+            if (t == null) {
+                throw new IllegalStateException("FastJsonConverter Could not deserialize body as " + type);
+            }
+            return t;
         } finally {
             body.close();
         }

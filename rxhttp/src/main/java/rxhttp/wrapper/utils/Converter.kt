@@ -42,5 +42,6 @@ fun <R> Response.convert(type: Type): R {
     val needDecodeResult = OkHttpCompat.needDecodeResult(this)
     LogUtil.log(this, null)
     val converter = OkHttpCompat.getConverter(this)
-    return converter!!.convert(body, type, needDecodeResult)
+    return converter?.convert(body, type, needDecodeResult)
+        ?: throw IllegalStateException("Converter Could not deserialize body as $type")
 }

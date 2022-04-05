@@ -121,6 +121,9 @@ public class MoshiConverter implements JsonConverter {
             if (reader.peek() != JsonReader.Token.END_DOCUMENT) {
                 throw new JsonDataException("JSON document was not fully consumed.");
             }
+            if (result == null) {
+                throw new IllegalStateException("MoshiConverter Could not deserialize body as " + type);
+            }
             return result;
         } finally {
             body.close();

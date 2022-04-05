@@ -65,7 +65,7 @@ public class XmlConverter implements IConverter {
                 read = serializer.read(cls, body.charStream(), strict);
             }
             if (read == null) {
-                throw new IllegalStateException("Could not deserialize body as " + cls);
+                throw new IllegalStateException("XmlConverter Could not deserialize body as " + cls);
             }
             return read;
         } catch (RuntimeException | IOException e) {

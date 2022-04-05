@@ -44,7 +44,11 @@ public class JacksonConverter implements JsonConverter {
             if (needDecodeResult) {
                 result = RxHttpPlugins.onResultDecoder(result);
             }
-            return reader.readValue(result);
+            T t = reader.readValue(result);
+            if (t == null) {
+                throw new IllegalStateException("JacksonConverter Could not deserialize body as " + type);
+            }
+            return t;
         } finally {
             body.close();
         }

@@ -2,7 +2,6 @@ package rxhttp.wrapper.converter;
 
 
 import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonWriter;
@@ -56,7 +55,7 @@ public class GsonConverter implements JsonConverter {
             if (type == String.class) return (T) result;
             T t = gson.fromJson(result, type);
             if (t == null) {
-                throw new JsonSyntaxException("The string '" + result + "' could not be deserialized to " + type + " object");
+                throw new IllegalStateException("GsonConverter Could not deserialize body as " + type);
             }
             return t;
         } finally {

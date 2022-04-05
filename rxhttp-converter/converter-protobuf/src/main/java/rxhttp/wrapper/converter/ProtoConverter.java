@@ -66,8 +66,12 @@ public class ProtoConverter implements IConverter {
         }
 
         try {
-            return (T) (registry == null ? parser.parseFrom(body.byteStream())
+            T t = (T) (registry == null ? parser.parseFrom(body.byteStream())
                 : parser.parseFrom(body.byteStream(), registry));
+            if (t == null) {
+                throw new IllegalStateException("ProtoConverter Could not deserialize body as " + type);
+            }
+            return t;
         } catch (InvalidProtocolBufferException e) {
             throw new RuntimeException(e); // Despite extending IOException, this is data mismatch.
         } finally {
