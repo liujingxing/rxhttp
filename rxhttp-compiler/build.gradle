@@ -10,7 +10,7 @@ dependencies {
     implementation 'com.squareup:kotlinpoet-javapoet:1.10.2'
 //    implementation "com.github.liujingxing.rxhttp:rxhttp-annotation:${rxhttp_version}"
     implementation project(":rxhttp-annotation")
-    implementation "com.google.devtools.ksp:symbol-processing-api:1.6.10-1.0.2"
+    implementation "com.google.devtools.ksp:symbol-processing-api:${ksp_version}"
 }
 
 sourceCompatibility = "8"
