@@ -126,8 +126,9 @@ private fun KSClassDeclaration.getAsXxxFun(
             .build()
             .apply { funList.add(this) }
 
-        val haveClassTypeParam = parameterSpecs
-            .find { p -> p.type.toString().startsWith("java.lang.Class") } != null
+        val haveClassTypeParam = parameterSpecs.any { p ->
+            p.type.toString().startsWith("java.lang.Class")
+        }
 
         if (haveClassTypeParam && typeVariableNames.size == 1) {
             //查找非Any类型参数
@@ -358,7 +359,7 @@ private fun KSClassDeclaration.checkParserValidClass() {
                 "This class '$elementQualifiedName' must be declared 'protected $elementQualifiedName()' constructor fun"
             throw NoSuchElementException(msg)
         }
-        if (!noArgumentConstructorFun.modifiers.contains(Modifier.PROTECTED)) {
+        if (!noArgumentConstructorFun.isProtected()) {
             //无参构造方法必须要声明为protected
             val msg =
                 "This class '$elementQualifiedName' no-argument constructor must be declared protected"

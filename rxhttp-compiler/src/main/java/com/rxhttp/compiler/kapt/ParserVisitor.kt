@@ -112,9 +112,9 @@ private fun TypeElement.getAsXxxFun(
             .build()
             .apply { methodList.add(this) }
 
-        val haveClassTypeParam = parameterList.find { p ->
+        val haveClassTypeParam = parameterList.any { p ->
             p.type.toString().startsWith("java.lang.Class")
-        } != null
+        }
 
         //注意，这里获取泛型边界跟ksp不一样，这里会自动过滤Object类型，即使手动声明了
         if (haveClassTypeParam && typeVariableNames.size == 1 && typeVariableNames.first().bounds.isEmpty()) {

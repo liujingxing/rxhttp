@@ -66,10 +66,11 @@ class RxHttpExtensions(private val logger: KSPLogger) {
                     continue
                 }
 
+                //构造方法参数数量 >= 泛型数量
                 if (parameters.size >= typeVariableNames.size) {
-                    //构造方法没有非Type类型参数，跳过
-                    parameters.find { "java.lang.reflect.Type" != it.type.getQualifiedName() }
-                        ?: continue
+                    //构造方法全部为Type类型参数，跳过
+                    if (parameters.all { "java.lang.reflect.Type" == it.type.getQualifiedName() })
+                        continue
                 }
             }
 

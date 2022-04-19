@@ -19,8 +19,6 @@ import com.squareup.kotlinpoet.asTypeName
 import com.squareup.kotlinpoet.asTypeVariableName
 import org.jetbrains.annotations.Nullable
 import javax.annotation.processing.Filer
-import javax.lang.model.element.ElementKind
-import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.TypeKind
@@ -58,11 +56,11 @@ class RxHttpExtensions {
                     continue
                 }
 
-                //构造方法参数数量等于泛型数量
+                //构造方法参数数量 >= 泛型数量
                 if (parameters.size >= typeVariableNames.size) {
-                    //构造方法没有非Type类型参数，跳过
-                    parameters.find { "java.lang.reflect.Type" != it.asType().toString() }
-                        ?: continue
+                    //构造方法全部为Type类型参数，跳过
+                    if (parameters.all { "java.lang.reflect.Type" == it.asType().toString() })
+                        continue
                 }
             }
 
