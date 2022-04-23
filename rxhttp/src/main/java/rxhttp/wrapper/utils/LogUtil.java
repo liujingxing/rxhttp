@@ -174,7 +174,7 @@ public class LogUtil {
             String result;
             if (body != null) {
                 result = body;
-            } else if (!HttpHeaders.hasBody(response)) {
+            } else if (!promisesBody(response)) {
                 result = "No Response Body";
             } else if (bodyHasUnknownEncoding(response.headers())) {
                 result = "(binary " + response.body().contentLength() + "-byte encoded body omitted)";
@@ -299,6 +299,10 @@ public class LogUtil {
         return OkHttpCompat.okHttpVersionCompare("3.14.0") >= 0;
     }
 
+    private static boolean versionGte400() {
+        return OkHttpCompat.okHttpVersionCompare("4.0.0") >= 0;
+    }
+
     @SuppressWarnings("deprecation")
     private static String response2Str(Response response) throws IOException {
         ResponseBody body = OkHttpCompat.requireBody(response);
@@ -396,5 +400,10 @@ public class LogUtil {
                 .append("\n");
         }
         return builder.toString();
+    }
+
+    private static boolean promisesBody(Response response) {
+        //okhttp 4.0.0 版本没有HttpHeaders.hasBody方法，但在4.0.1版本又恢复了，但被标记未过时
+        return versionGte400() ? HttpHeaders.promisesBody(response) : HttpHeaders.hasBody(response);
     }
 }
