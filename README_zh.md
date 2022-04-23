@@ -106,12 +106,12 @@ android {
 <details open>
 <summary>3、添加RxHttp依赖</summary>
  
-```java
+```kotlin
 //annotationProcessor无需依赖额外插件
 plugins {
     // kapt/ksp 选其一
     // id 'kotlin-kapt'
-    id "com.google.devtools.ksp" version "1.6.21-1.0.5"
+    id 'com.google.devtools.ksp' version '1.6.21-1.0.5'
 }
 
 //让IDE知道ksp生成的kotlin代码(仅使用ksp时才需要)
@@ -123,10 +123,11 @@ kotlin {
 }
 
 dependencies {
+    def rxhttp_version = '2.8.7'
     implementation 'com.squareup.okhttp3:okhttp:4.9.3'  
-    implementation 'com.github.liujingxing.rxhttp:rxhttp:2.8.7'
+    implementation "com.github.liujingxing.rxhttp:rxhttp:$rxhttp_version"
     // ksp/kapt/annotationProcessor 选其一
-    ksp 'com.github.liujingxing.rxhttp:rxhttp-compiler:2.8.7' 
+    ksp "com.github.liujingxing.rxhttp:rxhttp-compiler:$rxhttp_version"
  }
 ```
 </details>
@@ -137,13 +138,13 @@ dependencies {
 
 ### 1、配置Coverter
 
-```java
+```kotlin
 //非必须，根据自己需求选择 RxHttp默认内置了GsonConverter
-implementation 'com.github.liujingxing.rxhttp:converter-fastjson:2.8.7'
-implementation 'com.github.liujingxing.rxhttp:converter-jackson:2.8.7'
-implementation 'com.github.liujingxing.rxhttp:converter-moshi:2.8.7'
-implementation 'com.github.liujingxing.rxhttp:converter-protobuf:2.8.7'
-implementation 'com.github.liujingxing.rxhttp:converter-simplexml:2.8.7'
+implementation "com.github.liujingxing.rxhttp:converter-fastjson:$rxhttp_version"
+implementation "com.github.liujingxing.rxhttp:converter-jackson:$rxhttp_version"
+implementation "com.github.liujingxing.rxhttp:converter-moshi:$rxhttp_version"
+implementation "com.github.liujingxing.rxhttp:converter-protobuf:$rxhttp_version"
+implementation "com.github.liujingxing.rxhttp:converter-simplexml:$rxhttp_version"
 ```
 
 ### 2、配置RxJava
@@ -154,7 +155,7 @@ implementation 'com.github.liujingxing.rxhttp:converter-simplexml:2.8.7'
  ```java
 implementation 'io.reactivex.rxjava3:rxjava:3.1.4'
 implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
-implementation 'com.github.liujingxing.rxlife:rxlife-rxjava3:2.2.1' //管理RxJava3生命周期，页面销毁，关闭请求
+implementation 'com.github.liujingxing.rxlife:rxlife-rxjava3:2.2.2' //管理RxJava3生命周期，页面销毁，关闭请求
 ```
  
 </details>
@@ -165,7 +166,7 @@ implementation 'com.github.liujingxing.rxlife:rxlife-rxjava3:2.2.1' //管理RxJa
 ```java
 implementation 'io.reactivex.rxjava2:rxjava:2.2.8'
 implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
-implementation 'com.github.liujingxing.rxlife:rxlife-rxjava2:2.2.1' //管理RxJava2生命周期，页面销毁，关闭请求
+implementation 'com.github.liujingxing.rxlife:rxlife-rxjava2:2.2.2' //管理RxJava2生命周期，页面销毁，关闭请求
 ```
 </details>
 

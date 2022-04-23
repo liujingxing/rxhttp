@@ -63,11 +63,11 @@ android {
 <details open>
 <summary>3、Add RxHttp dependency</summary>
  
-```java
+```kotlin
 plugins {
     // kapt/ksp choose one
     // id 'kotlin-kapt'
-    id "com.google.devtools.ksp" version "1.6.21-1.0.5"
+    id 'com.google.devtools.ksp' version '1.6.21-1.0.5'
 }
 
 //Make IDE aware of generated code if you use ksp
@@ -78,10 +78,11 @@ kotlin {
 }
     
 dependencies {
+    def rxhttp_version = '2.8.7'
     implementation 'com.squareup.okhttp3:okhttp:4.9.3'  
-    implementation 'com.github.liujingxing.rxhttp:rxhttp:2.8.7'
+    implementation "com.github.liujingxing.rxhttp:rxhttp:$rxhttp_version"
     // ksp/kapt/annotationProcessor choose one
-    ksp 'com.github.liujingxing.rxhttp:rxhttp-compiler:2.8.7'
+    ksp "com.github.liujingxing.rxhttp:rxhttp-compiler:$rxhttp_version"
  }
 ```
 </details>
@@ -89,12 +90,12 @@ dependencies {
 ### Optional
 
 ### 1、Coverter
-```java
-implementation 'com.github.liujingxing.rxhttp:converter-fastjson:2.8.7'
-implementation 'com.github.liujingxing.rxhttp:converter-jackson:2.8.7'
-implementation 'com.github.liujingxing.rxhttp:converter-moshi:2.8.7'
-implementation 'com.github.liujingxing.rxhttp:converter-protobuf:2.8.7'
-implementation 'com.github.liujingxing.rxhttp:converter-simplexml:2.8.7'
+```kotlin
+implementation "com.github.liujingxing.rxhttp:converter-fastjson:$rxhttp_version"
+implementation "com.github.liujingxing.rxhttp:converter-jackson:$rxhttp_version"
+implementation "com.github.liujingxing.rxhttp:converter-moshi:$rxhttp_version"
+implementation "com.github.liujingxing.rxhttp:converter-protobuf:$rxhttp_version"
+implementation "com.github.liujingxing.rxhttp:converter-simplexml:$rxhttp_version"
 ```
 
 ### 2、RxJava
@@ -104,7 +105,7 @@ implementation 'com.github.liujingxing.rxhttp:converter-simplexml:2.8.7'
  ```java
 implementation 'io.reactivex.rxjava3:rxjava:3.1.4'
 implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
-implementation 'com.github.liujingxing.rxlife:rxlife-rxjava3:2.2.1' //RxJava3, Automatic close request
+implementation 'com.github.liujingxing.rxlife:rxlife-rxjava3:2.2.2' //RxJava3, Automatic close request
 ```
  
 </details>
@@ -114,7 +115,7 @@ implementation 'com.github.liujingxing.rxlife:rxlife-rxjava3:2.2.1' //RxJava3, A
 ```java
 implementation 'io.reactivex.rxjava2:rxjava:2.2.8'
 implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
-implementation 'com.github.liujingxing.rxlife:rxlife-rxjava2:2.2.1' //RxJava2, Automatic close request
+implementation 'com.github.liujingxing.rxlife:rxlife-rxjava2:2.2.2' //RxJava2, Automatic close request
 ```
 </details>
 
