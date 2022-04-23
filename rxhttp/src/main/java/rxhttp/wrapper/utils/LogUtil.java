@@ -148,7 +148,7 @@ public class LogUtil {
             if (userRequest.header("User-Agent") == null) {
                 requestBuilder.header("User-Agent", OkHttpCompat.getOkHttpUserAgent());
             }
-            builder.append("\n").append(requestBuilder.build().headers());
+            builder.append("\n").append(readHeaders(requestBuilder.build().headers()));
             if (body != null) {
                 builder.append("\n");
                 if (bodyHasUnknownEncoding(userRequest.headers())) {
@@ -191,7 +191,7 @@ public class LogUtil {
                 .append("\n\n").append(response.protocol()).append(" ")
                 .append(response.code()).append(" ").append(response.message())
                 .append(tookMs > 0 ? " " + tookMs + "ms" : "")
-                .append("\n").append(response.headers())
+                .append("\n").append(readHeaders(response.headers()))
                 .append("\n").append(result);
             Platform.get().logi(TAG, builder.toString());
         } catch (Throwable e) {
@@ -377,5 +377,24 @@ public class LogUtil {
         return contentEncoding != null
             && !contentEncoding.equalsIgnoreCase("identity")
             && !contentEncoding.equalsIgnoreCase("gzip");
+    }
+
+    /**
+     * okhttp 4.9.2版本起，{@link Headers#toString()}方法
+     * 将会对Authorization、Cookie、Proxy-Authorization、Set-Cookie头部隐藏敏感信息，故这里手动读取Headers信息以打印日志
+     *
+     * @param headers okhttp3.Headers
+     * @return String
+     */
+    private static String readHeaders(Headers headers) {
+        StringBuilder builder = new StringBuilder();
+        int size = headers.size();
+        for (int i = 0; i < size; i++) {
+            builder.append(headers.name(i))
+                .append(": ")
+                .append(headers.value(i))
+                .append("\n");
+        }
+        return builder.toString();
     }
 }
