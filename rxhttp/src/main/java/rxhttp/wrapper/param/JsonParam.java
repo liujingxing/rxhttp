@@ -113,9 +113,13 @@ public class JsonParam extends AbstractBodyParam<JsonParam> {
 
     @Override
     public String toString() {
+        String url = getSimpleUrl();
+        if (url.startsWith("http")) {
+            url = getUrl();
+        }
         return "JsonParam{" +
-            "url = " + getUrl() +
-            "bodyParam = " + bodyParam +
+            "url = " + url +
+            " bodyParam = " + bodyParam +
             '}';
     }
 }

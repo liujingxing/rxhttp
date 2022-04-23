@@ -181,9 +181,13 @@ public class FormParam extends AbstractBodyParam<FormParam> implements IPart<For
 
     @Override
     public String toString() {
+        String url = getSimpleUrl();
+        if (url.startsWith("http")) {
+            url = getUrl();
+        }
         return "FormParam{" +
-            "url = " + getUrl() +
-            "bodyParam = " + bodyParam +
+            "url = " + url +
+            " bodyParam = " + bodyParam +
             '}';
     }
 }

@@ -53,6 +53,10 @@ public class NoBodyParam extends AbstractParam<NoBodyParam> {
 
     @Override
     public String toString() {
-        return getUrl();
+        String url = getSimpleUrl();
+        if (url.startsWith("http")) {
+            url = getUrl();
+        }
+        return url;
     }
 }

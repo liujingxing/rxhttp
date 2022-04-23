@@ -150,9 +150,13 @@ public class JsonArrayParam extends AbstractBodyParam<JsonArrayParam> {
 
     @Override
     public String toString() {
+        String url = getSimpleUrl();
+        if (url.startsWith("http")) {
+            url = getUrl();
+        }
         return "JsonArrayParam{" +
-            "url = " + getUrl() +
-            "bodyParam = " + bodyParam +
+            "url = " + url +
+            " bodyParam = " + bodyParam +
             '}';
     }
 }
