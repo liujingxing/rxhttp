@@ -95,7 +95,7 @@ class ParamsVisitor(
                     val parameterSpec = ksValueParameter.toKParameterSpec(functionTypeParams)
                     parameterSpecs.add(parameterSpec)
                     if (index == 0 && STRING == parameterSpec.type) {
-                        methodBody.append("format(${parameterSpecs[0].name}, formatArgs)")
+                        methodBody.append("format(${parameterSpecs[0].name}, *formatArgs)")
                         continue
                     } else if (index > 0) {
                         methodBody.append(", ")

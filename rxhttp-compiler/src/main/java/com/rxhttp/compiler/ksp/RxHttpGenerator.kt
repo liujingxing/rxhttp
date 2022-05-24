@@ -305,7 +305,7 @@ class RxHttpGenerator(
                 .addParameter("url", STRING)
                 .addParameter("formatArgs", ANY, KModifier.VARARG)
                 .addStatement(
-                    "return $value(%T.${key}(format(url, formatArgs)))", paramClassName,
+                    "return $value(%T.${key}(format(url, *formatArgs)))", paramClassName,
                 )
                 .build()
                 .let { companionBuilder.addFunction(it) }
@@ -320,7 +320,7 @@ class RxHttpGenerator(
             .addModifiers(KModifier.PRIVATE)
             .addParameter("url", STRING)
             .addParameter("formatArgs", ANY, KModifier.VARARG)
-            .addStatement("return if(formatArgs.isNullOrEmpty()) url else String.format(url, formatArgs)")
+            .addStatement("return if(formatArgs.isNullOrEmpty()) url else String.format(url, *formatArgs)")
             .build()
             .let { companionBuilder.addFunction(it) }
 
