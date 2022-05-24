@@ -8,7 +8,7 @@
 [![](https://img.shields.io/badge/掘金-@不怕天黑-blue.svg)](https://juejin.cn/user/272334612601559/posts)
 [![](https://img.shields.io/badge/QQ群-378530627-red.svg)](https://jq.qq.com/?_wv=1027&k=E53Hakvv)
 
-***加我微信 ljx-studio 拉你进微信群(注：不要给我发红包，我脸皮薄，不好意思收，你非要给，请直接[Donations](https://github.com/liujingxing/rxhttp/blob/master/README_zh.md#donations)，这里手动狗头)*** 
+***加我微信 ljx-studio 拉你进微信群(备注RxHttp)*** 
 
 # 主要优势
 
