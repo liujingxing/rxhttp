@@ -198,7 +198,7 @@ class RxHttpWrapper(private val logger: KSPLogger) {
             FunSpec.builder(key)
                 .addAnnotation(JvmStatic::class)
                 .addParameter("url", STRING)
-                .addParameter("formatArgs", ANY, KModifier.VARARG)
+                .addParameter("formatArgs", ANY, true, KModifier.VARARG)
                 .addStatement("return RxHttp.${key}(url, *formatArgs).wrapper()")
                 .build()
                 .apply { funList.add(this) }
@@ -235,7 +235,7 @@ class RxHttpWrapper(private val logger: KSPLogger) {
                     .addTypeVariables(rxHttpTypeNames)
 
                 if (STRING == parameterSpecs.firstOrNull()?.type) {
-                    funSpecBuilder.addParameter("formatArgs", ANY, KModifier.VARARG)
+                    funSpecBuilder.addParameter("formatArgs", ANY, true, KModifier.VARARG)
                 }
                 funSpecBuilder.addStatement(funBody.toString())
                     .build()

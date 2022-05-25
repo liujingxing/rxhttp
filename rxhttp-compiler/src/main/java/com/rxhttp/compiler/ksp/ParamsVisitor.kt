@@ -109,7 +109,7 @@ class ParamsVisitor(
                     .addTypeVariables(rxHttpTypeNames)
 
                 if (STRING == parameterSpecs.firstOrNull()?.type) {
-                    methodSpec.addParameter("formatArgs", ANY, KModifier.VARARG)
+                    methodSpec.addParameter("formatArgs", ANY, true, KModifier.VARARG)
                 }
                 methodSpec.addStatement(methodBody.toString(), rxHttpParamName, param)
                     .build()

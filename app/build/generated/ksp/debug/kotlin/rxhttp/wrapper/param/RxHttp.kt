@@ -492,104 +492,104 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
      *  url = /service/1/...?size=20
      */
     @JvmStatic
-    public fun `get`(url: String, vararg formatArgs: Any) = RxHttpNoBodyParam(Param.get(format(url,
+    public fun `get`(url: String, vararg formatArgs: Any?) = RxHttpNoBodyParam(Param.get(format(url,
         *formatArgs)))
 
     @JvmStatic
-    public fun head(url: String, vararg formatArgs: Any) = RxHttpNoBodyParam(Param.head(format(url,
+    public fun head(url: String, vararg formatArgs: Any?) = RxHttpNoBodyParam(Param.head(format(url,
         *formatArgs)))
 
     @JvmStatic
-    public fun postBody(url: String, vararg formatArgs: Any) =
+    public fun postBody(url: String, vararg formatArgs: Any?) =
         RxHttpBodyParam(Param.postBody(format(url, *formatArgs)))
 
     @JvmStatic
-    public fun putBody(url: String, vararg formatArgs: Any) =
+    public fun putBody(url: String, vararg formatArgs: Any?) =
         RxHttpBodyParam(Param.putBody(format(url, *formatArgs)))
 
     @JvmStatic
-    public fun patchBody(url: String, vararg formatArgs: Any) =
+    public fun patchBody(url: String, vararg formatArgs: Any?) =
         RxHttpBodyParam(Param.patchBody(format(url, *formatArgs)))
 
     @JvmStatic
-    public fun deleteBody(url: String, vararg formatArgs: Any) =
+    public fun deleteBody(url: String, vararg formatArgs: Any?) =
         RxHttpBodyParam(Param.deleteBody(format(url, *formatArgs)))
 
     @JvmStatic
-    public fun postForm(url: String, vararg formatArgs: Any) =
+    public fun postForm(url: String, vararg formatArgs: Any?) =
         RxHttpFormParam(Param.postForm(format(url, *formatArgs)))
 
     @JvmStatic
-    public fun putForm(url: String, vararg formatArgs: Any) =
+    public fun putForm(url: String, vararg formatArgs: Any?) =
         RxHttpFormParam(Param.putForm(format(url, *formatArgs)))
 
     @JvmStatic
-    public fun patchForm(url: String, vararg formatArgs: Any) =
+    public fun patchForm(url: String, vararg formatArgs: Any?) =
         RxHttpFormParam(Param.patchForm(format(url, *formatArgs)))
 
     @JvmStatic
-    public fun deleteForm(url: String, vararg formatArgs: Any) =
+    public fun deleteForm(url: String, vararg formatArgs: Any?) =
         RxHttpFormParam(Param.deleteForm(format(url, *formatArgs)))
 
     @JvmStatic
-    public fun postJson(url: String, vararg formatArgs: Any) =
+    public fun postJson(url: String, vararg formatArgs: Any?) =
         RxHttpJsonParam(Param.postJson(format(url, *formatArgs)))
 
     @JvmStatic
-    public fun putJson(url: String, vararg formatArgs: Any) =
+    public fun putJson(url: String, vararg formatArgs: Any?) =
         RxHttpJsonParam(Param.putJson(format(url, *formatArgs)))
 
     @JvmStatic
-    public fun patchJson(url: String, vararg formatArgs: Any) =
+    public fun patchJson(url: String, vararg formatArgs: Any?) =
         RxHttpJsonParam(Param.patchJson(format(url, *formatArgs)))
 
     @JvmStatic
-    public fun deleteJson(url: String, vararg formatArgs: Any) =
+    public fun deleteJson(url: String, vararg formatArgs: Any?) =
         RxHttpJsonParam(Param.deleteJson(format(url, *formatArgs)))
 
     @JvmStatic
-    public fun postJsonArray(url: String, vararg formatArgs: Any) =
+    public fun postJsonArray(url: String, vararg formatArgs: Any?) =
         RxHttpJsonArrayParam(Param.postJsonArray(format(url, *formatArgs)))
 
     @JvmStatic
-    public fun putJsonArray(url: String, vararg formatArgs: Any) =
+    public fun putJsonArray(url: String, vararg formatArgs: Any?) =
         RxHttpJsonArrayParam(Param.putJsonArray(format(url, *formatArgs)))
 
     @JvmStatic
-    public fun patchJsonArray(url: String, vararg formatArgs: Any) =
+    public fun patchJsonArray(url: String, vararg formatArgs: Any?) =
         RxHttpJsonArrayParam(Param.patchJsonArray(format(url, *formatArgs)))
 
     @JvmStatic
-    public fun deleteJsonArray(url: String, vararg formatArgs: Any) =
+    public fun deleteJsonArray(url: String, vararg formatArgs: Any?) =
         RxHttpJsonArrayParam(Param.deleteJsonArray(format(url, *formatArgs)))
 
     @JvmStatic
-    public fun postEncryptJson(url: String, vararg formatArgs: Any) =
+    public fun postEncryptJson(url: String, vararg formatArgs: Any?) =
         RxHttpPostEncryptJsonParam(PostEncryptJsonParam(format(url, *formatArgs)))
 
     @JvmStatic
-    public fun postEncryptForm(url: String, vararg formatArgs: Any) =
+    public fun postEncryptForm(url: String, vararg formatArgs: Any?) =
         RxHttpPostEncryptFormParam(PostEncryptFormParam(format(url, *formatArgs)))
 
     @JvmStatic
     public fun postEncryptForm(
       url: String,
       method: Method,
-      vararg formatArgs: Any
+      vararg formatArgs: Any?
     ) = RxHttpPostEncryptFormParam(PostEncryptFormParam(format(url, *formatArgs), method))
 
     @JvmStatic
-    public fun getEncrypt(url: String, vararg formatArgs: Any) =
+    public fun getEncrypt(url: String, vararg formatArgs: Any?) =
         RxHttpGetEncryptParam(GetEncryptParam(format(url, *formatArgs)))
 
     @JvmStatic
-    public fun postEncryptJson1(url: String, vararg formatArgs: Any) =
+    public fun postEncryptJson1(url: String, vararg formatArgs: Any?) =
         RxHttpPostEncryptJsonParam1(PostEncryptJsonParam1(format(url, *formatArgs)))
 
     /**
      * Returns a formatted string using the specified format string and arguments.
      */
-    private fun format(url: String, vararg formatArgs: Any) = if(formatArgs.isNullOrEmpty()) url
+    private fun format(url: String, vararg formatArgs: Any?) = if(formatArgs.isNullOrEmpty()) url
         else String.format(url, *formatArgs)
   }
 }
