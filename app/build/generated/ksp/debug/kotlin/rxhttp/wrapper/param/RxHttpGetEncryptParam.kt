@@ -20,12 +20,12 @@ public class RxHttpGetEncryptParam : RxHttpNoBodyParam {
 
   @Throws(
     IOException::class,
-    IllegalArgumentException::class
+    IllegalArgumentException::class,
   )
   public fun <T : Point, R : CharSequence> test(
     a: MutableList<R>,
     map: MutableMap<T, R>,
-    vararg b: Array<T>
+    vararg b: Array<T>,
   ) = apply {
     (param as GetEncryptParam).test(a,map,*b) 
   }

@@ -59,7 +59,7 @@ import rxhttp.wrapper.utils.LogUtil
  */
 @Suppress("UNCHECKED_CAST", "UPPER_BOUND_VIOLATED_BASED_ON_JAVA_ANNOTATIONS")
 public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
-  public val `param`: P
+  public val `param`: P,
 ) : BaseRxHttp() {
   private var connectTimeoutMillis: Long = 0L
 
@@ -244,7 +244,7 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
   public fun addHeader(
     key: String,
     `value`: String,
-    isAdd: Boolean = true
+    isAdd: Boolean = true,
   ): R {
     if (isAdd) param.addHeader(key, value)
     return this as R
@@ -286,7 +286,7 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
   public override fun setRangeHeader(
     startIndex: Long,
     endIndex: Long,
-    connectLastProgress: Boolean
+    connectLastProgress: Boolean,
   ): R {
     param.setRangeHeader(startIndex, endIndex)                         
     if (connectLastProgress)                                            
@@ -411,7 +411,7 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
   public override fun <T> asParser(
     parser: Parser<T>,
     scheduler: Scheduler?,
-    progressConsumer: Consumer<Progress>?
+    progressConsumer: Consumer<Progress>?,
   ): Observable<T> {
     val observableCall = if(isAsync) ObservableCallEnqueue(this)
         else ObservableCallExecute(this)                                
@@ -575,7 +575,7 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
     public fun postEncryptForm(
       url: String,
       method: Method,
-      vararg formatArgs: Any?
+      vararg formatArgs: Any?,
     ) = RxHttpPostEncryptFormParam(PostEncryptFormParam(format(url, *formatArgs), method))
 
     @JvmStatic

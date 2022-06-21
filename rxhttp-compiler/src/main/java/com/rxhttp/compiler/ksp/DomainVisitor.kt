@@ -12,7 +12,6 @@ import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.KSVisitorVoid
 import com.google.devtools.ksp.symbol.Modifier
 import com.squareup.kotlinpoet.FunSpec
-import com.squareup.kotlinpoet.ksp.KotlinPoetKspPreview
 import rxhttp.wrapper.annotation.Domain
 import java.util.*
 
@@ -28,7 +27,7 @@ class DomainVisitor(
 
     private val elementMap = LinkedHashMap<String, KSPropertyDeclaration>()
 
-    @OptIn(KspExperimental::class)
+    @KspExperimental
     override fun visitPropertyDeclaration(property: KSPropertyDeclaration, data: Unit) {
         try {
             property.checkDomainProperty()
@@ -50,7 +49,6 @@ class DomainVisitor(
 
 
     //对url添加域名方法
-    @KotlinPoetKspPreview
     fun getFunList(): List<FunSpec> {
         return elementMap.mapNotNull { entry ->
             val key = entry.key

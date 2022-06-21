@@ -29,7 +29,6 @@ import com.squareup.kotlinpoet.TypeVariableName
 import com.squareup.kotlinpoet.WildcardTypeName
 import com.squareup.kotlinpoet.asClassName
 import com.squareup.kotlinpoet.jvm.throws
-import com.squareup.kotlinpoet.ksp.KotlinPoetKspPreview
 import com.squareup.kotlinpoet.ksp.writeTo
 import java.io.IOException
 
@@ -46,7 +45,6 @@ class RxHttpGenerator(
     var defaultDomainVisitor: DefaultDomainVisitor? = null
 
     //生成RxHttp类
-    @KotlinPoetKspPreview
     @KspExperimental
     @Throws(IOException::class)
     fun generateCode(codeGenerator: CodeGenerator) {

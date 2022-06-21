@@ -10,7 +10,6 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFile
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.rxhttp.compiler.ksp.*
-import com.squareup.kotlinpoet.ksp.KotlinPoetKspPreview
 import rxhttp.wrapper.annotation.*
 
 /**
@@ -22,10 +21,7 @@ class KspProcessor(private val env: SymbolProcessorEnvironment) : SymbolProcesso
 
     private var processed: Boolean = false
 
-    @OptIn(
-        KspExperimental::class,
-        KotlinPoetKspPreview::class
-    )
+    @KspExperimental
     override fun process(resolver: Resolver): List<KSAnnotated> {
         val logger = env.logger
         val options = env.options

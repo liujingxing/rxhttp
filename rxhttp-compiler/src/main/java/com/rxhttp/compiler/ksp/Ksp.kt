@@ -46,7 +46,6 @@ import com.squareup.kotlinpoet.U_BYTE_ARRAY
 import com.squareup.kotlinpoet.U_INT_ARRAY
 import com.squareup.kotlinpoet.U_LONG_ARRAY
 import com.squareup.kotlinpoet.U_SHORT_ARRAY
-import com.squareup.kotlinpoet.ksp.KotlinPoetKspPreview
 import com.squareup.kotlinpoet.ksp.TypeParameterResolver
 import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.toTypeName
@@ -65,7 +64,6 @@ internal fun KSTypeReference.getQualifiedName() =
 internal fun KSFunctionDeclaration.getFunName() = simpleName.asString()
 
 @KspExperimental
-@KotlinPoetKspPreview
 internal fun KSValueParameter.toKParameterSpec(
     typeParamResolver: TypeParameterResolver = TypeParameterResolver.EMPTY
 ): ParameterSpec {
@@ -154,7 +152,6 @@ internal fun FunSpec.Builder.addParameter(
     vararg modifiers: KModifier
 ) = addParameter(name, typeName.copy(nullable), *modifiers)
 
-@KotlinPoetKspPreview
 internal fun KSPropertyDeclaration.toMemberName(): MemberName {
     val className = (parent as? KSClassDeclaration)?.toClassName()
     val fieldName = simpleName.asString()

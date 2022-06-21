@@ -104,7 +104,7 @@ public object RxSimpleHttp {
   public fun postEncryptForm(
     url: String,
     method: Method,
-    vararg formatArgs: Any?
+    vararg formatArgs: Any?,
   ) = RxHttp.postEncryptForm(url, method, *formatArgs).wrapper()
 
   @JvmStatic

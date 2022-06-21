@@ -27,7 +27,6 @@ import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.TypeVariableName
 import com.squareup.kotlinpoet.asClassName
-import com.squareup.kotlinpoet.ksp.KotlinPoetKspPreview
 import com.squareup.kotlinpoet.ksp.TypeParameterResolver
 import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.toTypeName
@@ -48,7 +47,7 @@ class ParserVisitor(
     private val ksClassMap = LinkedHashMap<String, KSClassDeclaration>()
     private val classNameMap = LinkedHashMap<String, List<ClassName>>()
 
-    @OptIn(KspExperimental::class)
+    @KspExperimental
     override fun visitClassDeclaration(classDeclaration: KSClassDeclaration, data: Unit) {
         try {
             classDeclaration.checkParserValidClass()
@@ -74,7 +73,6 @@ class ParserVisitor(
     }
 
     @KspExperimental
-    @KotlinPoetKspPreview
     fun getFunList(codeGenerator: CodeGenerator): List<FunSpec> {
         val funList = ArrayList<FunSpec>()
         val rxHttpExtensions = RxHttpExtensions(logger)
@@ -91,7 +89,6 @@ class ParserVisitor(
 }
 
 @KspExperimental
-@KotlinPoetKspPreview
 private fun KSClassDeclaration.getAsXxxFun(
     parserAlias: String,
     typeMap: LinkedHashMap<String, List<ClassName>>
@@ -154,7 +151,6 @@ private fun KSClassDeclaration.getAsXxxFun(
  * @param typeMap Parser注解里wrappers字段集合
  * @param funList funList
  */
-@KotlinPoetKspPreview
 private fun KSFunctionDeclaration.getAsXxxFun(
     parserAlias: String,
     funSpec: FunSpec,
@@ -237,7 +233,6 @@ private fun KSFunctionDeclaration.getAsXxxFun(
 }
 
 //获取onParser方法返回类型
-@KotlinPoetKspPreview
 private fun KSClassDeclaration.findOnParserFunReturnType(): TypeName? {
     val ksFunction = getAllFunctions().find {
         it.isPublic() &&
@@ -251,7 +246,6 @@ private fun KSClassDeclaration.findOnParserFunReturnType(): TypeName? {
 
 
 @KspExperimental
-@KotlinPoetKspPreview
 private fun KSFunctionDeclaration.getParameterSpecs(
     typeVariableNames: List<TypeVariableName>,
     parent: TypeParameterResolver? = null,

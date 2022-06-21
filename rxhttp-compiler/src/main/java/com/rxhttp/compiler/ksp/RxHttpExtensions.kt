@@ -22,7 +22,6 @@ import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.TypeVariableName
 import com.squareup.kotlinpoet.UNIT
 import com.squareup.kotlinpoet.asClassName
-import com.squareup.kotlinpoet.ksp.KotlinPoetKspPreview
 import com.squareup.kotlinpoet.ksp.addOriginatingKSFile
 import com.squareup.kotlinpoet.ksp.kspDependencies
 import com.squareup.kotlinpoet.ksp.toClassName
@@ -47,7 +46,6 @@ class RxHttpExtensions(private val logger: KSPLogger) {
 
     //根据@Parser注解，生成asXxx()、toXxx()、toFlowXxx()系列方法
     @KspExperimental
-    @KotlinPoetKspPreview
     fun generateRxHttpExtendFun(ksClass: KSClassDeclaration, key: String) {
 
         //遍历获取泛型类型
@@ -148,7 +146,6 @@ class RxHttpExtensions(private val logger: KSPLogger) {
     }
 
 
-    @KotlinPoetKspPreview
     fun generateClassFile(codeGenerator: CodeGenerator) {
         val t = TypeVariableName("T")
         val k = TypeVariableName("K")

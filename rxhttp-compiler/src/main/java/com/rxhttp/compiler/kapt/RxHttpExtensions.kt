@@ -93,7 +93,6 @@ class RxHttpExtensions {
                     }
                     if (annotation != null) type = type.copy(true)
                     val parameterSpecBuilder = ParameterSpec.builder(variableName, type)
-                        .jvmModifiers(variableElement.modifiers)
                     if (isVarArg) {
                         parameterSpecBuilder.addModifiers(KModifier.VARARG)
                     }

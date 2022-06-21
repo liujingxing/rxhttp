@@ -12,7 +12,6 @@ import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSClassDeclaration
-import com.google.devtools.ksp.symbol.KSFile
 import com.google.devtools.ksp.symbol.KSVisitorVoid
 import com.google.devtools.ksp.symbol.Modifier
 import com.rxhttp.compiler.rxHttpPackage
@@ -29,7 +28,6 @@ import com.squareup.kotlinpoet.STRING
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.UNIT
 import com.squareup.kotlinpoet.jvm.throws
-import com.squareup.kotlinpoet.ksp.KotlinPoetKspPreview
 import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.toKModifier
 import com.squareup.kotlinpoet.ksp.toTypeName
@@ -48,7 +46,7 @@ class ParamsVisitor(
 
     private val ksClassMap = LinkedHashMap<String, KSClassDeclaration>()
 
-    @OptIn(KspExperimental::class)
+    @KspExperimental
     override fun visitClassDeclaration(classDeclaration: KSClassDeclaration, data: Unit) {
         try {
             classDeclaration.checkParamsValidClass()
@@ -66,7 +64,6 @@ class ParamsVisitor(
     }
 
     @KspExperimental
-    @KotlinPoetKspPreview
     @Throws(IOException::class)
     fun getFunList(codeGenerator: CodeGenerator): List<FunSpec> {
         val funList = ArrayList<FunSpec>()

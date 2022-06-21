@@ -22,7 +22,6 @@ import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.STRING
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.TypeVariableName
-import com.squareup.kotlinpoet.ksp.KotlinPoetKspPreview
 import com.squareup.kotlinpoet.ksp.toTypeParameterResolver
 import com.squareup.kotlinpoet.ksp.toTypeVariableName
 import com.squareup.kotlinpoet.ksp.writeTo
@@ -45,7 +44,7 @@ class RxHttpWrapper(private val logger: KSPLogger) {
     private val elementMap = LinkedHashMap<String, KSClassDeclaration>()
     private val ksFiles = mutableSetOf<KSFile>()
 
-    @OptIn(KspExperimental::class)
+    @KspExperimental
     fun add(ksClassDeclaration: KSClassDeclaration) {
         val annotation =
             ksClassDeclaration.getAnnotationsByType(Param::class).firstOrNull() ?: return
@@ -54,7 +53,7 @@ class RxHttpWrapper(private val logger: KSPLogger) {
         ksFiles.add(ksClassDeclaration.containingFile!!)
     }
 
-    @OptIn(KspExperimental::class)
+    @KspExperimental
     fun addOkClient(property: KSPropertyDeclaration) {
         val okClient = property.getAnnotationsByType(OkClient::class).firstOrNull() ?: return
         if (okClient.className.isEmpty()) return
@@ -75,7 +74,7 @@ class RxHttpWrapper(private val logger: KSPLogger) {
         ksFiles.add(property.containingFile!!)
     }
 
-    @OptIn(KspExperimental::class)
+    @KspExperimental
     fun addConverter(property: KSPropertyDeclaration) {
         val converter = property.getAnnotationsByType(Converter::class).firstOrNull() ?: return
         if (converter.className.isEmpty()) return
@@ -96,7 +95,7 @@ class RxHttpWrapper(private val logger: KSPLogger) {
         ksFiles.add(property.containingFile!!)
     }
 
-    @OptIn(KspExperimental::class)
+    @KspExperimental
     fun addDomain(property: KSPropertyDeclaration) {
         val domain = property.getAnnotationsByType(Domain::class).firstOrNull() ?: return
         if (domain.className.isEmpty()) return
@@ -118,7 +117,6 @@ class RxHttpWrapper(private val logger: KSPLogger) {
     }
 
     @KspExperimental
-    @KotlinPoetKspPreview
     fun generateRxWrapper(codeGenerator: CodeGenerator) {
         val requestFunList = generateRequestFunList()
 
@@ -172,7 +170,6 @@ class RxHttpWrapper(private val logger: KSPLogger) {
 
 
     @KspExperimental
-    @KotlinPoetKspPreview
     private fun generateRequestFunList(): ArrayList<FunSpec> {
         val funList = ArrayList<FunSpec>() //方法集合
         val funMap = LinkedHashMap<String, String>()

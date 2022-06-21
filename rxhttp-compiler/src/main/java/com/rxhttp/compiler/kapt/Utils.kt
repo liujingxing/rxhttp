@@ -125,7 +125,6 @@ internal fun ExecutableElement.toFunSpecBuilder(): FunSpec.Builder {
         val name = it.simpleName.toString()
         val type = it.asType().asTypeName().toKClassTypeName()
         val parameterSpec = ParameterSpec.builder(name, type)
-            .jvmModifiers(it.modifiers)
             .build()
 
         funBuilder.addParameter(parameterSpec)
@@ -137,7 +136,6 @@ internal fun ExecutableElement.toFunSpecBuilder(): FunSpec.Builder {
         if (asTypeName is ParameterizedTypeName) {
             val type = asTypeName.typeArguments[0].toKClassTypeName()
             val parameterSpec = ParameterSpec.builder(lastParameters.simpleName.toString(), type)
-                .jvmModifiers(lastParameters.modifiers)
                 .addModifiers(KModifier.VARARG)
                 .build()
             funBuilder.parameters[funBuilder.parameters.lastIndex] = parameterSpec
