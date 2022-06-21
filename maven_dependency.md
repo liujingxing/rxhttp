@@ -9,7 +9,7 @@
     <dependency>
         <groupId>com.squareup.okhttp3</groupId>
         <artifactId>okhttp</artifactId>
-        <version>4.9.3</version>
+        <version>4.10.0</version>
     </dependency>
 
     <!--必须-->
@@ -29,7 +29,7 @@
     <dependency>
         <groupId>io.reactivex.rxjava3</groupId>
         <artifactId>rxjava</artifactId>
-        <version>3.1.4</version>
+        <version>3.1.5</version>
     </dependency>
 
 </dependencies>

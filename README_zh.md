@@ -111,7 +111,7 @@ android {
 plugins {
     // kapt/ksp 选其一
     // id 'kotlin-kapt'
-    id 'com.google.devtools.ksp' version '1.6.21-1.0.5'
+    id 'com.google.devtools.ksp' version '1.7.0-1.0.6'
 }
 
 //让IDE知道ksp生成的kotlin代码(仅使用ksp时才需要)
@@ -124,7 +124,7 @@ kotlin {
 
 dependencies {
     def rxhttp_version = '2.8.9'
-    implementation 'com.squareup.okhttp3:okhttp:4.9.3'  
+    implementation 'com.squareup.okhttp3:okhttp:4.10.0'  
     implementation "com.github.liujingxing.rxhttp:rxhttp:$rxhttp_version"
     // ksp/kapt/annotationProcessor 选其一
     ksp "com.github.liujingxing.rxhttp:rxhttp-compiler:$rxhttp_version"
@@ -153,7 +153,7 @@ implementation "com.github.liujingxing.rxhttp:converter-simplexml:$rxhttp_versio
 <summary>RxHttp + RxJava3</summary>
  
  ```java
-implementation 'io.reactivex.rxjava3:rxjava:3.1.4'
+implementation 'io.reactivex.rxjava3:rxjava:3.1.5'
 implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
 implementation 'com.github.liujingxing.rxlife:rxlife-rxjava3:2.2.2' //管理RxJava3生命周期，页面销毁，关闭请求
 ```
@@ -176,7 +176,7 @@ implementation 'com.github.liujingxing.rxlife:rxlife-rxjava2:2.2.2' //管理RxJa
  
 ```java
 ksp {
-    arg("rxhttp_rxjava", "3.1.4")
+    arg("rxhttp_rxjava", "3.1.5")
 }
 ```
  
@@ -188,7 +188,7 @@ ksp {
 ```java
 kapt {
     arguments {
-        arg("rxhttp_rxjava", "3.1.4")
+        arg("rxhttp_rxjava", "3.1.5")
     }
 }
 ```
@@ -205,7 +205,7 @@ android {
             annotationProcessorOptions {
                 arguments = [
                     //使用asXxx方法时必须，传入你依赖的RxJava版本
-                    rxhttp_rxjava: '3.1.4', 
+                    rxhttp_rxjava: '3.1.5', 
                 ]
             }
         }
