@@ -4,8 +4,8 @@ apply from: '../../maven.gradle'
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     compileOnly project(":rxhttp")
-    compileOnly "com.squareup.okhttp3:okhttp:${okhttp_version}"
-    api "com.squareup.moshi:moshi:${moshi_version}"
+    compileOnly "com.squareup.okhttp3:okhttp:$okhttp_version"
+    api "com.squareup.moshi:moshi:$moshi_version"
 }
 
 sourceCompatibility = "8"

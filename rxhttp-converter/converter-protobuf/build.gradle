@@ -4,8 +4,8 @@ apply from: '../../maven.gradle'
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     compileOnly project(":rxhttp")
-    compileOnly "com.squareup.okhttp3:okhttp:${okhttp_version}"
-    api "com.google.protobuf:protobuf-java:${protobuf_version}"
+    compileOnly "com.squareup.okhttp3:okhttp:$okhttp_version"
+    api "com.google.protobuf:protobuf-java:$protobuf_version"
 }
 
 sourceCompatibility = "8"

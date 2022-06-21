@@ -4,8 +4,8 @@ apply from: '../../maven.gradle'
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     compileOnly project(":rxhttp")
-    compileOnly "com.squareup.okhttp3:okhttp:${okhttp_version}"
-    api "org.simpleframework:simple-xml:${simple_xml_version}"
+    compileOnly "com.squareup.okhttp3:okhttp:$okhttp_version"
+    api "org.simpleframework:simple-xml:$simple_xml_version"
 }
 
 sourceCompatibility = "8"
