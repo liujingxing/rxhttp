@@ -178,7 +178,7 @@ class ParamsVisitor(
                     .addTypeVariables(typeVariableNames)
                     .addParameters(parameterSpecs)
 
-                if (!throwTypeNames.isNullOrEmpty()) {
+                if (throwTypeNames.isNotEmpty()) {
                     funSpecBuilder.throws(throwTypeNames)
                 }
                 when {

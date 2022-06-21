@@ -54,7 +54,6 @@ class ConverterVisitor(
     }
 }
 
-@KspExperimental
 @Throws(NoSuchElementException::class)
 private fun KSPropertyDeclaration.checkConverterProperty() {
     val variableName = simpleName.asString()

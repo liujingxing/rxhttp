@@ -61,7 +61,6 @@ class DomainVisitor(
     }
 }
 
-@KspExperimental
 @Throws(NoSuchElementException::class)
 fun KSPropertyDeclaration.checkDomainProperty() {
     val variableName = simpleName.asString()

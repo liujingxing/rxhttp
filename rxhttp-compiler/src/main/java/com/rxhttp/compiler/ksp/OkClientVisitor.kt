@@ -54,7 +54,6 @@ class OkClientVisitor(
     }
 }
 
-@KspExperimental
 @Throws(NoSuchElementException::class)
 private fun KSPropertyDeclaration.checkOkClientProperty() {
     val variableName = simpleName.asString()

@@ -20,7 +20,6 @@ class DefaultDomainVisitor(
 
     private var property: KSPropertyDeclaration? = null
 
-    @KspExperimental
     override fun visitPropertyDeclaration(property: KSPropertyDeclaration, data: Unit) {
         try {
             if (this.property != null) {
