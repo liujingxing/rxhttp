@@ -5,7 +5,6 @@ import kotlin.Deprecated
 import kotlin.Int
 import kotlin.Unit
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import rxhttp.onEachProgress
 import rxhttp.toFlow
@@ -63,12 +62,10 @@ public inline fun <reified T> CallFactory.toResponse() = toParser(object: Respon
 
 public inline fun <reified T> CallFactory.toFlowResponse() = toFlow(toResponse<T>())
 
-@ExperimentalCoroutinesApi
 public inline fun <reified T> BodyParamFactory.toFlowResponse(capacity: Int = 1, noinline
     progress: suspend (Progress) -> Unit) = 
     toFlowProgress(toResponse<T>(), capacity)
         .onEachProgress(progress)
 
-@ExperimentalCoroutinesApi
 public inline fun <reified T> BodyParamFactory.toFlowResponseProgress(capacity: Int = 1) =
     toFlowProgress(toResponse<T>(), capacity)

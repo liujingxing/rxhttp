@@ -274,7 +274,6 @@ class RxHttpExtensions {
         val toFlowProgress = MemberName("rxhttp", "toFlowProgress")
         val onEachProgress = MemberName("rxhttp", "onEachProgress")
         val bodyParamFactory = ClassName("rxhttp.wrapper", "BodyParamFactory")
-        val experimentalCoroutinesApi = ClassName("kotlinx.coroutines", "ExperimentalCoroutinesApi")
 
         toFunList.forEach {
             fileBuilder.addFunction(it)
@@ -307,7 +306,6 @@ class RxHttpExtensions {
             val builder = ParameterSpec.builder("progress", progressSuspendLambdaName)
             if (isInLine) builder.addModifiers(KModifier.NOINLINE)
             FunSpec.builder("toFlow$parseName")
-                .addAnnotation(experimentalCoroutinesApi)
                 .addModifiers(it.modifiers)
                 .receiver(bodyParamFactory)
                 .addTypeVariables(typeVariables)
@@ -325,7 +323,6 @@ class RxHttpExtensions {
                 .apply { fileBuilder.addFunction(this) }
 
             FunSpec.builder("toFlow${parseName}Progress")
-                .addAnnotation(experimentalCoroutinesApi)
                 .addModifiers(it.modifiers)
                 .receiver(bodyParamFactory)
                 .addTypeVariables(typeVariables)
