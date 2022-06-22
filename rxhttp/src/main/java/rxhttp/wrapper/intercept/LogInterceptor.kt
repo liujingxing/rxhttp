@@ -18,7 +18,6 @@ import rxhttp.wrapper.utils.LogUtil
 class LogInterceptor(private val okClient: OkHttpClient) : Interceptor {
 
     override fun intercept(chain: Interceptor.Chain): Response {
-        chain.call()
         var request = chain.request()
         // Prints the request start log
         LogUtil.log(request, OkHttpCompat.cookieJar(okClient))
