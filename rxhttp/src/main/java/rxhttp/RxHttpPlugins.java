@@ -45,6 +45,9 @@ public class RxHttpPlugins {
     private InternalCache cache;
     private CacheStrategy cacheStrategy = new CacheStrategy(CacheMode.ONLY_NETWORK);
 
+    private RxHttpPlugins() {
+    }
+
     public static RxHttpPlugins init(OkHttpClient okHttpClient) {
         plugins.okClient = okHttpClient;
         return plugins;
