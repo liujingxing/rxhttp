@@ -173,17 +173,17 @@ private fun KSFunctionDeclaration.getAsXxxFun(
 
         //1、asXxx方法返回值
         val onParserFunReturnWrapperType =
-            if (onParserFunReturnType is ParameterizedTypeName) {
+            if (onParserFunReturnType is ParameterizedTypeName) { // List<T>, Map<K,V>等包含泛型的类
                 //返回类型有n个泛型，需要对每个泛型再次包装
                 val typeNames = onParserFunReturnType.typeArguments.map { typeArg ->
                     wrapperClass.parameterizedBy(typeArg)
                 }
                 onParserFunReturnType.rawType.parameterizedBy(*typeNames.toTypedArray())
             } else {
-                wrapperClass.parameterizedBy(onParserFunReturnType)
+                wrapperClass.parameterizedBy(onParserFunReturnType.copy(false))
             }
         val asFunReturnType =
-            getKClassName("Observable").parameterizedBy(onParserFunReturnWrapperType)
+            getKClassName("Observable").parameterizedBy(onParserFunReturnWrapperType.copy(onParserFunReturnType.isNullable))
 
         //2、asXxx方法名
         val name = wrapperClass.toString()
