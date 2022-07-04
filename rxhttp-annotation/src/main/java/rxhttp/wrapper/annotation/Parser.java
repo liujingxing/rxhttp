@@ -15,8 +15,12 @@ public @interface Parser {
     String name();
 
     /**
-     * 解析器泛型的包装类，通过该参数，可以生成任意个asXxx方法
-     * 注：协程或者解析器泛型超过两个时，该参数无效
+     * 该参数生效条件：
+     * 1、解析器onParse方法返回类型泛型数量有且仅有1个
+     * 2、项目有依赖RxJava
+     * <p>
+     * 生效后，仅会在RxHttp类下生成asXxx方法
+     *
      * @return Class数组
      */
     Class<?>[] wrappers() default {};
