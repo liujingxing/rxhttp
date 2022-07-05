@@ -70,10 +70,13 @@ class CacheInterceptor(
     @Throws(IOException::class)
     private fun getCacheResponse(request: Request, validTime: Long): Response? {
         val cacheResponse = cache[request, cacheStrategy.cacheKey]
-        if (cacheResponse != null) {
+        return if (cacheResponse != null) {
+            // Verify cache validity
             val receivedTime = OkHttpCompat.receivedResponseAtMillis(cacheResponse)
-            return if (validTime != -1L && System.currentTimeMillis() - receivedTime > validTime) null else cacheResponse //缓存过期，返回null
-        }
-        return null
+            if (validTime == Long.MAX_VALUE || System.currentTimeMillis() - receivedTime <= validTime)
+                cacheResponse
+            else
+                null //Cache expired, return null
+        } else null
     }
 }

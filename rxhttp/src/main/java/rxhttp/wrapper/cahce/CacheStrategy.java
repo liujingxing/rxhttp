@@ -9,7 +9,7 @@ package rxhttp.wrapper.cahce;
 public class CacheStrategy {
 
     private String mCacheKey; //缓存读写时的key
-    private long mCacheValidTime = -1; //缓存有效时间  默认-1，代表永久有效
+    private long mCacheValidTime = Long.MAX_VALUE; //缓存有效时间  默认Long.MAX_VALUE，代表永久有效
     private CacheMode mCacheMode; //缓存模式
 
     public CacheStrategy(CacheStrategy cacheStrategy) {

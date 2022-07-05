@@ -141,7 +141,7 @@ public class RxHttpPlugins {
     }
 
     public RxHttpPlugins setCache(File directory, long maxSize) {
-        return setCache(directory, maxSize, CacheMode.ONLY_NETWORK, -1);
+        return setCache(directory, maxSize, CacheMode.ONLY_NETWORK, Long.MAX_VALUE);
     }
 
     public RxHttpPlugins setCache(File directory, long maxSize, long cacheValidTime) {
@@ -149,10 +149,16 @@ public class RxHttpPlugins {
     }
 
     public RxHttpPlugins setCache(File directory, long maxSize, CacheMode cacheMode) {
-        return setCache(directory, maxSize, cacheMode, -1);
+        return setCache(directory, maxSize, cacheMode, Long.MAX_VALUE);
     }
 
     public RxHttpPlugins setCache(File directory, long maxSize, CacheMode cacheMode, long cacheValidTime) {
+        if (maxSize <= 0) {
+            throw new IllegalArgumentException("maxSize > 0 required but it was " + maxSize);
+        }
+        if (cacheValidTime <= 0) {
+            throw new IllegalArgumentException("cacheValidTime > 0 required but it was " + cacheValidTime);
+        }
         CacheManager rxHttpCache = new CacheManager(directory, maxSize);
         cache = rxHttpCache.internalCache;
         cacheStrategy = new CacheStrategy(cacheMode, cacheValidTime);
