@@ -30,7 +30,9 @@ public class ExceptionHelper {
         if (body == null)
             throw new HttpStatusCodeException(response);
         if (!response.isSuccessful()) {
-            throw new HttpStatusCodeException(response, body.string());
+            // http状态码416时，读取body没有意义
+            String result = response.code() == 416 ? "" : body.string();
+            throw new HttpStatusCodeException(response, result);
         }
         return body;
     }
