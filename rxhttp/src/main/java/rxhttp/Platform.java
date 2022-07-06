@@ -100,7 +100,7 @@ public class Platform {
                 logContent = logContent.substring(0, logContent.length() - 1);
                 Log.println(priority, tag, logContent);
                 if (!LogUtil.isSegmentPrint()) return;
-                Log.i(tag, "<---------------------------------- Segment " + (++i) + " ---------------------------------->");
+                Log.v(tag, "<---------------------------------- Segment " + (++i) + " ---------------------------------->");
                 content = content.substring(logContent.length());
             }
             if (content.length() > 0)
