@@ -92,14 +92,16 @@ public class Platform {
         }
 
         public static void log(int priority, String tag, String content) {
-            int p = 3072;
+            int p = 3 * 1024;
             int i = 0;
-            while (content.length() > p) {
-                String logContent = content.substring(0, p);
+            while (content.getBytes().length > p) {
+                String logContent = new String(content.getBytes(), 0, p);
+                //最后一个字符有可能是乱码(中文被截取一个字节等原因)，故移除
+                logContent = logContent.substring(0, logContent.length() - 1);
                 Log.println(priority, tag, logContent);
                 if (!LogUtil.isSegmentPrint()) return;
                 Log.i(tag, "<---------------------------------- Segment " + (++i) + " ---------------------------------->");
-                content = content.substring(p);
+                content = content.substring(logContent.length());
             }
             if (content.length() > 0)
                 Log.println(priority, tag, content);
