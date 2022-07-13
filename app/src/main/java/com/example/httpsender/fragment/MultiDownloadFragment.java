@@ -28,12 +28,28 @@ import java.util.ArrayList;
 public class MultiDownloadFragment extends BaseFragment<MultiDownloadFragmentBinding> implements OnItemClickListener<DownloadTask>, OnClickListener {
 
     private final String[] downloadUrl = {
-        "https://hnzy4.jinhaiwzhs.com:65/20210625/mndoRF1O/2000kb/hls/uS12nZLR.ts",
-        "https://hnzy4.jinhaiwzhs.com:65/20210625/mndoRF1O/2000kb/hls/BYGanTMW.ts",
-        "https://hnzy4.jinhaiwzhs.com:65/20210625/mndoRF1O/2000kb/hls/Iu9hZLL8.ts",
-        "https://hnzy4.jinhaiwzhs.com:65/20210625/mndoRF1O/2000kb/hls/DdKLk5VX.ts",
-        "https://hnzy4.jinhaiwzhs.com:65/20210625/mndoRF1O/2000kb/hls/Byww5X8k.ts",
-        "http://update.9158.com/miaolive/Miaolive.apk",//喵播
+//        "https://hnzy4.jinhaiwzhs.com:65/20210625/mndoRF1O/2000kb/hls/uS12nZLR.ts",
+//        "https://hnzy4.jinhaiwzhs.com:65/20210625/mndoRF1O/2000kb/hls/BYGanTMW.ts",
+//        "https://hnzy4.jinhaiwzhs.com:65/20210625/mndoRF1O/2000kb/hls/Iu9hZLL8.ts",
+//        "https://hnzy4.jinhaiwzhs.com:65/20210625/mndoRF1O/2000kb/hls/DdKLk5VX.ts",
+//        "https://hnzy4.jinhaiwzhs.com:65/20210625/mndoRF1O/2000kb/hls/Byww5X8k.ts",
+        "https://apk-ssl.tancdn.com/3.5.3_276/%E6%8E%A2%E6%8E%A2.apk?111",//探探
+        "https://apk-ssl.tancdn.com/3.5.3_276/%E6%8E%A2%E6%8E%A2.apk?222",//探探
+        "https://apk-ssl.tancdn.com/3.5.3_276/%E6%8E%A2%E6%8E%A2.apk?333",//探探
+        "https://apk-ssl.tancdn.com/3.5.3_276/%E6%8E%A2%E6%8E%A2.apk?444",//探探
+        "https://apk-ssl.tancdn.com/3.5.3_276/%E6%8E%A2%E6%8E%A2.apk?555",//探探
+        "https://apk-ssl.tancdn.com/3.5.3_276/%E6%8E%A2%E6%8E%A2.apk?666",//探探
+        "https://apk-ssl.tancdn.com/3.5.3_276/%E6%8E%A2%E6%8E%A2.apk?777",//探探
+        "https://apk-ssl.tancdn.com/3.5.3_276/%E6%8E%A2%E6%8E%A2.apk?888",//探探
+        "https://apk-ssl.tancdn.com/3.5.3_276/%E6%8E%A2%E6%8E%A2.apk?999",//探探
+        "https://apk-ssl.tancdn.com/3.5.3_276/%E6%8E%A2%E6%8E%A2.apk?101",//探探
+        "https://apk-ssl.tancdn.com/3.5.3_276/%E6%8E%A2%E6%8E%A2.apk?102",//探探
+        "https://apk-ssl.tancdn.com/3.5.3_276/%E6%8E%A2%E6%8E%A2.apk?103",//探探
+        "https://apk-ssl.tancdn.com/3.5.3_276/%E6%8E%A2%E6%8E%A2.apk?104",//探探
+        "https://apk-ssl.tancdn.com/3.5.3_276/%E6%8E%A2%E6%8E%A2.apk?105",//探探
+        "https://apk-ssl.tancdn.com/3.5.3_276/%E6%8E%A2%E6%8E%A2.apk?106",//探探
+        "https://apk-ssl.tancdn.com/3.5.3_276/%E6%8E%A2%E6%8E%A2.apk?107",//探探
+        "https://apk-ssl.tancdn.com/3.5.3_276/%E6%8E%A2%E6%8E%A2.apk?108",//探探
         "https://apk-ssl.tancdn.com/3.5.3_276/%E6%8E%A2%E6%8E%A2.apk",//探探
 //        "https://hnzy4.jinhaiwzhs.com:65/20210625/mndoRF1O/2000kb/hls/OUkREagY.ts",
 //        "https://hnzy4.jinhaiwzhs.com:65/20210625/mndoRF1O/2000kb/hls/ZJUsgPSd.ts",
