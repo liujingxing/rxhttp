@@ -3,8 +3,9 @@
 [English](https://github.com/liujingxing/rxhttp/blob/master/README.md) | 中文文档
 
 [![](https://jitpack.io/v/liujingxing/rxhttp.svg)](https://jitpack.io/#liujingxing/rxhttp) 
-[![](https://img.shields.io/badge/change-更新日志-success.svg)](https://github.com/liujingxing/rxhttp/wiki/%E6%9B%B4%E6%96%B0%E6%97%A5%E5%BF%97)
 ![](https://img.shields.io/badge/API-9+-blue.svg)
+[![](https://img.shields.io/badge/change-更新日志-success.svg)](https://github.com/liujingxing/rxhttp/wiki/%E6%9B%B4%E6%96%B0%E6%97%A5%E5%BF%97)
+[![](https://img.shields.io/badge/FAQ-常见问题-success.svg)](https://github.com/liujingxing/rxhttp/wiki/FAQ)
 [![](https://img.shields.io/badge/掘金-@不怕天黑-blue.svg)](https://juejin.cn/user/272334612601559/posts)
 [![](https://img.shields.io/badge/QQ群-378530627-red.svg)](https://jq.qq.com/?_wv=1027&k=E53Hakvv)
 
@@ -61,9 +62,6 @@ wiki详细文档：https://github.com/liujingxing/rxhttp/wiki  (此文档会持�
 
 
 自动关闭请求用到的RxLife类，详情请查看[RxLife库](https://github.com/liujingxing/rxlife)
-
-[更新日志](https://github.com/liujingxing/rxhttp/wiki/%E6%9B%B4%E6%96%B0%E6%97%A5%E5%BF%97)  &nbsp;&nbsp;&nbsp;&nbsp; 
-[遇到问题，点击这里，99%的问题都能自己解决](https://github.com/liujingxing/rxhttp/wiki/FAQ)
 
 
 # 上手准备
