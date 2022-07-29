@@ -1,8 +1,15 @@
 package rxhttp
 
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 import rxhttp.wrapper.coroutines.Await
 import kotlin.coroutines.CoroutineContext
 
@@ -403,14 +410,14 @@ suspend fun <T> Await<T>.async(
     await()
 }
 
-suspend fun <T> Await<T>.awaitResult(): Result<T> = runCatching { await() }
+suspend inline fun <T> Await<T>.awaitResult(): Result<T> = runCatching { await() }
 
-suspend fun <T> Await<T>.awaitResult(onSuccess: (value: T) -> Unit): Result<T> =
+suspend inline fun <T> Await<T>.awaitResult(onSuccess: (value: T) -> Unit): Result<T> =
     awaitResult().onSuccess(onSuccess)
 
-suspend fun <T> Deferred<T>.awaitResult(): Result<T> = runCatching { await() }
+suspend inline fun <T> Deferred<T>.awaitResult(): Result<T> = runCatching { await() }
 
-suspend fun <T> Deferred<T>.awaitResult(onSuccess: (value: T) -> Unit): Result<T> =
+suspend inline fun <T> Deferred<T>.awaitResult(onSuccess: (value: T) -> Unit): Result<T> =
     awaitResult().onSuccess(onSuccess)
 
 //return null when an error occurs.
