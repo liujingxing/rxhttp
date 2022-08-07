@@ -97,6 +97,7 @@ dependencies {
     implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
     implementation "io.reactivex.rxjava3:rxjava:$rxjava_version"
 
+//    implementation "com.github.liujingxing.rxhttp:converter-serialization:$rxhttp_version"
 //    implementation "com.github.liujingxing.rxhttp:converter-fastjson:$rxhttp_version"
 //    implementation "com.github.liujingxing.rxhttp:converter-jackson:$rxhttp_version"
 //    implementation "com.github.liujingxing.rxhttp:converter-moshi:$rxhttp_version"

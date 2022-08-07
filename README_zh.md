@@ -121,7 +121,7 @@ kotlin {
 }
 
 dependencies {
-    def rxhttp_version = '2.9.0'
+    def rxhttp_version = '2.9.1'
     implementation 'com.squareup.okhttp3:okhttp:4.10.0'  
     implementation "com.github.liujingxing.rxhttp:rxhttp:$rxhttp_version"
     // ksp/kapt/annotationProcessor 选其一
@@ -138,6 +138,7 @@ dependencies {
 
 ```kotlin
 //非必须，根据自己需求选择 RxHttp默认内置了GsonConverter
+implementation "com.github.liujingxing.rxhttp:converter-serialization:$rxhttp_version"
 implementation "com.github.liujingxing.rxhttp:converter-fastjson:$rxhttp_version"
 implementation "com.github.liujingxing.rxhttp:converter-jackson:$rxhttp_version"
 implementation "com.github.liujingxing.rxhttp:converter-moshi:$rxhttp_version"
