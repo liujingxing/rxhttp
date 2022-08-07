@@ -37,7 +37,7 @@ import java.util.*
  * User: ljx
  * Date: 2020/4/24
  * Time: 18:16
-</User> */
+ */
 class RxJavaFragment : BaseFragment<RxjavaFragmentBinding>(), View.OnClickListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
