@@ -102,6 +102,7 @@ dependencies {
 //    implementation "com.github.liujingxing.rxhttp:converter-protobuf:$rxhttp_version"
 //    implementation "com.github.liujingxing.rxhttp:converter-simplexml:$rxhttp_version"
 
+    implementation project(':rxhttp-converter:converter-serialization')
     implementation project(':rxhttp-converter:converter-fastjson')
     implementation project(':rxhttp-converter:converter-simplexml')
     implementation project(':rxhttp-converter:converter-protobuf')

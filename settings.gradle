@@ -15,4 +15,5 @@ include ':app',
         'rxhttp-converter:converter-jackson',
         'rxhttp-converter:converter-moshi',
         'rxhttp-converter:converter-protobuf',
+        'rxhttp-converter:converter-serialization',
         'rxhttp-converter:converter-simplexml'
