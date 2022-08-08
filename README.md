@@ -89,7 +89,7 @@ dependencies {
 
 ### Optional
 
-### 1、Coverter
+### 1、Converter
 ```kotlin
 implementation "com.github.liujingxing.rxhttp:converter-serialization:$rxhttp_version"
 implementation "com.github.liujingxing.rxhttp:converter-fastjson:$rxhttp_version"

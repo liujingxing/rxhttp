@@ -134,7 +134,7 @@ dependencies {
 
 ## 可选
 
-### 1、配置Coverter
+### 1、配置Converter
 
 ```kotlin
 //非必须，根据自己需求选择 RxHttp默认内置了GsonConverter
