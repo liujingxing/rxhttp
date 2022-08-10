@@ -14,18 +14,20 @@ import rxhttp.wrapper.BodyParamFactory
 import rxhttp.wrapper.CallFactory
 import rxhttp.wrapper.entity.Progress
 import rxhttp.wrapper.parse.SimpleParser
+import rxhttp.wrapper.utils.javaTypeOf
 
 public inline fun <reified T> RxHttp<*, *>.executeList() = executeClass<List<T>>()
 
-public inline fun <reified T> RxHttp<*, *>.executeClass() = execute(object : SimpleParser<T>() {})
+public inline fun <reified T> RxHttp<*, *>.executeClass() =
+    execute(SimpleParser<T>(javaTypeOf<T>()))
 
 public inline fun <reified T> BaseRxHttp.asList() = asClass<List<T>>()
 
 public inline fun <reified K, reified V> BaseRxHttp.asMap() = asClass<Map<K,V>>()
 
-public inline fun <reified T> BaseRxHttp.asClass() = asParser(object : SimpleParser<T>() {})
+public inline fun <reified T> BaseRxHttp.asClass() = asParser(SimpleParser<T>(javaTypeOf<T>()))
 
-public inline fun <reified T> BaseRxHttp.asResponse() = asParser(object: ResponseParser<T>() {})
+public inline fun <reified T> BaseRxHttp.asResponse() = asParser(ResponseParser<T>(javaTypeOf<T>()))
 
 /**
  * 调用此方法监听上传进度                                                    
@@ -58,7 +60,8 @@ public fun <R : RxHttpAbstractBodyParam<*, *>> R.upload(coroutine: CoroutineScop
     }
 }
 
-public inline fun <reified T> CallFactory.toResponse() = toParser(object: ResponseParser<T>() {})
+public inline fun <reified T> CallFactory.toResponse() =
+    toParser(ResponseParser<T>(javaTypeOf<T>()))
 
 public inline fun <reified T> CallFactory.toFlowResponse() = toFlow(toResponse<T>())
 

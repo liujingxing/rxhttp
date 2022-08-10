@@ -4,6 +4,8 @@ package rxhttp.wrapper.utils
 
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
+import kotlin.reflect.javaType
+import kotlin.reflect.typeOf
 
 
 /**
@@ -28,3 +30,6 @@ fun getActualTypeParameters(clazz: Class<*>): Array<Type> {
         ?: throw RuntimeException("Missing type parameter.")
     return superclass.actualTypeArguments
 }
+
+@OptIn(ExperimentalStdlibApi::class)
+inline fun <reified T> javaTypeOf() = typeOf<T>().javaType

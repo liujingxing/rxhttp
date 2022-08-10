@@ -1,5 +1,8 @@
 package com.rxhttp.compiler.kapt
 
+import com.rxhttp.compiler.common.getParamsName
+import com.rxhttp.compiler.common.getTypeOfString
+import com.rxhttp.compiler.common.getTypeVariableString
 import com.rxhttp.compiler.isDependenceRxJava
 import com.rxhttp.compiler.rxHttpPackage
 import com.rxhttp.compiler.rxhttpKClassName
@@ -106,35 +109,34 @@ class RxHttpExtensions {
                 modifiers.add(KModifier.INLINE)
             }
 
-            var funBody = if (typeVariableNames.isEmpty() || executableElement.modifiers.contains(Modifier.PUBLIC)) {
-                "return asParser(%T${getTypeVariableString(typeVariableNames)}(${getParamsName(parameterList)}))"
-            } else {
-                "return asParser(object: %T${getTypeVariableString(typeVariableNames)}(${getParamsName(parameterList)}) {})"
+            val types = getTypeVariableString(typeVariableNames) // <T>, <K, V> 等
+            val typeOfs = getTypeOfString(typeVariableNames)  // javaTypeOf<T>()等
+            val params = getParamsName(parameterList)  //构造方法参数名列表
+            val finalParams = when {
+                typeOfs.isEmpty() -> params
+                params.isEmpty() -> typeOfs
+                else -> "$typeOfs, $params"
             }
+
+            val parser = if (executableElement.modifiers.contains(Modifier.PUBLIC))
+                "%T$types($params)" else "%T$types($finalParams)"
 
             if (typeVariableNames.isNotEmpty()) {  //对声明了泛型的解析器，生成kotlin编写的asXxx方法
                 FunSpec.builder("as$key")
                     .addModifiers(modifiers)
                     .receiver(baseRxHttpName)
                     .addParameters(parameterList)
-                    .addStatement(funBody, typeElement.asClassName()) //方法里面的表达式
+                    .addStatement("return asParser($parser)", typeElement.asClassName()) //方法里面的表达式
                     .addTypeVariables(typeVariableNames.getTypeVariableNames())
                     .build()
                     .apply { asFunList.add(this) }
             }
 
-            funBody = if (typeVariableNames.isEmpty() || executableElement.modifiers.contains(Modifier.PUBLIC)) {
-                "return %T(%T${getTypeVariableString(typeVariableNames)}(${getParamsName(parameterList)}))"
-            } else {
-                "return %T(object: %T${getTypeVariableString(typeVariableNames)}(${getParamsName(parameterList)}) {})"
-            }
-
-            val toParserName = ClassName("rxhttp", "toParser")
             FunSpec.builder("to$key")
                 .addModifiers(modifiers)
                 .receiver(callFactoryName)
                 .addParameters(parameterList)
-                .addStatement(funBody, toParserName, typeElement.asClassName())  //方法里面的表达式
+                .addStatement("return toParser($parser)", typeElement.asClassName())  //方法里面的表达式
                 .addTypeVariables(typeVariableNames.getTypeVariableNames())
                 .build()
                 .apply { toFunList.add(this) }
@@ -168,6 +170,8 @@ class RxHttpExtensions {
         ).copy(suspending = true)
 
         val fileBuilder = FileSpec.builder(rxHttpPackage, "RxHttp")
+            .addImport("rxhttp.wrapper.utils", "javaTypeOf")
+            .addImport("rxhttp", "toParser")
 
         val rxHttpName = rxhttpKClassName.parameterizedBy(wildcard, wildcard)
         FunSpec.builder("executeList")
@@ -182,7 +186,7 @@ class RxHttpExtensions {
             .addModifiers(KModifier.INLINE)
             .receiver(rxHttpName)
             .addTypeVariable(t.copy(reified = true))
-            .addStatement("return execute(object : %T<T>() {})", simpleParserName)
+            .addStatement("return execute(%T<T>(javaTypeOf<T>()))", simpleParserName)
             .build()
             .apply { fileBuilder.addFunction(this) }
 
@@ -208,7 +212,7 @@ class RxHttpExtensions {
                 .addModifiers(KModifier.INLINE)
                 .receiver(baseRxHttpName)
                 .addTypeVariable(t.copy(reified = true))
-                .addStatement("return asParser(object : %T<T>() {})", simpleParserName)
+                .addStatement("return asParser(%T<T>(javaTypeOf<T>()))", simpleParserName)
                 .build()
                 .apply { fileBuilder.addFunction(this) }
 
@@ -337,28 +341,6 @@ class RxHttpExtensions {
         }
 
         fileBuilder.build().writeTo(filer)
-    }
-
-    private fun getParamsName(parameterSpecs: MutableList<ParameterSpec>): String {
-        val paramsName = StringBuilder()
-        parameterSpecs.forEachIndexed { index, parameterSpec ->
-            if (index > 0) paramsName.append(", ")
-            if (KModifier.VARARG in parameterSpec.modifiers) paramsName.append("*")
-            paramsName.append(parameterSpec.name)
-        }
-        return paramsName.toString()
-    }
-
-    //获取泛型字符串 比如:<T> 、<K,V>等等
-    private fun getTypeVariableString(typeVariableNames: List<TypeVariableName>): String {
-        val type = StringBuilder()
-        val size = typeVariableNames.size
-        for (i in typeVariableNames.indices) {
-            if (i == 0) type.append("<")
-            type.append(typeVariableNames[i].name)
-            type.append(if (i < size - 1) "," else ">")
-        }
-        return type.toString()
     }
 }
 
