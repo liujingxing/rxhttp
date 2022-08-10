@@ -20,8 +20,6 @@ import javax.lang.model.element.TypeElement
 import javax.lang.model.element.VariableElement
 import javax.lang.model.type.MirroredTypesException
 import javax.lang.model.util.Types
-import kotlin.NoSuchElementException
-import kotlin.collections.ArrayList
 
 class ParserVisitor(private val logger: Messager) {
 
@@ -82,16 +80,26 @@ private fun TypeElement.getAsXxxFun(
     val typeVariableNames = typeParameters.map { TypeVariableName.get(it) }
 
     //遍历public构造方法
-    getPublicConstructorFun().forEach {
+    for (constructor in getPublicConstructors()) {
+        //泛型数量
+        var typeCount = typeVariableNames.size
+        if ("java.lang.reflect.Type[]" ==
+            constructor.parameters.firstOrNull()?.asType()?.toString()
+        ) {
+            //如果是Type是数组传递的，一个参数就行
+            typeCount = 1
+        }
+        if (constructor.parameters.size < typeCount) continue
+
         //根据构造方法参数，获取asXxx方法需要的参数
-        val parameterList = it.getParameterSpecs(typeVariableNames)
+        val parameterList = constructor.getParameterSpecs(typeVariableNames)
 
         //方法名
         val methodName = "as$parserAlias"
         //方法体
         val methodBody =
             "return asParser(new \$T${getTypeVariableString(typeVariableNames)}(${
-                getParamsName(it.parameters, parameterList, typeVariableNames.size)
+                getParamsName(constructor.parameters, parameterList, typeVariableNames.size)
             }))"
 
         //生成的as方法返回类型(Observable<T>类型)
@@ -99,7 +107,7 @@ private fun TypeElement.getAsXxxFun(
             getClassName("Observable"), onParserFunReturnType
         )
 
-        val varargs = it.isVarArgs && parameterList.last().type is ArrayTypeName
+        val varargs = constructor.isVarArgs && parameterList.last().type is ArrayTypeName
         val parserClassName = ClassName.get(this)
 
         val methodSpec = MethodSpec.methodBuilder(methodName)
@@ -119,7 +127,7 @@ private fun TypeElement.getAsXxxFun(
         //注意，这里获取泛型边界跟ksp不一样，这里会自动过滤Object类型，即使手动声明了
         if (haveClassTypeParam && typeVariableNames.size == 1 && typeVariableNames.first().bounds.isEmpty()) {
             //有Class类型参数 且 泛型数量等于1 且没有为泛型指定边界(Object类型边界除外)，才去生成Parser注解里wrappers字段对应的asXxx方法
-            it.getAsXxxFun(
+            constructor.getAsXxxFun(
                 parserAlias, methodSpec, parserClassName,
                 onParserFunReturnType, typeMap, methodList
             )
@@ -322,44 +330,21 @@ private fun TypeElement.checkParserValidClass(types: Types) {
         throw NoSuchElementException(msg)
     }
 
-    val constructorFun = getVisibleConstructorFun()
-    if (typeParameters.size > 0) {
-        //有泛型的解析器不能声明为final类型
-        if (modifiers.contains(Modifier.FINAL)) {
-            val msg = "This class '$elementQualifiedName' cannot be declared final"
-            throw NoSuchElementException(msg)
-        }
-        //1、查找无参构造方法
-        val noArgumentConstructorFun = constructorFun.findNoArgumentConstructorFun()
-
-        //未声明无参构造方法，抛出异常
-        if (noArgumentConstructorFun == null) {
-            val msg =
-                "This class '$elementQualifiedName' must be declared 'protected $elementQualifiedName()' constructor method"
-            throw NoSuchElementException(msg)
-        }
-        if (!noArgumentConstructorFun.modifiers.contains(Modifier.PROTECTED)) {
-            //无参构造方法必须要声明为protected
-            val msg =
-                "This class '$elementQualifiedName' no-argument constructor must be declared protected"
-            throw NoSuchElementException(msg)
-        }
-
-        if (isDependenceRxJava()) {
-            //2、如果依赖了RxJava，则需要查找带 java.lang.reflect.Type 参数的构造方法
-            val typeParameterList = typeParameters
-            val typeArgumentConstructorFun = constructorFun
-                .findTypeArgumentConstructorFun(typeParameterList.size)
-            if (typeArgumentConstructorFun == null) {
-                val method = StringBuffer("public ${simpleName}(")
-                for (i in typeParameterList.indices) {
-                    method.append("java.lang.reflect.Type")
-                    method.append(if (i == typeParameterList.lastIndex) ")" else ",")
-                }
-                val msg =
-                    "This class '$elementQualifiedName' must declare '$method' constructor method"
-                throw NoSuchElementException(msg)
+    val typeParameterList = typeParameters
+    if (typeParameterList.size > 0) {
+        //查找带 java.lang.reflect.Type 参数的构造方法
+        val constructorFun = getPublicConstructors().filter { it.parameters.isNotEmpty() }
+        val typeArgumentConstructorFun = constructorFun
+            .findTypeArgumentConstructorFun(typeParameterList.size)
+        if (typeArgumentConstructorFun == null) {
+            val method = StringBuffer("public ${simpleName}(")
+            for (i in typeParameterList.indices) {
+                method.append("java.lang.reflect.Type")
+                method.append(if (i == typeParameterList.lastIndex) ")" else ",")
             }
+            val msg =
+                "This class '$elementQualifiedName' must declare '$method' constructor method"
+            throw NoSuchElementException(msg)
         }
     }
 

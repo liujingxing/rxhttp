@@ -22,7 +22,6 @@ import com.squareup.kotlinpoet.asTypeName
 import com.squareup.kotlinpoet.asTypeVariableName
 import org.jetbrains.annotations.Nullable
 import javax.annotation.processing.Filer
-import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.TypeKind
 
@@ -49,59 +48,42 @@ class RxHttpExtensions {
         }
 
         //遍历构造方法
-        for (executableElement in typeElement.getVisibleConstructorFun()) {
-            val parameters = executableElement.parameters
-            if (typeVariableNames.isNotEmpty() && Modifier.PUBLIC in executableElement.modifiers) {
-                if (parameters.size == 1 &&
-                    "java.lang.reflect.Type[]" == parameters[0].asType().toString()
-                ) {
-                    //构造方法仅有一个Type[]类型参数，跳过
-                    continue
-                }
-
-                //构造方法参数数量 >= 泛型数量
-                if (parameters.size >= typeVariableNames.size) {
-                    //构造方法全部为Type类型参数，跳过
-                    if (parameters.all { "java.lang.reflect.Type" == it.asType().toString() })
-                        continue
-                }
+        for (constructor in typeElement.getPublicConstructors()) {
+            val tempParameters = constructor.parameters
+            var fromIndex = typeVariableNames.size
+            if ("java.lang.reflect.Type[]" ==
+                tempParameters.firstOrNull()?.asType()?.toString()
+            ) {
+                fromIndex = 1
             }
+            //构造方法参数数量小于泛型数量，直接过滤掉
+            if (tempParameters.size < fromIndex) continue
+            //移除前n个Type类型参数，n为泛型数量
+            val parameters = tempParameters.subList(fromIndex, tempParameters.size)
 
             //根据构造方法参数，获取asXxx方法需要的参数
-            val parameterList = ArrayList<ParameterSpec>()
-            var typeIndex = 0
-            val varArgsFun = executableElement.isVarArgs  //该构造方法是否携带可变参数，即是否为可变参数方法
-            parameters.forEachIndexed { index, variableElement ->
+            val varArgsFun = constructor.isVarArgs  //该构造方法是否携带可变参数，即是否为可变参数方法
+            val parameterList = parameters.mapIndexed { index, variableElement ->
                 val variableType = variableElement.asType()
                 val variableName = variableElement.simpleName.toString()
-                val parameterSpec = if (variableType.toString() == "java.lang.reflect.Type"
-                    && typeIndex < typeVariableNames.size
-                ) {  //Type类型参数转Class<T>类型
-                    ParameterSpec.builder(
-                        variableName,
-                        classTypeName.parameterizedBy(typeVariableNames[typeIndex++])
-                    ).build()
-                } else {
-                    val annotation = variableElement.getAnnotation(Nullable::class.java)
-                    var type = variableType.asTypeName()
-                    val isVarArg = varArgsFun
-                        && index == executableElement.parameters.lastIndex
+                val annotation = variableElement.getAnnotation(Nullable::class.java)
+                var type = variableType.asTypeName()
+                val isVarArg = varArgsFun
+                        && index == constructor.parameters.lastIndex
                         && variableType.kind == TypeKind.ARRAY
-                    if (isVarArg) {  //最后一个参数是可变参数
-                        if (type is ParameterizedTypeName) {
-                            type = type.typeArguments[0].toKClassTypeName()
-                        }
-                    } else {
-                        type = type.toKClassTypeName()
+                if (isVarArg) {  //最后一个参数是可变参数
+                    if (type is ParameterizedTypeName) {
+                        type = type.typeArguments[0].toKClassTypeName()
                     }
-                    if (annotation != null) type = type.copy(true)
-                    val parameterSpecBuilder = ParameterSpec.builder(variableName, type)
-                    if (isVarArg) {
-                        parameterSpecBuilder.addModifiers(KModifier.VARARG)
-                    }
-                    parameterSpecBuilder.build()
+                } else {
+                    type = type.toKClassTypeName()
                 }
-                parameterList.add(parameterSpec)
+                if (annotation != null) type = type.copy(true)
+                val parameterSpecBuilder = ParameterSpec.builder(variableName, type)
+                if (isVarArg) {
+                    parameterSpecBuilder.addModifiers(KModifier.VARARG)
+                }
+                parameterSpecBuilder.build()
             }
 
             val modifiers = ArrayList<KModifier>()
@@ -118,8 +100,7 @@ class RxHttpExtensions {
                 else -> "$typeOfs, $params"
             }
 
-            val parser = if (executableElement.modifiers.contains(Modifier.PUBLIC))
-                "%T$types($params)" else "%T$types($finalParams)"
+            val parser = "%T$types($finalParams)"
 
             if (typeVariableNames.isNotEmpty()) {  //对声明了泛型的解析器，生成kotlin编写的asXxx方法
                 FunSpec.builder("as$key")

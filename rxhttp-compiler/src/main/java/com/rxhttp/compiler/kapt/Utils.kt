@@ -182,7 +182,7 @@ fun List<ExecutableElement>.findTypeArgumentConstructorFun(typeParametersSize: I
 }
 
 //获取public构造方法
-fun TypeElement.getPublicConstructorFun() =
+fun TypeElement.getPublicConstructors() =
     getVisibleConstructorFun().filter {
         it.modifiers.contains(Modifier.PUBLIC)
     }

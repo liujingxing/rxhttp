@@ -1,8 +1,6 @@
 package com.rxhttp.compiler.ksp
 
 import com.google.devtools.ksp.KspExperimental
-import com.google.devtools.ksp.getConstructors
-import com.google.devtools.ksp.isPublic
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.KSClassDeclaration
@@ -24,7 +22,6 @@ import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.TypeVariableName
 import com.squareup.kotlinpoet.UNIT
-import com.squareup.kotlinpoet.asClassName
 import com.squareup.kotlinpoet.ksp.addOriginatingKSFile
 import com.squareup.kotlinpoet.ksp.kspDependencies
 import com.squareup.kotlinpoet.ksp.toClassName
@@ -40,8 +37,6 @@ import com.squareup.kotlinpoet.ksp.writeTo
  */
 class RxHttpExtensions(private val logger: KSPLogger) {
 
-    private val classTypeName = Class::class.asClassName()
-
     private val baseRxHttpName = ClassName(rxHttpPackage, "BaseRxHttp")
     private val callFactoryName = ClassName("rxhttp.wrapper", "CallFactory")
     private val toFunList = ArrayList<FunSpec>()
@@ -55,47 +50,25 @@ class RxHttpExtensions(private val logger: KSPLogger) {
         val typeVariableNames = ksClass.typeParameters
             .map { it.toTypeVariableName().copy(reified = true) }
 
+        val constructors = ksClass.getPublicConstructors()
         //遍历构造方法
-        for (ksFunction in ksClass.getConstructors()) {
-            val parameters = ksFunction.parameters
-            if (typeVariableNames.isNotEmpty() && ksFunction.isPublic()) {
-                if (parameters.size == 1 &&
-                    "kotlin.Array<java.lang.reflect.Type>" == parameters[0].type.toTypeName()
-                        .toString()
-                ) {
-                    //构造方法仅有一个Array<Type>类型参数，跳过
-                    continue
-                }
-
-                //构造方法参数数量 >= 泛型数量
-                if (parameters.size >= typeVariableNames.size) {
-                    //构造方法全部为Type类型参数，跳过
-                    if (parameters.all { "java.lang.reflect.Type" == it.type.getQualifiedName() })
-                        continue
-                }
+        for (constructor in constructors) {
+            val tempParameters = constructor.parameters
+            var fromIndex = typeVariableNames.size
+            if ("kotlin.Array<java.lang.reflect.Type>" ==
+                tempParameters.firstOrNull()?.type?.toTypeName()?.toString()
+            ) {
+                fromIndex = 1
             }
-
-            //根据构造方法参数，获取asXxx方法需要的参数
-            val parameterList = ArrayList<ParameterSpec>()
-            var typeIndex = 0
+            //构造方法参数数量小于泛型数量，直接过滤掉
+            if (tempParameters.size < fromIndex) continue
+            //移除前n个Type类型参数，n为泛型数量
+            val parameters = tempParameters.subList(fromIndex, tempParameters.size)
             val classTypeParams = ksClass.typeParameters.toTypeParameterResolver()
             val functionTypeParams =
-                ksFunction.typeParameters.toTypeParameterResolver(classTypeParams)
-            parameters.forEach { ksValueParameter ->
-                val variableTypeName = ksValueParameter.type.getQualifiedName()
-                val parameterSpec =
-                    if ("java.lang.reflect.Type" == variableTypeName &&
-                        typeIndex < typeVariableNames.size
-                    ) {  //Type类型参数转Class<T>类型
-                        ParameterSpec.builder(
-                            ksValueParameter.name?.asString().toString(),
-                            classTypeName.parameterizedBy(typeVariableNames[typeIndex++])
-                        ).build()
-                    } else {
-                        ksValueParameter.toKParameterSpec(functionTypeParams)
-                    }
-                parameterList.add(parameterSpec)
-            }
+                constructor.typeParameters.toTypeParameterResolver(classTypeParams)
+            //根据构造方法参数，获取asXxx方法需要的参数
+            val parameterList = parameters.map { it.toKParameterSpec(functionTypeParams) }
 
             val modifiers = ArrayList<KModifier>()
             if (typeVariableNames.isNotEmpty()) {
@@ -111,8 +84,7 @@ class RxHttpExtensions(private val logger: KSPLogger) {
                 else -> "$typeOfs, $params"
             }
 
-            val parser =
-                if (ksFunction.isPublic()) "%T$types($params)" else "%T$types($finalParams)"
+            val parser = "%T$types($finalParams)"
 
             if (typeVariableNames.isNotEmpty()) {  //对声明了泛型的解析器，生成kotlin编写的asXxx方法
                 FunSpec.builder("as$key")

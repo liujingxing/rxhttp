@@ -2,8 +2,6 @@ package com.rxhttp.compiler.ksp
 
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.getAnnotationsByType
-import com.google.devtools.ksp.getConstructors
-import com.google.devtools.ksp.isPublic
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.KSPLogger
@@ -29,8 +27,6 @@ import rxhttp.wrapper.annotation.Converter
 import rxhttp.wrapper.annotation.Domain
 import rxhttp.wrapper.annotation.OkClient
 import rxhttp.wrapper.annotation.Param
-import java.util.*
-import kotlin.collections.ArrayList
 
 /**
  * User: ljx
@@ -208,7 +204,7 @@ class RxHttpWrapper(private val logger: KSPLogger) {
 
             val classTypeParams = ksClass.typeParameters.toTypeParameterResolver()
             //遍历public构造方法
-            ksClass.getConstructors().filter { it.isPublic() }.forEach {
+            ksClass.getPublicConstructors().forEach {
                 val parameterSpecs = arrayListOf<ParameterSpec>() //构造方法参数
                 val funBody = StringBuilder("return RxHttp.$key(") //方法体
                 val functionTypeParams =
