@@ -1,4 +1,4 @@
-package rxhttp.wrapper.converter;
+package rxhttp.wrapper.utils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -287,7 +287,7 @@ public class JSONStringer {
             switch (c) {
                 case '"':
                 case '\\':
-                case '/':
+//                case '/':
                     out.append('\\').append(c);
                     break;
 

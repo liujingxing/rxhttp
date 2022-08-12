@@ -7,7 +7,6 @@ dependencies {
     compileOnly project(":rxhttp")
     compileOnly "com.squareup.okhttp3:okhttp:$okhttp_version"
     api "org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.0-RC"
-    compileOnly 'com.google.android:android:4.1.1.4'
 }
 
 sourceCompatibility = "8"

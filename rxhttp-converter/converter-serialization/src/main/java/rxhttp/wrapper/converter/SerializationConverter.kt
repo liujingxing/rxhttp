@@ -10,6 +10,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.ResponseBody
 import rxhttp.RxHttpPlugins
 import rxhttp.wrapper.callback.JsonConverter
+import rxhttp.wrapper.utils.JSONStringer
 import java.lang.reflect.Type
 
 @OptIn(ExperimentalSerializationApi::class)

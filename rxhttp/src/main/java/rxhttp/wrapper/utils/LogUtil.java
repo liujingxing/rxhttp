@@ -1,5 +1,8 @@
 package rxhttp.wrapper.utils;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.io.EOFException;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -44,14 +47,23 @@ public class LogUtil {
     private static boolean isDebug = false;
     //日志长度超出logcat单条日志打印长度时，是否分段打印，默认false
     private static boolean isSegmentPrint = false;
+    private static int indentSpaces = -1; //json数据缩进空间，默认不缩进
 
     public static void setDebug(boolean debug) {
-        setDebug(debug, false);
+        setDebug(debug, false, -1);
     }
 
-    public static void setDebug(boolean debug, boolean segmentPrint) {
+    /**
+     * 调试模式下，会有完整的请求日志，过滤`RxHttp`即可看到
+     *
+     * @param debug        是否开始调试模式
+     * @param segmentPrint 是否开启分段打印
+     * @param indentSpaces json数据缩进空间，大于等于0时，json数据将格式化输出
+     */
+    public static void setDebug(boolean debug, boolean segmentPrint, int indentSpaces) {
         isDebug = debug;
         isSegmentPrint = segmentPrint;
+        LogUtil.indentSpaces = indentSpaces;
     }
 
     public static boolean isDebug() {
@@ -156,7 +168,7 @@ public class LogUtil {
                         .append(body.contentLength())
                         .append("-byte encoded body omitted)");
                 } else {
-                    builder.append(requestBody2Str(body));
+                    builder.append(formattingJson(requestBody2Str(body), indentSpaces));
                 }
             }
             Platform.get().logd(TAG, builder.toString());
@@ -179,7 +191,7 @@ public class LogUtil {
             } else if (bodyHasUnknownEncoding(response.headers())) {
                 result = "(binary " + response.body().contentLength() + "-byte encoded body omitted)";
             } else {
-                result = response2Str(response);
+                result = formattingJson(response2Str(response), indentSpaces);
             }
             LogTime logTime = request.tag(LogTime.class);
             long tookMs = logTime != null ? logTime.tookMs() : 0;
@@ -321,6 +333,24 @@ public class LogUtil {
             result = "(binary " + buffer.size() + "-byte body omitted)";
         }
         return result;
+    }
+
+    //格式化json数据
+    private static String formattingJson(String json, int indentSpaces) {
+        if (indentSpaces >= 0) {
+            try {
+                if (json.startsWith("[")) {
+                    JSONArray jsonObject = new JSONArray(json);
+                    return new JSONStringer(indentSpaces).write(jsonObject).toString();
+                } else if (json.startsWith("{")) {
+                    JSONObject jsonObject = new JSONObject(json);
+                    return new JSONStringer(indentSpaces).write(jsonObject).toString();
+                }
+            } catch (Throwable ignore) {
+                return json;
+            }
+        }
+        return json;
     }
 
     private static boolean isProbablyUtf8(Buffer buffer) {

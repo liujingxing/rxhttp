@@ -54,7 +54,7 @@ public class RxHttpManager {
 //        File cacheFile = new File(context.getExternalCacheDir(), "RxHttpCache");
         //RxHttp初始化，非必须
         RxHttpPlugins.init(client)                     //自定义OkHttpClient对象
-            .setDebug(BuildConfig.DEBUG)               //是否开启调试模式，开启后，logcat过滤RxHttp，即可看到整个请求流程日志
+            .setDebug(BuildConfig.DEBUG, false, 2)      //调试模式/分段打印/json数据缩进空间
 //            .setCache(cacheFile, 1000 * 100, CacheMode.REQUEST_NETWORK_FAILED_READ_CACHE)
 //            .setExcludeCacheKeys("time")               //设置一些key，不参与cacheKey的组拼
 //            .setResultDecoder(s -> s)                  //设置数据解密/解码器，非必须
