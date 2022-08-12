@@ -65,7 +65,7 @@ class ParamsVisitor(private val logger: Messager) {
                 rxHttpParamName
             }
             //遍历public构造方法
-            typeElement.getPublicConstructorFun().forEach {
+            typeElement.getPublicConstructors().forEach {
                 val parameterSpecs = ArrayList<ParameterSpec>() //构造方法参数
                 val methodBody = StringBuilder("return new \$T(new \$T(") //方法体
                 for ((index, element) in it.parameters.withIndex()) {

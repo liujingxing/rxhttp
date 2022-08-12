@@ -10,6 +10,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.ResponseBody
 import rxhttp.RxHttpPlugins
 import rxhttp.wrapper.callback.JsonConverter
+import rxhttp.wrapper.utils.JSONStringer
 import java.lang.reflect.Type
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -36,10 +37,16 @@ class SerializationConverter(
     override fun <T : Any> convert(value: T): RequestBody {
         val json = when (value) {
             is Collection<*> -> {
-                JSONStringer(format).write(value).toString()
+                JSONStringer().setSerializeCallback {
+                    val serializer = format.serializersModule.serializer(it.javaClass)
+                    format.encodeToString(serializer, it)
+                }.write(value).toString()
             }
             is Map<*, *> -> {
-                JSONStringer(format).write(value).toString()
+                JSONStringer().setSerializeCallback {
+                    val serializer = format.serializersModule.serializer(it.javaClass)
+                    format.encodeToString(serializer, it)
+                }.write(value).toString()
             }
             else -> {
                 val serializer = format.serializersModule.serializer(value::class.java)

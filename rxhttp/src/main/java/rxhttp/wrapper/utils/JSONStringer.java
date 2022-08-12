@@ -1,17 +1,15 @@
-package rxhttp.wrapper.converter;
+package rxhttp.wrapper.utils;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import kotlinx.serialization.KSerializer;
-import kotlinx.serialization.SerializersKt;
-import kotlinx.serialization.StringFormat;
 
 
 public class JSONStringer {
@@ -33,18 +31,21 @@ public class JSONStringer {
      */
     private final String indent;
 
-    private final StringFormat format;
+    private SerializeCallback mSerializeCallback;
 
-    public JSONStringer(StringFormat format) {
-        this.format = format;
+    public JSONStringer() {
         indent = null;
     }
 
-    JSONStringer(StringFormat format, int indentSpaces) {
-        this.format = format;
+    JSONStringer(int indentSpaces) {
         char[] indentChars = new char[indentSpaces];
         Arrays.fill(indentChars, ' ');
         indent = new String(indentChars);
+    }
+
+    public JSONStringer setSerializeCallback(SerializeCallback serializeCallback) {
+        mSerializeCallback = serializeCallback;
+        return this;
     }
 
     public JSONStringer write(Collection<?> list) throws JSONException {
@@ -60,6 +61,27 @@ public class JSONStringer {
         object();
         for (Map.Entry<?, ?> entry : map.entrySet()) {
             key(entry.getKey().toString()).value(entry.getValue());
+        }
+        endObject();
+        return this;
+    }
+
+    public JSONStringer write(JSONArray jsonArray) throws JSONException {
+        array();
+        int length = jsonArray.length();
+        for (int i = 0; i < length; i++) {
+            value(jsonArray.opt(i));
+        }
+        endArray();
+        return this;
+    }
+
+    public JSONStringer write(JSONObject jsonObject) throws JSONException {
+        object();
+        Iterator<String> iterator = jsonObject.keys();
+        while (iterator.hasNext()) {
+            String key = iterator.next();
+            key(key).value(jsonObject.opt(key));
         }
         endObject();
         return this;
@@ -169,10 +191,15 @@ public class JSONStringer {
             throw new JSONException("Nesting problem");
         }
 
-        if (value instanceof Collection) {
+        if (value instanceof JSONArray) {
+            write((JSONArray) value);
+            return this;
+        } else if (value instanceof JSONObject) {
+            write((JSONObject) value);
+            return this;
+        } else if (value instanceof Collection) {
             write((Collection<?>) value);
             return this;
-
         } else if (value instanceof Map) {
             write((Map<?, ?>) value);
             return this;
@@ -188,11 +215,15 @@ public class JSONStringer {
         } else if (value instanceof Number) {
             out.append(JSONObject.numberToString((Number) value));
 
-        } else if (value instanceof String) {
-            string(value.toString());
+        } else if (mSerializeCallback != null) {
+            if (value instanceof String) {
+                string(value.toString());
+            } else {
+                String serialize = mSerializeCallback.serialize(value);
+                out.append(serialize);
+            }
         } else {
-            KSerializer<Object> serializer = SerializersKt.serializer(format.getSerializersModule(), value.getClass());
-            out.append(format.encodeToString(serializer, value));
+            string(value.toString());
         }
 
         return this;
@@ -256,7 +287,7 @@ public class JSONStringer {
             switch (c) {
                 case '"':
                 case '\\':
-                case '/':
+//                case '/':
                     out.append('\\').append(c);
                     break;
 
@@ -418,5 +449,9 @@ public class JSONStringer {
          * JSONObject.quote() only. Not used for JSON encoding.
          */
         NULL,
+    }
+
+    interface SerializeCallback {
+        String serialize(Object object);
     }
 }

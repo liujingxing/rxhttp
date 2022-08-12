@@ -10,7 +10,7 @@ import com.squareup.kotlinpoet.TypeVariableName
  * Time: 11:28
  */
 //返回参数名列表, 多个参数用逗号隔开, 如： a, b, c
-fun getParamsName(parameterSpecs: MutableList<ParameterSpec>): String {
+fun getParamsName(parameterSpecs: List<ParameterSpec>): String {
     val paramsName = StringBuilder()
     parameterSpecs.forEachIndexed { index, parameterSpec ->
         if (index > 0) paramsName.append(", ")
@@ -20,14 +20,14 @@ fun getParamsName(parameterSpecs: MutableList<ParameterSpec>): String {
     return paramsName.toString()
 }
 
-//获取泛型字符串 比如:<T> 、<K,V>等等
+//获取泛型字符串 比如:<T> 、<K, V>等等
 fun getTypeVariableString(typeVariableNames: List<TypeVariableName>): String {
     val type = StringBuilder()
     val size = typeVariableNames.size
     typeVariableNames.forEachIndexed { i, typeVariableName ->
         if (i == 0) type.append("<")
         type.append(typeVariableName.name)
-        type.append(if (i < size - 1) "," else ">")
+        type.append(if (i < size - 1) ", " else ">")
     }
     return type.toString()
 }

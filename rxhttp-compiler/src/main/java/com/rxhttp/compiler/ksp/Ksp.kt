@@ -2,6 +2,7 @@ package com.rxhttp.compiler.ksp
 
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.getAnnotationsByType
+import com.google.devtools.ksp.getConstructors
 import com.google.devtools.ksp.isPublic
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
@@ -113,7 +114,9 @@ fun Sequence<KSFunctionDeclaration>.findTypeArgumentConstructorFun(typeParameter
     for (it in this) {
         if (!it.isPublic()) continue
         it.parameters.forEach { variableElement ->
-            if ("java.lang.reflect.Type[]" == variableElement.type.getQualifiedName())
+            if ("kotlin.Array<java.lang.reflect.Type>" == variableElement.type.toTypeName()
+                    .toString()
+            )
                 return it
         }
         //构造方法参数个数小于泛型个数，则遍历下一个
@@ -128,6 +131,8 @@ fun Sequence<KSFunctionDeclaration>.findTypeArgumentConstructorFun(typeParameter
     }
     return null
 }
+
+fun KSClassDeclaration.getPublicConstructors() = getConstructors().filter { it.isPublic() }
 
 internal fun KSClassDeclaration?.instanceOf(className: String): Boolean {
     if (this == null) return false

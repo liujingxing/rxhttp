@@ -2,7 +2,6 @@ package com.rxhttp.compiler.ksp
 
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.getAnnotationsByType
-import com.google.devtools.ksp.getConstructors
 import com.google.devtools.ksp.getDeclaredFunctions
 import com.google.devtools.ksp.isAbstract
 import com.google.devtools.ksp.isConstructor
@@ -36,8 +35,6 @@ import com.squareup.kotlinpoet.ksp.toTypeVariableName
 import com.squareup.kotlinpoet.ksp.writeTo
 import rxhttp.wrapper.annotation.Param
 import java.io.IOException
-import java.util.*
-import kotlin.NoSuchElementException
 
 class ParamsVisitor(
     private val logger: KSPLogger,
@@ -84,7 +81,7 @@ class ParamsVisitor(
 
             val classTypeParams = ksClass.typeParameters.toTypeParameterResolver()
             //遍历public构造方法
-            ksClass.getConstructors().filter { it.isPublic() }.forEach {
+            ksClass.getPublicConstructors().forEach {
                 val parameterSpecs = arrayListOf<ParameterSpec>() //构造方法参数
                 val methodBody = StringBuilder("return %T(%T(") //方法体
                 val functionTypeParams = it.typeParameters.toTypeParameterResolver(classTypeParams)
