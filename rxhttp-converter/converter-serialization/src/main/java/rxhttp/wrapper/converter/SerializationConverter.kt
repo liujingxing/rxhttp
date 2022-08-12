@@ -36,10 +36,16 @@ class SerializationConverter(
     override fun <T : Any> convert(value: T): RequestBody {
         val json = when (value) {
             is Collection<*> -> {
-                JSONStringer(format).write(value).toString()
+                JSONStringer().setSerializeCallback {
+                    val serializer = format.serializersModule.serializer(it.javaClass)
+                    format.encodeToString(serializer, it)
+                }.write(value).toString()
             }
             is Map<*, *> -> {
-                JSONStringer(format).write(value).toString()
+                JSONStringer().setSerializeCallback {
+                    val serializer = format.serializersModule.serializer(it.javaClass)
+                    format.encodeToString(serializer, it)
+                }.write(value).toString()
             }
             else -> {
                 val serializer = format.serializersModule.serializer(value::class.java)
