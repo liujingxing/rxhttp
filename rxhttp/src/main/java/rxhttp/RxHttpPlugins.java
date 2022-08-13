@@ -71,6 +71,10 @@ public class RxHttpPlugins {
         return setDebug(debug, false, -1);
     }
 
+    public RxHttpPlugins setDebug(boolean debug, boolean segmentPrint) {
+        return setDebug(debug, segmentPrint, -1);
+    }
+
     public RxHttpPlugins setDebug(boolean debug, boolean segmentPrint, int indentSpaces) {
         LogUtil.setDebug(debug, segmentPrint, indentSpaces);
         return plugins;
