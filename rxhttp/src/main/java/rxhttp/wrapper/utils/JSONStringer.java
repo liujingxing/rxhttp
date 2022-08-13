@@ -451,7 +451,7 @@ public class JSONStringer {
         NULL,
     }
 
-    interface SerializeCallback {
-        String serialize(Object object);
-    }
+   public interface SerializeCallback {
+       String serialize(Object object);
+   }
 }
