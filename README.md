@@ -312,7 +312,7 @@ Otherwise you must manually add the options in [rxhttp.pro](https://github.com/l
 
 If this project helps you a lot and you want to support the project's development and maintenance of this project, feel free to scan the following QR code for donation. Your donation is highly appreciated. Thank you!
 
-![rxhttp_donate.png](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/aafa7d05cfda4b2ea2a092bba8ebc1a0~tplv-k3u1fbpfcp-watermark.image)
+![donations.png](https://p1-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/fa6d3941c2c944e59831640fa0ece60d~tplv-k3u1fbpfcp-watermark.image?)
 
 # Licenses
 
