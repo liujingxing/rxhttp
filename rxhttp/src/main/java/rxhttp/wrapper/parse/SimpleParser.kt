@@ -16,12 +16,5 @@ open class SimpleParser<T> : TypeParser<T> {
     constructor(type: Type) : super(type)
 
     @Throws(IOException::class)
-    override fun onParse(response: Response): T {
-        return response.convert(types[0])
-    }
-
-    companion object {
-        @JvmStatic
-        operator fun <T> get(type: Class<T>) = SimpleParser<T>(type)
-    }
+    override fun onParse(response: Response): T = response.convert(types[0])
 }

@@ -12,7 +12,6 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import rxhttp.wrapper.param.RxHttp;
-import rxhttp.wrapper.parse.SimpleParser;
 
 /**
  * token 失效，自动刷新token，然后再次发送请求，用户无感知
@@ -77,7 +76,7 @@ public class TokenInterceptor implements Interceptor {
             try {
                 //获取到最新的token，这里需要同步请求token,千万不能异步  5、根据自己的业务修改
                 String token = RxHttp.postForm("/refreshToken/...")
-                    .execute(SimpleParser.get(String.class));
+                    .executeString();
 
                 SESSION_KEY_REFRESH_TIME = System.currentTimeMillis() / 1000;
                 User.get().setToken(token); //保存最新的token
