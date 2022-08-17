@@ -178,7 +178,6 @@ public class LogUtil {
     }
 
     //打印Http返回的正常结果
-    @SuppressWarnings("deprecation")
     public static void log(@NonNull Response response, String body) {
         if (!isDebug) return;
         try {
