@@ -3,7 +3,6 @@ package rxhttp
 import android.content.Context
 import android.net.Uri
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
 import rxhttp.wrapper.CallFactory
 import rxhttp.wrapper.OkHttpCompat
 import rxhttp.wrapper.callback.OutputStreamFactory
@@ -16,6 +15,7 @@ import rxhttp.wrapper.parse.OkResponseParser
 import rxhttp.wrapper.parse.Parser
 import rxhttp.wrapper.parse.SimpleParser
 import rxhttp.wrapper.parse.SuspendStreamParser
+import rxhttp.wrapper.utils.javaTypeOf
 
 /**
  * User: ljx
@@ -24,8 +24,7 @@ import rxhttp.wrapper.parse.SuspendStreamParser
  */
 fun <T> CallFactory.toParser(parser: Parser<T>): Await<T> = AwaitImpl(this, parser)
 
-inline fun <reified T> CallFactory.toClass(): Await<T> =
-    toParser(object : SimpleParser<T>() {})
+inline fun <reified T> CallFactory.toClass(): Await<T> = toParser(SimpleParser(javaTypeOf<T>()))
 
 fun CallFactory.toStr(): Await<String> = toClass()
 
