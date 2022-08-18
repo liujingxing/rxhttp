@@ -7,6 +7,7 @@ import com.alibaba.fastjson.serializer.SerializeConfig;
 import java.io.IOException;
 import java.lang.reflect.Type;
 
+import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import rxhttp.RxHttpPlugins;
@@ -20,8 +21,15 @@ import rxhttp.wrapper.callback.JsonConverter;
  */
 public class FastJsonConverter implements JsonConverter {
 
-    private SerializeConfig serializeConfig;
-    private ParserConfig parserConfig;
+    private final SerializeConfig serializeConfig;
+    private final ParserConfig parserConfig;
+    private final MediaType contentType;
+
+    private FastJsonConverter(ParserConfig parserConfig, SerializeConfig serializeConfig, MediaType contentType) {
+        this.parserConfig = parserConfig;
+        this.serializeConfig = serializeConfig;
+        this.contentType = contentType;
+    }
 
     public static FastJsonConverter create() {
         return create(ParserConfig.getGlobalInstance(), SerializeConfig.getGlobalInstance());
@@ -36,14 +44,13 @@ public class FastJsonConverter implements JsonConverter {
     }
 
     public static FastJsonConverter create(@NonNull ParserConfig parserConfig, @NonNull SerializeConfig serializeConfig) {
-        if (parserConfig == null) throw new NullPointerException("parserConfig == null");
-        if (serializeConfig == null) throw new NullPointerException("serializeConfig == null");
-        return new FastJsonConverter(parserConfig, serializeConfig);
+        return create(parserConfig, serializeConfig, JsonConverter.MEDIA_TYPE);
     }
 
-    private FastJsonConverter(ParserConfig parserConfig, SerializeConfig serializeConfig) {
-        this.parserConfig = parserConfig;
-        this.serializeConfig = serializeConfig;
+    public static FastJsonConverter create(@NonNull ParserConfig parserConfig, @NonNull SerializeConfig serializeConfig, MediaType contentType) {
+        if (parserConfig == null) throw new NullPointerException("parserConfig == null");
+        if (serializeConfig == null) throw new NullPointerException("serializeConfig == null");
+        return new FastJsonConverter(parserConfig, serializeConfig, contentType);
     }
 
     @Override
@@ -66,6 +73,6 @@ public class FastJsonConverter implements JsonConverter {
     @SuppressWarnings("deprecation")
     @Override
     public <T> RequestBody convert(T value) throws IOException {
-        return RequestBody.create(MEDIA_TYPE, JSON.toJSONBytes(value, serializeConfig));
+        return RequestBody.create(contentType, JSON.toJSONBytes(value, serializeConfig));
     }
 }

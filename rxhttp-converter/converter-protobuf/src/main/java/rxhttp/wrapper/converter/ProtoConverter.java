@@ -23,15 +23,20 @@ import rxhttp.wrapper.callback.IConverter;
  */
 public class ProtoConverter implements IConverter {
 
-    private static final MediaType MEDIA_TYPE = MediaType.get("application/x-protobuf");
-
-    private ExtensionRegistryLite registry;
+    private final ExtensionRegistryLite registry;
+    private final MediaType contentType;
 
     public ProtoConverter() {
+        this(null);
     }
 
     public ProtoConverter(ExtensionRegistryLite registry) {
+        this(registry, MediaType.get("application/x-protobuf"));
+    }
+
+    public ProtoConverter(ExtensionRegistryLite registry, MediaType contentType) {
         this.registry = registry;
+        this.contentType = contentType;
     }
 
     @SuppressWarnings("unchecked")
@@ -85,6 +90,6 @@ public class ProtoConverter implements IConverter {
         if (!(value instanceof MessageLite)) return null;
         MessageLite messageLite = (MessageLite) value;
         byte[] bytes = messageLite.toByteArray();
-        return RequestBody.create(MEDIA_TYPE, bytes);
+        return RequestBody.create(contentType, bytes);
     }
 }

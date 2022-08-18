@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
 
+import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import rxhttp.RxHttpPlugins;
@@ -20,19 +21,25 @@ import rxhttp.wrapper.callback.JsonConverter;
  */
 public class JacksonConverter implements JsonConverter {
 
+    private final ObjectMapper mapper;
+    private final MediaType contentType;
+
+    private JacksonConverter(ObjectMapper mapper, MediaType contentType) {
+        this.mapper = mapper;
+        this.contentType = contentType;
+    }
+
     public static JacksonConverter create() {
         return create(new ObjectMapper());
     }
 
     public static JacksonConverter create(ObjectMapper mapper) {
-        if (mapper == null) throw new NullPointerException("mapper == null");
-        return new JacksonConverter(mapper);
+        return create(mapper, JsonConverter.MEDIA_TYPE);
     }
 
-    private final ObjectMapper mapper;
-
-    private JacksonConverter(ObjectMapper mapper) {
-        this.mapper = mapper;
+    public static JacksonConverter create(ObjectMapper mapper, MediaType contentType) {
+        if (mapper == null) throw new NullPointerException("mapper == null");
+        return new JacksonConverter(mapper, contentType);
     }
 
     @Override
@@ -60,6 +67,6 @@ public class JacksonConverter implements JsonConverter {
         JavaType javaType = mapper.getTypeFactory().constructType(value.getClass());
         ObjectWriter writer = mapper.writerFor(javaType);
         byte[] bytes = writer.writeValueAsBytes(value);
-        return RequestBody.create(MEDIA_TYPE, bytes);
+        return RequestBody.create(contentType, bytes);
     }
 }

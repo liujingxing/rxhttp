@@ -5,6 +5,7 @@ package rxhttp.wrapper.converter
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.StringFormat
 import kotlinx.serialization.serializer
+import okhttp3.MediaType
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.ResponseBody
@@ -15,9 +16,11 @@ import java.lang.reflect.Type
 
 @OptIn(ExperimentalSerializationApi::class)
 class SerializationConverter(
-    private val format: StringFormat
+    private val format: StringFormat,
+    private val contentType: MediaType?,
 ) : JsonConverter {
 
+    @Suppress("UNCHECKED_CAST")
     override fun <T> convert(
         body: ResponseBody,
         type: Type,
@@ -53,9 +56,11 @@ class SerializationConverter(
                 format.encodeToString(serializer, value)
             }
         }
-        return json.toRequestBody(JsonConverter.MEDIA_TYPE)
+        return json.toRequestBody(contentType)
     }
 }
 
+@JvmOverloads
 @JvmName("create")
-fun StringFormat.asConverter() = SerializationConverter(this)
+fun StringFormat.asConverter(contentType: MediaType? = JsonConverter.MEDIA_TYPE) =
+    SerializationConverter(this, contentType)

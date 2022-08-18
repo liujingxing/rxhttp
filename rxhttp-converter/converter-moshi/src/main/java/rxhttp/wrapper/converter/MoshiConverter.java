@@ -11,6 +11,7 @@ import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 
+import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import okio.Buffer;
@@ -32,12 +33,14 @@ public class MoshiConverter implements JsonConverter {
     private final boolean lenient;
     private final boolean failOnUnknown;
     private final boolean serializeNulls;
+    private final MediaType contentType;
 
-    private MoshiConverter(Moshi moshi, boolean lenient, boolean failOnUnknown, boolean serializeNulls) {
+    private MoshiConverter(Moshi moshi, boolean lenient, boolean failOnUnknown, boolean serializeNulls, MediaType contentType) {
         this.moshi = moshi;
         this.lenient = lenient;
         this.failOnUnknown = failOnUnknown;
         this.serializeNulls = serializeNulls;
+        this.contentType = contentType;
     }
 
     /**
@@ -56,8 +59,18 @@ public class MoshiConverter implements JsonConverter {
      * @return MoshiConverter
      */
     public static MoshiConverter create(Moshi moshi) {
+        return create(moshi, JsonConverter.MEDIA_TYPE);
+    }
+
+    /**
+     * Create an instance using {@code moshi} for conversion.
+     *
+     * @param moshi Moshi
+     * @return MoshiConverter
+     */
+    public static MoshiConverter create(Moshi moshi, MediaType contentType) {
         if (moshi == null) throw new NullPointerException("moshi == null");
-        return new MoshiConverter(moshi, false, false, false);
+        return new MoshiConverter(moshi, false, false, false, contentType);
     }
 
     /**
@@ -66,7 +79,7 @@ public class MoshiConverter implements JsonConverter {
      * @return MoshiConverter
      */
     public MoshiConverter asLenient() {
-        return new MoshiConverter(moshi, true, failOnUnknown, serializeNulls);
+        return new MoshiConverter(moshi, true, failOnUnknown, serializeNulls, contentType);
     }
 
     /**
@@ -75,7 +88,7 @@ public class MoshiConverter implements JsonConverter {
      * @return MoshiConverter
      */
     public MoshiConverter failOnUnknown() {
-        return new MoshiConverter(moshi, lenient, true, serializeNulls);
+        return new MoshiConverter(moshi, lenient, true, serializeNulls, contentType);
     }
 
     /**
@@ -84,7 +97,7 @@ public class MoshiConverter implements JsonConverter {
      * @return MoshiConverter
      */
     public MoshiConverter withNullSerialization() {
-        return new MoshiConverter(moshi, lenient, failOnUnknown, true);
+        return new MoshiConverter(moshi, lenient, failOnUnknown, true, contentType);
     }
 
     @SuppressWarnings("unchecked")
@@ -154,6 +167,6 @@ public class MoshiConverter implements JsonConverter {
         Buffer buffer = new Buffer();
         JsonWriter writer = JsonWriter.of(buffer);
         adapter.toJson(writer, value);
-        return RequestBody.create(MEDIA_TYPE, buffer.readByteString());
+        return RequestBody.create(contentType, buffer.readByteString());
     }
 }

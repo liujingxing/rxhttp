@@ -12,6 +12,7 @@ import java.io.Writer;
 import java.lang.reflect.Type;
 
 import kotlin.text.Charsets;
+import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import okio.Buffer;
@@ -29,19 +30,24 @@ import rxhttp.wrapper.utils.GsonUtil;
 public class GsonConverter implements JsonConverter {
 
     private final Gson gson;
+    private final MediaType contentType;
+
+    private GsonConverter(Gson gson, MediaType contentType) {
+        this.gson = gson;
+        this.contentType = contentType;
+    }
 
     public static GsonConverter create() {
         return create(GsonUtil.buildGson());
     }
 
-
     public static GsonConverter create(Gson gson) {
-        if (gson == null) throw new NullPointerException("gson == null");
-        return new GsonConverter(gson);
+        return create(gson, JsonConverter.MEDIA_TYPE);
     }
 
-    private GsonConverter(Gson gson) {
-        this.gson = gson;
+    public static GsonConverter create(Gson gson, MediaType contentType) {
+        if (gson == null) throw new NullPointerException("gson == null");
+        return new GsonConverter(gson, contentType);
     }
 
     @SuppressWarnings("unchecked")
@@ -73,6 +79,6 @@ public class GsonConverter implements JsonConverter {
         JsonWriter jsonWriter = gson.newJsonWriter(writer);
         adapter.write(jsonWriter, value);
         jsonWriter.close();
-        return RequestBody.create(MEDIA_TYPE, buffer.readByteString());
+        return RequestBody.create(contentType, buffer.readByteString());
     }
 }

@@ -27,28 +27,38 @@ public class XmlConverter implements IConverter {
 
     private final Serializer serializer;
     private final boolean strict;
+    private final MediaType contentType;
+
+    private XmlConverter(Serializer serializer, boolean strict, MediaType contentType) {
+        this.serializer = serializer;
+        this.strict = strict;
+        this.contentType = contentType;
+    }
 
     public static XmlConverter create() {
         return create(new Persister());
     }
 
     public static XmlConverter create(Serializer serializer) {
-        return new XmlConverter(serializer, true);
+        return create(serializer, MEDIA_TYPE);
+    }
+
+    public static XmlConverter create(Serializer serializer, MediaType contentType) {
+        return new XmlConverter(serializer, true, contentType);
     }
 
     public static XmlConverter createNonStrict() {
         return createNonStrict(new Persister());
     }
 
-    @SuppressWarnings("ConstantConditions") // Guarding public API nullability.
     public static XmlConverter createNonStrict(Serializer serializer) {
-        if (serializer == null) throw new NullPointerException("serializer == null");
-        return new XmlConverter(serializer, false);
+        return createNonStrict(serializer, MEDIA_TYPE);
     }
 
-    private XmlConverter(Serializer serializer, boolean strict) {
-        this.serializer = serializer;
-        this.strict = strict;
+    @SuppressWarnings("ConstantConditions") // Guarding public API nullability.
+    public static XmlConverter createNonStrict(Serializer serializer, MediaType contentType) {
+        if (serializer == null) throw new NullPointerException("serializer == null");
+        return new XmlConverter(serializer, false, contentType);
     }
 
     @SuppressWarnings("unchecked")
@@ -90,6 +100,6 @@ public class XmlConverter implements IConverter {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        return RequestBody.create(MEDIA_TYPE, buffer.readByteString());
+        return RequestBody.create(contentType, buffer.readByteString());
     }
 }
