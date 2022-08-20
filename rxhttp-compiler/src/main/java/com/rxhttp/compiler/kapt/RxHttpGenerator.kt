@@ -768,7 +768,7 @@ class RxHttpGenerator {
 
             MethodSpec.methodBuilder("subscribeOnCurrent")
                 .addAnnotation(Deprecated::class.java)
-                .addJavadoc("@deprecated please user {@link #setSync()} instead\n")
+                .addJavadoc("@deprecated please user {@link #setSync()} instead, scheduled to be removed in RxHttp 3.0 release.\n")
                 .addModifiers(Modifier.PUBLIC)
                 .addStatement("return setSync()")
                 .returns(typeVariableR)

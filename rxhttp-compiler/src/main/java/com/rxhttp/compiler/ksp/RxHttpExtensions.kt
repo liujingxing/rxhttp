@@ -182,7 +182,7 @@ class RxHttpExtensions(private val logger: KSPLogger) {
         val deprecatedAnnotation = AnnotationSpec.builder(Deprecated::class)
             .addMember(
                 """
-                message = "please use 'toFlow(progressCallback)' instead", 
+                "scheduled to be removed in RxHttp 3.0 release.", 
                 level = DeprecationLevel.ERROR
             """.trimIndent()
             )

@@ -76,7 +76,7 @@ public class JsonParam extends AbstractBodyParam<JsonParam> {
 
     /**
      * @return Map
-     * @deprecated please user {@link #getBodyParam()} instead
+     * @deprecated please user {@link #getBodyParam()} instead, scheduled to be removed in RxHttp 3.0 release.
      */
     @Deprecated
     @Nullable

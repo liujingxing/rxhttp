@@ -767,7 +767,7 @@ class RxHttpGenerator(
             val deprecatedAnnotation = AnnotationSpec.builder(Deprecated::class)
                 .addMember(
                     """
-                    "please use `setSync()` instead",
+                    "please use `setSync()` instead, scheduled to be removed in RxHttp 3.0 release.",
                     ReplaceWith("setSync()"),
                     DeprecationLevel.ERROR
                 """.trimIndent()

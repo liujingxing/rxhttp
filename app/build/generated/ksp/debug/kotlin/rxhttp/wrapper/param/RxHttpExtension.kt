@@ -51,7 +51,7 @@ public inline fun <reified T> BaseRxHttp.asResponse() = asParser(ResponseParser<
  *     }
  * ```                   
  */
-@Deprecated(message = "please use 'toFlow(progressCallback)' instead", 
+@Deprecated("scheduled to be removed in RxHttp 3.0 release.", 
 level = DeprecationLevel.ERROR)
 public fun <R : RxHttpAbstractBodyParam<*, *>> R.upload(coroutine: CoroutineScope,
     progressCallback: suspend (Progress) -> Unit) = apply {

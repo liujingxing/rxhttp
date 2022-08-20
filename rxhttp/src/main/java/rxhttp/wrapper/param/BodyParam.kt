@@ -31,7 +31,7 @@ class BodyParam(
     }
 
     @Deprecated(
-        message = "",
+        message = "scheduled to be removed in RxHttp 3.0 release.",
         replaceWith = ReplaceWith("setBody(value)"),
         level = DeprecationLevel.ERROR
     )

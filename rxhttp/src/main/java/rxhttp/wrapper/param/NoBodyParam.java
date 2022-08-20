@@ -44,7 +44,7 @@ public class NoBodyParam extends AbstractParam<NoBodyParam> {
 
     /**
      * @return List
-     * @deprecated please user {@link #getQueryParam()} instead
+     * @deprecated please user {@link #getQueryParam()} instead, scheduled to be removed in RxHttp 3.0 release.
      */
     @Deprecated
     public List<KeyValuePair> getKeyValuePairs() {

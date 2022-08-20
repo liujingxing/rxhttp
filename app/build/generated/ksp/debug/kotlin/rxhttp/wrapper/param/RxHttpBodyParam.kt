@@ -52,7 +52,7 @@ open class RxHttpBodyParam(param: BodyParam) : RxHttpAbstractBodyParam<BodyParam
     fun setBody(any: Any) = apply { param.setBody(any) }
 
     @Deprecated(
-        message = "use `setBody(Any)` instead",
+        message = "use `setBody(Any)` instead, scheduled to be removed in RxHttp 3.0 release.",
         replaceWith = ReplaceWith("setBody(any)"),
         level = DeprecationLevel.ERROR
     )

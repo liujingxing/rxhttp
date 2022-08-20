@@ -13,7 +13,7 @@ import java.lang.reflect.Type
  * Time: 15:32
  */
 @Deprecated(
-    "This supports only single type, TypeParser supports multiple type",
+    "This supports only single type, TypeParser supports multiple type, scheduled to be removed in RxHttp 3.0 release.",
     replaceWith = ReplaceWith("TypeParser<T>")
 )
 abstract class AbstractParser<T> : Parser<T> {
@@ -28,7 +28,7 @@ abstract class AbstractParser<T> : Parser<T> {
         mType = `$Gson$Types`.canonicalize(type)
     }
 
-    @Deprecated("", replaceWith = ReplaceWith("response.convertTo(rawType, types)"))
+    @Deprecated("scheduled to be removed in RxHttp 3.0 release.", replaceWith = ReplaceWith("response.convertTo(rawType, types)"))
     @Throws(IOException::class)
     fun <R> convert(response: Response, type: Type): R = response.convert(type)
 }

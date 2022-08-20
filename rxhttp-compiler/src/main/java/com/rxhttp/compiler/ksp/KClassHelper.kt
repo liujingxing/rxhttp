@@ -396,7 +396,7 @@ class KClassHelper(
                 fun setBody(any: Any) = apply { param.setBody(any) }
             
                 @Deprecated(
-                    message = "use `setBody(Any)` instead",
+                    message = "use `setBody(Any)` instead, scheduled to be removed in RxHttp 3.0 release.",
                     replaceWith = ReplaceWith("setBody(any)"),
                     level = DeprecationLevel.ERROR
                 )
@@ -465,14 +465,14 @@ class KClassHelper(
                 fun addFile(file: UpFile) = apply { param.addFile(file) }
             
                 @Deprecated(
-                    "use `addFiles(List)` instead",
+                    "use `addFiles(List)` instead, scheduled to be removed in RxHttp 3.0 release.",
                     ReplaceWith("addFiles(fileList)"),
                     DeprecationLevel.WARNING
                 )
                 fun addFile(fileList: List<UpFile>) = addFiles(fileList)
             
                 @Deprecated(
-                    "use `addFiles(String, List)` instead",
+                    "use `addFiles(String, List)` instead, scheduled to be removed in RxHttp 3.0 release.",
                     ReplaceWith("addFiles(key, fileList)"),
                     DeprecationLevel.WARNING
                 )
