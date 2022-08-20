@@ -32,8 +32,6 @@ import javax.lang.model.type.TypeKind
  */
 class RxHttpExtensions {
 
-    private val classTypeName = Class::class.asClassName()
-
     private val baseRxHttpName = ClassName(rxHttpPackage, "BaseRxHttp")
     private val callFactoryName = ClassName("rxhttp.wrapper", "CallFactory")
     private val toFunList = ArrayList<FunSpec>()
