@@ -3,13 +3,9 @@ package rxhttp.wrapper.utils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
 import com.google.gson.JsonSyntaxException;
 
 import java.lang.reflect.Type;
@@ -24,7 +20,25 @@ import rxhttp.wrapper.annotations.Nullable;
  */
 public class GsonUtil {
 
-    private static Gson gson;
+    private static final JsonDeserializer<String> STRING = (json, typeOfT, context) -> {
+        if (json instanceof JsonPrimitive) {
+            return json.getAsString();
+        } else {
+            return json.toString();
+        }
+    };
+    private static final JsonDeserializer<Integer> INTEGER = (json, typeOfT, context) -> {
+        return isEmpty(json) ? 0 : json.getAsInt();
+    };
+    private static final JsonDeserializer<Float> FLOAT = (json, typeOfT, context) -> {
+        return isEmpty(json) ? 0.0f : json.getAsFloat();
+    };
+    private static final JsonDeserializer<Double> DOUBLE = (json, typeOfT, context) -> {
+        return isEmpty(json) ? 0.0 : json.getAsDouble();
+    };
+    private static final JsonDeserializer<Long> LONG = (json, typeOfT, context) -> {
+        return isEmpty(json) ? 0L : json.getAsLong();
+    };
 
     /**
      * json字符串转对象，解析失败，不会抛出异常，会直接返回null
@@ -65,95 +79,36 @@ public class GsonUtil {
         return buildGson().toJson(object);
     }
 
+
     public static Gson buildGson() {
-        if (gson == null) {
-            gson = new GsonBuilder()
-                .disableHtmlEscaping()
-                .registerTypeAdapter(String.class, new StringAdapter())
-                .registerTypeAdapter(int.class, new IntegerDefault0Adapter())
-                .registerTypeAdapter(Integer.class, new IntegerDefault0Adapter())
-                .registerTypeAdapter(double.class, new DoubleDefault0Adapter())
-                .registerTypeAdapter(Double.class, new DoubleDefault0Adapter())
-                .registerTypeAdapter(long.class, new LongDefault0Adapter())
-                .registerTypeAdapter(Long.class, new LongDefault0Adapter())
-                .create();
-        }
-        return gson;
+        return GsonHolder.gson;
     }
 
-    private static class StringAdapter implements JsonSerializer<String>, JsonDeserializer<String> {
-        @Override
-        public String deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
-            throws JsonParseException {
-            if (json instanceof JsonPrimitive) {
-                return json.getAsString();
-            } else {
-                return json.toString();
-            }
-        }
+    private static Gson newGson() {
+        return new GsonBuilder()
+            .disableHtmlEscaping()
+            .registerTypeAdapter(String.class, STRING)
+            .registerTypeAdapter(int.class, INTEGER)
+            .registerTypeAdapter(Integer.class, INTEGER)
+            .registerTypeAdapter(float.class, FLOAT)
+            .registerTypeAdapter(Float.class, FLOAT)
+            .registerTypeAdapter(double.class, DOUBLE)
+            .registerTypeAdapter(Double.class, DOUBLE)
+            .registerTypeAdapter(long.class, LONG)
+            .registerTypeAdapter(Long.class, LONG)
+            .create();
+    }
 
-        @Override
-        public JsonElement serialize(String src, Type typeOfSrc, JsonSerializationContext context) {
-            return new JsonPrimitive(src);
+    private static boolean isEmpty(JsonElement jsonElement) {
+        try {
+            String str = jsonElement.getAsString();
+            return "".equals(str) || "null".equals(str);
+        } catch (Exception ignore) {
+            return false;
         }
     }
 
-    private static class IntegerDefault0Adapter implements JsonSerializer<Integer>, JsonDeserializer<Integer> {
-        @Override
-        public Integer deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
-            throws JsonParseException {
-            try {
-                String str = json.getAsString();
-                if ("".equals(str) || "null".equals(str)) {//定义为int类型,如果后台返回""或者null,则返回0
-                    return 0;
-                }
-            } catch (Exception ignore) {
-            }
-            return json.getAsInt();
-        }
-
-        @Override
-        public JsonElement serialize(Integer src, Type typeOfSrc, JsonSerializationContext context) {
-            return new JsonPrimitive(src);
-        }
-    }
-
-    private static class DoubleDefault0Adapter implements JsonSerializer<Double>, JsonDeserializer<Double> {
-        @Override
-        public Double deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-            try {
-                String str = json.getAsString();
-                if ("".equals(str) || "null".equals(str)) {//定义为double类型,如果后台返回""或者null,则返回0.00
-                    return 0.00;
-                }
-            } catch (Exception ignore) {
-            }
-            return json.getAsDouble();
-        }
-
-        @Override
-        public JsonElement serialize(Double src, Type typeOfSrc, JsonSerializationContext context) {
-            return new JsonPrimitive(src);
-        }
-    }
-
-    private static class LongDefault0Adapter implements JsonSerializer<Long>, JsonDeserializer<Long> {
-        @Override
-        public Long deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
-            throws JsonParseException {
-            try {
-                String str = json.getAsString();
-                if ("".equals(str) || "null".equals(str)) { //定义为long类型,如果后台返回""或者null,则返回0
-                    return 0L;
-                }
-            } catch (Exception ignore) {
-            }
-            return json.getAsLong();
-        }
-
-        @Override
-        public JsonElement serialize(Long src, Type typeOfSrc, JsonSerializationContext context) {
-            return new JsonPrimitive(src);
-        }
+    private static final class GsonHolder {
+        static final Gson gson = newGson();
     }
 }
