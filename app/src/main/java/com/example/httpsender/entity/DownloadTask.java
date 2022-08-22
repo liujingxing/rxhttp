@@ -17,8 +17,6 @@ public class DownloadTask {
     private long currentSize;
     private long totalSize;
 
-    private Disposable mDisposable;
-
     private int state; //0=未开始 1=等待中 2=下载中 3=暂停中 4=已完成  5=下载失败 6=已取消
 
 
@@ -32,18 +30,6 @@ public class DownloadTask {
 
     public void setState(int state) {
         this.state = state;
-    }
-
-    public Disposable getDisposable() {
-        return mDisposable;
-    }
-
-    public void setDisposable(Disposable disposable) {
-        mDisposable = disposable;
-    }
-
-    public boolean isDownloading() {
-        return mDisposable != null && !mDisposable.isDisposed();
     }
 
     public String getUrl() {

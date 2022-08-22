@@ -5,13 +5,13 @@ import androidx.lifecycle.MutableLiveData
 import com.example.httpsender.Tip
 import com.example.httpsender.entity.DownloadTask
 import com.example.httpsender.utils.Preferences
-import com.rxjava.rxlife.RxLife
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import okhttp3.internal.http2.StreamResetException
 import okio.ByteString.Companion.encodeUtf8
+import rxhttp.RxHttpPlugins
 import rxhttp.wrapper.param.RxHttp
 import java.io.File
 import java.util.*
-import kotlin.collections.ArrayList
 
 /**
  * User: ljx
@@ -84,7 +84,8 @@ object MultiTaskDownloader {
             waitTask.offer(task)
             return
         }
-        val disposable = RxHttp.get(task.url)
+        RxHttp.get(task.url)
+            .tag(task.url) //记录tag，手动取消下载时用到
             .asAppendDownload(task.localPath, AndroidSchedulers.mainThread()) {
                 //下载进度回调,0-100，仅在进度有更新时才会回调
                 task.progress = it.progress        //当前进度 0-100
@@ -109,11 +110,13 @@ object MultiTaskDownloader {
                 Tip.show("下载完成")
                 task.state = COMPLETED
             }, {
-                Tip.show("下载失败")
-                task.state = FAIL
+                //手动取消下载时，会收到StreamResetException异常，不做任何处理
+                if (it !is StreamResetException){
+                    Tip.show("下载失败")
+                    task.state = FAIL
+                }
             })
         task.state = DOWNLOADING
-        task.disposable = disposable
         downloadingTask.add(task)
     }
 
@@ -143,8 +146,7 @@ object MultiTaskDownloader {
         while (iterator.hasNext()) {
             val task = iterator.next()
             iterator.remove()
-            val disposable = task.disposable
-            RxLife.dispose(disposable)
+            RxHttpPlugins.cancelAll(task.url)
             task.state = CANCEL
         }
         updateTask()
@@ -161,12 +163,10 @@ object MultiTaskDownloader {
     //暂停下载
     @JvmStatic
     fun pauseTask(task: DownloadTask) {
-        val disposable = task.disposable
-        if (!RxLife.isDisposed(disposable)) {
-            disposable.dispose()
-            task.state = PAUSED
-            updateTask()
-        }
+        //根据tag取消下载
+        RxHttpPlugins.cancelAll(task.url)
+        task.state = PAUSED
+        updateTask()
     }
 
     @JvmStatic
