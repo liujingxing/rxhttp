@@ -4,10 +4,14 @@ import androidx.lifecycle.MutableLiveData
 import com.example.httpsender.Tip
 import com.example.httpsender.entity.DownloadTask
 import com.example.httpsender.utils.Preferences
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.launch
 import okhttp3.internal.http2.StreamResetException
 import okio.ByteString.Companion.encodeUtf8
 import rxhttp.RxHttpPlugins
+import rxhttp.toFlow
 import rxhttp.wrapper.param.RxHttp
 import java.io.File
 import java.util.*
@@ -17,7 +21,7 @@ import java.util.*
  * Date: 2020/7/12
  * Time: 18:00
  */
-object MultiTaskDownloader {
+object MultiTaskFlowDownloader {
 
     const val IDLE = 0             //未开始，闲置状态
     const val WAITING = 1          //等待中状态
@@ -31,6 +35,7 @@ object MultiTaskDownloader {
 
     @JvmStatic
     val liveTask = MutableLiveData<DownloadTask>() //用于刷新UI
+
     @JvmStatic
     val allTask = ArrayList<DownloadTask>() //所有下载任务
     private val waitTask = LinkedList<DownloadTask>() //等待下载的任务
@@ -85,44 +90,44 @@ object MultiTaskDownloader {
             waitTask.offer(task)
             return
         }
+
         task.state = DOWNLOADING
         updateTask(task)
         downloadingTask.add(task)
 
-        //如果想使用Await或Flow下载，更改以下代码即可
-        RxHttp.get(task.url)
-            .tag(task.url) //记录tag，手动取消下载时用到
-            .asAppendDownload(task.localPath, AndroidSchedulers.mainThread()) {
-                //下载进度回调,0-100，仅在进度有更新时才会回调
-                task.progress = it.progress        //当前进度 0-100
-                task.currentSize = it.currentSize  //当前已下载的字节大小
-                task.totalSize = it.totalSize      //要下载的总字节大小
-                updateTask(task)
-                val key = task.url
-                val length = lengthMap[key]
-                if (length != task.totalSize) {
-                    //服务器返回的文件总大小与本地的不一致，则更新
-                    lengthMap[key] = task.totalSize
-                    saveTotalSize(lengthMap)
+        //如果想使用RxJava或Flow下载，更改以下代码即可
+        CoroutineScope(Dispatchers.Main).launch {
+            RxHttp.get(task.url)
+                .tag(task.url) //记录tag，手动取消下载时用到
+                .toFlow(task.localPath, true) {
+                    //下载进度回调,0-100，仅在进度有更新时才会回调
+                    task.progress = it.progress        //当前进度 0-100
+                    task.currentSize = it.currentSize  //当前已下载的字节大小
+                    task.totalSize = it.totalSize      //要下载的总字节大小
+                    updateTask(task)
+                    val key = task.url
+                    val length = lengthMap[key]
+                    if (length != task.totalSize) {
+                        //服务器返回的文件总大小与本地的不一致，则更新
+                        lengthMap[key] = task.totalSize
+                        saveTotalSize(lengthMap)
+                    }
+                }.catch {
+                    //手动取消下载时，会收到StreamResetException异常，不做任何处理
+                    if (it !is StreamResetException) {
+                        Tip.show("下载失败")
+                        task.state = FAIL
+                    }
+                }.collect {
+                    Tip.show("下载成功")
+                    task.state = COMPLETED
                 }
-            }
-            .doFinally {
-                updateTask(task)
-                //不管任务成功还是失败，如果还有在等待的任务，都开启下一个任务
-                downloadingTask.remove(task)
-                waitTask.poll()?.let { download(it) }
-            }
-            .subscribe({
-                Tip.show("下载完成")
-                task.state = COMPLETED
-            }, {
-                //手动取消下载时，会收到StreamResetException异常，不做任何处理
-                if (it !is StreamResetException){
-                    Tip.show("下载失败")
-                    task.state = FAIL
-                }
-            })
 
+            //下载结束，不管任务成功还是失败，如果还有在等待的任务，都开启下一个任务
+            updateTask(task)
+            downloadingTask.remove(task)
+            waitTask.poll()?.let { download(it) }
+        }
     }
 
 
