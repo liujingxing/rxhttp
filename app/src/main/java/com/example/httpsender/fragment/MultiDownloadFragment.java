@@ -125,23 +125,21 @@ public class MultiDownloadFragment extends BaseFragment<MultiDownloadFragmentBin
 
     @Override
     public void onItemClick(View view, DownloadTask task, int position) {
-        switch (view.getId()) {
-            case R.id.bt_pause:
-                int curState = task.getState();  //任务当前状态
-                if (curState == MultiTaskDownloader.IDLE         //未开始->开始下载
-                    || curState == MultiTaskDownloader.PAUSED    //暂停下载->继续下载
-                    || curState == MultiTaskDownloader.CANCEL    //已取消->重新开始下载
-                    || curState == MultiTaskDownloader.FAIL      //下载失败->重新下载
-                ) {
-                    MultiTaskDownloader.download(task);
-                } else if (curState == MultiTaskDownloader.WAITING) {       //等待中->取消下载
-                    MultiTaskDownloader.removeWaitTask(task);
-                } else if (curState == MultiTaskDownloader.DOWNLOADING) {   //下载中->暂停下载
-                    MultiTaskDownloader.pauseTask(task);
-                } else if (curState == MultiTaskDownloader.COMPLETED) {   //任务已完成
-                    Tip.show("该任务已完成");
-                }
-                break;
+        if (view.getId() == R.id.bt_pause) {
+            int curState = task.getState();  //任务当前状态
+            if (curState == MultiTaskDownloader.IDLE         //未开始->开始下载
+                || curState == MultiTaskDownloader.PAUSED    //暂停下载->继续下载
+                || curState == MultiTaskDownloader.CANCEL    //已取消->重新开始下载
+                || curState == MultiTaskDownloader.FAIL      //下载失败->重新下载
+            ) {
+                MultiTaskDownloader.download(task);
+            } else if (curState == MultiTaskDownloader.WAITING) {       //等待中->取消下载
+                MultiTaskDownloader.removeWaitTask(task);
+            } else if (curState == MultiTaskDownloader.DOWNLOADING) {   //下载中->暂停下载
+                MultiTaskDownloader.pauseTask(task);
+            } else if (curState == MultiTaskDownloader.COMPLETED) {   //任务已完成
+                Tip.show("该任务已完成");
+            }
         }
     }
 }

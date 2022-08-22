@@ -35,6 +35,7 @@ object MultiTaskDownloader {
     private val waitTask = LinkedList<DownloadTask>() //等待下载的任务
     private val downloadingTask = LinkedList<DownloadTask>() //下载中的任务
 
+    //记录每个文件的总大小，key为文件url
     private val lengthMap = HashMap<String, Long>()
 
     @JvmStatic
@@ -78,6 +79,7 @@ object MultiTaskDownloader {
     @JvmStatic
     fun download(task: DownloadTask) {
         if (downloadingTask.size >= MAX_TASK_COUNT) {
+            //超过最大下载数，添加进等待队列
             task.state = WAITING
             waitTask.offer(task)
             return
@@ -92,6 +94,7 @@ object MultiTaskDownloader {
                 val key = task.url
                 val length = lengthMap[key]
                 if (length != task.totalSize) {
+                    //服务器返回的文件总大小与本地的不一致，则更新
                     lengthMap[key] = task.totalSize
                     saveTotalSize(lengthMap)
                 }
