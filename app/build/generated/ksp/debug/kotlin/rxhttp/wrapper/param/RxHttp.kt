@@ -401,7 +401,7 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
   public fun subscribeOnCurrent() = setSync()
 
   /**
-   * sync request 
+   * RxJava sync request 
    */
   public fun setSync(): R {
     isAsync = false

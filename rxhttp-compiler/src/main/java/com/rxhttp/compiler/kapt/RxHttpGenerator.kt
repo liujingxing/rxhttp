@@ -776,7 +776,7 @@ class RxHttpGenerator {
                 .apply { methodList.add(this) }
 
             MethodSpec.methodBuilder("setSync")
-                .addJavadoc("sync request \n")
+                .addJavadoc("RxJava sync request \n")
                 .addModifiers(Modifier.PUBLIC)
                 .addStatement("isAsync = false")
                 .addStatement("return (R) this")

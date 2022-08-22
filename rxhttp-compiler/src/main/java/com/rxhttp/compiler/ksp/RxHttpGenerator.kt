@@ -781,7 +781,7 @@ class RxHttpGenerator(
                 .let { methodList.add(it) }
 
             FunSpec.builder("setSync")
-                .addKdoc("sync request \n")
+                .addKdoc("RxJava sync request \n")
                 .addStatement("isAsync = false")
                 .addStatement("return this as R")
                 .returns(typeVariableR)
