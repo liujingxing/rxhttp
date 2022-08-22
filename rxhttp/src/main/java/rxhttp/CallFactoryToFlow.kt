@@ -84,7 +84,7 @@ fun <T> CallFactory.toFlow(
         flow {
             setRangeHeader(osFactory, append)
             emit(toSyncDownload(osFactory).await())
-        }.flowOn(Dispatchers.IO)
+        }.flowOn(Dispatchers.Unconfined)
     } else {
         toFlowProgress(osFactory, append, capacity)
             .onEachProgress(progress)
@@ -114,7 +114,7 @@ fun <T> CallFactory.toFlowProgress(
             .await().let { emit(ProgressT(it)) }
     }
         .buffer(capacity, BufferOverflow.DROP_OLDEST)
-        .flowOn(Dispatchers.IO)
+        .flowOn(Dispatchers.Unconfined)
 
 fun <T> Flow<ProgressT<T>>.onEachProgress(progress: suspend (Progress) -> Unit): Flow<T> =
     onEach { if (it.result == null) progress(it) }
