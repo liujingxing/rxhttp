@@ -6,7 +6,7 @@ import android.view.View.OnClickListener;
 
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.RecyclerView.Adapter;
+import androidx.recyclerview.widget.SimpleItemAnimator;
 
 import com.example.httpsender.DownloadMultiAdapter;
 import com.example.httpsender.DownloadMultiAdapter.OnItemClickListener;
@@ -98,15 +98,16 @@ public class MultiDownloadFragment extends BaseFragment<MultiDownloadFragmentBin
         RecyclerView recyclerView = binding.recyclerView;
 
         MultiTaskDownloader.addTasks(allTask);
-        MultiTaskDownloader.getAllLiveTask().observe(getViewLifecycleOwner(), tasks -> {
-            Adapter adapter = recyclerView.getAdapter();
-            if (adapter == null) {
-                DownloadMultiAdapter multiAdapter = new DownloadMultiAdapter(tasks);
-                multiAdapter.setOnItemClickListener(this);
-                multiAdapter.setHasStableIds(true);
-                recyclerView.setAdapter(multiAdapter);
-            } else {
-                adapter.notifyDataSetChanged();
+        DownloadMultiAdapter multiAdapter = new DownloadMultiAdapter(MultiTaskDownloader.getAllTask());
+        multiAdapter.setOnItemClickListener(this);
+        recyclerView.setAdapter(multiAdapter);
+        ((SimpleItemAnimator) recyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
+
+        MultiTaskDownloader.getLiveTask().observe(getViewLifecycleOwner(), task -> {
+            int index = MultiTaskDownloader.getAllTask().indexOf(task);
+            if (index != -1) {
+                //任务有更新，刷新单个item
+                multiAdapter.notifyItemChanged(index);
             }
         });
     }

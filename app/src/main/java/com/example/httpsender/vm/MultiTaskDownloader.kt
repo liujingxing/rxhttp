@@ -1,6 +1,5 @@
 package com.example.httpsender.vm
 
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import com.example.httpsender.Tip
 import com.example.httpsender.entity.DownloadTask
@@ -31,7 +30,9 @@ object MultiTaskDownloader {
     private const val MAX_TASK_COUNT = 3   //最大并发数
 
     @JvmStatic
-    val allLiveTask = MutableLiveData<ArrayList<DownloadTask>>() //所有下载任务
+    val liveTask = MutableLiveData<DownloadTask>() //用于刷新UI
+    @JvmStatic
+    val allTask = ArrayList<DownloadTask>() //所有下载任务
     private val waitTask = LinkedList<DownloadTask>() //等待下载的任务
     private val downloadingTask = LinkedList<DownloadTask>() //下载中的任务
 
@@ -40,7 +41,7 @@ object MultiTaskDownloader {
 
     @JvmStatic
     fun addTasks(tasks: ArrayList<DownloadTask>) {
-        val allTaskList = getAllTask()
+        val allTaskList = allTask
         tasks.forEach {
             if (!allTaskList.contains(it)) {
                 val md5Key = it.url.encodeUtf8().md5().hex()
@@ -62,13 +63,12 @@ object MultiTaskDownloader {
                 allTaskList.add(it)
             }
         }
-        allLiveTask.value = allTaskList
     }
 
     //开始下载所有任务
     @JvmStatic
     fun startAllDownloadTask() {
-        val allTaskList = getAllTask()
+        val allTaskList = allTask
         allTaskList.forEach {
             if (it.state != COMPLETED && it.state != DOWNLOADING) {
                 download(it)
@@ -81,6 +81,7 @@ object MultiTaskDownloader {
         if (downloadingTask.size >= MAX_TASK_COUNT) {
             //超过最大下载数，添加进等待队列
             task.state = WAITING
+            updateTask(task)
             waitTask.offer(task)
             return
         }
@@ -91,7 +92,7 @@ object MultiTaskDownloader {
                 task.progress = it.progress        //当前进度 0-100
                 task.currentSize = it.currentSize  //当前已下载的字节大小
                 task.totalSize = it.totalSize      //要下载的总字节大小
-                updateTask()
+                updateTask(task)
                 val key = task.url
                 val length = lengthMap[key]
                 if (length != task.totalSize) {
@@ -101,7 +102,7 @@ object MultiTaskDownloader {
                 }
             }
             .doFinally {
-                updateTask()
+                updateTask(task)
                 //不管任务成功还是失败，如果还有在等待的任务，都开启下一个任务
                 downloadingTask.remove(task)
                 waitTask.poll()?.let { download(it) }
@@ -117,12 +118,12 @@ object MultiTaskDownloader {
                 }
             })
         task.state = DOWNLOADING
+        updateTask(task)
         downloadingTask.add(task)
     }
 
 
     private fun saveTotalSize(map: HashMap<String, Long>) {
-        Log.e("LJX", "saveTotalSize=${map.size}")
         val editor = Preferences.getEditor()
         for ((key, value) in map) {
             val md5Key = key.encodeUtf8().md5().hex()
@@ -140,6 +141,7 @@ object MultiTaskDownloader {
             val task = iterator.next()
             task.state = CANCEL
             iterator.remove()
+            updateTask(task)
         }
 
         iterator = downloadingTask.iterator()
@@ -148,8 +150,8 @@ object MultiTaskDownloader {
             iterator.remove()
             RxHttpPlugins.cancelAll(task.url)
             task.state = CANCEL
+            updateTask(task)
         }
-        updateTask()
     }
 
     //等待中->取消下载
@@ -157,7 +159,7 @@ object MultiTaskDownloader {
     fun removeWaitTask(task: DownloadTask) {
         waitTask.remove(task)
         task.state = CANCEL
-        updateTask()
+        updateTask(task)
     }
 
     //暂停下载
@@ -166,7 +168,7 @@ object MultiTaskDownloader {
         //根据tag取消下载
         RxHttpPlugins.cancelAll(task.url)
         task.state = PAUSED
-        updateTask()
+        updateTask(task)
     }
 
     @JvmStatic
@@ -175,12 +177,7 @@ object MultiTaskDownloader {
     }
 
     //发送通知，更新UI
-    private fun updateTask() {
-        val allTask = getAllTask()
-        allLiveTask.value = allTask
-    }
-
-    private fun getAllTask(): ArrayList<DownloadTask> {
-        return allLiveTask.value ?: ArrayList()
+    private fun updateTask(task: DownloadTask) {
+        liveTask.value = task
     }
 }
