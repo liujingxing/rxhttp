@@ -18,7 +18,6 @@ public object RxSimpleHttp {
    */
   private fun <R : RxHttp<*, *>> R.wrapper(): R {
     setSimpleClient()
-    setDomainToUpdateIfAbsent()
     return this
   }
 

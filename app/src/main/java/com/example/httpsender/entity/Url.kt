@@ -11,14 +11,10 @@ import rxhttp.wrapper.annotation.Domain
 object Url {
 
     @JvmField
-    @Domain(name = "Update", className = "Simple")
-    var update = "http://update.9158.com"
-
-    @JvmField
     @DefaultDomain //设置为默认域名
     var baseUrl = "https://www.wanandroid.com/"
 
     const val UPLOAD_URL = "http://t.xinhuo.com/index.php/Api/Pic/uploadPic"
 
-    const val DOWNLOAD_URL = "/miaolive/Miaolive.apk"
+    const val DOWNLOAD_URL = "https://apk-ssl.tancdn.com/3.5.3_276/%E6%8E%A2%E6%8E%A2.apk"
 }

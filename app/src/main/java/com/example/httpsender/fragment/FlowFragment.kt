@@ -7,20 +7,22 @@ import android.view.View
 import androidx.lifecycle.lifecycleScope
 import com.example.httpsender.R
 import com.example.httpsender.databinding.FlowFragmentBinding
-import com.example.httpsender.entity.*
+import com.example.httpsender.entity.Article
+import com.example.httpsender.entity.Location
+import com.example.httpsender.entity.Name
+import com.example.httpsender.entity.NewsDataXml
+import com.example.httpsender.entity.PageList
+import com.example.httpsender.entity.Url
 import com.example.httpsender.kt.errorMsg
 import com.example.httpsender.kt.show
 import com.example.httpsender.parser.Android10DownloadFactory
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import rxhttp.*
+import rxhttp.toFlow
 import rxhttp.wrapper.param.RxHttp
-import rxhttp.wrapper.param.RxSimpleHttp
 import rxhttp.wrapper.param.toFlowResponse
 import java.io.File
-import java.util.*
 
 /**
  * 使用 协程(RxHttp + Flow) 发请求
@@ -199,8 +201,7 @@ class FlowFragment : BaseFragment<FlowFragmentBinding>(), View.OnClickListener {
      */
     private suspend fun FlowFragmentBinding.download(view: View) {
         val destPath = "${requireContext().externalCacheDir}/${System.currentTimeMillis()}.apk"
-        //下载使用非默认域名，故这里使用RxSimpleHttp类发送请求，RxSimpleHttp类是通过注解生成的
-        RxSimpleHttp.get(Url.DOWNLOAD_URL)
+        RxHttp.get(Url.DOWNLOAD_URL)
             .toFlow(destPath) {
                 val currentProgress = it.progress //当前进度 0-100
                 val currentSize = it.currentSize //当前已下载的字节大小
@@ -222,8 +223,7 @@ class FlowFragment : BaseFragment<FlowFragmentBinding>(), View.OnClickListener {
      */
     private suspend fun FlowFragmentBinding.appendDownload(view: View) {
         val destPath = "${requireContext().externalCacheDir}/Miaobo.apk"
-        //下载使用非默认域名，故这里使用RxSimpleHttp类发送请求，RxSimpleHttp类是通过注解生成的
-        RxSimpleHttp.get(Url.DOWNLOAD_URL)
+        RxHttp.get(Url.DOWNLOAD_URL)
             .toFlow(destPath, true) {
                 val currentProgress = it.progress //当前进度 0-100
                 val currentSize = it.currentSize //当前已下载的字节大小
@@ -244,8 +244,7 @@ class FlowFragment : BaseFragment<FlowFragmentBinding>(), View.OnClickListener {
      */
     private suspend fun FlowFragmentBinding.downloadAndroid10(view: View) {
         val factory = Android10DownloadFactory(requireContext(), "miaobo.apk")
-        //下载使用非默认域名，故这里使用RxSimpleHttp类发送请求，RxSimpleHttp类是通过注解生成的
-        RxSimpleHttp.get(Url.DOWNLOAD_URL)
+        RxHttp.get(Url.DOWNLOAD_URL)
             .toFlow(factory) {
                 val currentProgress = it.progress //当前进度 0-100
                 val currentSize = it.currentSize //当前已下载的字节大小
@@ -266,8 +265,7 @@ class FlowFragment : BaseFragment<FlowFragmentBinding>(), View.OnClickListener {
      */
     private suspend fun FlowFragmentBinding.appendDownloadAndroid10(view: View) {
         val factory = Android10DownloadFactory(requireContext(), "miaobo.apk")
-        //下载使用非默认域名，故这里使用RxSimpleHttp类发送请求，RxSimpleHttp类是通过注解生成的
-        RxSimpleHttp.get(Url.DOWNLOAD_URL)
+        RxHttp.get(Url.DOWNLOAD_URL)
             .toFlow(factory, true) {
                 val currentProgress = it.progress //当前进度 0-100
                 val currentSize = it.currentSize //当前已下载的字节大小

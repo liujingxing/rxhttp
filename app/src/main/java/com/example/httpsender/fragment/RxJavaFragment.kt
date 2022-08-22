@@ -15,7 +15,6 @@ import com.rxjava.rxlife.life
 import com.rxjava.rxlife.lifeOnMain
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import rxhttp.wrapper.param.RxHttp
-import rxhttp.wrapper.param.RxSimpleHttp
 import rxhttp.wrapper.param.asClass
 import rxhttp.wrapper.param.asResponse
 import java.io.File
@@ -233,7 +232,7 @@ class RxJavaFragment : BaseFragment<RxjavaFragmentBinding>(), View.OnClickListen
      */
     private fun RxjavaFragmentBinding.download(view: View) {
         val destPath = "${requireContext().externalCacheDir}/${System.currentTimeMillis()}.apk"
-        RxSimpleHttp.get(Url.DOWNLOAD_URL)
+        RxHttp.get(Url.DOWNLOAD_URL)
             .asDownload(destPath, AndroidSchedulers.mainThread()) {
                 val currentProgress = it.progress //当前进度 0-100
                 val currentSize = it.currentSize //当前已下载的字节大小
@@ -257,7 +256,7 @@ class RxJavaFragment : BaseFragment<RxjavaFragmentBinding>(), View.OnClickListen
      */
     private fun RxjavaFragmentBinding.appendDownload(view: View) {
         val destPath = "${requireContext().externalCacheDir}/Miaobo.apk"
-        RxSimpleHttp.get(Url.DOWNLOAD_URL)
+        RxHttp.get(Url.DOWNLOAD_URL)
             .asAppendDownload(destPath, AndroidSchedulers.mainThread()) {
                 val currentProgress = it.progress //当前进度 0-100
                 val currentSize = it.currentSize //当前已下载的字节大小
@@ -281,7 +280,7 @@ class RxJavaFragment : BaseFragment<RxjavaFragmentBinding>(), View.OnClickListen
      */
     private fun RxjavaFragmentBinding.downloadAndroid10(view: View) {
         val factory = Android10DownloadFactory(requireContext(), "miaobo.apk")
-        RxSimpleHttp.get(Url.DOWNLOAD_URL)
+        RxHttp.get(Url.DOWNLOAD_URL)
             .asDownload(factory, AndroidSchedulers.mainThread()) {
                 val currentProgress = it.progress //当前进度 0-100
                 val currentSize = it.currentSize //当前已下载的字节大小
@@ -304,7 +303,7 @@ class RxJavaFragment : BaseFragment<RxjavaFragmentBinding>(), View.OnClickListen
      */
     private fun RxjavaFragmentBinding.appendDownloadAndroid10(view: View) {
         val factory = Android10DownloadFactory(requireContext(), "miaobo.apk")
-        RxSimpleHttp.get(Url.DOWNLOAD_URL)
+        RxHttp.get(Url.DOWNLOAD_URL)
             .asAppendDownload(factory, AndroidSchedulers.mainThread()) {
                 val currentProgress = it.progress //当前进度 0-100
                 val currentSize = it.currentSize //当前已下载的字节大小

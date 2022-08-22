@@ -9,7 +9,6 @@ import com.example.httpsender.`param`.PostEncryptJsonParam
 import com.example.httpsender.`param`.PostEncryptJsonParam1
 import com.example.httpsender.entity.PageList
 import com.example.httpsender.entity.Url.baseUrl
-import com.example.httpsender.entity.Url.update
 import com.example.httpsender.parser.ResponseParser
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Scheduler
@@ -458,8 +457,6 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
    * 给Param设置默认域名(如果缺席的话)，此方法会在请求发起前，被RxHttp内部调用
    */
   private fun addDefaultDomainIfAbsent() = setDomainIfAbsent(baseUrl)
-
-  public fun setDomainToUpdateIfAbsent() = setDomainIfAbsent(update)
 
   public fun setDomainIfAbsent(domain: String): R {
     val newUrl = addDomainIfAbsent(param.getSimpleUrl(), domain)
