@@ -199,17 +199,22 @@ public class RxHttpPlugins {
 
     //Cancel all requests
     public static void cancelAll() {
-        final OkHttpClient okHttpClient = plugins.okClient;
-        if (okHttpClient == null) return;
-        okHttpClient.dispatcher().cancelAll();
+        cancelAll(plugins.okClient);
     }
 
     //Cancel the request according to tag
     public static void cancelAll(Object tag) {
-        if (tag == null) return;
-        final OkHttpClient okHttpClient = plugins.okClient;
-        if (okHttpClient == null) return;
-        Dispatcher dispatcher = okHttpClient.dispatcher();
+        cancelAll(plugins.okClient, tag);
+    }
+
+    public static void cancelAll(@Nullable OkHttpClient okClient) {
+        if (okClient == null) return;
+        okClient.dispatcher().cancelAll();
+    }
+
+    public static void cancelAll(@Nullable OkHttpClient okClient, @Nullable Object tag) {
+        if (tag == null || okClient == null) return;
+        Dispatcher dispatcher = okClient.dispatcher();
 
         for (Call call : dispatcher.queuedCalls()) {
             if (tag.equals(call.request().tag())) {
