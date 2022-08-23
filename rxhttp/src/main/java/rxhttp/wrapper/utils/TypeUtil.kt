@@ -4,6 +4,9 @@ package rxhttp.wrapper.utils
 
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
+import kotlin.jvm.internal.TypeReference
+import kotlin.reflect.KClass
+import kotlin.reflect.KType
 import kotlin.reflect.javaType
 import kotlin.reflect.typeOf
 
@@ -31,5 +34,15 @@ fun getActualTypeParameters(clazz: Class<*>): Array<Type> {
     return superclass.actualTypeArguments
 }
 
+inline fun <reified T> javaTypeOf() = typeOf<T>().wrapperJavaType()
+
+//https://github.com/liujingxing/rxhttp/issues/399
 @OptIn(ExperimentalStdlibApi::class)
-inline fun <reified T> javaTypeOf() = typeOf<T>().javaType
+fun KType.wrapperJavaType(): Type {
+    if (this is TypeReference) {
+        val classifier = classifier
+        if (classifier is KClass<*> && arguments.isEmpty())
+            return classifier.javaObjectType  //forceWrapper
+    }
+    return this.javaType
+}
