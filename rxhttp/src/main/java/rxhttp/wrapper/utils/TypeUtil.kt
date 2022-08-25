@@ -39,14 +39,14 @@ internal val Type.javaObjectType: Type
         val type = this
         if (type !is Class<*> || !type.isPrimitive) return type
         return when (type.name) {
-            "boolean" -> Boolean::class.java
-            "char" -> Character::class.java
-            "byte" -> Byte::class.java
-            "short" -> Short::class.java
-            "int" -> Integer::class.java
-            "float" -> Float::class.java
-            "long" -> Long::class.java
-            "double" -> Double::class.java
+            "boolean" -> java.lang.Boolean::class.java
+            "char" -> java.lang.Character::class.java
+            "byte" -> java.lang.Byte::class.java
+            "short" -> java.lang.Short::class.java
+            "int" -> java.lang.Integer::class.java
+            "float" -> java.lang.Float::class.java
+            "long" -> java.lang.Long::class.java
+            "double" -> java.lang.Double::class.java
             "void" -> Void::class.java
             else -> type
         }
