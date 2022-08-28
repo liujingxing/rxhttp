@@ -183,11 +183,10 @@ android {
     }
     
     applicationVariants.all { variant ->
-        if (variant.buildType.name == 'debug') {
-            sourceSets {
-                debug { //告知IDE，ksp生成的kotlin代码
-                    kotlin.srcDir("build/generated/ksp/${variant.name}/kotlin")
-                }
+        sourceSets {
+            def name = variant.name
+            getByName(name) {  //告知IDE，ksp生成的kotlin代码
+                kotlin.srcDir("build/generated/ksp/$name/kotlin")
             }
         }
     }
