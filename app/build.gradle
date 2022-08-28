@@ -44,6 +44,14 @@ android {
         checkReleaseBuilds false
     }
 
+    applicationVariants.all { variant ->
+        sourceSets {
+            def name = variant.name
+            getByName(name) {  //告知IDE，ksp生成的kotlin代码
+                kotlin.srcDir("build/generated/ksp/$name/kotlin")
+            }
+        }
+    }
 }
 
 ksp {
@@ -58,11 +66,6 @@ ksp {
 //    }
 //}
 
-kotlin {
-    sourceSets.debug {
-        kotlin.srcDir("build/generated/ksp/debug/kotlin")
-    }
-}
 
 //configurations.all {
 //    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
