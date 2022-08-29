@@ -58,7 +58,8 @@ RxHttp.get("/server/..")     RxHttp.get("/server/..")     RxHttp.get("/server/..
 | 标准RESTful风格| ✅ | ✅ |
 | 学习成本| 低 | 高|
 | 扩展性| 高| 高|
-| jar包大小| 335k| 125k|
+| 源码大小| 84k | 75k |
+| jar包大小| 335k | 125k |
 | RxJava| RxJava  ❌<br>RxJava2✅<br>RxJava3✅| RxJava  ✅<br>RxJava2✅<br>RxJava3✅|
 | Kotlin协程| ✅ | ✅ |
 | Flow流| ✅ | ✅ |
