@@ -51,7 +51,7 @@ RxHttp.get("/server/..")     RxHttp.get("/server/..")     RxHttp.get("/server/..
 
 ***RxHttp与Retrofit对比***
 
-| 功能说明 | RxHttp | Retrofit |
+| 功能说明 | RxHttp | [Retrofit](https://github.com/square/retrofit) |
 | --- | :---: | :---: |
 | 版本| v2.9.3| v2.9.0 |
 | 状态| 维护中| 维护中 |
