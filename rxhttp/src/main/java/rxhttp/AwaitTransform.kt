@@ -382,9 +382,7 @@ inline fun <T> Await<T>.onEach(
  * @param timeMillis time in milliseconds.
  */
 fun <T> Await<T>.delay(timeMillis: Long): Await<T> = newAwait {
-    val t = await()
-    kotlinx.coroutines.delay(timeMillis)
-    t
+    await().also { kotlinx.coroutines.delay(timeMillis) }
 }
 
 /**
