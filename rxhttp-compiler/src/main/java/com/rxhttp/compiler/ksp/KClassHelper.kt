@@ -220,7 +220,7 @@ class KClassHelper(
                  * https://github.com/liujingxing/rxhttp/wiki/FAQ
                  * https://github.com/liujingxing/rxhttp/wiki/更新日志
                  */
-                @SuppressWarnings("unchecked")
+                @Suppress("UNCHECKED_CAST")
                 open class RxHttpAbstractBodyParam<P : AbstractBodyParam<P>, R : RxHttpAbstractBodyParam<P, R>> 
                 protected constructor(
                     param: P
