@@ -51,14 +51,15 @@ RxHttp.get("/server/..")     RxHttp.get("/server/..")     RxHttp.get("/server/..
 
 ***RxHttp与Retrofit对比***
 
-| 功能说明 | RxHttp | Retrofit |
+| 功能说明 | RxHttp | [Retrofit](https://github.com/square/retrofit) |
 | --- | :---: | :---: |
 | 版本| v2.9.3| v2.9.0 |
 | 状态| 维护中| 维护中 |
 | 标准RESTful风格| ✅ | ✅ |
 | 学习成本| 低 | 高|
 | 扩展性| 高| 高|
-| jar包大小| 335k| 125k|
+| 源码大小| 84k | 75k |
+| jar包大小| 335k | 125k |
 | RxJava| RxJava  ❌<br>RxJava2✅<br>RxJava3✅| RxJava  ✅<br>RxJava2✅<br>RxJava3✅|
 | Kotlin协程| ✅ | ✅ |
 | Flow流| ✅ | ✅ |
