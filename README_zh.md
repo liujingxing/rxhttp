@@ -109,7 +109,7 @@ wiki详细文档：https://github.com/liujingxing/rxhttp/wiki  (此文档会持�
 <details open>
 <summary>annotationProcessor依赖</summary>
  
-```java
+```gradle
 //1、项目的build.gradle文件
 allprojects {
     repositories {
@@ -137,7 +137,7 @@ dependencies {
 <details>
 <summary>kapt依赖</summary>
  
-```java
+```gradle
 //1、项目的build.gradle文件
 allprojects {
     repositories {
@@ -169,7 +169,7 @@ dependencies {
 <details>
 <summary>ksp依赖</summary>
  
-```java
+```gradle
 //1、项目的build.gradle文件
 allprojects {
     repositories {
