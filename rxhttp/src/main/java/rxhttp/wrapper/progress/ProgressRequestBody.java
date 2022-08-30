@@ -1,5 +1,7 @@
 package rxhttp.wrapper.progress;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.IOException;
 
 import okhttp3.MediaType;
@@ -10,7 +12,6 @@ import okio.ForwardingSink;
 import okio.Okio;
 import okio.Sink;
 import rxhttp.wrapper.callback.ProgressCallback;
-import rxhttp.wrapper.utils.LogUtil;
 
 //Track upload progress
 public class ProgressRequestBody extends RequestBody {
@@ -38,7 +39,7 @@ public class ProgressRequestBody extends RequestBody {
     }
 
     @Override
-    public void writeTo(BufferedSink sink) throws IOException {
+    public void writeTo(@NotNull BufferedSink sink) throws IOException {
         if (sink instanceof Buffer
             || sink.toString().contains(
             "com.android.tools.profiler.support.network.HttpTracker$OutputStreamTracker")) {
@@ -57,7 +58,7 @@ public class ProgressRequestBody extends RequestBody {
             int lastProgress;
 
             @Override
-            public void write(Buffer source, long byteCount) throws IOException {
+            public void write(@NotNull Buffer source, long byteCount) throws IOException {
                 super.write(source, byteCount);
                 if (contentLength == 0) {
                     contentLength = contentLength();
