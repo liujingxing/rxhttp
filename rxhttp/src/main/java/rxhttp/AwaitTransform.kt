@@ -18,10 +18,8 @@ import kotlin.coroutines.CoroutineContext
  * Date: 2021/9/18
  * Time: 17:56
  */
-
-
-inline fun <T, R> Await<T>.newAwait(
-    crossinline block: suspend Await<T>.() -> R
+fun <T, R> Await<T>.newAwait(
+    block: suspend Await<T>.() -> R
 ): Await<R> = object : Await<R> {
 
     override suspend fun await(): R {
@@ -168,16 +166,16 @@ fun <T> Await<out MutableList<T>>.insertAll(
     await().apply { addAll(index, elements) }
 }
 
-inline fun <T> Await<out Iterable<T>>.filter(
-    crossinline predicate: (T) -> Boolean
+fun <T> Await<out Iterable<T>>.filter(
+    predicate: (T) -> Boolean
 ): Await<ArrayList<T>> = filterTo(ArrayList(), predicate)
 
 /**
  * Appends all elements matching the given [predicate] to the given [destination].
  */
-inline fun <T, C : MutableCollection<in T>> Await<out Iterable<T>>.filterTo(
+fun <T, C : MutableCollection<in T>> Await<out Iterable<T>>.filterTo(
     destination: C,
-    crossinline predicate: (T) -> Boolean
+    predicate: (T) -> Boolean
 ): Await<C> = newAwait {
     await().filterTo(destination, predicate)
 }
@@ -195,8 +193,8 @@ fun <T> Await<out Iterable<T>>.distinct(): Await<ArrayList<T>> = distinctTo(Arra
  *
  * The elements in the resulting list are in the same order as they were in the source collection.
  */
-inline fun <T, K> Await<out Iterable<T>>.distinctBy(
-    crossinline selector: (T) -> K
+fun <T, K> Await<out Iterable<T>>.distinctBy(
+    selector: (T) -> K
 ): Await<ArrayList<T>> = distinctTo(ArrayList(), selector)
 
 fun <T, C : MutableList<T>> Await<out Iterable<T>>.distinctTo(
@@ -208,9 +206,9 @@ fun <T, C : MutableList<T>> Await<out Iterable<T>>.distinctTo(
  *
  * The elements in the resulting list are in the same order as they were in the source collection.
  */
-inline fun <T, K, C : MutableList<T>> Await<out Iterable<T>>.distinctTo(
+fun <T, K, C : MutableList<T>> Await<out Iterable<T>>.distinctTo(
     destination: C,
-    crossinline selector: (T) -> K
+    selector: (T) -> K
 ): Await<C> = newAwait {
     val set = HashSet<K>()
     for (e in destination) {
@@ -410,12 +408,12 @@ suspend fun <T> Await<T>.async(
     await()
 }
 
-suspend inline fun <T> Await<T>.awaitResult(): Result<T> = runCatching { await() }
+suspend fun <T> Await<T>.awaitResult(): Result<T> = runCatching { await() }
 
 suspend inline fun <T> Await<T>.awaitResult(onSuccess: (value: T) -> Unit): Result<T> =
     awaitResult().onSuccess(onSuccess)
 
-suspend inline fun <T> Deferred<T>.awaitResult(): Result<T> = runCatching { await() }
+suspend fun <T> Deferred<T>.awaitResult(): Result<T> = runCatching { await() }
 
 suspend inline fun <T> Deferred<T>.awaitResult(onSuccess: (value: T) -> Unit): Result<T> =
     awaitResult().onSuccess(onSuccess)
