@@ -53,7 +53,7 @@ fun <T> BodyParamFactory.toFlowProgress(
         param.setProgressCallback { progress, currentSize, totalSize ->
             trySend(ProgressT<T>(progress, currentSize, totalSize))
         }
-        send(ProgressT(await.await()))
+        trySend(ProgressT(await.await()))
     }.buffer(capacity, BufferOverflow.DROP_OLDEST)
 
 /**
@@ -114,7 +114,7 @@ fun <T> CallFactory.toFlowProgress(
     channelFlow {
         setRangeHeader(osFactory, append)
         val await = toSyncDownload(osFactory) { trySend(it) }
-        send(ProgressT(await.await()))
+        trySend(ProgressT(await.await()))
     }
         .buffer(capacity, BufferOverflow.DROP_OLDEST)
 
