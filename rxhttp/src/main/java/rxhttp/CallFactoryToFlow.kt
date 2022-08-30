@@ -3,9 +3,13 @@ package rxhttp
 import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.buffer
+import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.onEach
 import okhttp3.Headers
 import okhttp3.Response
 import rxhttp.wrapper.BodyParamFactory
@@ -45,12 +49,12 @@ inline fun <reified T> BodyParamFactory.toFlow(
 inline fun <reified T> BodyParamFactory.toFlowProgress(
     await: Await<T> = toClass(),
     capacity: Int = 1
-) =
+): Flow<ProgressT<T>> =
     channelFlow {
         param.setProgressCallback { progress, currentSize, totalSize ->
             trySend(ProgressT<T>(progress, currentSize, totalSize))
         }
-        await.await().also { trySend(ProgressT<T>(it)) }
+        send(ProgressT(await.await()))
     }.buffer(capacity, BufferOverflow.DROP_OLDEST)
 
 /**
@@ -84,7 +88,7 @@ fun <T> CallFactory.toFlow(
         flow {
             setRangeHeader(osFactory, append)
             emit(toSyncDownload(osFactory).await())
-        }.flowOn(Dispatchers.Unconfined)
+        }
     } else {
         toFlowProgress(osFactory, append, capacity)
             .onEachProgress(progress)
@@ -108,13 +112,12 @@ fun <T> CallFactory.toFlowProgress(
     append: Boolean = false,
     capacity: Int = 1
 ): Flow<ProgressT<T>> =
-    flow {
+    channelFlow {
         setRangeHeader(osFactory, append)
-        toSyncDownload(osFactory) { emit(it) }
-            .await().let { emit(ProgressT(it)) }
+        val await = toSyncDownload(osFactory) { trySend(it) }
+        send(ProgressT(await.await()))
     }
         .buffer(capacity, BufferOverflow.DROP_OLDEST)
-        .flowOn(Dispatchers.Unconfined)
 
 fun <T> Flow<ProgressT<T>>.onEachProgress(progress: suspend (Progress) -> Unit): Flow<T> =
     onEach { if (it.result == null) progress(it) }

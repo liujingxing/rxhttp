@@ -6,8 +6,8 @@ import rxhttp.wrapper.OkHttpCompat
 import rxhttp.wrapper.callback.OutputStreamFactory
 import rxhttp.wrapper.callback.ProgressCallback
 import rxhttp.wrapper.exception.ExceptionHelper
-import rxhttp.wrapper.utils.IOUtil
 import rxhttp.wrapper.utils.LogUtil
+import rxhttp.wrapper.utils.writeTo
 import java.io.IOException
 import java.io.OutputStream
 
@@ -16,10 +16,11 @@ import java.io.OutputStream
  * Date: 2020/9/4
  * Time: 21:39
  */
-class StreamParser<T> @JvmOverloads constructor(
+class StreamParser<T> constructor(
     private val osFactory: OutputStreamFactory<T>,
-    var progressCallback: ProgressCallback? = null,
 ) : Parser<T> {
+
+    var progressCallback: ProgressCallback? = null
 
     override fun onParse(response: Response): T {
         val body = ExceptionHelper.throwIfFatal(response)
@@ -29,7 +30,7 @@ class StreamParser<T> @JvmOverloads constructor(
         val os = expandOutputStream.os
         progressCallback?.let {
             response.writeTo(body, os, it)
-        } ?: IOUtil.write(body.byteStream(), os)
+        } ?: body.byteStream().writeTo(os)
         return expand
     }
 }
@@ -51,7 +52,7 @@ private fun Response.writeTo(
     var lastSize = 0L
     var lastRefreshTime = 0L
 
-    IOUtil.write(body.byteStream(), os) {
+    body.byteStream().writeTo(os) {
         val currentSize = it + offsetSize
         lastSize = currentSize
         if (contentLength == -1L) {

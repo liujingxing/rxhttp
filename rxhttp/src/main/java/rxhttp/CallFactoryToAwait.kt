@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.Flow
 import rxhttp.wrapper.CallFactory
 import rxhttp.wrapper.OkHttpCompat
 import rxhttp.wrapper.callback.OutputStreamFactory
+import rxhttp.wrapper.callback.ProgressCallback
 import rxhttp.wrapper.coroutines.Await
 import rxhttp.wrapper.coroutines.AwaitImpl
 import rxhttp.wrapper.entity.Progress
@@ -14,7 +15,7 @@ import rxhttp.wrapper.parse.BitmapParser
 import rxhttp.wrapper.parse.OkResponseParser
 import rxhttp.wrapper.parse.Parser
 import rxhttp.wrapper.parse.SimpleParser
-import rxhttp.wrapper.parse.SuspendStreamParser
+import rxhttp.wrapper.parse.StreamParser
 import rxhttp.wrapper.utils.javaTypeOf
 
 /**
@@ -37,21 +38,6 @@ fun CallFactory.toBitmap() = toParser(BitmapParser())
 fun CallFactory.toOkResponse() = toParser(OkResponseParser())
 
 fun CallFactory.toHeaders() = toOkResponse().map { OkHttpCompat.getHeadersAndCloseBody(it) }
-
-fun <T> CallFactory.toSyncDownload(
-    osFactory: OutputStreamFactory<T>,
-    progressCallback: (suspend (ProgressT<T>) -> Unit)? = null
-): Await<T> {
-    val parser = SuspendStreamParser(osFactory)
-    if (progressCallback != null) {
-        parser.progress = { progress, currentSize, totalSize ->
-            //LogUtil.logDownProgress(progress, currentSize, totalSize)
-            val p = ProgressT<T>(progress, currentSize, totalSize)
-            progressCallback(p)
-        }
-    }
-    return toParser(parser)
-}
 
 /**
  * @param destPath Local storage path
@@ -89,3 +75,19 @@ private fun <T> Flow<T>.toAwait(): Await<T> =
             return t!!
         }
     }
+
+internal fun <T> CallFactory.toSyncDownload(
+    osFactory: OutputStreamFactory<T>,
+    progressCallback: ((ProgressT<T>) -> Unit)? = null
+): Await<T> {
+    val parser = StreamParser(osFactory)
+    if (progressCallback != null) {
+        parser.progressCallback = ProgressCallback { progress, currentSize, totalSize ->
+            //LogUtil.logDownProgress(progress, currentSize, totalSize)
+            val p = ProgressT<T>(progress, currentSize, totalSize)
+            progressCallback(p)
+        }
+    }
+    return toParser(parser)
+}
+
