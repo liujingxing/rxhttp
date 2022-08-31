@@ -881,6 +881,8 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
             generatorClass(filer, "RxHttpAbstractBodyParam", """
                 package $rxHttpPackage;
                 
+                import org.jetbrains.annotations.NotNull;
+                
                 import ${getClassPath("Observable")};
                 import ${getClassPath("Scheduler")};
                 import ${getClassPath("Consumer")};
@@ -931,14 +933,13 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
 
                     @Override
                     public final <T> Observable<T> asParser(Parser<T> parser) {
-                        return asParser(parser, observeOnScheduler, progressConsumer);
+                        return progressConsumer == null ? super.asParser(parser)
+                            : asParser(parser, observeOnScheduler, progressConsumer);
                     }
 
-                    public final <T> Observable<T> asParser(Parser<T> parser, Scheduler scheduler,
-                                                            Consumer<Progress> progressConsumer) {
-                        if (progressConsumer == null) {
-                            return super.asParser(parser);
-                        }
+                    //Monitor upload progress
+                    public final <T> Observable<T> asParser(@NotNull Parser<T> parser, Scheduler scheduler,
+                                                            @NotNull Consumer<Progress> progressConsumer) {
                         ObservableCall observableCall = isAsync ? new ObservableCallEnqueue(this, true)
                             : new ObservableCallExecute(this, true);
                         return observableCall.asParser(parser, scheduler, progressConsumer);

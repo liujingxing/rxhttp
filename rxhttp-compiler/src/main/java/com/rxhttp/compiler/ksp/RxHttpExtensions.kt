@@ -7,6 +7,7 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.rxhttp.compiler.common.getParamsName
 import com.rxhttp.compiler.common.getTypeOfString
 import com.rxhttp.compiler.common.getTypeVariableString
+import com.rxhttp.compiler.getKClassName
 import com.rxhttp.compiler.isDependenceRxJava
 import com.rxhttp.compiler.rxHttpPackage
 import com.rxhttp.compiler.rxhttpKClassName
@@ -39,6 +40,10 @@ class RxHttpExtensions(private val logger: KSPLogger) {
 
     private val baseRxHttpName = ClassName(rxHttpPackage, "BaseRxHttp")
     private val callFactoryName = ClassName("rxhttp.wrapper", "CallFactory")
+    private val wildcard = TypeVariableName("*")
+    private val rxHttpBodyParamName = ClassName(rxHttpPackage, "RxHttpAbstractBodyParam")
+        .parameterizedBy(wildcard, wildcard)
+    private val progressName = ClassName("rxhttp.wrapper.entity", "Progress")
     private val toFunList = ArrayList<FunSpec>()
     private val asFunList = ArrayList<FunSpec>()
 
@@ -86,12 +91,34 @@ class RxHttpExtensions(private val logger: KSPLogger) {
 
             val parser = "%T$types($finalParams)"
 
-            if (typeVariableNames.isNotEmpty()) {  //对声明了泛型的解析器，生成kotlin编写的asXxx方法
+            if (typeVariableNames.isNotEmpty() && isDependenceRxJava()) {  //对声明了泛型的解析器，生成kotlin编写的asXxx方法
                 FunSpec.builder("as$key")
                     .addModifiers(modifiers)
                     .receiver(baseRxHttpName)
                     .addParameters(parameterList)
                     .addStatement("return asParser($parser)", ksClass.toClassName()) //方法里面的表达式
+                    .addTypeVariables(typeVariableNames)
+                    .build()
+                    .apply { asFunList.add(this) }
+
+                val schedulerParam = ParameterSpec
+                    .builder("scheduler", getKClassName("Scheduler").copy(nullable = true))
+                    .defaultValue("null")
+                    .build()
+
+                FunSpec.builder("as$key")
+                    .addModifiers(modifiers)
+                    .receiver(rxHttpBodyParamName)
+                    .addParameters(parameterList)
+                    .addParameter(schedulerParam)
+                    .addParameter(
+                        "progressConsumer",
+                        getKClassName("Consumer").parameterizedBy(progressName)
+                    )
+                    .addStatement(
+                        "return asParser($parser,scheduler, progressConsumer)",
+                        ksClass.toClassName()
+                    ) //方法里面的表达式
                     .addTypeVariables(typeVariableNames)
                     .build()
                     .apply { asFunList.add(this) }
@@ -115,14 +142,11 @@ class RxHttpExtensions(private val logger: KSPLogger) {
         val k = TypeVariableName("K")
         val v = TypeVariableName("V")
 
+        val reifiedT = t.copy(reified = true)
         val launchName = ClassName("kotlinx.coroutines", "launch")
-        val progressName = ClassName("rxhttp.wrapper.entity", "Progress")
         val simpleParserName = ClassName("rxhttp.wrapper.parse", "SimpleParser")
         val coroutineScopeName = ClassName("kotlinx.coroutines", "CoroutineScope")
-
-        val wildcard = TypeVariableName("*")
-        val rxHttpBodyParamName = ClassName(rxHttpPackage, "RxHttpAbstractBodyParam")
-            .parameterizedBy(wildcard, wildcard)
+        val typeVariable = TypeVariableName("R", rxHttpBodyParamName)
 
         val progressSuspendLambdaName = LambdaTypeName.get(
             parameters = arrayOf(progressName),
@@ -137,7 +161,7 @@ class RxHttpExtensions(private val logger: KSPLogger) {
         FunSpec.builder("executeList")
             .addModifiers(KModifier.INLINE)
             .receiver(rxHttpName)
-            .addTypeVariable(t.copy(reified = true))
+            .addTypeVariable(reifiedT)
             .addStatement("return executeClass<List<T>>()")
             .build()
             .apply { fileBuilder.addFunction(this) }
@@ -145,7 +169,7 @@ class RxHttpExtensions(private val logger: KSPLogger) {
         FunSpec.builder("executeClass")
             .addModifiers(KModifier.INLINE)
             .receiver(rxHttpName)
-            .addTypeVariable(t.copy(reified = true))
+            .addTypeVariable(reifiedT)
             .addStatement("return execute(%T<T>(javaTypeOf<T>()))", simpleParserName)
             .build()
             .apply { fileBuilder.addFunction(this) }
@@ -154,7 +178,7 @@ class RxHttpExtensions(private val logger: KSPLogger) {
             FunSpec.builder("asList")
                 .addModifiers(KModifier.INLINE)
                 .receiver(baseRxHttpName)
-                .addTypeVariable(t.copy(reified = true))
+                .addTypeVariable(reifiedT)
                 .addStatement("return asClass<List<T>>()")
                 .build()
                 .apply { fileBuilder.addFunction(this) }
@@ -164,15 +188,33 @@ class RxHttpExtensions(private val logger: KSPLogger) {
                 .receiver(baseRxHttpName)
                 .addTypeVariable(k.copy(reified = true))
                 .addTypeVariable(v.copy(reified = true))
-                .addStatement("return asClass<Map<K,V>>()")
+                .addStatement("return asClass<Map<K, V>>()")
                 .build()
                 .apply { fileBuilder.addFunction(this) }
 
             FunSpec.builder("asClass")
                 .addModifiers(KModifier.INLINE)
                 .receiver(baseRxHttpName)
-                .addTypeVariable(t.copy(reified = true))
+                .addTypeVariable(reifiedT)
                 .addStatement("return asParser(%T<T>(javaTypeOf<T>()))", simpleParserName)
+                .build()
+                .apply { fileBuilder.addFunction(this) }
+
+            val schedulerParam = ParameterSpec
+                .builder("scheduler", getKClassName("Scheduler").copy(nullable = true))
+                .defaultValue("null")
+                .build()
+
+            FunSpec.builder("asClass")
+                .addModifiers(KModifier.INLINE)
+                .receiver(rxHttpBodyParamName)
+                .addTypeVariable(reifiedT)
+                .addParameter(schedulerParam)
+                .addParameter(
+                    "progressConsumer",
+                    getKClassName("Consumer").parameterizedBy(progressName)
+                )
+                .addCode("return asParser(SimpleParser<T>(javaTypeOf<T>()), scheduler, progressConsumer)")
                 .build()
                 .apply { fileBuilder.addFunction(this) }
 
@@ -187,8 +229,6 @@ class RxHttpExtensions(private val logger: KSPLogger) {
             """.trimIndent()
             )
             .build()
-
-        val typeVariable = TypeVariableName("R", rxHttpBodyParamName)
 
         FunSpec.builder("upload")
             .addKdoc(
@@ -232,7 +272,6 @@ class RxHttpExtensions(private val logger: KSPLogger) {
 
         val toFlow = MemberName("rxhttp", "toFlow")
         val toFlowProgress = MemberName("rxhttp", "toFlowProgress")
-        val onEachProgress = MemberName("rxhttp", "onEachProgress")
         val bodyParamFactory = ClassName("rxhttp.wrapper", "BodyParamFactory")
 
         toFunList.forEach {
@@ -273,10 +312,8 @@ class RxHttpExtensions(private val logger: KSPLogger) {
                 .addParameter(capacityParam)
                 .addParameter(builder.build())
                 .addCode(
-                    """
-                    return 
-                        %M(to$parseName${getTypeVariableString(typeVariables)}($arguments), capacity, progress)
-                    """.trimIndent(), toFlow
+                    "return %M(to$parseName${getTypeVariableString(typeVariables)}($arguments), capacity, progress)",
+                    toFlow
                 )
                 .build()
                 .apply { fileBuilder.addFunction(this) }

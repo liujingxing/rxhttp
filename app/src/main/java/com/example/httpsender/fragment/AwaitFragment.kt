@@ -13,7 +13,6 @@ import com.example.httpsender.kt.show
 import com.example.httpsender.parser.Android10DownloadFactory
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import rxhttp.*
 import rxhttp.wrapper.param.RxHttp
