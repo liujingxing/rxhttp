@@ -41,9 +41,10 @@ inline fun <reified T> CallFactory.toFlow(): Flow<T> = toFlow(toClass())
 fun <T> toFlow(await: Await<T>): Flow<T> = await.asFlow()
 
 inline fun <reified T> BodyParamFactory.toFlow(
+    await: Await<T> = toClass(),
     capacity: Int = 1,
     noinline progress: suspend (Progress) -> Unit
-): Flow<T> = toFlowProgress<T>(toClass(), capacity).onEachProgress(progress)
+): Flow<T> = toFlowProgress(await, capacity).onEachProgress(progress)
 
 fun <T> BodyParamFactory.toFlowProgress(
     await: Await<T>,

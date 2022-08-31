@@ -275,9 +275,8 @@ class RxHttpExtensions(private val logger: KSPLogger) {
                 .addCode(
                     """
                     return 
-                        %M(to$parseName${getTypeVariableString(typeVariables)}($arguments), capacity)
-                            .%M(progress)
-                    """.trimIndent(), toFlowProgress, onEachProgress
+                        %M(to$parseName${getTypeVariableString(typeVariables)}($arguments), capacity, progress)
+                    """.trimIndent(), toFlow
                 )
                 .build()
                 .apply { fileBuilder.addFunction(this) }
