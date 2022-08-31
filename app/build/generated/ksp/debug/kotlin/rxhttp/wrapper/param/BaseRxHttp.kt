@@ -48,13 +48,14 @@ abstract class BaseRxHttp : CallFactory, RangeHeader {
         }
     }
 
-    abstract fun <T> asParser(
-        parser: Parser<T>,
-        scheduler: Scheduler?,
-        progressConsumer: Consumer<Progress>?
-    ): Observable<T>
+    protected var isAsync: Boolean = true
 
-    open fun <T> asParser(parser: Parser<T>) = asParser(parser, null, null)
+    private fun observableCall() = if (isAsync)
+        ObservableCallEnqueue(this)
+    else
+        ObservableCallExecute(this)
+
+    open fun <T> asParser(parser: Parser<T>): Observable<T> = observableCall().asParser(parser)
 
     fun <T> asClass(type: Class<T>) = asParser(SimpleParser<T>(type))
 
@@ -107,7 +108,7 @@ abstract class BaseRxHttp : CallFactory, RangeHeader {
         scheduler: Scheduler? = null,
         progressConsumer: Consumer<Progress>? = null
     ): Observable<T> =
-        asParser(StreamParser(osFactory), scheduler, progressConsumer)
+        observableCall().asParser(StreamParser(osFactory), scheduler, progressConsumer)
 
     @JvmOverloads
     fun asAppendDownload(
@@ -139,5 +140,5 @@ abstract class BaseRxHttp : CallFactory, RangeHeader {
                 StreamParser(osFactory)
             }
             .subscribeOn(Schedulers.io())
-            .flatMap { asParser(it, scheduler, progressConsumer) }
+            .flatMap { observableCall().asParser(it, scheduler, progressConsumer) }
 }    

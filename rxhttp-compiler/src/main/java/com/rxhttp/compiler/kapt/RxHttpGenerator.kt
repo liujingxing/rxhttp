@@ -783,26 +783,6 @@ class RxHttpGenerator {
                 .returns(typeVariableR)
                 .build()
                 .apply { methodList.add(this) }
-
-            val observableTName = ParameterizedTypeName.get(observableName, t)
-            val consumerProgressName = ParameterizedTypeName.get(consumerName, progressName)
-
-            MethodSpec.methodBuilder("asParser")
-                .addModifiers(Modifier.PUBLIC)
-                .addTypeVariable(t)
-                .addParameter(parserTName, "parser")
-                .addParameter(schedulerName, "scheduler")
-                .addParameter(consumerProgressName, "progressConsumer")
-                .addCode(
-                    """
-                    ObservableCall observableCall = isAsync ? new ObservableCallEnqueue(this)
-                        : new ObservableCallExecute(this);                                
-                    return observableCall.asParser(parser, scheduler, progressConsumer);
-                    """.trimIndent()
-                )
-                .returns(observableTName)
-                .build()
-                .apply { methodList.add(this) }
         }
         parserVisitor?.apply {
             methodList.addAll(getMethodList(filer))
@@ -923,11 +903,6 @@ class RxHttpGenerator {
             .build()
         val baseRxHttpName = ClassName.get(rxHttpPackage, "BaseRxHttp")
 
-        val isAsyncField = FieldSpec
-            .builder(TypeName.BOOLEAN, "isAsync", Modifier.PROTECTED)
-            .initializer("true")
-            .build()
-
         val rxHttpBuilder = TypeSpec.classBuilder(RXHttp)
             .addJavadoc(
                 """
@@ -946,7 +921,6 @@ class RxHttpGenerator {
             .addField(okHttpClientName, "realOkClient", Modifier.PRIVATE)
             .addField(okHttpClientSpec)
             .addField(converterSpec)
-            .addField(isAsyncField)
             .addField(typeVariableP, "param", Modifier.PROTECTED)
             .addField(requestName, "request", Modifier.PUBLIC)
             .superclass(baseRxHttpName)

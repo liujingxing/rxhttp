@@ -113,10 +113,14 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
                     }                                                                          
                 }                                                                              
 
-                public abstract <T> Observable<T> asParser(Parser<T> parser, Scheduler scheduler, Consumer<Progress> progressConsumer);
-                
+                protected boolean isAsync = true;
+
+                private ObservableCall observableCall() {
+                    return isAsync ? new ObservableCallEnqueue(this) : new ObservableCallExecute(this);
+                }        
+
                 public <T> Observable<T> asParser(Parser<T> parser) {
-                    return asParser(parser, null, null);
+                    return observableCall().asParser(parser);
                 }
 
                 public final <T> Observable<T> asClass(Class<T> type) {
@@ -189,7 +193,7 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
                                                                                            
                 public final <T> Observable<T> asDownload(OutputStreamFactory<T> osFactory, Scheduler scheduler,
                                                            Consumer<Progress> progressConsumer) {
-                    return asParser(new StreamParser<>(osFactory), scheduler, progressConsumer);
+                    return observableCall().asParser(new StreamParser<>(osFactory), scheduler, progressConsumer);
                 }
                 
                 public final Observable<String> asAppendDownload(String destPath) {                    
@@ -224,7 +228,7 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
                             return new StreamParser<>(osFactory);
                         })
                         .subscribeOn(Schedulers.io())
-                        .flatMap(parser -> asParser(parser, scheduler, progressConsumer));
+                        .flatMap(parser -> observableCall().asParser(parser, scheduler, progressConsumer));
                 }
                 
             }
@@ -930,18 +934,13 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
                         return asParser(parser, observeOnScheduler, progressConsumer);
                     }
 
-                    @Override
                     public final <T> Observable<T> asParser(Parser<T> parser, Scheduler scheduler,
                                                             Consumer<Progress> progressConsumer) {
                         if (progressConsumer == null) {
-                            return super.asParser(parser, scheduler, null);
+                            return super.asParser(parser);
                         }
-                        ObservableCall observableCall;
-                        if (isAsync) {
-                            observableCall = new ObservableCallEnqueue(this, true);
-                        } else {
-                            observableCall = new ObservableCallExecute(this, true);
-                        }
+                        ObservableCall observableCall = isAsync ? new ObservableCallEnqueue(this, true)
+                            : new ObservableCallExecute(this, true);
                         return observableCall.asParser(parser, scheduler, progressConsumer);
                     }
                 }

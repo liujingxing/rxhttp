@@ -11,8 +11,6 @@ import com.example.httpsender.entity.PageList
 import com.example.httpsender.entity.Url.baseUrl
 import com.example.httpsender.parser.ResponseParser
 import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.core.Scheduler
-import io.reactivex.rxjava3.functions.Consumer
 import java.io.IOException
 import java.lang.Class
 import java.util.concurrent.TimeUnit
@@ -42,7 +40,6 @@ import rxhttp.wrapper.cahce.CacheStrategy
 import rxhttp.wrapper.callback.IConverter
 import rxhttp.wrapper.entity.DownloadOffSize
 import rxhttp.wrapper.entity.ParameterizedTypeImpl
-import rxhttp.wrapper.entity.Progress
 import rxhttp.wrapper.intercept.CacheInterceptor
 import rxhttp.wrapper.intercept.LogInterceptor
 import rxhttp.wrapper.parse.Parser
@@ -69,8 +66,6 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
   private var converter: IConverter = RxHttpPlugins.getConverter()
 
   private var okClient: OkHttpClient = RxHttpPlugins.getOkHttpClient()
-
-  protected var isAsync: Boolean = true
 
   public var request: Request? = null
 
@@ -405,16 +400,6 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
   public fun setSync(): R {
     isAsync = false
     return this as R
-  }
-
-  public override fun <T> asParser(
-    parser: Parser<T>,
-    scheduler: Scheduler?,
-    progressConsumer: Consumer<Progress>?,
-  ): Observable<T> {
-    val observableCall = if(isAsync) ObservableCallEnqueue(this)
-        else ObservableCallExecute(this)                                
-    return observableCall.asParser(parser, scheduler, progressConsumer)
   }
 
   public fun <T> asResponse(type: Class<T>): Observable<T> = asParser(ResponseParser(type))

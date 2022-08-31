@@ -105,13 +105,14 @@ class KClassHelper(
                     }
                 }
 
-                abstract fun <T> asParser(
-                    parser: Parser<T>,
-                    scheduler: Scheduler?,
-                    progressConsumer: Consumer<Progress>?
-                ): Observable<T>
-            
-                open fun <T> asParser(parser: Parser<T>) = asParser(parser, null, null)
+                protected var isAsync: Boolean = true
+
+                private fun observableCall() = if (isAsync)
+                    ObservableCallEnqueue(this)
+                else
+                    ObservableCallExecute(this)
+
+                open fun <T> asParser(parser: Parser<T>): Observable<T> = observableCall().asParser(parser)
             
                 fun <T> asClass(type: Class<T>) = asParser(SimpleParser<T>(type))
             
@@ -164,7 +165,7 @@ class KClassHelper(
                     scheduler: Scheduler? = null,
                     progressConsumer: Consumer<Progress>? = null
                 ): Observable<T> =
-                    asParser(StreamParser(osFactory), scheduler, progressConsumer)
+                    observableCall().asParser(StreamParser(osFactory), scheduler, progressConsumer)
             
                 @JvmOverloads
                 fun asAppendDownload(
@@ -196,7 +197,7 @@ class KClassHelper(
                             StreamParser(osFactory)
                         }
                         .subscribeOn(Schedulers.io())
-                        .flatMap { asParser(it, scheduler, progressConsumer) }
+                        .flatMap { observableCall().asParser(it, scheduler, progressConsumer) }
             }    
 
         """.trimIndent()
@@ -284,13 +285,13 @@ class KClassHelper(
                     override fun <T> asParser(parser: Parser<T>): Observable<T> =
                         asParser(parser, observeOnScheduler, progressConsumer)
                 
-                    override fun <T> asParser(
+                    fun <T> asParser(
                         parser: Parser<T>,
                         scheduler: Scheduler?,
                         progressConsumer: Consumer<Progress>?
                     ): Observable<T> {
                         if (progressConsumer == null) {
-                            return super.asParser(parser, scheduler, null)
+                            return super.asParser(parser)
                         }
                         val observableCall: ObservableCall = if (isAsync) {
                             ObservableCallEnqueue(this, true)

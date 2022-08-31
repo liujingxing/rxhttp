@@ -130,12 +130,6 @@ class RxHttpGenerator(
             .build()
             .let { propertySpecs.add(it) }
 
-        PropertySpec.builder("isAsync", BOOLEAN, KModifier.PROTECTED)
-            .mutable(true)
-            .initializer("true")
-            .build()
-            .let { propertySpecs.add(it) }
-
         PropertySpec.builder("param", typeVariableP)
             .initializer("param")
             .build()
@@ -785,26 +779,6 @@ class RxHttpGenerator(
                 .addStatement("isAsync = false")
                 .addStatement("return this as R")
                 .returns(typeVariableR)
-                .build()
-                .let { methodList.add(it) }
-
-            val observableTName = observableName.parameterizedBy(t)
-            val consumerProgressName = consumerName.parameterizedBy(progressName)
-
-            FunSpec.builder("asParser")
-                .addModifiers(KModifier.OVERRIDE)
-                .addTypeVariable(t)
-                .addParameter("parser", parserTName)
-                .addParameter("scheduler", schedulerName.copy(true))
-                .addParameter("progressConsumer", consumerProgressName.copy(true))
-                .addCode(
-                    """
-                    val observableCall = if(isAsync) ObservableCallEnqueue(this)
-                        else ObservableCallExecute(this)                                
-                    return observableCall.asParser(parser, scheduler, progressConsumer)
-                    """.trimIndent()
-                )
-                .returns(observableTName)
                 .build()
                 .let { methodList.add(it) }
         }

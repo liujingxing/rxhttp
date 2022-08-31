@@ -46,13 +46,13 @@ protected constructor(
     override fun <T> asParser(parser: Parser<T>): Observable<T> =
         asParser(parser, observeOnScheduler, progressConsumer)
 
-    override fun <T> asParser(
+    fun <T> asParser(
         parser: Parser<T>,
         scheduler: Scheduler?,
         progressConsumer: Consumer<Progress>?
     ): Observable<T> {
         if (progressConsumer == null) {
-            return super.asParser(parser, scheduler, null)
+            return super.asParser(parser)
         }
         val observableCall: ObservableCall = if (isAsync) {
             ObservableCallEnqueue(this, true)
