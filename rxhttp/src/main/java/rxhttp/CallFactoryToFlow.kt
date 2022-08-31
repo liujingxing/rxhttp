@@ -21,6 +21,7 @@ import rxhttp.wrapper.coroutines.Await
 import rxhttp.wrapper.coroutines.setRangeHeader
 import rxhttp.wrapper.entity.Progress
 import rxhttp.wrapper.entity.ProgressT
+import rxhttp.wrapper.parse.Parser
 
 /**
  * CallFactory convert Flow
@@ -30,13 +31,21 @@ import rxhttp.wrapper.entity.ProgressT
  * Time: 17:31
  */
 
+inline fun <reified T> CallFactory.toFlow(): Flow<T> = toFlow(toClass())
+
+fun CallFactory.toFlowString(): Flow<String> = toFlow()
+
+inline fun <reified T> CallFactory.toFlowList(): Flow<List<T>> = toFlow()
+
+inline fun <reified V> CallFactory.toFlowMapString(): Flow<Map<String, V>> = toFlow()
+
 fun CallFactory.toFlowBitmap(): Flow<Bitmap> = toFlow(toBitmap())
 
 fun CallFactory.toFlowHeaders(): Flow<Headers> = toFlow(toHeaders())
 
 fun CallFactory.toFlowOkResponse(): Flow<Response> = toFlow(toOkResponse())
 
-inline fun <reified T> CallFactory.toFlow(): Flow<T> = toFlow(toClass())
+fun <T> CallFactory.toFlow(parser: Parser<T>): Flow<T> = toFlow(toParser(parser))
 
 fun <T> toFlow(await: Await<T>): Flow<T> = await.asFlow()
 
