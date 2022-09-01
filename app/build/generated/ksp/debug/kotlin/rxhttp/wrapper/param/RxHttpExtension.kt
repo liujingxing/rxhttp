@@ -35,7 +35,7 @@ public inline fun <reified T> RxHttpAbstractBodyParam<*, *>.asClass(scheduler: S
 public inline fun <reified T> BaseRxHttp.asResponse() = asParser(ResponseParser<T>(javaTypeOf<T>()))
 
 public inline fun <reified T> RxHttpAbstractBodyParam<*, *>.asResponse(scheduler: Scheduler? = null,
-    progressConsumer: Consumer<Progress>) = asParser(ResponseParser<T>(javaTypeOf<T>()),scheduler,
+    progressConsumer: Consumer<Progress>) = asParser(ResponseParser<T>(javaTypeOf<T>()), scheduler,
     progressConsumer)
 
 /**

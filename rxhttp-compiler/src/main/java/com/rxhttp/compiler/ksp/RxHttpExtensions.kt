@@ -116,7 +116,7 @@ class RxHttpExtensions(private val logger: KSPLogger) {
                         getKClassName("Consumer").parameterizedBy(progressName)
                     )
                     .addStatement(
-                        "return asParser($parser,scheduler, progressConsumer)",
+                        "return asParser($parser, scheduler, progressConsumer)",
                         ksClass.toClassName()
                     ) //方法里面的表达式
                     .addTypeVariables(typeVariableNames)
@@ -298,38 +298,40 @@ class RxHttpExtensions(private val logger: KSPLogger) {
                 .build()
                 .apply { fileBuilder.addFunction(this) }
 
-            val capacityParam = ParameterSpec.builder("capacity", INT)
-                .defaultValue("1")
-                .build()
-            val isInLine = KModifier.INLINE in it.modifiers
-            val builder = ParameterSpec.builder("progress", progressSuspendLambdaName)
-            if (isInLine) builder.addModifiers(KModifier.NOINLINE)
-            FunSpec.builder("toFlow$parseName")
-                .addModifiers(it.modifiers)
-                .receiver(bodyParamFactory)
-                .addTypeVariables(typeVariables)
-                .addParameters(it.parameters)
-                .addParameter(capacityParam)
-                .addParameter(builder.build())
-                .addCode(
-                    "return %M(to$parseName${getTypeVariableString(typeVariables)}($arguments), capacity, progress)",
-                    toFlow
-                )
-                .build()
-                .apply { fileBuilder.addFunction(this) }
+            if (typeVariables.isNotEmpty()) {
+                val capacityParam = ParameterSpec.builder("capacity", INT)
+                    .defaultValue("1")
+                    .build()
+                val isInLine = KModifier.INLINE in it.modifiers
+                val builder = ParameterSpec.builder("progress", progressSuspendLambdaName)
+                if (isInLine) builder.addModifiers(KModifier.NOINLINE)
+                FunSpec.builder("toFlow$parseName")
+                    .addModifiers(it.modifiers)
+                    .receiver(bodyParamFactory)
+                    .addTypeVariables(typeVariables)
+                    .addParameters(it.parameters)
+                    .addParameter(capacityParam)
+                    .addParameter(builder.build())
+                    .addCode(
+                        "return %M(to$parseName${getTypeVariableString(typeVariables)}($arguments), capacity, progress)",
+                        toFlow
+                    )
+                    .build()
+                    .apply { fileBuilder.addFunction(this) }
 
-            FunSpec.builder("toFlow${parseName}Progress")
-                .addModifiers(it.modifiers)
-                .receiver(bodyParamFactory)
-                .addTypeVariables(typeVariables)
-                .addParameters(it.parameters)
-                .addParameter(capacityParam)
-                .addCode(
-                    """return %M(to$parseName${getTypeVariableString(typeVariables)}($arguments), capacity)""",
-                    toFlowProgress
-                )
-                .build()
-                .apply { fileBuilder.addFunction(this) }
+                FunSpec.builder("toFlow${parseName}Progress")
+                    .addModifiers(it.modifiers)
+                    .receiver(bodyParamFactory)
+                    .addTypeVariables(typeVariables)
+                    .addParameters(it.parameters)
+                    .addParameter(capacityParam)
+                    .addCode(
+                        "return %M(to$parseName${getTypeVariableString(typeVariables)}($arguments), capacity)",
+                        toFlowProgress
+                    )
+                    .build()
+                    .apply { fileBuilder.addFunction(this) }
+            }
         }
         val fileSpec = fileBuilder.build()
         val dependencies = fileSpec.kspDependencies(false)
