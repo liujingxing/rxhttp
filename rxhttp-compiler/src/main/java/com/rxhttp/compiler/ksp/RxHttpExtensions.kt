@@ -106,22 +106,22 @@ class RxHttpExtensions(private val logger: KSPLogger) {
                     .defaultValue("null")
                     .build()
 
-                FunSpec.builder("as$key")
-                    .addModifiers(modifiers)
-                    .receiver(rxHttpBodyParamName)
-                    .addParameters(parameterList)
-                    .addParameter(schedulerParam)
-                    .addParameter(
-                        "progressConsumer",
-                        getKClassName("Consumer").parameterizedBy(progressName)
-                    )
-                    .addStatement(
-                        "return asParser($parser, scheduler, progressConsumer)",
-                        ksClass.toClassName()
-                    ) //方法里面的表达式
-                    .addTypeVariables(typeVariableNames)
-                    .build()
-                    .apply { asFunList.add(this) }
+//                FunSpec.builder("as$key")
+//                    .addModifiers(modifiers)
+//                    .receiver(rxHttpBodyParamName)
+//                    .addParameters(parameterList)
+//                    .addParameter(schedulerParam)
+//                    .addParameter(
+//                        "progressConsumer",
+//                        getKClassName("Consumer").parameterizedBy(progressName)
+//                    )
+//                    .addStatement(
+//                        "return asParser($parser).onUploadProgress(scheduler, progressConsumer)",
+//                        ksClass.toClassName()
+//                    ) //方法里面的表达式
+//                    .addTypeVariables(typeVariableNames)
+//                    .build()
+//                    .apply { asFunList.add(this) }
             }
 
             FunSpec.builder("to$key")
@@ -205,18 +205,18 @@ class RxHttpExtensions(private val logger: KSPLogger) {
                 .defaultValue("null")
                 .build()
 
-            FunSpec.builder("asClass")
-                .addModifiers(KModifier.INLINE)
-                .receiver(rxHttpBodyParamName)
-                .addTypeVariable(reifiedT)
-                .addParameter(schedulerParam)
-                .addParameter(
-                    "progressConsumer",
-                    getKClassName("Consumer").parameterizedBy(progressName)
-                )
-                .addCode("return asParser(SimpleParser<T>(javaTypeOf<T>()), scheduler, progressConsumer)")
-                .build()
-                .apply { fileBuilder.addFunction(this) }
+//            FunSpec.builder("asClass")
+//                .addModifiers(KModifier.INLINE)
+//                .receiver(rxHttpBodyParamName)
+//                .addTypeVariable(reifiedT)
+//                .addParameter(schedulerParam)
+//                .addParameter(
+//                    "progressConsumer",
+//                    getKClassName("Consumer").parameterizedBy(progressName)
+//                )
+//                .addCode("return asParser(SimpleParser<T>(javaTypeOf<T>())).onUploadProgress(scheduler, progressConsumer)")
+//                .build()
+//                .apply { fileBuilder.addFunction(this) }
 
             asFunList.forEach { fileBuilder.addFunction(it) }
         }

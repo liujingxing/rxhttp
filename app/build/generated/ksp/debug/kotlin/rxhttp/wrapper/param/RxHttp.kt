@@ -16,7 +16,6 @@ import java.lang.Class
 import java.util.concurrent.TimeUnit
 import kotlin.Any
 import kotlin.Boolean
-import kotlin.Deprecated
 import kotlin.Long
 import kotlin.String
 import kotlin.Suppress
@@ -387,19 +386,6 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
   private fun doOnStart(): Unit {
     setConverterToParam(converter)
     addDefaultDomainIfAbsent()
-  }
-
-  @Deprecated("please use `setSync()` instead, scheduled to be removed in RxHttp 3.0 release.",
-  ReplaceWith("setSync()"),
-  DeprecationLevel.ERROR)
-  public fun subscribeOnCurrent() = setSync()
-
-  /**
-   * RxJava sync request 
-   */
-  public fun setSync(): R {
-    isAsync = false
-    return this as R
   }
 
   public fun <T> asResponse(type: Class<T>): Observable<T> = asParser(ResponseParser(type))

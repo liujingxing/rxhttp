@@ -182,14 +182,14 @@ class RxJavaFragment : BaseFragment<RxjavaFragmentBinding>(), View.OnClickListen
     private fun RxjavaFragmentBinding.upload(v: View) {
         RxHttp.postForm(Url.UPLOAD_URL)
             .addFile("file", File("xxxx/1.png"))
-            .upload(AndroidSchedulers.mainThread()) {
+            .asString()
+            .onUploadProgress(AndroidSchedulers.mainThread()) {
                 //上传进度回调,0-100，仅在进度有更新时才会回调
                 val currentProgress = it.progress  //当前进度 0-100
                 val currentSize = it.currentSize //当前已上传的字节大小
                 val totalSize = it.totalSize     //要上传的总字节大小
                 tvResult.append(it.toString())
             }
-            .asString()
             .life(this@RxJavaFragment)    //页面销毁，自动关闭请求
             .subscribe({
                 tvResult.append("\n上传成功 : $it")
@@ -207,14 +207,14 @@ class RxJavaFragment : BaseFragment<RxjavaFragmentBinding>(), View.OnClickListen
         val uri = Uri.parse("content://media/external/downloads/13417")
         RxHttp.postForm(Url.UPLOAD_URL)
             .addPart(requireContext(), "file", uri)
-            .upload(AndroidSchedulers.mainThread()) {
+            .asString()
+            .onUploadProgress(AndroidSchedulers.mainThread()) {
                 //上传进度回调,0-100，仅在进度有更新时才会回调
                 val currentProgress = it.progress  //当前进度 0-100
                 val currentSize = it.currentSize //当前已上传的字节大小
                 val totalSize = it.totalSize     //要上传的总字节大小
                 tvResult.append(it.toString())
             }
-            .asString()
             .life(this@RxJavaFragment)   //页面销毁，自动关闭请求
             .subscribe({
                 tvResult.append("\n上传成功 : $it")

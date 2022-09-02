@@ -761,29 +761,6 @@ class RxHttpGenerator {
             .build()
             .apply { methodList.add(this) }
 
-        if (isDependenceRxJava()) {
-            val schedulerName = getClassName("Scheduler")
-            val observableName = getClassName("Observable")
-            val consumerName = getClassName("Consumer")
-
-            MethodSpec.methodBuilder("subscribeOnCurrent")
-                .addAnnotation(Deprecated::class.java)
-                .addJavadoc("@deprecated please user {@link #setSync()} instead, scheduled to be removed in RxHttp 3.0 release.\n")
-                .addModifiers(Modifier.PUBLIC)
-                .addStatement("return setSync()")
-                .returns(typeVariableR)
-                .build()
-                .apply { methodList.add(this) }
-
-            MethodSpec.methodBuilder("setSync")
-                .addJavadoc("RxJava sync request \n")
-                .addModifiers(Modifier.PUBLIC)
-                .addStatement("isAsync = false")
-                .addStatement("return (R) this")
-                .returns(typeVariableR)
-                .build()
-                .apply { methodList.add(this) }
-        }
         parserVisitor?.apply {
             methodList.addAll(getMethodList(filer))
         }

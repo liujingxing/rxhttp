@@ -1,8 +1,6 @@
 package rxhttp.wrapper.`param`
 
 import com.example.httpsender.parser.ResponseParser
-import io.reactivex.rxjava3.core.Scheduler
-import io.reactivex.rxjava3.functions.Consumer
 import kotlin.Deprecated
 import kotlin.Int
 import kotlin.Unit
@@ -28,15 +26,7 @@ public inline fun <reified K, reified V> BaseRxHttp.asMap() = asClass<Map<K, V>>
 
 public inline fun <reified T> BaseRxHttp.asClass() = asParser(SimpleParser<T>(javaTypeOf<T>()))
 
-public inline fun <reified T> RxHttpAbstractBodyParam<*, *>.asClass(scheduler: Scheduler? = null,
-    progressConsumer: Consumer<Progress>) = asParser(SimpleParser<T>(javaTypeOf<T>()), scheduler,
-    progressConsumer)
-
 public inline fun <reified T> BaseRxHttp.asResponse() = asParser(ResponseParser<T>(javaTypeOf<T>()))
-
-public inline fun <reified T> RxHttpAbstractBodyParam<*, *>.asResponse(scheduler: Scheduler? = null,
-    progressConsumer: Consumer<Progress>) = asParser(ResponseParser<T>(javaTypeOf<T>()), scheduler,
-    progressConsumer)
 
 /**
  * 调用此方法监听上传进度                                                    

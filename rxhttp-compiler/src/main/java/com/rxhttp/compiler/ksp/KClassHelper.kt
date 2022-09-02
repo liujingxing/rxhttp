@@ -105,14 +105,13 @@ class KClassHelper(
                     }
                 }
 
-                protected var isAsync: Boolean = true
+                protected fun <T> asObservable(
+                    parser: Parser<T>,
+                    scheduler: Scheduler? = null,
+                    progressConsumer: Consumer<Progress>? = null
+                ) = ObservableParser(this, parser, scheduler, progressConsumer)
 
-                private fun observableCall() = if (isAsync)
-                    ObservableCallEnqueue(this)
-                else
-                    ObservableCallExecute(this)
-
-                open fun <T> asParser(parser: Parser<T>): Observable<T> = observableCall().asParser(parser)
+                fun <T> asParser(parser: Parser<T>) = asObservable(parser)
             
                 fun <T> asClass(type: Class<T>) = asParser(SimpleParser<T>(type))
             
@@ -120,15 +119,12 @@ class KClassHelper(
             
                 fun <K> asMap(kType: Class<K>) = asMap(kType, kType)
             
-                fun <K, V> asMap(kType: Class<K>, vType: Class<V>): Observable<Map<K, V>> {
-                    val tTypeMap: Type = ParameterizedTypeImpl.getParameterized(MutableMap::class.java, kType, vType)
-                    return asParser(SimpleParser(tTypeMap))
-                }
+                fun <K, V> asMap(kType: Class<K>, vType: Class<V>) =
+                    asParser(SimpleParser<Map<K, V>>(ParameterizedTypeImpl.getParameterized(MutableMap::class.java, kType, vType)))
             
-                fun <T> asList(tType: Class<T>): Observable<List<T>> {
-                    val tTypeList: Type = ParameterizedTypeImpl[MutableList::class.java, tType]
-                    return asParser(SimpleParser(tTypeList))
-                }
+                fun <T> asList(tType: Class<T>) =
+                    asParser(SimpleParser<List<T>>(ParameterizedTypeImpl[MutableList::class.java, tType]))
+                    
                 ${isAndroid("""
                 fun asBitmap() = asParser(BitmapParser())
                 """)}
@@ -165,7 +161,7 @@ class KClassHelper(
                     scheduler: Scheduler? = null,
                     progressConsumer: Consumer<Progress>? = null
                 ): Observable<T> =
-                    observableCall().asParser(StreamParser(osFactory), scheduler, progressConsumer)
+                    asObservable(StreamParser(osFactory), scheduler, progressConsumer)
             
                 @JvmOverloads
                 fun asAppendDownload(
@@ -197,7 +193,7 @@ class KClassHelper(
                             StreamParser(osFactory)
                         }
                         .subscribeOn(Schedulers.io())
-                        .flatMap { observableCall().asParser(it, scheduler, progressConsumer) }
+                        .flatMap { asObservable(it, scheduler, progressConsumer) }
             }    
 
         """.trimIndent()
@@ -239,13 +235,8 @@ class KClassHelper(
                 codeGenerator, "RxHttpAbstractBodyParam", """
                 package $rxHttpPackage
                 
-                import ${getClassPath("Observable")}
-                import ${getClassPath("Scheduler")}
-                import ${getClassPath("Consumer")}
                 import rxhttp.wrapper.BodyParamFactory
-                import rxhttp.wrapper.entity.Progress
                 import rxhttp.wrapper.param.AbstractBodyParam
-                import rxhttp.wrapper.parse.Parser
                 
                 /**
                  * Github
@@ -254,53 +245,18 @@ class KClassHelper(
                  * https://github.com/liujingxing/rxhttp/wiki/FAQ
                  * https://github.com/liujingxing/rxhttp/wiki/更新日志
                  */
-                @Suppress("UNCHECKED_CAST", "UPPER_BOUND_VIOLATED_BASED_ON_JAVA_ANNOTATIONS")
+                @Suppress("UNCHECKED_CAST")
                 open class RxHttpAbstractBodyParam<P : AbstractBodyParam<P>, R : RxHttpAbstractBodyParam<P, R>> 
                 protected constructor(
                     param: P
                 ) : RxHttp<P, R>(param), BodyParamFactory {
-                    //Controls the downstream callback thread
-                    private var observeOnScheduler: Scheduler? = null
-                
-                    //Upload progress callback
-                    private var progressConsumer: Consumer<Progress>? = null
-                    
+
                     fun setUploadMaxLength(maxLength: Long): R {
                         param.setUploadMaxLength(maxLength)
                         return this as R
                     }
-                
-                    fun upload(progressConsumer: Consumer<Progress>) = upload(null, progressConsumer)
-                
-                    /**
-                     * @param progressConsumer   Upload progress callback
-                     * @param observeOnScheduler Controls the downstream callback thread
-                     */
-                    fun upload(observeOnScheduler: Scheduler?, progressConsumer: Consumer<Progress>): R {
-                        this.progressConsumer = progressConsumer
-                        this.observeOnScheduler = observeOnScheduler
-                        return this as R
-                    }
-                
-                    override fun <T> asParser(parser: Parser<T>): Observable<T> =
-                        progressConsumer?.let { asParser(parser, observeOnScheduler, it) } ?: super.asParser(parser)
-                
-                    //Monitor upload progress
-                    fun <T> asParser(
-                        parser: Parser<T>,
-                        scheduler: Scheduler? = null,
-                        progressConsumer: Consumer<Progress>
-                    ): Observable<T> {
-                        val observableCall: ObservableCall = if (isAsync) {
-                            ObservableCallEnqueue(this, true)
-                        } else {
-                            ObservableCallExecute(this, true)
-                        }
-                        return observableCall.asParser(parser, scheduler, progressConsumer)
-                    }
                 }
-
-        """.trimIndent()
+            """.trimIndent()
             )
         }
     }

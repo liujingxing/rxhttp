@@ -32,8 +32,8 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
 
     private fun generatorObservableClass(filer: Filer) {
         generatorObservableCall(filer)
-        generatorObservableCallEnqueue(filer)
-        generatorObservableCallExecute(filer)
+//        generatorObservableCallEnqueue(filer)
+//        generatorObservableCallExecute(filer)
         generatorObservableParser(filer)
     }
 
@@ -113,43 +113,45 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
                     }                                                                          
                 }                                                                              
 
-                protected boolean isAsync = true;
+                protected final <T> ObservableParser<T> asObservable(Parser<T> parser) {
+                    return asObservable(parser, null, null);
+                }    
 
-                private ObservableCall observableCall() {
-                    return isAsync ? new ObservableCallEnqueue(this) : new ObservableCallExecute(this);
+                protected <T> ObservableParser<T> asObservable(Parser<T> parser, Scheduler scheduler, Consumer<Progress> progressConsumer) {
+                    return new ObservableParser(this, parser, scheduler, progressConsumer);
                 }        
 
-                public <T> Observable<T> asParser(Parser<T> parser) {
-                    return observableCall().asParser(parser);
+                public final <T> ObservableParser<T> asParser(Parser<T> parser) {
+                    return asObservable(parser);
                 }
 
-                public final <T> Observable<T> asClass(Class<T> type) {
+                public final <T> ObservableParser<T> asClass(Class<T> type) {
                     return asParser(new SimpleParser<>(type));
                 }
 
-                public final Observable<String> asString() {
+                public final ObservableParser<String> asString() {
                     return asClass(String.class);
                 }
 
-                public final <K> Observable<Map<K, K>> asMap(Class<K> kType) {
+                public final <K> ObservableParser<Map<K, K>> asMap(Class<K> kType) {
                     return asMap(kType, kType);
                 }
 
-                public final <K, V> Observable<Map<K, V>> asMap(Class<K> kType, Class<V> vType) {
+                public final <K, V> ObservableParser<Map<K, V>> asMap(Class<K> kType, Class<V> vType) {
                     Type tTypeMap = ParameterizedTypeImpl.getParameterized(Map.class, kType, vType);
                     return asParser(new SimpleParser<>(tTypeMap));
                 }
 
-                public final <T> Observable<List<T>> asList(Class<T> tType) {
+                public final <T> ObservableParser<List<T>> asList(Class<T> tType) {
                     Type tTypeList = ParameterizedTypeImpl.get(List.class, tType);
                     return asParser(new SimpleParser<>(tTypeList));
                 }
                 ${isAndroid("""
-                public final Observable<Bitmap> asBitmap() {
+                public final ObservableParser<Bitmap> asBitmap() {
                     return asParser(new BitmapParser());
                 }
                 """)}
-                public final Observable<Response> asOkResponse() {
+                public final ObservableParser<Response> asOkResponse() {
                     return asParser(new OkResponseParser());
                 }
 
@@ -193,7 +195,7 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
                                                                                            
                 public final <T> Observable<T> asDownload(OutputStreamFactory<T> osFactory, Scheduler scheduler,
                                                            Consumer<Progress> progressConsumer) {
-                    return observableCall().asParser(new StreamParser<>(osFactory), scheduler, progressConsumer);
+                    return asObservable(new StreamParser<>(osFactory), scheduler, progressConsumer);
                 }
                 
                 public final Observable<String> asAppendDownload(String destPath) {                    
@@ -228,7 +230,7 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
                             return new StreamParser<>(osFactory);
                         })
                         .subscribeOn(Schedulers.io())
-                        .flatMap(parser -> observableCall().asParser(parser, scheduler, progressConsumer));
+                        .flatMap(parser -> asObservable(parser, scheduler, progressConsumer));
                 }
                 
             }
@@ -471,29 +473,161 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
         generatorClass(filer, "ObservableCall", """
             package $rxHttpPackage;
 
+            import androidx.annotation.NonNull;
+
+            import java.io.IOException;
+
             import ${getClassPath("Observable")};
+            import ${getClassPath("Observer")};
             import ${getClassPath("Scheduler")};
+            import ${getClassPath("Disposable")};
+            import ${getClassPath("Exceptions")};
             import ${getClassPath("Consumer")};
+            import ${getClassPath("RxJavaPlugins")};
+            import okhttp3.Call;
+            import okhttp3.Callback;
+            import okhttp3.Response;
+            import rxhttp.wrapper.BodyParamFactory;
+            import rxhttp.wrapper.CallFactory;
+            import rxhttp.wrapper.callback.ProgressCallback;
             import rxhttp.wrapper.entity.Progress;
+            import rxhttp.wrapper.entity.ProgressT;
             import rxhttp.wrapper.parse.Parser;
+            import rxhttp.wrapper.utils.LogUtil;
             
             /**
              * User: ljx
              * Date: 2020/9/5
              * Time: 21:59
              */
-            abstract class ObservableCall extends Observable<Progress> {
+            public class ObservableCall extends Observable<Progress> {
             
-                public <T> Observable<T> asParser(Parser<T> parser) {
-                    return asParser(parser, null, null);
+                private CallFactory callFactory;
+                private boolean syncRequest = false;
+                private boolean callbackUploadProgress = false;
+            
+                public ObservableCall(CallFactory callFactory) {
+                    this.callFactory = callFactory;
                 }
             
-                public <T> Observable<T> asParser(Parser<T> parser, Consumer<Progress> progressConsumer) {
-                    return asParser(parser, null, progressConsumer);
+                @Override
+                public void subscribeActual(Observer<? super Progress> observer) {
+                    CallExecuteDisposable d = syncRequest ? new CallExecuteDisposable(observer, callFactory, callbackUploadProgress) :
+                        new CallEnqueueDisposable(observer, callFactory, callbackUploadProgress);
+                    observer.onSubscribe(d);
+                    if (d.isDisposed()) {
+                        return;
+                    }
+                    d.run();
                 }
             
-                public <T> Observable<T> asParser(Parser<T> parser, Scheduler scheduler, Consumer<Progress> progressConsumer) {
-                    return new ObservableParser<>(this, parser, scheduler, progressConsumer);
+                public void syncRequest() {
+                    syncRequest = true;
+                }
+            
+                public void enableUploadProgressCallback() {
+                    callbackUploadProgress = true;
+                }
+            
+                private static class CallEnqueueDisposable extends CallExecuteDisposable implements Callback {
+            
+                    /**
+                     * Constructs a DeferredScalarDisposable by wrapping the Observer.
+                     *
+                     * @param downstream             the Observer to wrap, not null (not verified)
+                     * @param callFactory
+                     * @param callbackUploadProgress
+                     */
+                    CallEnqueueDisposable(Observer<? super Progress> downstream, CallFactory callFactory, boolean callbackUploadProgress) {
+                        super(downstream, callFactory, callbackUploadProgress);
+                    }
+            
+                    @Override
+                    public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                        if (!disposed) {
+                            downstream.onNext(new ProgressT<>(response));
+                        }
+                        if (!disposed) {
+                            downstream.onComplete();
+                        }
+                    }
+            
+                    @Override
+                    public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                        LogUtil.log(call.request().url().toString(), e);
+                        Exceptions.throwIfFatal(e);
+                        if (!disposed) {
+                            downstream.onError(e);
+                        } else {
+                            RxJavaPlugins.onError(e);
+                        }
+                    }
+            
+                    @Override
+                    public void run() {
+                        call.enqueue(this);
+                    }
+                }
+            
+            
+                private static class CallExecuteDisposable implements Disposable, ProgressCallback {
+            
+                    protected final Call call;
+                    protected final Observer<? super Progress> downstream;
+                    protected volatile boolean disposed;
+            
+                    /**
+                     * Constructs a DeferredScalarDisposable by wrapping the Observer.
+                     *
+                     * @param downstream the Observer to wrap, not null (not verified)
+                     */
+                    CallExecuteDisposable(Observer<? super Progress> downstream, CallFactory callFactory, boolean callbackUploadProgress) {
+                        if (callFactory instanceof BodyParamFactory && callbackUploadProgress) {
+                            ((BodyParamFactory) callFactory).getParam().setProgressCallback(this);
+                        }
+                        this.downstream = downstream;
+                        this.call = callFactory.newCall();
+                    }
+            
+                    @Override
+                    public void onProgress(int progress, long currentSize, long totalSize) {
+                        if (!disposed) {
+                            downstream.onNext(new Progress(progress, currentSize, totalSize));
+                        }
+                    }
+            
+                    public void run() {
+                        Response value;
+                        try {
+                            value = call.execute();
+                        } catch (Throwable e) {
+                            LogUtil.log(call.request().url().toString(), e);
+                            Exceptions.throwIfFatal(e);
+                            if (!disposed) {
+                                downstream.onError(e);
+                            } else {
+                                RxJavaPlugins.onError(e);
+                            }
+                            return;
+                        }
+                        if (!disposed) {
+                            downstream.onNext(new ProgressT<>(value));
+                        }
+                        if (!disposed) {
+                            downstream.onComplete();
+                        }
+                    }
+            
+                    @Override
+                    public void dispose() {
+                        disposed = true;
+                        call.cancel();
+                    }
+            
+                    @Override
+                    public boolean isDisposed() {
+                        return disposed;
+                    }
                 }
             }
 
@@ -519,6 +653,7 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
             import ${getClassPath("SpscArrayQueue")};
             import ${getClassPath("RxJavaPlugins")};
             import okhttp3.Response;
+            import rxhttp.wrapper.CallFactory;
             import rxhttp.wrapper.annotations.NonNull;
             import rxhttp.wrapper.annotations.Nullable;
             import rxhttp.wrapper.callback.ProgressCallback;
@@ -528,16 +663,16 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
             import rxhttp.wrapper.parse.StreamParser;
             import rxhttp.wrapper.utils.LogUtil;
 
-            final class ObservableParser<T> extends Observable<T> {
+            public final class ObservableParser<T> extends Observable<T> {
 
                 private final Parser<T> parser;
-                private final ObservableSource<Progress> source;
-                private final Scheduler scheduler;
-                private final Consumer<Progress> progressConsumer;
+                private final ObservableCall source;
+                private Scheduler scheduler;
+                private Consumer<Progress> progressConsumer;
 
-                ObservableParser(@NonNull ObservableSource<Progress> source, @NonNull Parser<T> parser,
+                ObservableParser(@NonNull CallFactory callFactory, @NonNull Parser<T> parser,
                                         @Nullable Scheduler scheduler, @Nullable Consumer<Progress> progressConsumer) {
-                    this.source = source;
+                    this.source = new ObservableCall(callFactory);
                     this.parser = parser;
                     this.scheduler = scheduler;
                     this.progressConsumer = progressConsumer;
@@ -551,6 +686,22 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
                         Worker worker = scheduler.createWorker();
                         source.subscribe(new AsyncParserObserver<>(observer, worker, progressConsumer, parser));
                     }
+                }
+                
+                public ObservableParser<T> syncRequest() {
+                    source.syncRequest();
+                    return this;
+                }
+                
+                public ObservableParser<T> onUploadProgress(Consumer<Progress> progressConsumer) {
+                    return onUploadProgress(null, progressConsumer);
+                }
+
+                public ObservableParser<T> onUploadProgress(@Nullable Scheduler scheduler, Consumer<Progress> progressConsumer) {
+                    this.scheduler = scheduler;
+                    this.progressConsumer = progressConsumer;
+                    source.enableUploadProgressCallback();
+                    return this;
                 }
 
                 private static final class SyncParserObserver<T> implements Observer<Progress>, Disposable, ProgressCallback {
@@ -876,20 +1027,15 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
                         return (R) this;
                     }
                 }
-            """.trimIndent())
+            """.trimIndent()
+            )
         } else {
-            generatorClass(filer, "RxHttpAbstractBodyParam", """
+            generatorClass(
+                filer, "RxHttpAbstractBodyParam", """
                 package $rxHttpPackage;
                 
-                import org.jetbrains.annotations.NotNull;
-                
-                import ${getClassPath("Observable")};
-                import ${getClassPath("Scheduler")};
-                import ${getClassPath("Consumer")};
                 import rxhttp.wrapper.BodyParamFactory;
-                import rxhttp.wrapper.entity.Progress;
                 import rxhttp.wrapper.param.AbstractBodyParam;
-                import rxhttp.wrapper.parse.Parser;
                 
                 /**
                  * Github
@@ -902,12 +1048,6 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
                 public class RxHttpAbstractBodyParam<P extends AbstractBodyParam<P>, R extends RxHttpAbstractBodyParam<P, R>> 
                     extends RxHttp<P, R> implements BodyParamFactory {
 
-                    //Controls the downstream callback thread
-                    private Scheduler observeOnScheduler;
-
-                    //Upload progress callback
-                    private Consumer<Progress> progressConsumer;
-
                     protected RxHttpAbstractBodyParam(P param) {
                         super(param);
                     }
@@ -916,37 +1056,9 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
                         param.setUploadMaxLength(maxLength);
                         return (R) this;
                     }
-
-                    public final R upload(Consumer<Progress> progressConsumer) {
-                        return upload(null, progressConsumer);
-                    }
-
-                    /**
-                     * @param progressConsumer   Upload progress callback
-                     * @param observeOnScheduler Controls the downstream callback thread
-                     */
-                    public final R upload(Scheduler observeOnScheduler, Consumer<Progress> progressConsumer) {
-                        this.progressConsumer = progressConsumer;
-                        this.observeOnScheduler = observeOnScheduler;
-                        return (R) this;
-                    }
-
-                    @Override
-                    public final <T> Observable<T> asParser(Parser<T> parser) {
-                        return progressConsumer == null ? super.asParser(parser)
-                            : asParser(parser, observeOnScheduler, progressConsumer);
-                    }
-
-                    //Monitor upload progress
-                    public final <T> Observable<T> asParser(@NotNull Parser<T> parser, Scheduler scheduler,
-                                                            @NotNull Consumer<Progress> progressConsumer) {
-                        ObservableCall observableCall = isAsync ? new ObservableCallEnqueue(this, true)
-                            : new ObservableCallExecute(this, true);
-                        return observableCall.asParser(parser, scheduler, progressConsumer);
-                    }
                 }
-
-        """.trimIndent())
+            """.trimIndent()
+            )
         }
     }
 

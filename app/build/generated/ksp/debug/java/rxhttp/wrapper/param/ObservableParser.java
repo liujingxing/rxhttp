@@ -15,6 +15,7 @@ import io.reactivex.rxjava3.internal.disposables.DisposableHelper;
 import io.reactivex.rxjava3.operators.SpscArrayQueue;
 import io.reactivex.rxjava3.plugins.RxJavaPlugins;
 import okhttp3.Response;
+import rxhttp.wrapper.CallFactory;
 import rxhttp.wrapper.annotations.NonNull;
 import rxhttp.wrapper.annotations.Nullable;
 import rxhttp.wrapper.callback.ProgressCallback;
@@ -24,16 +25,16 @@ import rxhttp.wrapper.parse.Parser;
 import rxhttp.wrapper.parse.StreamParser;
 import rxhttp.wrapper.utils.LogUtil;
 
-final class ObservableParser<T> extends Observable<T> {
+public final class ObservableParser<T> extends Observable<T> {
 
     private final Parser<T> parser;
-    private final ObservableSource<Progress> source;
-    private final Scheduler scheduler;
-    private final Consumer<Progress> progressConsumer;
+    private final ObservableCall source;
+    private Scheduler scheduler;
+    private Consumer<Progress> progressConsumer;
 
-    ObservableParser(@NonNull ObservableSource<Progress> source, @NonNull Parser<T> parser,
+    ObservableParser(@NonNull CallFactory callFactory, @NonNull Parser<T> parser,
                             @Nullable Scheduler scheduler, @Nullable Consumer<Progress> progressConsumer) {
-        this.source = source;
+        this.source = new ObservableCall(callFactory);
         this.parser = parser;
         this.scheduler = scheduler;
         this.progressConsumer = progressConsumer;
@@ -47,6 +48,22 @@ final class ObservableParser<T> extends Observable<T> {
             Worker worker = scheduler.createWorker();
             source.subscribe(new AsyncParserObserver<>(observer, worker, progressConsumer, parser));
         }
+    }
+    
+    public ObservableParser<T> syncRequest() {
+        source.syncRequest();
+        return this;
+    }
+    
+    public ObservableParser<T> onUploadProgress(Consumer<Progress> progressConsumer) {
+        return onUploadProgress(null, progressConsumer);
+    }
+
+    public ObservableParser<T> onUploadProgress(@Nullable Scheduler scheduler, Consumer<Progress> progressConsumer) {
+        this.scheduler = scheduler;
+        this.progressConsumer = progressConsumer;
+        source.enableUploadProgressCallback();
+        return this;
     }
 
     private static final class SyncParserObserver<T> implements Observer<Progress>, Disposable, ProgressCallback {

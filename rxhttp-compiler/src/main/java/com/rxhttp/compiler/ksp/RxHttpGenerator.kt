@@ -753,36 +753,6 @@ class RxHttpGenerator(
             .build()
             .let { methodList.add(it) }
 
-        if (isDependenceRxJava()) {
-            val schedulerName = getKClassName("Scheduler")
-            val observableName = getKClassName("Observable")
-            val consumerName = getKClassName("Consumer")
-
-            val deprecatedAnnotation = AnnotationSpec.builder(Deprecated::class)
-                .addMember(
-                    """
-                    "please use `setSync()` instead, scheduled to be removed in RxHttp 3.0 release.",
-                    ReplaceWith("setSync()"),
-                    DeprecationLevel.ERROR
-                """.trimIndent()
-                )
-                .build()
-
-            FunSpec.builder("subscribeOnCurrent")
-                .addAnnotation(deprecatedAnnotation)
-                .addStatement("return setSync()")
-                .build()
-                .let { methodList.add(it) }
-
-            FunSpec.builder("setSync")
-                .addKdoc("RxJava sync request \n")
-                .addStatement("isAsync = false")
-                .addStatement("return this as R")
-                .returns(typeVariableR)
-                .build()
-                .let { methodList.add(it) }
-        }
-
         parserVisitor?.apply {
             methodList.addAll(getFunList(codeGenerator))
         }
