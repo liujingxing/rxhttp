@@ -152,7 +152,6 @@ class RxHttpExtensions {
 
     fun generateClassFile(filer: Filer) {
         val t = TypeVariableName("T")
-        val k = TypeVariableName("K")
         val v = TypeVariableName("V")
 
         val reifiedT = t.copy(reified = true)
@@ -196,12 +195,11 @@ class RxHttpExtensions {
                 .build()
                 .apply { fileBuilder.addFunction(this) }
 
-            FunSpec.builder("asMap")
+            FunSpec.builder("asMapString")
                 .addModifiers(KModifier.INLINE)
                 .receiver(baseRxHttpName)
-                .addTypeVariable(k.copy(reified = true))
                 .addTypeVariable(v.copy(reified = true))
-                .addStatement("return asClass<Map<K, V>>()")
+                .addStatement("return asClass<Map<String, V>>()")
                 .build()
                 .apply { fileBuilder.addFunction(this) }
 

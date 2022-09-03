@@ -60,10 +60,8 @@ abstract class BaseRxHttp : CallFactory, RangeHeader {
 
     fun asString() = asClass(String::class.java)
 
-    fun <K> asMap(kType: Class<K>) = asMap(kType, kType)
-
-    fun <K, V> asMap(kType: Class<K>, vType: Class<V>) =
-        asParser(SimpleParser<Map<K, V>>(ParameterizedTypeImpl.getParameterized(MutableMap::class.java, kType, vType)))
+    fun <V> asMapString(vType: Class<V>) =
+        asParser(SimpleParser<Map<String, V>>(ParameterizedTypeImpl.getParameterized(MutableMap::class.java, String::class.java, vType)))
 
     fun <T> asList(tType: Class<T>) =
         asParser(SimpleParser<List<T>>(ParameterizedTypeImpl[MutableList::class.java, tType]))

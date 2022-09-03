@@ -31,7 +31,7 @@ fun CallFactory.toStr(): Await<String> = toClass()
 
 inline fun <reified T> CallFactory.toList(): Await<MutableList<T>> = toClass()
 
-inline fun <reified K, reified V> CallFactory.toMap(): Await<Map<K, V>> = toClass()
+inline fun <reified V> CallFactory.toMapString(): Await<Map<String, V>> = toClass()
 
 fun CallFactory.toBitmap() = toParser(BitmapParser())
 

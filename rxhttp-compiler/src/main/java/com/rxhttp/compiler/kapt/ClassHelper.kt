@@ -133,12 +133,8 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
                     return asClass(String.class);
                 }
 
-                public final <K> ObservableParser<Map<K, K>> asMap(Class<K> kType) {
-                    return asMap(kType, kType);
-                }
-
-                public final <K, V> ObservableParser<Map<K, V>> asMap(Class<K> kType, Class<V> vType) {
-                    Type tTypeMap = ParameterizedTypeImpl.getParameterized(Map.class, kType, vType);
+                public final <V> ObservableParser<Map<String, V>> asMapString(Class<V> vType) {
+                    Type tTypeMap = ParameterizedTypeImpl.getParameterized(Map.class, String.class, vType);
                     return asParser(new SimpleParser<>(tTypeMap));
                 }
 

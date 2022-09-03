@@ -22,7 +22,7 @@ public inline fun <reified T> RxHttp<*, *>.executeClass() =
 
 public inline fun <reified T> BaseRxHttp.asList() = asClass<List<T>>()
 
-public inline fun <reified K, reified V> BaseRxHttp.asMap() = asClass<Map<K, V>>()
+public inline fun <reified V> BaseRxHttp.asMapString() = asClass<Map<String, V>>()
 
 public inline fun <reified T> BaseRxHttp.asClass() = asParser(SimpleParser<T>(javaTypeOf<T>()))
 
