@@ -68,7 +68,7 @@ public class RxHttpManager {
                 } else if (method.isPost()) { //Post请求
                     p.add("method", "post");
                 }
-                return p.add("versionName", "1.0.0")//添加公共参数
+                p.add("versionName", "1.0.0")//添加公共参数
                     .add("time", System.currentTimeMillis())
                     .addHeader("deviceType", "android"); //添加公共请求头
             });

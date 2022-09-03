@@ -15,6 +15,7 @@ import rxhttp.wrapper.cahce.CacheManager;
 import rxhttp.wrapper.cahce.CacheMode;
 import rxhttp.wrapper.cahce.CacheStrategy;
 import rxhttp.wrapper.cahce.InternalCache;
+import rxhttp.wrapper.callback.Consumer;
 import rxhttp.wrapper.callback.Function;
 import rxhttp.wrapper.callback.IConverter;
 import rxhttp.wrapper.converter.GsonConverter;
@@ -36,7 +37,7 @@ public class RxHttpPlugins {
 
     private OkHttpClient okClient;
 
-    private Function<? super Param<?>, ? extends Param<?>> onParamAssembly;
+    private Consumer<? super Param<?>> onParamAssembly;
     private Function<String, String> decoder;
     private IConverter converter = GsonConverter.create();
 
@@ -84,7 +85,7 @@ public class RxHttpPlugins {
      * 设置统一公共参数回调接口,通过该接口,可添加公共参数/请求头，每次请求前会回调该接口
      * 若部分接口不需要添加公共参数,发请求前，调用 RxHttp#setAssemblyEnabled(boolean) 方法设置false即可
      */
-    public RxHttpPlugins setOnParamAssembly(@Nullable Function<? super Param<?>, ? extends Param<?>> onParamAssembly) {
+    public RxHttpPlugins setOnParamAssembly(@Nullable Consumer<? super Param<?>> onParamAssembly) {
         this.onParamAssembly = onParamAssembly;
         return plugins;
     }
@@ -119,13 +120,9 @@ public class RxHttpPlugins {
      */
     public static Param<?> onParamAssembly(Param<?> source) {
         if (source == null || !source.isAssemblyEnabled()) return source;
-        Function<? super Param<?>, ? extends Param<?>> f = plugins.onParamAssembly;
-        if (f != null) {
-            Param<?> p = apply(f, source);
-            if (p == null) {
-                throw new NullPointerException("onParamAssembly return must not be null");
-            }
-            return p;
+        Consumer<? super Param<?>> consumer = plugins.onParamAssembly;
+        if (consumer != null) {
+            consumer.accept(source);
         }
         return source;
     }
@@ -138,10 +135,7 @@ public class RxHttpPlugins {
      */
     public static String onResultDecoder(String source) {
         Function<String, String> f = plugins.decoder;
-        if (f != null) {
-            return apply(f, source);
-        }
-        return source;
+        return f != null ? apply(f, source) : source;
     }
 
     public RxHttpPlugins setCache(File directory, long maxSize) {
