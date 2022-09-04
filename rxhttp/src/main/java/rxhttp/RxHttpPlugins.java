@@ -78,7 +78,7 @@ public class RxHttpPlugins {
 
     public RxHttpPlugins setDebug(boolean debug, boolean segmentPrint, int indentSpaces) {
         LogUtil.setDebug(debug, segmentPrint, indentSpaces);
-        return plugins;
+        return this;
     }
 
     /**
@@ -87,7 +87,7 @@ public class RxHttpPlugins {
      */
     public RxHttpPlugins setOnParamAssembly(@Nullable Consumer<? super Param<?>> onParamAssembly) {
         this.onParamAssembly = onParamAssembly;
-        return plugins;
+        return this;
     }
 
     /**
@@ -97,14 +97,14 @@ public class RxHttpPlugins {
      */
     public RxHttpPlugins setResultDecoder(@Nullable Function<String, String> decoder) {
         this.decoder = decoder;
-        return plugins;
+        return this;
     }
 
     public RxHttpPlugins setConverter(@NonNull IConverter converter) {
         if (converter == null)
             throw new IllegalArgumentException("converter can not be null");
         this.converter = converter;
-        return plugins;
+        return this;
     }
 
     public static IConverter getConverter() {
@@ -160,7 +160,7 @@ public class RxHttpPlugins {
         CacheManager rxHttpCache = new CacheManager(directory, maxSize);
         cache = rxHttpCache.internalCache;
         cacheStrategy = new CacheStrategy(cacheMode, cacheValidTime);
-        return plugins;
+        return this;
     }
 
     public static CacheStrategy getCacheStrategy() {
@@ -184,7 +184,7 @@ public class RxHttpPlugins {
 
     public RxHttpPlugins setExcludeCacheKeys(String... keys) {
         excludeCacheKeys = Arrays.asList(keys);
-        return plugins;
+        return this;
     }
 
     public static List<String> getExcludeCacheKeys() {
