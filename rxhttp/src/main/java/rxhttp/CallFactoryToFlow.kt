@@ -3,11 +3,13 @@ package rxhttp
 import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.onEach
 import okhttp3.Headers
@@ -97,7 +99,7 @@ fun <T> CallFactory.toFlow(
         flow {
             setRangeHeader(osFactory, append)
             emit(toSyncDownload(osFactory).await())
-        }
+        }.flowOn(Dispatchers.IO)
     } else {
         toFlowProgress(osFactory, append, capacity)
             .onEachProgress(progress)
@@ -127,6 +129,7 @@ fun <T> CallFactory.toFlowProgress(
         trySend(ProgressT(await.await()))
     }
         .buffer(capacity, BufferOverflow.DROP_OLDEST)
+        .flowOn(Dispatchers.IO)
 
 fun <T> Flow<ProgressT<T>>.onEachProgress(progress: suspend (Progress) -> Unit): Flow<T> =
     onEach { if (it.result == null) progress(it) }
