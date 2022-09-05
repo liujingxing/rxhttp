@@ -406,14 +406,14 @@ suspend fun <T> Await<T>.async(
     await()
 }
 
-suspend fun <T> Await<T>.awaitResult(): Result<T> = runCatching { await() }
+suspend inline fun <T> Await<T>.awaitResult(): Result<T> = runCatching { await() }
 
-suspend inline fun <T> Await<T>.awaitResult(onSuccess: (value: T) -> Unit): Result<T> =
+suspend inline fun <T> Await<T>.awaitResult(onSuccess: (T) -> Unit): Result<T> =
     awaitResult().onSuccess(onSuccess)
 
-suspend fun <T> Deferred<T>.awaitResult(): Result<T> = runCatching { await() }
+suspend inline fun <T> Deferred<T>.awaitResult(): Result<T> = runCatching { await() }
 
-suspend inline fun <T> Deferred<T>.awaitResult(onSuccess: (value: T) -> Unit): Result<T> =
+suspend inline fun <T> Deferred<T>.awaitResult(onSuccess: (T) -> Unit): Result<T> =
     awaitResult().onSuccess(onSuccess)
 
 //return null when an error occurs.
