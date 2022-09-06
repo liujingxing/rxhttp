@@ -77,7 +77,7 @@ class KClassHelper(
             import rxhttp.wrapper.entity.ParameterizedTypeImpl
             import rxhttp.wrapper.entity.Progress
             import rxhttp.wrapper.parse.Parser
-            import rxhttp.wrapper.parse.SimpleParser
+            import rxhttp.wrapper.parse.SmartParser
             import rxhttp.wrapper.parse.StreamParser
             import rxhttp.wrapper.utils.LogUtil
             import java.lang.reflect.Type
@@ -114,15 +114,15 @@ class KClassHelper(
 
                 fun <T> asParser(parser: Parser<T>) = asObservable(parser)
             
-                fun <T> asClass(type: Class<T>) = asParser(SimpleParser<T>(type))
+                fun <T> asClass(type: Class<T>) = asParser(SmartParser<T>(type))
             
                 fun asString() = asClass(String::class.java)
             
                 fun <V> asMapString(vType: Class<V>) =
-                    asParser(SimpleParser<Map<String, V>>(ParameterizedTypeImpl.getParameterized(MutableMap::class.java, String::class.java, vType)))
+                    asParser(SmartParser<Map<String, V>>(ParameterizedTypeImpl.getParameterized(MutableMap::class.java, String::class.java, vType)))
             
                 fun <T> asList(tType: Class<T>) =
-                    asParser(SimpleParser<List<T>>(ParameterizedTypeImpl[MutableList::class.java, tType]))
+                    asParser(SmartParser<List<T>>(ParameterizedTypeImpl[MutableList::class.java, tType]))
                     
                 ${isAndroid("""
                 fun asBitmap() = asClass(Bitmap::class.java)

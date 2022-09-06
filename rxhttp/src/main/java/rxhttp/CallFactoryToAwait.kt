@@ -14,7 +14,7 @@ import rxhttp.wrapper.coroutines.AwaitImpl
 import rxhttp.wrapper.entity.Progress
 import rxhttp.wrapper.entity.ProgressT
 import rxhttp.wrapper.parse.Parser
-import rxhttp.wrapper.parse.SimpleParser
+import rxhttp.wrapper.parse.SmartParser
 import rxhttp.wrapper.parse.StreamParser
 import rxhttp.wrapper.utils.javaTypeOf
 
@@ -25,7 +25,7 @@ import rxhttp.wrapper.utils.javaTypeOf
  */
 fun <T> CallFactory.toParser(parser: Parser<T>): Await<T> = AwaitImpl(this, parser)
 
-inline fun <reified T> CallFactory.toClass(): Await<T> = toParser(SimpleParser(javaTypeOf<T>()))
+inline fun <reified T> CallFactory.toClass(): Await<T> = toParser(SmartParser(javaTypeOf<T>()))
 
 fun CallFactory.toStr(): Await<String> = toClass()
 

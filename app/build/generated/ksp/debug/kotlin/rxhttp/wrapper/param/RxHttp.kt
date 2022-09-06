@@ -42,7 +42,7 @@ import rxhttp.wrapper.entity.ParameterizedTypeImpl
 import rxhttp.wrapper.intercept.CacheInterceptor
 import rxhttp.wrapper.intercept.LogInterceptor
 import rxhttp.wrapper.parse.Parser
-import rxhttp.wrapper.parse.SimpleParser
+import rxhttp.wrapper.parse.SmartParser
 import rxhttp.wrapper.utils.LogUtil
 
 /**
@@ -361,11 +361,11 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
   @Throws(IOException::class)
   public fun <T> executeList(type: Class<T>): List<T> {
     val tTypeList = ParameterizedTypeImpl.get(List::class.java, type)
-    return execute(SimpleParser(tTypeList))
+    return execute(SmartParser(tTypeList))
   }
 
   @Throws(IOException::class)
-  public fun <T> executeClass(type: Class<T>): T = execute(SimpleParser(type))
+  public fun <T> executeClass(type: Class<T>): T = execute(SmartParser(type))
 
   public override fun newCall(): Call {
     val request = buildRequest()

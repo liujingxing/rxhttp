@@ -12,19 +12,18 @@ import rxhttp.toParser
 import rxhttp.wrapper.BodyParamFactory
 import rxhttp.wrapper.CallFactory
 import rxhttp.wrapper.entity.Progress
-import rxhttp.wrapper.parse.SimpleParser
+import rxhttp.wrapper.parse.SmartParser
 import rxhttp.wrapper.utils.javaTypeOf
 
 public inline fun <reified T> RxHttp<*, *>.executeList() = executeClass<List<T>>()
 
-public inline fun <reified T> RxHttp<*, *>.executeClass() =
-    execute(SimpleParser<T>(javaTypeOf<T>()))
+public inline fun <reified T> RxHttp<*, *>.executeClass() = execute(SmartParser<T>(javaTypeOf<T>()))
 
 public inline fun <reified T> BaseRxHttp.asList() = asClass<List<T>>()
 
 public inline fun <reified V> BaseRxHttp.asMapString() = asClass<Map<String, V>>()
 
-public inline fun <reified T> BaseRxHttp.asClass() = asParser(SimpleParser<T>(javaTypeOf<T>()))
+public inline fun <reified T> BaseRxHttp.asClass() = asParser(SmartParser<T>(javaTypeOf<T>()))
 
 public inline fun <reified T> BaseRxHttp.asResponse() = asParser(ResponseParser<T>(javaTypeOf<T>()))
 

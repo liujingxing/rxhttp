@@ -156,7 +156,7 @@ class RxHttpExtensions {
 
         val reifiedT = t.copy(reified = true)
         val launchName = ClassName("kotlinx.coroutines", "launch")
-        val simpleParserName = ClassName("rxhttp.wrapper.parse", "SimpleParser")
+        val smartParserName = ClassName("rxhttp.wrapper.parse", "SmartParser")
         val coroutineScopeName = ClassName("kotlinx.coroutines", "CoroutineScope")
         val typeVariable = TypeVariableName("R", rxHttpBodyParamName)
 
@@ -182,7 +182,7 @@ class RxHttpExtensions {
             .addModifiers(KModifier.INLINE)
             .receiver(rxHttpName)
             .addTypeVariable(reifiedT)
-            .addStatement("return execute(%T<T>(javaTypeOf<T>()))", simpleParserName)
+            .addStatement("return execute(%T<T>(javaTypeOf<T>()))", smartParserName)
             .build()
             .apply { fileBuilder.addFunction(this) }
 
@@ -207,7 +207,7 @@ class RxHttpExtensions {
                 .addModifiers(KModifier.INLINE)
                 .receiver(baseRxHttpName)
                 .addTypeVariable(reifiedT)
-                .addStatement("return asParser(%T<T>(javaTypeOf<T>()))", simpleParserName)
+                .addStatement("return asParser(%T<T>(javaTypeOf<T>()))", smartParserName)
                 .build()
                 .apply { fileBuilder.addFunction(this) }
 
@@ -225,7 +225,7 @@ class RxHttpExtensions {
 //                    "progressConsumer",
 //                    getKClassName("Consumer").parameterizedBy(progressName)
 //                )
-//                .addCode("return asParser(SimpleParser<T>(javaTypeOf<T>())).onUploadProgress(scheduler, progressConsumer)")
+//                .addCode("return asParser(SmartParser<T>(javaTypeOf<T>())).onUploadProgress(scheduler, progressConsumer)")
 //                .build()
 //                .apply { fileBuilder.addFunction(this) }
 

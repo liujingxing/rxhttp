@@ -6,8 +6,6 @@ import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.KSFile
 import com.rxhttp.compiler.RXHttp
-import com.rxhttp.compiler.getKClassName
-import com.rxhttp.compiler.isDependenceRxJava
 import com.rxhttp.compiler.rxHttpPackage
 import com.rxhttp.compiler.rxhttpKClassName
 import com.squareup.kotlinpoet.ANY
@@ -87,7 +85,7 @@ class RxHttpGenerator(
         val logUtilName = ClassName("rxhttp.wrapper.utils", "LogUtil")
         val logInterceptorName = ClassName("rxhttp.wrapper.intercept", "LogInterceptor")
         val parserTName = parserName.parameterizedBy("T")
-        val simpleParserName = ClassName("rxhttp.wrapper.parse", "SimpleParser")
+        val smartParserName = ClassName("rxhttp.wrapper.parse", "SmartParser")
         val parameterizedType = ClassName("rxhttp.wrapper.entity", "ParameterizedTypeImpl")
 
         val methodList = ArrayList<FunSpec>() //方法集合
@@ -705,7 +703,7 @@ class RxHttpGenerator(
             .throws(IOException::class)
             .addParameter("type", classTName)
             .addStatement("val tTypeList = %T.get(List::class.java, type)", parameterizedType)
-            .addStatement("return execute(%T(tTypeList))", simpleParserName)
+            .addStatement("return execute(%T(tTypeList))", smartParserName)
             .returns(listTName)
             .build()
             .let { methodList.add(it) }
@@ -714,7 +712,7 @@ class RxHttpGenerator(
             .addTypeVariable(t)
             .throws(IOException::class)
             .addParameter("type", classTName)
-            .addStatement("return execute(%T(type))", simpleParserName)
+            .addStatement("return execute(%T(type))", smartParserName)
             .returns(t)
             .build()
             .let { methodList.add(it) }

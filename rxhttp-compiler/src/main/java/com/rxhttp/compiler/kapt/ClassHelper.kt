@@ -86,7 +86,7 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
             import rxhttp.wrapper.entity.ParameterizedTypeImpl;
             import rxhttp.wrapper.entity.Progress;
             import rxhttp.wrapper.parse.Parser;
-            import rxhttp.wrapper.parse.SimpleParser;
+            import rxhttp.wrapper.parse.SmartParser;
             import rxhttp.wrapper.parse.StreamParser;
             import rxhttp.wrapper.utils.LogUtil;
 
@@ -124,7 +124,7 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
                 }
 
                 public final <T> ObservableParser<T> asClass(Class<T> type) {
-                    return asParser(new SimpleParser<>(type));
+                    return asParser(new SmartParser<>(type));
                 }
 
                 public final ObservableParser<String> asString() {
@@ -133,12 +133,12 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
 
                 public final <V> ObservableParser<Map<String, V>> asMapString(Class<V> vType) {
                     Type tTypeMap = ParameterizedTypeImpl.getParameterized(Map.class, String.class, vType);
-                    return asParser(new SimpleParser<>(tTypeMap));
+                    return asParser(new SmartParser<>(tTypeMap));
                 }
 
                 public final <T> ObservableParser<List<T>> asList(Class<T> tType) {
                     Type tTypeList = ParameterizedTypeImpl.get(List.class, tType);
-                    return asParser(new SimpleParser<>(tTypeList));
+                    return asParser(new SmartParser<>(tTypeList));
                 }
                 ${isAndroid("""
                 public final ObservableParser<Bitmap> asBitmap() {

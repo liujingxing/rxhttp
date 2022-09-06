@@ -1,8 +1,6 @@
 package com.rxhttp.compiler.kapt
 
 import com.rxhttp.compiler.RXHttp
-import com.rxhttp.compiler.getClassName
-import com.rxhttp.compiler.isDependenceRxJava
 import com.rxhttp.compiler.rxHttpPackage
 import com.rxhttp.compiler.rxhttpClassName
 import com.squareup.javapoet.AnnotationSpec
@@ -18,7 +16,6 @@ import com.squareup.javapoet.TypeSpec
 import com.squareup.javapoet.TypeVariableName
 import com.squareup.javapoet.WildcardTypeName
 import java.io.IOException
-import java.lang.Deprecated
 import java.util.*
 import javax.annotation.processing.Filer
 import javax.lang.model.element.Modifier
@@ -81,7 +78,7 @@ class RxHttpGenerator {
         val logUtilName = ClassName.get("rxhttp.wrapper.utils", "LogUtil")
         val logInterceptorName = ClassName.get("rxhttp.wrapper.intercept", "LogInterceptor")
         val parserTName = ParameterizedTypeName.get(parserName, t)
-        val simpleParserName = ClassName.get("rxhttp.wrapper.parse", "SimpleParser")
+        val smartParserName = ClassName.get("rxhttp.wrapper.parse", "SmartParser")
         val type = ClassName.get("java.lang.reflect", "Type")
         val parameterizedType = ClassName.get("rxhttp.wrapper.entity", "ParameterizedTypeImpl")
 
@@ -662,7 +659,7 @@ class RxHttpGenerator {
             .addException(IOException::class.java)
             .addParameter(classTName, "type")
             .addStatement("\$T tTypeList = \$T.get(List.class, type)", type, parameterizedType)
-            .addStatement("return execute(new \$T<>(tTypeList))", simpleParserName)
+            .addStatement("return execute(new \$T<>(tTypeList))", smartParserName)
             .returns(listTName)
             .build()
             .apply { methodList.add(this) }
@@ -672,7 +669,7 @@ class RxHttpGenerator {
             .addTypeVariable(t)
             .addException(IOException::class.java)
             .addParameter(classTName, "type")
-            .addStatement("return execute(new \$T<>(type))", simpleParserName)
+            .addStatement("return execute(new \$T<>(type))", smartParserName)
             .returns(t)
             .build()
             .apply { methodList.add(this) }
