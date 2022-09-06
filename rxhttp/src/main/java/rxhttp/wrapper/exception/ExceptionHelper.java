@@ -7,7 +7,7 @@ import java.io.IOException;
 
 import okhttp3.Response;
 import okhttp3.ResponseBody;
-import rxhttp.wrapper.annotations.NonNull;
+import rxhttp.wrapper.OkHttpCompat;
 
 /**
  * 异常处理帮助类
@@ -25,14 +25,12 @@ public class ExceptionHelper {
      * @throws IOException 请求失败异常、网络不可用异常
      */
     @NotNull
-    public static ResponseBody throwIfFatal(@NonNull Response response) throws IOException {
+    public static ResponseBody throwIfFatal(Response response) throws IOException {
         ResponseBody body = response.body();
-        if (body == null)
-            throw new HttpStatusCodeException(response);
+        assert body != null;
         if (!response.isSuccessful()) {
-            // http状态码416时，读取body没有意义
-            String result = response.code() == 416 ? "" : body.string();
-            throw new HttpStatusCodeException(response, result);
+            response = response.newBuilder().body(OkHttpCompat.buffer(body)).build();
+            throw new HttpStatusCodeException(response);
         }
         return body;
     }
@@ -41,15 +39,16 @@ public class ExceptionHelper {
      * If the provided Throwable is an Error this method
      * throws it, otherwise returns a RuntimeException wrapping the error
      * if that error is a checked exception.
+     *
      * @param error the error to wrap or throw
      * @return the (wrapped) error
      */
     public static RuntimeException wrapOrThrow(Throwable error) {
         if (error instanceof Error) {
-            throw (Error)error;
+            throw (Error) error;
         }
         if (error instanceof RuntimeException) {
-            return (RuntimeException)error;
+            return (RuntimeException) error;
         }
         return new RuntimeException(error);
     }

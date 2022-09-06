@@ -7,12 +7,13 @@ import okhttp3.HttpUrl;
 import okhttp3.Protocol;
 import okhttp3.Request;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 import rxhttp.internal.RxHttpVersion;
 import rxhttp.wrapper.OkHttpCompat;
 import rxhttp.wrapper.annotations.Nullable;
 
 /**
- * Http 状态码 小于200或者大于等于300时,或者ResponseBody等于null，抛出此异常
+ * Http 状态码 code < 200 || code >= 300, 抛出此异常
  * <p>
  * 可通过{@link #getLocalizedMessage()}方法获取code
  * User: ljx
@@ -23,16 +24,13 @@ public final class HttpStatusCodeException extends IOException {
 
     private final Protocol protocol; //http协议
     private final int statusCode; //Http响应状态吗
-    private final String result;    //返回结果
     private final String requestMethod; //请求方法，Get/Post等
     private final HttpUrl httpUrl; //请求Url及查询参数
     private final Headers responseHeaders; //响应头
+    private final ResponseBody body;
+    private String result;    //返回结果
 
     public HttpStatusCodeException(Response response) {
-        this(response, null);
-    }
-
-    public HttpStatusCodeException(Response response, String result) {
         super(response.message());
         protocol = response.protocol();
         statusCode = response.code();
@@ -40,7 +38,7 @@ public final class HttpStatusCodeException extends IOException {
         requestMethod = request.method();
         httpUrl = request.url();
         responseHeaders = response.headers();
-        this.result = result;
+        body = response.body();
     }
 
     @Nullable
@@ -69,7 +67,14 @@ public final class HttpStatusCodeException extends IOException {
         return responseHeaders;
     }
 
-    public String getResult() {
+    public ResponseBody getResponseBody() {
+        return body;
+    }
+
+    public String getResult() throws IOException {
+        if (result == null) {
+            result = body.string();
+        }
         return result;
     }
 
@@ -80,7 +85,6 @@ public final class HttpStatusCodeException extends IOException {
             "\n" + getClass().getName() + ":" +
             "\n" + requestMethod + " " + httpUrl +
             "\n\n" + protocol + " " + statusCode + " " + getMessage() +
-            "\n" + responseHeaders +
-            "\n" + result;
+            "\n" + responseHeaders;
     }
 }
