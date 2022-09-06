@@ -41,11 +41,11 @@ inline fun <reified T> CallFactory.toFlowList(): Flow<List<T>> = toFlow()
 
 inline fun <reified V> CallFactory.toFlowMapString(): Flow<Map<String, V>> = toFlow()
 
-fun CallFactory.toFlowBitmap(): Flow<Bitmap> = toFlow(toBitmap())
+fun CallFactory.toFlowBitmap(): Flow<Bitmap> = toFlow()
 
-fun CallFactory.toFlowHeaders(): Flow<Headers> = toFlow(toHeaders())
+fun CallFactory.toFlowHeaders(): Flow<Headers> = toFlow()
 
-fun CallFactory.toFlowOkResponse(): Flow<Response> = toFlow(toOkResponse())
+fun CallFactory.toFlowOkResponse(): Flow<Response> = toFlow()
 
 fun <T> CallFactory.toFlow(parser: Parser<T>): Flow<T> = toFlow(toParser(parser))
 

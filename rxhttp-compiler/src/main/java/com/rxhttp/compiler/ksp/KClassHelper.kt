@@ -58,6 +58,7 @@ class KClassHelper(
             package $rxHttpPackage
             ${isAndroid("""
             import android.content.Context
+            import android.graphics.Bitmap
             import android.net.Uri
             """)}
             import ${getClassPath("Observable")}
@@ -65,6 +66,8 @@ class KClassHelper(
             import ${getClassPath("Consumer")}
             import ${getClassPath("RxJavaPlugins")}
             import ${getClassPath("Schedulers")}
+            import okhttp3.Headers
+            import okhttp3.Response
             import rxhttp.wrapper.CallFactory
             import rxhttp.wrapper.OkHttpCompat
             import rxhttp.wrapper.callback.FileOutputStreamFactory
@@ -73,8 +76,6 @@ class KClassHelper(
             import rxhttp.wrapper.coroutines.RangeHeader
             import rxhttp.wrapper.entity.ParameterizedTypeImpl
             import rxhttp.wrapper.entity.Progress
-            ${isAndroid("import rxhttp.wrapper.parse.BitmapParser")}
-            import rxhttp.wrapper.parse.OkResponseParser
             import rxhttp.wrapper.parse.Parser
             import rxhttp.wrapper.parse.SimpleParser
             import rxhttp.wrapper.parse.StreamParser
@@ -124,11 +125,11 @@ class KClassHelper(
                     asParser(SimpleParser<List<T>>(ParameterizedTypeImpl[MutableList::class.java, tType]))
                     
                 ${isAndroid("""
-                fun asBitmap() = asParser(BitmapParser())
+                fun asBitmap() = asClass(Bitmap::class.java)
                 """)}
-                fun asOkResponse() = asParser(OkResponseParser())
+                fun asOkResponse() = asClass(Response::class.java)
             
-                fun asHeaders() = asOkResponse().map { OkHttpCompat.getHeadersAndCloseBody(it) }
+                fun asHeaders() =  asClass(Headers::class.java)
             
                 fun asDownload(
                     destPath: String,

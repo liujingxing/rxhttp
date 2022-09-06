@@ -85,8 +85,6 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
             import rxhttp.wrapper.coroutines.RangeHeader;
             import rxhttp.wrapper.entity.ParameterizedTypeImpl;
             import rxhttp.wrapper.entity.Progress;
-            ${isAndroid("import rxhttp.wrapper.parse.BitmapParser;")}
-            import rxhttp.wrapper.parse.OkResponseParser;
             import rxhttp.wrapper.parse.Parser;
             import rxhttp.wrapper.parse.SimpleParser;
             import rxhttp.wrapper.parse.StreamParser;
@@ -144,22 +142,15 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
                 }
                 ${isAndroid("""
                 public final ObservableParser<Bitmap> asBitmap() {
-                    return asParser(new BitmapParser());
+                    return asClass(Bitmap.class);
                 }
                 """)}
                 public final ObservableParser<Response> asOkResponse() {
-                    return asParser(new OkResponseParser());
+                    return asClass(Response.class);
                 }
 
                 public final Observable<Headers> asHeaders() {               
-                    return asOkResponse()                                    
-                        .map(response -> {                                   
-                            try {                                            
-                                return response.headers();                   
-                            } finally {                                      
-                                OkHttpCompat.closeQuietly(response);  
-                            }                                                
-                        });                                                  
+                    return asClass(Headers.class);                                        
                 }
 
                 public final Observable<String> asDownload(String destPath) {

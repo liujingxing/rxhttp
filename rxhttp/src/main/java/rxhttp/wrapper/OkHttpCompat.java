@@ -24,6 +24,7 @@ import okhttp3.internal.cache.DiskLruCache.Companion;
 import okhttp3.internal.concurrent.TaskRunner;
 import okhttp3.internal.http.StatusLine;
 import okhttp3.internal.io.FileSystem;
+import okio.Buffer;
 import okio.ByteString;
 import rxhttp.wrapper.annotations.Nullable;
 import rxhttp.wrapper.callback.IConverter;
@@ -66,6 +67,12 @@ public class OkHttpCompat {
         }
     }
 
+    public static ResponseBody buffer(final ResponseBody body) throws IOException {
+        Buffer buffer = new Buffer();
+        body.source().readAll(buffer);
+        return ResponseBody.create(body.contentType(), body.contentLength(), buffer);
+    }
+
     public static RequestBody create(@Nullable MediaType contentType, String content) {
         return RequestBody.create(contentType, content);
     }
@@ -100,7 +107,7 @@ public class OkHttpCompat {
     }
 
     public static Headers getHeadersAndCloseBody(Response response) {
-        OkHttpCompat.closeQuietly(response);
+        closeQuietly(response);
         return response.headers();
     }
 

@@ -1,6 +1,7 @@
 package rxhttp.wrapper.param
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.net.Uri
 
 import io.reactivex.rxjava3.core.Observable
@@ -8,6 +9,8 @@ import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.functions.Consumer
 import io.reactivex.rxjava3.plugins.RxJavaPlugins
 import io.reactivex.rxjava3.schedulers.Schedulers
+import okhttp3.Headers
+import okhttp3.Response
 import rxhttp.wrapper.CallFactory
 import rxhttp.wrapper.OkHttpCompat
 import rxhttp.wrapper.callback.FileOutputStreamFactory
@@ -16,8 +19,6 @@ import rxhttp.wrapper.callback.UriOutputStreamFactory
 import rxhttp.wrapper.coroutines.RangeHeader
 import rxhttp.wrapper.entity.ParameterizedTypeImpl
 import rxhttp.wrapper.entity.Progress
-import rxhttp.wrapper.parse.BitmapParser
-import rxhttp.wrapper.parse.OkResponseParser
 import rxhttp.wrapper.parse.Parser
 import rxhttp.wrapper.parse.SimpleParser
 import rxhttp.wrapper.parse.StreamParser
@@ -67,11 +68,11 @@ abstract class BaseRxHttp : CallFactory, RangeHeader {
         asParser(SimpleParser<List<T>>(ParameterizedTypeImpl[MutableList::class.java, tType]))
         
     
-    fun asBitmap() = asParser(BitmapParser())
+    fun asBitmap() = asClass(Bitmap::class.java)
     
-    fun asOkResponse() = asParser(OkResponseParser())
+    fun asOkResponse() = asClass(Response::class.java)
 
-    fun asHeaders() = asOkResponse().map { OkHttpCompat.getHeadersAndCloseBody(it) }
+    fun asHeaders() =  asClass(Headers::class.java)
 
     fun asDownload(
         destPath: String,

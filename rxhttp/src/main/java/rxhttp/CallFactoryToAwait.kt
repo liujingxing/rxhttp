@@ -1,18 +1,18 @@
 package rxhttp
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.net.Uri
 import kotlinx.coroutines.flow.Flow
+import okhttp3.Headers
+import okhttp3.Response
 import rxhttp.wrapper.CallFactory
-import rxhttp.wrapper.OkHttpCompat
 import rxhttp.wrapper.callback.OutputStreamFactory
 import rxhttp.wrapper.callback.ProgressCallback
 import rxhttp.wrapper.coroutines.Await
 import rxhttp.wrapper.coroutines.AwaitImpl
 import rxhttp.wrapper.entity.Progress
 import rxhttp.wrapper.entity.ProgressT
-import rxhttp.wrapper.parse.BitmapParser
-import rxhttp.wrapper.parse.OkResponseParser
 import rxhttp.wrapper.parse.Parser
 import rxhttp.wrapper.parse.SimpleParser
 import rxhttp.wrapper.parse.StreamParser
@@ -33,11 +33,11 @@ inline fun <reified T> CallFactory.toList(): Await<MutableList<T>> = toClass()
 
 inline fun <reified V> CallFactory.toMapString(): Await<Map<String, V>> = toClass()
 
-fun CallFactory.toBitmap() = toParser(BitmapParser())
+fun CallFactory.toBitmap(): Await<Bitmap> = toClass()
 
-fun CallFactory.toOkResponse() = toParser(OkResponseParser())
+fun CallFactory.toOkResponse(): Await<Response> = toClass()
 
-fun CallFactory.toHeaders() = toOkResponse().map { OkHttpCompat.getHeadersAndCloseBody(it) }
+fun CallFactory.toHeaders(): Await<Headers> = toClass()
 
 /**
  * @param destPath Local storage path
