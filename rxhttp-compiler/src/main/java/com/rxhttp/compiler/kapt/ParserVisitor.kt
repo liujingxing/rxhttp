@@ -1,7 +1,7 @@
 package com.rxhttp.compiler.kapt
 
-import com.rxhttp.compiler.getClassName
 import com.rxhttp.compiler.isDependenceRxJava
+import com.rxhttp.compiler.rxHttpPackage
 import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
@@ -104,7 +104,7 @@ private fun TypeElement.getAsXxxFun(
 
         //生成的as方法返回类型(Observable<T>类型)
         val asFunReturnType = ParameterizedTypeName.get(
-            getClassName("Observable"), onParserFunReturnType
+            ClassName.get(rxHttpPackage, "ObservableParser"), onParserFunReturnType
         )
 
         val varargs = constructor.isVarArgs && parameterList.last().type is ArrayTypeName
@@ -181,8 +181,9 @@ private fun ExecutableElement.getAsXxxFun(
             } else {
                 ParameterizedTypeName.get(wrapperClass, onParserFunReturnType)
             }
+        val observableParserName = ClassName.get(rxHttpPackage, "ObservableParser")
         val asFunReturnType =
-            ParameterizedTypeName.get(getClassName("Observable"), onParserFunReturnWrapperType)
+            ParameterizedTypeName.get(observableParserName, onParserFunReturnWrapperType)
 
         //2、asXxx方法名
         val name = wrapperClass.toString()

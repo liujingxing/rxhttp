@@ -10,7 +10,6 @@ import com.example.httpsender.`param`.PostEncryptJsonParam1
 import com.example.httpsender.entity.PageList
 import com.example.httpsender.entity.Url.baseUrl
 import com.example.httpsender.parser.ResponseParser
-import io.reactivex.rxjava3.core.Observable
 import java.io.IOException
 import java.lang.Class
 import java.util.concurrent.TimeUnit
@@ -388,14 +387,14 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
     addDefaultDomainIfAbsent()
   }
 
-  public fun <T> asResponse(type: Class<T>): Observable<T> = asParser(ResponseParser(type))
+  public fun <T> asResponse(type: Class<T>): ObservableParser<T> = asParser(ResponseParser(type))
 
-  public fun <T> asResponseList(type: Class<T>): Observable<List<T>> {
+  public fun <T> asResponseList(type: Class<T>): ObservableParser<List<T>> {
     val typeList = ParameterizedTypeImpl.get(List::class.java, type)
     return asParser(ResponseParser(typeList))
   }
 
-  public fun <T> asResponsePageList(type: Class<T>): Observable<PageList<T>> {
+  public fun <T> asResponsePageList(type: Class<T>): ObservableParser<PageList<T>> {
     val typePageList = ParameterizedTypeImpl.get(PageList::class.java, type)
     return asParser(ResponseParser(typePageList))
   }

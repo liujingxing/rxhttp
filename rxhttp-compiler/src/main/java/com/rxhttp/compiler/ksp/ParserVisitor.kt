@@ -12,8 +12,8 @@ import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSValueParameter
 import com.google.devtools.ksp.symbol.KSVisitorVoid
 import com.google.devtools.ksp.symbol.Modifier
-import com.rxhttp.compiler.getKClassName
 import com.rxhttp.compiler.isDependenceRxJava
+import com.rxhttp.compiler.rxHttpPackage
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FunSpec
@@ -117,7 +117,8 @@ private fun KSClassDeclaration.getAsXxxFun(
         val funName = "as$parserAlias"
 
         //返回类型(Observable<T>类型)
-        val asFunReturnType = getKClassName("Observable").parameterizedBy(onParserFunReturnType)
+        val asFunReturnType =
+            ClassName(rxHttpPackage, "ObservableParser").parameterizedBy(onParserFunReturnType)
 
         //方法体
         val funBody =
@@ -177,7 +178,6 @@ private fun KSFunctionDeclaration.getAsXxxFun(
     val parameterSpecs = funSpec.parameters
     val typeVariableNames = funSpec.typeVariables
 
-    val type = ClassName("java.lang.reflect", "Type")
     val parameterizedType = ClassName("rxhttp.wrapper.entity", "ParameterizedTypeImpl")
 
     val wrapperListClass = arrayListOf<ClassName>()
@@ -198,8 +198,8 @@ private fun KSFunctionDeclaration.getAsXxxFun(
             } else {
                 wrapperClass.parameterizedBy(onParserFunReturnType.copy(false))
             }
-        val asFunReturnType =
-            getKClassName("Observable").parameterizedBy(onParserFunReturnWrapperType.copy(onParserFunReturnType.isNullable))
+        val asFunReturnType = ClassName(rxHttpPackage, "ObservableParser")
+            .parameterizedBy(onParserFunReturnWrapperType.copy(onParserFunReturnType.isNullable))
 
         //2、asXxx方法名
         val name = wrapperClass.toString()
