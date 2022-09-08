@@ -162,21 +162,20 @@ fun List<ExecutableElement>.findNoArgumentConstructorFun(): ExecutableElement? {
 }
 
 fun List<ExecutableElement>.findTypeArgumentConstructorFun(typeParametersSize: Int): ExecutableElement? {
-    for (it in this) {
-        if (!it.modifiers.contains(Modifier.PUBLIC)) continue
-        it.parameters.forEach { variableElement ->
+    for (constructor in this) {
+        if (!constructor.modifiers.contains(Modifier.PUBLIC)) continue
+        constructor.parameters.forEach { variableElement ->
             if (variableElement.asType().toString() == "java.lang.reflect.Type[]")
-                return it
+                return constructor
         }
         //构造方法参数个数小于泛型个数，则遍历下一个
-        if (it.parameters.size < typeParametersSize) continue
-        for (i in 0 until typeParametersSize) {
-            //参数非java.lang.reflect.Type，返回null
-            if (it.parameters[i].asType().toString() != "java.lang.reflect.Type") {
-                return null
-            }
+        if (constructor.parameters.size < typeParametersSize) continue
+
+        //如果解析器有n个泛型，则构造方法前n个参数，必须是Type类型
+        val match = constructor.parameters.subList(0, typeParametersSize).all {
+            "java.lang.reflect.Type" == it.asType().toString()
         }
-        return it
+        if (match) return constructor
     }
     return null
 }

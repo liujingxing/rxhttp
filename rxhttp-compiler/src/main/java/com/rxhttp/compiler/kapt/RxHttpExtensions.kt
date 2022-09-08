@@ -53,16 +53,20 @@ class RxHttpExtensions {
         //遍历构造方法
         for (constructor in typeElement.getPublicConstructors()) {
             val tempParameters = constructor.parameters
-            var fromIndex = typeVariableNames.size
-            if ("java.lang.reflect.Type[]" ==
-                tempParameters.firstOrNull()?.asType()?.toString()
-            ) {
-                fromIndex = 1
+            var typeCount = typeVariableNames.size
+            if ("java.lang.reflect.Type[]" == tempParameters.firstOrNull()?.asType()?.toString()) {
+                typeCount = 1  //如果是Type是数组传递的，一个参数就行
+            } else {
+                //如果解析器有n个泛型，则构造方法前n个参数，必须是Type类型
+                val match = tempParameters.subList(0, typeCount).all {
+                    "java.lang.reflect.Type" == it.asType().toString()
+                }
+                if (!match) continue
             }
             //构造方法参数数量小于泛型数量，直接过滤掉
-            if (tempParameters.size < fromIndex) continue
+            if (tempParameters.size < typeCount) continue
             //移除前n个Type类型参数，n为泛型数量
-            val parameters = tempParameters.subList(fromIndex, tempParameters.size)
+            val parameters = tempParameters.subList(typeCount, tempParameters.size)
 
             //根据构造方法参数，获取asXxx方法需要的参数
             val varArgsFun = constructor.isVarArgs  //该构造方法是否携带可变参数，即是否为可变参数方法

@@ -97,21 +97,25 @@ private fun KSClassDeclaration.getAsXxxFun(
     val typeVariableNames = typeParameters.map { it.toTypeVariableName() }
     //遍历public构造方法
     for (constructor in getPublicConstructors()) {
+        val tempParameters = constructor.parameters
         var typeCount = typeVariableNames.size
-        if ("kotlin.Array<java.lang.reflect.Type>" ==
-            constructor.parameters.firstOrNull()?.type?.toTypeName()?.toString()
-        ) {
-            //如果是Type是数组传递的，一个参数就行
-            typeCount = 1
+        val typeArray = "kotlin.Array<java.lang.reflect.Type>"
+        if (typeArray == tempParameters.firstOrNull()?.type?.toTypeName()?.toString()) {
+            typeCount = 1   //如果是Type是数组传递的，一个参数就行
+        } else {
+            //如果解析器有n个泛型，则构造方法前n个参数，必须是Type类型
+            val match = tempParameters.subList(0, typeCount).all {
+                "java.lang.reflect.Type" == it.type.getQualifiedName()
+            }
+            if (!match) continue
         }
-        if (constructor.parameters.size < typeCount) continue
+        if (tempParameters.size < typeCount) continue
 
         //根据构造方法参数，获取asXxx方法需要的参数
-        val parameterSpecs =
-            constructor.getParameterSpecs(
-                typeVariableNames,
-                typeParameters.toTypeParameterResolver()
-            )
+        val parameterSpecs = constructor.getParameterSpecs(
+            typeVariableNames,
+            typeParameters.toTypeParameterResolver()
+        )
 
         //方法名
         val funName = "as$parserAlias"
