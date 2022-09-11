@@ -16,7 +16,7 @@ import java.io.OutputStream
  * Date: 2020/9/4
  * Time: 21:39
  */
-class StreamParser<T> constructor(
+open class StreamParser<T> constructor(
     private val osFactory: OutputStreamFactory<T>,
 ) : Parser<T> {
 
