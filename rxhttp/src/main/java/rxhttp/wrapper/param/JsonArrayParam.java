@@ -112,7 +112,7 @@ public class JsonArrayParam extends AbstractBodyParam<JsonArrayParam> {
 
     /**
      * @return List
-     * @deprecated please user {@link #getBodyParam()} instead, scheduled to be removed in RxHttp 3.0 release.
+     * @deprecated please use {@link #getBodyParam()} instead, scheduled to be removed in RxHttp 3.0 release.
      */
     @Deprecated
     @Nullable
