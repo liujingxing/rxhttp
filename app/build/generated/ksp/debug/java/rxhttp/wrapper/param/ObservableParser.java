@@ -1,6 +1,7 @@
 package rxhttp.wrapper.param;
 
 import java.util.Objects;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import io.reactivex.rxjava3.core.Observable;
@@ -12,7 +13,6 @@ import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.exceptions.Exceptions;
 import io.reactivex.rxjava3.functions.Consumer;
 import io.reactivex.rxjava3.internal.disposables.DisposableHelper;
-import io.reactivex.rxjava3.operators.SpscArrayQueue;
 import io.reactivex.rxjava3.plugins.RxJavaPlugins;
 import okhttp3.Response;
 import rxhttp.wrapper.annotations.NonNull;
@@ -163,7 +163,7 @@ final class ObservableParser<T> extends Observable<T> {
 
         private volatile boolean done;
         private volatile boolean disposed;
-        private final SpscArrayQueue<Progress> queue;
+        private final LinkedBlockingQueue<Progress> queue;
         private final Scheduler.Worker worker;
 
         private final Consumer<Progress> progressConsumer;
@@ -173,7 +173,7 @@ final class ObservableParser<T> extends Observable<T> {
             this.parser = parser;
             this.worker = worker;
             this.progressConsumer = progressConsumer;
-            queue = new SpscArrayQueue<>(2);
+            queue = new LinkedBlockingQueue<>(2);
 
             if (progressConsumer != null && parser instanceof StreamParser) {
                 ((StreamParser) parser).setProgressCallback(this);
@@ -221,9 +221,8 @@ final class ObservableParser<T> extends Observable<T> {
         }
         
         private void offer(Progress p) {
-            if (!queue.offer(p)) {
+            while (!queue.offer(p)) {
                 queue.poll();
-                queue.offer(p);
             }
             schedule();
         }
@@ -260,7 +259,7 @@ final class ObservableParser<T> extends Observable<T> {
         public void run() {
             int missed = 1;
 
-            final SpscArrayQueue<Progress> q = queue;
+            final LinkedBlockingQueue<Progress> q = queue;
             final Observer<? super T> a = downstream;
             while (!checkTerminated(done, q.isEmpty(), a)) {
                 for (; ; ) {
