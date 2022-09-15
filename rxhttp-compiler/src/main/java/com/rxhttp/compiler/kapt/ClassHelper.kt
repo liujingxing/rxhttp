@@ -630,6 +630,7 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
             package $rxHttpPackage;
 
             import java.util.Objects;
+            import java.util.concurrent.LinkedBlockingQueue;
             import java.util.concurrent.atomic.AtomicInteger;
 
             import ${getClassPath("Observable")};
@@ -641,7 +642,6 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
             import ${getClassPath("Exceptions")};
             import ${getClassPath("Consumer")};
             import ${getClassPath("DisposableHelper")};
-            import ${getClassPath("SpscArrayQueue")};
             import ${getClassPath("RxJavaPlugins")};
             import okhttp3.Response;
             import rxhttp.wrapper.CallFactory;
@@ -809,7 +809,7 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
 
                     private volatile boolean done;
                     private volatile boolean disposed;
-                    private final SpscArrayQueue<Progress> queue;
+                    private final LinkedBlockingQueue<Progress> queue;
                     private final Scheduler.Worker worker;
 
                     private final Consumer<Progress> progressConsumer;
@@ -819,7 +819,7 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
                         this.parser = parser;
                         this.worker = worker;
                         this.progressConsumer = progressConsumer;
-                        queue = new SpscArrayQueue<>(2);
+                        queue = new LinkedBlockingQueue<>(2);
 
                         if (progressConsumer != null && parser instanceof StreamParser) {
                             ((StreamParser) parser).setProgressCallback(this);
@@ -867,9 +867,8 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
                     }
                     
                     private void offer(Progress p) {
-                        if (!queue.offer(p)) {
+                        while (!queue.offer(p)) {
                             queue.poll();
-                            queue.offer(p);
                         }
                         schedule();
                     }
@@ -906,7 +905,7 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
                     public void run() {
                         int missed = 1;
 
-                        final SpscArrayQueue<Progress> q = queue;
+                        final LinkedBlockingQueue<Progress> q = queue;
                         final Observer<? super T> a = downstream;
                         while (!checkTerminated(done, q.isEmpty(), a)) {
                             for (; ; ) {
