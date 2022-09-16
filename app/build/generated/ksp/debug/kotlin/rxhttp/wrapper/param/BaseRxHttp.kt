@@ -12,7 +12,6 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import okhttp3.Headers
 import okhttp3.Response
 import rxhttp.wrapper.CallFactory
-import rxhttp.wrapper.OkHttpCompat
 import rxhttp.wrapper.callback.FileOutputStreamFactory
 import rxhttp.wrapper.callback.OutputStreamFactory
 import rxhttp.wrapper.callback.UriOutputStreamFactory
@@ -57,22 +56,24 @@ abstract class BaseRxHttp : CallFactory, RangeHeader {
 
     fun <T> asParser(parser: Parser<T>) = asObservable(parser)
 
-    fun <T> asClass(type: Class<T>) = asParser(SmartParser<T>(type))
+    fun <T> asClass(type: Type) = asParser(SmartParser<T>(type))
+    
+    fun <T> asClass(clazz: Class<T>) = asClass<T>(clazz as Type)
 
-    fun asString() = asClass(String::class.java)
+    fun asString(): ObservableParser<String> = asClass(String::class.java)
 
-    fun <V> asMapString(vType: Class<V>) =
-        asParser(SmartParser<Map<String, V>>(ParameterizedTypeImpl.getParameterized(MutableMap::class.java, String::class.java, vType)))
+    fun <V> asMapString(vType: Class<V>) :ObservableParser<Map<String, V>> =
+        asClass(ParameterizedTypeImpl.getParameterized(MutableMap::class.java, String::class.java, vType))
 
-    fun <T> asList(tType: Class<T>) =
-        asParser(SmartParser<List<T>>(ParameterizedTypeImpl[MutableList::class.java, tType]))
+    fun <T> asList(tType: Class<T>): ObservableParser<List<T>> =
+        asClass(ParameterizedTypeImpl[MutableList::class.java, tType])
         
     
-    fun asBitmap() = asClass(Bitmap::class.java)
+    fun asBitmap(): ObservableParser<Bitmap> = asClass(Bitmap::class.java)
     
-    fun asOkResponse() = asClass(Response::class.java)
+    fun asOkResponse(): ObservableParser<Response> = asClass(Response::class.java)
 
-    fun asHeaders() =  asClass(Headers::class.java)
+    fun asHeaders(): ObservableParser<Headers> = asClass(Headers::class.java)
 
     fun asDownload(
         destPath: String,

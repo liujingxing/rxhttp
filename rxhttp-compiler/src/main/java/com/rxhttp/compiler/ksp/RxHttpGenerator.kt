@@ -67,6 +67,7 @@ class RxHttpGenerator(
         val cacheModeName = ClassName("rxhttp.wrapper.cahce", "CacheMode")
         val cacheStrategyName = ClassName("rxhttp.wrapper.cahce", "CacheStrategy")
         val downloadOffSizeName = ClassName("rxhttp.wrapper.entity", "DownloadOffSize")
+        val type = ClassName("java.lang.reflect", "Type")
 
         val t = TypeVariableName("T")
         val className = Class::class.asClassName()
@@ -701,9 +702,9 @@ class RxHttpGenerator(
         FunSpec.builder("executeList")
             .addTypeVariable(t)
             .throws(IOException::class)
-            .addParameter("type", classTName)
-            .addStatement("val tTypeList = %T.get(List::class.java, type)", parameterizedType)
-            .addStatement("return execute(%T(tTypeList))", smartParserName)
+            .addParameter("clazz", classTName)
+            .addStatement("val tTypeList = %T.get(List::class.java, clazz)", parameterizedType)
+            .addStatement("return executeClass(tTypeList)")
             .returns(listTName)
             .build()
             .let { methodList.add(it) }
@@ -711,7 +712,16 @@ class RxHttpGenerator(
         FunSpec.builder("executeClass")
             .addTypeVariable(t)
             .throws(IOException::class)
-            .addParameter("type", classTName)
+            .addParameter("clazz", classTName)
+            .addStatement("return executeClass(clazz as Type)")
+            .returns(t)
+            .build()
+            .let { methodList.add(it) }
+
+        FunSpec.builder("executeClass")
+            .addTypeVariable(t)
+            .throws(IOException::class)
+            .addParameter("type", type)
             .addStatement("return execute(%T(type))", smartParserName)
             .returns(t)
             .build()

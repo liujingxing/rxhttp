@@ -12,6 +12,7 @@ import com.example.httpsender.entity.Url.baseUrl
 import com.example.httpsender.parser.ResponseParser
 import java.io.IOException
 import java.lang.Class
+import java.lang.reflect.Type
 import java.util.concurrent.TimeUnit
 import kotlin.Any
 import kotlin.Boolean
@@ -358,13 +359,16 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
   public fun executeString(): String = executeClass(String::class.java)
 
   @Throws(IOException::class)
-  public fun <T> executeList(type: Class<T>): List<T> {
-    val tTypeList = ParameterizedTypeImpl.get(List::class.java, type)
-    return execute(SmartParser(tTypeList))
+  public fun <T> executeList(clazz: Class<T>): List<T> {
+    val tTypeList = ParameterizedTypeImpl.get(List::class.java, clazz)
+    return executeClass(tTypeList)
   }
 
   @Throws(IOException::class)
-  public fun <T> executeClass(type: Class<T>): T = execute(SmartParser(type))
+  public fun <T> executeClass(clazz: Class<T>): T = executeClass(clazz as Type)
+
+  @Throws(IOException::class)
+  public fun <T> executeClass(type: Type): T = execute(SmartParser(type))
 
   public override fun newCall(): Call {
     val request = buildRequest()
@@ -387,16 +391,18 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
     addDefaultDomainIfAbsent()
   }
 
-  public fun <T> asResponse(type: Class<T>): ObservableParser<T> = asParser(ResponseParser(type))
+  public fun <T> asResponse(type: Type) = asParser(ResponseParser<T>(type))
+
+  public fun <T> asResponse(type: Class<T>): ObservableParser<T> = asResponse(type as Type)
 
   public fun <T> asResponseList(type: Class<T>): ObservableParser<List<T>> {
     val typeList = ParameterizedTypeImpl.get(List::class.java, type)
-    return asParser(ResponseParser(typeList))
+    return asResponse(typeList)
   }
 
   public fun <T> asResponsePageList(type: Class<T>): ObservableParser<PageList<T>> {
     val typePageList = ParameterizedTypeImpl.get(PageList::class.java, type)
-    return asParser(ResponseParser(typePageList))
+    return asResponse(typePageList)
   }
 
   public fun setXmlConverter() = setConverter(xmlConverter)

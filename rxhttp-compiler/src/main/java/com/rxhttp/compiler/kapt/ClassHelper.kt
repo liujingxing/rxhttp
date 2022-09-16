@@ -123,8 +123,12 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
                     return asObservable(parser);
                 }
 
-                public final <T> ObservableParser<T> asClass(Class<T> type) {
+                public final <T> ObservableParser<T> asClass(Type type) {
                     return asParser(new SmartParser<>(type));
+                }
+                
+                public final <T> ObservableParser<T> asClass(Class<T> clazz) {
+                    return asClass((Type) clazz);
                 }
 
                 public final ObservableParser<String> asString() {
@@ -133,12 +137,12 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
 
                 public final <V> ObservableParser<Map<String, V>> asMapString(Class<V> vType) {
                     Type tTypeMap = ParameterizedTypeImpl.getParameterized(Map.class, String.class, vType);
-                    return asParser(new SmartParser<>(tTypeMap));
+                    return asClass(tTypeMap);
                 }
 
                 public final <T> ObservableParser<List<T>> asList(Class<T> tType) {
                     Type tTypeList = ParameterizedTypeImpl.get(List.class, tType);
-                    return asParser(new SmartParser<>(tTypeList));
+                    return asClass(tTypeList);
                 }
                 ${isAndroid("""
                 public final ObservableParser<Bitmap> asBitmap() {

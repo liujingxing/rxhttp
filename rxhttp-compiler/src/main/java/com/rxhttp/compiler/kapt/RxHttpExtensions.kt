@@ -110,19 +110,22 @@ class RxHttpExtensions {
             val parser = "%T$types($finalParams)"
 
             if (typeVariableNames.isNotEmpty() && isDependenceRxJava()) {  //对声明了泛型的解析器，生成kotlin编写的asXxx方法
-                FunSpec.builder("as$key")
+                val asXxxFunName = "as$key"
+                val asXxxFunBody = "return $asXxxFunName$types($finalParams)"
+                val rxHttpName = rxhttpKClassName.parameterizedBy(wildcard, wildcard)
+                FunSpec.builder(asXxxFunName)
                     .addModifiers(modifiers)
-                    .receiver(baseRxHttpName)
+                    .receiver(rxHttpName)
                     .addParameters(parameterList)
-                    .addStatement("return asParser($parser)", typeElement.asClassName()) //方法里面的表达式
+                    .addStatement(asXxxFunBody) //方法里面的表达式
                     .addTypeVariables(typeVariableNames.getTypeVariableNames())
                     .build()
                     .apply { asFunList.add(this) }
 
-                val schedulerParam = ParameterSpec
-                    .builder("scheduler", getKClassName("Scheduler").copy(nullable = true))
-                    .defaultValue("null")
-                    .build()
+//                val schedulerParam = ParameterSpec
+//                    .builder("scheduler", getKClassName("Scheduler").copy(nullable = true))
+//                    .defaultValue("null")
+//                    .build()
 
 //                FunSpec.builder("as$key")
 //                    .addModifiers(modifiers)
@@ -160,7 +163,6 @@ class RxHttpExtensions {
 
         val reifiedT = t.copy(reified = true)
         val launchName = ClassName("kotlinx.coroutines", "launch")
-        val smartParserName = ClassName("rxhttp.wrapper.parse", "SmartParser")
         val coroutineScopeName = ClassName("kotlinx.coroutines", "CoroutineScope")
         val typeVariable = TypeVariableName("R", rxHttpBodyParamName)
 
@@ -186,7 +188,7 @@ class RxHttpExtensions {
             .addModifiers(KModifier.INLINE)
             .receiver(rxHttpName)
             .addTypeVariable(reifiedT)
-            .addStatement("return execute(%T<T>(javaTypeOf<T>()))", smartParserName)
+            .addStatement("return executeClass<T>(javaTypeOf<T>())")
             .build()
             .apply { fileBuilder.addFunction(this) }
 
@@ -211,14 +213,14 @@ class RxHttpExtensions {
                 .addModifiers(KModifier.INLINE)
                 .receiver(baseRxHttpName)
                 .addTypeVariable(reifiedT)
-                .addStatement("return asParser(%T<T>(javaTypeOf<T>()))", smartParserName)
+                .addStatement("return asClass<T>(javaTypeOf<T>())")
                 .build()
                 .apply { fileBuilder.addFunction(this) }
 
-            val schedulerParam = ParameterSpec
-                .builder("scheduler", getKClassName("Scheduler").copy(nullable = true))
-                .defaultValue("null")
-                .build()
+//            val schedulerParam = ParameterSpec
+//                .builder("scheduler", getKClassName("Scheduler").copy(nullable = true))
+//                .defaultValue("null")
+//                .build()
 
 //            FunSpec.builder("asClass")
 //                .addModifiers(KModifier.INLINE)

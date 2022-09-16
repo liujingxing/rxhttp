@@ -114,12 +114,27 @@ private fun TypeElement.getAsXxxFun(
         val varargs = constructor.isVarArgs && parameterList.last().type is ArrayTypeName
         val parserClassName = ClassName.get(this)
 
+        val originParameters = constructor.parameters.map { ParameterSpec.get(it) }
+
+        MethodSpec.methodBuilder(methodName)
+            .addModifiers(Modifier.PUBLIC)
+            .addTypeVariables(typeVariableNames)
+            .addParameters(originParameters)
+            .varargs(varargs)
+            .addStatement(methodBody, parserClassName)  //方法里面的表达式
+            .returns(asFunReturnType)
+            .build()
+            .apply { methodList.add(this) }
+
+        val paramNames =
+            getParamsName(constructor.parameters, parameterList, typeVariableNames.size, true)
+
         val methodSpec = MethodSpec.methodBuilder(methodName)
             .addModifiers(Modifier.PUBLIC)
             .addTypeVariables(typeVariableNames)
             .addParameters(parameterList)
             .varargs(varargs)
-            .addStatement(methodBody, parserClassName)  //方法里面的表达式
+            .addStatement("return $methodName($paramNames)")  //方法里面的表达式
             .returns(asFunReturnType)
             .build()
             .apply { methodList.add(this) }
@@ -132,8 +147,7 @@ private fun TypeElement.getAsXxxFun(
         if (haveClassTypeParam && typeVariableNames.size == 1 && typeVariableNames.first().bounds.isEmpty()) {
             //有Class类型参数 且 泛型数量等于1 且没有为泛型指定边界(Object类型边界除外)，才去生成Parser注解里wrappers字段对应的asXxx方法
             constructor.getAsXxxFun(
-                parserAlias, methodSpec, parserClassName,
-                onParserFunReturnType, typeMap, methodList
+                parserAlias, methodSpec, onParserFunReturnType, typeMap, methodList
             )
         }
 
@@ -154,7 +168,6 @@ private fun TypeElement.getAsXxxFun(
 private fun ExecutableElement.getAsXxxFun(
     parserAlias: String,
     methodSpec: MethodSpec,
-    parserClassName: ClassName,
     onParserFunReturnType: TypeName,
     typeMap: LinkedHashMap<String, List<ClassName>>,
     methodList: MutableList<MethodSpec>
@@ -206,8 +219,7 @@ private fun ExecutableElement.getAsXxxFun(
                  * 格式：Type tTypeList = ParameterizedTypeImpl.get(List.class, tType);
                  */
                 val variableName = "${param.name}$simpleName"
-                val expression =
-                    "\$T $variableName = \$T.get($simpleName.class, ${param.name})"
+                val expression = "\$T $variableName = \$T.get($simpleName.class, ${param.name})"
                 funBody.addStatement(expression, type, parameterizedType)
                 val parameterType = parameters[index].asType()
                 if ("java.lang.reflect.Type[]" == parameterType.toString()) {
@@ -219,9 +231,8 @@ private fun ExecutableElement.getAsXxxFun(
                 paramsName.append(param.name)
             }
         }
-        val returnStatement =
-            "return asParser(new \$T${getTypeVariableString(typeVariableNames)}($paramsName))"
-        funBody.addStatement(returnStatement, parserClassName)
+        val returnStatement = "return ${methodSpec.name}($paramsName)"
+        funBody.addStatement(returnStatement)
 
         //4、生成asXxx方法
         MethodSpec.methodBuilder(methodName)
@@ -247,25 +258,18 @@ private fun ExecutableElement.getParameterSpecs(
         if (variableType.toString() == "java.lang.reflect.Type[]") {
             typeVariableNames.forEach { typeVariableName ->
                 //Type类型参数转Class<T>类型
-                val classTypeName =
-                    ParameterizedTypeName.get(className, typeVariableName)
-                val variableName =
-                    "${typeVariableName.name.lowercase(Locale.getDefault())}Type"
-                val parameterSpec =
-                    ParameterSpec.builder(classTypeName, variableName).build()
+                val classTypeName = ParameterizedTypeName.get(className, typeVariableName)
+                val variableName = "${typeVariableName.name.lowercase(Locale.getDefault())}Type"
+                val parameterSpec = ParameterSpec.builder(classTypeName, variableName).build()
                 parameterList.add(parameterSpec)
             }
         } else if (variableType.toString() == "java.lang.reflect.Type"
             && typeIndex < typeVariableNames.size
         ) {
             //Type类型参数转Class<T>类型
-            val classTypeName = ParameterizedTypeName.get(
-                className, typeVariableNames[typeIndex++]
-            )
+            val classTypeName = ParameterizedTypeName.get(className, typeVariableNames[typeIndex++])
             val variableName = variableElement.simpleName.toString()
-            parameterList.add(
-                ParameterSpec.builder(classTypeName, variableName).build()
-            )
+            parameterList.add(ParameterSpec.builder(classTypeName, variableName).build())
         } else {
             parameterList.add(ParameterSpec.get(variableElement))
         }
@@ -281,7 +285,8 @@ private fun ExecutableElement.getParameterSpecs(
 private fun getParamsName(
     variableElements: List<VariableElement>,
     parameterSpecs: List<ParameterSpec>,
-    typeCount: Int
+    typeCount: Int,
+    classToType: Boolean = false
 ): String {
     val sb = StringBuilder()
     var paramIndex = 0
@@ -298,8 +303,13 @@ private fun getParamsName(
                 sb.append(parameterSpecs[paramIndex++].name)
             }
             sb.append("}")
-        } else
-            sb.append(parameterSpecs[paramIndex++].name)
+        } else {
+            val parameterSpec = parameterSpecs[paramIndex++]
+            if (classToType && parameterSpec.type.toString().startsWith("java.lang.Class")) {
+                sb.append("(Type) ")
+            }
+            sb.append(parameterSpec.name)
+        }
     }
     return sb.toString()
 }

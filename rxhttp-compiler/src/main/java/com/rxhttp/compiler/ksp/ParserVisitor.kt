@@ -12,6 +12,7 @@ import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSValueParameter
 import com.google.devtools.ksp.symbol.KSVisitorVoid
 import com.google.devtools.ksp.symbol.Modifier
+import com.rxhttp.compiler.common.getTypeVariableString
 import com.rxhttp.compiler.isDependenceRxJava
 import com.rxhttp.compiler.rxHttpPackage
 import com.squareup.kotlinpoet.ClassName
@@ -124,16 +125,33 @@ private fun KSClassDeclaration.getAsXxxFun(
         val asFunReturnType =
             ClassName(rxHttpPackage, "ObservableParser").parameterizedBy(onParserFunReturnType)
 
+        val types = getTypeVariableString(typeVariableNames)
         //方法体
         val funBody =
-            "return asParser(%T(${
+            "return asParser(%T$types(${
                 getParamsName(constructor.parameters, parameterSpecs, typeVariableNames.size)
             }))"
+
+        val originParameters = constructor.parameters.map {
+            val functionTypeParams =
+                typeParameters.toTypeParameterResolver(typeParameters.toTypeParameterResolver())
+            it.toKParameterSpec(functionTypeParams)
+        }
+
+        FunSpec.builder(funName)
+            .addTypeVariables(typeVariableNames)
+            .addParameters(originParameters)
+            .addStatement(funBody, toClassName())  //方法体
+            .build()
+            .apply { funList.add(this) }
+
+        val paramNames =
+            getParamsName(constructor.parameters, parameterSpecs, typeVariableNames.size, true)
 
         val funSpec = FunSpec.builder(funName)
             .addTypeVariables(typeVariableNames)
             .addParameters(parameterSpecs)
-            .addStatement(funBody, toClassName())  //方法体
+            .addStatement("return $funName($paramNames)")  //方法里面的表达式
             .returns(asFunReturnType)
             .build()
             .apply { funList.add(this) }
@@ -236,10 +254,8 @@ private fun KSFunctionDeclaration.getAsXxxFun(
                 paramsName.append(param.name)
             }
         }
-        val returnStatement = "return asParser(%T($paramsName))"
-        funBody.addStatement(
-            returnStatement, (parent as KSClassDeclaration).toClassName()
-        )
+        val returnStatement = "return ${funSpec.name}($paramsName)"
+        funBody.addStatement(returnStatement)
 
         //4、生成asXxx方法
         FunSpec.builder(funName)
@@ -312,7 +328,8 @@ private fun KSFunctionDeclaration.getParameterSpecs(
 private fun getParamsName(
     variableElements: List<KSValueParameter>,
     parameterSpecs: List<ParameterSpec>,
-    typeCount: Int
+    typeCount: Int,
+    classToType: Boolean = false
 ): String {
     val sb = StringBuilder()
     var paramIndex = 0
@@ -333,6 +350,9 @@ private fun getParamsName(
             val parameterSpec = parameterSpecs[paramIndex++]
             if (KModifier.VARARG in parameterSpec.modifiers) sb.append("*")
             sb.append(parameterSpec.name)
+            if (classToType && parameterSpec.type.toString().startsWith("java.lang.Class")) {
+                sb.append(" as Type")
+            }
         }
     }
     return sb.toString()
