@@ -10,8 +10,6 @@ import com.squareup.javapoet.ParameterSpec
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeVariableName
-import com.squareup.kotlinpoet.MemberName
-import com.squareup.kotlinpoet.ksp.toClassName
 import rxhttp.wrapper.annotation.Parser
 import java.util.*
 import javax.annotation.processing.Filer
@@ -135,31 +133,32 @@ private fun TypeElement.getAsXxxFun(
             .build()
             .apply { methodList.add(this) }
 
-        val paramNames =
-            getParamsName(constructor.parameters, parameterList, typeVariableNames.size, true)
+        if (typeVariableNames.isNotEmpty()) {
+            val paramNames =
+                getParamsName(constructor.parameters, parameterList, typeVariableNames.size, true)
 
-        val methodSpec = MethodSpec.methodBuilder(methodName)
-            .addModifiers(Modifier.PUBLIC)
-            .addTypeVariables(typeVariableNames)
-            .addParameters(parameterList)
-            .varargs(varargs)
-            .addStatement("return $methodName($paramNames)")  //方法里面的表达式
-            .returns(asFunReturnType)
-            .build()
-            .apply { methodList.add(this) }
+            val methodSpec = MethodSpec.methodBuilder(methodName)
+                .addModifiers(Modifier.PUBLIC)
+                .addTypeVariables(typeVariableNames)
+                .addParameters(parameterList)
+                .varargs(varargs)
+                .addStatement("return $methodName($paramNames)")  //方法里面的表达式
+                .returns(asFunReturnType)
+                .build()
+                .apply { methodList.add(this) }
 
-        val haveClassTypeParam = parameterList.any { p ->
-            p.type.toString().startsWith("java.lang.Class")
+            val haveClassTypeParam = parameterList.any { p ->
+                p.type.toString().startsWith("java.lang.Class")
+            }
+
+            //注意，这里获取泛型边界跟ksp不一样，这里会自动过滤Object类型，即使手动声明了
+            if (haveClassTypeParam && typeVariableNames.size == 1 && typeVariableNames.first().bounds.isEmpty()) {
+                //有Class类型参数 且 泛型数量等于1 且没有为泛型指定边界(Object类型边界除外)，才去生成Parser注解里wrappers字段对应的asXxx方法
+                constructor.getAsXxxFun(
+                    parserAlias, methodSpec, onParserFunReturnType, typeMap, methodList
+                )
+            }
         }
-
-        //注意，这里获取泛型边界跟ksp不一样，这里会自动过滤Object类型，即使手动声明了
-        if (haveClassTypeParam && typeVariableNames.size == 1 && typeVariableNames.first().bounds.isEmpty()) {
-            //有Class类型参数 且 泛型数量等于1 且没有为泛型指定边界(Object类型边界除外)，才去生成Parser注解里wrappers字段对应的asXxx方法
-            constructor.getAsXxxFun(
-                parserAlias, methodSpec, onParserFunReturnType, typeMap, methodList
-            )
-        }
-
     }
     return methodList
 }

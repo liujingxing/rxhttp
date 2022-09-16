@@ -153,36 +153,37 @@ private fun KSClassDeclaration.getAsXxxFun(
             .build()
             .apply { funList.add(this) }
 
-        val paramNames =
-            getParamsName(constructor.parameters, parameterSpecs, typeVariableNames.size, true)
+        if (typeVariableNames.isNotEmpty()) {
+            val paramNames =
+                getParamsName(constructor.parameters, parameterSpecs, typeVariableNames.size, true)
 
-        val funSpec = FunSpec.builder(funName)
-            .addTypeVariables(typeVariableNames)
-            .addParameters(parameterSpecs)
-            .addStatement("return $funName($paramNames)")  //方法里面的表达式
-            .returns(asFunReturnType)
-            .build()
-            .apply { funList.add(this) }
+            val funSpec = FunSpec.builder(funName)
+                .addTypeVariables(typeVariableNames)
+                .addParameters(parameterSpecs)
+                .addStatement("return $funName($paramNames)")  //方法里面的表达式
+                .returns(asFunReturnType)
+                .build()
+                .apply { funList.add(this) }
 
-        val haveClassTypeParam = parameterSpecs.any { p ->
-            p.type.toString().startsWith("java.lang.Class")
-        }
-
-        if (haveClassTypeParam && typeVariableNames.size == 1) {
-            //查找非Any类型参数
-            val nonAnyType = typeVariableNames.first().bounds.find { typeName ->
-                val name = typeName.toString()
-                name != "kotlin.Any" && name != "kotlin.Any?"
+            val haveClassTypeParam = parameterSpecs.any { p ->
+                p.type.toString().startsWith("java.lang.Class")
             }
-            //有Class类型参数 且 泛型数量等于1 且没有为泛型指定边界(Any类型边界除外)，才去生成Parser注解里wrappers字段对应的asXxx方法
-            if (nonAnyType == null) {
-                constructor.getAsXxxFun(
-                    parserAlias, funSpec, onParserFunReturnType, typeMap, funList
-                )
+
+            if (haveClassTypeParam && typeVariableNames.size == 1) {
+                //查找非Any类型参数
+                val nonAnyType = typeVariableNames.first().bounds.find { typeName ->
+                    val name = typeName.toString()
+                    name != "kotlin.Any" && name != "kotlin.Any?"
+                }
+                //有Class类型参数 且 泛型数量等于1 且没有为泛型指定边界(Any类型边界除外)，才去生成Parser注解里wrappers字段对应的asXxx方法
+                if (nonAnyType == null) {
+                    constructor.getAsXxxFun(
+                        parserAlias, funSpec, onParserFunReturnType, typeMap, funList
+                    )
+                }
             }
         }
     }
-
     return funList
 }
 
