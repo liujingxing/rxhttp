@@ -113,7 +113,7 @@ class KClassHelper(
 
                 fun <T> asParser(parser: Parser<T>) = asObservable(parser)
             
-                fun <T> asClass(type: Type) = asParser(SmartParser<T>(type))
+                fun <T> asClass(type: Type) = asParser(SmartParser.wrap<T>(type))
                 
                 fun <T> asClass(clazz: Class<T>) = asClass<T>(clazz as Type)
             

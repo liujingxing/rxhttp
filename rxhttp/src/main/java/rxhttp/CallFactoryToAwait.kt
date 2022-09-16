@@ -25,7 +25,7 @@ import rxhttp.wrapper.utils.javaTypeOf
  */
 fun <T> CallFactory.toParser(parser: Parser<T>): Await<T> = AwaitImpl(this, parser)
 
-inline fun <reified T> CallFactory.toClass(): Await<T> = toParser(SmartParser(javaTypeOf<T>()))
+inline fun <reified T> CallFactory.toClass(): Await<T> = toParser(SmartParser.wrap(javaTypeOf<T>()))
 
 fun CallFactory.toStr(): Await<String> = toClass()
 

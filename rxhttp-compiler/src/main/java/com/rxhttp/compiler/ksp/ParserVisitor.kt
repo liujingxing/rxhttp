@@ -20,6 +20,7 @@ import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.LIST
+import com.squareup.kotlinpoet.MemberName
 import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
@@ -125,12 +126,19 @@ private fun KSClassDeclaration.getAsXxxFun(
         val asFunReturnType =
             ClassName(rxHttpPackage, "ObservableParser").parameterizedBy(onParserFunReturnType)
 
-        val types = getTypeVariableString(typeVariableNames)
+        val parserClassName = toClassName()
+
+        val wrapCustomParser = MemberName(rxHttpPackage, "wrap${parserClassName.simpleName}")
+        val types = getTypeVariableString(typeVariableNames) // <T>, <K, V> 等
+
+        //参数名
+        val paramsName = getParamsName(constructor.parameters, parameterSpecs, typeVariableNames.size)
         //方法体
-        val funBody =
-            "return asParser(%T$types(${
-                getParamsName(constructor.parameters, parameterSpecs, typeVariableNames.size)
-            }))"
+        val asXxxFunBody = if (typeVariableNames.size == 1) {
+            CodeBlock.of("return asParser(%M$types($paramsName))", wrapCustomParser)
+        } else {
+            CodeBlock.of("return asParser(%T$types($paramsName))", parserClassName)
+        }
 
         val originParameters = constructor.parameters.map {
             val functionTypeParams =
@@ -141,7 +149,7 @@ private fun KSClassDeclaration.getAsXxxFun(
         FunSpec.builder(funName)
             .addTypeVariables(typeVariableNames)
             .addParameters(originParameters)
-            .addStatement(funBody, toClassName())  //方法体
+            .addCode(asXxxFunBody)
             .build()
             .apply { funList.add(this) }
 
@@ -169,11 +177,7 @@ private fun KSClassDeclaration.getAsXxxFun(
             //有Class类型参数 且 泛型数量等于1 且没有为泛型指定边界(Any类型边界除外)，才去生成Parser注解里wrappers字段对应的asXxx方法
             if (nonAnyType == null) {
                 constructor.getAsXxxFun(
-                    parserAlias,
-                    funSpec,
-                    onParserFunReturnType,
-                    typeMap,
-                    funList
+                    parserAlias, funSpec, onParserFunReturnType, typeMap, funList
                 )
             }
         }

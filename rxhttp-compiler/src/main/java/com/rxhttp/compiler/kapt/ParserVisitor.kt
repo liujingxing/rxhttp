@@ -10,6 +10,8 @@ import com.squareup.javapoet.ParameterSpec
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeVariableName
+import com.squareup.kotlinpoet.MemberName
+import com.squareup.kotlinpoet.ksp.toClassName
 import rxhttp.wrapper.annotation.Parser
 import java.util.*
 import javax.annotation.processing.Filer
@@ -100,19 +102,26 @@ private fun TypeElement.getAsXxxFun(
 
         //方法名
         val methodName = "as$parserAlias"
-        //方法体
-        val methodBody =
-            "return asParser(new \$T${getTypeVariableString(typeVariableNames)}(${
-                getParamsName(constructor.parameters, parameterList, typeVariableNames.size)
-            }))"
 
-        //生成的as方法返回类型(Observable<T>类型)
+        //返回类型(Observable<T>类型)
         val asFunReturnType = ParameterizedTypeName.get(
             ClassName.get(rxHttpPackage, "ObservableParser"), onParserFunReturnType
         )
 
-        val varargs = constructor.isVarArgs && parameterList.last().type is ArrayTypeName
         val parserClassName = ClassName.get(this)
+
+        val rxhttpKt = ClassName.get(rxHttpPackage, "RxHttpKt")
+        val types = getTypeVariableString(typeVariableNames) // <T>, <K, V> 等
+        //参数名
+        val paramsName = getParamsName(constructor.parameters, parameterList, typeVariableNames.size)
+        //方法体
+        val asXxxFunBody = if (typeVariableNames.size == 1) {
+            CodeBlock.of("return asParser(\$T.wrap${parserClassName.simpleName()}($paramsName))", rxhttpKt)
+        } else {
+            CodeBlock.of("return asParser(new \$T$types($paramsName))", parserClassName)
+        }
+
+        val varargs = constructor.isVarArgs && parameterList.last().type is ArrayTypeName
 
         val originParameters = constructor.parameters.map { ParameterSpec.get(it) }
 
@@ -121,7 +130,7 @@ private fun TypeElement.getAsXxxFun(
             .addTypeVariables(typeVariableNames)
             .addParameters(originParameters)
             .varargs(varargs)
-            .addStatement(methodBody, parserClassName)  //方法里面的表达式
+            .addStatement(asXxxFunBody)
             .returns(asFunReturnType)
             .build()
             .apply { methodList.add(this) }

@@ -722,7 +722,7 @@ class RxHttpGenerator(
             .addTypeVariable(t)
             .throws(IOException::class)
             .addParameter("type", type)
-            .addStatement("return execute(%T(type))", smartParserName)
+            .addStatement("return execute(%T.wrap(type))", smartParserName)
             .returns(t)
             .build()
             .let { methodList.add(it) }

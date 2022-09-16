@@ -7,12 +7,12 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.rxhttp.compiler.common.getParamsName
 import com.rxhttp.compiler.common.getTypeOfString
 import com.rxhttp.compiler.common.getTypeVariableString
-import com.rxhttp.compiler.getKClassName
 import com.rxhttp.compiler.isDependenceRxJava
 import com.rxhttp.compiler.rxHttpPackage
 import com.rxhttp.compiler.rxhttpKClassName
 import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.INT
@@ -46,6 +46,7 @@ class RxHttpExtensions(private val logger: KSPLogger) {
     private val progressName = ClassName("rxhttp.wrapper.entity", "Progress")
     private val toFunList = ArrayList<FunSpec>()
     private val asFunList = ArrayList<FunSpec>()
+    private val wrapFunList = ArrayList<FunSpec>()
 
     //根据@Parser注解，生成asXxx()、toXxx()、toFlowXxx()系列方法
     @KspExperimental
@@ -56,6 +57,8 @@ class RxHttpExtensions(private val logger: KSPLogger) {
             .map { it.toTypeVariableName().copy(reified = true) }
 
         val constructors = ksClass.getPublicConstructors()
+
+        val customParserClassName = ksClass.toClassName()
         //遍历构造方法
         for (constructor in constructors) {
             val tempParameters = constructor.parameters
@@ -94,8 +97,6 @@ class RxHttpExtensions(private val logger: KSPLogger) {
                 else -> "$typeOfs, $params"
             }
 
-            val parser = "%T$types($finalParams)"
-
             if (typeVariableNames.isNotEmpty() && isDependenceRxJava()) {  //对声明了泛型的解析器，生成kotlin编写的asXxx方法
                 val asXxxFunName = "as$key"
                 val asXxxFunBody = "return $asXxxFunName$types($finalParams)"
@@ -132,15 +133,53 @@ class RxHttpExtensions(private val logger: KSPLogger) {
 //                    .apply { asFunList.add(this) }
             }
 
+            val toXxxFunBody = if (typeVariableNames.size == 1) {
+                CodeBlock.of("return toParser(wrap${customParserClassName.simpleName}$types($finalParams))")
+            } else {
+                CodeBlock.of("return toParser(%T$types($finalParams))", customParserClassName)
+            }
+
             FunSpec.builder("to$key")
                 .addOriginatingKSFile(ksClass.containingFile!!)
                 .addModifiers(modifiers)
                 .receiver(callFactoryName)
                 .addParameters(parameterList)
-                .addStatement("return toParser($parser)", ksClass.toClassName())  //方法里面的表达式
+                .addCode(toXxxFunBody)  //方法里面的表达式
                 .addTypeVariables(typeVariableNames)
                 .build()
                 .apply { toFunList.add(this) }
+
+            if (typeVariableNames.size == 1) {
+                val t = TypeVariableName("T")
+                val type = ClassName("java.lang.reflect", "Type")
+                val parameterizedType = ClassName("java.lang.reflect", "ParameterizedType")
+                val okResponse = ClassName("rxhttp.wrapper.entity", "OkResponse")
+                val okResponseParser = ClassName("rxhttp.wrapper.parse", "OkResponseParser")
+                val parserClass = ClassName("rxhttp.wrapper.parse", "Parser").parameterizedBy(t)
+
+                val suppressAnnotation = AnnotationSpec.builder(Suppress::class)
+                    .addMember("\"UNCHECKED_CAST\"")
+                    .build()
+
+                FunSpec.builder("wrap${customParserClassName.simpleName}")
+                    .addTypeVariable(t)
+                    .addParameter("type", type)
+                    .addAnnotation(suppressAnnotation)
+                    .addParameters(parameterList)
+                    .returns(parserClass)
+                    .addCode(
+                        """
+                return 
+                    if (type is %T && type.rawType === %T::class.java) {
+                        val actualType = type.actualTypeArguments[0]
+                        %T(%T<Any>(actualType)) as Parser<T>
+                    } else {
+                        %T(type)
+                    }
+                """.trimIndent(), parameterizedType, okResponse, okResponseParser,
+                        customParserClassName, customParserClassName
+                    ).build().apply { wrapFunList.add(this) }
+            }
         }
     }
 
@@ -225,6 +264,8 @@ class RxHttpExtensions(private val logger: KSPLogger) {
 
             asFunList.forEach { fileBuilder.addFunction(it) }
         }
+
+        wrapFunList.forEach { fileBuilder.addFunction(it) }
 
         val deprecatedAnnotation = AnnotationSpec.builder(Deprecated::class)
             .addMember(

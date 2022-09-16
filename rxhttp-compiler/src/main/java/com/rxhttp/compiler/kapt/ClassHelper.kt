@@ -124,7 +124,7 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
                 }
 
                 public final <T> ObservableParser<T> asClass(Type type) {
-                    return asParser(new SmartParser<>(type));
+                    return asParser(SmartParser.wrap(type));
                 }
                 
                 public final <T> ObservableParser<T> asClass(Class<T> clazz) {

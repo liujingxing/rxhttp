@@ -9,7 +9,6 @@ import com.example.httpsender.`param`.PostEncryptJsonParam
 import com.example.httpsender.`param`.PostEncryptJsonParam1
 import com.example.httpsender.entity.PageList
 import com.example.httpsender.entity.Url.baseUrl
-import com.example.httpsender.parser.ResponseParser
 import java.io.IOException
 import java.lang.Class
 import java.lang.reflect.Type
@@ -368,7 +367,7 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
   public fun <T> executeClass(clazz: Class<T>): T = executeClass(clazz as Type)
 
   @Throws(IOException::class)
-  public fun <T> executeClass(type: Type): T = execute(SmartParser(type))
+  public fun <T> executeClass(type: Type): T = execute(SmartParser.wrap(type))
 
   public override fun newCall(): Call {
     val request = buildRequest()
@@ -391,7 +390,7 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
     addDefaultDomainIfAbsent()
   }
 
-  public fun <T> asResponse(type: Type) = asParser(ResponseParser<T>(type))
+  public fun <T> asResponse(type: Type) = asParser(wrapResponseParser<T>(type))
 
   public fun <T> asResponse(type: Class<T>): ObservableParser<T> = asResponse(type as Type)
 
