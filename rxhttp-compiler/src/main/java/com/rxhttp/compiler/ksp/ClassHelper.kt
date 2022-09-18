@@ -435,7 +435,6 @@ class ClassHelper(
             import java.util.concurrent.atomic.AtomicInteger;
 
             import ${getClassPath("Observable")};
-            import ${getClassPath("ObservableSource")};
             import ${getClassPath("Observer")};
             import ${getClassPath("Scheduler")};
             import ${getClassPath("Scheduler")}.Worker;
@@ -443,6 +442,7 @@ class ClassHelper(
             import ${getClassPath("Exceptions")};
             import ${getClassPath("Consumer")};
             import ${getClassPath("DisposableHelper")};
+            import ${getClassPath("TrampolineScheduler")};
             import ${getClassPath("RxJavaPlugins")};
             import okhttp3.Response;
             import rxhttp.wrapper.CallFactory;
@@ -472,7 +472,7 @@ class ClassHelper(
 
                 @Override
                 protected void subscribeActual(@NonNull Observer<? super T> observer) {
-                    if (scheduler == null) {
+                    if (scheduler == null || scheduler instanceof TrampolineScheduler) {
                         source.subscribe(new SyncParserObserver<>(observer, parser, progressConsumer));
                     } else {
                         Worker worker = scheduler.createWorker();

@@ -51,6 +51,7 @@ fun initRxJavaVersion(version: String?) {
         }
         rxJavaClassList["Disposable"] = "io.reactivex.rxjava3.disposables"
         rxJavaClassList["ObservableSource"] = "io.reactivex.rxjava3.core"
+        rxJavaClassList["TrampolineScheduler"] = "io.reactivex.rxjava3.internal.schedulers"
     } else {
         rxJavaClassList["Scheduler"] = "io.reactivex"
         rxJavaClassList["Observable"] = "io.reactivex"
@@ -64,6 +65,7 @@ fun initRxJavaVersion(version: String?) {
         rxJavaClassList["SpscArrayQueue"] = "io.reactivex.internal.queue"
         rxJavaClassList["Disposable"] = "io.reactivex.disposables"
         rxJavaClassList["ObservableSource"] = "io.reactivex"
+        rxJavaClassList["TrampolineScheduler"] = "io.reactivex.internal.schedulers"
     }
 }
 

@@ -5,7 +5,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import io.reactivex.rxjava3.core.Observable;
-import io.reactivex.rxjava3.core.ObservableSource;
 import io.reactivex.rxjava3.core.Observer;
 import io.reactivex.rxjava3.core.Scheduler;
 import io.reactivex.rxjava3.core.Scheduler.Worker;
@@ -13,6 +12,7 @@ import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.exceptions.Exceptions;
 import io.reactivex.rxjava3.functions.Consumer;
 import io.reactivex.rxjava3.internal.disposables.DisposableHelper;
+import io.reactivex.rxjava3.internal.schedulers.TrampolineScheduler;
 import io.reactivex.rxjava3.plugins.RxJavaPlugins;
 import okhttp3.Response;
 import rxhttp.wrapper.CallFactory;
@@ -42,7 +42,7 @@ public final class ObservableParser<T> extends Observable<T> {
 
     @Override
     protected void subscribeActual(@NonNull Observer<? super T> observer) {
-        if (scheduler == null) {
+        if (scheduler == null || scheduler instanceof TrampolineScheduler) {
             source.subscribe(new SyncParserObserver<>(observer, parser, progressConsumer));
         } else {
             Worker worker = scheduler.createWorker();
