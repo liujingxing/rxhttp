@@ -76,6 +76,10 @@ RxHttp.get("/server/..")     RxHttp.get("/server/..")     RxHttp.get("/server/..
 | 全局加解密| ✅ | ❌需再次封装 |
 | 部分字段解密 | ✅ | ❌需再次封装 |
 
+**说明**
+
+也许你有会有疑问，RxHttp源码大小仅比retrofit大6k的情况下，jar包大小为何会大一倍多？功能太多导致的代码臃肿？并不是，而是由kotlin导致的，在RxHttp内部，为了支持`Await/Flow`，运用了大量的kotlin内联方法及扩展方法，这些方法在编译为字节码后，都会相对较大，其中[AwaitTransform.kt](https://github.com/liujingxing/rxhttp/blob/master/rxhttp/src/main/java/rxhttp/AwaitTransform.kt)、[CallFactoryToAwait.kt](https://github.com/liujingxing/rxhttp/blob/master/rxhttp/src/main/java/rxhttp/CallFactoryToAwait.kt)、[CallFactoryToFlow.kt](https://github.com/liujingxing/rxhttp/blob/master/rxhttp/src/main/java/rxhttp/CallFactoryToFlow.kt)这3个kotlin文件，编译为字节码后，就达到了100k+, 再加上其他kotlin文件，就达到了目前的jar包大小
+
 
 # 3、相关文档
 
