@@ -78,7 +78,7 @@ kotlin {
 }
     
 dependencies {
-    def rxhttp_version = '2.9.3'
+    def rxhttp_version = '2.9.5'
     implementation 'com.squareup.okhttp3:okhttp:4.10.0'  
     implementation "com.github.liujingxing.rxhttp:rxhttp:$rxhttp_version"
     // ksp/kapt/annotationProcessor choose one
