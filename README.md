@@ -8,17 +8,85 @@ A type-safe HTTP client for Android. Written based on OkHttp
 
 
 ![sequence_chart_en.jpg](https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/2c637845930b49d7a7466ec7b5dcdb77~tplv-k3u1fbpfcp-watermark.image)
-```kotlin
-//Kotlin + Await             //Kotlin + Flow              //Kotlin + RxJava            //Java + RxJava
-RxHttp.get("/server/..")     RxHttp.get("/server/..")     RxHttp.get("/server/..")     RxHttp.get("/server/..")   
-    .add("key", "value")         .add("key", "value")         .add("key", "value")         .add("key", "value")
-    .toClass<User>()             .toFlow<User>()              .asClass<User>()             .asClass(User.class)
-    .awaitResult {               .catch {                     .subscribe({                 .subscribe(user -> {
-        //Success                    //Failure                    //Success                    //Success     
-    }.onFailure {                }.collect {                  }, {                         }, throwable -> { 
-        //Failure                    //Success                    //Failure                    //Failure
-    }                            }                            })                           });
-```
+
+
+<table>
+  <tr>
+     <th align="center">Await</th>
+     <th align="center">Flow</th>
+     <th align="center">RxJava<br>(Kotlin)</th>
+     <th align="center">RxJava<br>(Java)</th>
+  </tr>
+ 
+ <tr>
+ <td>
+  
+  ```java
+  //await return User
+  //tryAwait return User?
+  val user = RxHttp.get("/server/..")
+      .add("key", "value")
+      .toClass<User>()
+      .await() 
+  
+  //or awaitResult return kotlin.Result<T>
+  RxHttp.get("/server/..")
+      .add("key", "value")
+      .toClass<User>()  
+      .awaitResult { 
+          //Success
+      }.onFailure {  
+          //Failure
+      } 
+  ```
+ </td>
+  
+   <td>
+  
+  ```java
+  RxHttp.get("/server/..")
+      .add("key", "value")
+      .toFlow<User>()  
+      .catch { 
+          //Failure
+      }.collect {  
+          //Success
+      }           
+  ```
+ </td>
+    
+   <td>
+  
+  ```java
+  RxHttp.get("/server/..")
+      .add("key", "value")
+      .asClass<User>()  
+      .subscribe({ 
+          //Success
+      }, {  
+          //Failure
+      })           
+  ```
+ </td>
+    
+   <td>
+  
+  ```java
+  RxHttp.get("/server/..")
+      .add("key", "value")
+      .asClass(User.class)  
+      .subscribe(user - > { 
+          //Success
+      }, throwable -> {  
+          //Failure
+      })           
+  ```
+ </td>
+  
+ </tr>
+ 
+ </table>
+
 
 
 ## 1、Feature
