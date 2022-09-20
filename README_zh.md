@@ -37,17 +37,82 @@
 
 ***代码表示，
 [asXxx、toXxx、toFlowXxx方法介绍点这里](https://github.com/liujingxing/rxhttp/wiki/RxJava%E3%80%81Await%E3%80%81Flow-%E5%AF%B9%E5%BA%94%E7%9A%84-asXxx%E3%80%81toXxx%E3%80%81toFlowXxx%E6%96%B9%E6%B3%95%E4%BB%8B%E7%BB%8D)***
-```kotlin
-//Kotlin + Await             //Kotlin + Flow              //Kotlin + RxJava            //Java + RxJava
-RxHttp.get("/server/..")     RxHttp.get("/server/..")     RxHttp.get("/server/..")     RxHttp.get("/server/..")   
-    .add("key", "value")         .add("key", "value")         .add("key", "value")         .add("key", "value")
-    .toClass<User>()             .toFlow<User>()              .asClass<User>()             .asClass(User.class)
-    .awaitResult {               .catch {                     .subscribe({                 .subscribe(user -> {
-        //成功回调                     //异常回调                    //成功回调                     //成功回调     
-    }.onFailure {                }.collect {                  }, {                         }, throwable -> { 
-        //异常回调                     //成功回调                    //异常回调                     //异常回调
-    }                            }                            })                           });
-```
+
+<table>
+  <tr>
+     <th align="center">Await</th>
+     <th align="center">Flow</th>
+     <th align="center">RxJava<br>(Kotlin)</th>
+     <th align="center">RxJava<br>(Java)</th>
+  </tr>
+ 
+ <tr>
+ <td>
+  
+  ```java
+  //同步式写法
+  val user = RxHttp.get("/server/..")
+      .add("key", "value")
+      .toClass<User>()
+      .await() //tryAwait return User?
+  
+  //回调式写法
+  RxHttp.get("/server/..")
+      .add("key", "value")
+      .toClass<User>()  
+      .awaitResult { 
+          //成功回调   
+      }.onFailure {  
+          //异常回调  
+      } 
+  ```
+ </td>
+  
+   <td>
+  
+  ```java
+  RxHttp.get("/server/..")
+      .add("key", "value")
+      .toFlow<User>()  
+      .catch { 
+          //异常回调   
+      }.collect {  
+          //成功回调  
+      }           
+  ```
+ </td>
+    
+   <td>
+  
+  ```java
+  RxHttp.get("/server/..")
+      .add("key", "value")
+      .asClass<User>()  
+      .subscribe({ 
+          //成功回调   
+      }, {  
+          //异常回调  
+      })           
+  ```
+ </td>
+    
+   <td>
+  
+  ```java
+  RxHttp.get("/server/..")
+      .add("key", "value")
+      .asClass(User.class)  
+      .subscribe(user - > { 
+          //成功回调   
+      }, throwable -> {  
+          //异常回调  
+      })           
+  ```
+ </td>
+  
+ </tr>
+ 
+ </table>
 
 ***RxHttp与Retrofit对比***
 
