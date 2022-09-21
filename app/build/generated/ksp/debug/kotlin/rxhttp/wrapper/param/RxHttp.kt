@@ -392,14 +392,14 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
 
   public fun <T> asResponse(type: Type) = asParser(wrapResponseParser<T>(type))
 
-  public fun <T> asResponse(type: Class<T>): ObservableParser<T> = asResponse(type as Type)
+  public fun <T> asResponse(type: Class<T>): ObservableCall<T> = asResponse(type as Type)
 
-  public fun <T> asResponseList(type: Class<T>): ObservableParser<List<T>> {
+  public fun <T> asResponseList(type: Class<T>): ObservableCall<List<T>> {
     val typeList = ParameterizedTypeImpl.get(List::class.java, type)
     return asResponse(typeList)
   }
 
-  public fun <T> asResponsePageList(type: Class<T>): ObservableParser<PageList<T>> {
+  public fun <T> asResponsePageList(type: Class<T>): ObservableCall<PageList<T>> {
     val typePageList = ParameterizedTypeImpl.get(PageList::class.java, type)
     return asResponse(typePageList)
   }

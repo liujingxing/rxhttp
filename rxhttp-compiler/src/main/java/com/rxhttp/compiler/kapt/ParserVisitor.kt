@@ -103,7 +103,7 @@ private fun TypeElement.getAsXxxFun(
 
         //返回类型(Observable<T>类型)
         val asFunReturnType = ParameterizedTypeName.get(
-            ClassName.get(rxHttpPackage, "ObservableParser"), onParserFunReturnType
+            ClassName.get(rxHttpPackage, "ObservableCall"), onParserFunReturnType
         )
 
         val parserClassName = ClassName.get(this)
@@ -206,7 +206,7 @@ private fun ExecutableElement.getAsXxxFun(
             } else {
                 ParameterizedTypeName.get(wrapperClass, onParserFunReturnType)
             }
-        val observableParserName = ClassName.get(rxHttpPackage, "ObservableParser")
+        val observableParserName = ClassName.get(rxHttpPackage, "ObservableCall")
         val asFunReturnType =
             ParameterizedTypeName.get(observableParserName, onParserFunReturnWrapperType)
 

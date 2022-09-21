@@ -48,32 +48,25 @@ abstract class BaseRxHttp : CallFactory, RangeHeader {
         }
     }
 
-    protected fun <T> asObservable(
-        parser: Parser<T>,
-        scheduler: Scheduler? = null,
-        progressConsumer: Consumer<Progress>? = null
-    ) = ObservableParser(this, parser, scheduler, progressConsumer)
-
-    fun <T> asParser(parser: Parser<T>) = asObservable(parser)
+    fun <T> asParser(parser: Parser<T>) = ObservableCall(this, parser)
 
     fun <T> asClass(type: Type) = asParser(SmartParser.wrap<T>(type))
-    
+
     fun <T> asClass(clazz: Class<T>) = asClass<T>(clazz as Type)
 
-    fun asString(): ObservableParser<String> = asClass(String::class.java)
+    fun asString() = asClass(String::class.java)
 
-    fun <V> asMapString(vType: Class<V>) :ObservableParser<Map<String, V>> =
-        asClass(ParameterizedTypeImpl.getParameterized(MutableMap::class.java, String::class.java, vType))
+    fun <V> asMapString(vType: Class<V>) =
+        asClass<Map<String, V>>(ParameterizedTypeImpl.getParameterized(MutableMap::class.java,String::class.java,vType))
 
-    fun <T> asList(tType: Class<T>): ObservableParser<List<T>> =
-        asClass(ParameterizedTypeImpl[MutableList::class.java, tType])
-        
-    
-    fun asBitmap(): ObservableParser<Bitmap> = asClass(Bitmap::class.java)
-    
-    fun asOkResponse(): ObservableParser<Response> = asClass(Response::class.java)
+    fun <T> asList(tType: Class<T>) =
+        asClass<List<T>>(ParameterizedTypeImpl[MutableList::class.java, tType])
 
-    fun asHeaders(): ObservableParser<Headers> = asClass(Headers::class.java)
+    fun asBitmap() = asClass(Bitmap::class.java)
+
+    fun asOkResponse() = asClass(Response::class.java)
+
+    fun asHeaders() = asClass(Headers::class.java)
 
     fun asDownload(
         destPath: String,
@@ -97,14 +90,14 @@ abstract class BaseRxHttp : CallFactory, RangeHeader {
         progressConsumer: Consumer<Progress>? = null
     ): Observable<Uri> =
         asDownload(UriOutputStreamFactory(context, uri), scheduler, progressConsumer)
-    
+
     @JvmOverloads
     fun <T> asDownload(
         osFactory: OutputStreamFactory<T>,
         scheduler: Scheduler? = null,
         progressConsumer: Consumer<Progress>? = null
-    ): Observable<T> =
-        asObservable(StreamParser(osFactory), scheduler, progressConsumer)
+    ): Observable<T> = asParser(StreamParser(osFactory))
+        .onUploadProgress(scheduler, progressConsumer)
 
     @JvmOverloads
     fun asAppendDownload(
@@ -136,5 +129,5 @@ abstract class BaseRxHttp : CallFactory, RangeHeader {
                 StreamParser(osFactory)
             }
             .subscribeOn(Schedulers.io())
-            .flatMap { asObservable(it, scheduler, progressConsumer) }
+            .flatMap { asParser(it).onUploadProgress(scheduler, progressConsumer) }
 }    

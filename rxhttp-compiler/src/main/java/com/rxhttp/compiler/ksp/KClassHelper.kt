@@ -105,39 +105,32 @@ class KClassHelper(
                     }
                 }
 
-                protected fun <T> asObservable(
-                    parser: Parser<T>,
-                    scheduler: Scheduler? = null,
-                    progressConsumer: Consumer<Progress>? = null
-                ) = ObservableParser(this, parser, scheduler, progressConsumer)
+                fun <T> asParser(parser: Parser<T>) = ObservableCall(this, parser)
 
-                fun <T> asParser(parser: Parser<T>) = asObservable(parser)
-            
                 fun <T> asClass(type: Type) = asParser(SmartParser.wrap<T>(type))
-                
+
                 fun <T> asClass(clazz: Class<T>) = asClass<T>(clazz as Type)
-            
-                fun asString(): ObservableParser<String> = asClass(String::class.java)
-            
-                fun <V> asMapString(vType: Class<V>) :ObservableParser<Map<String, V>> =
-                    asClass(ParameterizedTypeImpl.getParameterized(MutableMap::class.java, String::class.java, vType))
-            
-                fun <T> asList(tType: Class<T>): ObservableParser<List<T>> =
-                    asClass(ParameterizedTypeImpl[MutableList::class.java, tType])
-                    
-                ${isAndroid("""
-                fun asBitmap(): ObservableParser<Bitmap> = asClass(Bitmap::class.java)
-                """)}
-                fun asOkResponse(): ObservableParser<Response> = asClass(Response::class.java)
-            
-                fun asHeaders(): ObservableParser<Headers> = asClass(Headers::class.java)
-            
+
+                fun asString() = asClass(String::class.java)
+
+                fun <V> asMapString(vType: Class<V>) =
+                    asClass<Map<String, V>>(ParameterizedTypeImpl.getParameterized(MutableMap::class.java,String::class.java,vType))
+
+                fun <T> asList(tType: Class<T>) =
+                    asClass<List<T>>(ParameterizedTypeImpl[MutableList::class.java, tType])
+
+                fun asBitmap() = asClass(Bitmap::class.java)
+
+                fun asOkResponse() = asClass(Response::class.java)
+
+                fun asHeaders() = asClass(Headers::class.java)
+
                 fun asDownload(
                     destPath: String,
                     progressConsumer: Consumer<Progress>?
                 ): Observable<String> =
                     asDownload(destPath, null, progressConsumer)
-            
+
                 @JvmOverloads
                 fun asDownload(
                     destPath: String,
@@ -145,7 +138,7 @@ class KClassHelper(
                     progressConsumer: Consumer<Progress>? = null
                 ): Observable<String> =
                     asDownload(FileOutputStreamFactory(destPath), scheduler, progressConsumer)
-                ${isAndroid("""
+                
                 @JvmOverloads
                 fun asDownload(
                     context: Context,
@@ -154,15 +147,15 @@ class KClassHelper(
                     progressConsumer: Consumer<Progress>? = null
                 ): Observable<Uri> =
                     asDownload(UriOutputStreamFactory(context, uri), scheduler, progressConsumer)
-                """)}
+
                 @JvmOverloads
                 fun <T> asDownload(
                     osFactory: OutputStreamFactory<T>,
                     scheduler: Scheduler? = null,
                     progressConsumer: Consumer<Progress>? = null
-                ): Observable<T> =
-                    asObservable(StreamParser(osFactory), scheduler, progressConsumer)
-            
+                ): Observable<T> = asParser(StreamParser(osFactory))
+                    .onUploadProgress(scheduler, progressConsumer)
+
                 @JvmOverloads
                 fun asAppendDownload(
                     destPath: String,
@@ -170,7 +163,7 @@ class KClassHelper(
                     progressConsumer: Consumer<Progress>? = null
                 ): Observable<String> =
                     asAppendDownload(FileOutputStreamFactory(destPath), scheduler, progressConsumer)
-                ${isAndroid("""
+                
                 @JvmOverloads
                 fun asAppendDownload(
                     context: Context,
@@ -179,7 +172,7 @@ class KClassHelper(
                     progressConsumer: Consumer<Progress>? = null
                 ): Observable<Uri> =
                     asAppendDownload(UriOutputStreamFactory(context, uri), scheduler, progressConsumer)
-                """)}
+                
                 @JvmOverloads
                 fun <T> asAppendDownload(
                     osFactory: OutputStreamFactory<T>, 
@@ -193,7 +186,7 @@ class KClassHelper(
                             StreamParser(osFactory)
                         }
                         .subscribeOn(Schedulers.io())
-                        .flatMap { asObservable(it, scheduler, progressConsumer) }
+                        .flatMap { asParser(it).onUploadProgress(scheduler, progressConsumer) }
             }    
 
         """.trimIndent()

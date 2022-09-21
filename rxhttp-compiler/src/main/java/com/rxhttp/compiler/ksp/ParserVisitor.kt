@@ -124,7 +124,7 @@ private fun KSClassDeclaration.getAsXxxFun(
 
         //返回类型(Observable<T>类型)
         val asFunReturnType =
-            ClassName(rxHttpPackage, "ObservableParser").parameterizedBy(onParserFunReturnType)
+            ClassName(rxHttpPackage, "ObservableCall").parameterizedBy(onParserFunReturnType)
 
         val parserClassName = toClassName()
 
@@ -225,7 +225,7 @@ private fun KSFunctionDeclaration.getAsXxxFun(
             } else {
                 wrapperClass.parameterizedBy(onParserFunReturnType.copy(false))
             }
-        val asFunReturnType = ClassName(rxHttpPackage, "ObservableParser")
+        val asFunReturnType = ClassName(rxHttpPackage, "ObservableCall")
             .parameterizedBy(onParserFunReturnWrapperType.copy(onParserFunReturnType.isNullable))
 
         //2、asXxx方法名

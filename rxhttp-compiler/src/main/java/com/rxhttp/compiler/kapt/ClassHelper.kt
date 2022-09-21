@@ -34,7 +34,7 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
         generatorObservableCall(filer)
 //        generatorObservableCallEnqueue(filer)
 //        generatorObservableCallExecute(filer)
-        generatorObservableParser(filer)
+        generatorObservableProgress(filer)
     }
 
     private fun generatorBaseRxHttp(filer: Filer) {
@@ -111,49 +111,41 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
                     }                                                                          
                 }                                                                              
 
-                protected final <T> ObservableParser<T> asObservable(Parser<T> parser) {
-                    return asObservable(parser, null, null);
-                }    
-
-                protected <T> ObservableParser<T> asObservable(Parser<T> parser, Scheduler scheduler, Consumer<Progress> progressConsumer) {
-                    return new ObservableParser(this, parser, scheduler, progressConsumer);
-                }        
-
-                public final <T> ObservableParser<T> asParser(Parser<T> parser) {
-                    return asObservable(parser);
+                public final <T> ObservableCall<T> asParser(Parser<T> parser) {
+                    return new ObservableCall(this, parser);
                 }
 
-                public final <T> ObservableParser<T> asClass(Type type) {
+                public final <T> ObservableCall<T> asClass(Type type) {
                     return asParser(SmartParser.wrap(type));
                 }
                 
-                public final <T> ObservableParser<T> asClass(Class<T> clazz) {
+                public final <T> ObservableCall<T> asClass(Class<T> clazz) {
                     return asClass((Type) clazz);
                 }
 
-                public final ObservableParser<String> asString() {
+                public final ObservableCall<String> asString() {
                     return asClass(String.class);
                 }
 
-                public final <V> ObservableParser<Map<String, V>> asMapString(Class<V> vType) {
+                public final <V> ObservableCall<Map<String, V>> asMapString(Class<V> vType) {
                     Type tTypeMap = ParameterizedTypeImpl.getParameterized(Map.class, String.class, vType);
                     return asClass(tTypeMap);
                 }
 
-                public final <T> ObservableParser<List<T>> asList(Class<T> tType) {
+                public final <T> ObservableCall<List<T>> asList(Class<T> tType) {
                     Type tTypeList = ParameterizedTypeImpl.get(List.class, tType);
                     return asClass(tTypeList);
                 }
                 ${isAndroid("""
-                public final ObservableParser<Bitmap> asBitmap() {
+                public final ObservableCall<Bitmap> asBitmap() {
                     return asClass(Bitmap.class);
                 }
                 """)}
-                public final ObservableParser<Response> asOkResponse() {
+                public final ObservableCall<Response> asOkResponse() {
                     return asClass(Response.class);
                 }
 
-                public final Observable<Headers> asHeaders() {               
+                public final ObservableCall<Headers> asHeaders() {               
                     return asClass(Headers.class);                                        
                 }
 
@@ -186,7 +178,8 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
                                                                                            
                 public final <T> Observable<T> asDownload(OutputStreamFactory<T> osFactory, Scheduler scheduler,
                                                            Consumer<Progress> progressConsumer) {
-                    return asObservable(new StreamParser<>(osFactory), scheduler, progressConsumer);
+                    return asParser(new StreamParser<>(osFactory))
+                        .onUploadProgress(scheduler, progressConsumer);
                 }
                 
                 public final Observable<String> asAppendDownload(String destPath) {                    
@@ -221,7 +214,7 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
                             return new StreamParser<>(osFactory);
                         })
                         .subscribeOn(Schedulers.io())
-                        .flatMap(parser -> asObservable(parser, scheduler, progressConsumer));
+                        .flatMap(parser -> asParser(parser).onUploadProgress(scheduler, progressConsumer));
                 }
                 
             }
@@ -467,6 +460,7 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
             import androidx.annotation.NonNull;
 
             import java.io.IOException;
+            import java.util.Objects;
 
             import ${getClassPath("Observable")};
             import ${getClassPath("Observer")};
@@ -475,15 +469,15 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
             import ${getClassPath("Exceptions")};
             import ${getClassPath("Consumer")};
             import ${getClassPath("RxJavaPlugins")};
+            import ${getClassPath("Schedulers")};
             import okhttp3.Call;
             import okhttp3.Callback;
             import okhttp3.Response;
             import rxhttp.wrapper.BodyParamFactory;
             import rxhttp.wrapper.CallFactory;
-            import rxhttp.wrapper.callback.ProgressCallback;
             import rxhttp.wrapper.entity.Progress;
-            import rxhttp.wrapper.entity.ProgressT;
             import rxhttp.wrapper.parse.Parser;
+            import rxhttp.wrapper.parse.StreamParser;
             import rxhttp.wrapper.utils.LogUtil;
             
             /**
@@ -491,60 +485,111 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
              * Date: 2020/9/5
              * Time: 21:59
              */
-            public class ObservableCall extends Observable<Progress> {
-            
-                private CallFactory callFactory;
+            public class ObservableCall<T> extends Observable<T> {
+
+                private final Parser<T> parser;
+                private final CallFactory callFactory;
                 private boolean syncRequest = false;
-                private boolean callbackUploadProgress = false;
-            
-                public ObservableCall(CallFactory callFactory) {
+
+                public ObservableCall(CallFactory callFactory, Parser<T> parser) {
                     this.callFactory = callFactory;
+                    this.parser = parser;
                 }
-            
+
                 @Override
-                public void subscribeActual(Observer<? super Progress> observer) {
-                    CallExecuteDisposable d = syncRequest ? new CallExecuteDisposable(observer, callFactory, callbackUploadProgress) :
-                        new CallEnqueueDisposable(observer, callFactory, callbackUploadProgress);
+                protected void subscribeActual(Observer<? super T> observer) {
+                    CallExecuteDisposable d = syncRequest ? new CallExecuteDisposable(observer, callFactory, parser) :
+                        new CallEnqueueDisposable(observer, callFactory, parser);
                     observer.onSubscribe(d);
                     if (d.isDisposed()) {
                         return;
                     }
                     d.run();
                 }
-            
-                public void syncRequest() {
+
+                public ObservableCall<T> syncRequest() {
                     syncRequest = true;
+                    return this;
                 }
-            
-                public void enableUploadProgressCallback() {
-                    callbackUploadProgress = true;
+
+                public Observable<T> onUploadProgress(Consumer<Progress> progressConsumer) {
+                    return onUploadProgress(Schedulers.io(), progressConsumer);
                 }
-            
-                private static class CallEnqueueDisposable extends CallExecuteDisposable implements Callback {
-            
-                    /**
-                     * Constructs a DeferredScalarDisposable by wrapping the Observer.
-                     *
-                     * @param downstream             the Observer to wrap, not null (not verified)
-                     * @param callFactory
-                     * @param callbackUploadProgress
-                     */
-                    CallEnqueueDisposable(Observer<? super Progress> downstream, CallFactory callFactory, boolean callbackUploadProgress) {
-                        super(downstream, callFactory, callbackUploadProgress);
+
+                public Observable<T> onUploadProgress(Scheduler scheduler, Consumer<Progress> progressConsumer) {
+                    if (!(parser instanceof StreamParser) && !(callFactory instanceof BodyParamFactory)) {
+                        throw new UnsupportedOperationException("parser is " + parser.getClass().getSimpleName() + ", callFactory is " + callFactory.getClass().getSimpleName());
                     }
-            
+                    return new ObservableProgress(this, scheduler, progressConsumer);
+                }
+
+                static class CallEnqueueDisposable<T> extends CallExecuteDisposable<T> implements Callback {
+
+                    CallEnqueueDisposable(Observer<? super T> downstream, CallFactory callFactory, Parser<T> parser) {
+                        super(downstream, callFactory, parser);
+                    }
+
                     @Override
                     public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                        if (!disposed) {
-                            downstream.onNext(new ProgressT<>(response));
-                        }
-                        if (!disposed) {
-                            downstream.onComplete();
+                        try {
+                            T t = Objects.requireNonNull(parser.onParse(response), "The onParse function returned a null value.");
+                            if (!disposed) {
+                                downstream.onNext(t);
+                            }
+                            if (!disposed) {
+                                downstream.onComplete();
+                            }
+                        } catch (Throwable t) {
+                            onError(call, t);
+                            return;
                         }
                     }
-            
+
                     @Override
                     public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                        onError(call, e);
+                    }
+
+                    @Override
+                    public void run() {
+                        call = callFactory.newCall();
+                        call.enqueue(this);
+                    }
+                }
+
+
+                static class CallExecuteDisposable<T> implements Disposable {
+
+                    protected final Observer<? super T> downstream;
+                    protected final Parser<T> parser;
+                    protected final CallFactory callFactory;
+                    protected volatile boolean disposed;
+                    protected Call call;
+
+                    CallExecuteDisposable(Observer<? super T> downstream, CallFactory callFactory, Parser<T> parser) {
+                        this.downstream = downstream;
+                        this.callFactory = callFactory;
+                        this.parser = parser;
+                    }
+
+                    public void run() {
+                        call = callFactory.newCall();
+                        try {
+                            Response response = call.execute();
+                            T t = Objects.requireNonNull(parser.onParse(response), "The onParse function returned a null value.");
+                            if (!disposed) {
+                                downstream.onNext(t);
+                            }
+                            if (!disposed) {
+                                downstream.onComplete();
+                            }
+                        } catch (Throwable e) {
+                            onError(call, e);
+                            return;
+                        }
+                    }
+
+                    void onError(Call call, Throwable e) {
                         LogUtil.log(call.request().url().toString(), e);
                         Exceptions.throwIfFatal(e);
                         if (!disposed) {
@@ -553,68 +598,13 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
                             RxJavaPlugins.onError(e);
                         }
                     }
-            
-                    @Override
-                    public void run() {
-                        call.enqueue(this);
-                    }
-                }
-            
-            
-                private static class CallExecuteDisposable implements Disposable, ProgressCallback {
-            
-                    protected final Call call;
-                    protected final Observer<? super Progress> downstream;
-                    protected volatile boolean disposed;
-            
-                    /**
-                     * Constructs a DeferredScalarDisposable by wrapping the Observer.
-                     *
-                     * @param downstream the Observer to wrap, not null (not verified)
-                     */
-                    CallExecuteDisposable(Observer<? super Progress> downstream, CallFactory callFactory, boolean callbackUploadProgress) {
-                        if (callFactory instanceof BodyParamFactory && callbackUploadProgress) {
-                            ((BodyParamFactory) callFactory).getParam().setProgressCallback(this);
-                        }
-                        this.downstream = downstream;
-                        this.call = callFactory.newCall();
-                    }
-            
-                    @Override
-                    public void onProgress(int progress, long currentSize, long totalSize) {
-                        if (!disposed) {
-                            downstream.onNext(new Progress(progress, currentSize, totalSize));
-                        }
-                    }
-            
-                    public void run() {
-                        Response value;
-                        try {
-                            value = call.execute();
-                        } catch (Throwable e) {
-                            LogUtil.log(call.request().url().toString(), e);
-                            Exceptions.throwIfFatal(e);
-                            if (!disposed) {
-                                downstream.onError(e);
-                            } else {
-                                RxJavaPlugins.onError(e);
-                            }
-                            return;
-                        }
-                        if (!disposed) {
-                            downstream.onNext(new ProgressT<>(value));
-                        }
-                        if (!disposed) {
-                            downstream.onComplete();
-                        }
-                    }
-            
+
                     @Override
                     public void dispose() {
                         disposed = true;
                         call.cancel();
                     }
-            
+
                     @Override
                     public boolean isDisposed() {
                         return disposed;
@@ -625,11 +615,11 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
         """.trimIndent())
     }
 
-    private fun generatorObservableParser(filer: Filer) {
-        generatorClass(filer, "ObservableParser", """
+    private fun generatorObservableProgress(filer: Filer) {
+        generatorClass(filer, "ObservableProgress", """
             package $rxHttpPackage;
 
-            import java.util.Objects;
+            import java.util.Queue;
             import java.util.concurrent.LinkedBlockingQueue;
             import java.util.concurrent.atomic.AtomicInteger;
 
@@ -643,74 +633,45 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
             import ${getClassPath("DisposableHelper")};
             import ${getClassPath("TrampolineScheduler")};
             import ${getClassPath("RxJavaPlugins")};
-            import okhttp3.Response;
-            import rxhttp.wrapper.CallFactory;
+            import rxhttp.wrapper.BodyParamFactory;
             import rxhttp.wrapper.annotations.NonNull;
-            import rxhttp.wrapper.annotations.Nullable;
             import rxhttp.wrapper.callback.ProgressCallback;
             import rxhttp.wrapper.entity.Progress;
-            import rxhttp.wrapper.entity.ProgressT;
-            import rxhttp.wrapper.parse.Parser;
+            import rxhttp.wrapper.param.ObservableCall.CallExecuteDisposable;
             import rxhttp.wrapper.parse.StreamParser;
-            import rxhttp.wrapper.utils.LogUtil;
 
-            public final class ObservableParser<T> extends Observable<T> {
+            public final class ObservableProgress<T> extends Observable<T> {
 
-                private final Parser<T> parser;
-                private final ObservableCall source;
+                private final Observable<T> source;
                 private Scheduler scheduler;
                 private Consumer<Progress> progressConsumer;
 
-                ObservableParser(@NonNull CallFactory callFactory, @NonNull Parser<T> parser,
-                                        @Nullable Scheduler scheduler, @Nullable Consumer<Progress> progressConsumer) {
-                    this.source = new ObservableCall(callFactory);
-                    this.parser = parser;
+                ObservableProgress(ObservableCall<T> source, Scheduler scheduler, Consumer<Progress> progressConsumer) {
+                    this.source = source;
                     this.scheduler = scheduler;
                     this.progressConsumer = progressConsumer;
                 }
 
                 @Override
-                protected void subscribeActual(@NonNull Observer<? super T> observer) {
+                protected void subscribeActual(Observer<? super T> observer) {
                     if (scheduler == null || scheduler instanceof TrampolineScheduler) {
-                        source.subscribe(new SyncParserObserver<>(observer, parser, progressConsumer));
+                        source.subscribe(new SyncObserver<>(observer, progressConsumer));
                     } else {
                         Worker worker = scheduler.createWorker();
-                        source.subscribe(new AsyncParserObserver<>(observer, worker, progressConsumer, parser));
+                        source.subscribe(new AsyncObserver<>(worker, observer, progressConsumer));
                     }
                 }
-                
-                public ObservableParser<T> syncRequest() {
-                    source.syncRequest();
-                    return this;
-                }
-                
-                public ObservableParser<T> onUploadProgress(Consumer<Progress> progressConsumer) {
-                    return onUploadProgress(null, progressConsumer);
-                }
 
-                public ObservableParser<T> onUploadProgress(@Nullable Scheduler scheduler, Consumer<Progress> progressConsumer) {
-                    this.scheduler = scheduler;
-                    this.progressConsumer = progressConsumer;
-                    source.enableUploadProgressCallback();
-                    return this;
-                }
+                private static final class SyncObserver<T> implements Observer<T>, Disposable, ProgressCallback {
 
-                private static final class SyncParserObserver<T> implements Observer<Progress>, Disposable, ProgressCallback {
-                    private final Parser<T> parser;
-
-                    private Disposable upstream;
                     private final Observer<? super T> downstream;
                     private final Consumer<Progress> progressConsumer;
+                    private Disposable upstream;
                     private boolean done;
 
-                    SyncParserObserver(Observer<? super T> actual, Parser<T> parser, Consumer<Progress> progressConsumer) {
+                    SyncObserver(Observer<? super T> actual, Consumer<Progress> progressConsumer) {
                         this.downstream = actual;
-                        this.parser = parser;
                         this.progressConsumer = progressConsumer;
-
-                        if (progressConsumer != null && parser instanceof StreamParser) {
-                            ((StreamParser) parser).setProgressCallback(this);
-                        }
                     }
 
                     @Override
@@ -718,47 +679,37 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
                         if (DisposableHelper.validate(this.upstream, d)) {
                             this.upstream = d;
                             downstream.onSubscribe(this);
+
+                            if (d instanceof CallExecuteDisposable && progressConsumer != null) {
+                                CallExecuteDisposable callDisposable = (CallExecuteDisposable) d;
+                                if (callDisposable.parser instanceof StreamParser) {
+                                    ((StreamParser) callDisposable.parser).setProgressCallback(this);
+                                } else if (callDisposable.callFactory instanceof BodyParamFactory) {
+                                    ((BodyParamFactory) callDisposable.callFactory).getParam().setProgressCallback(this);
+                                }
+                            }
                         }
                     }
 
-                    //download progress callback
+                    // upload/download progress callback
                     @Override
                     public void onProgress(int progress, long currentSize, long totalSize) {
                         if (done) {
                             return;
                         }
                         try {
-                            //LogUtil.logDownProgress(progress, currentSize, totalSize);
                             progressConsumer.accept(new Progress(progress, currentSize, totalSize));
                         } catch (Throwable t) {
                             fail(t);
                         }
                     }
 
-                    @SuppressWarnings("unchecked")
                     @Override
-                    public void onNext(Progress progress) {
+                    public void onNext(T t) {
                         if (done) {
                             return;
                         }
-                        if (progress instanceof ProgressT) {
-                            ProgressT<Response> p = (ProgressT<Response>) progress;
-                            T v;
-                            try {
-                                v = Objects.requireNonNull(parser.onParse(p.getResult()), "The onParse function returned a null value.");
-                            } catch (Throwable t) {
-                                LogUtil.log(p.getResult().request().url().toString(), t);
-                                fail(t);
-                                return;
-                            }
-                            downstream.onNext(v);
-                        } else {
-                            try {
-                                progressConsumer.accept(progress);
-                            } catch (Throwable t) {
-                                fail(t);
-                            }
-                        }
+                        downstream.onNext(t);
                     }
 
                     @Override
@@ -798,32 +749,23 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
                 }
 
 
-                private static final class AsyncParserObserver<T> extends AtomicInteger
-                    implements Observer<Progress>, Disposable, ProgressCallback, Runnable {
+                private static final class AsyncObserver<T> extends AtomicInteger implements Observer<T>,
+                    Disposable, ProgressCallback, Runnable {
 
-                    private final Parser<T> parser;
                     private final Observer<? super T> downstream;
-
+                    private final Queue<Object> queue;
+                    private final Scheduler.Worker worker;
+                    private final Consumer<Progress> progressConsumer;
                     private Disposable upstream;
                     private Throwable error;
-
                     private volatile boolean done;
                     private volatile boolean disposed;
-                    private final LinkedBlockingQueue<Progress> queue;
-                    private final Scheduler.Worker worker;
 
-                    private final Consumer<Progress> progressConsumer;
-
-                    AsyncParserObserver(Observer<? super T> actual, Scheduler.Worker worker, Consumer<Progress> progressConsumer, Parser<T> parser) {
+                    AsyncObserver(Scheduler.Worker worker, Observer<? super T> actual, Consumer<Progress> progressConsumer) {
                         this.downstream = actual;
-                        this.parser = parser;
                         this.worker = worker;
                         this.progressConsumer = progressConsumer;
                         queue = new LinkedBlockingQueue<>(2);
-
-                        if (progressConsumer != null && parser instanceof StreamParser) {
-                            ((StreamParser) parser).setProgressCallback(this);
-                        }
                     }
 
                     @Override
@@ -831,43 +773,37 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
                         if (DisposableHelper.validate(this.upstream, d)) {
                             this.upstream = d;
                             downstream.onSubscribe(this);
+
+                            if (d instanceof CallExecuteDisposable && progressConsumer != null) {
+                                CallExecuteDisposable callDisposable = (CallExecuteDisposable) d;
+                                if (callDisposable.parser instanceof StreamParser) {
+                                    ((StreamParser) callDisposable.parser).setProgressCallback(this);
+                                } else if (callDisposable.callFactory instanceof BodyParamFactory) {
+                                    ((BodyParamFactory) callDisposable.callFactory).getParam().setProgressCallback(this);
+                                }
+                            }
                         }
                     }
 
-                    //download progress callback
+                    // upload/download progress callback
                     @Override
                     public void onProgress(int progress, long currentSize, long totalSize) {
                         if (done) {
                             return;
                         }
-                        //LogUtil.logDownProgress(progress, currentSize, totalSize);
-                        offer(new Progress(progress,currentSize,totalSize));
+                        offer(new Progress(progress, currentSize, totalSize));
                     }
 
-                    @SuppressWarnings("unchecked")
                     @Override
-                    public void onNext(Progress progress) {
+                    public void onNext(T t) {
                         if (done) {
                             return;
                         }
-                        ProgressT<T> pt = null;
-                        if (progress instanceof ProgressT) {
-                            ProgressT<Response> progressT = (ProgressT<Response>) progress;
-                            try {
-                                T t = Objects.requireNonNull(parser.onParse(progressT.getResult()), "The onParse function returned a null value.");
-                                pt = new ProgressT<>(t);
-                            } catch (Throwable t) {
-                                LogUtil.log(progressT.getResult().request().url().toString(), t);
-                                onError(t);
-                                return;
-                            }
-                        }
-                        Progress p = pt != null ? pt : progress;
-                        offer(p);
+                        offer(t);
                     }
-                    
-                    private void offer(Progress p) {
-                        while (!queue.offer(p)) {
+
+                    private void offer(Object o) {
+                        while (!queue.offer(o)) {
                             queue.poll();
                         }
                         schedule();
@@ -905,16 +841,16 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
                     public void run() {
                         int missed = 1;
 
-                        final LinkedBlockingQueue<Progress> q = queue;
+                        final Queue<?> q = queue;
                         final Observer<? super T> a = downstream;
                         while (!checkTerminated(done, q.isEmpty(), a)) {
                             for (; ; ) {
                                 boolean d = done;
-                                Progress p;
+                                Object o;
                                 try {
-                                    p = q.poll();
+                                    o = q.poll();
 
-                                    boolean empty = p == null;
+                                    boolean empty = o == null;
 
                                     if (checkTerminated(d, empty, a)) {
                                         return;
@@ -922,10 +858,10 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
                                     if (empty) {
                                         break;
                                     }
-                                    if (p instanceof ProgressT) {
-                                        a.onNext(((ProgressT<T>) p).getResult());
+                                    if (o instanceof Progress) {
+                                        progressConsumer.accept((Progress) o);
                                     } else {
-                                        progressConsumer.accept(p);
+                                        a.onNext((T) o);
                                     }
                                 } catch (Throwable ex) {
                                     Exceptions.throwIfFatal(ex);
@@ -988,7 +924,6 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
 
         """.trimIndent())
     }
-
     private fun generatorRxHttpAbstractBodyParam(filer: Filer) {
         if (!isDependenceRxJava()) {
             generatorClass(filer, "RxHttpAbstractBodyParam", """

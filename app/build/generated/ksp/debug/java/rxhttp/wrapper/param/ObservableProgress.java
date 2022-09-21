@@ -1,6 +1,6 @@
 package rxhttp.wrapper.param;
 
-import java.util.Objects;
+import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -14,74 +14,45 @@ import io.reactivex.rxjava3.functions.Consumer;
 import io.reactivex.rxjava3.internal.disposables.DisposableHelper;
 import io.reactivex.rxjava3.internal.schedulers.TrampolineScheduler;
 import io.reactivex.rxjava3.plugins.RxJavaPlugins;
-import okhttp3.Response;
-import rxhttp.wrapper.CallFactory;
+import rxhttp.wrapper.BodyParamFactory;
 import rxhttp.wrapper.annotations.NonNull;
-import rxhttp.wrapper.annotations.Nullable;
 import rxhttp.wrapper.callback.ProgressCallback;
 import rxhttp.wrapper.entity.Progress;
-import rxhttp.wrapper.entity.ProgressT;
-import rxhttp.wrapper.parse.Parser;
+import rxhttp.wrapper.param.ObservableCall.CallExecuteDisposable;
 import rxhttp.wrapper.parse.StreamParser;
-import rxhttp.wrapper.utils.LogUtil;
 
-public final class ObservableParser<T> extends Observable<T> {
+public final class ObservableProgress<T> extends Observable<T> {
 
-    private final Parser<T> parser;
-    private final ObservableCall source;
+    private final Observable<T> source;
     private Scheduler scheduler;
     private Consumer<Progress> progressConsumer;
 
-    ObservableParser(@NonNull CallFactory callFactory, @NonNull Parser<T> parser,
-                            @Nullable Scheduler scheduler, @Nullable Consumer<Progress> progressConsumer) {
-        this.source = new ObservableCall(callFactory);
-        this.parser = parser;
+    ObservableProgress(ObservableCall<T> source, Scheduler scheduler, Consumer<Progress> progressConsumer) {
+        this.source = source;
         this.scheduler = scheduler;
         this.progressConsumer = progressConsumer;
     }
 
     @Override
-    protected void subscribeActual(@NonNull Observer<? super T> observer) {
+    protected void subscribeActual(Observer<? super T> observer) {
         if (scheduler == null || scheduler instanceof TrampolineScheduler) {
-            source.subscribe(new SyncParserObserver<>(observer, parser, progressConsumer));
+            source.subscribe(new SyncObserver<>(observer, progressConsumer));
         } else {
             Worker worker = scheduler.createWorker();
-            source.subscribe(new AsyncParserObserver<>(observer, worker, progressConsumer, parser));
+            source.subscribe(new AsyncObserver<>(worker, observer, progressConsumer));
         }
     }
-    
-    public ObservableParser<T> syncRequest() {
-        source.syncRequest();
-        return this;
-    }
-    
-    public ObservableParser<T> onUploadProgress(Consumer<Progress> progressConsumer) {
-        return onUploadProgress(null, progressConsumer);
-    }
 
-    public ObservableParser<T> onUploadProgress(@Nullable Scheduler scheduler, Consumer<Progress> progressConsumer) {
-        this.scheduler = scheduler;
-        this.progressConsumer = progressConsumer;
-        source.enableUploadProgressCallback();
-        return this;
-    }
+    private static final class SyncObserver<T> implements Observer<T>, Disposable, ProgressCallback {
 
-    private static final class SyncParserObserver<T> implements Observer<Progress>, Disposable, ProgressCallback {
-        private final Parser<T> parser;
-
-        private Disposable upstream;
         private final Observer<? super T> downstream;
         private final Consumer<Progress> progressConsumer;
+        private Disposable upstream;
         private boolean done;
 
-        SyncParserObserver(Observer<? super T> actual, Parser<T> parser, Consumer<Progress> progressConsumer) {
+        SyncObserver(Observer<? super T> actual, Consumer<Progress> progressConsumer) {
             this.downstream = actual;
-            this.parser = parser;
             this.progressConsumer = progressConsumer;
-
-            if (progressConsumer != null && parser instanceof StreamParser) {
-                ((StreamParser) parser).setProgressCallback(this);
-            }
         }
 
         @Override
@@ -89,47 +60,37 @@ public final class ObservableParser<T> extends Observable<T> {
             if (DisposableHelper.validate(this.upstream, d)) {
                 this.upstream = d;
                 downstream.onSubscribe(this);
+
+                if (d instanceof CallExecuteDisposable && progressConsumer != null) {
+                    CallExecuteDisposable callDisposable = (CallExecuteDisposable) d;
+                    if (callDisposable.parser instanceof StreamParser) {
+                        ((StreamParser) callDisposable.parser).setProgressCallback(this);
+                    } else if (callDisposable.callFactory instanceof BodyParamFactory) {
+                        ((BodyParamFactory) callDisposable.callFactory).getParam().setProgressCallback(this);
+                    }
+                }
             }
         }
 
-        //download progress callback
+        // upload/download progress callback
         @Override
         public void onProgress(int progress, long currentSize, long totalSize) {
             if (done) {
                 return;
             }
             try {
-                //LogUtil.logDownProgress(progress, currentSize, totalSize);
                 progressConsumer.accept(new Progress(progress, currentSize, totalSize));
             } catch (Throwable t) {
                 fail(t);
             }
         }
 
-        @SuppressWarnings("unchecked")
         @Override
-        public void onNext(Progress progress) {
+        public void onNext(T t) {
             if (done) {
                 return;
             }
-            if (progress instanceof ProgressT) {
-                ProgressT<Response> p = (ProgressT<Response>) progress;
-                T v;
-                try {
-                    v = Objects.requireNonNull(parser.onParse(p.getResult()), "The onParse function returned a null value.");
-                } catch (Throwable t) {
-                    LogUtil.log(p.getResult().request().url().toString(), t);
-                    fail(t);
-                    return;
-                }
-                downstream.onNext(v);
-            } else {
-                try {
-                    progressConsumer.accept(progress);
-                } catch (Throwable t) {
-                    fail(t);
-                }
-            }
+            downstream.onNext(t);
         }
 
         @Override
@@ -169,32 +130,23 @@ public final class ObservableParser<T> extends Observable<T> {
     }
 
 
-    private static final class AsyncParserObserver<T> extends AtomicInteger
-        implements Observer<Progress>, Disposable, ProgressCallback, Runnable {
+    private static final class AsyncObserver<T> extends AtomicInteger implements Observer<T>,
+        Disposable, ProgressCallback, Runnable {
 
-        private final Parser<T> parser;
         private final Observer<? super T> downstream;
-
+        private final Queue<Object> queue;
+        private final Scheduler.Worker worker;
+        private final Consumer<Progress> progressConsumer;
         private Disposable upstream;
         private Throwable error;
-
         private volatile boolean done;
         private volatile boolean disposed;
-        private final LinkedBlockingQueue<Progress> queue;
-        private final Scheduler.Worker worker;
 
-        private final Consumer<Progress> progressConsumer;
-
-        AsyncParserObserver(Observer<? super T> actual, Scheduler.Worker worker, Consumer<Progress> progressConsumer, Parser<T> parser) {
+        AsyncObserver(Scheduler.Worker worker, Observer<? super T> actual, Consumer<Progress> progressConsumer) {
             this.downstream = actual;
-            this.parser = parser;
             this.worker = worker;
             this.progressConsumer = progressConsumer;
             queue = new LinkedBlockingQueue<>(2);
-
-            if (progressConsumer != null && parser instanceof StreamParser) {
-                ((StreamParser) parser).setProgressCallback(this);
-            }
         }
 
         @Override
@@ -202,43 +154,37 @@ public final class ObservableParser<T> extends Observable<T> {
             if (DisposableHelper.validate(this.upstream, d)) {
                 this.upstream = d;
                 downstream.onSubscribe(this);
+
+                if (d instanceof CallExecuteDisposable && progressConsumer != null) {
+                    CallExecuteDisposable callDisposable = (CallExecuteDisposable) d;
+                    if (callDisposable.parser instanceof StreamParser) {
+                        ((StreamParser) callDisposable.parser).setProgressCallback(this);
+                    } else if (callDisposable.callFactory instanceof BodyParamFactory) {
+                        ((BodyParamFactory) callDisposable.callFactory).getParam().setProgressCallback(this);
+                    }
+                }
             }
         }
 
-        //download progress callback
+        // upload/download progress callback
         @Override
         public void onProgress(int progress, long currentSize, long totalSize) {
             if (done) {
                 return;
             }
-            //LogUtil.logDownProgress(progress, currentSize, totalSize);
-            offer(new Progress(progress,currentSize,totalSize));
+            offer(new Progress(progress, currentSize, totalSize));
         }
 
-        @SuppressWarnings("unchecked")
         @Override
-        public void onNext(Progress progress) {
+        public void onNext(T t) {
             if (done) {
                 return;
             }
-            ProgressT<T> pt = null;
-            if (progress instanceof ProgressT) {
-                ProgressT<Response> progressT = (ProgressT<Response>) progress;
-                try {
-                    T t = Objects.requireNonNull(parser.onParse(progressT.getResult()), "The onParse function returned a null value.");
-                    pt = new ProgressT<>(t);
-                } catch (Throwable t) {
-                    LogUtil.log(progressT.getResult().request().url().toString(), t);
-                    onError(t);
-                    return;
-                }
-            }
-            Progress p = pt != null ? pt : progress;
-            offer(p);
+            offer(t);
         }
-        
-        private void offer(Progress p) {
-            while (!queue.offer(p)) {
+
+        private void offer(Object o) {
+            while (!queue.offer(o)) {
                 queue.poll();
             }
             schedule();
@@ -276,16 +222,16 @@ public final class ObservableParser<T> extends Observable<T> {
         public void run() {
             int missed = 1;
 
-            final LinkedBlockingQueue<Progress> q = queue;
+            final Queue<?> q = queue;
             final Observer<? super T> a = downstream;
             while (!checkTerminated(done, q.isEmpty(), a)) {
                 for (; ; ) {
                     boolean d = done;
-                    Progress p;
+                    Object o;
                     try {
-                        p = q.poll();
+                        o = q.poll();
 
-                        boolean empty = p == null;
+                        boolean empty = o == null;
 
                         if (checkTerminated(d, empty, a)) {
                             return;
@@ -293,10 +239,10 @@ public final class ObservableParser<T> extends Observable<T> {
                         if (empty) {
                             break;
                         }
-                        if (p instanceof ProgressT) {
-                            a.onNext(((ProgressT<T>) p).getResult());
+                        if (o instanceof Progress) {
+                            progressConsumer.accept((Progress) o);
                         } else {
-                            progressConsumer.accept(p);
+                            a.onNext((T) o);
                         }
                     } catch (Throwable ex) {
                         Exceptions.throwIfFatal(ex);
