@@ -26,13 +26,17 @@ public class ExceptionHelper {
      */
     @NotNull
     public static ResponseBody throwIfFatal(Response response) throws IOException {
-        ResponseBody body = response.body();
-        assert body != null;
+        ResponseBody rawBody = response.body();
         if (!response.isSuccessful()) {
-            response = response.newBuilder().body(OkHttpCompat.buffer(body)).build();
-            throw new HttpStatusCodeException(response);
+            try {
+                ResponseBody bufferBody = OkHttpCompat.buffer(rawBody);
+                response = response.newBuilder().body(bufferBody).build();
+                throw new HttpStatusCodeException(response);
+            } finally {
+                rawBody.close();
+            }
         }
-        return body;
+        return rawBody;
     }
 
     /**

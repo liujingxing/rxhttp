@@ -4,8 +4,8 @@ package rxhttp.wrapper.utils
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import okhttp3.Headers
 import okhttp3.Response
+import okhttp3.ResponseBody
 import rxhttp.Platform
 import rxhttp.wrapper.OkHttpCompat
 import rxhttp.wrapper.entity.ParameterizedTypeImpl
@@ -45,10 +45,8 @@ fun <T> Response.convertToParameterized(rawType: Type, vararg actualTypeArgument
 fun <T> Response.convert(type: Type): T {
     val body = ExceptionHelper.throwIfFatal(this)
     LogUtil.log(this, null)
-    return if (type === Response::class.java) {
-        newBuilder().body(OkHttpCompat.buffer(body)).build() as T
-    } else if (type === Headers::class.java) {
-        OkHttpCompat.getHeadersAndCloseBody(this) as T
+    return if (type === ResponseBody::class.java) {
+        body.use { OkHttpCompat.buffer(it) as T }
     } else if (Platform.get().isAndroid && type === Bitmap::class.java) {
         BitmapFactory.decodeStream(body.byteStream()) as T
     } else {
