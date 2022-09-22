@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
 import okhttp3.Dispatcher;
@@ -21,8 +20,6 @@ import rxhttp.wrapper.callback.IConverter;
 import rxhttp.wrapper.converter.GsonConverter;
 import rxhttp.wrapper.exception.ExceptionHelper;
 import rxhttp.wrapper.param.Param;
-import rxhttp.wrapper.ssl.HttpsUtils;
-import rxhttp.wrapper.ssl.HttpsUtils.SSLParams;
 import rxhttp.wrapper.utils.LogUtil;
 
 /**
@@ -234,13 +231,6 @@ public class RxHttpPlugins {
 
     //Default OkHttpClient object in RxHttp
     private static OkHttpClient getDefaultOkHttpClient() {
-        SSLParams sslParams = HttpsUtils.getSslSocketFactory();
-        return new OkHttpClient.Builder()
-            .connectTimeout(10, TimeUnit.SECONDS)
-            .readTimeout(10, TimeUnit.SECONDS)
-            .writeTimeout(10, TimeUnit.SECONDS)
-            .sslSocketFactory(sslParams.sSLSocketFactory, sslParams.trustManager)
-            .hostnameVerifier((hostname, session) -> true)
-            .build();
+        return new OkHttpClient.Builder().build();
     }
 }
