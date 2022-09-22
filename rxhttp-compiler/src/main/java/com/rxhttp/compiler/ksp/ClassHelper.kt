@@ -285,6 +285,7 @@ class ClassHelper(
             import okhttp3.Response;
             import rxhttp.wrapper.BodyParamFactory;
             import rxhttp.wrapper.CallFactory;
+            import rxhttp.wrapper.callback.ProgressCallback;
             import rxhttp.wrapper.entity.Progress;
             import rxhttp.wrapper.parse.Parser;
             import rxhttp.wrapper.parse.StreamParser;
@@ -300,6 +301,7 @@ class ClassHelper(
                 private final Parser<T> parser;
                 private final CallFactory callFactory;
                 private boolean syncRequest = false;
+                private boolean callbackProgress = false;
                 private Runnable onSubscribe;
 
                 public ObservableCall(CallFactory callFactory, Parser<T> parser) {
@@ -314,6 +316,14 @@ class ClassHelper(
                     observer.onSubscribe(d);
                     if (d.isDisposed()) {
                         return;
+                    }
+                    if (callbackProgress && observer instanceof ProgressCallback) {
+                        ProgressCallback pc = (ProgressCallback) observer;
+                        if (parser instanceof StreamParser) {
+                            ((StreamParser) parser).setProgressCallback(pc);
+                        } else if (callFactory instanceof BodyParamFactory) {
+                            ((BodyParamFactory) callFactory).getParam().setProgressCallback(pc);
+                        }
                     }
                     if (syncRequest || onSubscribe == null) {
                         //must be in IO Thread if syncRequest is true
@@ -365,10 +375,11 @@ class ClassHelper(
                     if (!(parser instanceof StreamParser) && !(callFactory instanceof BodyParamFactory)) {
                         throw new UnsupportedOperationException("parser is " + parser.getClass().getSimpleName() + ", callFactory is " + callFactory.getClass().getSimpleName());
                     }
+                    callbackProgress = true;
                     return new ObservableProgress(this, capacity, scheduler, progressConsumer);
                 }
 
-                static class CallEnqueueDisposable<T> extends CallExecuteDisposable<T> implements Callback {
+                private static class CallEnqueueDisposable<T> extends CallExecuteDisposable<T> implements Callback {
 
                     CallEnqueueDisposable(Observer<? super T> downstream, CallFactory callFactory, Parser<T> parser) {
                         super(downstream, callFactory, parser);
@@ -403,7 +414,7 @@ class ClassHelper(
                 }
 
 
-                static class CallExecuteDisposable<T> implements Disposable {
+                private static class CallExecuteDisposable<T> implements Disposable {
 
                     protected final Observer<? super T> downstream;
                     protected final Parser<T> parser;
@@ -485,12 +496,9 @@ class ClassHelper(
             import ${getClassPath("DisposableHelper")};
             import ${getClassPath("TrampolineScheduler")};
             import ${getClassPath("RxJavaPlugins")};
-            import rxhttp.wrapper.BodyParamFactory;
             import rxhttp.wrapper.annotations.NonNull;
             import rxhttp.wrapper.callback.ProgressCallback;
             import rxhttp.wrapper.entity.Progress;
-            import rxhttp.wrapper.param.ObservableCall.CallExecuteDisposable;
-            import rxhttp.wrapper.parse.StreamParser;
 
             public final class ObservableProgress<T> extends Observable<T> {
 
@@ -533,15 +541,6 @@ class ClassHelper(
                         if (DisposableHelper.validate(this.upstream, d)) {
                             this.upstream = d;
                             downstream.onSubscribe(this);
-
-                            if (d instanceof CallExecuteDisposable && progressConsumer != null) {
-                                CallExecuteDisposable callDisposable = (CallExecuteDisposable) d;
-                                if (callDisposable.parser instanceof StreamParser) {
-                                    ((StreamParser) callDisposable.parser).setProgressCallback(this);
-                                } else if (callDisposable.callFactory instanceof BodyParamFactory) {
-                                    ((BodyParamFactory) callDisposable.callFactory).getParam().setProgressCallback(this);
-                                }
-                            }
                         }
                     }
 
@@ -627,15 +626,6 @@ class ClassHelper(
                         if (DisposableHelper.validate(this.upstream, d)) {
                             this.upstream = d;
                             downstream.onSubscribe(this);
-
-                            if (d instanceof CallExecuteDisposable && progressConsumer != null) {
-                                CallExecuteDisposable callDisposable = (CallExecuteDisposable) d;
-                                if (callDisposable.parser instanceof StreamParser) {
-                                    ((StreamParser) callDisposable.parser).setProgressCallback(this);
-                                } else if (callDisposable.callFactory instanceof BodyParamFactory) {
-                                    ((BodyParamFactory) callDisposable.callFactory).getParam().setProgressCallback(this);
-                                }
-                            }
                         }
                     }
 

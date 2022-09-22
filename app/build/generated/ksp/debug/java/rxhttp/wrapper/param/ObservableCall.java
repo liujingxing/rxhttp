@@ -20,6 +20,7 @@ import okhttp3.Callback;
 import okhttp3.Response;
 import rxhttp.wrapper.BodyParamFactory;
 import rxhttp.wrapper.CallFactory;
+import rxhttp.wrapper.callback.ProgressCallback;
 import rxhttp.wrapper.entity.Progress;
 import rxhttp.wrapper.parse.Parser;
 import rxhttp.wrapper.parse.StreamParser;
@@ -35,6 +36,7 @@ public final class ObservableCall<T> extends Observable<T> {
     private final Parser<T> parser;
     private final CallFactory callFactory;
     private boolean syncRequest = false;
+    private boolean callbackProgress = false;
     private Runnable onSubscribe;
 
     public ObservableCall(CallFactory callFactory, Parser<T> parser) {
@@ -49,6 +51,14 @@ public final class ObservableCall<T> extends Observable<T> {
         observer.onSubscribe(d);
         if (d.isDisposed()) {
             return;
+        }
+        if (callbackProgress && observer instanceof ProgressCallback) {
+            ProgressCallback pc = (ProgressCallback) observer;
+            if (parser instanceof StreamParser) {
+                ((StreamParser) parser).setProgressCallback(pc);
+            } else if (callFactory instanceof BodyParamFactory) {
+                ((BodyParamFactory) callFactory).getParam().setProgressCallback(pc);
+            }
         }
         if (syncRequest || onSubscribe == null) {
             //must be in IO Thread if syncRequest is true
@@ -100,10 +110,11 @@ public final class ObservableCall<T> extends Observable<T> {
         if (!(parser instanceof StreamParser) && !(callFactory instanceof BodyParamFactory)) {
             throw new UnsupportedOperationException("parser is " + parser.getClass().getSimpleName() + ", callFactory is " + callFactory.getClass().getSimpleName());
         }
+        callbackProgress = true;
         return new ObservableProgress(this, capacity, scheduler, progressConsumer);
     }
 
-    static class CallEnqueueDisposable<T> extends CallExecuteDisposable<T> implements Callback {
+    private static class CallEnqueueDisposable<T> extends CallExecuteDisposable<T> implements Callback {
 
         CallEnqueueDisposable(Observer<? super T> downstream, CallFactory callFactory, Parser<T> parser) {
             super(downstream, callFactory, parser);
@@ -138,7 +149,7 @@ public final class ObservableCall<T> extends Observable<T> {
     }
 
 
-    static class CallExecuteDisposable<T> implements Disposable {
+    private static class CallExecuteDisposable<T> implements Disposable {
 
         protected final Observer<? super T> downstream;
         protected final Parser<T> parser;

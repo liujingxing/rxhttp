@@ -14,12 +14,9 @@ import io.reactivex.rxjava3.functions.Consumer;
 import io.reactivex.rxjava3.internal.disposables.DisposableHelper;
 import io.reactivex.rxjava3.internal.schedulers.TrampolineScheduler;
 import io.reactivex.rxjava3.plugins.RxJavaPlugins;
-import rxhttp.wrapper.BodyParamFactory;
 import rxhttp.wrapper.annotations.NonNull;
 import rxhttp.wrapper.callback.ProgressCallback;
 import rxhttp.wrapper.entity.Progress;
-import rxhttp.wrapper.param.ObservableCall.CallExecuteDisposable;
-import rxhttp.wrapper.parse.StreamParser;
 
 public final class ObservableProgress<T> extends Observable<T> {
 
@@ -62,15 +59,6 @@ public final class ObservableProgress<T> extends Observable<T> {
             if (DisposableHelper.validate(this.upstream, d)) {
                 this.upstream = d;
                 downstream.onSubscribe(this);
-
-                if (d instanceof CallExecuteDisposable && progressConsumer != null) {
-                    CallExecuteDisposable callDisposable = (CallExecuteDisposable) d;
-                    if (callDisposable.parser instanceof StreamParser) {
-                        ((StreamParser) callDisposable.parser).setProgressCallback(this);
-                    } else if (callDisposable.callFactory instanceof BodyParamFactory) {
-                        ((BodyParamFactory) callDisposable.callFactory).getParam().setProgressCallback(this);
-                    }
-                }
             }
         }
 
@@ -156,15 +144,6 @@ public final class ObservableProgress<T> extends Observable<T> {
             if (DisposableHelper.validate(this.upstream, d)) {
                 this.upstream = d;
                 downstream.onSubscribe(this);
-
-                if (d instanceof CallExecuteDisposable && progressConsumer != null) {
-                    CallExecuteDisposable callDisposable = (CallExecuteDisposable) d;
-                    if (callDisposable.parser instanceof StreamParser) {
-                        ((StreamParser) callDisposable.parser).setProgressCallback(this);
-                    } else if (callDisposable.callFactory instanceof BodyParamFactory) {
-                        ((BodyParamFactory) callDisposable.callFactory).getParam().setProgressCallback(this);
-                    }
-                }
             }
         }
 
