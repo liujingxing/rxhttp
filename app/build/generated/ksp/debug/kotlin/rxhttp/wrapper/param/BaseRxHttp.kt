@@ -122,12 +122,10 @@ abstract class BaseRxHttp : CallFactory, RangeHeader {
         scheduler: Scheduler? = null,
         progressConsumer: Consumer<Progress>? = null
     ): Observable<T> =
-        Observable
-            .fromCallable {
+        asParser(StreamParser(osFactory))
+            .onSubscribe {
+                // in IO Thread
                 val offsetSize = osFactory.offsetSize()
                 if (offsetSize >= 0) setRangeHeader(offsetSize, -1, true)
-                StreamParser(osFactory)
-            }
-            .subscribeOn(Schedulers.io())
-            .flatMap { asParser(it).onUploadProgress(scheduler, progressConsumer) }
+            }.onUploadProgress(scheduler, progressConsumer)
 }    

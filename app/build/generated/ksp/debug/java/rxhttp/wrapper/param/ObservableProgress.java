@@ -27,7 +27,7 @@ public final class ObservableProgress<T> extends Observable<T> {
     private Scheduler scheduler;
     private Consumer<Progress> progressConsumer;
 
-    ObservableProgress(ObservableCall<T> source, Scheduler scheduler, Consumer<Progress> progressConsumer) {
+    ObservableProgress(Observable<T> source, Scheduler scheduler, Consumer<Progress> progressConsumer) {
         this.source = source;
         this.scheduler = scheduler;
         this.progressConsumer = progressConsumer;

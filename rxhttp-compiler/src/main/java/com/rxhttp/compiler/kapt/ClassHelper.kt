@@ -206,15 +206,13 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
                                                                                                          
                 public final <T> Observable<T> asAppendDownload(OutputStreamFactory<T> osFactory, Scheduler scheduler,
                                                               Consumer<Progress> progressConsumer) {
-                    return Observable
-                        .fromCallable(() -> {
+                    return asParser(new StreamParser<>(osFactory))
+                        .onSubscribe(() -> {
                             long offsetSize = osFactory.offsetSize();
                             if (offsetSize >= 0)
                                 setRangeHeader(offsetSize, -1, true);
-                            return new StreamParser<>(osFactory);
                         })
-                        .subscribeOn(Schedulers.io())
-                        .flatMap(parser -> asParser(parser).onUploadProgress(scheduler, progressConsumer));
+                        .onUploadProgress(scheduler, progressConsumer);
                 }
                 
             }
@@ -461,6 +459,7 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
 
             import java.io.IOException;
             import java.util.Objects;
+            import java.util.concurrent.atomic.AtomicReference;
 
             import ${getClassPath("Observable")};
             import ${getClassPath("Observer")};
@@ -468,6 +467,7 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
             import ${getClassPath("Disposable")};
             import ${getClassPath("Exceptions")};
             import ${getClassPath("Consumer")};
+            import ${getClassPath("DisposableHelper")};
             import ${getClassPath("RxJavaPlugins")};
             import ${getClassPath("Schedulers")};
             import okhttp3.Call;
@@ -490,6 +490,7 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
                 private final Parser<T> parser;
                 private final CallFactory callFactory;
                 private boolean syncRequest = false;
+                private Runnable onSubscribe;
 
                 public ObservableCall(CallFactory callFactory, Parser<T> parser) {
                     this.callFactory = callFactory;
@@ -504,7 +505,25 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
                     if (d.isDisposed()) {
                         return;
                     }
-                    d.run();
+                    if (syncRequest || onSubscribe == null) {
+                        //must be in IO Thread if syncRequest is true
+                        if (onSubscribe != null) onSubscribe.run();
+                        d.run();
+                    } else {
+                        d.setDisposable(Schedulers.io().scheduleDirect(new Runnable() {
+                            @Override
+                            public void run() {
+                                // In IO Thread
+                                onSubscribe.run();
+                                d.run();
+                            }
+                        }));
+                    }
+                }
+
+                ObservableCall<T> onSubscribe(Runnable onSubscribe) {
+                    this.onSubscribe = onSubscribe;
+                    return this;
                 }
 
                 public ObservableCall<T> syncRequest() {
@@ -565,11 +584,13 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
                     protected final CallFactory callFactory;
                     protected volatile boolean disposed;
                     protected Call call;
+                    private AtomicReference<Disposable> upstream;
 
                     CallExecuteDisposable(Observer<? super T> downstream, CallFactory callFactory, Parser<T> parser) {
                         this.downstream = downstream;
                         this.callFactory = callFactory;
                         this.parser = parser;
+                        upstream = new AtomicReference<>();
                     }
 
                     public void run() {
@@ -601,6 +622,7 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
 
                     @Override
                     public void dispose() {
+                        DisposableHelper.dispose(upstream);
                         disposed = true;
                         call.cancel();
                     }
@@ -608,6 +630,10 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
                     @Override
                     public boolean isDisposed() {
                         return disposed;
+                    }
+
+                    public void setDisposable(Disposable d) {
+                        DisposableHelper.setOnce(upstream, d);
                     }
                 }
             }
@@ -646,7 +672,7 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
                 private Scheduler scheduler;
                 private Consumer<Progress> progressConsumer;
 
-                ObservableProgress(ObservableCall<T> source, Scheduler scheduler, Consumer<Progress> progressConsumer) {
+                ObservableProgress(Observable<T> source, Scheduler scheduler, Consumer<Progress> progressConsumer) {
                     this.source = source;
                     this.scheduler = scheduler;
                     this.progressConsumer = progressConsumer;

@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 
 import java.io.IOException;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Observer;
@@ -11,6 +12,7 @@ import io.reactivex.rxjava3.core.Scheduler;
 import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.exceptions.Exceptions;
 import io.reactivex.rxjava3.functions.Consumer;
+import io.reactivex.rxjava3.internal.disposables.DisposableHelper;
 import io.reactivex.rxjava3.plugins.RxJavaPlugins;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import okhttp3.Call;
@@ -33,6 +35,7 @@ public class ObservableCall<T> extends Observable<T> {
     private final Parser<T> parser;
     private final CallFactory callFactory;
     private boolean syncRequest = false;
+    private Runnable onSubscribe;
 
     public ObservableCall(CallFactory callFactory, Parser<T> parser) {
         this.callFactory = callFactory;
@@ -47,7 +50,25 @@ public class ObservableCall<T> extends Observable<T> {
         if (d.isDisposed()) {
             return;
         }
-        d.run();
+        if (syncRequest || onSubscribe == null) {
+            //must be in IO Thread if syncRequest is true
+            if (onSubscribe != null) onSubscribe.run();
+            d.run();
+        } else {
+            d.setDisposable(Schedulers.io().scheduleDirect(new Runnable() {
+                @Override
+                public void run() {
+                    // In IO Thread
+                    onSubscribe.run();
+                    d.run();
+                }
+            }));
+        }
+    }
+
+    ObservableCall<T> onSubscribe(Runnable onSubscribe) {
+        this.onSubscribe = onSubscribe;
+        return this;
     }
 
     public ObservableCall<T> syncRequest() {
@@ -108,11 +129,13 @@ public class ObservableCall<T> extends Observable<T> {
         protected final CallFactory callFactory;
         protected volatile boolean disposed;
         protected Call call;
+        private AtomicReference<Disposable> upstream;
 
         CallExecuteDisposable(Observer<? super T> downstream, CallFactory callFactory, Parser<T> parser) {
             this.downstream = downstream;
             this.callFactory = callFactory;
             this.parser = parser;
+            upstream = new AtomicReference<>();
         }
 
         public void run() {
@@ -144,6 +167,7 @@ public class ObservableCall<T> extends Observable<T> {
 
         @Override
         public void dispose() {
+            DisposableHelper.dispose(upstream);
             disposed = true;
             call.cancel();
         }
@@ -151,6 +175,10 @@ public class ObservableCall<T> extends Observable<T> {
         @Override
         public boolean isDisposed() {
             return disposed;
+        }
+
+        public void setDisposable(Disposable d) {
+            DisposableHelper.setOnce(upstream, d);
         }
     }
 }
