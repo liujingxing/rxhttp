@@ -32,18 +32,6 @@ public class UriRequestBody extends RequestBody {
     private final MediaType contentType;
     private final ContentResolver contentResolver;
 
-    public UriRequestBody(Context context, Uri uri) {
-        this(context, uri, 0, BuildUtil.getMediaTypeByUri(context, uri));
-    }
-
-    public UriRequestBody(Context context, Uri uri, @Nullable MediaType contentType) {
-        this(context, uri, 0, contentType);
-    }
-
-    public UriRequestBody(Context context, Uri uri, long skipSize) {
-        this(context, uri, skipSize, BuildUtil.getMediaTypeByUri(context, uri));
-    }
-
     public UriRequestBody(Context context, Uri uri, long skipSize, @Nullable MediaType contentType) {
         this.uri = uri;
         if (skipSize < 0) {

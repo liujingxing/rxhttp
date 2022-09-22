@@ -12,18 +12,7 @@ import rxhttp.wrapper.cahce.CacheMode;
  */
 public class CacheReadFailedException extends IOException {
 
-    public CacheReadFailedException() {
-    }
-
     public CacheReadFailedException(String message) {
         super(message);
-    }
-
-    public CacheReadFailedException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public CacheReadFailedException(Throwable cause) {
-        super(cause);
     }
 }
