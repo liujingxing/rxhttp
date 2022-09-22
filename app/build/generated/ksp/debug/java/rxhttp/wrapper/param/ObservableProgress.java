@@ -24,22 +24,24 @@ import rxhttp.wrapper.parse.StreamParser;
 public final class ObservableProgress<T> extends Observable<T> {
 
     private final Observable<T> source;
-    private Scheduler scheduler;
-    private Consumer<Progress> progressConsumer;
+    private final int capacity;
+    private final Scheduler scheduler;
+    private final Consumer<Progress> progressConsumer;
 
-    ObservableProgress(Observable<T> source, Scheduler scheduler, Consumer<Progress> progressConsumer) {
+    ObservableProgress(Observable<T> source, int capacity, Scheduler scheduler, Consumer<Progress> progressConsumer) {
         this.source = source;
+        this.capacity = capacity;
         this.scheduler = scheduler;
         this.progressConsumer = progressConsumer;
     }
 
     @Override
     protected void subscribeActual(Observer<? super T> observer) {
-        if (scheduler == null || scheduler instanceof TrampolineScheduler) {
+        if (scheduler instanceof TrampolineScheduler) {
             source.subscribe(new SyncObserver<>(observer, progressConsumer));
         } else {
             Worker worker = scheduler.createWorker();
-            source.subscribe(new AsyncObserver<>(worker, observer, progressConsumer));
+            source.subscribe(new AsyncObserver<>(worker, observer, capacity, progressConsumer));
         }
     }
 
@@ -142,11 +144,11 @@ public final class ObservableProgress<T> extends Observable<T> {
         private volatile boolean done;
         private volatile boolean disposed;
 
-        AsyncObserver(Scheduler.Worker worker, Observer<? super T> actual, Consumer<Progress> progressConsumer) {
+        AsyncObserver(Scheduler.Worker worker, Observer<? super T> actual, int capacity, Consumer<Progress> progressConsumer) {
             this.downstream = actual;
             this.worker = worker;
             this.progressConsumer = progressConsumer;
-            queue = new LinkedBlockingQueue<>(2);
+            queue = new LinkedBlockingQueue<>(capacity);
         }
 
         @Override

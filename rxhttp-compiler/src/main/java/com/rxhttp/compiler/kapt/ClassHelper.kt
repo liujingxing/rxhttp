@@ -451,7 +451,7 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
              * Date: 2020/9/5
              * Time: 21:59
              */
-            public class ObservableCall<T> extends Observable<T> {
+            public final class ObservableCall<T> extends Observable<T> {
 
                 private final Parser<T> parser;
                 private final CallFactory callFactory;
@@ -498,15 +498,30 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
                 }
 
                 public Observable<T> onProgress(Consumer<Progress> progressConsumer) {
-                    return onProgress(Schedulers.io(), progressConsumer);
+                    return onProgress(2, Schedulers.io(), progressConsumer);
                 }
-                
-                // Upload or Download progress callback
+
                 public Observable<T> onProgress(Scheduler scheduler, Consumer<Progress> progressConsumer) {
+                    return onProgress(2, scheduler, progressConsumer);
+                }
+
+                /**
+                 * Upload or Download progress callback
+                 *
+                 * @param capacity         queue size, must be in [2..100], is invalid when the scheduler is TrampolineScheduler
+                 * @param scheduler        the Scheduler to notify Observers on
+                 * @param progressConsumer progress callback
+                 * @return the new Observable instance
+                 */
+                public Observable<T> onProgress(int capacity, @NonNull Scheduler scheduler, Consumer<Progress> progressConsumer) {
+                    if (capacity < 2 || capacity > 100) {
+                        throw new IllegalArgumentException("capacity must be in [2..100], but it was " + capacity);
+                    }
+                    Objects.requireNonNull(scheduler, "scheduler is null");
                     if (!(parser instanceof StreamParser) && !(callFactory instanceof BodyParamFactory)) {
                         throw new UnsupportedOperationException("parser is " + parser.getClass().getSimpleName() + ", callFactory is " + callFactory.getClass().getSimpleName());
                     }
-                    return new ObservableProgress(this, scheduler, progressConsumer);
+                    return new ObservableProgress(this, capacity, scheduler, progressConsumer);
                 }
 
                 static class CallEnqueueDisposable<T> extends CallExecuteDisposable<T> implements Callback {
@@ -636,22 +651,24 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
             public final class ObservableProgress<T> extends Observable<T> {
 
                 private final Observable<T> source;
-                private Scheduler scheduler;
-                private Consumer<Progress> progressConsumer;
+                private final int capacity;
+                private final Scheduler scheduler;
+                private final Consumer<Progress> progressConsumer;
 
-                ObservableProgress(Observable<T> source, Scheduler scheduler, Consumer<Progress> progressConsumer) {
+                ObservableProgress(Observable<T> source, int capacity, Scheduler scheduler, Consumer<Progress> progressConsumer) {
                     this.source = source;
+                    this.capacity = capacity;
                     this.scheduler = scheduler;
                     this.progressConsumer = progressConsumer;
                 }
 
                 @Override
                 protected void subscribeActual(Observer<? super T> observer) {
-                    if (scheduler == null || scheduler instanceof TrampolineScheduler) {
+                    if (scheduler instanceof TrampolineScheduler) {
                         source.subscribe(new SyncObserver<>(observer, progressConsumer));
                     } else {
                         Worker worker = scheduler.createWorker();
-                        source.subscribe(new AsyncObserver<>(worker, observer, progressConsumer));
+                        source.subscribe(new AsyncObserver<>(worker, observer, capacity, progressConsumer));
                     }
                 }
 
@@ -754,11 +771,11 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
                     private volatile boolean done;
                     private volatile boolean disposed;
 
-                    AsyncObserver(Scheduler.Worker worker, Observer<? super T> actual, Consumer<Progress> progressConsumer) {
+                    AsyncObserver(Scheduler.Worker worker, Observer<? super T> actual, int capacity, Consumer<Progress> progressConsumer) {
                         this.downstream = actual;
                         this.worker = worker;
                         this.progressConsumer = progressConsumer;
-                        queue = new LinkedBlockingQueue<>(2);
+                        queue = new LinkedBlockingQueue<>(capacity);
                     }
 
                     @Override
