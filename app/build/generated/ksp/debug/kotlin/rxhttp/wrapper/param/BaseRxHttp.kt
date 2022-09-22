@@ -31,7 +31,6 @@ import java.lang.reflect.Type
  * Date: 2020/4/11
  * Time: 18:15
  */
-@Suppress("UPPER_BOUND_VIOLATED_BASED_ON_JAVA_ANNOTATIONS")
 abstract class BaseRxHttp : CallFactory, RangeHeader {
 
     companion object {
@@ -72,16 +71,14 @@ abstract class BaseRxHttp : CallFactory, RangeHeader {
     fun asDownload(
         destPath: String,
         append: Boolean = false,
-    ): ObservableCall<String> =
-        asDownload(FileOutputStreamFactory(destPath), append)
+    ): ObservableCall<String> = asDownload(FileOutputStreamFactory(destPath), append)
     
     @JvmOverloads
     fun asDownload(
         context: Context,
         uri: Uri,
         append: Boolean = false,
-    ): ObservableCall<Uri> =
-        asDownload(UriOutputStreamFactory(context, uri), append)
+    ): ObservableCall<Uri> = asDownload(UriOutputStreamFactory(context, uri), append)
     
     @JvmOverloads
     fun <T> asDownload(
