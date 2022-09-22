@@ -124,7 +124,7 @@
 | 学习成本| 低 | 高|
 | 扩展性| 高| 高|
 | 源码大小| 81k | 75k |
-| jar包大小| 276k | 125k |
+| jar包大小| 269k | 123k |
 | RxJava| RxJava  ❌<br>RxJava2✅<br>RxJava3✅| RxJava  ✅<br>RxJava2✅<br>RxJava3✅|
 | Kotlin协程| ✅ | ✅ |
 | Flow流| ✅ | ✅ |
