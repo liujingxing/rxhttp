@@ -6,7 +6,12 @@ import android.os.Bundle
 import android.view.View
 import com.example.httpsender.R
 import com.example.httpsender.databinding.RxjavaFragmentBinding
-import com.example.httpsender.entity.*
+import com.example.httpsender.entity.Article
+import com.example.httpsender.entity.Location
+import com.example.httpsender.entity.Name
+import com.example.httpsender.entity.NewsDataXml
+import com.example.httpsender.entity.PageList
+import com.example.httpsender.entity.Url
 import com.example.httpsender.kt.errorMsg
 import com.example.httpsender.kt.show
 import com.example.httpsender.parser.Android10DownloadFactory
@@ -18,7 +23,6 @@ import rxhttp.wrapper.param.RxHttp
 import rxhttp.wrapper.param.asClass
 import rxhttp.wrapper.param.asResponse
 import java.io.File
-import java.util.*
 
 /**
  * 使用 RxHttp + RxJava 发请求
@@ -183,7 +187,7 @@ class RxJavaFragment : BaseFragment<RxjavaFragmentBinding>(), View.OnClickListen
         RxHttp.postForm(Url.UPLOAD_URL)
             .addFile("file", File("xxxx/1.png"))
             .asString()
-            .onUploadProgress(AndroidSchedulers.mainThread()) {
+            .onProgress(AndroidSchedulers.mainThread()) {
                 //上传进度回调,0-100，仅在进度有更新时才会回调
                 val currentProgress = it.progress  //当前进度 0-100
                 val currentSize = it.currentSize //当前已上传的字节大小
@@ -208,7 +212,7 @@ class RxJavaFragment : BaseFragment<RxjavaFragmentBinding>(), View.OnClickListen
         RxHttp.postForm(Url.UPLOAD_URL)
             .addPart(requireContext(), "file", uri)
             .asString()
-            .onUploadProgress(AndroidSchedulers.mainThread()) {
+            .onProgress(AndroidSchedulers.mainThread()) {
                 //上传进度回调,0-100，仅在进度有更新时才会回调
                 val currentProgress = it.progress  //当前进度 0-100
                 val currentSize = it.currentSize //当前已上传的字节大小
@@ -233,7 +237,8 @@ class RxJavaFragment : BaseFragment<RxjavaFragmentBinding>(), View.OnClickListen
     private fun RxjavaFragmentBinding.download(view: View) {
         val destPath = "${requireContext().externalCacheDir}/${System.currentTimeMillis()}.apk"
         RxHttp.get(Url.DOWNLOAD_URL)
-            .asDownload(destPath, AndroidSchedulers.mainThread()) {
+            .asDownload(destPath)
+            .onProgress(AndroidSchedulers.mainThread()) {
                 val currentProgress = it.progress //当前进度 0-100
                 val currentSize = it.currentSize //当前已下载的字节大小
                 val totalSize = it.totalSize //要下载的总字节大小
@@ -257,7 +262,8 @@ class RxJavaFragment : BaseFragment<RxjavaFragmentBinding>(), View.OnClickListen
     private fun RxjavaFragmentBinding.appendDownload(view: View) {
         val destPath = "${requireContext().externalCacheDir}/Miaobo.apk"
         RxHttp.get(Url.DOWNLOAD_URL)
-            .asAppendDownload(destPath, AndroidSchedulers.mainThread()) {
+            .asDownload(destPath, true)
+            .onProgress(AndroidSchedulers.mainThread()) {
                 val currentProgress = it.progress //当前进度 0-100
                 val currentSize = it.currentSize //当前已下载的字节大小
                 val totalSize = it.totalSize //要下载的总字节大小
@@ -281,7 +287,8 @@ class RxJavaFragment : BaseFragment<RxjavaFragmentBinding>(), View.OnClickListen
     private fun RxjavaFragmentBinding.downloadAndroid10(view: View) {
         val factory = Android10DownloadFactory(requireContext(), "miaobo.apk")
         RxHttp.get(Url.DOWNLOAD_URL)
-            .asDownload(factory, AndroidSchedulers.mainThread()) {
+            .asDownload(factory)
+            .onProgress(AndroidSchedulers.mainThread()) {
                 val currentProgress = it.progress //当前进度 0-100
                 val currentSize = it.currentSize //当前已下载的字节大小
                 val totalSize = it.totalSize //要下载的总字节大小
@@ -304,7 +311,8 @@ class RxJavaFragment : BaseFragment<RxjavaFragmentBinding>(), View.OnClickListen
     private fun RxjavaFragmentBinding.appendDownloadAndroid10(view: View) {
         val factory = Android10DownloadFactory(requireContext(), "miaobo.apk")
         RxHttp.get(Url.DOWNLOAD_URL)
-            .asAppendDownload(factory, AndroidSchedulers.mainThread()) {
+            .asDownload(factory, true)
+            .onProgress(AndroidSchedulers.mainThread()) {
                 val currentProgress = it.progress //当前进度 0-100
                 val currentSize = it.currentSize //当前已下载的字节大小
                 val totalSize = it.totalSize //要下载的总字节大小

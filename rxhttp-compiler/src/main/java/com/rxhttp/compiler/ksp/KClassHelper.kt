@@ -118,73 +118,44 @@ class KClassHelper(
 
                 fun <T> asList(tType: Class<T>) =
                     asClass<List<T>>(ParameterizedTypeImpl[MutableList::class.java, tType])
-
+                ${isAndroid("""
                 fun asBitmap() = asClass(Bitmap::class.java)
-
+                """)}
                 fun asOkResponse() = asClass(Response::class.java)
 
                 fun asHeaders() = asClass(Headers::class.java)
 
-                fun asDownload(
-                    destPath: String,
-                    progressConsumer: Consumer<Progress>?
-                ): Observable<String> =
-                    asDownload(destPath, null, progressConsumer)
-
                 @JvmOverloads
                 fun asDownload(
                     destPath: String,
-                    scheduler: Scheduler? = null,
-                    progressConsumer: Consumer<Progress>? = null
-                ): Observable<String> =
-                    asDownload(FileOutputStreamFactory(destPath), scheduler, progressConsumer)
-                
+                    append: Boolean = false,
+                ): ObservableCall<String> =
+                    asDownload(FileOutputStreamFactory(destPath), append)
+                ${isAndroid("""
                 @JvmOverloads
                 fun asDownload(
                     context: Context,
                     uri: Uri,
-                    scheduler: Scheduler? = null,
-                    progressConsumer: Consumer<Progress>? = null
-                ): Observable<Uri> =
-                    asDownload(UriOutputStreamFactory(context, uri), scheduler, progressConsumer)
-
+                    append: Boolean = false,
+                ): ObservableCall<Uri> =
+                    asDownload(UriOutputStreamFactory(context, uri), append)
+                """)}
                 @JvmOverloads
                 fun <T> asDownload(
                     osFactory: OutputStreamFactory<T>,
-                    scheduler: Scheduler? = null,
-                    progressConsumer: Consumer<Progress>? = null
-                ): Observable<T> = asParser(StreamParser(osFactory))
-                    .onUploadProgress(scheduler, progressConsumer)
-
-                @JvmOverloads
-                fun asAppendDownload(
-                    destPath: String,
-                    scheduler: Scheduler? = null,
-                    progressConsumer: Consumer<Progress>? = null
-                ): Observable<String> =
-                    asAppendDownload(FileOutputStreamFactory(destPath), scheduler, progressConsumer)
-                
-                @JvmOverloads
-                fun asAppendDownload(
-                    context: Context,
-                    uri: Uri,
-                    scheduler: Scheduler? = null,
-                    progressConsumer: Consumer<Progress>? = null
-                ): Observable<Uri> =
-                    asAppendDownload(UriOutputStreamFactory(context, uri), scheduler, progressConsumer)
-                
-                @JvmOverloads
-                fun <T> asAppendDownload(
-                    osFactory: OutputStreamFactory<T>, 
-                    scheduler: Scheduler? = null,
-                    progressConsumer: Consumer<Progress>? = null
-                ): Observable<T> =
-                    asParser(StreamParser(osFactory))
-                        .onSubscribe {
-                            // in IO Thread
-                            val offsetSize = osFactory.offsetSize()
-                            if (offsetSize >= 0) setRangeHeader(offsetSize, -1, true)
-                        }.onUploadProgress(scheduler, progressConsumer)
+                    append: Boolean = false,
+                ): ObservableCall<T> {
+                   val observableCall =  asParser(StreamParser(osFactory))
+                   return if (append) {
+                       observableCall.onSubscribe {
+                           // In IO Thread
+                           val offsetSize = osFactory.offsetSize()
+                           if (offsetSize >= 0) setRangeHeader(offsetSize, -1, true)
+                       }
+                   } else {
+                       observableCall
+                   }
+                }
             }    
 
         """.trimIndent()

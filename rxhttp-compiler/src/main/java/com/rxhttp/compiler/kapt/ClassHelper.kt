@@ -149,72 +149,38 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
                     return asClass(Headers.class);                                        
                 }
 
-                public final Observable<String> asDownload(String destPath) {
-                    return asDownload(destPath, null, null);
+                public final ObservableCall<String> asDownload(String destPath) {
+                    return asDownload(destPath, false);
                 }
 
-                public final Observable<String> asDownload(String destPath,
-                                                           Consumer<Progress> progressConsumer) {
-                    return asDownload(destPath, null, progressConsumer);
-                }
-                
-                public final Observable<String> asDownload(String destPath, Scheduler scheduler,
-                                                           Consumer<Progress> progressConsumer) {
-                    return asDownload(new FileOutputStreamFactory(destPath), scheduler, progressConsumer);
+                public final ObservableCall<String> asDownload(String destPath, boolean append) {
+                    return asDownload(new FileOutputStreamFactory(destPath), append);
                 }
                 ${isAndroid("""
-                public final Observable<Uri> asDownload(Context context, Uri uri) {
-                    return asDownload(context, uri, null, null);   
+                public final ObservableCall<Uri> asDownload(Context context, Uri uri) {
+                    return asDownload(context, uri, false);   
                 }                                                                  
                     
-                public final Observable<Uri> asDownload(Context context, Uri uri, Scheduler scheduler,    
-                                                           Consumer<Progress> progressConsumer) {            
-                    return asDownload(new UriOutputStreamFactory(context, uri), scheduler, progressConsumer);
+                public final ObservableCall<Uri> asDownload(Context context, Uri uri, boolean append) {            
+                    return asDownload(new UriOutputStreamFactory(context, uri), append);
                 }                                                                                            
                 """)}
-                public final <T> Observable<T> asDownload(OutputStreamFactory<T> osFactory) {
-                    return asDownload(osFactory, null, null);             
+                public final <T> ObservableCall<T> asDownload(OutputStreamFactory<T> osFactory) {
+                    return asDownload(osFactory, false);             
                 } 
                                                                                            
-                public final <T> Observable<T> asDownload(OutputStreamFactory<T> osFactory, Scheduler scheduler,
-                                                           Consumer<Progress> progressConsumer) {
-                    return asParser(new StreamParser<>(osFactory))
-                        .onUploadProgress(scheduler, progressConsumer);
-                }
-                
-                public final Observable<String> asAppendDownload(String destPath) {                    
-                    return asAppendDownload(destPath, null, null);                                     
-                }                                                                                      
-                                                                                                       
-                public final Observable<String> asAppendDownload(String destPath, Scheduler scheduler, 
-                                                                 Consumer<Progress> progressConsumer) {
-                    return asAppendDownload(new FileOutputStreamFactory(destPath), scheduler, progressConsumer);         
-                }                                                                       
-                ${isAndroid("""
-                public final Observable<Uri> asAppendDownload(Context context, Uri uri) {                   
-                    return asAppendDownload(context, uri, null, null);                                      
-                }                                                                                           
-                                                                                                            
-                public final Observable<Uri> asAppendDownload(Context context, Uri uri, Scheduler scheduler,
-                                                              Consumer<Progress> progressConsumer) {        
-                    return asAppendDownload(new UriOutputStreamFactory(context, uri), scheduler, progressConsumer);       
-                }                                               
-                """)}
-                public final <T> Observable<T> asAppendDownload(OutputStreamFactory<T> osFactory) {                   
-                    return asAppendDownload(osFactory, null, null);                                     
-                }                                                                                        
-                                                                                                         
-                public final <T> Observable<T> asAppendDownload(OutputStreamFactory<T> osFactory, Scheduler scheduler,
-                                                              Consumer<Progress> progressConsumer) {
-                    return asParser(new StreamParser<>(osFactory))
-                        .onSubscribe(() -> {
+                public final <T> ObservableCall<T> asDownload(OutputStreamFactory<T> osFactory, boolean append) {
+                    ObservableCall<T> observableCall =  asParser(new StreamParser<>(osFactory));
+                    if (append) {
+                        return observableCall.onSubscribe(() -> {
                             long offsetSize = osFactory.offsetSize();
                             if (offsetSize >= 0)
                                 setRangeHeader(offsetSize, -1, true);
-                        })
-                        .onUploadProgress(scheduler, progressConsumer);
+                        });
+                    } else {
+                        return observableCall;
+                    }
                 }
-                
             }
 
         """.trimIndent())
@@ -531,11 +497,12 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
                     return this;
                 }
 
-                public Observable<T> onUploadProgress(Consumer<Progress> progressConsumer) {
-                    return onUploadProgress(Schedulers.io(), progressConsumer);
+                public Observable<T> onProgress(Consumer<Progress> progressConsumer) {
+                    return onProgress(Schedulers.io(), progressConsumer);
                 }
-
-                public Observable<T> onUploadProgress(Scheduler scheduler, Consumer<Progress> progressConsumer) {
+                
+                // Upload or Download progress callback
+                public Observable<T> onProgress(Scheduler scheduler, Consumer<Progress> progressConsumer) {
                     if (!(parser instanceof StreamParser) && !(callFactory instanceof BodyParamFactory)) {
                         throw new UnsupportedOperationException("parser is " + parser.getClass().getSimpleName() + ", callFactory is " + callFactory.getClass().getSimpleName());
                     }

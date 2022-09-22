@@ -76,11 +76,12 @@ public class ObservableCall<T> extends Observable<T> {
         return this;
     }
 
-    public Observable<T> onUploadProgress(Consumer<Progress> progressConsumer) {
-        return onUploadProgress(Schedulers.io(), progressConsumer);
+    public Observable<T> onProgress(Consumer<Progress> progressConsumer) {
+        return onProgress(Schedulers.io(), progressConsumer);
     }
 
-    public Observable<T> onUploadProgress(Scheduler scheduler, Consumer<Progress> progressConsumer) {
+    // Upload or Download progress callback
+    public Observable<T> onProgress(Scheduler scheduler, Consumer<Progress> progressConsumer) {
         if (!(parser instanceof StreamParser) && !(callFactory instanceof BodyParamFactory)) {
             throw new UnsupportedOperationException("parser is " + parser.getClass().getSimpleName() + ", callFactory is " + callFactory.getClass().getSimpleName());
         }
