@@ -272,13 +272,6 @@ class KClassHelper(
                 ) = apply { param.setBody(uri.asRequestBody(context, 0, contentType)) }
                 """)}
                 fun setBody(any: Any) = apply { param.setBody(any) }
-            
-                @Deprecated(
-                    message = "use `setBody(Any)` instead, scheduled to be removed in RxHttp 3.0 release.",
-                    replaceWith = ReplaceWith("setBody(any)"),
-                    level = DeprecationLevel.ERROR
-                )
-                fun setJsonBody(any: Any) = setBody(any)
             }
 
         """.trimIndent()
@@ -341,20 +334,6 @@ class KClassHelper(
                 }
             
                 fun addFile(file: UpFile) = apply { param.addFile(file) }
-            
-                @Deprecated(
-                    "use `addFiles(List)` instead, scheduled to be removed in RxHttp 3.0 release.",
-                    ReplaceWith("addFiles(fileList)"),
-                    DeprecationLevel.WARNING
-                )
-                fun addFile(fileList: List<UpFile>) = addFiles(fileList)
-            
-                @Deprecated(
-                    "use `addFiles(String, List)` instead, scheduled to be removed in RxHttp 3.0 release.",
-                    ReplaceWith("addFiles(key, fileList)"),
-                    DeprecationLevel.WARNING
-                )
-                fun <T> addFile(key: String, fileList: List<T>) = addFiles(key, fileList)
             
                 fun addFiles(fileList: List<UpFile>) = apply { param.addFiles(fileList) }
             

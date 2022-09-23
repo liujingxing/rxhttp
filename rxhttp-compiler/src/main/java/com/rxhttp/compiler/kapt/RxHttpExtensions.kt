@@ -202,9 +202,6 @@ class RxHttpExtensions {
         val v = TypeVariableName("V")
 
         val reifiedT = t.copy(reified = true)
-        val launchName = ClassName("kotlinx.coroutines", "launch")
-        val coroutineScopeName = ClassName("kotlinx.coroutines", "CoroutineScope")
-        val typeVariable = TypeVariableName("R", rxHttpBodyParamName)
 
         val progressSuspendLambdaName = LambdaTypeName.get(
             parameters = arrayOf(progressName),
@@ -281,57 +278,6 @@ class RxHttpExtensions {
         }
 
         wrapFunList.forEach { fileBuilder.addFunction(it) }
-
-        val deprecatedAnnotation = AnnotationSpec.builder(Deprecated::class)
-            .addMember(
-                """
-                "scheduled to be removed in RxHttp 3.0 release.", 
-                level = DeprecationLevel.ERROR
-            """.trimIndent()
-            )
-            .build()
-
-        FunSpec.builder("upload")
-            .addKdoc(
-                """
-                调用此方法监听上传进度                                                    
-                @param coroutine  CoroutineScope对象，用于开启协程回调进度，进度回调所在线程取决于协程所在线程
-                @param progress 进度回调  
-                
-                
-                此方法已废弃，请使用Flow监听上传进度，性能更优，且更简单，如：
-                
-                ```
-                RxHttp.postForm("/server/...")
-                    .addFile("file", File("xxx/1.png"))
-                    .toFlow<T> {   //这里也可选择你解析器对应的toFlowXxx方法
-                        val currentProgress = it.progress //当前进度 0-100
-                        val currentSize = it.currentSize  //当前已上传的字节大小
-                        val totalSize = it.totalSize      //要上传的总字节大小    
-                    }.catch {
-                        //异常回调
-                    }.collect {
-                        //成功回调
-                    }
-                ```                   
-                """.trimIndent()
-            )
-            .addAnnotation(deprecatedAnnotation)
-            .receiver(typeVariable)
-            .addTypeVariable(typeVariable)
-            .addParameter("coroutine", coroutineScopeName)
-            .addParameter("progressCallback", progressSuspendLambdaName)
-            .addCode(
-                """
-                return apply {
-                    param.setProgressCallback { progress, currentSize, totalSize ->
-                        coroutine.%T { progressCallback(Progress(progress, currentSize, totalSize)) }
-                    }
-                }
-            """.trimIndent(), launchName
-            )
-            .build()
-            .apply { fileBuilder.addFunction(this) }
 
         val toFlow = MemberName("rxhttp", "toFlow")
         val toFlowProgress = MemberName("rxhttp", "toFlowProgress")

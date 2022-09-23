@@ -111,16 +111,6 @@ public class JsonArrayParam extends AbstractBodyParam<JsonArrayParam> {
         return add(key, JsonUtil.toAny(element));
     }
 
-    /**
-     * @return List
-     * @deprecated please use {@link #getBodyParam()} instead, scheduled to be removed in RxHttp 3.0 release.
-     */
-    @Deprecated
-    @Nullable
-    public List<Object> getList() {
-        return getBodyParam();
-    }
-
     @Nullable
     public List<Object> getBodyParam() {
         return bodyParam;

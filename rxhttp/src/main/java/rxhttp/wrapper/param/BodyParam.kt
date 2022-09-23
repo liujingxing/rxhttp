@@ -30,15 +30,6 @@ class BodyParam(
         return this
     }
 
-    @Deprecated(
-        message = "scheduled to be removed in RxHttp 3.0 release.",
-        replaceWith = ReplaceWith("setBody(value)"),
-        level = DeprecationLevel.ERROR
-    )
-    fun setJsonBody(value: Any): BodyParam {
-        return setBody(value)
-    }
-
     fun setBody(requestBody: RequestBody): BodyParam {
         this.requestBody = requestBody
         body = null

@@ -154,15 +154,6 @@ public class FormParam extends AbstractBodyParam<FormParam> implements IPart<For
         return partList;
     }
 
-    /**
-     * @return List
-     * @deprecated please use {@link #getBodyParam()} instead, scheduled to be removed in RxHttp 3.0 release.
-     */
-    @Deprecated
-    public List<KeyValuePair> getKeyValuePairs() {
-        return getBodyParam();
-    }
-
     public List<KeyValuePair> getBodyParam() {
         return bodyParam;
     }

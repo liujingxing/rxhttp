@@ -50,11 +50,4 @@ open class RxHttpBodyParam(param: BodyParam) : RxHttpAbstractBodyParam<BodyParam
     ) = apply { param.setBody(uri.asRequestBody(context, 0, contentType)) }
     
     fun setBody(any: Any) = apply { param.setBody(any) }
-
-    @Deprecated(
-        message = "use `setBody(Any)` instead, scheduled to be removed in RxHttp 3.0 release.",
-        replaceWith = ReplaceWith("setBody(any)"),
-        level = DeprecationLevel.ERROR
-    )
-    fun setJsonBody(any: Any) = setBody(any)
 }

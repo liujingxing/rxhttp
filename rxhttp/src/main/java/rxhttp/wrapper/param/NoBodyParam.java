@@ -41,15 +41,6 @@ public class NoBodyParam extends AbstractParam<NoBodyParam> {
         return null;
     }
 
-    /**
-     * @return List
-     * @deprecated please use {@link #getQueryParam()} instead, scheduled to be removed in RxHttp 3.0 release.
-     */
-    @Deprecated
-    public List<KeyValuePair> getKeyValuePairs() {
-        return getQueryParam();
-    }
-
     @Override
     public String toString() {
         String url = getSimpleUrl();

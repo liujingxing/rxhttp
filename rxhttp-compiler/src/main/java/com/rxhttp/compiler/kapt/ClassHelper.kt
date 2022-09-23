@@ -335,14 +335,6 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
                     param.setBody(object);
                     return this;
                 }
-                
-                /**
-                 * @deprecated please use {@link #setBody(Object)} instead, scheduled to be removed in RxHttp 3.0 release.
-                 */
-                @Deprecated
-                public RxHttpBodyParam setJsonBody(Object object) {
-                    return setBody(object);
-                }
             }
 
         """.trimIndent()
@@ -449,22 +441,6 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
                 public RxHttpFormParam addFile(UpFile file) {
                     param.addFile(file);
                     return this;
-                }
-
-                /**
-                 * @deprecated please use {@link #addFiles(List)} instead, scheduled to be removed in RxHttp 3.0 release.
-                 */
-                @Deprecated
-                public RxHttpFormParam addFile(List<? extends UpFile> fileList) {
-                    return addFiles(fileList);
-                }
-                
-                /**
-                 * @deprecated please use {@link #addFiles(String, List)} instead, scheduled to be removed in RxHttp 3.0 release.
-                 */
-                @Deprecated
-                public <T> RxHttpFormParam addFile(String key, List<T> fileList) {
-                    return addFiles(key, fileList);
                 }
 
                 public RxHttpFormParam addFiles(List<? extends UpFile> fileList) {
