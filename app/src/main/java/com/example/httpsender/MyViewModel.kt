@@ -14,7 +14,7 @@ import rxhttp.awaitResult
 import rxhttp.retry
 import rxhttp.timeout
 import rxhttp.wrapper.param.RxHttp
-import rxhttp.wrapper.param.toResponse
+import rxhttp.wrapper.param.toAwaitResponse
 import java.util.concurrent.TimeUnit
 
 /**
@@ -32,7 +32,7 @@ class MyViewModel(application: Application) : ScopeViewModel(application) {
 
     fun testRetry() = viewModelScope.launch {
         RxHttp.get("/article/list/0/json")
-            .toResponse<PageList<Article>>()
+            .toAwaitResponse<PageList<Article>>()
             .timeout(100)
             .retry(2, 1000) {
                 it is TimeoutCancellationException

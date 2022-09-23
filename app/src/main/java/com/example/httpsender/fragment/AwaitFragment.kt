@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 import rxhttp.*
 import rxhttp.wrapper.entity.OkResponse
 import rxhttp.wrapper.param.RxHttp
-import rxhttp.wrapper.param.toResponse
+import rxhttp.wrapper.param.toAwaitResponse
 import java.io.File
 import java.util.*
 
@@ -53,7 +53,7 @@ class AwaitFragment : BaseFragment<AwaitFragmentBinding>(), View.OnClickListener
     //发送Get请求，获取文章列表
     private suspend fun AwaitFragmentBinding.sendGet(view: View) {
         RxHttp.get("/article/list/0/json")
-            .toResponse<OkResponse<User>>()
+            .toAwaitResponse<OkResponse<User>>()
             .awaitResult {
                 val user = it.body()
                 val response = it.raw()
@@ -69,7 +69,7 @@ class AwaitFragment : BaseFragment<AwaitFragmentBinding>(), View.OnClickListener
     private suspend fun AwaitFragmentBinding.sendPostForm(view: View) {
         RxHttp.postForm("/article/query/0/json")
             .add("k", "性能优化")
-            .toResponse<PageList<Article>>()
+            .toAwaitResponse<PageList<Article>>()
             .awaitResult {
                 tvResult.text = Gson().toJson(it)
             }.onFailure {
@@ -101,7 +101,7 @@ class AwaitFragment : BaseFragment<AwaitFragmentBinding>(), View.OnClickListener
             .add("interest", interestList) //添加数组对象
             .add("location", Location(120.6788, 30.7866)) //添加位置对象
             .addJsonElement("address", address) //通过字符串添加一个对象
-            .toStr()
+            .toAwaitString()
             .awaitResult {
                 tvResult.text = it
             }.onFailure {
@@ -125,7 +125,7 @@ class AwaitFragment : BaseFragment<AwaitFragmentBinding>(), View.OnClickListener
             .add(Name("李四"))
             .addJsonElement("""{"name":"王五"}""")
             .addAll(names)
-            .toStr()
+            .toAwaitString()
             .awaitResult {
                 tvResult.text = it
             }.onFailure {
@@ -141,7 +141,7 @@ class AwaitFragment : BaseFragment<AwaitFragmentBinding>(), View.OnClickListener
         RxHttp.postBody("http://webservices.nextbus.com/service/publicXMLFeed?command=routeConfig&a=sf-muni")
             .setBody(Name("张三"))
             .setXmlConverter()
-            .toClass<NewsDataXml>()
+            .toAwait<NewsDataXml>()
             .awaitResult {
                 tvResult.text = Gson().toJson(it)
             }.onFailure {
@@ -211,7 +211,7 @@ class AwaitFragment : BaseFragment<AwaitFragmentBinding>(), View.OnClickListener
     private suspend fun AwaitFragmentBinding.download(view: View) {
         val destPath = "${requireContext().externalCacheDir}/${System.currentTimeMillis()}.apk"
         RxHttp.get(Url.DOWNLOAD_URL)
-            .toDownload(destPath) {
+            .toAwait(destPath) {
                 val currentProgress = it.progress //当前进度 0-100
                 val currentSize = it.currentSize //当前已下载的字节大小
                 val totalSize = it.totalSize //要下载的总字节大小
@@ -233,7 +233,7 @@ class AwaitFragment : BaseFragment<AwaitFragmentBinding>(), View.OnClickListener
     private suspend fun AwaitFragmentBinding.appendDownload(view: View) {
         val destPath = "${requireContext().externalCacheDir}/Miaobo.apk"
         RxHttp.get(Url.DOWNLOAD_URL)
-            .toDownload(destPath, true) {
+            .toAwait(destPath, true) {
                 val currentProgress = it.progress //当前进度 0-100
                 val currentSize = it.currentSize //当前已下载的字节大小
                 val totalSize = it.totalSize //要下载的总字节大小
@@ -254,7 +254,7 @@ class AwaitFragment : BaseFragment<AwaitFragmentBinding>(), View.OnClickListener
     private suspend fun AwaitFragmentBinding.downloadAndroid10(view: View) {
         val factory = Android10DownloadFactory(requireContext(), "miaobo.apk")
         RxHttp.get(Url.DOWNLOAD_URL)
-            .toDownload(factory) {
+            .toAwait(factory) {
                 val currentProgress = it.progress //当前进度 0-100
                 val currentSize = it.currentSize //当前已下载的字节大小
                 val totalSize = it.totalSize //要下载的总字节大小
@@ -275,7 +275,7 @@ class AwaitFragment : BaseFragment<AwaitFragmentBinding>(), View.OnClickListener
     private suspend fun AwaitFragmentBinding.appendDownloadAndroid10(view: View) {
         val factory = Android10DownloadFactory(requireContext(), "miaobo.apk")
         RxHttp.get(Url.DOWNLOAD_URL)
-            .toDownload(factory, true) {
+            .toAwait(factory, true) {
                 val currentProgress = it.progress //当前进度 0-100
                 val currentSize = it.currentSize //当前已下载的字节大小
                 val totalSize = it.totalSize //要下载的总字节大小

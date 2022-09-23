@@ -11,7 +11,7 @@ import kotlinx.coroutines.*
 import rxhttp.*
 import rxhttp.wrapper.cahce.CacheMode
 import rxhttp.wrapper.param.RxHttp
-import rxhttp.wrapper.param.toResponse
+import rxhttp.wrapper.param.toAwaitResponse
 import java.util.concurrent.TimeUnit
 
 /**
@@ -34,7 +34,7 @@ class Presenter(owner: LifecycleOwner) : BaseScope(owner) {
             RxHttp.postForm("/article/query/0/json")
                 .add("k", "性能优化")
                 .setCacheMode(CacheMode.ONLY_NETWORK)
-                .toResponse<PageList<Article>>()
+                .toAwaitResponse<PageList<Article>>()
                 .delay(100)
                 .startDelay(100)
                 .onErrorReturnItem(PageList())

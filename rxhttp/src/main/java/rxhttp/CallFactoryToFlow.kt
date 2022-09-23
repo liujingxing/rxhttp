@@ -32,7 +32,9 @@ import rxhttp.wrapper.parse.Parser
  * Time: 17:31
  */
 
-inline fun <reified T> CallFactory.toFlow(): Flow<T> = toFlow(toClass())
+fun <T> CallFactory.toFlow(parser: Parser<T>): Flow<T> = toFlow(toAwait(parser))
+
+inline fun <reified T> CallFactory.toFlow(): Flow<T> = toFlow(toAwait())
 
 fun CallFactory.toFlowString(): Flow<String> = toFlow()
 
@@ -46,12 +48,10 @@ fun CallFactory.toFlowHeaders(): Flow<Headers> = toFlow()
 
 fun CallFactory.toFlowOkResponse(): Flow<Response> = toFlow()
 
-fun <T> CallFactory.toFlow(parser: Parser<T>): Flow<T> = toFlow(toParser(parser))
-
 fun <T> toFlow(await: Await<T>): Flow<T> = await.asFlow()
 
 inline fun <reified T> BodyParamFactory.toFlow(
-    await: Await<T> = toClass(),
+    await: Await<T> = toAwait(),
     capacity: Int = 1,
     noinline progress: suspend (Progress) -> Unit
 ): Flow<T> = toFlowProgress(await, capacity).onEachProgress(progress)

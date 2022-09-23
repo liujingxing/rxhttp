@@ -24,21 +24,21 @@ import rxhttp.wrapper.utils.javaTypeOf
  * Date: 2021/9/18
  * Time: 17:34
  */
-fun <T> CallFactory.toParser(parser: Parser<T>): Await<T> = AwaitImpl(this, parser)
+fun <T> CallFactory.toAwait(parser: Parser<T>): Await<T> = AwaitImpl(this, parser)
 
-inline fun <reified T> CallFactory.toClass(): Await<T> = toParser(SmartParser.wrap(javaTypeOf<T>()))
+inline fun <reified T> CallFactory.toAwait(): Await<T> = toAwait(SmartParser.wrap(javaTypeOf<T>()))
 
-fun CallFactory.toStr(): Await<String> = toClass()
+fun CallFactory.toAwaitString(): Await<String> = toAwait()
 
-inline fun <reified T> CallFactory.toList(): Await<MutableList<T>> = toClass()
+inline fun <reified T> CallFactory.toAwaitList(): Await<MutableList<T>> = toAwait()
 
-inline fun <reified V> CallFactory.toMapString(): Await<Map<String, V>> = toClass()
+inline fun <reified V> CallFactory.toAwaitMapString(): Await<Map<String, V>> = toAwait()
 
-fun CallFactory.toBitmap(): Await<Bitmap> = toClass()
+fun CallFactory.toAwaitBitmap(): Await<Bitmap> = toAwait()
 
-fun CallFactory.toOkResponse(): Await<Response> = toClass()
+fun CallFactory.toAwaitHeaders(): Await<Headers> = toAwait()
 
-fun CallFactory.toHeaders(): Await<Headers> = toClass()
+fun CallFactory.toAwaitOkResponse(): Await<Response> = toAwait()
 
 /**
  * @param destPath Local storage path
@@ -46,14 +46,14 @@ fun CallFactory.toHeaders(): Await<Headers> = toClass()
  * @param capacity capacity of the buffer between coroutines
  * @param progress Progress callback in suspend method, The callback thread depends on the coroutine thread
  */
-fun CallFactory.toDownload(
+fun CallFactory.toAwait(
     destPath: String,
     append: Boolean = false,
     capacity: Int = 1,
     progress: (suspend (Progress) -> Unit)? = null
 ): Await<String> = toFlow(destPath, append, capacity, progress).toAwait()
 
-fun CallFactory.toDownload(
+fun CallFactory.toAwait(
     context: Context,
     uri: Uri,
     append: Boolean = false,
@@ -61,7 +61,7 @@ fun CallFactory.toDownload(
     progress: (suspend (Progress) -> Unit)? = null
 ): Await<Uri> = toFlow(context, uri, append, capacity, progress).toAwait()
 
-fun <T> CallFactory.toDownload(
+fun <T> CallFactory.toAwait(
     osFactory: OutputStreamFactory<T>,
     append: Boolean = false,
     capacity: Int = 1,
@@ -87,6 +87,6 @@ internal fun <T> CallFactory.toSyncDownload(
             progressCallback(p)
         }
     }
-    return toParser(parser)
+    return toAwait(parser)
 }
 

@@ -6,9 +6,9 @@ import java.lang.reflect.Type
 import kotlin.Int
 import kotlin.Suppress
 import kotlin.Unit
+import rxhttp.toAwait
 import rxhttp.toFlow
 import rxhttp.toFlowProgress
-import rxhttp.toParser
 import rxhttp.wrapper.BodyParamFactory
 import rxhttp.wrapper.CallFactory
 import rxhttp.wrapper.entity.OkResponse
@@ -38,13 +38,13 @@ public fun <T> wrapResponseParser(type: Type): Parser<T> =
         ResponseParser(type)
     }
 
-public inline fun <reified T> CallFactory.toResponse() =
-    toParser(wrapResponseParser<T>(javaTypeOf<T>()))
+public inline fun <reified T> CallFactory.toAwaitResponse() =
+    toAwait(wrapResponseParser<T>(javaTypeOf<T>()))
 
-public inline fun <reified T> CallFactory.toFlowResponse() = toFlow(toResponse<T>())
+public inline fun <reified T> CallFactory.toFlowResponse() = toFlow(toAwaitResponse<T>())
 
 public inline fun <reified T> BodyParamFactory.toFlowResponse(capacity: Int = 1, noinline
-    progress: suspend (Progress) -> Unit) = toFlow(toResponse<T>(), capacity, progress)
+    progress: suspend (Progress) -> Unit) = toFlow(toAwaitResponse<T>(), capacity, progress)
 
 public inline fun <reified T> BodyParamFactory.toFlowResponseProgress(capacity: Int = 1) =
-    toFlowProgress(toResponse<T>(), capacity)
+    toFlowProgress(toAwaitResponse<T>(), capacity)

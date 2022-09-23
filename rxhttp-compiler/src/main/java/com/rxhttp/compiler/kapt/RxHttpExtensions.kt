@@ -148,12 +148,12 @@ class RxHttpExtensions {
             val parser = "%T$types($finalParams)"
 
             val toXxxFunBody = if (typeVariableNames.size == 1) {
-                CodeBlock.of("return toParser(wrap${customParserClassName.simpleName}$types($finalParams))")
+                CodeBlock.of("return toAwait(wrap${customParserClassName.simpleName}$types($finalParams))")
             } else {
-                CodeBlock.of("return toParser(%T$types($finalParams))", customParserClassName)
+                CodeBlock.of("return toAwait(%T$types($finalParams))", customParserClassName)
             }
 
-            FunSpec.builder("to$key")
+            FunSpec.builder("toAwait$key")
                 .addModifiers(modifiers)
                 .receiver(callFactoryName)
                 .addParameters(parameterList)
@@ -210,7 +210,7 @@ class RxHttpExtensions {
 
         val fileBuilder = FileSpec.builder(rxHttpPackage, "RxHttp")
             .addImport("rxhttp.wrapper.utils", "javaTypeOf")
-            .addImport("rxhttp", "toParser")
+            .addImport("rxhttp", "toAwait")
 
         val rxHttpName = rxhttpKClassName.parameterizedBy(wildcard, wildcard)
         FunSpec.builder("executeList")
@@ -285,7 +285,7 @@ class RxHttpExtensions {
 
         toFunList.forEach {
             fileBuilder.addFunction(it)
-            val parseName = it.name.substring(2)
+            val parseName = it.name.substring(7) // Remove the prefix `toAwait`
             val typeVariables = it.typeVariables
             val arguments = StringBuilder()
             it.parameters.forEach { p ->
@@ -301,7 +301,7 @@ class RxHttpExtensions {
                 .addParameters(it.parameters)
                 .addTypeVariables(typeVariables)
                 .addStatement(
-                    """return %M(to$parseName${getTypeVariableString(typeVariables)}($arguments))""",
+                    """return %M(toAwait$parseName${getTypeVariableString(typeVariables)}($arguments))""",
                     toFlow
                 )
                 .build()
@@ -322,7 +322,7 @@ class RxHttpExtensions {
                     .addParameter(capacityParam)
                     .addParameter(builder.build())
                     .addCode(
-                        "return %M(to$parseName${getTypeVariableString(typeVariables)}($arguments), capacity, progress)",
+                        "return %M(toAwait$parseName${getTypeVariableString(typeVariables)}($arguments), capacity, progress)",
                         toFlow
                     )
                     .build()
@@ -335,7 +335,7 @@ class RxHttpExtensions {
                     .addParameters(it.parameters)
                     .addParameter(capacityParam)
                     .addCode(
-                        "return %M(to$parseName${getTypeVariableString(typeVariables)}($arguments), capacity)",
+                        "return %M(toAwait$parseName${getTypeVariableString(typeVariables)}($arguments), capacity)",
                         toFlowProgress
                     )
                     .build()
