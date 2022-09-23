@@ -210,10 +210,11 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
     private fun generatorRxHttpNoBodyParam(filer: Filer) {
         generatorClass(filer, "RxHttpNoBodyParam", """
             package $rxHttpPackage;
+            
+            import org.jetbrains.annotations.NotNull;
 
             import java.util.Map;
             
-            import rxhttp.wrapper.annotations.NonNull;
             import rxhttp.wrapper.param.NoBodyParam;
 
             /**
@@ -247,7 +248,7 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
                     return addEncodedQuery(key, value);
                 }
                 
-                public RxHttpNoBodyParam addAllEncoded(@NonNull Map<String, ?> map) {
+                public RxHttpNoBodyParam addAllEncoded(@NotNull Map<String, ?> map) {
                     return addAllEncodedQuery(map);
                 }
             }
@@ -264,7 +265,8 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
             import android.net.Uri;
             import rxhttp.wrapper.utils.UriUtil;
             """)}
-            import rxhttp.wrapper.annotations.Nullable;
+            import org.jetbrains.annotations.Nullable;
+            
             import rxhttp.wrapper.param.BodyParam;
 
             import java.io.File;
@@ -353,6 +355,9 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
 
             ${isAndroid("import android.content.Context;")}
             ${isAndroid("import android.net.Uri;")}
+            
+            import org.jetbrains.annotations.NotNull;
+            import org.jetbrains.annotations.Nullable;
 
             import java.io.File;
             import java.util.List;
@@ -363,8 +368,6 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
             import okhttp3.MediaType;
             import okhttp3.MultipartBody.Part;
             import okhttp3.RequestBody;
-            import rxhttp.wrapper.annotations.NonNull;
-            import rxhttp.wrapper.annotations.Nullable;
             import rxhttp.wrapper.entity.UpFile;
             import rxhttp.wrapper.param.FormParam;
             import rxhttp.wrapper.utils.UriUtil;
@@ -403,7 +406,7 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
                     return this;
                 }
                 
-                public RxHttpFormParam addAllEncoded(@NonNull Map<String, ?> map) {
+                public RxHttpFormParam addAllEncoded(@NotNull Map<String, ?> map) {
                     param.addAllEncoded(map);
                     return this;
                 }

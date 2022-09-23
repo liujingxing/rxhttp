@@ -1,12 +1,11 @@
 package rxhttp.wrapper.param;
 
-import java.util.List;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Map;
 
 import okhttp3.RequestBody;
-import rxhttp.wrapper.annotations.NonNull;
-import rxhttp.wrapper.annotations.Nullable;
-import rxhttp.wrapper.entity.KeyValuePair;
 
 /**
  * Get、Head没有body的请求调用此类
@@ -33,7 +32,7 @@ public class NoBodyParam extends AbstractParam<NoBodyParam> {
         return addEncodedQuery(key, value);
     }
 
-    public NoBodyParam addAllEncoded(@NonNull Map<String, ?> map) {
+    public NoBodyParam addAllEncoded(@NotNull Map<String, ?> map) {
         return addAllEncodedQuery(map);
     }
 

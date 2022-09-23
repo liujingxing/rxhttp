@@ -1,5 +1,7 @@
 package rxhttp.wrapper;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
@@ -26,7 +28,6 @@ import okhttp3.internal.http.StatusLine;
 import okhttp3.internal.io.FileSystem;
 import okio.Buffer;
 import okio.ByteString;
-import rxhttp.wrapper.annotations.Nullable;
 import rxhttp.wrapper.callback.Converter;
 import rxhttp.wrapper.entity.DownloadOffSize;
 import rxhttp.wrapper.param.Param;

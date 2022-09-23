@@ -8,10 +8,10 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSyntaxException;
 
-import java.lang.reflect.Type;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import rxhttp.wrapper.annotations.NonNull;
-import rxhttp.wrapper.annotations.Nullable;
+import java.lang.reflect.Type;
 
 /**
  * User: ljx
@@ -65,7 +65,7 @@ public class GsonUtil {
      * @param <T>  返回类型
      * @return T，返回对象不为空
      */
-    @NonNull
+    @NotNull
     public static <T> T fromJson(String json, Type type) {
         Gson gson = buildGson();
         T t = gson.fromJson(json, type);

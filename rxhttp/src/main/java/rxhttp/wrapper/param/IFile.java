@@ -1,10 +1,11 @@
 package rxhttp.wrapper.param;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.File;
 import java.util.List;
 import java.util.Map;
 
-import rxhttp.wrapper.annotations.NonNull;
 import rxhttp.wrapper.entity.UpFile;
 
 /**
@@ -68,5 +69,5 @@ public interface IFile<P extends Param<P>> {
      * @param upFile UpFile
      * @return Param
      */
-    P addFile(@NonNull UpFile upFile);
+    P addFile(@NotNull UpFile upFile);
 }

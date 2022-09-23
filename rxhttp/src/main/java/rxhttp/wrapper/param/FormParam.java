@@ -1,5 +1,8 @@
 package rxhttp.wrapper.param;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -10,8 +13,6 @@ import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.MultipartBody.Part;
 import okhttp3.RequestBody;
-import rxhttp.wrapper.annotations.NonNull;
-import rxhttp.wrapper.annotations.Nullable;
 import rxhttp.wrapper.entity.KeyValuePair;
 import rxhttp.wrapper.utils.BuildUtil;
 import rxhttp.wrapper.utils.CacheUtil;
@@ -53,7 +54,7 @@ public class FormParam extends AbstractBodyParam<FormParam> implements IPart<For
         return this;
     }
 
-    public FormParam addAllEncoded(@NonNull Map<String, ?> map) {
+    public FormParam addAllEncoded(@NotNull Map<String, ?> map) {
         for (Entry<String, ?> entry : map.entrySet()) {
             addEncoded(entry.getKey(), entry.getValue());
         }

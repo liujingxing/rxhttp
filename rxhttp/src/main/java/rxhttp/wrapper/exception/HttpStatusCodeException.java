@@ -1,5 +1,7 @@
 package rxhttp.wrapper.exception;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.io.IOException;
 
 import okhttp3.Headers;
@@ -10,7 +12,6 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 import rxhttp.internal.RxHttpVersion;
 import rxhttp.wrapper.OkHttpCompat;
-import rxhttp.wrapper.annotations.Nullable;
 
 /**
  * Http 状态码 code < 200 || code >= 300, 抛出此异常

@@ -1,12 +1,13 @@
 package rxhttp.wrapper.param;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import okhttp3.CacheControl;
-import rxhttp.wrapper.annotations.NonNull;
-import rxhttp.wrapper.annotations.Nullable;
 
 /**
  * User: ljx
@@ -16,7 +17,7 @@ import rxhttp.wrapper.annotations.Nullable;
 @SuppressWarnings("unchecked")
 public interface IParam<P extends Param<P>> {
 
-    P setUrl(@NonNull String url);
+    P setUrl(@NotNull String url);
 
     P add(String key, Object value);
 
@@ -24,7 +25,7 @@ public interface IParam<P extends Param<P>> {
 
     P addEncodedPath(String name, Object value);
 
-    default P addAll(@NonNull Map<String, ?> map) {
+    default P addAll(@NotNull Map<String, ?> map) {
         for (Entry<String, ?> entry : map.entrySet()) {
             add(entry.getKey(), entry.getValue());
         }
@@ -35,7 +36,7 @@ public interface IParam<P extends Param<P>> {
 
     P addEncodedQuery(String key, @Nullable Object value);
 
-    default P addAllQuery(String key, @NonNull List<?> values) {
+    default P addAllQuery(String key, @NotNull List<?> values) {
         if (values == null) return addQuery(key, null);
         for (Object value : values) {
             addQuery(key, value);
@@ -43,7 +44,7 @@ public interface IParam<P extends Param<P>> {
         return (P) this;
     }
 
-    default P addAllEncodedQuery(String key, @NonNull List<?> values) {
+    default P addAllEncodedQuery(String key, @NotNull List<?> values) {
         if (values == null) return addEncodedQuery(key, null);
         for (Object value : values) {
             addEncodedQuery(key, value);
@@ -51,14 +52,14 @@ public interface IParam<P extends Param<P>> {
         return (P) this;
     }
 
-    default P addAllQuery(@NonNull Map<String, ?> map) {
+    default P addAllQuery(@NotNull Map<String, ?> map) {
         for (Entry<String, ?> entry : map.entrySet()) {
             addQuery(entry.getKey(), entry.getValue());
         }
         return (P) this;
     }
 
-    default P addAllEncodedQuery(@NonNull Map<String, ?> map) {
+    default P addAllEncodedQuery(@NotNull Map<String, ?> map) {
         for (Entry<String, ?> entry : map.entrySet()) {
             addEncodedQuery(entry.getKey(), entry.getValue());
         }

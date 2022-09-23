@@ -6,6 +6,8 @@ import com.squareup.moshi.JsonReader;
 import com.squareup.moshi.JsonWriter;
 import com.squareup.moshi.Moshi;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.List;
@@ -100,9 +102,10 @@ public class MoshiConverter implements JsonConverter {
         return new MoshiConverter(moshi, lenient, failOnUnknown, true, contentType);
     }
 
+    @NotNull
     @SuppressWarnings("unchecked")
     @Override
-    public <T> T convert(ResponseBody body, Type type, boolean needDecodeResult) throws IOException {
+    public <T> T convert(@NotNull ResponseBody body, @NotNull Type type, boolean needDecodeResult) throws IOException {
         JsonAdapter<T> adapter = moshi.adapter(type);
         if (lenient) {
             adapter = adapter.lenient();

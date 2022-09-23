@@ -5,6 +5,8 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.MessageLite;
 import com.google.protobuf.Parser;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -39,9 +41,10 @@ public class ProtoConverter implements Converter {
         this.contentType = contentType;
     }
 
+    @NotNull
     @SuppressWarnings("unchecked")
     @Override
-    public <T> T convert(ResponseBody body, Type type, boolean needDecodeResult) throws IOException {
+    public <T> T convert(@NotNull ResponseBody body, @NotNull Type type, boolean needDecodeResult) throws IOException {
         if (!(type instanceof Class<?>)) {
             return null;
         }

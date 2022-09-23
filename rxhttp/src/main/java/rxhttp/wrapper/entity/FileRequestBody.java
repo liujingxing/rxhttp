@@ -1,6 +1,7 @@
 package rxhttp.wrapper.entity;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -13,7 +14,6 @@ import okio.BufferedSink;
 import okio.Okio;
 import okio.Source;
 import rxhttp.wrapper.OkHttpCompat;
-import rxhttp.wrapper.annotations.Nullable;
 
 /**
  * For compatibility with okHTTP 3.x version, only written in Java

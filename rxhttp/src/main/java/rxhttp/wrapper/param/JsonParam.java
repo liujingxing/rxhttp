@@ -5,6 +5,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,7 +15,6 @@ import okhttp3.HttpUrl;
 import okhttp3.HttpUrl.Builder;
 import okhttp3.RequestBody;
 import rxhttp.RxHttpPlugins;
-import rxhttp.wrapper.annotations.Nullable;
 import rxhttp.wrapper.callback.Converter;
 import rxhttp.wrapper.callback.JsonConverter;
 import rxhttp.wrapper.entity.KeyValuePair;

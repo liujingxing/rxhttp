@@ -1,6 +1,7 @@
 package rxhttp;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,8 +12,6 @@ import java.util.List;
 import okhttp3.Call;
 import okhttp3.Dispatcher;
 import okhttp3.OkHttpClient;
-import rxhttp.wrapper.annotations.NonNull;
-import rxhttp.wrapper.annotations.Nullable;
 import rxhttp.wrapper.cahce.CacheManager;
 import rxhttp.wrapper.cahce.CacheMode;
 import rxhttp.wrapper.cahce.CacheStrategy;
@@ -98,7 +97,7 @@ public class RxHttpPlugins {
         return this;
     }
 
-    public RxHttpPlugins setConverter(@NonNull Converter converter) {
+    public RxHttpPlugins setConverter(Converter converter) {
         if (converter == null)
             throw new IllegalArgumentException("converter can not be null");
         this.converter = converter;

@@ -4,6 +4,8 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.IOException;
 import java.lang.reflect.Type;
 
@@ -11,7 +13,6 @@ import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import rxhttp.RxHttpPlugins;
-import rxhttp.wrapper.annotations.NonNull;
 import rxhttp.wrapper.callback.JsonConverter;
 
 /**
@@ -35,26 +36,27 @@ public class FastJsonConverter implements JsonConverter {
         return create(ParserConfig.getGlobalInstance(), SerializeConfig.getGlobalInstance());
     }
 
-    public static FastJsonConverter create(@NonNull ParserConfig parserConfig) {
+    public static FastJsonConverter create(ParserConfig parserConfig) {
         return create(parserConfig, SerializeConfig.getGlobalInstance());
     }
 
-    public static FastJsonConverter create(@NonNull SerializeConfig serializeConfig) {
+    public static FastJsonConverter create(SerializeConfig serializeConfig) {
         return create(ParserConfig.getGlobalInstance(), serializeConfig);
     }
 
-    public static FastJsonConverter create(@NonNull ParserConfig parserConfig, @NonNull SerializeConfig serializeConfig) {
+    public static FastJsonConverter create(ParserConfig parserConfig, SerializeConfig serializeConfig) {
         return create(parserConfig, serializeConfig, JsonConverter.MEDIA_TYPE);
     }
 
-    public static FastJsonConverter create(@NonNull ParserConfig parserConfig, @NonNull SerializeConfig serializeConfig, MediaType contentType) {
+    public static FastJsonConverter create(ParserConfig parserConfig, SerializeConfig serializeConfig, MediaType contentType) {
         if (parserConfig == null) throw new NullPointerException("parserConfig == null");
         if (serializeConfig == null) throw new NullPointerException("serializeConfig == null");
         return new FastJsonConverter(parserConfig, serializeConfig, contentType);
     }
 
+    @NotNull
     @Override
-    public <T> T convert(ResponseBody body, Type type, boolean needDecodeResult) throws IOException {
+    public <T> T convert(@NotNull ResponseBody body, @NotNull Type type, boolean needDecodeResult) throws IOException {
         try {
             String result = body.string();
             if (needDecodeResult) {

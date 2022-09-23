@@ -1,5 +1,11 @@
 package rxhttp.wrapper.cahce;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static okhttp3.internal.Util.discard;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.io.Closeable;
 import java.io.File;
 import java.io.Flushable;
@@ -41,10 +47,6 @@ import okio.Sink;
 import okio.Source;
 import okio.Timeout;
 import rxhttp.wrapper.OkHttpCompat;
-import rxhttp.wrapper.annotations.Nullable;
-
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static okhttp3.internal.Util.discard;
 
 /**
  * User: ljx
@@ -59,15 +61,14 @@ public class CacheManager implements Closeable, Flushable {
     private static final int ENTRY_COUNT = 2;
 
     public final InternalCache internalCache = new InternalCache() {
+        @Nullable
         @Override
-        public @Nullable
-        Response get(Request request, String key) throws IOException {
+        public Response get(Request request, String key) throws IOException {
             return CacheManager.this.get(request, key);
         }
 
         @Override
-        public @Nullable
-        Response put(Response response, String key) throws IOException {
+        public Response put(Response response, String key) throws IOException {
             return CacheManager.this.put(response, key);
         }
 
@@ -129,7 +130,6 @@ public class CacheManager implements Closeable, Flushable {
         return entry.response(request, snapshot);
     }
 
-    @Nullable
     private Response put(Response networkResponse, String key) throws IOException {
         CacheRequest cacheRequest = putResponse(networkResponse, key); //写响应头、message等信息
         return cacheWritingResponse(cacheRequest, networkResponse);   //写
@@ -158,7 +158,6 @@ public class CacheManager implements Closeable, Flushable {
         // Some apps return a null body; for compatibility we treat that like a null cache request.
         if (cacheRequest == null) return response;
         Sink cacheBodyUnbuffered = cacheRequest.body();
-        if (cacheBodyUnbuffered == null) return response;
         ResponseBody body = response.body();
         if (body == null) return response;
 
@@ -169,7 +168,7 @@ public class CacheManager implements Closeable, Flushable {
             boolean cacheRequestClosed;
 
             @Override
-            public long read(Buffer sink, long byteCount) throws IOException {
+            public long read(@NotNull Buffer sink, long byteCount) throws IOException {
                 long bytesRead;
                 try {
                     bytesRead = source.read(sink, byteCount);
@@ -194,6 +193,7 @@ public class CacheManager implements Closeable, Flushable {
                 return bytesRead;
             }
 
+            @NotNull
             @Override
             public Timeout timeout() {
                 return source.timeout();
@@ -341,8 +341,8 @@ public class CacheManager implements Closeable, Flushable {
 
     private final class CacheRequestImpl implements CacheRequest {
         private final DiskLruCache.Editor editor;
-        private Sink cacheOut;
-        private Sink body;
+        private final Sink cacheOut;
+        private final Sink body;
         boolean done;
 
         CacheRequestImpl(final DiskLruCache.Editor editor) {
@@ -378,6 +378,7 @@ public class CacheManager implements Closeable, Flushable {
             }
         }
 
+        @NotNull
         @Override
         public Sink body() {
             return body;
@@ -694,6 +695,7 @@ public class CacheManager implements Closeable, Flushable {
             }
         }
 
+        @NotNull
         @Override
         public BufferedSource source() {
             return bodySource;

@@ -4,6 +4,9 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.net.Uri;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.net.URLConnection;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -16,8 +19,6 @@ import okhttp3.MultipartBody;
 import okhttp3.MultipartBody.Part;
 import okhttp3.Request;
 import okhttp3.RequestBody;
-import rxhttp.wrapper.annotations.NonNull;
-import rxhttp.wrapper.annotations.Nullable;
 import rxhttp.wrapper.entity.KeyValuePair;
 import rxhttp.wrapper.param.IRequest;
 
@@ -30,7 +31,7 @@ public class BuildUtil {
 
     private static final Pattern PATH_TRAVERSAL = Pattern.compile("(.*/)?(\\.|%2e|%2E){1,2}(/.*)?");
 
-    public static Request buildRequest(@NonNull IRequest r, @NonNull Request.Builder builder) {
+    public static Request buildRequest(@NotNull IRequest r, @NotNull Request.Builder builder) {
         builder.url(r.getHttpUrl())
             .method(r.getMethod().name(), r.buildRequestBody());
         Headers headers = r.getHeaders();
@@ -92,7 +93,7 @@ public class BuildUtil {
         return builder.build();
     }
 
-    public static HttpUrl getHttpUrl(@NonNull String url, @Nullable List<KeyValuePair> queryList,
+    public static HttpUrl getHttpUrl(@NotNull String url, @Nullable List<KeyValuePair> queryList,
                                      @Nullable List<KeyValuePair> paths) {
         if (paths != null) {
             for (KeyValuePair path : paths) {

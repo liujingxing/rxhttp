@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.IOException;
 import java.lang.reflect.Type;
 
@@ -42,8 +44,9 @@ public class JacksonConverter implements JsonConverter {
         return new JacksonConverter(mapper, contentType);
     }
 
+    @NotNull
     @Override
-    public <T> T convert(ResponseBody body, Type type, boolean needDecodeResult) throws IOException {
+    public <T> T convert(@NotNull ResponseBody body, @NotNull Type type, boolean needDecodeResult) throws IOException {
         JavaType javaType = mapper.getTypeFactory().constructType(type);
         ObjectReader reader = mapper.readerFor(javaType);
         try {

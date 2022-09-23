@@ -1,14 +1,15 @@
 package rxhttp.wrapper.exception;
 
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.io.IOException;
 
 import okhttp3.Headers;
 import okhttp3.HttpUrl;
 import okhttp3.Request;
 import okhttp3.Response;
-import rxhttp.wrapper.annotations.NonNull;
-import rxhttp.wrapper.annotations.Nullable;
 
 /**
  * User: ljx
@@ -23,7 +24,7 @@ public class ParseException extends IOException {
     private final HttpUrl httpUrl; //请求Url及查询参数
     private final Headers responseHeaders; //响应头
 
-    public ParseException(@NonNull String code, String message, Response response) {
+    public ParseException(@NotNull String code, String message, Response response) {
         super(message);
         errorCode = code;
 

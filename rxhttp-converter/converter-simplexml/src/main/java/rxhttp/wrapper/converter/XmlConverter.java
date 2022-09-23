@@ -1,6 +1,6 @@
 package rxhttp.wrapper.converter;
 
-
+import org.jetbrains.annotations.NotNull;
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
 
@@ -13,7 +13,6 @@ import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import okio.Buffer;
 import rxhttp.RxHttpPlugins;
-import rxhttp.wrapper.annotations.NonNull;
 import rxhttp.wrapper.callback.Converter;
 
 /**
@@ -55,15 +54,16 @@ public class XmlConverter implements Converter {
         return createNonStrict(serializer, MEDIA_TYPE);
     }
 
-    @SuppressWarnings("ConstantConditions") // Guarding public API nullability.
+    // Guarding public API nullability.
     public static XmlConverter createNonStrict(Serializer serializer, MediaType contentType) {
         if (serializer == null) throw new NullPointerException("serializer == null");
         return new XmlConverter(serializer, false, contentType);
     }
 
+    @NotNull
     @SuppressWarnings("unchecked")
     @Override
-    public <T> T convert(@NonNull ResponseBody body, @NonNull Type type, boolean needDecodeResult) throws IOException {
+    public <T> T convert(@NotNull ResponseBody body, @NotNull Type type, boolean needDecodeResult) throws IOException {
         if (!(type instanceof Class)) return null;
         Class<T> cls = (Class<T>) type;
         try {

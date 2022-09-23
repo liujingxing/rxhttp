@@ -1,6 +1,9 @@
 package rxhttp.wrapper.param;
 
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,8 +16,6 @@ import okhttp3.HttpUrl;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import rxhttp.RxHttpPlugins;
-import rxhttp.wrapper.annotations.NonNull;
-import rxhttp.wrapper.annotations.Nullable;
 import rxhttp.wrapper.cahce.CacheMode;
 import rxhttp.wrapper.cahce.CacheStrategy;
 import rxhttp.wrapper.callback.Converter;
@@ -44,13 +45,13 @@ public abstract class AbstractParam<P extends Param<P>> extends Param<P> {
      * @param url    请求路径
      * @param method Method#GET  Method#HEAD  Method#POST  Method#PUT  Method#DELETE  Method#PATCH
      */
-    public AbstractParam(@NonNull String url, Method method) {
+    public AbstractParam(@NotNull String url, Method method) {
         this.url = url;
         this.method = method;
         cacheStrategy = RxHttpPlugins.getCacheStrategy();
     }
 
-    public P setUrl(@NonNull String url) {
+    public P setUrl(@NotNull String url) {
         this.url = url;
         return (P) this;
     }
@@ -181,7 +182,7 @@ public abstract class AbstractParam<P extends Param<P>> extends Param<P> {
         return (P) this;
     }
 
-    @NonNull
+    @NotNull
     public String buildCacheKey() {
         List<KeyValuePair> queryPairs = CacheUtil.excludeCacheKey(getQueryParam());
         return BuildUtil.getHttpUrl(getSimpleUrl(), queryPairs, paths).toString();

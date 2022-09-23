@@ -1,5 +1,7 @@
 package rxhttp.wrapper.cookie;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -18,7 +20,6 @@ import okio.ByteString;
 import okio.Okio;
 import okio.Source;
 import rxhttp.wrapper.OkHttpCompat;
-import rxhttp.wrapper.annotations.Nullable;
 
 /**
  * Cookie管理类，支持内存、磁盘同时缓存，默认仅开启内存缓存；若要开启磁盘缓存，构造方法传入磁盘缓存目录即可

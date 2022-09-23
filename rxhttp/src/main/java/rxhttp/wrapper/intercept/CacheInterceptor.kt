@@ -5,7 +5,6 @@ import okhttp3.Request
 import okhttp3.Response
 import rxhttp.RxHttpPlugins
 import rxhttp.wrapper.OkHttpCompat
-import rxhttp.wrapper.annotations.Nullable
 import rxhttp.wrapper.cahce.CacheMode
 import rxhttp.wrapper.cahce.CacheStrategy
 import rxhttp.wrapper.cahce.InternalCache
@@ -66,7 +65,6 @@ class CacheInterceptor(
         return false
     }
 
-    @Nullable
     @Throws(IOException::class)
     private fun getCacheResponse(request: Request, validTime: Long): Response? {
         val cacheResponse = cache[request, cacheStrategy.cacheKey]

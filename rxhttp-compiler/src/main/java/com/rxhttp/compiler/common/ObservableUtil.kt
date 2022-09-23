@@ -242,7 +242,6 @@ fun getObservableClass(): Map<String, String> {
         import ${getClassPath("DisposableHelper")};
         import ${getClassPath("TrampolineScheduler")};
         import ${getClassPath("RxJavaPlugins")};
-        import rxhttp.wrapper.annotations.NonNull;
         import rxhttp.wrapper.callback.ProgressCallback;
         import rxhttp.wrapper.entity.Progress;
 
@@ -368,7 +367,7 @@ fun getObservableClass(): Map<String, String> {
                 }
 
                 @Override
-                public void onSubscribe(@NonNull Disposable d) {
+                public void onSubscribe(Disposable d) {
                     if (DisposableHelper.validate(this.upstream, d)) {
                         this.upstream = d;
                         downstream.onSubscribe(this);

@@ -1,5 +1,6 @@
 package rxhttp.wrapper.utils;
 
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -27,7 +28,6 @@ import rxhttp.Platform;
 import rxhttp.RxHttpPlugins;
 import rxhttp.internal.RxHttpVersion;
 import rxhttp.wrapper.OkHttpCompat;
-import rxhttp.wrapper.annotations.NonNull;
 import rxhttp.wrapper.entity.FileRequestBody;
 import rxhttp.wrapper.entity.UriRequestBody;
 import rxhttp.wrapper.exception.HttpStatusCodeException;
@@ -113,7 +113,7 @@ public class LogUtil {
     }
 
     //请求前，打印日志
-    public static void log(@NonNull Request userRequest, CookieJar cookieJar) {
+    public static void log(@NotNull Request userRequest, CookieJar cookieJar) {
         if (!isDebug) return;
         try {
             Request.Builder requestBuilder = userRequest.newBuilder();
@@ -178,7 +178,7 @@ public class LogUtil {
     }
 
     //打印Http返回的正常结果
-    public static void log(@NonNull Response response, String body) {
+    public static void log(@NotNull Response response, String body) {
         if (!isDebug) return;
         try {
             Request request = response.request();
@@ -210,7 +210,7 @@ public class LogUtil {
         }
     }
 
-    private static String requestBody2Str(@NonNull RequestBody body) throws IOException {
+    private static String requestBody2Str(@NotNull RequestBody body) throws IOException {
         if (body instanceof ProgressRequestBody) {
             body = ((ProgressRequestBody) body).getRequestBody();
         }

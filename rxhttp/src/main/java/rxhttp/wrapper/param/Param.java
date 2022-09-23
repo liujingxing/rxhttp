@@ -1,6 +1,6 @@
 package rxhttp.wrapper.param;
 
-import rxhttp.wrapper.annotations.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * User: ljx
@@ -12,28 +12,28 @@ public abstract class Param<P extends Param<P>> implements IParam<P>, IHeaders<P
     public static String DATA_DECRYPT = "data-decrypt";
 
     //Get请求
-    public static NoBodyParam get(@NonNull String url) {
+    public static NoBodyParam get(@NotNull String url) {
         return new NoBodyParam(url, Method.GET);
     }
 
     //Head请求
-    public static NoBodyParam head(@NonNull String url) {
+    public static NoBodyParam head(@NotNull String url) {
         return new NoBodyParam(url, Method.HEAD);
     }
 
-    public static BodyParam postBody(@NonNull String url) {
+    public static BodyParam postBody(@NotNull String url) {
         return new BodyParam(url, Method.POST);
     }
 
-    public static BodyParam putBody(@NonNull String url) {
+    public static BodyParam putBody(@NotNull String url) {
         return new BodyParam(url, Method.PUT);
     }
 
-    public static BodyParam patchBody(@NonNull String url) {
+    public static BodyParam patchBody(@NotNull String url) {
         return new BodyParam(url, Method.PATCH);
     }
 
-    public static BodyParam deleteBody(@NonNull String url) {
+    public static BodyParam deleteBody(@NotNull String url) {
         return new BodyParam(url, Method.DELETE);
     }
 
@@ -46,7 +46,7 @@ public abstract class Param<P extends Param<P>> implements IParam<P>, IHeaders<P
      * @param url url
      * @return FormParam
      */
-    public static FormParam postForm(@NonNull String url) {
+    public static FormParam postForm(@NotNull String url) {
         return new FormParam(url, Method.POST);
     }
 
@@ -59,7 +59,7 @@ public abstract class Param<P extends Param<P>> implements IParam<P>, IHeaders<P
      * @param url url
      * @return FormParam
      */
-    public static FormParam putForm(@NonNull String url) {
+    public static FormParam putForm(@NotNull String url) {
         return new FormParam(url, Method.PUT);
     }
 
@@ -72,7 +72,7 @@ public abstract class Param<P extends Param<P>> implements IParam<P>, IHeaders<P
      * @param url url
      * @return FormParam
      */
-    public static FormParam patchForm(@NonNull String url) {
+    public static FormParam patchForm(@NotNull String url) {
         return new FormParam(url, Method.PATCH);
     }
 
@@ -85,7 +85,7 @@ public abstract class Param<P extends Param<P>> implements IParam<P>, IHeaders<P
      * @param url url
      * @return FormParam
      */
-    public static FormParam deleteForm(@NonNull String url) {
+    public static FormParam deleteForm(@NotNull String url) {
         return new FormParam(url, Method.DELETE);
     }
 
@@ -95,7 +95,7 @@ public abstract class Param<P extends Param<P>> implements IParam<P>, IHeaders<P
      * @param url url
      * @return JsonParam
      */
-    public static JsonParam postJson(@NonNull String url) {
+    public static JsonParam postJson(@NotNull String url) {
         return new JsonParam(url, Method.POST);
     }
 
@@ -105,7 +105,7 @@ public abstract class Param<P extends Param<P>> implements IParam<P>, IHeaders<P
      * @param url url
      * @return JsonParam
      */
-    public static JsonParam putJson(@NonNull String url) {
+    public static JsonParam putJson(@NotNull String url) {
         return new JsonParam(url, Method.PUT);
     }
 
@@ -115,7 +115,7 @@ public abstract class Param<P extends Param<P>> implements IParam<P>, IHeaders<P
      * @param url url
      * @return JsonParam
      */
-    public  static JsonParam patchJson(@NonNull String url) {
+    public static JsonParam patchJson(@NotNull String url) {
         return new JsonParam(url, Method.PATCH);
     }
 
@@ -125,7 +125,7 @@ public abstract class Param<P extends Param<P>> implements IParam<P>, IHeaders<P
      * @param url url
      * @return JsonParam
      */
-    public static JsonParam deleteJson(@NonNull String url) {
+    public static JsonParam deleteJson(@NotNull String url) {
         return new JsonParam(url, Method.DELETE);
     }
 
@@ -135,7 +135,7 @@ public abstract class Param<P extends Param<P>> implements IParam<P>, IHeaders<P
      * @param url url
      * @return JsonArrayParam
      */
-    public static JsonArrayParam postJsonArray(@NonNull String url) {
+    public static JsonArrayParam postJsonArray(@NotNull String url) {
         return new JsonArrayParam(url, Method.POST);
     }
 
@@ -146,7 +146,7 @@ public abstract class Param<P extends Param<P>> implements IParam<P>, IHeaders<P
      * @param url url
      * @return JsonArrayParam
      */
-    public static JsonArrayParam putJsonArray(@NonNull String url) {
+    public static JsonArrayParam putJsonArray(@NotNull String url) {
         return new JsonArrayParam(url, Method.PUT);
     }
 
@@ -156,7 +156,7 @@ public abstract class Param<P extends Param<P>> implements IParam<P>, IHeaders<P
      * @param url url
      * @return JsonArrayParam
      */
-    public static JsonArrayParam patchJsonArray(@NonNull String url) {
+    public static JsonArrayParam patchJsonArray(@NotNull String url) {
         return new JsonArrayParam(url, Method.PATCH);
     }
 
@@ -166,7 +166,7 @@ public abstract class Param<P extends Param<P>> implements IParam<P>, IHeaders<P
      * @param url url
      * @return JsonArrayParam
      */
-    public static JsonArrayParam deleteJsonArray(@NonNull String url) {
+    public static JsonArrayParam deleteJsonArray(@NotNull String url) {
         return new JsonArrayParam(url, Method.DELETE);
     }
 

@@ -14,7 +14,6 @@ import io.reactivex.rxjava3.functions.Consumer;
 import io.reactivex.rxjava3.internal.disposables.DisposableHelper;
 import io.reactivex.rxjava3.internal.schedulers.TrampolineScheduler;
 import io.reactivex.rxjava3.plugins.RxJavaPlugins;
-import rxhttp.wrapper.annotations.NonNull;
 import rxhttp.wrapper.callback.ProgressCallback;
 import rxhttp.wrapper.entity.Progress;
 
@@ -140,7 +139,7 @@ public final class ObservableProgress<T> extends Observable<T> {
         }
 
         @Override
-        public void onSubscribe(@NonNull Disposable d) {
+        public void onSubscribe(Disposable d) {
             if (DisposableHelper.validate(this.upstream, d)) {
                 this.upstream = d;
                 downstream.onSubscribe(this);
