@@ -1,7 +1,5 @@
 package com.rxhttp.compiler
 
-import com.squareup.javapoet.ClassName
-
 /**
  * RxJava 版本管理
  * User: ljx
@@ -12,25 +10,14 @@ private var rxJavaVersion: String? = null
 
 private val rxJavaClassList = LinkedHashMap<String, String>()
 
-fun getClassName(simpleName: String): ClassName =
-    ClassName.get(rxJavaClassList[simpleName], simpleName)
-
-fun getClassPath(simpleName: String) = rxJavaClassList[simpleName] + ".$simpleName"
-
-fun getKClassName(simpleName: String) =
-    com.squareup.kotlinpoet.ClassName(rxJavaClassList[simpleName]!!, simpleName)
+fun getClassPath(simpleName: String): String = rxJavaClassList[simpleName] + ".$simpleName"
 
 fun isDependenceRxJava() = rxJavaVersion != null
 
-
 fun initRxJavaVersion(version: String?) {
     val realVersion = when {
-        version.equals("RxJava2", true) -> {
-            "2.0.0"
-        }
-        version.equals("RxJava3", true) -> {
-            "3.0.0"
-        }
+        version.equals("RxJava2", true) -> "2.0.0"
+        version.equals("RxJava3", true) -> "3.0.0"
         else -> version
     } ?: return
     rxJavaVersion = realVersion
@@ -44,11 +31,6 @@ fun initRxJavaVersion(version: String?) {
         rxJavaClassList["Exceptions"] = "io.reactivex.rxjava3.exceptions"
         rxJavaClassList["Disposable"] = "io.reactivex.rxjava3.disposables"
         rxJavaClassList["DisposableHelper"] = "io.reactivex.rxjava3.internal.disposables"
-        rxJavaClassList["SpscArrayQueue"] = if (realVersion.versionCompare("3.1.1") >= 0) {
-            "io.reactivex.rxjava3.operators"
-        } else {
-            "io.reactivex.rxjava3.internal.queue"
-        }
         rxJavaClassList["Disposable"] = "io.reactivex.rxjava3.disposables"
         rxJavaClassList["ObservableSource"] = "io.reactivex.rxjava3.core"
         rxJavaClassList["TrampolineScheduler"] = "io.reactivex.rxjava3.internal.schedulers"
@@ -62,7 +44,6 @@ fun initRxJavaVersion(version: String?) {
         rxJavaClassList["Exceptions"] = "io.reactivex.exceptions"
         rxJavaClassList["Disposable"] = "io.reactivex.disposables"
         rxJavaClassList["DisposableHelper"] = "io.reactivex.internal.disposables"
-        rxJavaClassList["SpscArrayQueue"] = "io.reactivex.internal.queue"
         rxJavaClassList["Disposable"] = "io.reactivex.disposables"
         rxJavaClassList["ObservableSource"] = "io.reactivex"
         rxJavaClassList["TrampolineScheduler"] = "io.reactivex.internal.schedulers"

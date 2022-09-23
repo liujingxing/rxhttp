@@ -9,10 +9,8 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.Objects;
 
 import okhttp3.CookieJar;
-import okhttp3.Headers;
 import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -29,8 +27,6 @@ import okhttp3.internal.http.StatusLine;
 import okhttp3.internal.io.FileSystem;
 import okio.Buffer;
 import okio.ByteString;
-import rxhttp.wrapper.callback.Converter;
-import rxhttp.wrapper.entity.DownloadOffSize;
 import rxhttp.wrapper.exception.HttpStatusCodeException;
 import rxhttp.wrapper.param.Param;
 
@@ -44,22 +40,8 @@ public class OkHttpCompat {
 
     private static String OKHTTP_USER_AGENT;
 
-    public static Converter getConverter(Response response) {
-        return response.request().tag(Converter.class);
-    }
-
-    @Nullable
-    public static DownloadOffSize getDownloadOffSize(Response response) {
-        return response.request().tag(DownloadOffSize.class);
-    }
-
     public static boolean needDecodeResult(Response response) {
         return !"false".equals(response.request().header(Param.DATA_DECRYPT));
-    }
-
-    public static void closeQuietly(Response response) {
-        if (response == null) return;
-        closeQuietly(response.body());
     }
 
     public static void closeQuietly(Closeable... closeables) {
@@ -109,18 +91,8 @@ public class OkHttpCompat {
         return request.url();
     }
 
-    public static Headers getHeadersAndCloseBody(Response response) {
-        closeQuietly(response);
-        return response.headers();
-    }
-
-    public static CookieJar cookieJar(OkHttpClient okHttpClient){
+    public static CookieJar cookieJar(OkHttpClient okHttpClient) {
         return okHttpClient.cookieJar();
-    }
-
-    public static ResponseBody requireBody(Response response) {
-        ResponseBody body = response.body();
-        return Objects.requireNonNull(body, "response with no body");
     }
 
     public static String header(Response response, String name) {

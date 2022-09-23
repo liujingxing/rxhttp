@@ -3,7 +3,6 @@ package com.rxhttp.compiler.kapt
 import com.rxhttp.compiler.common.getParamsName
 import com.rxhttp.compiler.common.getTypeOfString
 import com.rxhttp.compiler.common.getTypeVariableString
-import com.rxhttp.compiler.getKClassName
 import com.rxhttp.compiler.isDependenceRxJava
 import com.rxhttp.compiler.rxHttpPackage
 import com.rxhttp.compiler.rxhttpKClassName
@@ -22,7 +21,6 @@ import com.squareup.kotlinpoet.TypeVariableName
 import com.squareup.kotlinpoet.asClassName
 import com.squareup.kotlinpoet.asTypeName
 import com.squareup.kotlinpoet.asTypeVariableName
-import com.squareup.kotlinpoet.ksp.toClassName
 import org.jetbrains.annotations.Nullable
 import javax.annotation.processing.Filer
 import javax.lang.model.element.TypeElement

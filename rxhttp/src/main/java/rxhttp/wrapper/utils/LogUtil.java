@@ -316,7 +316,7 @@ public class LogUtil {
 
     @SuppressWarnings("deprecation")
     private static String response2Str(Response response) throws IOException {
-        ResponseBody body = OkHttpCompat.requireBody(response);
+        ResponseBody body = response.body();
         boolean onResultDecoder = OkHttpCompat.needDecodeResult(response);
 
         BufferedSource source = body.source();

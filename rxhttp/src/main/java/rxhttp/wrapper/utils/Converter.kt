@@ -8,6 +8,7 @@ import okhttp3.Response
 import okhttp3.ResponseBody
 import rxhttp.Platform
 import rxhttp.wrapper.OkHttpCompat
+import rxhttp.wrapper.callback.Converter
 import rxhttp.wrapper.entity.ParameterizedTypeImpl
 import java.io.IOException
 import java.lang.reflect.Type
@@ -50,7 +51,7 @@ fun <T> Response.convert(type: Type): T {
         BitmapFactory.decodeStream(body.byteStream()) as T
     } else {
         val needDecodeResult = OkHttpCompat.needDecodeResult(this)
-        val converter = OkHttpCompat.getConverter(this)
+        val converter = OkHttpCompat.request(this).tag(Converter::class.java)
         converter?.convert(body, type, needDecodeResult)
             ?: throw IllegalStateException("Converter Could not deserialize body as $type")
     }
