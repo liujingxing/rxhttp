@@ -211,8 +211,8 @@ public abstract class AbstractParam<P extends Param<P>> extends Param<P> {
 
     @Override
     public final Request buildRequest() {
-        Param<?> param = RxHttpPlugins.onParamAssembly(this);
-        return BuildUtil.buildRequest(param, requestBuilder);
+        RxHttpPlugins.onParamAssembly(this);
+        return BuildUtil.buildRequest(this, requestBuilder);
     }
 
     protected Converter getConverter() {

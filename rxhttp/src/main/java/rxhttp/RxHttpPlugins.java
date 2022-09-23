@@ -1,6 +1,9 @@
 package rxhttp;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -15,15 +18,13 @@ import rxhttp.wrapper.cahce.CacheMode;
 import rxhttp.wrapper.cahce.CacheStrategy;
 import rxhttp.wrapper.cahce.InternalCache;
 import rxhttp.wrapper.callback.Consumer;
-import rxhttp.wrapper.callback.Function;
 import rxhttp.wrapper.callback.Converter;
+import rxhttp.wrapper.callback.Function;
 import rxhttp.wrapper.converter.GsonConverter;
-import rxhttp.wrapper.exception.ExceptionHelper;
 import rxhttp.wrapper.param.Param;
 import rxhttp.wrapper.utils.LogUtil;
 
 /**
- * RxHttp 插件类
  * User: ljx
  * Date: 2019-07-14
  * Time: 11:24
@@ -82,7 +83,7 @@ public class RxHttpPlugins {
      * 设置统一公共参数回调接口,通过该接口,可添加公共参数/请求头，每次请求前会回调该接口
      * 若部分接口不需要添加公共参数,发请求前，调用 RxHttp#setAssemblyEnabled(boolean) 方法设置false即可
      */
-    public RxHttpPlugins setOnParamAssembly(@Nullable Consumer<? super Param<?>> onParamAssembly) {
+    public RxHttpPlugins setOnParamAssembly(Consumer<? super Param<?>> onParamAssembly) {
         this.onParamAssembly = onParamAssembly;
         return this;
     }
@@ -92,7 +93,7 @@ public class RxHttpPlugins {
      * 通过该接口，可以统一对数据解密，并将解密后的数据返回即可
      * 若部分接口不需要回调该接口，发请求前，调用 RxHttp#setDecoderEnabled(boolean) 方法设置false即可
      */
-    public RxHttpPlugins setResultDecoder(@Nullable Function<String, String> decoder) {
+    public RxHttpPlugins setResultDecoder(Function<String, String> decoder) {
         this.decoder = decoder;
         return this;
     }
@@ -108,31 +109,18 @@ public class RxHttpPlugins {
         return plugins.converter;
     }
 
-    /**
-     * <P>对Param参数添加一层装饰,可以在该层做一些与业务相关工作，
-     * <P>例如：添加公共参数/请求头信息
-     *
-     * @param source Param
-     * @return 装饰后的参数
-     */
-    public static Param<?> onParamAssembly(Param<?> source) {
-        if (source == null || !source.isAssemblyEnabled()) return source;
+    public static void onParamAssembly(@NotNull Param<?> source) {
+        if (!source.isAssemblyEnabled()) return;
         Consumer<? super Param<?>> consumer = plugins.onParamAssembly;
         if (consumer != null) {
             consumer.accept(source);
         }
-        return source;
     }
 
-    /**
-     * 对字符串进行解码/解密
-     *
-     * @param source String字符串
-     * @return 解码/解密后字符串
-     */
-    public static String onResultDecoder(String source) {
+    // Decoder source
+    public static String onResultDecoder(String source) throws IOException {
         Function<String, String> f = plugins.decoder;
-        return f != null ? apply(f, source) : source;
+        return f != null ? f.apply(source) : source;
     }
 
     public RxHttpPlugins setCache(File directory, long maxSize) {
@@ -217,15 +205,6 @@ public class RxHttpPlugins {
             if (tag.equals(call.request().tag())) {
                 call.cancel();
             }
-        }
-    }
-
-    @NonNull
-    private static <T, R> R apply(@NonNull Function<T, R> f, @NonNull T t) {
-        try {
-            return f.apply(t);
-        } catch (Throwable ex) {
-            throw ExceptionHelper.wrapOrThrow(ex);
         }
     }
 
