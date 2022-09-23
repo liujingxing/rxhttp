@@ -14,14 +14,14 @@ import okhttp3.ResponseBody;
 import okio.Buffer;
 import rxhttp.RxHttpPlugins;
 import rxhttp.wrapper.annotations.NonNull;
-import rxhttp.wrapper.callback.IConverter;
+import rxhttp.wrapper.callback.Converter;
 
 /**
  * User: ljx
  * Date: 2019-11-21
  * Time: 22:19
  */
-public class XmlConverter implements IConverter {
+public class XmlConverter implements Converter {
     private static final MediaType MEDIA_TYPE = MediaType.get("application/xml; charset=UTF-8");
     private static final String CHARSET = "UTF-8";
 

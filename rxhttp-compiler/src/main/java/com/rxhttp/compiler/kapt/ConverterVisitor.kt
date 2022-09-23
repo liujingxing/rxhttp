@@ -57,10 +57,10 @@ class ConverterVisitor(
 private fun VariableElement.checkConverterValidClass(types: Types) {
     val variableName = simpleName.toString()
 
-    val className = "rxhttp.wrapper.callback.IConverter"
+    val className = "rxhttp.wrapper.callback.Converter"
     val typeElement = types.asElement(asType()) as? TypeElement
     if (!typeElement.instanceOf(className, types)) {
-        throw NoSuchElementException("The variable '$variableName' must be IConverter")
+        throw NoSuchElementException("The variable '$variableName' must be Converter")
     }
 
     var curParent = enclosingElement

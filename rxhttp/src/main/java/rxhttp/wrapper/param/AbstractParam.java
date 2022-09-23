@@ -17,7 +17,7 @@ import rxhttp.wrapper.annotations.NonNull;
 import rxhttp.wrapper.annotations.Nullable;
 import rxhttp.wrapper.cahce.CacheMode;
 import rxhttp.wrapper.cahce.CacheStrategy;
-import rxhttp.wrapper.callback.IConverter;
+import rxhttp.wrapper.callback.Converter;
 import rxhttp.wrapper.entity.KeyValuePair;
 import rxhttp.wrapper.utils.BuildUtil;
 import rxhttp.wrapper.utils.CacheUtil;
@@ -215,9 +215,9 @@ public abstract class AbstractParam<P extends Param<P>> extends Param<P> {
         return BuildUtil.buildRequest(param, requestBuilder);
     }
 
-    protected IConverter getConverter() {
+    protected Converter getConverter() {
         Request request = getRequestBuilder().build();
-        IConverter converter = request.tag(IConverter.class);
+        Converter converter = request.tag(Converter.class);
         return Objects.requireNonNull(converter, "converter can not be null");
     }
 

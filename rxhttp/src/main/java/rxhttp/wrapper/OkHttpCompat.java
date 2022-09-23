@@ -27,7 +27,7 @@ import okhttp3.internal.io.FileSystem;
 import okio.Buffer;
 import okio.ByteString;
 import rxhttp.wrapper.annotations.Nullable;
-import rxhttp.wrapper.callback.IConverter;
+import rxhttp.wrapper.callback.Converter;
 import rxhttp.wrapper.entity.DownloadOffSize;
 import rxhttp.wrapper.param.Param;
 
@@ -41,8 +41,8 @@ public class OkHttpCompat {
 
     private static String OKHTTP_USER_AGENT;
 
-    public static IConverter getConverter(Response response) {
-        return response.request().tag(IConverter.class);
+    public static Converter getConverter(Response response) {
+        return response.request().tag(Converter.class);
     }
 
     @Nullable
