@@ -5,7 +5,6 @@ import okhttp3.ResponseBody
 import rxhttp.wrapper.OkHttpCompat
 import rxhttp.wrapper.callback.OutputStreamFactory
 import rxhttp.wrapper.callback.ProgressCallback
-import rxhttp.wrapper.exception.ExceptionHelper
 import rxhttp.wrapper.utils.LogUtil
 import rxhttp.wrapper.utils.writeTo
 import java.io.IOException
@@ -23,7 +22,7 @@ open class StreamParser<T> constructor(
     var progressCallback: ProgressCallback? = null
 
     override fun onParse(response: Response): T {
-        val body = ExceptionHelper.throwIfFatal(response)
+        val body = OkHttpCompat.throwIfFail(response)
         val expandOutputStream = osFactory.getOutputStream(response)
         val expand = expandOutputStream.expand
         LogUtil.log(response, expand.toString())

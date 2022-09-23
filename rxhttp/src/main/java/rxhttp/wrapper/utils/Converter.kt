@@ -9,7 +9,6 @@ import okhttp3.ResponseBody
 import rxhttp.Platform
 import rxhttp.wrapper.OkHttpCompat
 import rxhttp.wrapper.entity.ParameterizedTypeImpl
-import rxhttp.wrapper.exception.ExceptionHelper
 import java.io.IOException
 import java.lang.reflect.Type
 import kotlin.reflect.KClass
@@ -43,7 +42,7 @@ fun <T> Response.convertToParameterized(rawType: Type, vararg actualTypeArgument
 @Suppress("UNCHECKED_CAST")
 @Throws(IOException::class)
 fun <T> Response.convert(type: Type): T {
-    val body = ExceptionHelper.throwIfFatal(this)
+    val body = OkHttpCompat.throwIfFail(this)
     LogUtil.log(this, null)
     return if (type === ResponseBody::class.java) {
         body.use { OkHttpCompat.buffer(it) as T }

@@ -1,5 +1,6 @@
 package rxhttp.wrapper;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.Closeable;
@@ -30,6 +31,7 @@ import okio.Buffer;
 import okio.ByteString;
 import rxhttp.wrapper.callback.Converter;
 import rxhttp.wrapper.entity.DownloadOffSize;
+import rxhttp.wrapper.exception.HttpStatusCodeException;
 import rxhttp.wrapper.param.Param;
 
 /**
@@ -127,6 +129,21 @@ public class OkHttpCompat {
 
     public static long receivedResponseAtMillis(Response response) {
         return response.receivedResponseAtMillis();
+    }
+
+    @NotNull
+    public static ResponseBody throwIfFail(Response response) throws IOException {
+        ResponseBody rawBody = response.body();
+        if (!response.isSuccessful()) {
+            try {
+                ResponseBody bufferBody = buffer(rawBody);
+                response = response.newBuilder().body(bufferBody).build();
+                throw new HttpStatusCodeException(response);
+            } finally {
+                rawBody.close();
+            }
+        }
+        return rawBody;
     }
 
     //从响应头 Content-Range 中，取 contentLength
