@@ -104,45 +104,45 @@ class KClassHelper(
                     }
                 }
 
-                fun <T> asParser(parser: Parser<T>) = ObservableCall(this, parser)
+                fun <T> toObservable(parser: Parser<T>) = ObservableCall(this, parser)
 
-                fun <T> asClass(type: Type) = asParser(SmartParser.wrap<T>(type))
+                fun <T> toObservable(type: Type) = toObservable(SmartParser.wrap<T>(type))
 
-                fun <T> asClass(clazz: Class<T>) = asClass<T>(clazz as Type)
+                fun <T> toObservable(clazz: Class<T>) = toObservable<T>(clazz as Type)
 
-                fun asString() = asClass(String::class.java)
+                fun toObservableString() = toObservable(String::class.java)
 
-                fun <V> asMapString(vType: Class<V>) =
-                    asClass<Map<String, V>>(ParameterizedTypeImpl.getParameterized(MutableMap::class.java,String::class.java,vType))
+                fun <V> toObservableMapString(vType: Class<V>) =
+                    toObservable<Map<String, V>>(ParameterizedTypeImpl.getParameterized(MutableMap::class.java,String::class.java,vType))
 
-                fun <T> asList(tType: Class<T>) =
-                    asClass<List<T>>(ParameterizedTypeImpl.get(MutableList::class.java, tType))
+                fun <T> toObservableList(tType: Class<T>) =
+                    toObservable<List<T>>(ParameterizedTypeImpl.get(MutableList::class.java, tType))
                 ${isAndroid("""
-                fun asBitmap() = asClass(Bitmap::class.java)
+                fun toObservableBitmap() = toObservable(Bitmap::class.java)
                 """)}
-                fun asOkResponse() = asClass(Response::class.java)
+                fun toObservableOkResponse() = toObservable(Response::class.java)
 
-                fun asHeaders() = asClass(Headers::class.java)
+                fun toObservableHeaders() = toObservable(Headers::class.java)
 
                 @JvmOverloads
-                fun asDownload(
+                fun toDownloadObservable(
                     destPath: String,
                     append: Boolean = false,
-                ): ObservableCall<String> = asDownload(FileOutputStreamFactory(destPath), append)
+                ): ObservableCall<String> = toDownloadObservable(FileOutputStreamFactory(destPath), append)
                 ${isAndroid("""
                 @JvmOverloads
-                fun asDownload(
+                fun toDownloadObservable(
                     context: Context,
                     uri: Uri,
                     append: Boolean = false,
-                ): ObservableCall<Uri> = asDownload(UriOutputStreamFactory(context, uri), append)
+                ): ObservableCall<Uri> = toDownloadObservable(UriOutputStreamFactory(context, uri), append)
                 """)}
                 @JvmOverloads
-                fun <T> asDownload(
+                fun <T> toDownloadObservable(
                     osFactory: OutputStreamFactory<T>,
                     append: Boolean = false,
                 ): ObservableCall<T> {
-                   val observableCall =  asParser(StreamParser(osFactory))
+                   val observableCall = toObservable(StreamParser(osFactory))
                    return if (append) {
                        observableCall.onSubscribe {
                            // In IO Thread

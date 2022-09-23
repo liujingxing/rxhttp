@@ -120,7 +120,7 @@ private fun KSClassDeclaration.getAsXxxFun(
         )
 
         //方法名
-        val funName = "as$parserAlias"
+        val funName = "toObservable$parserAlias"
 
         //返回类型(Observable<T>类型)
         val asFunReturnType =
@@ -135,9 +135,9 @@ private fun KSClassDeclaration.getAsXxxFun(
         val paramsName = getParamsName(constructor.parameters, parameterSpecs, typeVariableNames.size)
         //方法体
         val asXxxFunBody = if (typeVariableNames.size == 1) {
-            CodeBlock.of("return asParser(%M$types($paramsName))", wrapCustomParser)
+            CodeBlock.of("return toObservable(%M$types($paramsName))", wrapCustomParser)
         } else {
-            CodeBlock.of("return asParser(%T$types($paramsName))", parserClassName)
+            CodeBlock.of("return toObservable(%T$types($paramsName))", parserClassName)
         }
 
         val originParameters = constructor.parameters.map {
@@ -231,7 +231,7 @@ private fun KSFunctionDeclaration.getAsXxxFun(
         //2、asXxx方法名
         val name = wrapperClass.toString()
         val simpleName = name.substring(name.lastIndexOf(".") + 1)
-        val funName = "as$parserAlias${simpleName}"
+        val funName = "toObservable$parserAlias${simpleName}"
 
         //3、asXxx方法体
         val funBody = CodeBlock.builder()

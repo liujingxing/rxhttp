@@ -98,7 +98,7 @@ class RxHttpExtensions(private val logger: KSPLogger) {
             }
 
             if (typeVariableNames.isNotEmpty() && isDependenceRxJava()) {  //对声明了泛型的解析器，生成kotlin编写的asXxx方法
-                val asXxxFunName = "as$key"
+                val asXxxFunName = "toObservable$key"
                 val asXxxFunBody = "return $asXxxFunName$types($finalParams)"
                 val rxHttpName = rxhttpKClassName.parameterizedBy(wildcard, wildcard)
                 FunSpec.builder(asXxxFunName)
@@ -217,27 +217,27 @@ class RxHttpExtensions(private val logger: KSPLogger) {
             .apply { fileBuilder.addFunction(this) }
 
         if (isDependenceRxJava()) {
-            FunSpec.builder("asList")
+            FunSpec.builder("toObservableList")
                 .addModifiers(KModifier.INLINE)
                 .receiver(baseRxHttpName)
                 .addTypeVariable(reifiedT)
-                .addStatement("return asClass<List<T>>()")
+                .addStatement("return toObservable<List<T>>()")
                 .build()
                 .apply { fileBuilder.addFunction(this) }
 
-            FunSpec.builder("asMapString")
+            FunSpec.builder("toObservableMapString")
                 .addModifiers(KModifier.INLINE)
                 .receiver(baseRxHttpName)
                 .addTypeVariable(v.copy(reified = true))
-                .addStatement("return asClass<Map<String, V>>()")
+                .addStatement("return toObservable<Map<String, V>>()")
                 .build()
                 .apply { fileBuilder.addFunction(this) }
 
-            FunSpec.builder("asClass")
+            FunSpec.builder("toObservable")
                 .addModifiers(KModifier.INLINE)
                 .receiver(baseRxHttpName)
                 .addTypeVariable(reifiedT)
-                .addStatement("return asClass<T>(javaTypeOf<T>())")
+                .addStatement("return toObservable<T>(javaTypeOf<T>())")
                 .build()
                 .apply { fileBuilder.addFunction(this) }
 

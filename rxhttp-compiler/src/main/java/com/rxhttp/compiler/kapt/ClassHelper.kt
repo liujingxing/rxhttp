@@ -106,66 +106,66 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
                     }                                                                          
                 }                                                                              
 
-                public final <T> ObservableCall<T> asParser(Parser<T> parser) {
+                public final <T> ObservableCall<T> toObservable(Parser<T> parser) {
                     return new ObservableCall(this, parser);
                 }
 
-                public final <T> ObservableCall<T> asClass(Type type) {
-                    return asParser(SmartParser.wrap(type));
+                public final <T> ObservableCall<T> toObservable(Type type) {
+                    return toObservable(SmartParser.wrap(type));
                 }
                 
-                public final <T> ObservableCall<T> asClass(Class<T> clazz) {
-                    return asClass((Type) clazz);
+                public final <T> ObservableCall<T> toObservable(Class<T> clazz) {
+                    return toObservable((Type) clazz);
                 }
 
-                public final ObservableCall<String> asString() {
-                    return asClass(String.class);
+                public final ObservableCall<String> toObservableString() {
+                    return toObservable(String.class);
                 }
 
-                public final <V> ObservableCall<Map<String, V>> asMapString(Class<V> vType) {
+                public final <V> ObservableCall<Map<String, V>> toObservableMapString(Class<V> vType) {
                     Type tTypeMap = ParameterizedTypeImpl.getParameterized(Map.class, String.class, vType);
-                    return asClass(tTypeMap);
+                    return toObservable(tTypeMap);
                 }
 
-                public final <T> ObservableCall<List<T>> asList(Class<T> tType) {
+                public final <T> ObservableCall<List<T>> toObservableList(Class<T> tType) {
                     Type tTypeList = ParameterizedTypeImpl.get(List.class, tType);
-                    return asClass(tTypeList);
+                    return toObservable(tTypeList);
                 }
                 ${isAndroid("""
-                public final ObservableCall<Bitmap> asBitmap() {
-                    return asClass(Bitmap.class);
+                public final ObservableCall<Bitmap> toObservableBitmap() {
+                    return toObservable(Bitmap.class);
                 }
                 """)}
-                public final ObservableCall<Response> asOkResponse() {
-                    return asClass(Response.class);
+                public final ObservableCall<Response> toObservableOkResponse() {
+                    return toObservable(Response.class);
                 }
 
-                public final ObservableCall<Headers> asHeaders() {               
-                    return asClass(Headers.class);                                        
+                public final ObservableCall<Headers> toObservableHeaders() {               
+                    return toObservable(Headers.class);                                        
+                }
+                
+                public final ObservableCall<String> toDownloadObservable(String destPath) {
+                    return toDownloadObservable(destPath, false);
                 }
 
-                public final ObservableCall<String> asDownload(String destPath) {
-                    return asDownload(destPath, false);
-                }
-
-                public final ObservableCall<String> asDownload(String destPath, boolean append) {
-                    return asDownload(new FileOutputStreamFactory(destPath), append);
+                public final ObservableCall<String> toDownloadObservable(String destPath, boolean append) {
+                    return toDownloadObservable(new FileOutputStreamFactory(destPath), append);
                 }
                 ${isAndroid("""
-                public final ObservableCall<Uri> asDownload(Context context, Uri uri) {
-                    return asDownload(context, uri, false);   
+                public final ObservableCall<Uri> toDownloadObservable(Context context, Uri uri) {
+                    return toDownloadObservable(context, uri, false);   
                 }                                                                  
                     
-                public final ObservableCall<Uri> asDownload(Context context, Uri uri, boolean append) {            
-                    return asDownload(new UriOutputStreamFactory(context, uri), append);
+                public final ObservableCall<Uri> toDownloadObservable(Context context, Uri uri, boolean append) {            
+                    return toDownloadObservable(new UriOutputStreamFactory(context, uri), append);
                 }                                                                                            
                 """)}
-                public final <T> ObservableCall<T> asDownload(OutputStreamFactory<T> osFactory) {
-                    return asDownload(osFactory, false);             
+                public final <T> ObservableCall<T> toDownloadObservable(OutputStreamFactory<T> osFactory) {
+                    return toDownloadObservable(osFactory, false);             
                 } 
                                                                                            
-                public final <T> ObservableCall<T> asDownload(OutputStreamFactory<T> osFactory, boolean append) {
-                    ObservableCall<T> observableCall =  asParser(new StreamParser<>(osFactory));
+                public final <T> ObservableCall<T> toDownloadObservable(OutputStreamFactory<T> osFactory, boolean append) {
+                    ObservableCall<T> observableCall = toObservable(new StreamParser<>(osFactory));
                     if (append) {
                         return observableCall.onSubscribe(() -> {
                             long offsetSize = osFactory.offsetSize();

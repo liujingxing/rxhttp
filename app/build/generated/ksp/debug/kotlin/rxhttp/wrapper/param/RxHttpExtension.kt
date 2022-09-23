@@ -21,13 +21,14 @@ public inline fun <reified T> RxHttp<*, *>.executeList() = executeClass<List<T>>
 
 public inline fun <reified T> RxHttp<*, *>.executeClass() = executeClass<T>(javaTypeOf<T>())
 
-public inline fun <reified T> BaseRxHttp.asList() = asClass<List<T>>()
+public inline fun <reified T> BaseRxHttp.toObservableList() = toObservable<List<T>>()
 
-public inline fun <reified V> BaseRxHttp.asMapString() = asClass<Map<String, V>>()
+public inline fun <reified V> BaseRxHttp.toObservableMapString() = toObservable<Map<String, V>>()
 
-public inline fun <reified T> BaseRxHttp.asClass() = asClass<T>(javaTypeOf<T>())
+public inline fun <reified T> BaseRxHttp.toObservable() = toObservable<T>(javaTypeOf<T>())
 
-public inline fun <reified T> RxHttp<*, *>.asResponse() = asResponse<T>(javaTypeOf<T>())
+public inline fun <reified T> RxHttp<*, *>.toObservableResponse() =
+    toObservableResponse<T>(javaTypeOf<T>())
 
 @Suppress("UNCHECKED_CAST")
 public fun <T> wrapResponseParser(type: Type): Parser<T> = 

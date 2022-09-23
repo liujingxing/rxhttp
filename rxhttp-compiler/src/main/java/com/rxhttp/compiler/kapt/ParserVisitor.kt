@@ -99,7 +99,7 @@ private fun TypeElement.getAsXxxFun(
         val parameterList = constructor.getParameterSpecs(typeVariableNames)
 
         //方法名
-        val methodName = "as$parserAlias"
+        val methodName = "toObservable$parserAlias"
 
         //返回类型(Observable<T>类型)
         val asFunReturnType = ParameterizedTypeName.get(
@@ -114,9 +114,9 @@ private fun TypeElement.getAsXxxFun(
         val paramsName = getParamsName(constructor.parameters, parameterList, typeVariableNames.size)
         //方法体
         val asXxxFunBody = if (typeVariableNames.size == 1) {
-            CodeBlock.of("return asParser(\$T.wrap${parserClassName.simpleName()}($paramsName))", rxhttpKt)
+            CodeBlock.of("return toObservable(\$T.wrap${parserClassName.simpleName()}($paramsName))", rxhttpKt)
         } else {
-            CodeBlock.of("return asParser(new \$T$types($paramsName))", parserClassName)
+            CodeBlock.of("return toObservable(new \$T$types($paramsName))", parserClassName)
         }
 
         val varargs = constructor.isVarArgs && parameterList.last().type is ArrayTypeName
@@ -213,7 +213,7 @@ private fun ExecutableElement.getAsXxxFun(
         //2、asXxx方法名
         val name = wrapperClass.toString()
         val simpleName = name.substring(name.lastIndexOf(".") + 1)
-        val methodName = "as$parserAlias${simpleName}"
+        val methodName = "toObservable$parserAlias${simpleName}"
 
         //3、asXxx方法体
         val funBody = CodeBlock.builder()

@@ -19,8 +19,8 @@ import com.google.gson.Gson
 import com.rxjava.rxlife.life
 import com.rxjava.rxlife.lifeOnMain
 import rxhttp.wrapper.param.RxHttp
-import rxhttp.wrapper.param.asClass
-import rxhttp.wrapper.param.asResponse
+import rxhttp.wrapper.param.toObservable
+import rxhttp.wrapper.param.toObservableResponse
 import java.io.File
 
 /**
@@ -53,7 +53,7 @@ class RxJavaFragment : BaseFragment<RxjavaFragmentBinding>(), View.OnClickListen
     //发送Get请求，获取文章列表
     fun RxjavaFragmentBinding.sendGet(view: View?) {
         RxHttp.get("/article/list/0/json")
-            .asResponse<PageList<Article>>()
+            .toObservableResponse<PageList<Article>>()
             .lifeOnMain(this@RxJavaFragment)
             .subscribe({
                 tvResult.text = Gson().toJson(it)
@@ -67,7 +67,7 @@ class RxJavaFragment : BaseFragment<RxjavaFragmentBinding>(), View.OnClickListen
     fun RxjavaFragmentBinding.sendPostForm(view: View?) {
         RxHttp.postForm("/article/query/0/json")
             .add("k", "性能优化")
-            .asResponse<PageList<Article>>()
+            .toObservableResponse<PageList<Article>>()
             .lifeOnMain(this@RxJavaFragment) //感知生命周期，并在主线程回调
             .subscribe({
                 tvResult.text = Gson().toJson(it)
@@ -112,7 +112,7 @@ class RxJavaFragment : BaseFragment<RxjavaFragmentBinding>(), View.OnClickListen
             .add("interest", interestList) //添加数组对象
             .add("location", Location(120.6788, 30.7866)) //添加位置对象
             .addJsonElement("address", address) //通过字符串添加一个对象
-            .asString()
+            .toObservableString()
             .lifeOnMain(this@RxJavaFragment)//感知生命周期，并在主线程回调
             .subscribe({
                 tvResult.text = it
@@ -152,7 +152,7 @@ class RxJavaFragment : BaseFragment<RxjavaFragmentBinding>(), View.OnClickListen
             .add(Name("李四"))
             .addJsonElement("{\"name\":\"王五\"}")
             .addAll(names)
-            .asString()
+            .toObservableString()
             .lifeOnMain(this@RxJavaFragment)
             .subscribe({
                 tvResult.text = it
@@ -168,7 +168,7 @@ class RxJavaFragment : BaseFragment<RxjavaFragmentBinding>(), View.OnClickListen
         RxHttp.postBody("http://webservices.nextbus.com/service/publicXMLFeed?command=routeConfig&a=sf-muni")
             .setBody(Name("张三"))
             .setXmlConverter()
-            .asClass<NewsDataXml>()
+            .toObservable<NewsDataXml>()
             .lifeOnMain(this@RxJavaFragment) //感知生命周期，并在主线程回调
             .subscribe({
                 tvResult.text = Gson().toJson(it)
@@ -185,7 +185,7 @@ class RxJavaFragment : BaseFragment<RxjavaFragmentBinding>(), View.OnClickListen
     private fun RxjavaFragmentBinding.upload(v: View) {
         RxHttp.postForm(Url.UPLOAD_URL)
             .addFile("file", File("xxxx/1.png"))
-            .asString()
+            .toObservableString()
             .onMainProgress {
                 //上传进度回调,0-100，仅在进度有更新时才会回调
                 val currentProgress = it.progress  //当前进度 0-100
@@ -210,7 +210,7 @@ class RxJavaFragment : BaseFragment<RxjavaFragmentBinding>(), View.OnClickListen
         val uri = Uri.parse("content://media/external/downloads/13417")
         RxHttp.postForm(Url.UPLOAD_URL)
             .addPart(requireContext(), "file", uri)
-            .asString()
+            .toObservableString()
             .onMainProgress {
                 //上传进度回调,0-100，仅在进度有更新时才会回调
                 val currentProgress = it.progress  //当前进度 0-100
@@ -236,7 +236,7 @@ class RxJavaFragment : BaseFragment<RxjavaFragmentBinding>(), View.OnClickListen
     private fun RxjavaFragmentBinding.download(view: View) {
         val destPath = "${requireContext().externalCacheDir}/${System.currentTimeMillis()}.apk"
         RxHttp.get(Url.DOWNLOAD_URL)
-            .asDownload(destPath)
+            .toDownloadObservable(destPath)
             .onMainProgress {
                 val currentProgress = it.progress //当前进度 0-100
                 val currentSize = it.currentSize //当前已下载的字节大小
@@ -261,7 +261,7 @@ class RxJavaFragment : BaseFragment<RxjavaFragmentBinding>(), View.OnClickListen
     private fun RxjavaFragmentBinding.appendDownload(view: View) {
         val destPath = "${requireContext().externalCacheDir}/Miaobo.apk"
         RxHttp.get(Url.DOWNLOAD_URL)
-            .asDownload(destPath, true)
+            .toDownloadObservable(destPath, true)
             .onMainProgress {
                 val currentProgress = it.progress //当前进度 0-100
                 val currentSize = it.currentSize //当前已下载的字节大小
@@ -286,7 +286,7 @@ class RxJavaFragment : BaseFragment<RxjavaFragmentBinding>(), View.OnClickListen
     private fun RxjavaFragmentBinding.downloadAndroid10(view: View) {
         val factory = Android10DownloadFactory(requireContext(), "miaobo.apk")
         RxHttp.get(Url.DOWNLOAD_URL)
-            .asDownload(factory)
+            .toDownloadObservable(factory)
             .onMainProgress {
                 val currentProgress = it.progress //当前进度 0-100
                 val currentSize = it.currentSize //当前已下载的字节大小
@@ -310,7 +310,7 @@ class RxJavaFragment : BaseFragment<RxjavaFragmentBinding>(), View.OnClickListen
     private fun RxjavaFragmentBinding.appendDownloadAndroid10(view: View) {
         val factory = Android10DownloadFactory(requireContext(), "miaobo.apk")
         RxHttp.get(Url.DOWNLOAD_URL)
-            .asDownload(factory, true)
+            .toDownloadObservable(factory, true)
             .onMainProgress {
                 val currentProgress = it.progress //当前进度 0-100
                 val currentSize = it.currentSize //当前已下载的字节大小

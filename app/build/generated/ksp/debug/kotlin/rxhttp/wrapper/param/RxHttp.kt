@@ -390,18 +390,19 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
     addDefaultDomainIfAbsent()
   }
 
-  public fun <T> asResponse(type: Type) = asParser(wrapResponseParser<T>(type))
+  public fun <T> toObservableResponse(type: Type) = toObservable(wrapResponseParser<T>(type))
 
-  public fun <T> asResponse(type: Class<T>): ObservableCall<T> = asResponse(type as Type)
+  public fun <T> toObservableResponse(type: Class<T>): ObservableCall<T> = toObservableResponse(type
+      as Type)
 
-  public fun <T> asResponseList(type: Class<T>): ObservableCall<List<T>> {
+  public fun <T> toObservableResponseList(type: Class<T>): ObservableCall<List<T>> {
     val typeList = ParameterizedTypeImpl.get(List::class.java, type)
-    return asResponse(typeList)
+    return toObservableResponse(typeList)
   }
 
-  public fun <T> asResponsePageList(type: Class<T>): ObservableCall<PageList<T>> {
+  public fun <T> toObservableResponsePageList(type: Class<T>): ObservableCall<PageList<T>> {
     val typePageList = ParameterizedTypeImpl.get(PageList::class.java, type)
-    return asResponse(typePageList)
+    return toObservableResponse(typePageList)
   }
 
   public fun setXmlConverter() = setConverter(xmlConverter)

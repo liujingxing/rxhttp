@@ -25,7 +25,7 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
         Disposable subscribe = RxHttp.get("https://www.wanandroid.com/article/list/0/json")
-            .asString()
+            .toObservableString()
             .subscribe(s -> {
                 System.out.println(s);
             }, throwable -> {
