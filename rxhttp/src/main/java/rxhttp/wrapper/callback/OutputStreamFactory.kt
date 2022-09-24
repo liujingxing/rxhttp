@@ -6,6 +6,7 @@ import okhttp3.Response
 import rxhttp.wrapper.OkHttpCompat
 import rxhttp.wrapper.entity.ExpandOutputStream
 import rxhttp.wrapper.entity.toOutputStream
+import rxhttp.wrapper.utils.isPartialContent
 import rxhttp.wrapper.utils.length
 import java.io.File
 import java.io.IOException
@@ -37,7 +38,7 @@ abstract class UriFactory(
     override fun offsetSize() = query().length(context)
 
     final override fun getOutputStream(response: Response): ExpandOutputStream<Uri> {
-        return insert(response).toOutputStream(context, response.append)
+        return insert(response).toOutputStream(context, response.isPartialContent())
     }
 }
 
@@ -48,7 +49,7 @@ class UriOutputStreamFactory(
     override fun offsetSize() = uri.length(context)
 
     override fun getOutputStream(response: Response): ExpandOutputStream<Uri> =
-        uri.toOutputStream(context, response.append)
+        uri.toOutputStream(context, response.isPartialContent())
 }
 
 class FileOutputStreamFactory(
@@ -62,7 +63,7 @@ class FileOutputStreamFactory(
             if (!parentFile.exists() && !parentFile.mkdirs()) {
                 throw IOException("Directory $parentFile create fail")
             }
-            toOutputStream(response.append)
+            toOutputStream(response.isPartialContent())
         }
 }
 
@@ -77,9 +78,6 @@ private fun String.replaceSuffix(response: Response): String {
         this
     }
 }
-
-private val Response.append
-    get() = OkHttpCompat.header(this, "Content-Range") != null
 
 /**
  * find filename form Content-Disposition response headers

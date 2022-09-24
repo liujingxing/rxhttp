@@ -7,6 +7,7 @@ import rxhttp.wrapper.callback.OutputStreamFactory
 import rxhttp.wrapper.callback.ProgressCallback
 import rxhttp.wrapper.entity.DownloadOffSize
 import rxhttp.wrapper.utils.LogUtil
+import rxhttp.wrapper.utils.isPartialContent
 import rxhttp.wrapper.utils.writeTo
 import java.io.IOException
 import java.io.OutputStream
@@ -41,7 +42,11 @@ private fun Response.writeTo(
     os: OutputStream,
     callback: ProgressCallback,
 ) {
-    val offsetSize = OkHttpCompat.request(this).tag(DownloadOffSize::class.java)?.offSize ?: 0
+    val offsetSize = if (isPartialContent()) {
+        OkHttpCompat.request(this).tag(DownloadOffSize::class.java)?.offSize ?: 0
+    } else {
+        0
+    }
     var contentLength = OkHttpCompat.getContentLength(this)
     if (contentLength != -1L) contentLength += offsetSize
     if (contentLength == -1L) {

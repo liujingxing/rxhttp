@@ -104,6 +104,10 @@ public class OkHttpCompat {
         return response.header(name);
     }
 
+    public static boolean isPartialContent(Response response) {
+        return response.code() == 206;
+    }
+
     public static long receivedResponseAtMillis(Response response) {
         return response.receivedResponseAtMillis();
     }

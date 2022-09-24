@@ -4,6 +4,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.Response
+import rxhttp.wrapper.OkHttpCompat
 import rxhttp.wrapper.parse.Parser
 import java.io.Closeable
 import java.io.IOException
@@ -76,6 +77,8 @@ internal fun close(vararg closeables: Closeable?) {
         }
     }
 }
+
+internal fun Response.isPartialContent() = OkHttpCompat.isPartialContent(this)
 
 fun getActualTypeParameters(clazz: Class<*>): Array<Type> {
     return (clazz.genericSuperclass as? ParameterizedType)?.actualTypeArguments
