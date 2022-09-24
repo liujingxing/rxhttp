@@ -5,6 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -25,7 +26,8 @@ import rxhttp.wrapper.utils.GsonUtil;
 import rxhttp.wrapper.utils.JsonUtil;
 
 /**
- * post、put、patch、delete请求，参数以{application/json; charset=utf-8}形式提交
+ * post/put/patch/delete request
+ * Content-Type: application/json; charset=utf-8
  * User: ljx
  * Date: 2019-09-09
  * Time: 21:08
@@ -84,7 +86,7 @@ public class JsonArrayParam extends AbstractBodyParam<JsonArrayParam> {
     }
 
     @Override
-    public JsonArrayParam addAll(Map<String, ?> map) {
+    public JsonArrayParam addAll(@NotNull Map<String, ?> map) {
         initList();
         return super.addAll(map);
     }

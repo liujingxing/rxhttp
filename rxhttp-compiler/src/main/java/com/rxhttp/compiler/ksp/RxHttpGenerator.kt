@@ -856,7 +856,7 @@ class RxHttpGenerator(
         val baseRxHttpName = ClassName(rxHttpPackage, "BaseRxHttp")
 
         val suppressAnnotation = AnnotationSpec.builder(Suppress::class)
-            .addMember("\"UNCHECKED_CAST\", \"UPPER_BOUND_VIOLATED_BASED_ON_JAVA_ANNOTATIONS\"")
+            .addMember("\"UNCHECKED_CAST\"")
             .build()
 
         val rxHttpBuilder = TypeSpec.classBuilder(RXHttp)

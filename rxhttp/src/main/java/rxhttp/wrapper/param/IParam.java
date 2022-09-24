@@ -36,7 +36,7 @@ public interface IParam<P extends Param<P>> {
 
     P addEncodedQuery(String key, @Nullable Object value);
 
-    default P addAllQuery(String key, @NotNull List<?> values) {
+    default P addAllQuery(String key, @Nullable List<?> values) {
         if (values == null) return addQuery(key, null);
         for (Object value : values) {
             addQuery(key, value);
@@ -44,7 +44,7 @@ public interface IParam<P extends Param<P>> {
         return (P) this;
     }
 
-    default P addAllEncodedQuery(String key, @NotNull List<?> values) {
+    default P addAllEncodedQuery(String key, @Nullable List<?> values) {
         if (values == null) return addEncodedQuery(key, null);
         for (Object value : values) {
             addEncodedQuery(key, value);

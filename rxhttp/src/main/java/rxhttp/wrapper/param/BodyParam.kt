@@ -15,7 +15,9 @@ class BodyParam(
     method: Method,
 ) : AbstractBodyParam<BodyParam>(url, method) {
 
+    //Content-Type: application/json; charset=utf-8
     private var body: Any? = null
+    //The Content-Type depends on the RequestBody
     private var requestBody: RequestBody? = null
 
     fun setBody(value: Any): BodyParam {

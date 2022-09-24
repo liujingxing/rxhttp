@@ -51,7 +51,7 @@ import rxhttp.wrapper.utils.LogUtil
  * https://github.com/liujingxing/rxhttp/wiki/FAQ
  * https://github.com/liujingxing/rxhttp/wiki/更新日志
  */
-@Suppress("UNCHECKED_CAST", "UPPER_BOUND_VIOLATED_BASED_ON_JAVA_ANNOTATIONS")
+@Suppress("UNCHECKED_CAST")
 public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
   public val `param`: P,
 ) : BaseRxHttp() {
