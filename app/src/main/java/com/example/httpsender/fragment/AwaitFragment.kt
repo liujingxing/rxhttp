@@ -15,6 +15,7 @@ import com.google.gson.Gson
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 import rxhttp.*
+import rxhttp.wrapper.entity.OkResponse
 import rxhttp.wrapper.param.RxHttp
 import rxhttp.wrapper.param.toResponse
 import java.io.File
@@ -52,9 +53,11 @@ class AwaitFragment : BaseFragment<AwaitFragmentBinding>(), View.OnClickListener
     //发送Get请求，获取文章列表
     private suspend fun AwaitFragmentBinding.sendGet(view: View) {
         RxHttp.get("/article/list/0/json")
-            .toResponse<PageList<Article>>()
+            .toResponse<OkResponse<User>>()
             .awaitResult {
-                tvResult.text = Gson().toJson(it)
+                val user = it.body()
+                val response = it.raw()
+                val headers = it.headers()
             }.onFailure {
                 tvResult.text = it.errorMsg
                 //失败回调

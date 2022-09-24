@@ -93,7 +93,7 @@ object MultiTaskDownloader {
         RxHttp.get(task.url)
             .tag(task.url) //记录tag，手动取消下载时用到
             .asDownload(task.localPath, true)
-            .onProgress(AndroidSchedulers.mainThread()) {
+            .onMainProgress {
                 //下载进度回调,0-100，仅在进度有更新时才会回调
                 task.progress = it.progress        //当前进度 0-100
                 task.currentSize = it.currentSize  //当前已下载的字节大小

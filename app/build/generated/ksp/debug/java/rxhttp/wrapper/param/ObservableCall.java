@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Observer;
 import io.reactivex.rxjava3.core.Scheduler;
@@ -87,13 +88,21 @@ public final class ObservableCall<T> extends Observable<T> {
     }
 
     public Observable<T> onProgress(Consumer<Progress> progressConsumer) {
-        return onProgress(2, Schedulers.io(), progressConsumer);
+        return onProgress(Schedulers.io(), progressConsumer);
     }
 
     public Observable<T> onProgress(Scheduler scheduler, Consumer<Progress> progressConsumer) {
         return onProgress(2, scheduler, progressConsumer);
     }
 
+    public Observable<T> onMainProgress(Consumer<Progress> progressConsumer) {
+        return onMainProgress(2, progressConsumer);
+    }
+    
+    public Observable<T> onMainProgress(int capacity, Consumer<Progress> progressConsumer) {
+        return onProgress(capacity, AndroidSchedulers.mainThread(), progressConsumer);
+    }
+    
     /**
      * Upload or Download progress callback
      *

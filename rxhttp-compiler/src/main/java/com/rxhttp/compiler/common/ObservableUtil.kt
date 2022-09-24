@@ -19,6 +19,7 @@ fun getObservableClass(): Map<String, String> {
         import java.util.Objects;
         import java.util.concurrent.atomic.AtomicReference;
 
+        import ${getClassPath("AndroidSchedulers")};
         import ${getClassPath("Observable")};
         import ${getClassPath("Observer")};
         import ${getClassPath("Scheduler")};
@@ -100,13 +101,21 @@ fun getObservableClass(): Map<String, String> {
             }
 
             public Observable<T> onProgress(Consumer<Progress> progressConsumer) {
-                return onProgress(2, Schedulers.io(), progressConsumer);
+                return onProgress(Schedulers.io(), progressConsumer);
             }
 
             public Observable<T> onProgress(Scheduler scheduler, Consumer<Progress> progressConsumer) {
                 return onProgress(2, scheduler, progressConsumer);
             }
 
+            public Observable<T> onMainProgress(Consumer<Progress> progressConsumer) {
+                return onMainProgress(2, progressConsumer);
+            }
+            
+            public Observable<T> onMainProgress(int capacity, Consumer<Progress> progressConsumer) {
+                return onProgress(capacity, AndroidSchedulers.mainThread(), progressConsumer);
+            }
+            
             /**
              * Upload or Download progress callback
              *

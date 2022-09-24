@@ -187,7 +187,7 @@ class RxJavaFragment : BaseFragment<RxjavaFragmentBinding>(), View.OnClickListen
         RxHttp.postForm(Url.UPLOAD_URL)
             .addFile("file", File("xxxx/1.png"))
             .asString()
-            .onProgress(AndroidSchedulers.mainThread()) {
+            .onMainProgress {
                 //上传进度回调,0-100，仅在进度有更新时才会回调
                 val currentProgress = it.progress  //当前进度 0-100
                 val currentSize = it.currentSize //当前已上传的字节大小
@@ -212,7 +212,7 @@ class RxJavaFragment : BaseFragment<RxjavaFragmentBinding>(), View.OnClickListen
         RxHttp.postForm(Url.UPLOAD_URL)
             .addPart(requireContext(), "file", uri)
             .asString()
-            .onProgress(AndroidSchedulers.mainThread()) {
+            .onMainProgress {
                 //上传进度回调,0-100，仅在进度有更新时才会回调
                 val currentProgress = it.progress  //当前进度 0-100
                 val currentSize = it.currentSize //当前已上传的字节大小
@@ -238,7 +238,7 @@ class RxJavaFragment : BaseFragment<RxjavaFragmentBinding>(), View.OnClickListen
         val destPath = "${requireContext().externalCacheDir}/${System.currentTimeMillis()}.apk"
         RxHttp.get(Url.DOWNLOAD_URL)
             .asDownload(destPath)
-            .onProgress(AndroidSchedulers.mainThread()) {
+            .onMainProgress {
                 val currentProgress = it.progress //当前进度 0-100
                 val currentSize = it.currentSize //当前已下载的字节大小
                 val totalSize = it.totalSize //要下载的总字节大小
@@ -263,7 +263,7 @@ class RxJavaFragment : BaseFragment<RxjavaFragmentBinding>(), View.OnClickListen
         val destPath = "${requireContext().externalCacheDir}/Miaobo.apk"
         RxHttp.get(Url.DOWNLOAD_URL)
             .asDownload(destPath, true)
-            .onProgress(AndroidSchedulers.mainThread()) {
+            .onMainProgress {
                 val currentProgress = it.progress //当前进度 0-100
                 val currentSize = it.currentSize //当前已下载的字节大小
                 val totalSize = it.totalSize //要下载的总字节大小
@@ -288,7 +288,7 @@ class RxJavaFragment : BaseFragment<RxjavaFragmentBinding>(), View.OnClickListen
         val factory = Android10DownloadFactory(requireContext(), "miaobo.apk")
         RxHttp.get(Url.DOWNLOAD_URL)
             .asDownload(factory)
-            .onProgress(AndroidSchedulers.mainThread()) {
+            .onMainProgress {
                 val currentProgress = it.progress //当前进度 0-100
                 val currentSize = it.currentSize //当前已下载的字节大小
                 val totalSize = it.totalSize //要下载的总字节大小
@@ -312,7 +312,7 @@ class RxJavaFragment : BaseFragment<RxjavaFragmentBinding>(), View.OnClickListen
         val factory = Android10DownloadFactory(requireContext(), "miaobo.apk")
         RxHttp.get(Url.DOWNLOAD_URL)
             .asDownload(factory, true)
-            .onProgress(AndroidSchedulers.mainThread()) {
+            .onMainProgress {
                 val currentProgress = it.progress //当前进度 0-100
                 val currentSize = it.currentSize //当前已下载的字节大小
                 val totalSize = it.totalSize //要下载的总字节大小
