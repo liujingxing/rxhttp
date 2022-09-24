@@ -351,10 +351,13 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
 
             import okhttp3.Headers;
             import okhttp3.MediaType;
-            import okhttp3.MultipartBody.Part;
+            import okhttp3.MultipartBody;
             import okhttp3.RequestBody;
+            import rxhttp.wrapper.OkHttpCompat;
+            import rxhttp.wrapper.entity.FileRequestBody;
             import rxhttp.wrapper.entity.UpFile;
             import rxhttp.wrapper.param.FormParam;
+            import rxhttp.wrapper.utils.BuildUtil;
             import rxhttp.wrapper.utils.UriUtil;
 
             /**
@@ -417,81 +420,97 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
                 }
 
                 public RxHttpFormParam addFile(String key, File file) {
-                    param.addFile(key, file);
-                    return this;
+                    return addFile(new UpFile(key, file));
                 }
 
                 public RxHttpFormParam addFile(String key, String filePath) {
-                    param.addFile(key, filePath);
-                    return this;
+                    return addFile(new UpFile(key, filePath));
                 }
 
                 public RxHttpFormParam addFile(String key, File file, String filename) {
-                    param.addFile(key, file, filename);
-                    return this;
+                    return addFile(new UpFile(key, file, filename));
                 }
 
-                public RxHttpFormParam addFile(UpFile file) {
-                    param.addFile(file);
-                    return this;
+                public RxHttpFormParam addFile(UpFile upFile) {
+                    File file = upFile.getFile();
+                    if (!file.exists())
+                        throw new IllegalArgumentException("File '" + file.getAbsolutePath() + "' does not exist");
+                    if (!file.isFile())
+                        throw new IllegalArgumentException("File '" + file.getAbsolutePath() + "' is not a file");
+                    
+                    RequestBody requestBody = new FileRequestBody(upFile.getFile(), upFile.getSkipSize(),
+                        BuildUtil.getMediaType(upFile.getFilename()));
+                    return addFormDataPart(upFile.getKey(), upFile.getFilename(), requestBody);
                 }
 
-                public RxHttpFormParam addFiles(List<? extends UpFile> fileList) {
-                    param.addFiles(fileList);
+                public RxHttpFormParam addFiles(List<UpFile> files) {
+                    for (UpFile file : files) {
+                        addFile(file);
+                    }
                     return this;
                 }
                 
                 public <T> RxHttpFormParam addFiles(Map<String, T> fileMap) {
-                    param.addFiles(fileMap);
+                    for (Map.Entry<String, T> entry : fileMap.entrySet()) {
+                        String key = entry.getKey();
+                        T value = entry.getValue();
+                        if (value instanceof String) {
+                            addFile(new UpFile(key, value.toString()));
+                        } else if (value instanceof File) {
+                            addFile(new UpFile(key, (File) value));
+                        } else {
+                            throw new IllegalArgumentException("Incoming data type exception, it must be String or File");
+                        }
+                    }
                     return this;
                 }
                 
-                public <T> RxHttpFormParam addFiles(String key, List<T> fileList) {
-                    param.addFiles(key, fileList);
+                public <T> RxHttpFormParam addFiles(String key, List<T> files) {
+                    for (T src : files) {
+                        if (src instanceof String) {
+                            addFile(new UpFile(key, src.toString()));
+                        } else if (src instanceof File) {
+                            addFile(new UpFile(key, (File) src));
+                        } else {
+                            throw new IllegalArgumentException("Incoming data type exception, it must be String or File");
+                        }
+                    }
                     return this;
                 }
 
-                public RxHttpFormParam addPart(@Nullable MediaType contentType, byte[] content) {
-                    param.addPart(contentType, content);
-                    return this;
+                public RxHttpFormParam addPart(byte[] content, @Nullable MediaType contentType) {
+                    return addPart(content, contentType, 0, content.length);
                 }
 
-                public RxHttpFormParam addPart(@Nullable MediaType contentType, byte[] content, int offset,
+                public RxHttpFormParam addPart(byte[] content, @Nullable MediaType contentType, int offset,
                                                int byteCount) {
-                    param.addPart(contentType, content, offset, byteCount);
-                    return this;
+                    return addPart(OkHttpCompat.create(contentType, content, offset, byteCount));
                 }
                 ${isAndroid("""
                 public RxHttpFormParam addPart(Context context, Uri uri) {
-                    param.addPart(UriUtil.asRequestBody(uri, context));
-                    return this;
+                    return addPart(UriUtil.asRequestBody(uri, context));
                 }
 
                 public RxHttpFormParam addPart(Context context, String key, Uri uri) {
-                    param.addPart(UriUtil.asPart(uri, context, key));
-                    return this;
+                    return addPart(UriUtil.asPart(uri, context, key));
                 }
 
                 public RxHttpFormParam addPart(Context context, String key, String fileName, Uri uri) {
-                    param.addPart(UriUtil.asPart(uri, context, key, fileName));
-                    return this;
+                    return addPart(UriUtil.asPart(uri, context, key, fileName));
                 }
 
                 public RxHttpFormParam addPart(Context context, Uri uri, @Nullable MediaType contentType) {
-                    param.addPart(UriUtil.asRequestBody(uri, context, 0, contentType));
-                    return this;
+                    return addPart(UriUtil.asRequestBody(uri, context, 0, contentType));
                 }
 
                 public RxHttpFormParam addPart(Context context, String key, Uri uri,
                                                @Nullable MediaType contentType) {
-                    param.addPart(UriUtil.asPart(uri, context, key, UriUtil.displayName(uri, context), 0, contentType));
-                    return this;
+                    return addPart(UriUtil.asPart(uri, context, key, UriUtil.displayName(uri, context), 0, contentType));
                 }
 
                 public RxHttpFormParam addPart(Context context, String key, String filename, Uri uri,
                                                @Nullable MediaType contentType) {
-                    param.addPart(UriUtil.asPart(uri, context, key, filename, 0, contentType));
-                    return this;
+                    return addPart(UriUtil.asPart(uri, context, key, filename, 0, contentType));
                 }
 
                 public RxHttpFormParam addParts(Context context, Map<String, Uri> uriMap) {
@@ -531,54 +550,46 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
                     return this;
                 }
                 """)}
-                public RxHttpFormParam addPart(Part part) {
+                public RxHttpFormParam addPart(MultipartBody.Part part) {
                     param.addPart(part);
                     return this;
                 }
 
                 public RxHttpFormParam addPart(RequestBody requestBody) {
-                    param.addPart(requestBody);
-                    return this;
+                    return addPart(OkHttpCompat.part(requestBody));
                 }
 
-                public RxHttpFormParam addPart(Headers headers, RequestBody requestBody) {
-                    param.addPart(headers, requestBody);
-                    return this;
+                public RxHttpFormParam addPart(@Nullable Headers headers, RequestBody requestBody) {
+                    return addPart(OkHttpCompat.part(headers, requestBody));
                 }
 
-                public RxHttpFormParam addFormDataPart(String key, String fileName, RequestBody requestBody) {
-                    param.addFormDataPart(key, fileName, requestBody);
-                    return this;
+                public RxHttpFormParam addFormDataPart(String key, @Nullable String fileName, RequestBody requestBody) {
+                    return addPart(OkHttpCompat.part(key, fileName, requestBody));
                 }
 
                 //Set content-type to multipart/form-data
                 public RxHttpFormParam setMultiForm() {
-                    param.setMultiForm();
-                    return this;
+                    return setMultiType(MultipartBody.FORM);
                 }
                 
                 //Set content-type to multipart/mixed
                 public RxHttpFormParam setMultiMixed() {
-                    param.setMultiMixed();
-                    return this;
+                    return setMultiType(MultipartBody.MIXED);
                 }
                 
                 //Set content-type to multipart/alternative
                 public RxHttpFormParam setMultiAlternative() {
-                    param.setMultiAlternative();
-                    return this;
+                    return setMultiType(MultipartBody.ALTERNATIVE);
                 }
                 
                 //Set content-type to multipart/digest
                 public RxHttpFormParam setMultiDigest() {
-                    param.setMultiDigest();
-                    return this;
+                    return setMultiType(MultipartBody.DIGEST);
                 }
                 
                 //Set content-type to multipart/parallel
                 public RxHttpFormParam setMultiParallel() {
-                    param.setMultiParallel();
-                    return this;
+                    return setMultiType(MultipartBody.PARALLEL);
                 }
                 
                 //Set the MIME type

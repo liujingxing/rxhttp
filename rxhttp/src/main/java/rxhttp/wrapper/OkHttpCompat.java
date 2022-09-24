@@ -11,6 +11,7 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 import okhttp3.CookieJar;
+import okhttp3.Headers;
 import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -71,7 +72,15 @@ public class OkHttpCompat {
         return RequestBody.create(contentType, content, offset, byteCount);
     }
 
-    public static MultipartBody.Part createFormData(String name, @Nullable String filename, RequestBody body) {
+    public static MultipartBody.Part part(RequestBody body) {
+        return MultipartBody.Part.create(body);
+    }
+
+    public static MultipartBody.Part part(@Nullable Headers headers, RequestBody body) {
+        return MultipartBody.Part.create(headers, body);
+    }
+
+    public static MultipartBody.Part part(String name, @Nullable String filename, RequestBody body) {
         return MultipartBody.Part.createFormData(name, filename, body);
     }
 

@@ -2,6 +2,8 @@ package rxhttp.wrapper.param;
 
 import org.jetbrains.annotations.NotNull;
 
+import okhttp3.MediaType;
+
 /**
  * User: ljx
  * Date: 2019/1/19
@@ -38,10 +40,12 @@ public abstract class Param<P extends Param<P>> implements IParam<P>, IHeaders<P
     }
 
     /**
-     * post请求
-     * 参数以{application/x-www-form-urlencoded}形式提交
-     * 当带有文件时，自动以{multipart/form-data}形式提交
-     * 当调用{@link FormParam#setMultiForm()}方法，强制以{multipart/form-data}形式提交
+     * post request
+     *
+     * Content-Type: application/x-www-form-urlencoded
+     * if have file, Content-Type: multipart/form-data
+     *
+     * call {@link FormParam#setMultiType(MediaType)}, specify Content-Type
      *
      * @param url url
      * @return FormParam
@@ -51,10 +55,12 @@ public abstract class Param<P extends Param<P>> implements IParam<P>, IHeaders<P
     }
 
     /**
-     * put请求
-     * 参数以{application/x-www-form-urlencoded}形式提交
-     * 当带有文件时，自动以{multipart/form-data}形式提交
-     * 当调用{@link FormParam#setMultiForm()}方法，强制以{multipart/form-data}形式提交
+     * put request
+     *
+     * Content-Type: application/x-www-form-urlencoded
+     * if have file, Content-Type: multipart/form-data
+     *
+     * call {@link FormParam#setMultiType(MediaType)}, specify Content-Type
      *
      * @param url url
      * @return FormParam
@@ -64,10 +70,12 @@ public abstract class Param<P extends Param<P>> implements IParam<P>, IHeaders<P
     }
 
     /**
-     * patch请求
-     * 参数以{application/x-www-form-urlencoded}形式提交
-     * 当带有文件时，自动以{multipart/form-data}形式提交
-     * 当调用{@link FormParam#setMultiForm()}方法，强制以{multipart/form-data}形式提交
+     * patch request
+     *
+     * Content-Type: application/x-www-form-urlencoded
+     * if have file, Content-Type: multipart/form-data
+     *
+     * call {@link FormParam#setMultiType(MediaType)}, specify Content-Type
      *
      * @param url url
      * @return FormParam
@@ -77,10 +85,12 @@ public abstract class Param<P extends Param<P>> implements IParam<P>, IHeaders<P
     }
 
     /**
-     * delete请求
-     * 参数以{application/x-www-form-urlencoded}形式提交
-     * 当带有文件时，自动以{multipart/form-data}形式提交
-     * 当调用{@link FormParam#setMultiForm()}方法，强制以{multipart/form-data}形式提交
+     * delete request
+     *
+     * Content-Type: application/x-www-form-urlencoded
+     * if have file, Content-Type: multipart/form-data
+     *
+     * call {@link FormParam#setMultiType(MediaType)}, specify Content-Type
      *
      * @param url url
      * @return FormParam

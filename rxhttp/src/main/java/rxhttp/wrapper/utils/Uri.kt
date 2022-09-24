@@ -37,7 +37,7 @@ fun Uri.asPart(
     contentType: MediaType? = BuildUtil.getMediaTypeByUri(context, this),
 ): MultipartBody.Part {
     return asRequestBody(context, skipSize, contentType).let {
-        OkHttpCompat.createFormData(key, filename, it)
+        OkHttpCompat.part(key, filename, it)
     }
 }
 

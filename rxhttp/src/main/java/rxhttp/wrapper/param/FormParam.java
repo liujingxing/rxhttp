@@ -18,12 +18,13 @@ import rxhttp.wrapper.utils.BuildUtil;
 import rxhttp.wrapper.utils.CacheUtil;
 
 /**
- * post、put、patch、delete请求
- * 参数以 { application/x-www-form-urlencoded } 形式提交
- * 当带有文件时，自动以 { multipart/form-data } 形式提交
- * <p>
- * 当然，亦可调用一系列 setMultiXxx 方法，指定 { multipart/xxx } 形式提交，如：setMultiForm()
- * <p>
+ * post/put/patch/delete request
+ *
+ * Content-Type: application/x-www-form-urlencoded
+ *
+ * if have file, Content-Type: multipart/form-data
+ *
+ * call {@link FormParam#setMultiType(MediaType)}, specify Content-Type
  * User: ljx
  * Date: 2019-09-09
  * Time: 21:08
@@ -103,35 +104,10 @@ public class FormParam extends AbstractBodyParam<FormParam> implements IPart<For
     public FormParam addPart(Part part) {
         if (partList == null) {
             partList = new ArrayList<>();
-            if (!isMultipart()) setMultiForm();
+            if (!isMultipart()) setMultiType(MultipartBody.FORM);
         }
         partList.add(part);
         return this;
-    }
-
-    //Set content-type to multipart/form-data
-    public FormParam setMultiForm() {
-        return setMultiType(MultipartBody.FORM);
-    }
-
-    //Set content-type to multipart/mixed
-    public FormParam setMultiMixed() {
-        return setMultiType(MultipartBody.MIXED);
-    }
-
-    //Set content-type to multipart/alternative
-    public FormParam setMultiAlternative() {
-        return setMultiType(MultipartBody.ALTERNATIVE);
-    }
-
-    //Set content-type to multipart/digest
-    public FormParam setMultiDigest() {
-        return setMultiType(MultipartBody.DIGEST);
-    }
-
-    //Set content-type to multipart/parallel
-    public FormParam setMultiParallel() {
-        return setMultiType(MultipartBody.PARALLEL);
     }
 
     //Set the MIME type
