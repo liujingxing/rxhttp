@@ -230,6 +230,8 @@ class KClassHelper(
             import okhttp3.RequestBody
             import okio.ByteString
             import rxhttp.wrapper.param.BodyParam
+            import rxhttp.wrapper.OkHttpCompat
+            import rxhttp.wrapper.entity.FileRequestBody
             import rxhttp.wrapper.utils.BuildUtil
             import java.io.File
 
@@ -239,39 +241,37 @@ class KClassHelper(
              * https://github.com/liujingxing/rxlife
              */
             open class RxHttpBodyParam(param: BodyParam) : RxHttpAbstractBodyParam<BodyParam, RxHttpBodyParam>(param) {
-                
-                fun setBody(requestBody: RequestBody) = apply { param.setBody(requestBody) }
-            
-                fun setBody(content: String, contentType: MediaType? = null) = apply {
-                    param.setBody(content, contentType)
-                }
-                
-                fun setBody(content: ByteString, contentType: MediaType? = null) = apply {
-                    param.setBody(content, contentType)
-                }
-            
+
+                fun setBody(content: String, contentType: MediaType? = null) =
+                    setBody(OkHttpCompat.create(contentType, content))
+
+                fun setBody(content: ByteString, contentType: MediaType? = null) =
+                    setBody(OkHttpCompat.create(contentType, content))
+
                 @JvmOverloads
                 fun setBody(
                     content: ByteArray,
                     contentType: MediaType?,
                     offset: Int = 0,
                     byteCount: Int = content.size,
-                ) = apply { param.setBody(content, contentType, offset, byteCount) }
-            
+                ) = setBody(OkHttpCompat.create(contentType, content, offset, byteCount))
+
                 @JvmOverloads
                 fun setBody(
                     file: File,
                     contentType: MediaType? = BuildUtil.getMediaType(file.name),
-                ) = apply { param.setBody(file, contentType) }
+                ) = setBody(FileRequestBody(file, 0, contentType))
                 ${isAndroid("""
                 @JvmOverloads
                 fun setBody(
-                    uri: Uri,
                     context: Context,
+                    uri: Uri,
                     contentType: MediaType? = BuildUtil.getMediaTypeByUri(context, uri),
-                ) = apply { param.setBody(uri.asRequestBody(context, 0, contentType)) }
+                ) = setBody(uri.asRequestBody(context, 0, contentType))
                 """)}
                 fun setBody(any: Any) = apply { param.setBody(any) }
+
+                fun setBody(requestBody: RequestBody) = apply { param.setBody(requestBody) }
             }
 
         """.trimIndent()

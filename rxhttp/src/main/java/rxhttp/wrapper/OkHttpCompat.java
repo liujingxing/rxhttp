@@ -71,10 +71,6 @@ public class OkHttpCompat {
         return RequestBody.create(contentType, content, offset, byteCount);
     }
 
-    public static RequestBody create(final @Nullable MediaType contentType, final File file) {
-        return RequestBody.create(contentType, file);
-    }
-
     public static MultipartBody.Part createFormData(String name, @Nullable String filename, RequestBody body) {
         return MultipartBody.Part.createFormData(name, filename, body);
     }
