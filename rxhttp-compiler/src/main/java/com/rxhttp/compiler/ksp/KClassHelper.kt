@@ -166,6 +166,7 @@ class KClassHelper(
                 package $rxHttpPackage
                 
                 import rxhttp.wrapper.BodyParamFactory
+                import rxhttp.wrapper.param.AbstractBodyParam
 
                 /**
                  * Github
