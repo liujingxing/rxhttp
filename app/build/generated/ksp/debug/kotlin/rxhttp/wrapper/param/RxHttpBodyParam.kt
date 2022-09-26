@@ -2,7 +2,7 @@ package rxhttp.wrapper.param
 
 import android.content.Context
 import android.net.Uri
-import rxhttp.wrapper.utils.asRequestBody
+import rxhttp.wrapper.entity.UriRequestBody
 
 import okhttp3.MediaType
 import okhttp3.RequestBody
@@ -29,7 +29,7 @@ open class RxHttpBodyParam(param: BodyParam) : RxHttpAbstractBodyParam<BodyParam
     @JvmOverloads
     fun setBody(
         content: ByteArray,
-        contentType: MediaType?,
+        contentType: MediaType? = null,
         offset: Int = 0,
         byteCount: Int = content.size,
     ) = setBody(OkHttpCompat.create(contentType, content, offset, byteCount))
@@ -45,7 +45,7 @@ open class RxHttpBodyParam(param: BodyParam) : RxHttpAbstractBodyParam<BodyParam
         context: Context,
         uri: Uri,
         contentType: MediaType? = BuildUtil.getMediaTypeByUri(context, uri),
-    ) = setBody(uri.asRequestBody(context, 0, contentType))
+    ) = setBody(UriRequestBody(context, uri, 0, contentType))
     
     fun setBody(any: Any) = apply { param.setBody(any) }
 

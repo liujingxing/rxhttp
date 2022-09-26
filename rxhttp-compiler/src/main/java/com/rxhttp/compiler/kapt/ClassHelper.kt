@@ -264,7 +264,7 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
             ${isAndroid("""
             import android.content.Context;
             import android.net.Uri;
-            import rxhttp.wrapper.utils.UriUtil;
+            import rxhttp.wrapper.entity.UriRequestBody;
             """)}
             import org.jetbrains.annotations.Nullable;
             
@@ -317,7 +317,7 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
                 }
                 
                 public RxHttpBodyParam setBody(Context context, Uri uri, @Nullable MediaType contentType) {
-                    return setBody(UriUtil.asRequestBody(uri, context, 0, contentType));
+                    return setBody(new UriRequestBody(context, uri, 0, contentType));
                 }
                 """)}
                 public RxHttpBodyParam setBody(Object object) {
@@ -341,6 +341,7 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
 
             ${isAndroid("import android.content.Context;")}
             ${isAndroid("import android.net.Uri;")}
+            ${isAndroid("import rxhttp.wrapper.entity.UriRequestBody;")}
             
             import org.jetbrains.annotations.NotNull;
             import org.jetbrains.annotations.Nullable;
@@ -439,7 +440,7 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
                     if (!file.isFile())
                         throw new IllegalArgumentException("File '" + file.getAbsolutePath() + "' is not a file");
                     
-                    RequestBody requestBody = new FileRequestBody(upFile.getFile(), upFile.getSkipSize(),
+                    RequestBody requestBody = new FileRequestBody(file, upFile.getSkipSize(),
                         BuildUtil.getMediaType(upFile.getFilename()));
                     return addFormDataPart(upFile.getKey(), upFile.getFilename(), requestBody);
                 }
@@ -489,29 +490,29 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
                 }
                 ${isAndroid("""
                 public RxHttpFormParam addPart(Context context, Uri uri) {
-                    return addPart(UriUtil.asRequestBody(uri, context));
+                    return addPart(context, uri, BuildUtil.getMediaTypeByUri(context, uri));
+                }
+                
+                public RxHttpFormParam addPart(Context context, Uri uri, @Nullable MediaType contentType) {
+                    return addPart(new UriRequestBody(context, uri, 0, contentType));
                 }
 
                 public RxHttpFormParam addPart(Context context, String key, Uri uri) {
-                    return addPart(UriUtil.asPart(uri, context, key));
+                    return addPart(context, key, UriUtil.displayName(uri, context), uri);
                 }
 
                 public RxHttpFormParam addPart(Context context, String key, String fileName, Uri uri) {
-                    return addPart(UriUtil.asPart(uri, context, key, fileName));
-                }
-
-                public RxHttpFormParam addPart(Context context, Uri uri, @Nullable MediaType contentType) {
-                    return addPart(UriUtil.asRequestBody(uri, context, 0, contentType));
+                    return addPart(context, key, fileName, uri, BuildUtil.getMediaTypeByUri(context, uri));
                 }
 
                 public RxHttpFormParam addPart(Context context, String key, Uri uri,
                                                @Nullable MediaType contentType) {
-                    return addPart(UriUtil.asPart(uri, context, key, UriUtil.displayName(uri, context), 0, contentType));
+                    return addPart(context, key, UriUtil.displayName(uri, context), uri, contentType);
                 }
 
                 public RxHttpFormParam addPart(Context context, String key, String filename, Uri uri,
                                                @Nullable MediaType contentType) {
-                    return addPart(UriUtil.asPart(uri, context, key, filename, 0, contentType));
+                    return addFormDataPart(key, filename, new UriRequestBody(context, uri, 0, contentType));
                 }
 
                 public RxHttpFormParam addParts(Context context, Map<String, Uri> uriMap) {

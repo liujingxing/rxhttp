@@ -225,7 +225,7 @@ class KClassHelper(
             ${isAndroid("""
             import android.content.Context
             import android.net.Uri
-            import rxhttp.wrapper.utils.asRequestBody
+            import rxhttp.wrapper.entity.UriRequestBody
             """)}
             import okhttp3.MediaType
             import okhttp3.RequestBody
@@ -252,7 +252,7 @@ class KClassHelper(
                 @JvmOverloads
                 fun setBody(
                     content: ByteArray,
-                    contentType: MediaType?,
+                    contentType: MediaType? = null,
                     offset: Int = 0,
                     byteCount: Int = content.size,
                 ) = setBody(OkHttpCompat.create(contentType, content, offset, byteCount))
@@ -268,7 +268,7 @@ class KClassHelper(
                     context: Context,
                     uri: Uri,
                     contentType: MediaType? = BuildUtil.getMediaTypeByUri(context, uri),
-                ) = setBody(uri.asRequestBody(context, 0, contentType))
+                ) = setBody(UriRequestBody(context, uri, 0, contentType))
                 """)}
                 fun setBody(any: Any) = apply { param.setBody(any) }
 
@@ -286,6 +286,7 @@ class KClassHelper(
 
             ${isAndroid("import android.content.Context")}
             ${isAndroid("import android.net.Uri")}
+            ${isAndroid("import rxhttp.wrapper.entity.UriRequestBody")}
             import okhttp3.Headers
             import okhttp3.MediaType
             import okhttp3.MultipartBody
@@ -295,8 +296,7 @@ class KClassHelper(
             import rxhttp.wrapper.entity.UpFile
             import rxhttp.wrapper.param.FormParam
             import rxhttp.wrapper.utils.BuildUtil
-            import rxhttp.wrapper.utils.asPart
-            import rxhttp.wrapper.utils.asRequestBody
+            import rxhttp.wrapper.utils.displayName
             import java.io.File
 
 
@@ -358,13 +358,10 @@ class KClassHelper(
 
                 fun addFile(upFile: UpFile) = apply {
                     val file = upFile.file
-                    require(file.exists()) { "File '" + file.absolutePath + "' does not exist" }
-                    require(file.isFile) { "File '" + file.absolutePath + "' is not a file" }
+                    require(file.exists()) { "File '${'$'}{file.absolutePath}' does not exist" }
+                    require(file.isFile) { "File '${'$'}{file.absolutePath}' is not a file" }
                 
-                    val requestBody = FileRequestBody(
-                        upFile.file, upFile.skipSize,
-                        BuildUtil.getMediaType(upFile.filename)
-                    )
+                    val requestBody = FileRequestBody(file, upFile.skipSize, BuildUtil.getMediaType(upFile.filename))
                     return addFormDataPart(upFile.key, upFile.filename, requestBody)
                 }
                 
@@ -381,7 +378,7 @@ class KClassHelper(
                     context: Context,
                     uri: Uri,
                     contentType: MediaType? = BuildUtil.getMediaTypeByUri(context, uri)
-                ) = addPart(uri.asRequestBody(context, 0, contentType))
+                ) = addPart(UriRequestBody(context, uri, 0, contentType))
 
                 @JvmOverloads
                 fun addPart(
@@ -389,7 +386,7 @@ class KClassHelper(
                     key: String,
                     uri: Uri,
                     contentType: MediaType? = BuildUtil.getMediaTypeByUri(context, uri)
-                ) = addPart(uri.asPart(context, key, skipSize = 0, contentType = contentType))
+                ) = addPart(context, key, uri.displayName(context), uri, contentType)
 
                 @JvmOverloads
                 fun addPart(
@@ -398,7 +395,7 @@ class KClassHelper(
                     filename: String?,
                     uri: Uri,
                     contentType: MediaType? = BuildUtil.getMediaTypeByUri(context, uri)
-                ) = addPart(uri.asPart(context, key, filename, 0, contentType))
+                ) = addFormDataPart(key, filename, UriRequestBody(context, uri, 0, contentType))
 
                 fun addParts(context: Context, uriMap: Map<String, Uri>) = apply {
                     uriMap.forEach { key, value -> addPart(context, key, value) }

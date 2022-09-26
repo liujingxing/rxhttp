@@ -7,11 +7,6 @@ import android.content.ContentUris
 import android.content.Context
 import android.net.Uri
 import android.provider.MediaStore
-import okhttp3.MediaType
-import okhttp3.MultipartBody
-import okhttp3.RequestBody
-import rxhttp.wrapper.OkHttpCompat
-import rxhttp.wrapper.entity.UriRequestBody
 import java.io.File
 import java.io.FileNotFoundException
 
@@ -21,29 +16,7 @@ import java.io.FileNotFoundException
  * Time: 14:55
  */
 
-@JvmOverloads
-fun Uri.asRequestBody(
-    context: Context,
-    skipSize: Long = 0,
-    contentType: MediaType? = BuildUtil.getMediaTypeByUri(context, this),
-): RequestBody = UriRequestBody(context, this, skipSize, contentType)
-
-@JvmOverloads
-fun Uri.asPart(
-    context: Context,
-    key: String,
-    filename: String? = displayName(context),
-    skipSize: Long = 0,
-    contentType: MediaType? = BuildUtil.getMediaTypeByUri(context, this),
-): MultipartBody.Part {
-    return asRequestBody(context, skipSize, contentType).let {
-        OkHttpCompat.part(key, filename, it)
-    }
-}
-
-fun Uri?.length(context: Context): Long {
-    return length(context.contentResolver)
-}
+fun Uri?.length(context: Context): Long = length(context.contentResolver)
 
 //return The size of the media item, return -1 if does not exist, might block.
 fun Uri?.length(contentResolver: ContentResolver): Long {
@@ -58,12 +31,12 @@ fun Uri?.length(contentResolver: ContentResolver): Long {
     }
 }
 
-fun Uri.displayName(context: Context): String? {
+fun Uri.displayName(context: Context): String? =
     if (scheme == ContentResolver.SCHEME_FILE) {
-        return lastPathSegment
+        lastPathSegment
+    } else {
+        getColumnValue(context.contentResolver, MediaStore.MediaColumns.DISPLAY_NAME)
     }
-    return getColumnValue(context.contentResolver, MediaStore.MediaColumns.DISPLAY_NAME)
-}
 
 //Return the value of the specified column，return null if does not exist
 internal fun Uri.getColumnValue(contentResolver: ContentResolver, columnName: String): String? {
