@@ -3,6 +3,7 @@ package rxhttp.wrapper.utils;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.net.Uri;
+import android.os.Build;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -31,6 +32,7 @@ public class BuildUtil {
 
     private static final Pattern PATH_TRAVERSAL = Pattern.compile("(.*/)?(\\.|%2e|%2E){1,2}(/.*)?");
 
+    // Build Request
     public static Request buildRequest(@NotNull IRequest r, @NotNull Request.Builder builder) {
         builder.url(r.getHttpUrl())
             .method(r.getMethod().name(), r.buildRequestBody());
@@ -41,12 +43,7 @@ public class BuildUtil {
         return builder.build();
     }
 
-    /**
-     * 构建一个表单 (不带文件)
-     *
-     * @param pairs 参数集合
-     * @return RequestBody
-     */
+    // Build FormBody
     public static RequestBody buildFormBody(List<KeyValuePair> pairs) {
         FormBody.Builder builder = new FormBody.Builder();
         if (pairs != null) {
@@ -64,19 +61,11 @@ public class BuildUtil {
         return builder.build();
     }
 
-    /**
-     * 构建一个表单(带文件)
-     *
-     * @param multiType MediaType
-     * @param pairs     map参数集合
-     * @param partList  文件列表
-     * @return RequestBody
-     */
+    // Build MultipartBody
     public static RequestBody buildMultipartBody(MediaType multiType, List<KeyValuePair> pairs, List<Part> partList) {
         MultipartBody.Builder builder = new MultipartBody.Builder();
         builder.setType(multiType);
         if (pairs != null) {
-            //遍历参数
             for (KeyValuePair pair : pairs) {
                 Object value = pair.getValue();
                 if (value == null) continue;
@@ -85,7 +74,6 @@ public class BuildUtil {
             }
         }
         if (partList != null) {
-            //遍历文件
             for (Part part : partList) {
                 builder.addPart(part);
             }
@@ -93,6 +81,7 @@ public class BuildUtil {
         return builder.build();
     }
 
+    //Build HttpUrl
     public static HttpUrl getHttpUrl(@NotNull String url, @Nullable List<KeyValuePair> queryList,
                                      @Nullable List<KeyValuePair> paths) {
         if (paths != null) {

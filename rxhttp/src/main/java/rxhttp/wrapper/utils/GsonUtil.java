@@ -40,14 +40,7 @@ public class GsonUtil {
         return isEmpty(json) ? 0L : json.getAsLong();
     };
 
-    /**
-     * json字符串转对象，解析失败，不会抛出异常，会直接返回null
-     *
-     * @param json json字符串
-     * @param type 对象类类型
-     * @param <T>  返回类型
-     * @return T，返回对象有可能为空
-     */
+    //return null when an exception occurs
     @Nullable
     public static <T> T getObject(String json, Type type) {
         try {
@@ -57,14 +50,7 @@ public class GsonUtil {
         }
     }
 
-    /**
-     * json字符串转对象，解析失败，将抛出对应的{@link JsonSyntaxException}异常，根据异常可查找原因
-     *
-     * @param json json字符串
-     * @param type 对象类类型
-     * @param <T>  返回类型
-     * @return T，返回对象不为空
-     */
+    //throw exception if deserialization failed
     @NotNull
     public static <T> T fromJson(String json, Type type) {
         Gson gson = buildGson();

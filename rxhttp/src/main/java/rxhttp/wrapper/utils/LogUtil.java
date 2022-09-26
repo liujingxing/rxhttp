@@ -45,20 +45,14 @@ public class LogUtil {
     private static final String TAG_RXJAVA = "RxJava";
 
     private static boolean isDebug = false;
-    //日志长度超出logcat单条日志打印长度时，是否分段打印，默认false
+    //Segmenting logs If the log length is too long
     private static boolean isSegmentPrint = false;
     private static int indentSpaces = -1; //json数据缩进空间，默认不缩进
 
-    public static void setDebug(boolean debug) {
-        setDebug(debug, false, -1);
-    }
-
     /**
-     * 调试模式下，会有完整的请求日志，过滤`RxHttp`即可看到
-     *
-     * @param debug        是否开始调试模式
-     * @param segmentPrint 是否开启分段打印
-     * @param indentSpaces json数据缩进空间，大于等于0时，json数据将格式化输出
+     * @param debug        Print a detailed request log if debug is true, Filter `RxHttp` keyword
+     * @param segmentPrint Segment Print
+     * @param indentSpaces Json data is formatted for output if indentSpaces > 0
      */
     public static void setDebug(boolean debug, boolean segmentPrint, int indentSpaces) {
         isDebug = debug;
@@ -74,13 +68,13 @@ public class LogUtil {
         return isSegmentPrint;
     }
 
-    //打印Http请求连接失败异常日志
+    //Print RxJava Throwable
     public static void log(Throwable throwable) {
         if (!isDebug) return;
         Platform.get().loge(TAG_RXJAVA, throwable.toString());
     }
 
-    //打印Http请求连接失败异常日志
+    //Print url and throwable
     public static void log(String url, Throwable throwable) {
         if (!isDebug) return;
         try {
@@ -100,19 +94,7 @@ public class LogUtil {
         Platform.get().loge(TAG, msg);
     }
 
-    //打印上传进度日志
-    public static void logUpProgress(int progress, long currentSize, long totalSize) {
-        if (!isDebug) return;
-        Platform.get().logi(TAG, "UpProgress{progress=" + progress + ", currentSize=" + currentSize + ", totalSize=" + totalSize + "}");
-    }
-
-    //打印下载进度日志
-    public static void logDownProgress(int progress, long currentSize, long totalSize) {
-        if (!isDebug) return;
-        Platform.get().logi(TAG, "DownProgress{progress=" + progress + ", currentSize=" + currentSize + ", totalSize=" + totalSize + "}");
-    }
-
-    //请求前，打印日志
+    //Print Request
     public static void log(@NotNull Request userRequest, CookieJar cookieJar) {
         if (!isDebug) return;
         try {
@@ -177,7 +159,7 @@ public class LogUtil {
         }
     }
 
-    //打印Http返回的正常结果
+    //Print Response
     public static void log(@NotNull Response response, String body) {
         if (!isDebug) return;
         try {
@@ -334,7 +316,7 @@ public class LogUtil {
         return result;
     }
 
-    //格式化json数据
+    //format json
     private static String formattingJson(String json, int indentSpaces) {
         if (indentSpaces >= 0) {
             try {
@@ -413,8 +395,8 @@ public class LogUtil {
     }
 
     /**
-     * okhttp 4.9.2版本起，{@link Headers#toString()}方法
-     * 将会对Authorization、Cookie、Proxy-Authorization、Set-Cookie头部隐藏敏感信息，故这里手动读取Headers信息以打印日志
+     * Since OkHttp v4.9.2, the {@link Headers#toString()} method, will hide sensitive information
+     * in the Authorization, Cookie, proxy-authorization, and set-cookie headers, so they are read manually
      *
      * @param headers okhttp3.Headers
      * @return String
@@ -432,7 +414,7 @@ public class LogUtil {
     }
 
     private static boolean promisesBody(Response response) {
-        //okhttp 4.0.0 版本没有HttpHeaders.hasBody方法，但在4.0.1版本又恢复了，但被标记未过时
+        //The `HttpHeaders.hasBody` method was removed from okhttp 4.0.0, but was restored and deprecated in 4.0.1
         return versionGte400() ? HttpHeaders.promisesBody(response) : HttpHeaders.hasBody(response);
     }
 }
