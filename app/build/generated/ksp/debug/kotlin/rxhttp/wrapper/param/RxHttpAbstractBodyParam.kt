@@ -1,6 +1,7 @@
 package rxhttp.wrapper.param
 
 import rxhttp.wrapper.BodyParamFactory
+import rxhttp.wrapper.param.AbstractBodyParam
 
 /**
  * Github

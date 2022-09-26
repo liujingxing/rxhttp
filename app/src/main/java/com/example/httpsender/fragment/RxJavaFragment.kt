@@ -18,7 +18,6 @@ import com.example.httpsender.parser.Android10DownloadFactory
 import com.google.gson.Gson
 import com.rxjava.rxlife.life
 import com.rxjava.rxlife.lifeOnMain
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import rxhttp.wrapper.param.RxHttp
 import rxhttp.wrapper.param.asClass
 import rxhttp.wrapper.param.asResponse

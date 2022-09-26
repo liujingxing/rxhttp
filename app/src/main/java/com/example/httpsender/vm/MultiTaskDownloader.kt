@@ -4,7 +4,6 @@ import androidx.lifecycle.MutableLiveData
 import com.example.httpsender.Tip
 import com.example.httpsender.entity.DownloadTask
 import com.example.httpsender.utils.Preferences
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import okhttp3.internal.http2.StreamResetException
 import okio.ByteString.Companion.encodeUtf8
 import rxhttp.RxHttpPlugins
