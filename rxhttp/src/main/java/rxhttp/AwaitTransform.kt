@@ -120,7 +120,7 @@ fun <T> Await<T>.flowOn(
 }
 
 /**
- * Creates a flow that produces values from the given IAwait.
+ * Creates a flow that produces values from the given Await.
  */
 fun <T> Await<T>.asFlow(): Flow<T> = flow {
     emit(await())
@@ -181,14 +181,14 @@ fun <T, C : MutableCollection<in T>> Await<out Iterable<T>>.filterTo(
 }
 
 /**
- * Returns a IAwait containing a list containing only distinct elements from the given collection.
+ * Returns a Await containing a list containing only distinct elements from the given collection.
  *
  * The elements in the resulting list are in the same order as they were in the source collection.
  */
 fun <T> Await<out Iterable<T>>.distinct(): Await<ArrayList<T>> = distinctTo(ArrayList()) { it }
 
 /**
- * Returns a IAwait containing a list containing only elements from the given collection
+ * Returns a Await containing a list containing only elements from the given collection
  * having distinct keys returned by the given [selector] function.
  *
  * The elements in the resulting list are in the same order as they were in the source collection.
@@ -268,7 +268,7 @@ fun <T> Await<out MutableList<T>>.sortWith(
 }
 
 /**
- * Returns a IAwait containing a new list of all elements sorted according to their natural sort order.
+ * Returns a Await containing a new list of all elements sorted according to their natural sort order.
  *
  * The sort is _stable_. It means that equal elements preserve their order relative to each other after sorting.
  */
@@ -277,7 +277,7 @@ fun <T : Comparable<T>> Await<out Iterable<T>>.sorted(): Await<List<T>> = newAwa
 }
 
 /**
- * Returns a IAwait containing a new list of all elements sorted descending according to their natural sort order.
+ * Returns a Await containing a new list of all elements sorted descending according to their natural sort order.
  *
  * The sort is _stable_. It means that equal elements preserve their order relative to each other after sorting.
  */
@@ -301,7 +301,7 @@ inline fun <T> Await<out Iterable<T>>.sortedWith(
 ): Await<List<T>> = sortedWith(Comparator { t1, t2 -> comparator(t1, t2) })
 
 /**
- * Returns a IAwait containing a new list of all elements sorted according to the specified [comparator].
+ * Returns a Await containing a new list of all elements sorted according to the specified [comparator].
  *
  * The sort is _stable_. It means that equal elements preserve their order relative to each other after sorting.
  */
@@ -344,12 +344,12 @@ fun <T> Await<T>.timeout(
 }
 
 /**
- * Returns a IAwait containing the specified object when an error occurs.
+ * Returns a Await containing the specified object when an error occurs.
  */
 fun <T> Await<T>.onErrorReturnItem(t: T): Await<T> = onErrorReturn { t }
 
 /**
- * Returns a IAwait containing the object specified by the [map] function when an error occurs.
+ * Returns a Await containing the object specified by the [map] function when an error occurs.
  */
 inline fun <T> Await<T>.onErrorReturn(
     crossinline map: suspend (Throwable) -> T
@@ -362,7 +362,7 @@ inline fun <T> Await<T>.onErrorReturn(
 }
 
 /**
- * Returns a IAwait containing the results of applying the given [map] function
+ * Returns a Await containing the results of applying the given [map] function
  */
 inline fun <T, R> Await<T>.map(
     crossinline map: suspend (T) -> R
