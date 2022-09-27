@@ -18,14 +18,11 @@ import kotlin.coroutines.CoroutineContext
  * Date: 2021/9/18
  * Time: 17:56
  */
-fun <T, R> Await<T>.newAwait(
-    block: suspend Await<T>.() -> R
-): Await<R> = object : Await<R> {
-
-    override suspend fun await(): R {
-        return this@newAwait.block()
-    }
+private class SafeAwait<T>(private val block: suspend () -> T) : Await<T> {
+    override suspend fun await(): T = block()
 }
+
+fun <T> await(block: suspend () -> T): Await<T> = SafeAwait(block)
 
 /**
  * @param times  retry times, default Long.MAX_VALUE Always try again
@@ -59,7 +56,7 @@ fun <T> Await<T>.retry(
 
 fun <T> Await<T>.onStart(
     action: suspend () -> Unit
-): Await<T> = newAwait {
+): Await<T> = await {
     action()
     await()
 }
@@ -115,7 +112,7 @@ fun <T> Await<T>.repeat(
  */
 fun <T> Await<T>.flowOn(
     context: CoroutineContext
-): Await<T> = newAwait {
+): Await<T> = await {
     withContext(context) { await() }
 }
 
@@ -127,43 +124,35 @@ fun <T> Await<T>.asFlow(): Flow<T> = flow {
 }
 
 /**
- * Adds the specified element to the end of this list.
- */
-fun <T> Await<out MutableList<T>>.insert(
-    element: T
-): Await<MutableList<T>> = newAwait {
-    await().apply { add(element) }
-}
-
-/**
  * Inserts an element into the list at the specified [index].
  */
 fun <T> Await<out MutableList<T>>.insert(
-    index: Int,
-    element: T
-): Await<MutableList<T>> = newAwait {
-    await().apply { add(index, element) }
-}
-
-/**
- * Adds all of the elements of the specified collection to the end of this list.
- *
- * The elements are appended in the order they appear in the [elements] collection.
- */
-fun <T> Await<out MutableList<T>>.insertAll(
-    elements: Collection<T>
-): Await<MutableList<T>> = newAwait {
-    await().apply { addAll(elements) }
+    element: T,
+    index: Int = Int.MAX_VALUE
+): Await<MutableList<T>> = await {
+    await().apply {
+        if (index == Int.MAX_VALUE) {
+            add(element)
+        } else {
+            add(index, element)
+        }
+    }
 }
 
 /**
  * Inserts all of the elements of the specified collection [elements] into this list at the specified [index].
  */
 fun <T> Await<out MutableList<T>>.insertAll(
-    index: Int,
-    elements: Collection<T>
-): Await<MutableList<T>> = newAwait {
-    await().apply { addAll(index, elements) }
+    elements: Collection<T>,
+    index: Int = Int.MAX_VALUE
+): Await<MutableList<T>> = await {
+    await().apply {
+        if (index == Int.MAX_VALUE) {
+            addAll(elements)
+        } else {
+            addAll(index, elements)
+        }
+    }
 }
 
 fun <T> Await<out Iterable<T>>.filter(
@@ -176,7 +165,7 @@ fun <T> Await<out Iterable<T>>.filter(
 fun <T, C : MutableCollection<in T>> Await<out Iterable<T>>.filterTo(
     destination: C,
     predicate: (T) -> Boolean
-): Await<C> = newAwait {
+): Await<C> = await {
     await().filterTo(destination, predicate)
 }
 
@@ -209,7 +198,7 @@ fun <T, C : MutableList<T>> Await<out Iterable<T>>.distinctTo(
 fun <T, K, C : MutableList<T>> Await<out Iterable<T>>.distinctTo(
     destination: C,
     selector: (T) -> K
-): Await<C> = newAwait {
+): Await<C> = await {
     val set = HashSet<K>()
     for (e in destination) {
         val key = selector(e)
@@ -228,7 +217,7 @@ fun <T, K, C : MutableList<T>> Await<out Iterable<T>>.distinctTo(
  *
  * The sort is _stable_. It means that equal elements preserve their order relative to each other after sorting.
  */
-fun <T : Comparable<T>> Await<out MutableList<T>>.sort(): Await<MutableList<T>> = newAwait {
+fun <T : Comparable<T>> Await<out MutableList<T>>.sort(): Await<MutableList<T>> = await {
     await().apply { sort() }
 }
 
@@ -263,7 +252,7 @@ inline fun <T> Await<out MutableList<T>>.sortWith(
  */
 fun <T> Await<out MutableList<T>>.sortWith(
     comparator: Comparator<in T>
-): Await<MutableList<T>> = newAwait {
+): Await<MutableList<T>> = await {
     await().apply { sortWith(comparator) }
 }
 
@@ -272,7 +261,7 @@ fun <T> Await<out MutableList<T>>.sortWith(
  *
  * The sort is _stable_. It means that equal elements preserve their order relative to each other after sorting.
  */
-fun <T : Comparable<T>> Await<out Iterable<T>>.sorted(): Await<List<T>> = newAwait {
+fun <T : Comparable<T>> Await<out Iterable<T>>.sorted(): Await<List<T>> = await {
     await().sorted()
 }
 
@@ -307,24 +296,24 @@ inline fun <T> Await<out Iterable<T>>.sortedWith(
  */
 fun <T> Await<out Iterable<T>>.sortedWith(
     comparator: Comparator<in T>
-): Await<List<T>> = newAwait {
+): Await<List<T>> = await {
     await().sortedWith(comparator)
 }
 
 
 fun <T> Await<out List<T>>.subList(
     fromIndex: Int = 0, toIndex: Int
-): Await<List<T>> = newAwait {
+): Await<List<T>> = await {
     await().subList(fromIndex, toIndex)
 }
 
 fun <T> Await<out Iterable<T>>.take(
     count: Int
-): Await<List<T>> = newAwait {
+): Await<List<T>> = await {
     await().take(count)
 }
 
-fun <T> Await<out Iterable<T>>.toMutableList(): Await<MutableList<T>> = newAwait {
+fun <T> Await<out Iterable<T>>.toMutableList(): Await<MutableList<T>> = await {
     await().let {
         if (it is MutableList<T>) it
         else it.toMutableList()
@@ -339,7 +328,7 @@ fun <T> Await<out Iterable<T>>.toMutableList(): Await<MutableList<T>> = newAwait
  */
 fun <T> Await<T>.timeout(
     timeMillis: Long
-): Await<T> = newAwait {
+): Await<T> = await {
     withTimeout(timeMillis) { await() }
 }
 
@@ -353,7 +342,7 @@ fun <T> Await<T>.onErrorReturnItem(t: T): Await<T> = onErrorReturn { t }
  */
 inline fun <T> Await<T>.onErrorReturn(
     crossinline map: suspend (Throwable) -> T
-): Await<T> = newAwait {
+): Await<T> = await {
     try {
         await()
     } catch (e: Throwable) {
@@ -366,13 +355,13 @@ inline fun <T> Await<T>.onErrorReturn(
  */
 inline fun <T, R> Await<T>.map(
     crossinline map: suspend (T) -> R
-): Await<R> = newAwait {
+): Await<R> = await {
     map(await())
 }
 
 inline fun <T> Await<T>.onEach(
     crossinline each: suspend (T) -> Unit
-): Await<T> = newAwait {
+): Await<T> = await {
     await().also { each(it) }
 }
 
@@ -381,7 +370,7 @@ inline fun <T> Await<T>.onEach(
  *
  * @param timeMillis time in milliseconds.
  */
-fun <T> Await<T>.delay(timeMillis: Long): Await<T> = newAwait {
+fun <T> Await<T>.delay(timeMillis: Long): Await<T> = await {
     await().also { kotlinx.coroutines.delay(timeMillis) }
 }
 
@@ -390,7 +379,7 @@ fun <T> Await<T>.delay(timeMillis: Long): Await<T> = newAwait {
  *
  * @param timeMillis time in milliseconds.
  */
-fun <T> Await<T>.startDelay(timeMillis: Long): Await<T> = newAwait {
+fun <T> Await<T>.startDelay(timeMillis: Long): Await<T> = await {
     kotlinx.coroutines.delay(timeMillis)
     await()
 }
@@ -435,7 +424,7 @@ suspend fun <T> Await<T>.tryAwait(onCatch: ((Throwable) -> Unit)? = null): T? =
     }
 
 //return default value when an error occurs.
-suspend inline fun <T> Deferred<T>.await(onCatch: (Throwable) -> T): T =
+suspend inline fun <T> Deferred<T>.safeAwait(onCatch: (Throwable) -> T): T =
     try {
         await()
     } catch (e: Throwable) {
@@ -443,7 +432,7 @@ suspend inline fun <T> Deferred<T>.await(onCatch: (Throwable) -> T): T =
     }
 
 //return default value when an error occurs.
-suspend inline fun <T> Await<T>.await(onCatch: (Throwable) -> T): T =
+suspend inline fun <T> Await<T>.safeAwait(onCatch: (Throwable) -> T): T =
     try {
         await()
     } catch (e: Throwable) {
