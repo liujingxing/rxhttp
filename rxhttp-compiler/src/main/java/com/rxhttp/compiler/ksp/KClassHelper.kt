@@ -116,7 +116,7 @@ class KClassHelper(
                     asClass<Map<String, V>>(ParameterizedTypeImpl.getParameterized(MutableMap::class.java,String::class.java,vType))
 
                 fun <T> asList(tType: Class<T>) =
-                    asClass<List<T>>(ParameterizedTypeImpl[MutableList::class.java, tType])
+                    asClass<List<T>>(ParameterizedTypeImpl.get(MutableList::class.java, tType))
                 ${isAndroid("""
                 fun asBitmap() = asClass(Bitmap::class.java)
                 """)}

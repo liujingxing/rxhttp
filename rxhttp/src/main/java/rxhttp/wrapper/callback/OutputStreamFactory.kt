@@ -5,7 +5,6 @@ import android.net.Uri
 import okhttp3.Response
 import rxhttp.wrapper.OkHttpCompat
 import rxhttp.wrapper.entity.ExpandOutputStream
-import rxhttp.wrapper.entity.toOutputStream
 import rxhttp.wrapper.utils.isPartialContent
 import rxhttp.wrapper.utils.length
 import java.io.File
@@ -38,7 +37,7 @@ abstract class UriFactory(
     override fun offsetSize() = query().length(context)
 
     final override fun getOutputStream(response: Response): ExpandOutputStream<Uri> {
-        return insert(response).toOutputStream(context, response.isPartialContent())
+        return ExpandOutputStream.with(context, insert(response), response.isPartialContent())
     }
 }
 
@@ -49,7 +48,7 @@ class UriOutputStreamFactory(
     override fun offsetSize() = uri.length(context)
 
     override fun getOutputStream(response: Response): ExpandOutputStream<Uri> =
-        uri.toOutputStream(context, response.isPartialContent())
+        ExpandOutputStream.with(context, uri, response.isPartialContent())
 }
 
 class FileOutputStreamFactory(
@@ -63,7 +62,7 @@ class FileOutputStreamFactory(
             if (!parentFile.exists() && !parentFile.mkdirs()) {
                 throw IOException("Directory $parentFile create fail")
             }
-            toOutputStream(response.isPartialContent())
+            ExpandOutputStream.with(this, response.isPartialContent())
         }
 }
 

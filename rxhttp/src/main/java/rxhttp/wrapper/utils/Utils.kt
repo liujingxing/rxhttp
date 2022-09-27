@@ -1,3 +1,4 @@
+@file:JvmName("Utils")
 package rxhttp.wrapper.utils
 
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -88,7 +89,7 @@ fun getActualTypeParameters(clazz: Class<*>): Array<Type> {
 @OptIn(ExperimentalStdlibApi::class)
 inline fun <reified T> javaTypeOf(): Type = typeOf<T>().javaType
 
-internal val Type.javaObjectType: Type
+internal val Type.wrapType: Type
     get() {
         val type = this
         if (type !is Class<*> || !type.isPrimitive) return type
