@@ -11,6 +11,7 @@ import rxhttp.wrapper.callback.OutputStreamFactory
 import rxhttp.wrapper.callback.ProgressCallback
 import rxhttp.wrapper.coroutines.Await
 import rxhttp.wrapper.coroutines.AwaitImpl
+import rxhttp.wrapper.coroutines.setRangeHeader
 import rxhttp.wrapper.entity.Progress
 import rxhttp.wrapper.entity.ProgressT
 import rxhttp.wrapper.parse.Parser
@@ -67,23 +68,21 @@ fun <T> CallFactory.toDownload(
     progress: (suspend (Progress) -> Unit)? = null
 ): Await<T> = toFlow(osFactory, append, capacity, progress).toAwait()
 
-private fun <T> Flow<T>.toAwait(): Await<T> =
-    object : Await<T> {
-        override suspend fun await(): T {
-            var t: T? = null
-            collect { t = it }
-            return t!!
-        }
-    }
+private fun <T> Flow<T>.toAwait(): Await<T> = await {
+    var t: T? = null
+    collect { t = it }
+    t!!
+}
 
 internal fun <T> CallFactory.toSyncDownload(
     osFactory: OutputStreamFactory<T>,
+    append: Boolean = false,
     progressCallback: ((ProgressT<T>) -> Unit)? = null
 ): Await<T> {
+    setRangeHeader(osFactory, append)
     val parser = StreamParser(osFactory)
     if (progressCallback != null) {
         parser.progressCallback = ProgressCallback { progress, currentSize, totalSize ->
-            //LogUtil.logDownProgress(progress, currentSize, totalSize)
             val p = ProgressT<T>(progress, currentSize, totalSize)
             progressCallback(p)
         }

@@ -20,7 +20,6 @@ import rxhttp.wrapper.callback.FileOutputStreamFactory
 import rxhttp.wrapper.callback.OutputStreamFactory
 import rxhttp.wrapper.callback.UriOutputStreamFactory
 import rxhttp.wrapper.coroutines.Await
-import rxhttp.wrapper.coroutines.setRangeHeader
 import rxhttp.wrapper.entity.Progress
 import rxhttp.wrapper.entity.ProgressT
 import rxhttp.wrapper.parse.Parser
@@ -97,8 +96,8 @@ fun <T> CallFactory.toFlow(
 ): Flow<T> =
     if (progress == null) {
         flow {
-            setRangeHeader(osFactory, append)
-            emit(toSyncDownload(osFactory).await())
+            val await = toSyncDownload(osFactory, append)
+            emit(await.await())
         }.flowOn(Dispatchers.IO)
     } else {
         toFlowProgress(osFactory, append, capacity)
@@ -124,8 +123,7 @@ fun <T> CallFactory.toFlowProgress(
     capacity: Int = 1
 ): Flow<ProgressT<T>> =
     channelFlow {
-        setRangeHeader(osFactory, append)
-        val await = toSyncDownload(osFactory) { trySend(it) }
+        val await = toSyncDownload(osFactory, append) { trySend(it) }
         trySend(ProgressT(await.await()))
     }
         .buffer(capacity, BufferOverflow.DROP_OLDEST)
