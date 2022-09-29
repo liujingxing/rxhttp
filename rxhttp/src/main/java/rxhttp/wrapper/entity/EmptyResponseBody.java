@@ -11,11 +11,11 @@ import okio.BufferedSource;
  * Date: 2022/9/5
  * Time: 15:14
  */
-public final class NoContentResponseBody extends ResponseBody {
+public final class EmptyResponseBody extends ResponseBody {
     private final @Nullable MediaType contentType;
     private final long contentLength;
 
-    public NoContentResponseBody(@Nullable MediaType contentType, long contentLength) {
+    public EmptyResponseBody(@Nullable MediaType contentType, long contentLength) {
         this.contentType = contentType;
         this.contentLength = contentLength;
     }

@@ -7,7 +7,7 @@ import java.io.IOException;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import rxhttp.wrapper.OkHttpCompat;
-import rxhttp.wrapper.entity.NoContentResponseBody;
+import rxhttp.wrapper.entity.EmptyResponseBody;
 import rxhttp.wrapper.entity.OkResponse;
 
 /**
@@ -24,33 +24,33 @@ public class OkResponseParser<T> implements Parser<OkResponse<T>> {
     }
 
     @Override
-    public OkResponse<T> onParse(@NotNull Response rawResponse) throws IOException {
-        ResponseBody rawBody = rawResponse.body();
+    public OkResponse<T> onParse(@NotNull Response response) throws IOException {
+        ResponseBody rawBody = response.body();
 
         // Remove the body's source (the only stateful object) so we can pass the response along.
-        rawResponse =
-            rawResponse
+        Response emptyResponse =
+            response
                 .newBuilder()
-                .body(new NoContentResponseBody(rawBody.contentType(), rawBody.contentLength()))
+                .body(new EmptyResponseBody(rawBody.contentType(), rawBody.contentLength()))
                 .build();
 
 
-        if (!rawResponse.isSuccessful()) {
+        if (!emptyResponse.isSuccessful()) {
             try {
                 // Buffer the entire body to avoid future I/O.
                 ResponseBody bufferedBody = OkHttpCompat.buffer(rawBody);
-                return OkResponse.error(bufferedBody, rawResponse);
+                return OkResponse.error(bufferedBody, emptyResponse);
             } finally {
                 rawBody.close();
             }
         }
-        int code = rawResponse.code();
+        int code = emptyResponse.code();
         if (code == 204 || code == 205) {
             rawBody.close();
-            return OkResponse.success(null, rawResponse);
+            return OkResponse.success(null, emptyResponse);
         }
 
-        T body = parser.onParse(rawResponse);
-        return OkResponse.success(body, rawResponse);
+        T body = parser.onParse(response);
+        return OkResponse.success(body, emptyResponse);
     }
 }
