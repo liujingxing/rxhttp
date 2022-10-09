@@ -20,6 +20,7 @@ import com.google.gson.Gson
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 import rxhttp.toFlow
+import rxhttp.toDownloadFlow
 import rxhttp.wrapper.param.RxHttp
 import rxhttp.wrapper.param.toFlowResponse
 import java.io.File
@@ -202,7 +203,7 @@ class FlowFragment : BaseFragment<FlowFragmentBinding>(), View.OnClickListener {
     private suspend fun FlowFragmentBinding.download(view: View) {
         val destPath = "${requireContext().externalCacheDir}/${System.currentTimeMillis()}.apk"
         RxHttp.get(Url.DOWNLOAD_URL)
-            .toFlow(destPath) {
+            .toDownloadFlow(destPath) {
                 val currentProgress = it.progress //当前进度 0-100
                 val currentSize = it.currentSize //当前已下载的字节大小
                 val totalSize = it.totalSize //要下载的总字节大小
@@ -224,7 +225,7 @@ class FlowFragment : BaseFragment<FlowFragmentBinding>(), View.OnClickListener {
     private suspend fun FlowFragmentBinding.appendDownload(view: View) {
         val destPath = "${requireContext().externalCacheDir}/Miaobo.apk"
         RxHttp.get(Url.DOWNLOAD_URL)
-            .toFlow(destPath, true) {
+            .toDownloadFlow(destPath, true) {
                 val currentProgress = it.progress //当前进度 0-100
                 val currentSize = it.currentSize //当前已下载的字节大小
                 val totalSize = it.totalSize //要下载的总字节大小
@@ -245,7 +246,7 @@ class FlowFragment : BaseFragment<FlowFragmentBinding>(), View.OnClickListener {
     private suspend fun FlowFragmentBinding.downloadAndroid10(view: View) {
         val factory = Android10DownloadFactory(requireContext(), "miaobo.apk")
         RxHttp.get(Url.DOWNLOAD_URL)
-            .toFlow(factory) {
+            .toDownloadFlow(factory) {
                 val currentProgress = it.progress //当前进度 0-100
                 val currentSize = it.currentSize //当前已下载的字节大小
                 val totalSize = it.totalSize //要下载的总字节大小
@@ -266,7 +267,7 @@ class FlowFragment : BaseFragment<FlowFragmentBinding>(), View.OnClickListener {
     private suspend fun FlowFragmentBinding.appendDownloadAndroid10(view: View) {
         val factory = Android10DownloadFactory(requireContext(), "miaobo.apk")
         RxHttp.get(Url.DOWNLOAD_URL)
-            .toFlow(factory, true) {
+            .toDownloadFlow(factory, true) {
                 val currentProgress = it.progress //当前进度 0-100
                 val currentSize = it.currentSize //当前已下载的字节大小
                 val totalSize = it.totalSize //要下载的总字节大小

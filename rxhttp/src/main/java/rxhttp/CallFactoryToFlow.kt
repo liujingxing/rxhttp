@@ -73,22 +73,22 @@ fun <T> BodyParamFactory.toFlowProgress(
  * @param capacity capacity of the buffer between coroutines
  * @param progress Progress callback in suspend method, The callback thread depends on the coroutine thread
  */
-fun CallFactory.toFlow(
+fun CallFactory.toDownloadFlow(
     destPath: String,
     append: Boolean = false,
     capacity: Int = 1,
     progress: (suspend (Progress) -> Unit)? = null
-): Flow<String> = toFlow(FileOutputStreamFactory(destPath), append, capacity, progress)
+): Flow<String> = toDownloadFlow(FileOutputStreamFactory(destPath), append, capacity, progress)
 
-fun CallFactory.toFlow(
+fun CallFactory.toDownloadFlow(
     context: Context,
     uri: Uri,
     append: Boolean = false,
     capacity: Int = 1,
     progress: (suspend (Progress) -> Unit)? = null
-): Flow<Uri> = toFlow(UriOutputStreamFactory(context, uri), append, capacity, progress)
+): Flow<Uri> = toDownloadFlow(UriOutputStreamFactory(context, uri), append, capacity, progress)
 
-fun <T> CallFactory.toFlow(
+fun <T> CallFactory.toDownloadFlow(
     osFactory: OutputStreamFactory<T>,
     append: Boolean = false,
     capacity: Int = 1,

@@ -211,7 +211,7 @@ class AwaitFragment : BaseFragment<AwaitFragmentBinding>(), View.OnClickListener
     private suspend fun AwaitFragmentBinding.download(view: View) {
         val destPath = "${requireContext().externalCacheDir}/${System.currentTimeMillis()}.apk"
         RxHttp.get(Url.DOWNLOAD_URL)
-            .toAwait(destPath) {
+            .toDownloadAwait(destPath) {
                 val currentProgress = it.progress //当前进度 0-100
                 val currentSize = it.currentSize //当前已下载的字节大小
                 val totalSize = it.totalSize //要下载的总字节大小
@@ -233,7 +233,7 @@ class AwaitFragment : BaseFragment<AwaitFragmentBinding>(), View.OnClickListener
     private suspend fun AwaitFragmentBinding.appendDownload(view: View) {
         val destPath = "${requireContext().externalCacheDir}/Miaobo.apk"
         RxHttp.get(Url.DOWNLOAD_URL)
-            .toAwait(destPath, true) {
+            .toDownloadAwait(destPath, true) {
                 val currentProgress = it.progress //当前进度 0-100
                 val currentSize = it.currentSize //当前已下载的字节大小
                 val totalSize = it.totalSize //要下载的总字节大小
@@ -254,7 +254,7 @@ class AwaitFragment : BaseFragment<AwaitFragmentBinding>(), View.OnClickListener
     private suspend fun AwaitFragmentBinding.downloadAndroid10(view: View) {
         val factory = Android10DownloadFactory(requireContext(), "miaobo.apk")
         RxHttp.get(Url.DOWNLOAD_URL)
-            .toAwait(factory) {
+            .toDownloadAwait(factory) {
                 val currentProgress = it.progress //当前进度 0-100
                 val currentSize = it.currentSize //当前已下载的字节大小
                 val totalSize = it.totalSize //要下载的总字节大小
@@ -275,7 +275,7 @@ class AwaitFragment : BaseFragment<AwaitFragmentBinding>(), View.OnClickListener
     private suspend fun AwaitFragmentBinding.appendDownloadAndroid10(view: View) {
         val factory = Android10DownloadFactory(requireContext(), "miaobo.apk")
         RxHttp.get(Url.DOWNLOAD_URL)
-            .toAwait(factory, true) {
+            .toDownloadAwait(factory, true) {
                 val currentProgress = it.progress //当前进度 0-100
                 val currentSize = it.currentSize //当前已下载的字节大小
                 val totalSize = it.totalSize //要下载的总字节大小
