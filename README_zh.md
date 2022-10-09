@@ -124,7 +124,7 @@
 | 学习成本| 低 | 高|
 | 扩展性| 高| 高|
 | 源码大小| 81k | 75k |
-| jar包大小| 276k | 125k |
+| jar包大小| 269k | 123k |
 | RxJava| RxJava  ❌<br>RxJava2✅<br>RxJava3✅| RxJava  ✅<br>RxJava2✅<br>RxJava3✅|
 | Kotlin协程| ✅ | ✅ |
 | Flow流| ✅ | ✅ |
@@ -194,7 +194,7 @@ android {
 }
 //3、添加依赖
 dependencies {
-    def rxhttp_version = '2.9.3'
+    def rxhttp_version = '2.9.5'
     implementation 'com.squareup.okhttp3:okhttp:4.10.0'  
     implementation "com.github.liujingxing.rxhttp:rxhttp:$rxhttp_version"
     annotationProcessor "com.github.liujingxing.rxhttp:rxhttp-compiler:$rxhttp_version"
@@ -226,7 +226,7 @@ plugins {
 }
  
 dependencies {
-    def rxhttp_version = '2.9.3'
+    def rxhttp_version = '2.9.5'
     implementation 'com.squareup.okhttp3:okhttp:4.10.0'  
     implementation "com.github.liujingxing.rxhttp:rxhttp:$rxhttp_version"
     kapt "com.github.liujingxing.rxhttp:rxhttp-compiler:$rxhttp_version"
