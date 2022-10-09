@@ -22,7 +22,7 @@ private class SafeAwait<T>(private val block: suspend () -> T) : Await<T> {
     override suspend fun await(): T = block()
 }
 
-fun <T> await(block: suspend () -> T): Await<T> = SafeAwait(block)
+fun <T> newAwait(block: suspend () -> T): Await<T> = SafeAwait(block)
 
 /**
  * @param times  retry times, default Long.MAX_VALUE Always try again
@@ -56,7 +56,7 @@ fun <T> Await<T>.retry(
 
 fun <T> Await<T>.onStart(
     action: suspend () -> Unit
-): Await<T> = await {
+): Await<T> = newAwait {
     action()
     await()
 }
@@ -112,7 +112,7 @@ fun <T> Await<T>.repeat(
  */
 fun <T> Await<T>.flowOn(
     context: CoroutineContext
-): Await<T> = await {
+): Await<T> = newAwait {
     withContext(context) { await() }
 }
 
@@ -131,7 +131,7 @@ fun <T> Await<T>.asFlow(): Flow<T> = flow {
  */
 fun <T> Await<T>.timeout(
     timeMillis: Long
-): Await<T> = await {
+): Await<T> = newAwait {
     withTimeout(timeMillis) { await() }
 }
 
@@ -145,7 +145,7 @@ fun <T> Await<T>.onErrorReturnItem(t: T): Await<T> = onErrorReturn { t }
  */
 inline fun <T> Await<T>.onErrorReturn(
     crossinline map: suspend (Throwable) -> T
-): Await<T> = await {
+): Await<T> = newAwait {
     try {
         await()
     } catch (e: Throwable) {
@@ -158,13 +158,13 @@ inline fun <T> Await<T>.onErrorReturn(
  */
 inline fun <T, R> Await<T>.map(
     crossinline map: suspend (T) -> R
-): Await<R> = await {
+): Await<R> = newAwait {
     map(await())
 }
 
 inline fun <T> Await<T>.onEach(
     crossinline each: suspend (T) -> Unit
-): Await<T> = await {
+): Await<T> = newAwait {
     await().also { each(it) }
 }
 
@@ -173,7 +173,7 @@ inline fun <T> Await<T>.onEach(
  *
  * @param timeMillis time in milliseconds.
  */
-fun <T> Await<T>.delay(timeMillis: Long): Await<T> = await {
+fun <T> Await<T>.delay(timeMillis: Long): Await<T> = newAwait {
     await().also { kotlinx.coroutines.delay(timeMillis) }
 }
 
@@ -182,7 +182,7 @@ fun <T> Await<T>.delay(timeMillis: Long): Await<T> = await {
  *
  * @param timeMillis time in milliseconds.
  */
-fun <T> Await<T>.startDelay(timeMillis: Long): Await<T> = await {
+fun <T> Await<T>.startDelay(timeMillis: Long): Await<T> = newAwait {
     kotlinx.coroutines.delay(timeMillis)
     await()
 }

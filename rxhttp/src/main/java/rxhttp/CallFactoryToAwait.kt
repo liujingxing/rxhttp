@@ -68,7 +68,7 @@ fun <T> CallFactory.toDownload(
     progress: (suspend (Progress) -> Unit)? = null
 ): Await<T> = toFlow(osFactory, append, capacity, progress).toAwait()
 
-private fun <T> Flow<T>.toAwait(): Await<T> = await {
+private fun <T> Flow<T>.toAwait(): Await<T> = newAwait {
     var t: T? = null
     collect { t = it }
     t!!
