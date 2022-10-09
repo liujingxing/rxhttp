@@ -42,12 +42,6 @@ inline fun <reified T> CallFactory.toFlowList(): Flow<List<T>> = toFlow()
 
 inline fun <reified V> CallFactory.toFlowMapString(): Flow<Map<String, V>> = toFlow()
 
-fun CallFactory.toFlowBitmap(): Flow<Bitmap> = toFlow()
-
-fun CallFactory.toFlowHeaders(): Flow<Headers> = toFlow()
-
-fun CallFactory.toFlowOkResponse(): Flow<Response> = toFlow()
-
 fun <T> toFlow(await: Await<T>): Flow<T> = await.asFlow()
 
 inline fun <reified T> BodyParamFactory.toFlow(

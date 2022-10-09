@@ -1,7 +1,6 @@
 package rxhttp.wrapper.param
 
 import android.content.Context
-import android.graphics.Bitmap
 import android.net.Uri
 
 import io.reactivex.rxjava3.core.Observable
@@ -9,8 +8,6 @@ import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.functions.Consumer
 import io.reactivex.rxjava3.plugins.RxJavaPlugins
 import io.reactivex.rxjava3.schedulers.Schedulers
-import okhttp3.Headers
-import okhttp3.Response
 import rxhttp.wrapper.CallFactory
 import rxhttp.wrapper.callback.FileOutputStreamFactory
 import rxhttp.wrapper.callback.OutputStreamFactory
@@ -60,12 +57,6 @@ abstract class BaseRxHttp : CallFactory, RangeHeader {
 
     fun <T> toObservableList(tType: Class<T>) =
         toObservable<List<T>>(ParameterizedTypeImpl.get(MutableList::class.java, tType))
-    
-    fun toObservableBitmap() = toObservable(Bitmap::class.java)
-    
-    fun toObservableOkResponse() = toObservable(Response::class.java)
-
-    fun toObservableHeaders() = toObservable(Headers::class.java)
 
     @JvmOverloads
     fun toDownloadObservable(

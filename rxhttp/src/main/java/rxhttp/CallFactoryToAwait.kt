@@ -34,12 +34,6 @@ inline fun <reified T> CallFactory.toAwaitList(): Await<MutableList<T>> = toAwai
 
 inline fun <reified V> CallFactory.toAwaitMapString(): Await<Map<String, V>> = toAwait()
 
-fun CallFactory.toAwaitBitmap(): Await<Bitmap> = toAwait()
-
-fun CallFactory.toAwaitHeaders(): Await<Headers> = toAwait()
-
-fun CallFactory.toAwaitOkResponse(): Await<Response> = toAwait()
-
 /**
  * @param destPath Local storage path
  * @param append is append download

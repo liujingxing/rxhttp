@@ -58,7 +58,6 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
             package $rxHttpPackage;
             ${isAndroid("""
             import android.content.Context;
-            import android.graphics.Bitmap;
             import android.net.Uri;
             """)}
             import java.lang.reflect.Type;
@@ -70,8 +69,6 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
             import ${getClassPath("Consumer")};
             import ${getClassPath("RxJavaPlugins")};
             import ${getClassPath("Schedulers")};
-            import okhttp3.Headers;
-            import okhttp3.Response;
             import rxhttp.wrapper.CallFactory;
             import rxhttp.wrapper.OkHttpCompat;
             import rxhttp.wrapper.callback.FileOutputStreamFactory;
@@ -130,18 +127,6 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
                 public final <T> ObservableCall<List<T>> toObservableList(Class<T> tType) {
                     Type tTypeList = ParameterizedTypeImpl.get(List.class, tType);
                     return toObservable(tTypeList);
-                }
-                ${isAndroid("""
-                public final ObservableCall<Bitmap> toObservableBitmap() {
-                    return toObservable(Bitmap.class);
-                }
-                """)}
-                public final ObservableCall<Response> toObservableOkResponse() {
-                    return toObservable(Response.class);
-                }
-
-                public final ObservableCall<Headers> toObservableHeaders() {               
-                    return toObservable(Headers.class);                                        
                 }
                 
                 public final ObservableCall<String> toDownloadObservable(String destPath) {

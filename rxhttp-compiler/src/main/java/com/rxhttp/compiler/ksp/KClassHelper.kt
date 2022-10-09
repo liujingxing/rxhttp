@@ -58,7 +58,6 @@ class KClassHelper(
             package $rxHttpPackage
             ${isAndroid("""
             import android.content.Context
-            import android.graphics.Bitmap
             import android.net.Uri
             """)}
             import ${getClassPath("Observable")}
@@ -66,8 +65,6 @@ class KClassHelper(
             import ${getClassPath("Consumer")}
             import ${getClassPath("RxJavaPlugins")}
             import ${getClassPath("Schedulers")}
-            import okhttp3.Headers
-            import okhttp3.Response
             import rxhttp.wrapper.CallFactory
             import rxhttp.wrapper.callback.FileOutputStreamFactory
             import rxhttp.wrapper.callback.OutputStreamFactory
@@ -117,12 +114,6 @@ class KClassHelper(
 
                 fun <T> toObservableList(tType: Class<T>) =
                     toObservable<List<T>>(ParameterizedTypeImpl.get(MutableList::class.java, tType))
-                ${isAndroid("""
-                fun toObservableBitmap() = toObservable(Bitmap::class.java)
-                """)}
-                fun toObservableOkResponse() = toObservable(Response::class.java)
-
-                fun toObservableHeaders() = toObservable(Headers::class.java)
 
                 @JvmOverloads
                 fun toDownloadObservable(
