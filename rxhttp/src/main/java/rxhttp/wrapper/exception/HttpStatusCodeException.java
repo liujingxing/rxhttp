@@ -1,7 +1,5 @@
 package rxhttp.wrapper.exception;
 
-import org.jetbrains.annotations.Nullable;
-
 import java.io.IOException;
 
 import okhttp3.Headers;
@@ -42,7 +40,6 @@ public final class HttpStatusCodeException extends IOException {
         body = response.body();
     }
 
-    @Nullable
     @Override
     public String getLocalizedMessage() {
         return String.valueOf(statusCode);
