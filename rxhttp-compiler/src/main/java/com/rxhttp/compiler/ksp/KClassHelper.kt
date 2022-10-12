@@ -348,11 +348,7 @@ class KClassHelper(
                 }
 
                 fun addFile(upFile: UpFile) = apply {
-                    val file = upFile.file
-                    require(file.exists()) { "File '${'$'}{file.absolutePath}' does not exist" }
-                    require(file.isFile) { "File '${'$'}{file.absolutePath}' is not a file" }
-                
-                    val requestBody = FileRequestBody(file, upFile.skipSize, BuildUtil.getMediaType(upFile.filename))
+                    val requestBody = FileRequestBody(upFile.file, upFile.skipSize, BuildUtil.getMediaType(upFile.filename))
                     return addFormDataPart(upFile.key, upFile.filename, requestBody)
                 }
                 

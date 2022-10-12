@@ -419,13 +419,7 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
                 }
 
                 public RxHttpFormParam addFile(UpFile upFile) {
-                    File file = upFile.getFile();
-                    if (!file.exists())
-                        throw new IllegalArgumentException("File '" + file.getAbsolutePath() + "' does not exist");
-                    if (!file.isFile())
-                        throw new IllegalArgumentException("File '" + file.getAbsolutePath() + "' is not a file");
-                    
-                    RequestBody requestBody = new FileRequestBody(file, upFile.getSkipSize(),
+                    RequestBody requestBody = new FileRequestBody(upFile.getFile(), upFile.getSkipSize(),
                         BuildUtil.getMediaType(upFile.getFilename()));
                     return addFormDataPart(upFile.getKey(), upFile.getFilename(), requestBody);
                 }
