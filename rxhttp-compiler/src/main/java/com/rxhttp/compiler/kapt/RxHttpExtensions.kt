@@ -35,15 +35,12 @@ class RxHttpExtensions {
 
     private val baseRxHttpName = ClassName(rxHttpPackage, "BaseRxHttp")
     private val callFactoryName = ClassName("rxhttp.wrapper", "CallFactory")
-    private val wildcard = TypeVariableName("*")
-    private val rxHttpBodyParamName = ClassName(rxHttpPackage, "RxHttpAbstractBodyParam")
-        .parameterizedBy(wildcard, wildcard)
     private val progressName = ClassName("rxhttp.wrapper.entity", "Progress")
     private val toFunList = ArrayList<FunSpec>()
     private val asFunList = ArrayList<FunSpec>()
     private val wrapFunList = ArrayList<FunSpec>()
 
-    //根据@Parser注解，生成asXxx()、toXxx()、toFlowXxx()系列方法
+    //根据@Parser注解，生成toObservableXxx()、toAwaitXxx()、toFlowXxx()系列方法
     fun generateRxHttpExtendFun(typeElement: TypeElement, key: String) {
 
         //遍历获取泛型类型
@@ -112,10 +109,9 @@ class RxHttpExtensions {
             if (typeVariableNames.isNotEmpty() && isDependenceRxJava()) {  //对声明了泛型的解析器，生成kotlin编写的asXxx方法
                 val asXxxFunName = "toObservable$key"
                 val asXxxFunBody = "return $asXxxFunName$types($finalParams)"
-                val rxHttpName = rxhttpKClassName.parameterizedBy(wildcard, wildcard)
                 FunSpec.builder(asXxxFunName)
                     .addModifiers(modifiers)
-                    .receiver(rxHttpName)
+                    .receiver(baseRxHttpName)
                     .addParameters(parameterList)
                     .addStatement(asXxxFunBody) //方法里面的表达式
                     .addTypeVariables(typeVariableNames.getTypeVariableNames())
@@ -212,10 +208,9 @@ class RxHttpExtensions {
             .addImport("rxhttp.wrapper.utils", "javaTypeOf")
             .addImport("rxhttp", "toAwait")
 
-        val rxHttpName = rxhttpKClassName.parameterizedBy(wildcard, wildcard)
         FunSpec.builder("executeList")
             .addModifiers(KModifier.INLINE)
-            .receiver(rxHttpName)
+            .receiver(baseRxHttpName)
             .addTypeVariable(reifiedT)
             .addStatement("return executeClass<List<T>>()")
             .build()
@@ -223,7 +218,7 @@ class RxHttpExtensions {
 
         FunSpec.builder("executeClass")
             .addModifiers(KModifier.INLINE)
-            .receiver(rxHttpName)
+            .receiver(baseRxHttpName)
             .addTypeVariable(reifiedT)
             .addStatement("return executeClass<T>(javaTypeOf<T>())")
             .build()

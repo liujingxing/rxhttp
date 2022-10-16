@@ -1,5 +1,6 @@
 package com.rxhttp.compiler
 
+import com.rxhttp.compiler.kapt.BaseRxHttpGenerator
 import com.rxhttp.compiler.kapt.ClassHelper
 import com.rxhttp.compiler.kapt.ConverterVisitor
 import com.rxhttp.compiler.kapt.DefaultDomainVisitor
@@ -15,7 +16,6 @@ import rxhttp.wrapper.annotation.Domain
 import rxhttp.wrapper.annotation.OkClient
 import rxhttp.wrapper.annotation.Param
 import rxhttp.wrapper.annotation.Parser
-import java.util.*
 import javax.annotation.processing.AbstractProcessor
 import javax.annotation.processing.Filer
 import javax.annotation.processing.Messager
@@ -149,11 +149,15 @@ open class KaptProcessor : AbstractProcessor() {
             //Generate RxHttp.java
             RxHttpGenerator().apply {
                 this.paramsVisitor = paramsVisitor
-                this.parserVisitor = parserVisitor
                 this.converterVisitor = converterVisitor
                 this.domainVisitor = domainVisitor
                 this.defaultDomainVisitor = defaultDomainVisitor
                 this.okClientVisitor = okClientVisitor
+            }.generateCode(filer)
+
+            //Generate BaseRxHttp.java
+            BaseRxHttpGenerator(isAndroidPlatform()).apply {
+                this.parserVisitor = parserVisitor
             }.generateCode(filer)
 
             // 生成 RxHttp 封装类

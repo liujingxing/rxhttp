@@ -98,11 +98,14 @@ class KspProcessor(private val env: SymbolProcessorEnvironment) : SymbolProcesso
         KClassHelper(true, ksFileSet).generatorStaticClass(codeGenerator)
         RxHttpGenerator(logger, ksFileSet).apply {
             this.paramsVisitor = paramsVisitor
-            this.parserVisitor = parserVisitor
             this.domainVisitor = domainVisitor
             this.okClientVisitor = okClientVisitor
             this.converterVisitor = converterVisitor
             this.defaultDomainVisitor = defaultDomainVisitor
+        }.generateCode(codeGenerator)
+
+        BaseRxHttpGenerator(logger, true, ksFileSet).apply {
+            this.parserVisitor = parserVisitor
         }.generateCode(codeGenerator)
         processed = true
         return emptyList()

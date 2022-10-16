@@ -17,9 +17,9 @@ import rxhttp.wrapper.parse.OkResponseParser
 import rxhttp.wrapper.parse.Parser
 import rxhttp.wrapper.utils.javaTypeOf
 
-public inline fun <reified T> RxHttp<*, *>.executeList() = executeClass<List<T>>()
+public inline fun <reified T> BaseRxHttp.executeList() = executeClass<List<T>>()
 
-public inline fun <reified T> RxHttp<*, *>.executeClass() = executeClass<T>(javaTypeOf<T>())
+public inline fun <reified T> BaseRxHttp.executeClass() = executeClass<T>(javaTypeOf<T>())
 
 public inline fun <reified T> BaseRxHttp.toObservableList() = toObservable<List<T>>()
 
@@ -27,7 +27,7 @@ public inline fun <reified V> BaseRxHttp.toObservableMapString() = toObservable<
 
 public inline fun <reified T> BaseRxHttp.toObservable() = toObservable<T>(javaTypeOf<T>())
 
-public inline fun <reified T> RxHttp<*, *>.toObservableResponse() =
+public inline fun <reified T> BaseRxHttp.toObservableResponse() =
     toObservableResponse<T>(javaTypeOf<T>())
 
 @Suppress("UNCHECKED_CAST")

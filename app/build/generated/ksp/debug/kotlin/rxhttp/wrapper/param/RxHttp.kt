@@ -7,11 +7,8 @@ import com.example.httpsender.`param`.GetEncryptParam
 import com.example.httpsender.`param`.PostEncryptFormParam
 import com.example.httpsender.`param`.PostEncryptJsonParam
 import com.example.httpsender.`param`.PostEncryptJsonParam1
-import com.example.httpsender.entity.PageList
 import com.example.httpsender.entity.Url.baseUrl
-import java.io.IOException
 import java.lang.Class
-import java.lang.reflect.Type
 import java.util.concurrent.TimeUnit
 import kotlin.Any
 import kotlin.Boolean
@@ -24,24 +21,19 @@ import kotlin.collections.Map
 import kotlin.jvm.JvmName
 import kotlin.jvm.JvmOverloads
 import kotlin.jvm.JvmStatic
-import kotlin.jvm.Throws
 import okhttp3.CacheControl
 import okhttp3.Call
 import okhttp3.Headers
 import okhttp3.Headers.Builder
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import okhttp3.Response
 import rxhttp.RxHttpPlugins
 import rxhttp.wrapper.cahce.CacheMode
 import rxhttp.wrapper.cahce.CacheStrategy
 import rxhttp.wrapper.callback.Converter
 import rxhttp.wrapper.entity.DownloadOffSize
-import rxhttp.wrapper.entity.ParameterizedTypeImpl
 import rxhttp.wrapper.intercept.CacheInterceptor
 import rxhttp.wrapper.intercept.LogInterceptor
-import rxhttp.wrapper.parse.Parser
-import rxhttp.wrapper.parse.SmartParser
 import rxhttp.wrapper.utils.LogUtil
 
 /**
@@ -348,27 +340,6 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
     return this as R
   }
 
-  @Throws(IOException::class)
-  public fun execute(): Response = newCall().execute()
-
-  @Throws(IOException::class)
-  public fun <T> execute(parser: Parser<T>): T = parser.onParse(execute())
-
-  @Throws(IOException::class)
-  public fun executeString(): String = executeClass(String::class.java)
-
-  @Throws(IOException::class)
-  public fun <T> executeList(clazz: Class<T>): List<T> {
-    val tTypeList = ParameterizedTypeImpl.get(List::class.java, clazz)
-    return executeClass(tTypeList)
-  }
-
-  @Throws(IOException::class)
-  public fun <T> executeClass(clazz: Class<T>): T = executeClass(clazz as Type)
-
-  @Throws(IOException::class)
-  public fun <T> executeClass(type: Type): T = execute(SmartParser.wrap(type))
-
   public override fun newCall(): Call {
     val request = buildRequest()
     return okHttpClient.newCall(request)
@@ -388,21 +359,6 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
   private fun doOnStart(): Unit {
     setConverterToParam(converter)
     addDefaultDomainIfAbsent()
-  }
-
-  public fun <T> toObservableResponse(type: Type) = toObservable(wrapResponseParser<T>(type))
-
-  public fun <T> toObservableResponse(type: Class<T>): ObservableCall<T> = toObservableResponse(type
-      as Type)
-
-  public fun <T> toObservableResponseList(type: Class<T>): ObservableCall<List<T>> {
-    val typeList = ParameterizedTypeImpl.get(List::class.java, type)
-    return toObservableResponse(typeList)
-  }
-
-  public fun <T> toObservableResponsePageList(type: Class<T>): ObservableCall<PageList<T>> {
-    val typePageList = ParameterizedTypeImpl.get(PageList::class.java, type)
-    return toObservableResponse(typePageList)
   }
 
   public fun setXmlConverter() = setConverter(xmlConverter)

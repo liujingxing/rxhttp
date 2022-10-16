@@ -25,7 +25,6 @@ import kotlin.apply
 
 class RxHttpGenerator {
     var paramsVisitor: ParamsVisitor? = null
-    var parserVisitor: ParserVisitor? = null
     var domainVisitor: DomainVisitor? = null
     var converterVisitor: ConverterVisitor? = null
     var okClientVisitor: OkClientVisitor? = null
@@ -45,7 +44,6 @@ class RxHttpGenerator {
         val headerBuilderName = ClassName.get("okhttp3", "Headers.Builder")
         val cacheControlName = ClassName.get("okhttp3", "CacheControl")
         val callName = ClassName.get("okhttp3", "Call")
-        val responseName = ClassName.get("okhttp3", "Response")
 
         val timeUnitName = ClassName.get("java.util.concurrent", "TimeUnit")
 
@@ -69,19 +67,8 @@ class RxHttpGenerator {
         val mapName = ParameterizedTypeName.get(map, string, wildcard)
         val mapStringName = ParameterizedTypeName.get(map, string, string)
 
-        val classTName = ParameterizedTypeName.get(className, t)
-
-        val listTName = ParameterizedTypeName.get(list, t)
-
-        val parserName = ClassName.get("rxhttp.wrapper.parse", "Parser")
-        val progressName = ClassName.get("rxhttp.wrapper.entity", "Progress")
         val logUtilName = ClassName.get("rxhttp.wrapper.utils", "LogUtil")
         val logInterceptorName = ClassName.get("rxhttp.wrapper.intercept", "LogInterceptor")
-        val parserTName = ParameterizedTypeName.get(parserName, t)
-        val smartParserName = ClassName.get("rxhttp.wrapper.parse", "SmartParser")
-        val type = ClassName.get("java.lang.reflect", "Type")
-        val parameterizedType = ClassName.get("rxhttp.wrapper.entity", "ParameterizedTypeImpl")
-
 
         val methodList = ArrayList<MethodSpec>() //方法集合
 
@@ -627,63 +614,6 @@ class RxHttpGenerator {
             .build()
             .apply { methodList.add(this) }
 
-        MethodSpec.methodBuilder("execute")
-            .addModifiers(Modifier.PUBLIC)
-            .addException(IOException::class.java)
-            .addStatement("return newCall().execute()")
-            .returns(responseName)
-            .build()
-            .apply { methodList.add(this) }
-
-        MethodSpec.methodBuilder("execute")
-            .addModifiers(Modifier.PUBLIC)
-            .addTypeVariable(t)
-            .addException(IOException::class.java)
-            .addParameter(parserTName, "parser")
-            .addStatement("return parser.onParse(execute())")
-            .returns(t)
-            .build()
-            .apply { methodList.add(this) }
-
-        MethodSpec.methodBuilder("executeString")
-            .addModifiers(Modifier.PUBLIC)
-            .addException(IOException::class.java)
-            .addStatement("return executeClass(String.class)")
-            .returns(string)
-            .build()
-            .apply { methodList.add(this) }
-
-        MethodSpec.methodBuilder("executeList")
-            .addModifiers(Modifier.PUBLIC)
-            .addTypeVariable(t)
-            .addException(IOException::class.java)
-            .addParameter(classTName, "clazz")
-            .addStatement("\$T tTypeList = \$T.get(List.class, clazz)", type, parameterizedType)
-            .addStatement("return executeClass(tTypeList)")
-            .returns(listTName)
-            .build()
-            .apply { methodList.add(this) }
-
-        MethodSpec.methodBuilder("executeClass")
-            .addModifiers(Modifier.PUBLIC)
-            .addTypeVariable(t)
-            .addException(IOException::class.java)
-            .addParameter(classTName, "clazz")
-            .addStatement("return executeClass((Type) clazz)")
-            .returns(t)
-            .build()
-            .apply { methodList.add(this) }
-
-        MethodSpec.methodBuilder("executeClass")
-            .addModifiers(Modifier.PUBLIC)
-            .addTypeVariable(t)
-            .addException(IOException::class.java)
-            .addParameter(type, "type")
-            .addStatement("return execute(\$T.wrap(type))", smartParserName)
-            .returns(t)
-            .build()
-            .apply { methodList.add(this) }
-
         MethodSpec.methodBuilder("newCall")
             .addAnnotation(Override::class.java)
             .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
@@ -767,10 +697,6 @@ class RxHttpGenerator {
             .addStatement("addDefaultDomainIfAbsent()")
             .build()
             .apply { methodList.add(this) }
-
-        parserVisitor?.apply {
-            methodList.addAll(getMethodList(filer))
-        }
 
         converterVisitor?.apply {
             methodList.addAll(getMethodList())

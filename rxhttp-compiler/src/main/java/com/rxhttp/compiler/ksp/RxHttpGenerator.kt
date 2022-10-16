@@ -26,7 +26,6 @@ import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.TypeVariableName
 import com.squareup.kotlinpoet.WildcardTypeName
 import com.squareup.kotlinpoet.asClassName
-import com.squareup.kotlinpoet.jvm.throws
 import com.squareup.kotlinpoet.ksp.writeTo
 import java.io.IOException
 
@@ -36,7 +35,6 @@ class RxHttpGenerator(
 ) {
 
     var paramsVisitor: ParamsVisitor? = null
-    var parserVisitor: ParserVisitor? = null
     var domainVisitor: DomainVisitor? = null
     var converterVisitor: ConverterVisitor? = null
     var okClientVisitor: OkClientVisitor? = null
@@ -49,7 +47,7 @@ class RxHttpGenerator(
 
         val paramClassName = ClassName("rxhttp.wrapper.param", "Param")
         val typeVariableP = TypeVariableName("P", paramClassName.parameterizedBy("P"))      //泛型P
-        val typeVariableR = TypeVariableName("R", rxhttpKClassName.parameterizedBy("P","R")) //泛型R
+        val typeVariableR = TypeVariableName("R", rxhttpKClassName.parameterizedBy("P", "R")) //泛型R
 
         val okHttpClientName = ClassName("okhttp3", "OkHttpClient")
         val requestName = ClassName("okhttp3", "Request")
@@ -57,7 +55,6 @@ class RxHttpGenerator(
         val headerBuilderName = ClassName("okhttp3", "Headers.Builder")
         val cacheControlName = ClassName("okhttp3", "CacheControl")
         val callName = ClassName("okhttp3", "Call")
-        val responseName = ClassName("okhttp3", "Response")
 
         val timeUnitName = ClassName("java.util.concurrent", "TimeUnit")
 
@@ -67,27 +64,19 @@ class RxHttpGenerator(
         val cacheModeName = ClassName("rxhttp.wrapper.cahce", "CacheMode")
         val cacheStrategyName = ClassName("rxhttp.wrapper.cahce", "CacheStrategy")
         val downloadOffSizeName = ClassName("rxhttp.wrapper.entity", "DownloadOffSize")
-        val type = ClassName("java.lang.reflect", "Type")
 
         val t = TypeVariableName("T")
         val className = Class::class.asClassName()
         val superT = WildcardTypeName.consumerOf(t)
-        val classTName = className.parameterizedBy("T")
         val classSuperTName = className.parameterizedBy(superT)
 
         val wildcard = TypeVariableName("*")
         val listName = LIST.parameterizedBy("*")
         val mapName = MAP.parameterizedBy(STRING, wildcard)
         val mapStringName = MAP.parameterizedBy(STRING, STRING)
-        val listTName = LIST.parameterizedBy("T")
 
-        val parserName = ClassName("rxhttp.wrapper.parse", "Parser")
-        val progressName = ClassName("rxhttp.wrapper.entity", "Progress")
         val logUtilName = ClassName("rxhttp.wrapper.utils", "LogUtil")
         val logInterceptorName = ClassName("rxhttp.wrapper.intercept", "LogInterceptor")
-        val parserTName = parserName.parameterizedBy("T")
-        val smartParserName = ClassName("rxhttp.wrapper.parse", "SmartParser")
-        val parameterizedType = ClassName("rxhttp.wrapper.entity", "ParameterizedTypeImpl")
 
         val methodList = ArrayList<FunSpec>() //方法集合
 
@@ -676,57 +665,6 @@ class RxHttpGenerator(
             .build()
             .let { methodList.add(it) }
 
-        FunSpec.builder("execute")
-            .throws(IOException::class)
-            .addStatement("return newCall().execute()")
-            .returns(responseName)
-            .build()
-            .let { methodList.add(it) }
-
-        FunSpec.builder("execute")
-            .addTypeVariable(t)
-            .throws(IOException::class)
-            .addParameter("parser", parserTName)
-            .addStatement("return parser.onParse(execute())")
-            .returns(t)
-            .build()
-            .let { methodList.add(it) }
-
-        FunSpec.builder("executeString")
-            .throws(IOException::class)
-            .addStatement("return executeClass(String::class.java)")
-            .returns(STRING)
-            .build()
-            .let { methodList.add(it) }
-
-        FunSpec.builder("executeList")
-            .addTypeVariable(t)
-            .throws(IOException::class)
-            .addParameter("clazz", classTName)
-            .addStatement("val tTypeList = %T.get(List::class.java, clazz)", parameterizedType)
-            .addStatement("return executeClass(tTypeList)")
-            .returns(listTName)
-            .build()
-            .let { methodList.add(it) }
-
-        FunSpec.builder("executeClass")
-            .addTypeVariable(t)
-            .throws(IOException::class)
-            .addParameter("clazz", classTName)
-            .addStatement("return executeClass(clazz as Type)")
-            .returns(t)
-            .build()
-            .let { methodList.add(it) }
-
-        FunSpec.builder("executeClass")
-            .addTypeVariable(t)
-            .throws(IOException::class)
-            .addParameter("type", type)
-            .addStatement("return execute(%T.wrap(type))", smartParserName)
-            .returns(t)
-            .build()
-            .let { methodList.add(it) }
-
         FunSpec.builder("newCall")
             .addModifiers(KModifier.OVERRIDE)
             .addCode(
@@ -760,10 +698,6 @@ class RxHttpGenerator(
             .addStatement("addDefaultDomainIfAbsent()")
             .build()
             .let { methodList.add(it) }
-
-        parserVisitor?.apply {
-            methodList.addAll(getFunList(codeGenerator))
-        }
 
         converterVisitor?.apply {
             methodList.addAll(getFunList())
