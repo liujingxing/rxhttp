@@ -19,6 +19,7 @@ import com.squareup.kotlinpoet.STRING
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.TypeVariableName
 import com.squareup.kotlinpoet.asClassName
+import com.squareup.kotlinpoet.jvm.jvmOverloads
 import com.squareup.kotlinpoet.jvm.throws
 import com.squareup.kotlinpoet.ksp.writeTo
 import java.io.IOException
@@ -47,7 +48,6 @@ class BaseRxHttpGenerator(
         val parserTName = parserName.parameterizedBy("T")
         val smartParserName = ClassName("rxhttp.wrapper.parse", "SmartParser")
         val streamParser = ClassName("rxhttp.wrapper.parse", "StreamParser")
-        val parameterizedType = ClassName("rxhttp.wrapper.entity", "ParameterizedTypeImpl")
         val rxJavaPlugins = ClassName.bestGuess(getClassPath("RxJavaPlugins"))
         val logUtil = ClassName("rxhttp.wrapper.utils", "LogUtil")
         val outputStreamFactory = ClassName("rxhttp.wrapper.callback", "OutputStreamFactory")
@@ -77,25 +77,35 @@ class BaseRxHttpGenerator(
                 .addTypeVariable(t)
                 .addParameter("clazz", classTName)
                 .addStatement("return toObservable<T>(clazz as Type)")
+                .returns(observableCall.parameterizedBy("T"))
                 .build()
                 .let { methodList.add(it) }
 
             FunSpec.builder("toObservableString")
                 .addStatement("return toObservable(String::class.java)")
+                .returns(observableCall.parameterizedBy("String"))
                 .build()
                 .let { methodList.add(it) }
 
             FunSpec.builder("toObservableMapString")
                 .addTypeVariable(v)
                 .addParameter("clazz", classVName)
-                .addCode("return toObservable<Map<String, V>>(ParameterizedTypeImpl.getParameterized(MutableMap::class.java,String::class.java, clazz))")
+                .addCode("""
+                    val typeMap = Map::class.parameterizedBy(String::class.java, clazz)
+                    return toObservable<Map<String, V>>(typeMap)
+                """.trimIndent())
+                .returns(observableCall.parameterizedBy("Map<String,V>"))
                 .build()
                 .let { methodList.add(it) }
 
             FunSpec.builder("toObservableList")
                 .addTypeVariable(t)
                 .addParameter("clazz", classTName)
-                .addCode("return toObservable<List<T>>(ParameterizedTypeImpl.get(MutableList::class.java, clazz))")
+                .addCode("""
+                    val typeList = List::class.parameterizedBy(clazz)
+                    return toObservable<List<T>>(typeList)
+                """.trimIndent())
+                .returns(observableCall.parameterizedBy("List<T>"))
                 .build()
                 .let { methodList.add(it) }
 
@@ -104,7 +114,7 @@ class BaseRxHttpGenerator(
                 .build()
 
             FunSpec.builder("toDownloadObservable")
-                .addAnnotation(JvmOverloads::class)
+                .jvmOverloads()
                 .addParameter("destPath", String::class)
                 .addParameter(appendParam)
                 .addStatement(
@@ -120,7 +130,7 @@ class BaseRxHttpGenerator(
                 val context = ClassName("android.content", "Context")
                 val uri = ClassName("android.net", "Uri")
                 FunSpec.builder("toDownloadObservable")
-                    .addAnnotation(JvmOverloads::class)
+                    .jvmOverloads()
                     .addParameter("context", context)
                     .addParameter("uri", uri)
                     .addParameter(appendParam)
@@ -134,7 +144,7 @@ class BaseRxHttpGenerator(
             }
 
             FunSpec.builder("toDownloadObservable")
-                .addAnnotation(JvmOverloads::class)
+                .jvmOverloads()
                 .addTypeVariable(t)
                 .addParameter("osFactory", outputStreamFactory.parameterizedBy("T"))
                 .addParameter(appendParam)
@@ -206,8 +216,10 @@ class BaseRxHttpGenerator(
             .addTypeVariable(t)
             .throws(IOException::class)
             .addParameter("clazz", classTName)
-            .addStatement("val tTypeList = %T.get(List::class.java, clazz)", parameterizedType)
-            .addStatement("return executeClass(tTypeList)")
+            .addCode("""
+                val typeList = List::class.parameterizedBy(clazz)
+                return executeClass(typeList)
+            """.trimIndent())
             .returns(listTName)
             .build()
             .let { methodList.add(it) }
@@ -250,7 +262,9 @@ class BaseRxHttpGenerator(
 
         val dependencies = Dependencies(true, *ksFiles.toTypedArray())
         FileSpec.builder(rxHttpPackage, fileName)
+            .addImport("rxhttp.wrapper.utils", "parameterizedBy")
             .addType(typeSpecBuilder.build())
+            .indent("    ")
             .build()
             .writeTo(codeGenerator, dependencies)
     }

@@ -6,6 +6,7 @@ import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.Response
 import rxhttp.wrapper.OkHttpCompat
+import rxhttp.wrapper.entity.ParameterizedTypeImpl
 import rxhttp.wrapper.parse.Parser
 import java.io.Closeable
 import java.io.IOException
@@ -15,6 +16,7 @@ import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
+import kotlin.reflect.KClass
 import kotlin.reflect.javaType
 import kotlin.reflect.typeOf
 
@@ -85,6 +87,9 @@ fun getActualTypeParameters(clazz: Class<*>): Array<Type> {
     return (clazz.genericSuperclass as? ParameterizedType)?.actualTypeArguments
         ?: throw RuntimeException("Missing type parameter.")
 }
+
+fun KClass<*>.parameterizedBy(vararg typeArguments: Type): ParameterizedType=
+    ParameterizedTypeImpl.getParameterized(java, *typeArguments)
 
 @OptIn(ExperimentalStdlibApi::class)
 inline fun <reified T> javaTypeOf(): Type = typeOf<T>().javaType

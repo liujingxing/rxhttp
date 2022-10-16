@@ -205,8 +205,6 @@ private fun KSFunctionDeclaration.getAsXxxFun(
     val parameterSpecs = funSpec.parameters
     val typeVariableNames = funSpec.typeVariables
 
-    val parameterizedType = ClassName("rxhttp.wrapper.entity", "ParameterizedTypeImpl")
-
     val wrapperListClass = arrayListOf<ClassName>()
     typeMap[parserAlias]?.apply { wrapperListClass.addAll(this) }
     if (LIST !in wrapperListClass) {
@@ -242,12 +240,11 @@ private fun KSFunctionDeclaration.getAsXxxFun(
             if (param.type.toString().startsWith("java.lang.Class")) {
                 /*
                  * Class类型参数，需要进行再次包装，最后再取参数名
-                 * 格式：val tTypeList = ParameterizedTypeImpl.get(List.class, tType)
+                 * 格式：val tTypeList = List::class.parameterizedBy(tType)
                  */
                 val variableName = "${param.name}$simpleName"
-                val expression =
-                    "val $variableName = %T.get($simpleName::class.java, ${param.name})"
-                funBody.addStatement(expression, parameterizedType)
+                val expression = "val $variableName = $simpleName::class.parameterizedBy(${param.name})"
+                funBody.addStatement(expression)
                 val parameterType = parameters[index].name?.asString()
                 if ("java.lang.reflect.Type[]" == parameterType.toString()) {
                     paramsName.append("new Type[]{$variableName}")

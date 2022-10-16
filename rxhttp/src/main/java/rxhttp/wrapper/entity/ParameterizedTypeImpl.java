@@ -40,6 +40,7 @@ public class ParameterizedTypeImpl implements ParameterizedType {
         return new ParameterizedTypeImpl(rawType, lastType);
     }
 
+    // getParameterized(List.Class, String.class) equivalent to List<String>
     // getParameterized(Map.Class, String.class, Integer.class) equivalent to Map<String, Integer>
     public static ParameterizedType getParameterized(@NotNull Type rawType, @NotNull Type... types) {
         final int length = types.length;
