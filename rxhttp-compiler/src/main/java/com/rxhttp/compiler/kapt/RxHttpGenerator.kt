@@ -841,6 +841,7 @@ class RxHttpGenerator {
         // Write file
         JavaFile.builder(rxHttpPackage, rxHttpBuilder.build())
             .skipJavaLangImports(true)
+            .indent("    ")
             .build().writeTo(filer)
     }
 }

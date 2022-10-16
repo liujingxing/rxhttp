@@ -185,7 +185,7 @@ class RxHttpGenerator(
                 """
                 if (_okHttpClient != null) return _okHttpClient!!
                 val okClient = this.okClient
-                var builder : OkHttpClient.Builder? = null
+                var builder: OkHttpClient.Builder? = null
                 
                 if (%T.isDebug()) {
                     val b = builder ?: okClient.newBuilder().also { builder = it }
@@ -203,15 +203,15 @@ class RxHttpGenerator(
                 }
 
                 if (writeTimeoutMillis != 0L) {
-                   val b = builder ?: okClient.newBuilder().also { builder = it }
-                   b.writeTimeout(writeTimeoutMillis, %T.MILLISECONDS)
+                    val b = builder ?: okClient.newBuilder().also { builder = it }
+                    b.writeTimeout(writeTimeoutMillis, %T.MILLISECONDS)
                 }
                 
-                if (param.getCacheMode() != CacheMode.ONLY_NETWORK) {                      
-                    val b = builder ?: okClient.newBuilder().also { builder = it }        
+                if (param.getCacheMode() != CacheMode.ONLY_NETWORK) {
+                    val b = builder ?: okClient.newBuilder().also { builder = it }
                     b.addInterceptor(%T(cacheStrategy))
                 }
-                                                                                        
+
                 _okHttpClient = builder?.build() ?: okClient
                 return _okHttpClient!!
                 """.trimIndent(),
@@ -284,9 +284,9 @@ class RxHttpGenerator(
         val codeBlock =
             """
                 For example:
-                                                         
-                ```                                                  
-                RxHttp.get("/service/%L/...", 1)  
+
+                ```
+                RxHttp.get("/service/%L/...", 1)
                     .addQuery("size", 20)
                     ...
                 ```
@@ -335,9 +335,9 @@ class RxHttpGenerator(
             .addKdoc(
                 """
                 For example:
-                                                         
-                ```                                                  
-                RxHttp.get("/service/{page}/...")  
+
+                ```
+                RxHttp.get("/service/{page}/...")
                     .addPath("page", 1)
                     ...
                 ```
@@ -450,7 +450,7 @@ class RxHttpGenerator(
             .addKdoc("Add a header with the specified name and value. Does validation of header names, allowing non-ASCII values.")
             .addParameter("key", STRING)
             .addParameter("value", STRING)
-            .addStatement("param.addNonAsciiHeader(key,value)")
+            .addStatement("param.addNonAsciiHeader(key, value)")
             .addStatement("return this as R")
             .returns(typeVariableR)
             .build()
@@ -460,7 +460,7 @@ class RxHttpGenerator(
             .addKdoc("Set a header with the specified name and value. Does validation of header names, allowing non-ASCII values.")
             .addParameter("key", STRING)
             .addParameter("value", STRING)
-            .addStatement("param.setNonAsciiHeader(key,value)")
+            .addStatement("param.setNonAsciiHeader(key, value)")
             .addStatement("return this as R")
             .returns(typeVariableR)
             .build()
@@ -500,7 +500,7 @@ class RxHttpGenerator(
         FunSpec.builder("setHeader")
             .addParameter("key", STRING)
             .addParameter("value", STRING)
-            .addStatement("param.setHeader(key,value)")
+            .addStatement("param.setHeader(key, value)")
             .addStatement("return this as R")
             .returns(typeVariableR)
             .build()
@@ -548,10 +548,10 @@ class RxHttpGenerator(
             .addParameter("connectLastProgress", BOOLEAN)
             .addCode(
                 """
-                param.setRangeHeader(startIndex, endIndex)                         
-                if (connectLastProgress)                                            
+                param.setRangeHeader(startIndex, endIndex)
+                if (connectLastProgress)
                     param.tag(DownloadOffSize::class.java, %T(startIndex))
-                return this as R                                                    
+                return this as R
                 """.trimIndent(), downloadOffSizeName
             )
             .returns(typeVariableR)
@@ -767,20 +767,21 @@ class RxHttpGenerator(
             .addModifiers(KModifier.PRIVATE)
             .addParameter("url", STRING)
             .addParameter("domain", STRING)
-            .addStatement(
+            .addCode(
                 """
-                return if (url.startsWith("http")) {
-                    url                             
-                } else if (url.startsWith("/")) {   
-                    if (domain.endsWith("/"))       
-                        domain + url.substring(1)  
-                    else                            
-                        domain + url               
-                } else if (domain.endsWith("/")) {  
-                    domain + url                   
-                } else {                            
-                    domain + "/" + url             
-                }                                   
+                return 
+                    if (url.startsWith("http")) {
+                        url
+                    } else if (url.startsWith("/")) {
+                        if (domain.endsWith("/"))
+                            domain + url.substring(1)
+                        else
+                            domain + url
+                    } else if (domain.endsWith("/")) {
+                        domain + url
+                    } else {
+                        domain + "/" + url
+                    }
                 """.trimIndent()
             )
             .returns(STRING)
@@ -817,6 +818,7 @@ class RxHttpGenerator(
         val dependencies = Dependencies(true, *ksFiles.toTypedArray())
         FileSpec.builder(rxHttpPackage, RXHttp)
             .addType(rxHttpBuilder)
+            .indent("    ")
             .build()
             .writeTo(codeGenerator, dependencies)
     }
