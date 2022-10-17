@@ -228,3 +228,8 @@ internal fun String.firstLetterUpperCase(): String {
     }
     return String(charArray)
 }
+
+fun com.squareup.javapoet.ClassName.parameterizedBy(
+    vararg typeArguments: com.squareup.javapoet.TypeName
+): com.squareup.javapoet.ParameterizedTypeName =
+    com.squareup.javapoet.ParameterizedTypeName.get(this, *typeArguments)

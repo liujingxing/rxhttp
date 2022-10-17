@@ -35,25 +35,23 @@ class BaseRxHttpGenerator(
     @KspExperimental
     @Throws(IOException::class)
     fun generateCode(codeGenerator: CodeGenerator) {
-        val responseName = ClassName("okhttp3", "Response")
-        val type = ClassName("java.lang.reflect", "Type")
-
         val t = TypeVariableName("T")
         val v = TypeVariableName("V")
         val classTName = Class::class.asClassName().parameterizedBy("T")
         val classVName = Class::class.asClassName().parameterizedBy("V")
         val listTName = LIST.parameterizedBy("T")
 
-        val parserName = ClassName("rxhttp.wrapper.parse", "Parser")
-        val parserTName = parserName.parameterizedBy("T")
-        val smartParserName = ClassName("rxhttp.wrapper.parse", "SmartParser")
-        val streamParser = ClassName("rxhttp.wrapper.parse", "StreamParser")
+        val parser = ClassName("rxhttp.wrapper.parse", "Parser")
+        val parserTName = parser.parameterizedBy("T")
+        val smartParser = parser.peerClass("SmartParser")
+        val streamParser = parser.peerClass("StreamParser")
         val rxJavaPlugins = ClassName.bestGuess(getClassPath("RxJavaPlugins"))
         val logUtil = ClassName("rxhttp.wrapper.utils", "LogUtil")
+        val responseName = ClassName("okhttp3", "Response")
+        val type = ClassName("java.lang.reflect", "Type")
         val outputStreamFactory = ClassName("rxhttp.wrapper.callback", "OutputStreamFactory")
-        val fileOutputStreamFactory =
-            ClassName("rxhttp.wrapper.callback", "FileOutputStreamFactory")
-        val uriOutputStreamFactory = ClassName("rxhttp.wrapper.callback", "UriOutputStreamFactory")
+        val fileOutputStreamFactory = outputStreamFactory.peerClass("FileOutputStreamFactory")
+        val uriOutputStreamFactory = outputStreamFactory.peerClass("UriOutputStreamFactory")
         val observableCall = ClassName(rxHttpPackage, "ObservableCall")
 
         val methodList = ArrayList<FunSpec>() //方法集合
@@ -69,7 +67,7 @@ class BaseRxHttpGenerator(
             FunSpec.builder("toObservable")
                 .addTypeVariable(t)
                 .addParameter("type", type)
-                .addStatement("return toObservable(%T.wrap<T>(type))", smartParserName)
+                .addStatement("return toObservable(%T.wrap<T>(type))", smartParser)
                 .build()
                 .let { methodList.add(it) }
 
@@ -191,7 +189,7 @@ class BaseRxHttpGenerator(
             .addTypeVariable(t)
             .throws(IOException::class)
             .addParameter("type", type)
-            .addStatement("return execute(%T.wrap(type))", smartParserName)
+            .addStatement("return execute(%T.wrap(type))", smartParser)
             .returns(t)
             .build()
             .let { methodList.add(it) }

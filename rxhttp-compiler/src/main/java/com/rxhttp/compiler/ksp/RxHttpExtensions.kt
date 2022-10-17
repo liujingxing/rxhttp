@@ -9,7 +9,6 @@ import com.rxhttp.compiler.common.getTypeOfString
 import com.rxhttp.compiler.common.getTypeVariableString
 import com.rxhttp.compiler.isDependenceRxJava
 import com.rxhttp.compiler.rxHttpPackage
-import com.rxhttp.compiler.rxhttpKClassName
 import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
@@ -77,7 +76,7 @@ class RxHttpExtensions(private val logger: KSPLogger) {
             val classTypeParams = ksClass.typeParameters.toTypeParameterResolver()
             val functionTypeParams =
                 constructor.typeParameters.toTypeParameterResolver(classTypeParams)
-            //根据构造方法参数，获取asXxx方法需要的参数
+            //根据构造方法参数，获取toObservableXxx方法需要的参数
             val parameterList = parameters.map { it.toKParameterSpec(functionTypeParams) }
 
             val modifiers = ArrayList<KModifier>()
@@ -94,14 +93,14 @@ class RxHttpExtensions(private val logger: KSPLogger) {
                 else -> "$typeOfs, $params"
             }
 
-            if (typeVariableNames.isNotEmpty() && isDependenceRxJava()) {  //对声明了泛型的解析器，生成kotlin编写的asXxx方法
-                val asXxxFunName = "toObservable$key"
-                val asXxxFunBody = "return $asXxxFunName$types($finalParams)"
-                FunSpec.builder(asXxxFunName)
+            if (typeVariableNames.isNotEmpty() && isDependenceRxJava()) {  //对声明了泛型的解析器，生成kotlin编写的toObservableXxx方法
+                val toObservableXxxFunName = "toObservable$key"
+                val toObservableXxxFunBody = "return $toObservableXxxFunName$types($finalParams)"
+                FunSpec.builder(toObservableXxxFunName)
                     .addModifiers(modifiers)
                     .receiver(baseRxHttpName)
                     .addParameters(parameterList)
-                    .addStatement(asXxxFunBody) //方法里面的表达式
+                    .addStatement(toObservableXxxFunBody) //方法里面的表达式
                     .addTypeVariables(typeVariableNames)
                     .build()
                     .apply { asFunList.add(this) }
@@ -129,7 +128,7 @@ class RxHttpExtensions(private val logger: KSPLogger) {
 //                    .apply { asFunList.add(this) }
             }
 
-            val toXxxFunBody = if (typeVariableNames.size == 1) {
+            val toAwaitXxxFunBody = if (typeVariableNames.size == 1) {
                 CodeBlock.of("return toAwait(wrap${customParserClassName.simpleName}$types($finalParams))")
             } else {
                 CodeBlock.of("return toAwait(%T$types($finalParams))", customParserClassName)
@@ -140,7 +139,7 @@ class RxHttpExtensions(private val logger: KSPLogger) {
                 .addModifiers(modifiers)
                 .receiver(callFactoryName)
                 .addParameters(parameterList)
-                .addCode(toXxxFunBody)  //方法里面的表达式
+                .addCode(toAwaitXxxFunBody)  //方法里面的表达式
                 .addTypeVariables(typeVariableNames)
                 .build()
                 .apply { toFunList.add(this) }
@@ -281,7 +280,7 @@ class RxHttpExtensions(private val logger: KSPLogger) {
                 .addParameters(it.parameters)
                 .addTypeVariables(typeVariables)
                 .addStatement(
-                    """return %M(toAwait$parseName${getTypeVariableString(typeVariables)}($arguments))""",
+                    "return %M(toAwait$parseName${getTypeVariableString(typeVariables)}($arguments))",
                     toFlow
                 )
                 .build()

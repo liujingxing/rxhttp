@@ -49,20 +49,22 @@ class RxHttpGenerator(
         val typeVariableP = TypeVariableName("P", paramClassName.parameterizedBy("P"))      //泛型P
         val typeVariableR = TypeVariableName("R", rxhttpKClassName.parameterizedBy("P", "R")) //泛型R
 
-        val okHttpClientName = ClassName("okhttp3", "OkHttpClient")
-        val requestName = ClassName("okhttp3", "Request")
-        val headerName = ClassName("okhttp3", "Headers")
-        val headerBuilderName = ClassName("okhttp3", "Headers.Builder")
-        val cacheControlName = ClassName("okhttp3", "CacheControl")
-        val callName = ClassName("okhttp3", "Call")
+        val okHttpClient = ClassName("okhttp3", "OkHttpClient")
+        val requestName = okHttpClient.peerClass("Request")
+        val headerName = okHttpClient.peerClass("Headers")
+        val headerBuilderName = okHttpClient.peerClass("Headers.Builder")
+        val cacheControlName = okHttpClient.peerClass("CacheControl")
+        val callName = okHttpClient.peerClass("Call")
 
         val timeUnitName = ClassName("java.util.concurrent", "TimeUnit")
 
         val rxHttpPluginsName = ClassName("rxhttp", "RxHttpPlugins")
         val converterName = ClassName("rxhttp.wrapper.callback", "Converter")
-        val cacheInterceptorName = ClassName("rxhttp.wrapper.intercept", "CacheInterceptor")
+        val logUtilName = ClassName("rxhttp.wrapper.utils", "LogUtil")
+        val logInterceptor = ClassName("rxhttp.wrapper.intercept", "LogInterceptor")
+        val cacheInterceptorName = logInterceptor.peerClass("CacheInterceptor")
         val cacheModeName = ClassName("rxhttp.wrapper.cahce", "CacheMode")
-        val cacheStrategyName = ClassName("rxhttp.wrapper.cahce", "CacheStrategy")
+        val cacheStrategyName = cacheModeName.peerClass("CacheStrategy")
         val downloadOffSizeName = ClassName("rxhttp.wrapper.entity", "DownloadOffSize")
 
         val t = TypeVariableName("T")
@@ -74,9 +76,6 @@ class RxHttpGenerator(
         val listName = LIST.parameterizedBy("*")
         val mapName = MAP.parameterizedBy(STRING, wildcard)
         val mapStringName = MAP.parameterizedBy(STRING, STRING)
-
-        val logUtilName = ClassName("rxhttp.wrapper.utils", "LogUtil")
-        val logInterceptorName = ClassName("rxhttp.wrapper.intercept", "LogInterceptor")
 
         val methodList = ArrayList<FunSpec>() //方法集合
 
@@ -112,7 +111,7 @@ class RxHttpGenerator(
             .build()
             .let { propertySpecs.add(it) }
 
-        PropertySpec.builder("okClient", okHttpClientName, KModifier.PRIVATE)
+        PropertySpec.builder("okClient", okHttpClient, KModifier.PRIVATE)
             .mutable(true)
             .initializer("%T.getOkHttpClient()", rxHttpPluginsName)
             .build()
@@ -216,7 +215,7 @@ class RxHttpGenerator(
                 return _okHttpClient!!
                 """.trimIndent(),
                 logUtilName,
-                logInterceptorName,
+                logInterceptor,
                 timeUnitName,
                 timeUnitName,
                 timeUnitName,
@@ -225,13 +224,13 @@ class RxHttpGenerator(
             .build()
 
 
-        PropertySpec.builder("_okHttpClient", okHttpClientName.copy(true), KModifier.PRIVATE)
+        PropertySpec.builder("_okHttpClient", okHttpClient.copy(true), KModifier.PRIVATE)
             .mutable(true)
             .initializer("null")
             .build()
             .let { propertySpecs.add(it) }
 
-        PropertySpec.builder("okHttpClient", okHttpClientName)
+        PropertySpec.builder("okHttpClient", okHttpClient)
             .addAnnotation(getJvmName("getOkHttpClient"))
             .getter(okClientFun)
             .build()
@@ -726,7 +725,7 @@ class RxHttpGenerator(
             .let { methodList.add(it) }
 
         FunSpec.builder("setOkClient")
-            .addParameter("okClient", okHttpClientName)
+            .addParameter("okClient", okHttpClient)
             .addCode(
                 """
                 this.okClient = okClient

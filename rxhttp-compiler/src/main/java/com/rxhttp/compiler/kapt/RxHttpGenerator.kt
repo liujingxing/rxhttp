@@ -10,18 +10,14 @@ import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.JavaFile
 import com.squareup.javapoet.MethodSpec
-import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
 import com.squareup.javapoet.TypeVariableName
 import com.squareup.javapoet.WildcardTypeName
 import java.io.IOException
-import java.util.*
 import javax.annotation.processing.Filer
 import javax.lang.model.element.Modifier
 import kotlin.String
-import kotlin.Throws
-import kotlin.apply
 
 class RxHttpGenerator {
     var paramsVisitor: ParamsVisitor? = null
@@ -38,37 +34,36 @@ class RxHttpGenerator {
         val typeVariableP = TypeVariableName.get("P", paramClassName)      //泛型P
         val typeVariableR = TypeVariableName.get("R", rxhttpClassName)     //泛型R
 
-        val okHttpClientName = ClassName.get("okhttp3", "OkHttpClient")
-        val requestName = ClassName.get("okhttp3", "Request")
-        val headerName = ClassName.get("okhttp3", "Headers")
-        val headerBuilderName = ClassName.get("okhttp3", "Headers.Builder")
-        val cacheControlName = ClassName.get("okhttp3", "CacheControl")
-        val callName = ClassName.get("okhttp3", "Call")
+        val okHttpClient = ClassName.get("okhttp3", "OkHttpClient")
+        val requestName = okHttpClient.peerClass("Request")
+        val headerName = okHttpClient.peerClass("Headers")
+        val headerBuilderName = okHttpClient.peerClass("Headers.Builder")
+        val cacheControlName = okHttpClient.peerClass("CacheControl")
+        val callName = okHttpClient.peerClass("Call")
 
         val timeUnitName = ClassName.get("java.util.concurrent", "TimeUnit")
 
         val rxHttpPluginsName = ClassName.get("rxhttp", "RxHttpPlugins")
         val converterName = ClassName.get("rxhttp.wrapper.callback", "Converter")
-        val cacheInterceptorName = ClassName.get("rxhttp.wrapper.intercept", "CacheInterceptor")
+        val logUtilName = ClassName.get("rxhttp.wrapper.utils", "LogUtil")
+        val logInterceptor = ClassName.get("rxhttp.wrapper.intercept", "LogInterceptor")
+        val cacheInterceptorName = logInterceptor.peerClass("CacheInterceptor")
         val cacheModeName = ClassName.get("rxhttp.wrapper.cahce", "CacheMode")
-        val cacheStrategyName = ClassName.get("rxhttp.wrapper.cahce", "CacheStrategy")
+        val cacheStrategyName = cacheModeName.peerClass("CacheStrategy")
         val downloadOffSizeName = ClassName.get("rxhttp.wrapper.entity", "DownloadOffSize")
 
         val t = TypeVariableName.get("T")
         val wildcard = TypeVariableName.get("?")
         val className = ClassName.get(Class::class.java)
         val superT = WildcardTypeName.supertypeOf(t)
-        val classSuperTName = ParameterizedTypeName.get(className, superT)
+        val classSuperTName = className.parameterizedBy(superT)
 
         val list = ClassName.get(List::class.java)
         val map = ClassName.get(Map::class.java)
         val string = TypeName.get(String::class.java)
-        val listName = ParameterizedTypeName.get(list, wildcard)
-        val mapName = ParameterizedTypeName.get(map, string, wildcard)
-        val mapStringName = ParameterizedTypeName.get(map, string, string)
-
-        val logUtilName = ClassName.get("rxhttp.wrapper.utils", "LogUtil")
-        val logInterceptorName = ClassName.get("rxhttp.wrapper.intercept", "LogInterceptor")
+        val listName = list.parameterizedBy(wildcard)
+        val mapName = map.parameterizedBy(string, wildcard)
+        val mapStringName = map.parameterizedBy(string, string)
 
         val methodList = ArrayList<MethodSpec>() //方法集合
 
@@ -680,13 +675,13 @@ class RxHttpGenerator {
                 return realOkClient;
                 """.trimIndent(),
                 logUtilName,
-                logInterceptorName,
+                logInterceptor,
                 timeUnitName,
                 timeUnitName,
                 timeUnitName,
                 cacheInterceptorName
             )
-            .returns(okHttpClientName)
+            .returns(okHttpClient)
             .build()
             .apply { methodList.add(this) }
 
@@ -729,7 +724,7 @@ class RxHttpGenerator {
 
         MethodSpec.methodBuilder("setOkClient")
             .addModifiers(Modifier.PUBLIC)
-            .addParameter(okHttpClientName, "okClient")
+            .addParameter(okHttpClient, "okClient")
             .addCode(
                 """
                 if (okClient == null) 
@@ -805,7 +800,7 @@ class RxHttpGenerator {
             .initializer("\$T.getConverter()", rxHttpPluginsName)
             .build()
 
-        val okHttpClientSpec = FieldSpec.builder(okHttpClientName, "okClient", Modifier.PRIVATE)
+        val okHttpClientSpec = FieldSpec.builder(okHttpClient, "okClient", Modifier.PRIVATE)
             .initializer("\$T.getOkHttpClient()", rxHttpPluginsName)
             .build()
         val suppressWarningsAnnotation = AnnotationSpec.builder(SuppressWarnings::class.java)
@@ -828,7 +823,7 @@ class RxHttpGenerator {
             .addField(TypeName.LONG, "connectTimeoutMillis", Modifier.PRIVATE)
             .addField(TypeName.LONG, "readTimeoutMillis", Modifier.PRIVATE)
             .addField(TypeName.LONG, "writeTimeoutMillis", Modifier.PRIVATE)
-            .addField(okHttpClientName, "realOkClient", Modifier.PRIVATE)
+            .addField(okHttpClient, "realOkClient", Modifier.PRIVATE)
             .addField(okHttpClientSpec)
             .addField(converterSpec)
             .addField(typeVariableP, "param", Modifier.PROTECTED)

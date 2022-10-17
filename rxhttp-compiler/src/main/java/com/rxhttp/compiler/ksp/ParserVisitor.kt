@@ -79,8 +79,8 @@ class ParserVisitor(
         ksClassMap.forEach { (parserAlias, ksClass) ->
             rxHttpExtensions.generateRxHttpExtendFun(ksClass, parserAlias)
             if (isDependenceRxJava()) {
-                //依赖了RxJava，则生成Java语言编写的asXxx方法
-                funList.addAll(ksClass.getAsXxxFun(parserAlias, classNameMap))
+                //依赖了RxJava，则生成Java语言编写的toObservableXxx方法
+                funList.addAll(ksClass.getToObservableXxxFun(parserAlias, classNameMap))
             }
         }
         rxHttpExtensions.generateClassFile(codeGenerator)
@@ -89,7 +89,7 @@ class ParserVisitor(
 }
 
 @KspExperimental
-private fun KSClassDeclaration.getAsXxxFun(
+private fun KSClassDeclaration.getToObservableXxxFun(
     parserAlias: String,
     typeMap: LinkedHashMap<String, List<ClassName>>
 ): List<FunSpec> {
@@ -113,7 +113,7 @@ private fun KSClassDeclaration.getAsXxxFun(
         }
         if (tempParameters.size < typeCount) continue
 
-        //根据构造方法参数，获取asXxx方法需要的参数
+        //根据构造方法参数，获取toObservableXxx方法需要的参数
         val parameterSpecs = constructor.getParameterSpecs(
             typeVariableNames,
             typeParameters.toTypeParameterResolver()
@@ -134,7 +134,7 @@ private fun KSClassDeclaration.getAsXxxFun(
         //参数名
         val paramsName = getParamsName(constructor.parameters, parameterSpecs, typeVariableNames.size)
         //方法体
-        val asXxxFunBody = if (typeVariableNames.size == 1) {
+        val toObservableXxxFunBody = if (typeVariableNames.size == 1) {
             CodeBlock.of("return toObservable(%M$types($paramsName))", wrapCustomParser)
         } else {
             CodeBlock.of("return toObservable(%T$types($paramsName))", parserClassName)
@@ -149,7 +149,7 @@ private fun KSClassDeclaration.getAsXxxFun(
         FunSpec.builder(funName)
             .addTypeVariables(typeVariableNames)
             .addParameters(originParameters)
-            .addCode(asXxxFunBody)
+            .addCode(toObservableXxxFunBody)
             .build()
             .apply { funList.add(this) }
 
@@ -175,9 +175,9 @@ private fun KSClassDeclaration.getAsXxxFun(
                     val name = typeName.toString()
                     name != "kotlin.Any" && name != "kotlin.Any?"
                 }
-                //有Class类型参数 且 泛型数量等于1 且没有为泛型指定边界(Any类型边界除外)，才去生成Parser注解里wrappers字段对应的asXxx方法
+                //有Class类型参数 且 泛型数量等于1 且没有为泛型指定边界(Any类型边界除外)，才去生成Parser注解里wrappers字段对应的toObservableXxx方法
                 if (nonAnyType == null) {
-                    constructor.getAsXxxFun(
+                    constructor.getToObservableXxxFun(
                         parserAlias, funSpec, onParserFunReturnType, typeMap, funList
                     )
                 }
@@ -188,14 +188,14 @@ private fun KSClassDeclaration.getAsXxxFun(
 }
 
 /**
- * 生成Parser注解里wrappers字段指定类对应的asXxx方法
+ * 生成Parser注解里wrappers字段指定类对应的toObservableXxx方法
  * @param parserAlias 解析器别名
- * @param funSpec 解析器对应的asXxx方法，没有经过wrappers字段包裹前的
+ * @param funSpec 解析器对应的toObservableXxx方法，没有经过wrappers字段包裹前的
  * @param onParserFunReturnType 解析器里onParser方法的返回类型
  * @param typeMap Parser注解里wrappers字段集合
  * @param funList funList
  */
-private fun KSFunctionDeclaration.getAsXxxFun(
+private fun KSFunctionDeclaration.getToObservableXxxFun(
     parserAlias: String,
     funSpec: FunSpec,
     onParserFunReturnType: TypeName,
@@ -212,7 +212,7 @@ private fun KSFunctionDeclaration.getAsXxxFun(
     }
     wrapperListClass.forEach { wrapperClass ->
 
-        //1、asXxx方法返回值
+        //1、toObservableXxx方法返回值
         val onParserFunReturnWrapperType =
             if (onParserFunReturnType is ParameterizedTypeName) { // List<T>, Map<K,V>等包含泛型的类
                 //返回类型有n个泛型，需要对每个泛型再次包装
@@ -226,12 +226,12 @@ private fun KSFunctionDeclaration.getAsXxxFun(
         val asFunReturnType = ClassName(rxHttpPackage, "ObservableCall")
             .parameterizedBy(onParserFunReturnWrapperType.copy(onParserFunReturnType.isNullable))
 
-        //2、asXxx方法名
+        //2、toObservableXxx方法名
         val name = wrapperClass.toString()
         val simpleName = name.substring(name.lastIndexOf(".") + 1)
         val funName = "toObservable$parserAlias${simpleName}"
 
-        //3、asXxx方法体
+        //3、toObservableXxx方法体
         val funBody = CodeBlock.builder()
         val paramsName = StringBuilder()
         //遍历参数，取出参数名
@@ -259,7 +259,7 @@ private fun KSFunctionDeclaration.getAsXxxFun(
         val returnStatement = "return ${funSpec.name}($paramsName)"
         funBody.addStatement(returnStatement)
 
-        //4、生成asXxx方法
+        //4、生成toObservableXxx方法
         FunSpec.builder(funName)
             .addTypeVariables(typeVariableNames)
             .addParameters(funSpec.parameters)
