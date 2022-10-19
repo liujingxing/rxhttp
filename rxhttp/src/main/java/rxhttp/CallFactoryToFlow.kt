@@ -10,13 +10,16 @@ import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.onEach
 import rxhttp.wrapper.BodyParamFactory
 import rxhttp.wrapper.CallFactory
+import rxhttp.wrapper.ITag
 import rxhttp.wrapper.callback.FileOutputStreamFactory
 import rxhttp.wrapper.callback.OutputStreamFactory
+import rxhttp.wrapper.callback.ProgressCallback
 import rxhttp.wrapper.callback.UriOutputStreamFactory
 import rxhttp.wrapper.coroutines.Await
 import rxhttp.wrapper.entity.Progress
 import rxhttp.wrapper.entity.ProgressT
 import rxhttp.wrapper.parse.Parser
+import rxhttp.wrapper.parse.StreamParser
 
 /**
  * CallFactory convert Flow
@@ -52,7 +55,8 @@ fun <T> BodyParamFactory.toFlowProgress(
         param.setProgressCallback { progress, currentSize, totalSize ->
             trySend(ProgressT<T>(progress, currentSize, totalSize))
         }
-        trySend(ProgressT(await.await()))
+        val t: T = await.await()
+        trySend(ProgressT(t))
     }.buffer(capacity, BufferOverflow.DROP_OLDEST)
 
 /**
@@ -83,7 +87,7 @@ fun <T> CallFactory.toDownloadFlow(
     progress: (suspend (Progress) -> Unit)? = null
 ): Flow<T> =
     if (progress == null) {
-        toFlow(toSyncDownloadAwait(osFactory, append))
+        toFlow(streamParser(osFactory, append))
     } else {
         toFlowProgress(osFactory, append, capacity)
             .onEachProgress(progress)
@@ -108,10 +112,24 @@ fun <T> CallFactory.toFlowProgress(
     capacity: Int = 1
 ): Flow<ProgressT<T>> =
     channelFlow {
-        val await = toSyncDownloadAwait(osFactory, append) { trySend(it) }
-        trySend(ProgressT(await.await()))
+        val parser = streamParser(osFactory, append)
+        parser.progressCallback = ProgressCallback { progress, currentSize, totalSize ->
+            trySend(ProgressT<T>(progress, currentSize, totalSize))
+        }
+        val t: T = toAwait(parser).await()
+        trySend(ProgressT(t))
     }.buffer(capacity, BufferOverflow.DROP_OLDEST)
 
 fun <T> Flow<ProgressT<T>>.onEachProgress(progress: suspend (Progress) -> Unit): Flow<T> =
     onEach { if (it.result == null) progress(it) }
         .mapNotNull { it.result }
+
+private fun <T> CallFactory.streamParser(
+    osFactory: OutputStreamFactory<T>,
+    append: Boolean = false
+): StreamParser<T> {
+    if (append && this is ITag) {
+        tag(OutputStreamFactory::class.java, osFactory)
+    }
+    return StreamParser(osFactory)
+}
