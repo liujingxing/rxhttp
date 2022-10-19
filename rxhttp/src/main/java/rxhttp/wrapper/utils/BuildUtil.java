@@ -3,7 +3,6 @@ package rxhttp.wrapper.utils;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.net.Uri;
-import android.os.Build;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
