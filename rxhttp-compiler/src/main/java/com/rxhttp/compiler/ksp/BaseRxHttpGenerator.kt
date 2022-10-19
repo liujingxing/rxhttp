@@ -74,7 +74,7 @@ class BaseRxHttpGenerator(
             FunSpec.builder("toObservable")
                 .addTypeVariable(t)
                 .addParameter("clazz", classTName)
-                .addStatement("return toObservable<T>(clazz as Type)")
+                .addStatement("return toObservable(clazz as Type)")
                 .returns(observableCall.parameterizedBy("T"))
                 .build()
                 .let { methodList.add(it) }
@@ -90,7 +90,7 @@ class BaseRxHttpGenerator(
                 .addParameter("clazz", classVName)
                 .addCode("""
                     val typeMap = Map::class.parameterizedBy(String::class.java, clazz)
-                    return toObservable<Map<String, V>>(typeMap)
+                    return toObservable(typeMap)
                 """.trimIndent())
                 .returns(observableCall.parameterizedBy("Map<String,V>"))
                 .build()
@@ -101,7 +101,7 @@ class BaseRxHttpGenerator(
                 .addParameter("clazz", classTName)
                 .addCode("""
                     val typeList = List::class.parameterizedBy(clazz)
-                    return toObservable<List<T>>(typeList)
+                    return toObservable(typeList)
                 """.trimIndent())
                 .returns(observableCall.parameterizedBy("List<T>"))
                 .build()

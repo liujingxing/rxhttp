@@ -1,19 +1,15 @@
 package rxhttp
 
 import android.content.Context
-import android.graphics.Bitmap
 import android.net.Uri
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.channelFlow
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.onEach
-import okhttp3.Headers
-import okhttp3.Response
 import rxhttp.wrapper.BodyParamFactory
 import rxhttp.wrapper.CallFactory
 import rxhttp.wrapper.callback.FileOutputStreamFactory
@@ -89,10 +85,8 @@ fun <T> CallFactory.toDownloadFlow(
     progress: (suspend (Progress) -> Unit)? = null
 ): Flow<T> =
     if (progress == null) {
-        flow {
-            val await = toSyncDownload(osFactory, append)
-            emit(await.await())
-        }.flowOn(Dispatchers.IO)
+        toFlow(toSyncDownloadAwait(osFactory, append))
+            .flowOn(Dispatchers.IO)
     } else {
         toFlowProgress(osFactory, append, capacity)
             .onEachProgress(progress)
@@ -117,7 +111,7 @@ fun <T> CallFactory.toFlowProgress(
     capacity: Int = 1
 ): Flow<ProgressT<T>> =
     channelFlow {
-        val await = toSyncDownload(osFactory, append) { trySend(it) }
+        val await = toSyncDownloadAwait(osFactory, append) { trySend(it) }
         trySend(ProgressT(await.await()))
     }
         .buffer(capacity, BufferOverflow.DROP_OLDEST)

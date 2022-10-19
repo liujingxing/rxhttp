@@ -34,18 +34,18 @@ public abstract class BaseRxHttp : CallFactory, RangeHeader {
 
     public fun <T> toObservable(type: Type) = toObservable(SmartParser.wrap<T>(type))
 
-    public fun <T> toObservable(clazz: Class<T>): ObservableCall<T> = toObservable<T>(clazz as Type)
+    public fun <T> toObservable(clazz: Class<T>): ObservableCall<T> = toObservable(clazz as Type)
 
     public fun toObservableString(): ObservableCall<String> = toObservable(String::class.java)
 
     public fun <V> toObservableMapString(clazz: Class<V>): ObservableCall<Map<String,V>> {
         val typeMap = Map::class.parameterizedBy(String::class.java, clazz)
-        return toObservable<Map<String, V>>(typeMap)
+        return toObservable(typeMap)
     }
 
     public fun <T> toObservableList(clazz: Class<T>): ObservableCall<List<T>> {
         val typeList = List::class.parameterizedBy(clazz)
-        return toObservable<List<T>>(typeList)
+        return toObservable(typeList)
     }
 
     @JvmOverloads

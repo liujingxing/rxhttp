@@ -1,11 +1,8 @@
 package rxhttp
 
 import android.content.Context
-import android.graphics.Bitmap
 import android.net.Uri
 import kotlinx.coroutines.flow.Flow
-import okhttp3.Headers
-import okhttp3.Response
 import rxhttp.wrapper.CallFactory
 import rxhttp.wrapper.callback.OutputStreamFactory
 import rxhttp.wrapper.callback.ProgressCallback
@@ -68,7 +65,7 @@ private fun <T> Flow<T>.toAwait(): Await<T> = newAwait {
     t!!
 }
 
-internal fun <T> CallFactory.toSyncDownload(
+internal fun <T> CallFactory.toSyncDownloadAwait(
     osFactory: OutputStreamFactory<T>,
     append: Boolean = false,
     progressCallback: ((ProgressT<T>) -> Unit)? = null
