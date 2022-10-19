@@ -63,9 +63,11 @@ class RxHttpGenerator(
         val logUtilName = ClassName("rxhttp.wrapper.utils", "LogUtil")
         val logInterceptor = ClassName("rxhttp.wrapper.intercept", "LogInterceptor")
         val cacheInterceptorName = logInterceptor.peerClass("CacheInterceptor")
+        val rangeInterceptor = logInterceptor.peerClass("RangeInterceptor")
         val cacheModeName = ClassName("rxhttp.wrapper.cahce", "CacheMode")
         val cacheStrategyName = cacheModeName.peerClass("CacheStrategy")
         val downloadOffSizeName = ClassName("rxhttp.wrapper.entity", "DownloadOffSize")
+        val outputStreamFactory = ClassName("rxhttp.wrapper.callback", "OutputStreamFactory")
 
         val t = TypeVariableName("T")
         val className = Class::class.asClassName()
@@ -541,14 +543,13 @@ class RxHttpGenerator(
                 @param connectLastProgress 是否衔接上次的下载进度，该参数仅在带进度断点下载时生效
                 """.trimIndent()
             )
-            .addModifiers(KModifier.OVERRIDE)
             .addParameter("startIndex", LONG)
             .addParameter("endIndex", LONG)
             .addParameter("connectLastProgress", BOOLEAN)
             .addCode(
                 """
                 param.setRangeHeader(startIndex, endIndex)
-                if (connectLastProgress)
+                if (connectLastProgress && startIndex >= 0)
                     param.tag(DownloadOffSize::class.java, %T(startIndex))
                 return this as R
                 """.trimIndent(), downloadOffSizeName
@@ -623,11 +624,21 @@ class RxHttpGenerator(
             .let { methodList.add(it) }
 
         FunSpec.builder("tag")
+            .addModifiers(KModifier.OVERRIDE)
             .addTypeVariable(t)
             .addParameter("type", classSuperTName)
             .addParameter("tag", t)
-            .addStatement("param.tag(type, tag)")
-            .addStatement("return this as R")
+            .addCode(
+                """
+            param.tag(type, tag)
+            if (type === %T::class.java) {
+                okClient = okClient.newBuilder()
+                    .addInterceptor(%T())
+                    .build()
+            }
+            return this as R
+            """.trimIndent(), outputStreamFactory, rangeInterceptor
+            )
             .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }

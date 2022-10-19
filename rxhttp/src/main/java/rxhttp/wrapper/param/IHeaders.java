@@ -103,6 +103,6 @@ public interface IHeaders<P extends Param<P>> {
         if (endIndex >= 0) {
             headerValue = headerValue + endIndex;
         }
-        return addHeader("RANGE", headerValue);
+        return addHeader("Range", headerValue);
     }
 }

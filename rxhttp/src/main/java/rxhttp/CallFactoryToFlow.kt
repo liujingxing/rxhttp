@@ -2,12 +2,10 @@ package rxhttp
 
 import android.content.Context
 import android.net.Uri
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.channelFlow
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.onEach
 import rxhttp.wrapper.BodyParamFactory
@@ -86,7 +84,6 @@ fun <T> CallFactory.toDownloadFlow(
 ): Flow<T> =
     if (progress == null) {
         toFlow(toSyncDownloadAwait(osFactory, append))
-            .flowOn(Dispatchers.IO)
     } else {
         toFlowProgress(osFactory, append, capacity)
             .onEachProgress(progress)
@@ -113,9 +110,7 @@ fun <T> CallFactory.toFlowProgress(
     channelFlow {
         val await = toSyncDownloadAwait(osFactory, append) { trySend(it) }
         trySend(ProgressT(await.await()))
-    }
-        .buffer(capacity, BufferOverflow.DROP_OLDEST)
-        .flowOn(Dispatchers.IO)
+    }.buffer(capacity, BufferOverflow.DROP_OLDEST)
 
 fun <T> Flow<ProgressT<T>>.onEachProgress(progress: suspend (Progress) -> Unit): Flow<T> =
     onEach { if (it.result == null) progress(it) }

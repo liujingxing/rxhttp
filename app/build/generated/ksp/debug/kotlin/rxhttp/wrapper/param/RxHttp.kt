@@ -31,9 +31,11 @@ import rxhttp.RxHttpPlugins
 import rxhttp.wrapper.cahce.CacheMode
 import rxhttp.wrapper.cahce.CacheStrategy
 import rxhttp.wrapper.callback.Converter
+import rxhttp.wrapper.callback.OutputStreamFactory
 import rxhttp.wrapper.entity.DownloadOffSize
 import rxhttp.wrapper.intercept.CacheInterceptor
 import rxhttp.wrapper.intercept.LogInterceptor
+import rxhttp.wrapper.intercept.RangeInterceptor
 import rxhttp.wrapper.utils.LogUtil
 
 /**
@@ -267,13 +269,13 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
      * @param endIndex 断点下载结束位置，默认为-1，即默认结束位置为文件末尾
      * @param connectLastProgress 是否衔接上次的下载进度，该参数仅在带进度断点下载时生效
      */
-    public override fun setRangeHeader(
+    public fun setRangeHeader(
         startIndex: Long,
         endIndex: Long,
         connectLastProgress: Boolean,
     ): R {
         param.setRangeHeader(startIndex, endIndex)
-        if (connectLastProgress)
+        if (connectLastProgress && startIndex >= 0)
             param.tag(DownloadOffSize::class.java, DownloadOffSize(startIndex))
         return this as R
     }
@@ -315,8 +317,13 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
         return this as R
     }
 
-    public fun <T> tag(type: Class<in T>, tag: T): R {
+    public override fun <T> tag(type: Class<in T>, tag: T): R {
         param.tag(type, tag)
+        if (type === OutputStreamFactory::class.java) {
+            okClient = okClient.newBuilder()
+                .addInterceptor(RangeInterceptor())
+                .build()
+        }
         return this as R
     }
 

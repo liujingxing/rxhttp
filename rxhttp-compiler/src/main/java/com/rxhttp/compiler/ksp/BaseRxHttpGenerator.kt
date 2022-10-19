@@ -148,16 +148,10 @@ class BaseRxHttpGenerator(
                 .addParameter(appendParam)
                 .addCode(
                     """
-                val observableCall = toObservable(%T(osFactory))
-                return if (append) {
-                    observableCall.onSubscribe {
-                        // In IO Thread
-                        val offsetSize = osFactory.offsetSize()
-                        if (offsetSize >= 0) setRangeHeader(offsetSize, -1, true)
-                    }
-                } else {
-                    observableCall
+                if (append) {
+                    tag(OutputStreamFactory::class.java, osFactory)
                 }
+                return toObservable(%T(osFactory))
             """.trimIndent(), streamParser
                 )
                 .returns(observableCall.parameterizedBy("T"))
@@ -247,8 +241,8 @@ class BaseRxHttpGenerator(
 
         typeSpecBuilder
             .addModifiers(KModifier.ABSTRACT)
+            .addSuperinterface(ClassName("rxhttp.wrapper", "ITag"))
             .addSuperinterface(ClassName("rxhttp.wrapper", "CallFactory"))
-            .addSuperinterface(ClassName("rxhttp.wrapper.coroutines", "RangeHeader"))
             .addFunctions(methodList)
             .addKdoc(
                 """

@@ -14,10 +14,10 @@ import kotlin.jvm.JvmOverloads
 import kotlin.jvm.Throws
 import okhttp3.Response
 import rxhttp.wrapper.CallFactory
+import rxhttp.wrapper.ITag
 import rxhttp.wrapper.callback.FileOutputStreamFactory
 import rxhttp.wrapper.callback.OutputStreamFactory
 import rxhttp.wrapper.callback.UriOutputStreamFactory
-import rxhttp.wrapper.coroutines.RangeHeader
 import rxhttp.wrapper.parse.Parser
 import rxhttp.wrapper.parse.SmartParser
 import rxhttp.wrapper.parse.StreamParser
@@ -29,7 +29,7 @@ import rxhttp.wrapper.utils.parameterizedBy
  * Date: 2020/4/11
  * Time: 18:15
  */
-public abstract class BaseRxHttp : CallFactory, RangeHeader {
+public abstract class BaseRxHttp : ITag, CallFactory {
     public fun <T> toObservable(parser: Parser<T>) = ObservableCall(this, parser)
 
     public fun <T> toObservable(type: Type) = toObservable(SmartParser.wrap<T>(type))
@@ -62,16 +62,10 @@ public abstract class BaseRxHttp : CallFactory, RangeHeader {
     @JvmOverloads
     public fun <T> toDownloadObservable(osFactory: OutputStreamFactory<T>, append: Boolean = false):
             ObservableCall<T> {
-        val observableCall = toObservable(StreamParser(osFactory))
-        return if (append) {
-            observableCall.onSubscribe {
-                // In IO Thread
-                val offsetSize = osFactory.offsetSize()
-                if (offsetSize >= 0) setRangeHeader(offsetSize, -1, true)
-            }
-        } else {
-            observableCall
+        if (append) {
+            tag(OutputStreamFactory::class.java, osFactory)
         }
+        return toObservable(StreamParser(osFactory))
     }
 
     public fun <T> toObservableResponse(type: Type) = toObservable(wrapResponseParser<T>(type))

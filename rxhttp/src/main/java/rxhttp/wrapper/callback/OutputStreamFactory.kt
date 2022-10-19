@@ -18,7 +18,7 @@ import java.net.URLDecoder
  */
 abstract class OutputStreamFactory<T> {
 
-    // RANGE headers start index, equivalent to 'Range: bytes=offsetSize-'
+    // Range headers start index, equivalent to 'Range: bytes=offsetSize-'
     open fun offsetSize(): Long = 0
 
     @Throws(IOException::class)

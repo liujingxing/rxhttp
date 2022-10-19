@@ -38,7 +38,6 @@ public final class ObservableCall<T> extends Observable<T> {
     private final CallFactory callFactory;
     private boolean syncRequest = false;
     private boolean callbackProgress = false;
-    private Runnable onSubscribe;
 
     public ObservableCall(CallFactory callFactory, Parser<T> parser) {
         this.callFactory = callFactory;
@@ -61,25 +60,7 @@ public final class ObservableCall<T> extends Observable<T> {
                 ((BodyParamFactory) callFactory).getParam().setProgressCallback(pc);
             }
         }
-        if (syncRequest || onSubscribe == null) {
-            //must be in IO Thread if syncRequest is true
-            if (onSubscribe != null) onSubscribe.run();
-            d.run();
-        } else {
-            d.setDisposable(Schedulers.io().scheduleDirect(new Runnable() {
-                @Override
-                public void run() {
-                    // In IO Thread
-                    onSubscribe.run();
-                    d.run();
-                }
-            }));
-        }
-    }
-
-    ObservableCall<T> onSubscribe(Runnable onSubscribe) {
-        this.onSubscribe = onSubscribe;
-        return this;
+        d.run();
     }
 
     public ObservableCall<T> syncRequest() {
@@ -98,11 +79,11 @@ public final class ObservableCall<T> extends Observable<T> {
     public Observable<T> onMainProgress(Consumer<Progress> progressConsumer) {
         return onMainProgress(2, progressConsumer);
     }
-    
+
     public Observable<T> onMainProgress(int capacity, Consumer<Progress> progressConsumer) {
         return onProgress(capacity, AndroidSchedulers.mainThread(), progressConsumer);
     }
-    
+
     /**
      * Upload or Download progress callback
      *

@@ -178,16 +178,10 @@ class BaseRxHttpGenerator(private val isAndroidPlatform: Boolean) {
                 .addParameter(Boolean::class.java, "append")
                 .addCode(
                     """
-                ObservableCall<T> observableCall = toObservable(new ${'$'}T<>(osFactory));
                 if (append) {
-                    return observableCall.onSubscribe(() -> {
-                        long offsetSize = osFactory.offsetSize();
-                        if (offsetSize >= 0)
-                            setRangeHeader(offsetSize, -1, true);
-                    });
-                } else {
-                    return observableCall;
-                }
+                    tag(OutputStreamFactory.class, osFactory);
+                }        
+                return toObservable(new ${'$'}T<>(osFactory));
             """.trimIndent(), streamParser
                 )
                 .returns(observableCallT)
@@ -259,8 +253,8 @@ class BaseRxHttpGenerator(private val isAndroidPlatform: Boolean) {
         val fileName = "BaseRxHttp"
         val typeSpecBuilder = TypeSpec.classBuilder(fileName)
             .addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
+            .addSuperinterface(ClassName.get("rxhttp.wrapper", "ITag"))
             .addSuperinterface(ClassName.get("rxhttp.wrapper", "CallFactory"))
-            .addSuperinterface(ClassName.get("rxhttp.wrapper.coroutines", "RangeHeader"))
             .addMethods(methodList)
             .addJavadoc(
                 """

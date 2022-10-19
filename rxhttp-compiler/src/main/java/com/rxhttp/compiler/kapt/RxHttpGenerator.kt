@@ -48,9 +48,11 @@ class RxHttpGenerator {
         val logUtilName = ClassName.get("rxhttp.wrapper.utils", "LogUtil")
         val logInterceptor = ClassName.get("rxhttp.wrapper.intercept", "LogInterceptor")
         val cacheInterceptorName = logInterceptor.peerClass("CacheInterceptor")
+        val rangeInterceptor = logInterceptor.peerClass("RangeInterceptor")
         val cacheModeName = ClassName.get("rxhttp.wrapper.cahce", "CacheMode")
         val cacheStrategyName = cacheModeName.peerClass("CacheStrategy")
         val downloadOffSizeName = ClassName.get("rxhttp.wrapper.entity", "DownloadOffSize")
+        val outputStreamFactory = ClassName.get("rxhttp.wrapper.callback", "OutputStreamFactory")
 
         val t = TypeVariableName.get("T")
         val wildcard = TypeVariableName.get("?")
@@ -444,7 +446,7 @@ class RxHttpGenerator {
             .addCode(
                 """
                 param.setRangeHeader(startIndex, endIndex);                         
-                if (connectLastProgress)                                            
+                if (connectLastProgress && startIndex >= 0)                                            
                     param.tag(DownloadOffSize.class, new ${'$'}T(startIndex));
                 return (R) this;                                                    
                 """.trimIndent(), downloadOffSizeName
@@ -560,8 +562,17 @@ class RxHttpGenerator {
             .addTypeVariable(t)
             .addParameter(classSuperTName, "type")
             .addParameter(t, "tag")
-            .addStatement("param.tag(type,tag)")
-            .addStatement("return (R) this")
+            .addCode(
+                """
+            param.tag(type, tag);
+            if (type == ${'$'}T.class) {
+                okClient = okClient.newBuilder()
+                    .addInterceptor(new ${'$'}T())
+                    .build();
+            }
+            return (R) this;
+            """.trimIndent(), outputStreamFactory, rangeInterceptor
+            )
             .returns(typeVariableR)
             .build()
             .apply { methodList.add(this) }

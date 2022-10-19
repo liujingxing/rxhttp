@@ -4,11 +4,11 @@ import android.content.Context
 import android.net.Uri
 import kotlinx.coroutines.flow.Flow
 import rxhttp.wrapper.CallFactory
+import rxhttp.wrapper.ITag
 import rxhttp.wrapper.callback.OutputStreamFactory
 import rxhttp.wrapper.callback.ProgressCallback
 import rxhttp.wrapper.coroutines.Await
 import rxhttp.wrapper.coroutines.AwaitImpl
-import rxhttp.wrapper.coroutines.setRangeHeader
 import rxhttp.wrapper.entity.Progress
 import rxhttp.wrapper.entity.ProgressT
 import rxhttp.wrapper.parse.Parser
@@ -70,7 +70,9 @@ internal fun <T> CallFactory.toSyncDownloadAwait(
     append: Boolean = false,
     progressCallback: ((ProgressT<T>) -> Unit)? = null
 ): Await<T> {
-    setRangeHeader(osFactory, append)
+    if (append && this is ITag) {
+        tag(OutputStreamFactory::class.java, osFactory)
+    }
     val parser = StreamParser(osFactory)
     if (progressCallback != null) {
         parser.progressCallback = ProgressCallback { progress, currentSize, totalSize ->

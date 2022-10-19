@@ -13,6 +13,11 @@ interface CallFactory {
     fun newCall(): Call
 }
 
+interface ITag {
+
+    fun <T> tag(type: Class<in T>, tag: T): CallFactory
+}
+
 interface BodyParamFactory : CallFactory {
     val param: AbstractBodyParam<*>
 }
