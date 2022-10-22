@@ -1,6 +1,5 @@
 package rxhttp.wrapper.param;
 
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -46,16 +45,14 @@ public class FormParam extends AbstractBodyParam<FormParam> implements IPart<For
 
     @Override
     public FormParam add(String key, @Nullable Object value) {
-        if (value != null) add(new KeyValuePair(key, value));
-        return this;
+        return value == null ? this : add(new KeyValuePair(key, value));
     }
 
     public FormParam addEncoded(String key, @Nullable Object value) {
-        if (value != null) add(new KeyValuePair(key, value, true));
-        return this;
+        return value == null ? this : add(new KeyValuePair(key, value, true));
     }
 
-    public FormParam addAllEncoded(@NotNull Map<String, ?> map) {
+    public FormParam addAllEncoded(Map<String, ?> map) {
         for (Entry<String, ?> entry : map.entrySet()) {
             addEncoded(entry.getKey(), entry.getValue());
         }
@@ -81,12 +78,12 @@ public class FormParam extends AbstractBodyParam<FormParam> implements IPart<For
         return this;
     }
 
-    public FormParam set(String key, Object value) {
+    public FormParam set(String key, @Nullable Object value) {
         removeAllBody(key);
         return add(key, value);
     }
 
-    public FormParam setEncoded(String key, Object value) {
+    public FormParam setEncoded(String key, @Nullable Object value) {
         removeAllBody(key);
         return addEncoded(key, value);
     }

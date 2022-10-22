@@ -12,10 +12,10 @@ import java.io.File;
  */
 public class UpFile {
 
-    public final String key;
-    public final File file;
-    public final String filename;
-    public final long skipSize;
+    private final String key;
+    private final File file;
+    private final String filename;
+    private final long skipSize;
 
     public UpFile(String key, String path) {
         this(key, new File(path));

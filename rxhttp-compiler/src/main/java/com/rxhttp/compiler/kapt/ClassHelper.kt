@@ -192,7 +192,6 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
             ${isAndroid("import android.net.Uri;")}
             ${isAndroid("import rxhttp.wrapper.entity.UriRequestBody;")}
             
-            import org.jetbrains.annotations.NotNull;
             import org.jetbrains.annotations.Nullable;
 
             import java.io.File;
@@ -223,29 +222,22 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
                     super(param);
                 }
 
-                public RxHttpFormParam add(String key, Object value) {
-                  param.add(key,value);
-                  return this;
+                public RxHttpFormParam add(String key, @Nullable Object value) {
+                    param.add(key, value);
+                    return this;
                 }
-                
-                public RxHttpFormParam add(String key, Object value, boolean isAdd) {
-                  if(isAdd) {
-                    param.add(key,value);
-                  }
-                  return this;
-                }
-                
+
                 public RxHttpFormParam addAll(Map<String, ?> map) {
-                  param.addAll(map);
-                  return this;
+                    param.addAll(map);
+                    return this;
                 }
-                
-                public RxHttpFormParam addEncoded(String key, Object value) {
+
+                public RxHttpFormParam addEncoded(String key, @Nullable Object value) {
                     param.addEncoded(key, value);
                     return this;
                 }
-                
-                public RxHttpFormParam addAllEncoded(@NotNull Map<String, ?> map) {
+
+                public RxHttpFormParam addAllEncoded(Map<String, ?> map) {
                     param.addAllEncoded(map);
                     return this;
                 }
@@ -260,25 +252,28 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
                     return this;
                 }
 
-                public RxHttpFormParam set(String key, Object value) {
+                public RxHttpFormParam set(String key, @Nullable Object value) {
                     param.set(key, value);
                     return this;
                 }
 
-                public RxHttpFormParam setEncoded(String key, Object value) {
+                public RxHttpFormParam setEncoded(String key, @Nullable Object value) {
                     param.setEncoded(key, value);
                     return this;
                 }
 
-                public RxHttpFormParam addFile(String key, File file) {
-                    return addFile(new UpFile(key, file));
+                public RxHttpFormParam addFile(String key, @Nullable File file) {
+                    if (file == null) return this;
+                    return addFile(key, file, file.getName());
                 }
 
-                public RxHttpFormParam addFile(String key, String filePath) {
-                    return addFile(new UpFile(key, filePath));
+                public RxHttpFormParam addFile(String key, @Nullable String filePath) {
+                    if (filePath == null) return this;
+                    return addFile(key, new File(filePath));
                 }
 
-                public RxHttpFormParam addFile(String key, File file, String filename) {
+                public RxHttpFormParam addFile(String key, @Nullable File file, @Nullable String filename) {
+                    if (file == null) return this;
                     return addFile(new UpFile(key, file, filename));
                 }
 
@@ -294,33 +289,29 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
                     }
                     return this;
                 }
-                
+
                 public <T> RxHttpFormParam addFiles(Map<String, T> fileMap) {
                     for (Map.Entry<String, T> entry : fileMap.entrySet()) {
-                        String key = entry.getKey();
-                        T value = entry.getValue();
-                        if (value instanceof String) {
-                            addFile(new UpFile(key, value.toString()));
-                        } else if (value instanceof File) {
-                            addFile(new UpFile(key, (File) value));
-                        } else {
-                            throw new IllegalArgumentException("Incoming data type exception, it must be String or File");
-                        }
+                        addFile(entry.getKey(), entry.getValue());
                     }
                     return this;
                 }
-                
+
                 public <T> RxHttpFormParam addFiles(String key, List<T> files) {
-                    for (T src : files) {
-                        if (src instanceof String) {
-                            addFile(new UpFile(key, src.toString()));
-                        } else if (src instanceof File) {
-                            addFile(new UpFile(key, (File) src));
-                        } else {
-                            throw new IllegalArgumentException("Incoming data type exception, it must be String or File");
-                        }
+                    for (T file : files) {
+                        addFile(key, file);
                     }
                     return this;
+                }
+
+                private void addFile(String key, @Nullable Object file){
+                    if (file instanceof File) {
+                        addFile(key, (File) file);
+                    } else if (file instanceof String) {
+                        addFile(key, file.toString());
+                    } else if (file != null){
+                        throw new IllegalArgumentException("Incoming data type exception, it must be String or File");
+                    }
                 }
 
                 public RxHttpFormParam addPart(byte[] content, @Nullable MediaType contentType) {
@@ -335,7 +326,7 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
                 public RxHttpFormParam addPart(Context context, Uri uri) {
                     return addPart(context, uri, BuildUtil.getMediaTypeByUri(context, uri));
                 }
-                
+
                 public RxHttpFormParam addPart(Context context, Uri uri, @Nullable MediaType contentType) {
                     return addPart(new UriRequestBody(context, uri, 0, contentType));
                 }
@@ -416,27 +407,27 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
                 public RxHttpFormParam setMultiForm() {
                     return setMultiType(MultipartBody.FORM);
                 }
-                
+
                 //Set content-type to multipart/mixed
                 public RxHttpFormParam setMultiMixed() {
                     return setMultiType(MultipartBody.MIXED);
                 }
-                
+
                 //Set content-type to multipart/alternative
                 public RxHttpFormParam setMultiAlternative() {
                     return setMultiType(MultipartBody.ALTERNATIVE);
                 }
-                
+
                 //Set content-type to multipart/digest
                 public RxHttpFormParam setMultiDigest() {
                     return setMultiType(MultipartBody.DIGEST);
                 }
-                
+
                 //Set content-type to multipart/parallel
                 public RxHttpFormParam setMultiParallel() {
                     return setMultiType(MultipartBody.PARALLEL);
                 }
-                
+
                 //Set the MIME type
                 public RxHttpFormParam setMultiType(MediaType multiType) {
                     param.setMultiType(multiType);

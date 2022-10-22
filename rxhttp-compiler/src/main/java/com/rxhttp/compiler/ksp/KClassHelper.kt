@@ -178,10 +178,7 @@ class KClassHelper(
              */
             open class RxHttpFormParam(param: FormParam) : RxHttpAbstractBodyParam<FormParam, RxHttpFormParam>(param) {
                 
-                @JvmOverloads
-                fun add(key: String, value: Any?, isAdd: Boolean = true) = apply {
-                    if (isAdd) param.add(key, value)
-                }
+                fun add(key: String, value: Any?) = apply { param.add(key, value) }
 
                 fun addAll(map: Map<String, *>) = apply { param.addAll(map) }
 
@@ -197,31 +194,30 @@ class KClassHelper(
 
                 fun setEncoded(key: String, value: Any?) = apply { param.setEncoded(key, value) }
 
-                fun addFile(key: String, file: File) = addFile(UpFile(key, file))
+                fun addFile(key: String, filePath: String?) = 
+                    if (filePath == null) this else add(key, File(filePath))
 
-                fun addFile(key: String, filePath: String) = addFile(UpFile(key, filePath))
-
-                fun addFile(key: String, file: File, filename: String) = addFile(UpFile(key, file, filename))
+                @JvmOverloads
+                fun addFile(key: String, file: File?, filename: String? = file?.name) =
+                    if (file == null) this else addFile(UpFile(key, file, filename))
 
                 fun addFiles(fileList: List<UpFile>) = apply { fileList.forEach { addFile(it) } }
 
                 fun <T> addFiles(fileMap: Map<String, T>) = apply {
-                    fileMap.forEach { key, value ->
-                        when (value) {
-                            is File -> addFile(UpFile(key, value))
-                            is String -> addFile(UpFile(key, value))
-                            else -> throw IllegalArgumentException("Incoming data type exception, it must be String or File")
-                        }
-                    }
+                    fileMap.forEach { key, value -> addFile(key, value) }
                 }
 
                 fun <T> addFiles(key: String, files: List<T>) = apply {
-                    files.forEach {
-                        when (it) {
-                            is File -> addFile(UpFile(key, it))
-                            is String -> addFile(UpFile(key, it))
-                            else -> throw IllegalArgumentException("Incoming data type exception, it must be String or File")
-                        }
+                    files.forEach { addFile(key, it) }
+                }
+
+                private fun addFile(key: String, file: Any?) {
+                    if (file is File) {
+                        addFile(key, file)
+                    } else if (file is String) {
+                        addFile(key, file)
+                    } else if (file != null) {
+                        throw IllegalArgumentException("Incoming data type exception, it must be String or File")
                     }
                 }
 
@@ -229,7 +225,7 @@ class KClassHelper(
                     val requestBody = FileRequestBody(upFile.file, upFile.skipSize, BuildUtil.getMediaType(upFile.filename))
                     return addFormDataPart(upFile.key, upFile.filename, requestBody)
                 }
-                
+
                 @JvmOverloads
                 fun addPart(
                     content: ByteArray,
@@ -269,11 +265,11 @@ class KClassHelper(
                 fun addParts(context: Context, uris: List<Uri>) = apply {
                     uris.forEach { addPart(context, it) }
                 }
-                
+
                 fun addParts(context: Context, uris: List<Uri>, contentType: MediaType?) = apply {
                     uris.forEach { addPart(context, it, contentType) }
                 }
-                
+
                 fun addParts(context: Context, key: String, uris: List<Uri>) = apply {
                     uris.forEach { addPart(context, key, it) }
                 }
@@ -292,7 +288,7 @@ class KClassHelper(
                     fileName: String?,
                     requestBody: RequestBody
                 ) = addPart(OkHttpCompat.part(key, fileName, requestBody))
-                
+
                 fun addPart(part: MultipartBody.Part) = apply { param.addPart(part) }
 
                 //Set content-type to multipart/form-data
