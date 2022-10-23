@@ -147,8 +147,7 @@ class RxHttpExtensions(private val logger: KSPLogger) {
             if (typeVariableNames.size == 1) {
                 val t = TypeVariableName("T")
                 val type = ClassName("java.lang.reflect", "Type")
-                val parameterizedType = ClassName("java.lang.reflect", "ParameterizedType")
-                val okResponse = ClassName("rxhttp.wrapper.entity", "OkResponse")
+                val typeUtil = ClassName("rxhttp.wrapper.utils", "TypeUtil")
                 val okResponseParser = ClassName("rxhttp.wrapper.parse", "OkResponseParser")
                 val parserClass = ClassName("rxhttp.wrapper.parse", "Parser").parameterizedBy(t)
 
@@ -157,22 +156,18 @@ class RxHttpExtensions(private val logger: KSPLogger) {
                     .build()
 
                 FunSpec.builder("wrap${customParserClassName.simpleName}")
+                    .addAnnotation(suppressAnnotation)
                     .addTypeVariable(t)
                     .addParameter("type", type)
-                    .addAnnotation(suppressAnnotation)
                     .addParameters(parameterList)
                     .returns(parserClass)
                     .addCode(
                         """
-                return 
-                    if (type is %T && type.rawType === %T::class.java) {
-                        val actualType = type.actualTypeArguments[0]
-                        %T(%T<Any>(actualType)) as Parser<T>
-                    } else {
-                        %T(type)
-                    }
-                """.trimIndent(), parameterizedType, okResponse, okResponseParser,
-                        customParserClassName, customParserClassName
+                    val actualType = %T.getActualType(type) ?: type
+                    val parser = %T<Any>(actualType)
+                    val actualParser = if (actualType == type) parser else %T(parser)
+                    return actualParser as Parser<T>
+                """.trimIndent(), typeUtil, customParserClassName, okResponseParser
                     ).build().apply { wrapFunList.add(this) }
             }
         }

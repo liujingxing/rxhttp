@@ -1,10 +1,9 @@
 package rxhttp.wrapper.parse
 
 import okhttp3.Response
-import rxhttp.wrapper.entity.OkResponse
+import rxhttp.wrapper.utils.TypeUtil
 import rxhttp.wrapper.utils.convert
 import java.io.IOException
-import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
 
 /**
@@ -23,12 +22,11 @@ open class SmartParser<T> : TypeParser<T> {
     companion object {
         @Suppress("UNCHECKED_CAST")
         @JvmStatic
-        fun <T> wrap(type: Type): Parser<T> =
-            if (type is ParameterizedType && type.rawType === OkResponse::class.java) {
-                val actualType = type.actualTypeArguments[0]
-                OkResponseParser(SmartParser<Any>(actualType)) as Parser<T>
-            } else {
-                SmartParser(type)
-            }
+        fun <T> wrap(type: Type): Parser<T> {
+            val actualType = TypeUtil.getActualType(type) ?: type
+            val parser = SmartParser<Any>(actualType)
+            val actualParser = if (actualType == type) parser else OkResponseParser(parser)
+            return actualParser as Parser<T>
+        }
     }
 }
