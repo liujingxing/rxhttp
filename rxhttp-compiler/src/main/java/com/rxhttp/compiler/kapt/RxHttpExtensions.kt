@@ -168,6 +168,8 @@ class RxHttpExtensions {
                     .addMember("\"UNCHECKED_CAST\"")
                     .build()
 
+                val wrapParams = if (params.isNotEmpty()) ", $params" else ""
+
                 FunSpec.builder("wrap${customParserClassName.simpleName}")
                     .addAnnotation(suppressAnnotation)
                     .addTypeVariable(t)
@@ -177,7 +179,7 @@ class RxHttpExtensions {
                     .addCode(
                         """
                     val actualType = %T.getActualType(type) ?: type
-                    val parser = %T<Any>(actualType)
+                    val parser = %T<Any>(actualType$wrapParams)
                     val actualParser = if (actualType == type) parser else %T(parser)
                     return actualParser as Parser<T>
                 """.trimIndent(),  typeUtil, customParserClassName, okResponseParser
