@@ -114,6 +114,7 @@ public abstract class BaseRxHttp : ITag, CallFactory {
                  这时由于已经取消订阅，“downStream”无法处理异常，此时的异常无人处理，便会导致程序崩溃                       
                 */
                 RxJavaPlugins.setErrorHandler { LogUtil.log(it) }
-            }}
+            }
+        }
     }
 }

@@ -231,6 +231,7 @@ class BaseRxHttpGenerator(
                     */
                     RxJavaPlugins.setErrorHandler { %T.log(it) }
                 }
+                
             """.trimIndent(), rxJavaPlugins, logUtil
             )
             val companionBuilder = TypeSpec.companionObjectBuilder()
