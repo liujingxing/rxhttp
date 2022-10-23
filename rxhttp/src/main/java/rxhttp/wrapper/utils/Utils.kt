@@ -83,11 +83,6 @@ internal fun close(vararg closeables: Closeable?) {
 
 internal fun Response.isPartialContent() = OkHttpCompat.isPartialContent(this)
 
-fun getActualTypeParameters(clazz: Class<*>): Array<Type> {
-    return (clazz.genericSuperclass as? ParameterizedType)?.actualTypeArguments
-        ?: throw RuntimeException("Missing type parameter.")
-}
-
 fun KClass<*>.parameterizedBy(vararg typeArguments: Type): ParameterizedType=
     ParameterizedTypeImpl.getParameterized(java, *typeArguments)
 

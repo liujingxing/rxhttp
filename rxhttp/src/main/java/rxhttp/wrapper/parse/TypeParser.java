@@ -2,7 +2,7 @@ package rxhttp.wrapper.parse;
 
 import java.lang.reflect.Type;
 
-import rxhttp.wrapper.utils.Utils;
+import rxhttp.wrapper.utils.TypeUtil;
 
 
 /**
@@ -15,7 +15,7 @@ public abstract class TypeParser<T> implements Parser<T> {
     protected final Type[] types;
 
     public TypeParser() {
-        types = Utils.getActualTypeParameters(getClass());
+        types = TypeUtil.getActualTypeParameters(getClass());
     }
 
     protected TypeParser(Type... types) {
