@@ -99,19 +99,8 @@ private fun KSClassDeclaration.getToObservableXxxFun(
     val typeVariableNames = typeParameters.map { it.toTypeVariableName() }
     //遍历public构造方法
     for (constructor in getPublicConstructors()) {
-        val tempParameters = constructor.parameters
-        var typeCount = typeVariableNames.size
-        val typeArray = "kotlin.Array<java.lang.reflect.Type>"
-        if (typeArray == tempParameters.firstOrNull()?.type?.toTypeName()?.toString()) {
-            typeCount = 1   //如果是Type是数组传递的，一个参数就行
-        } else {
-            //如果解析器有n个泛型，则构造方法前n个参数，必须是Type类型
-            val match = tempParameters.subList(0, typeCount).all {
-                "java.lang.reflect.Type" == it.type.getQualifiedName()
-            }
-            if (!match) continue
-        }
-        if (tempParameters.size < typeCount) continue
+        //参数为空，说明该构造方法无效
+        constructor.getParametersIfValid(typeVariableNames.size) ?: continue
 
         //根据构造方法参数，获取toObservableXxx方法需要的参数
         val parameterSpecs = constructor.getParameterSpecs(
@@ -185,6 +174,27 @@ private fun KSClassDeclaration.getToObservableXxxFun(
         }
     }
     return funList
+}
+
+//获取方法参数，如果该方法有效
+fun KSFunctionDeclaration.getParametersIfValid(
+    typeSize: Int
+): List<KSValueParameter>? {
+    val tempParameters = parameters
+    var typeCount = typeSize //泛型数量
+    val typeArray = "kotlin.Array<java.lang.reflect.Type>"
+    if (typeArray == tempParameters.firstOrNull()?.type?.toTypeName()?.toString()) {
+        typeCount = 1  //如果是Type是数组传递的，一个参数就行
+    } else {
+        //如果解析器有n个泛型，则构造方法前n个参数，必须是Type类型
+        val match = tempParameters.subList(0, typeCount).all {
+            "java.lang.reflect.Type" == it.type.getQualifiedName()
+        }
+        if (!match) return null
+    }
+    //构造方法参数数量小于泛型数量，直接过滤掉
+    if (tempParameters.size < typeCount) return null
+    return tempParameters.subList(typeCount, tempParameters.size)
 }
 
 /**
