@@ -64,7 +64,7 @@ class RxHttpGenerator(
         val logInterceptor = ClassName("rxhttp.wrapper.intercept", "LogInterceptor")
         val cacheInterceptorName = logInterceptor.peerClass("CacheInterceptor")
         val rangeInterceptor = logInterceptor.peerClass("RangeInterceptor")
-        val cacheModeName = ClassName("rxhttp.wrapper.cahce", "CacheMode")
+        val cacheModeName = ClassName("rxhttp.wrapper.cache", "CacheMode")
         val cacheStrategyName = cacheModeName.peerClass("CacheStrategy")
         val downloadOffSizeName = ClassName("rxhttp.wrapper.entity", "DownloadOffSize")
         val outputStreamFactory = ClassName("rxhttp.wrapper.callback", "OutputStreamFactory")

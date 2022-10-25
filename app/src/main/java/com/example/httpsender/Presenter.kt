@@ -9,7 +9,7 @@ import com.rxjava.rxlife.life
 import io.reactivex.rxjava3.core.Observable
 import kotlinx.coroutines.*
 import rxhttp.*
-import rxhttp.wrapper.cahce.CacheMode
+import rxhttp.wrapper.cache.CacheMode
 import rxhttp.wrapper.param.RxHttp
 import rxhttp.wrapper.param.toAwaitResponse
 import java.util.concurrent.TimeUnit

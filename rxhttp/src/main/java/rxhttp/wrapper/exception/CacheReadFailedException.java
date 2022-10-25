@@ -2,7 +2,7 @@ package rxhttp.wrapper.exception;
 
 import java.io.IOException;
 
-import rxhttp.wrapper.cahce.CacheMode;
+import rxhttp.wrapper.cache.CacheMode;
 
 /**
  * 缓存读取失败异常，仅在 {@link CacheMode#ONLY_CACHE}模式下会抛出

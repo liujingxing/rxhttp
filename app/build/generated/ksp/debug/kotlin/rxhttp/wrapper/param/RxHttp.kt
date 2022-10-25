@@ -28,8 +28,8 @@ import okhttp3.Headers.Builder
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import rxhttp.RxHttpPlugins
-import rxhttp.wrapper.cahce.CacheMode
-import rxhttp.wrapper.cahce.CacheStrategy
+import rxhttp.wrapper.cache.CacheMode
+import rxhttp.wrapper.cache.CacheStrategy
 import rxhttp.wrapper.callback.Converter
 import rxhttp.wrapper.callback.OutputStreamFactory
 import rxhttp.wrapper.entity.DownloadOffSize

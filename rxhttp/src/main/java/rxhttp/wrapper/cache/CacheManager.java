@@ -1,4 +1,4 @@
-package rxhttp.wrapper.cahce;
+package rxhttp.wrapper.cache;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static okhttp3.internal.Util.discard;

@@ -1,4 +1,4 @@
-package rxhttp.wrapper.cahce;
+package rxhttp.wrapper.cache;
 
 /**
  * 缓存策略

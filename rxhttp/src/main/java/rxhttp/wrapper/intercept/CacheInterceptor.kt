@@ -5,9 +5,9 @@ import okhttp3.Request
 import okhttp3.Response
 import rxhttp.RxHttpPlugins
 import rxhttp.wrapper.OkHttpCompat
-import rxhttp.wrapper.cahce.CacheMode
-import rxhttp.wrapper.cahce.CacheStrategy
-import rxhttp.wrapper.cahce.InternalCache
+import rxhttp.wrapper.cache.CacheMode
+import rxhttp.wrapper.cache.CacheStrategy
+import rxhttp.wrapper.cache.InternalCache
 import rxhttp.wrapper.exception.CacheReadFailedException
 import java.io.IOException
 

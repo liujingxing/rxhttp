@@ -1,4 +1,4 @@
-package rxhttp.wrapper.cahce;
+package rxhttp.wrapper.cache;
 
 import java.util.Collections;
 import java.util.Objects;
