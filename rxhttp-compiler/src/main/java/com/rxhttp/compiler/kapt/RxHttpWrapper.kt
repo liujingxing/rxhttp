@@ -1,21 +1,18 @@
 package com.rxhttp.compiler.kapt
 
 import com.rxhttp.compiler.rxHttpPackage
-import com.rxhttp.compiler.rxhttpClassName
+import com.rxhttp.compiler.rxhttpClass
 import com.squareup.javapoet.ArrayTypeName
-import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.JavaFile
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterSpec
-import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeSpec
 import com.squareup.javapoet.TypeVariableName
 import rxhttp.wrapper.annotation.Converter
 import rxhttp.wrapper.annotation.Domain
 import rxhttp.wrapper.annotation.OkClient
 import rxhttp.wrapper.annotation.Param
-import java.util.*
 import javax.annotation.processing.Filer
 import javax.annotation.processing.Messager
 import javax.lang.model.element.ElementKind
@@ -23,7 +20,6 @@ import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
 import javax.lang.model.element.VariableElement
-import kotlin.collections.ArrayList
 
 /**
  * User: ljx
@@ -34,12 +30,12 @@ class RxHttpWrapper(private val logger: Messager) {
 
     private val classMap = LinkedHashMap<String, Wrapper>()
 
-    private val mElementMap = LinkedHashMap<String, TypeElement>()
+    private val elementMap = LinkedHashMap<String, TypeElement>()
 
     fun add(typeElement: TypeElement) {
         val annotation = typeElement.getAnnotation(Param::class.java)
         val name: String = annotation.methodName
-        mElementMap[name] = typeElement
+        elementMap[name] = typeElement
     }
 
     fun addOkClient(variableElement: VariableElement) {
@@ -102,9 +98,9 @@ class RxHttpWrapper(private val logger: Messager) {
 
     fun generateRxWrapper(filer: Filer) {
         val requestFunList = generateRequestFunList()
-        val typeVariableR = TypeVariableName.get("R", rxhttpClassName)     //泛型R
+        val typeVariableR = TypeVariableName.get("R", rxhttpClass)     //泛型R
         //生成多个RxHttp的包装类
-        for ((className, wrapper) in classMap) {
+        classMap.forEach { (className, wrapper) ->
             val funBody = CodeBlock.builder()
             if (wrapper.converterName != null) {
                 funBody.addStatement("rxHttp.set${wrapper.converterName}()")
@@ -169,8 +165,8 @@ class RxHttpWrapper(private val logger: Messager) {
         methodMap["putJsonArray"] = "RxHttpJsonArrayParam"
         methodMap["patchJsonArray"] = "RxHttpJsonArrayParam"
         methodMap["deleteJsonArray"] = "RxHttpJsonArrayParam"
-        for ((key, value) in methodMap) {
-            val returnType = ClassName.get(rxHttpPackage, value);
+        methodMap.forEach { (key, value) ->
+            val returnType = rxhttpClass.peerClass(value)
             MethodSpec.methodBuilder(key)
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                 .addParameter(String::class.java, "url")
@@ -183,23 +179,23 @@ class RxHttpWrapper(private val logger: Messager) {
                 .build().apply { methodList.add(this) }
         }
 
-        for ((key, typeElement) in mElementMap) {
+        elementMap.forEach { (key, typeElement) ->
             val rxHttpTypeNames = typeElement.typeParameters.map {
                 TypeVariableName.get(it)
             }
 
-            val rxHttpParamName = ClassName.get(rxHttpPackage, "RxHttp${typeElement.simpleName}")
+            val rxHttpParamName = rxhttpClass.peerClass("RxHttp${typeElement.simpleName}")
             val methodReturnType = if (rxHttpTypeNames.isNotEmpty()) {
-                ParameterizedTypeName.get(rxHttpParamName, *rxHttpTypeNames.toTypedArray())
+                rxHttpParamName.parameterizedBy(*rxHttpTypeNames.toTypedArray())
             } else {
                 rxHttpParamName
             }
 
             //遍历public构造方法
             getConstructorFun(typeElement).forEach {
-                val parameterSpecs = java.util.ArrayList<ParameterSpec>() //构造方法参数
+                val parameterSpecs = mutableListOf<ParameterSpec>() //构造方法参数
                 val methodBody = StringBuilder("\$T rxHttp = RxHttp.$key(") //方法体
-                for ((index, element) in it.parameters.withIndex()) {
+                it.parameters.forEachIndexed { index, element ->
                     val parameterSpec = ParameterSpec.get(element)
                     parameterSpecs.add(parameterSpec)
                     if (index > 0) {

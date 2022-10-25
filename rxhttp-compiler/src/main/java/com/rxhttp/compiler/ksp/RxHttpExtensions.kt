@@ -9,6 +9,7 @@ import com.rxhttp.compiler.common.getTypeOfString
 import com.rxhttp.compiler.common.getTypeVariableString
 import com.rxhttp.compiler.isDependenceRxJava
 import com.rxhttp.compiler.rxHttpPackage
+import com.rxhttp.compiler.rxhttpKClass
 import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
@@ -36,7 +37,7 @@ import com.squareup.kotlinpoet.ksp.writeTo
  */
 class RxHttpExtensions(private val logger: KSPLogger) {
 
-    private val baseRxHttpName = ClassName(rxHttpPackage, "BaseRxHttp")
+    private val baseRxHttpName = rxhttpKClass.peerClass("BaseRxHttp")
     private val callFactoryName = ClassName("rxhttp.wrapper", "CallFactory")
     private val progressName = ClassName("rxhttp.wrapper.entity", "Progress")
     private val toFunList = ArrayList<FunSpec>()
@@ -52,12 +53,12 @@ class RxHttpExtensions(private val logger: KSPLogger) {
             .map { it.toTypeVariableName().copy(reified = true) }
 
         val constructors = ksClass.getPublicConstructors()
-
-        val customParserClassName = ksClass.toClassName()
+        val typeCount = typeVariableNames.size  //泛型数量
+        val customParser = ksClass.toClassName()
         //遍历构造方法
         for (constructor in constructors) {
             //参数为空，说明该构造方法无效
-            val parameters = constructor.getParametersIfValid(typeVariableNames.size) ?: continue
+            val parameters = constructor.getParametersIfValid(typeCount) ?: continue
 
             val classTypeParams = ksClass.typeParameters.toTypeParameterResolver()
             val functionTypeParams =
@@ -90,34 +91,13 @@ class RxHttpExtensions(private val logger: KSPLogger) {
                     .addTypeVariables(typeVariableNames)
                     .build()
                     .apply { asFunList.add(this) }
-
-//                val schedulerParam = ParameterSpec
-//                    .builder("scheduler", getKClassName("Scheduler").copy(nullable = true))
-//                    .defaultValue("null")
-//                    .build()
-
-//                FunSpec.builder("as$key")
-//                    .addModifiers(modifiers)
-//                    .receiver(rxHttpBodyParamName)
-//                    .addParameters(parameterList)
-//                    .addParameter(schedulerParam)
-//                    .addParameter(
-//                        "progressConsumer",
-//                        getKClassName("Consumer").parameterizedBy(progressName)
-//                    )
-//                    .addStatement(
-//                        "return asParser($parser).onUploadProgress(scheduler, progressConsumer)",
-//                        ksClass.toClassName()
-//                    ) //方法里面的表达式
-//                    .addTypeVariables(typeVariableNames)
-//                    .build()
-//                    .apply { asFunList.add(this) }
             }
 
-            val toAwaitXxxFunBody = if (typeVariableNames.size == 1) {
-                CodeBlock.of("return toAwait(wrap${customParserClassName.simpleName}$types($finalParams))")
+            val wrapCustomParser = MemberName(rxHttpPackage, "wrap${customParser.simpleName}")
+            val toAwaitXxxFunBody = if (typeCount == 1) {
+                CodeBlock.of("return toAwait(%M$types($finalParams))", wrapCustomParser)
             } else {
-                CodeBlock.of("return toAwait(%T$types($finalParams))", customParserClassName)
+                CodeBlock.of("return toAwait(%T$types($finalParams))", customParser)
             }
 
             FunSpec.builder("toAwait$key")
@@ -130,20 +110,20 @@ class RxHttpExtensions(private val logger: KSPLogger) {
                 .build()
                 .apply { toFunList.add(this) }
 
-            if (typeVariableNames.size == 1) {
+            if (typeCount == 1) {
                 val t = TypeVariableName("T")
                 val type = ClassName("java.lang.reflect", "Type")
                 val typeUtil = ClassName("rxhttp.wrapper.utils", "TypeUtil")
                 val okResponseParser = ClassName("rxhttp.wrapper.parse", "OkResponseParser")
-                val parserClass = ClassName("rxhttp.wrapper.parse", "Parser").parameterizedBy(t)
+                val parserClass = okResponseParser.peerClass("Parser").parameterizedBy(t)
 
                 val suppressAnnotation = AnnotationSpec.builder(Suppress::class)
-                    .addMember("\"UNCHECKED_CAST\"")
+                    .addMember("%S", "UNCHECKED_CAST")
                     .build()
 
                 val wrapParams = if (params.isNotEmpty()) ", $params" else ""
 
-                FunSpec.builder("wrap${customParserClassName.simpleName}")
+                FunSpec.builder("wrap${customParser.simpleName}")
                     .addAnnotation(suppressAnnotation)
                     .addTypeVariable(t)
                     .addParameter("type", type)
@@ -155,8 +135,10 @@ class RxHttpExtensions(private val logger: KSPLogger) {
                     val parser = %T<Any>(actualType$wrapParams)
                     val actualParser = if (actualType == type) parser else %T(parser)
                     return actualParser as Parser<T>
-                """.trimIndent(), typeUtil, customParserClassName, okResponseParser
-                    ).build().apply { wrapFunList.add(this) }
+                """.trimIndent(), typeUtil, customParser, okResponseParser
+                    )
+                    .build()
+                    .apply { wrapFunList.add(this) }
             }
         }
     }
@@ -243,7 +225,7 @@ class RxHttpExtensions(private val logger: KSPLogger) {
 
         val toFlow = MemberName("rxhttp", "toFlow")
         val toFlowProgress = MemberName("rxhttp", "toFlowProgress")
-        val bodyParamFactory = ClassName("rxhttp.wrapper", "BodyParamFactory")
+        val bodyParamFactory = callFactoryName.peerClass("BodyParamFactory")
 
         toFunList.forEach {
             fileBuilder.addFunction(it)

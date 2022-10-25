@@ -1,8 +1,8 @@
 package com.rxhttp.compiler.kapt
 
-import com.rxhttp.compiler.RXHttp
+import com.rxhttp.compiler.RxHttp
 import com.rxhttp.compiler.rxHttpPackage
-import com.rxhttp.compiler.rxhttpClassName
+import com.rxhttp.compiler.rxhttpClass
 import com.squareup.javapoet.AnnotationSpec
 import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.ClassName
@@ -32,7 +32,7 @@ class RxHttpGenerator {
 
         val paramClassName = ClassName.get("rxhttp.wrapper.param", "Param")
         val typeVariableP = TypeVariableName.get("P", paramClassName)      //泛型P
-        val typeVariableR = TypeVariableName.get("R", rxhttpClassName)     //泛型R
+        val typeVariableR = TypeVariableName.get("R", rxhttpClass)     //泛型R
 
         val okHttpClient = ClassName.get("okhttp3", "OkHttpClient")
         val requestName = okHttpClient.peerClass("Request")
@@ -52,7 +52,7 @@ class RxHttpGenerator {
         val cacheModeName = ClassName.get("rxhttp.wrapper.cache", "CacheMode")
         val cacheStrategyName = cacheModeName.peerClass("CacheStrategy")
         val downloadOffSizeName = ClassName.get("rxhttp.wrapper.entity", "DownloadOffSize")
-        val outputStreamFactory = ClassName.get("rxhttp.wrapper.callback", "OutputStreamFactory")
+        val outputStreamFactory = converterName.peerClass("OutputStreamFactory")
 
         val t = TypeVariableName.get("T")
         val wildcard = TypeVariableName.get("?")
@@ -155,7 +155,7 @@ class RxHttpGenerator {
             )
             .build()
 
-        for ((key, value) in methodMap) {
+        methodMap.forEach { (key, value) ->
             val methodBuilder = MethodSpec.methodBuilder(key)
             if (key == "get") {
                 methodBuilder.addJavadoc(codeBlock)
@@ -169,7 +169,7 @@ class RxHttpGenerator {
                     "return new $value(\$T.${key}(format(url, formatArgs)))",
                     paramClassName,
                 )
-                .returns(ClassName.get(rxHttpPackage, value))
+                .returns(rxhttpClass.peerClass(value))
                 .build()
                 .apply { methodList.add(this) }
         }
@@ -815,11 +815,11 @@ class RxHttpGenerator {
             .initializer("\$T.getOkHttpClient()", rxHttpPluginsName)
             .build()
         val suppressWarningsAnnotation = AnnotationSpec.builder(SuppressWarnings::class.java)
-            .addMember("value", "\"unchecked\"")
+            .addMember("value", "\$S", "unchecked")
             .build()
-        val baseRxHttpName = ClassName.get(rxHttpPackage, "BaseRxHttp")
+        val baseRxHttpName = rxhttpClass.peerClass("BaseRxHttp")
 
-        val rxHttpBuilder = TypeSpec.classBuilder(RXHttp)
+        val rxHttpBuilder = TypeSpec.classBuilder(RxHttp)
             .addJavadoc(
                 """
                 Github

@@ -1,6 +1,6 @@
 package com.rxhttp.compiler.kapt
 
-import com.rxhttp.compiler.rxhttpClassName
+import com.rxhttp.compiler.rxhttpClass
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.TypeVariableName
@@ -39,7 +39,7 @@ class ConverterVisitor(
     }
 
     fun getMethodList(): List<MethodSpec> {
-        val typeVariableR = TypeVariableName.get("R", rxhttpClassName)     //泛型R
+        val typeVariableR = TypeVariableName.get("R", rxhttpClass)     //泛型R
         return elementMap.mapNotNull { entry ->
             val key = entry.key
             val variableElement = entry.value

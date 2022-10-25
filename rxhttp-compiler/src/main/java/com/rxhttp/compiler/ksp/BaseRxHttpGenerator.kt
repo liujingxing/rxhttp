@@ -8,6 +8,7 @@ import com.google.devtools.ksp.symbol.KSFile
 import com.rxhttp.compiler.getClassPath
 import com.rxhttp.compiler.isDependenceRxJava
 import com.rxhttp.compiler.rxHttpPackage
+import com.rxhttp.compiler.rxhttpKClass
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
@@ -52,7 +53,7 @@ class BaseRxHttpGenerator(
         val outputStreamFactory = ClassName("rxhttp.wrapper.callback", "OutputStreamFactory")
         val fileOutputStreamFactory = outputStreamFactory.peerClass("FileOutputStreamFactory")
         val uriOutputStreamFactory = outputStreamFactory.peerClass("UriOutputStreamFactory")
-        val observableCall = ClassName(rxHttpPackage, "ObservableCall")
+        val observableCall = rxhttpKClass.peerClass("ObservableCall")
 
         val methodList = ArrayList<FunSpec>() //方法集合
 

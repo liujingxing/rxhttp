@@ -5,6 +5,7 @@ import com.rxhttp.compiler.common.getTypeOfString
 import com.rxhttp.compiler.common.getTypeVariableString
 import com.rxhttp.compiler.isDependenceRxJava
 import com.rxhttp.compiler.rxHttpPackage
+import com.rxhttp.compiler.rxhttpKClass
 import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
@@ -32,7 +33,7 @@ import javax.lang.model.type.TypeKind
  */
 class RxHttpExtensions {
 
-    private val baseRxHttpName = ClassName(rxHttpPackage, "BaseRxHttp")
+    private val baseRxHttpName = rxhttpKClass.peerClass("BaseRxHttp")
     private val callFactoryName = ClassName("rxhttp.wrapper", "CallFactory")
     private val progressName = ClassName("rxhttp.wrapper.entity", "Progress")
     private val toFunList = ArrayList<FunSpec>()
@@ -44,14 +45,15 @@ class RxHttpExtensions {
 
         //遍历获取泛型类型
         val typeVariableNames = typeElement.typeParameters.map {
-            it.asTypeVariableName()
+            it.asTypeVariableName().toKTypeVariableNames()
         }
-
-        val customParserClassName = typeElement.asClassName()
+        val constructors = typeElement.getPublicConstructors()
+        val typeCount = typeVariableNames.size  //泛型数量
+        val customParser = typeElement.asClassName()
         //遍历构造方法
-        for (constructor in typeElement.getPublicConstructors()) {
+        for (constructor in constructors) {
             //参数为空，说明该构造方法无效
-            val parameters = constructor.getParametersIfValid(typeVariableNames.size) ?: continue
+            val parameters = constructor.getParametersIfValid(typeCount) ?: continue
 
             //根据构造方法参数，获取toObservableXxx方法需要的参数
             val varArgsFun = constructor.isVarArgs  //该构造方法是否携带可变参数，即是否为可变参数方法
@@ -100,39 +102,16 @@ class RxHttpExtensions {
                     .receiver(baseRxHttpName)
                     .addParameters(parameterList)
                     .addStatement(toObservableFunBody) //方法里面的表达式
-                    .addTypeVariables(typeVariableNames.getTypeVariableNames())
+                    .addTypeVariables(typeVariableNames)
                     .build()
                     .apply { asFunList.add(this) }
-
-//                val schedulerParam = ParameterSpec
-//                    .builder("scheduler", getKClassName("Scheduler").copy(nullable = true))
-//                    .defaultValue("null")
-//                    .build()
-
-//                FunSpec.builder("as$key")
-//                    .addModifiers(modifiers)
-//                    .receiver(rxHttpBodyParamName)
-//                    .addParameters(parameterList)
-//                    .addParameter(schedulerParam)
-//                    .addParameter(
-//                        "progressConsumer",
-//                        getKClassName("Consumer").parameterizedBy(progressName)
-//                    )
-//                    .addStatement(
-//                        "return asParser($parser).onUploadProgress(scheduler, progressConsumer)",
-//                        typeElement.asClassName()
-//                    ) //方法里面的表达式
-//                    .addTypeVariables(typeVariableNames.getTypeVariableNames())
-//                    .build()
-//                    .apply { asFunList.add(this) }
             }
 
-            val parser = "%T$types($finalParams)"
-
-            val toAwaitXxxFunBody = if (typeVariableNames.size == 1) {
-                CodeBlock.of("return toAwait(wrap${customParserClassName.simpleName}$types($finalParams))")
+            val wrapCustomParser = MemberName(rxHttpPackage, "wrap${customParser.simpleName}")
+            val toAwaitXxxFunBody = if (typeCount == 1) {
+                CodeBlock.of("return toAwait(%M$types($finalParams))", wrapCustomParser)
             } else {
-                CodeBlock.of("return toAwait(%T$types($finalParams))", customParserClassName)
+                CodeBlock.of("return toAwait(%T$types($finalParams))", customParser)
             }
 
             FunSpec.builder("toAwait$key")
@@ -140,24 +119,24 @@ class RxHttpExtensions {
                 .receiver(callFactoryName)
                 .addParameters(parameterList)
                 .addCode(toAwaitXxxFunBody)  //方法里面的表达式
-                .addTypeVariables(typeVariableNames.getTypeVariableNames())
+                .addTypeVariables(typeVariableNames)
                 .build()
                 .apply { toFunList.add(this) }
 
-            if (typeVariableNames.size == 1) {
+            if (typeCount == 1) {
                 val t = TypeVariableName("T")
                 val type = ClassName("java.lang.reflect", "Type")
                 val typeUtil = ClassName("rxhttp.wrapper.utils", "TypeUtil")
                 val okResponseParser = ClassName("rxhttp.wrapper.parse", "OkResponseParser")
-                val parserClass = ClassName("rxhttp.wrapper.parse", "Parser").parameterizedBy(t)
+                val parserClass = okResponseParser.peerClass("Parser").parameterizedBy(t)
 
                 val suppressAnnotation = AnnotationSpec.builder(Suppress::class)
-                    .addMember("\"UNCHECKED_CAST\"")
+                    .addMember("%S", "UNCHECKED_CAST")
                     .build()
 
                 val wrapParams = if (params.isNotEmpty()) ", $params" else ""
 
-                FunSpec.builder("wrap${customParserClassName.simpleName}")
+                FunSpec.builder("wrap${customParser.simpleName}")
                     .addAnnotation(suppressAnnotation)
                     .addTypeVariable(t)
                     .addParameter("type", type)
@@ -169,7 +148,7 @@ class RxHttpExtensions {
                     val parser = %T<Any>(actualType$wrapParams)
                     val actualParser = if (actualType == type) parser else %T(parser)
                     return actualParser as Parser<T>
-                """.trimIndent(),  typeUtil, customParserClassName, okResponseParser
+                """.trimIndent(), typeUtil, customParser, okResponseParser
                     ).build().apply { wrapFunList.add(this) }
             }
         }
@@ -232,24 +211,6 @@ class RxHttpExtensions {
                 .build()
                 .apply { fileBuilder.addFunction(this) }
 
-//            val schedulerParam = ParameterSpec
-//                .builder("scheduler", getKClassName("Scheduler").copy(nullable = true))
-//                .defaultValue("null")
-//                .build()
-
-//            FunSpec.builder("asClass")
-//                .addModifiers(KModifier.INLINE)
-//                .receiver(rxHttpBodyParamName)
-//                .addTypeVariable(reifiedT)
-//                .addParameter(schedulerParam)
-//                .addParameter(
-//                    "progressConsumer",
-//                    getKClassName("Consumer").parameterizedBy(progressName)
-//                )
-//                .addCode("return asParser(SmartParser<T>(javaTypeOf<T>())).onUploadProgress(scheduler, progressConsumer)")
-//                .build()
-//                .apply { fileBuilder.addFunction(this) }
-
             asFunList.forEach {
                 fileBuilder.addFunction(it)
             }
@@ -259,7 +220,7 @@ class RxHttpExtensions {
 
         val toFlow = MemberName("rxhttp", "toFlow")
         val toFlowProgress = MemberName("rxhttp", "toFlowProgress")
-        val bodyParamFactory = ClassName("rxhttp.wrapper", "BodyParamFactory")
+        val bodyParamFactory = callFactoryName.peerClass("BodyParamFactory")
 
         toFunList.forEach {
             fileBuilder.addFunction(it)
@@ -326,14 +287,11 @@ class RxHttpExtensions {
 }
 
 //获取泛型对象列表
-private fun List<TypeVariableName>.getTypeVariableNames(): List<TypeVariableName> {
-    val anyTypeName = Any::class.asTypeName()
-    return map {
-        val bounds = it.bounds //泛型边界
-        if (bounds.isEmpty() || (bounds.size == 1 && bounds[0].toString() == "java.lang.Object")) {
-            TypeVariableName(it.name, anyTypeName).copy(reified = true)
-        } else {
-            (it.toKClassTypeName() as TypeVariableName).copy(reified = true)
-        }
+private fun TypeVariableName.toKTypeVariableNames(): TypeVariableName {
+    val bounds = bounds //泛型边界
+    return if (bounds.isEmpty() || (bounds.size == 1 && bounds[0].toString() == "java.lang.Object")) {
+        TypeVariableName(name).copy(reified = true)
+    } else {
+        (toKClassTypeName() as TypeVariableName).copy(reified = true)
     }
 }

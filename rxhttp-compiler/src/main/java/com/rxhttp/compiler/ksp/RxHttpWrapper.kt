@@ -9,7 +9,7 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFile
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.rxhttp.compiler.rxHttpPackage
-import com.rxhttp.compiler.rxhttpKClassName
+import com.rxhttp.compiler.rxhttpKClass
 import com.squareup.kotlinpoet.ANY
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
@@ -20,6 +20,7 @@ import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.STRING
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.TypeVariableName
+import com.squareup.kotlinpoet.jvm.jvmStatic
 import com.squareup.kotlinpoet.ksp.toTypeParameterResolver
 import com.squareup.kotlinpoet.ksp.toTypeVariableName
 import com.squareup.kotlinpoet.ksp.writeTo
@@ -117,7 +118,7 @@ class RxHttpWrapper(private val logger: KSPLogger) {
         val requestFunList = generateRequestFunList()
 
         //生成多个RxHttp的包装类
-        for ((className, wrapper) in classMap) {
+        classMap.forEach { (className, wrapper) ->
             val funBody = CodeBlock.builder()
             wrapper.converterName?.let {
                 funBody.addStatement("set$it()")
@@ -129,7 +130,7 @@ class RxHttpWrapper(private val logger: KSPLogger) {
                 funBody.addStatement("setDomainTo${it}IfAbsent()")
             }
             val wildcard = TypeVariableName("*")
-            val rxHttpName = rxhttpKClassName.parameterizedBy(wildcard, wildcard)
+            val rxHttpName = rxhttpKClass.parameterizedBy(wildcard, wildcard)
             val typeVariable = TypeVariableName("R", rxHttpName)
             val funList = ArrayList<FunSpec>()
             FunSpec.builder("wrapper")
@@ -189,7 +190,7 @@ class RxHttpWrapper(private val logger: KSPLogger) {
         funMap["deleteJsonArray"] = "RxHttpJsonArrayParam"
         funMap.forEach { (key, _) ->
             FunSpec.builder(key)
-                .addAnnotation(JvmStatic::class)
+                .jvmStatic()
                 .addParameter("url", STRING)
                 .addParameter("formatArgs", ANY, true, KModifier.VARARG)
                 .addStatement("return RxHttp.${key}(url, *formatArgs).wrapper()")
@@ -197,7 +198,7 @@ class RxHttpWrapper(private val logger: KSPLogger) {
                 .apply { funList.add(this) }
         }
 
-        for ((key, ksClass) in elementMap) {
+        elementMap.forEach { (key, ksClass) ->
             val rxHttpTypeNames = ksClass.typeParameters.map {
                 it.toTypeVariableName()
             }
@@ -205,11 +206,11 @@ class RxHttpWrapper(private val logger: KSPLogger) {
             val classTypeParams = ksClass.typeParameters.toTypeParameterResolver()
             //遍历public构造方法
             ksClass.getPublicConstructors().forEach {
-                val parameterSpecs = arrayListOf<ParameterSpec>() //构造方法参数
+                val parameterSpecs = mutableListOf<ParameterSpec>() //构造方法参数
                 val funBody = StringBuilder("return RxHttp.$key(") //方法体
                 val functionTypeParams =
                     it.typeParameters.toTypeParameterResolver(classTypeParams)
-                for ((index, element) in it.parameters.withIndex()) {
+                it.parameters.forEachIndexed { index, element ->
                     val parameterSpec = element.toKParameterSpec(functionTypeParams)
                     parameterSpecs.add(parameterSpec)
                     if (index > 0) {
@@ -223,7 +224,7 @@ class RxHttpWrapper(private val logger: KSPLogger) {
                 funBody.append(").wrapper()")
 
                 val funSpecBuilder = FunSpec.builder(key)
-                    .addAnnotation(JvmStatic::class)
+                    .jvmStatic()
                     .addParameters(parameterSpecs)
                     .addTypeVariables(rxHttpTypeNames)
 

@@ -14,9 +14,8 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSVisitorVoid
 import com.google.devtools.ksp.symbol.Modifier
 import com.rxhttp.compiler.rxHttpPackage
-import com.rxhttp.compiler.rxhttpKClassName
+import com.rxhttp.compiler.rxhttpKClass
 import com.squareup.kotlinpoet.ANY
-import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
@@ -26,6 +25,7 @@ import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.STRING
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.UNIT
+import com.squareup.kotlinpoet.jvm.jvmStatic
 import com.squareup.kotlinpoet.jvm.throws
 import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.toKModifier
@@ -77,7 +77,7 @@ class ParamsVisitor(
             }
             val param = ksClass.toClassName()
             val rxHttpName = "RxHttp${ksClass.simpleName.asString()}"
-            val rxHttpParamName = ClassName(rxHttpPackage, rxHttpName)
+            val rxHttpParamName = rxhttpKClass.peerClass(rxHttpName)
 
             val classTypeParams = ksClass.typeParameters.toTypeParameterResolver()
             //遍历public构造方法
@@ -98,7 +98,7 @@ class ParamsVisitor(
                 }
                 methodBody.append("))")
                 val methodSpec = FunSpec.builder(key)
-                    .addAnnotation(JvmStatic::class)
+                    .jvmStatic()
                     .addParameters(parameterSpecs)
                     .addTypeVariables(rxHttpTypeNames)
 
@@ -112,22 +112,20 @@ class ParamsVisitor(
             val superclass = ksClass.superclass()
             var prefix = "(param as ${ksClass.simpleName.asString()})."
             val rxHttpParam = when (superclass?.getQualifiedName()) {
-                "rxhttp.wrapper.param.BodyParam" -> ClassName(rxHttpPackage, "RxHttpBodyParam")
-                "rxhttp.wrapper.param.FormParam" -> ClassName(rxHttpPackage, "RxHttpFormParam")
-                "rxhttp.wrapper.param.JsonParam" -> ClassName(rxHttpPackage, "RxHttpJsonParam")
-                "rxhttp.wrapper.param.JsonArrayParam" ->
-                    ClassName(rxHttpPackage, "RxHttpJsonArrayParam")
-                "rxhttp.wrapper.param.NoBodyParam" ->
-                    ClassName(rxHttpPackage, "RxHttpNoBodyParam")
+                "rxhttp.wrapper.param.BodyParam" -> rxhttpKClass.peerClass("RxHttpBodyParam")
+                "rxhttp.wrapper.param.FormParam" -> rxhttpKClass.peerClass("RxHttpFormParam")
+                "rxhttp.wrapper.param.JsonParam" -> rxhttpKClass.peerClass("RxHttpJsonParam")
+                "rxhttp.wrapper.param.JsonArrayParam" -> rxhttpKClass.peerClass("RxHttpJsonArrayParam")
+                "rxhttp.wrapper.param.NoBodyParam" -> rxhttpKClass.peerClass("RxHttpNoBodyParam")
                 else -> {
                     val typeName = superclass?.toTypeName()
                     if ((typeName as? ParameterizedTypeName)?.rawType?.toString() == "rxhttp.wrapper.param.AbstractBodyParam") {
                         prefix = "param."
-                        ClassName(rxHttpPackage, "RxHttpAbstractBodyParam")
+                        rxhttpKClass.peerClass("RxHttpAbstractBodyParam")
                             .parameterizedBy(param, rxHttpParamName)
                     } else {
                         prefix = "param."
-                        rxhttpKClassName.parameterizedBy(param, rxHttpParamName)
+                        rxhttpKClass.parameterizedBy(param, rxHttpParamName)
                     }
                 }
             }

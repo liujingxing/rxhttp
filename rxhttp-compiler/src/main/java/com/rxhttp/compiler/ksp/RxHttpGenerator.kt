@@ -5,9 +5,9 @@ import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.KSFile
-import com.rxhttp.compiler.RXHttp
+import com.rxhttp.compiler.RxHttp
 import com.rxhttp.compiler.rxHttpPackage
-import com.rxhttp.compiler.rxhttpKClassName
+import com.rxhttp.compiler.rxhttpKClass
 import com.squareup.kotlinpoet.ANY
 import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.BOOLEAN
@@ -26,6 +26,8 @@ import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.TypeVariableName
 import com.squareup.kotlinpoet.WildcardTypeName
 import com.squareup.kotlinpoet.asClassName
+import com.squareup.kotlinpoet.jvm.jvmOverloads
+import com.squareup.kotlinpoet.jvm.jvmStatic
 import com.squareup.kotlinpoet.ksp.writeTo
 import java.io.IOException
 
@@ -47,7 +49,7 @@ class RxHttpGenerator(
 
         val paramClassName = ClassName("rxhttp.wrapper.param", "Param")
         val typeVariableP = TypeVariableName("P", paramClassName.parameterizedBy("P"))      //泛型P
-        val typeVariableR = TypeVariableName("R", rxhttpKClassName.parameterizedBy("P", "R")) //泛型R
+        val typeVariableR = TypeVariableName("R", rxhttpKClass.parameterizedBy("P", "R")) //泛型R
 
         val okHttpClient = ClassName("okhttp3", "OkHttpClient")
         val requestName = okHttpClient.peerClass("Request")
@@ -67,7 +69,7 @@ class RxHttpGenerator(
         val cacheModeName = ClassName("rxhttp.wrapper.cache", "CacheMode")
         val cacheStrategyName = cacheModeName.peerClass("CacheStrategy")
         val downloadOffSizeName = ClassName("rxhttp.wrapper.entity", "DownloadOffSize")
-        val outputStreamFactory = ClassName("rxhttp.wrapper.callback", "OutputStreamFactory")
+        val outputStreamFactory = converterName.peerClass("OutputStreamFactory")
 
         val t = TypeVariableName("T")
         val className = Class::class.asClassName()
@@ -296,12 +298,12 @@ class RxHttpGenerator(
 
         val companionBuilder = TypeSpec.companionObjectBuilder()
 
-        for ((key, value) in methodMap) {
+        methodMap.forEach { (key, value) ->
             val methodBuilder = FunSpec.builder(key)
             if (key == "get") {
                 methodBuilder.addKdoc(codeBlock, "%d")
             }
-            methodBuilder.addAnnotation(JvmStatic::class)
+            methodBuilder.jvmStatic()
                 .addParameter("url", STRING)
                 .addParameter("formatArgs", ANY, true, KModifier.VARARG)
                 .addStatement(
@@ -434,7 +436,7 @@ class RxHttpGenerator(
             .defaultValue("true")
             .build()
         FunSpec.builder("addHeader")
-            .addAnnotation(JvmOverloads::class)
+            .jvmOverloads()
             .addParameter("line", STRING)
             .addParameter(isAddParam)
             .addCode(
@@ -468,7 +470,7 @@ class RxHttpGenerator(
             .let { methodList.add(it) }
 
         FunSpec.builder("addHeader")
-            .addAnnotation(JvmOverloads::class)
+            .jvmOverloads()
             .addParameter("key", STRING)
             .addParameter("value", STRING)
             .addParameter(isAddParam)
@@ -520,7 +522,7 @@ class RxHttpGenerator(
             .build()
 
         FunSpec.builder("setRangeHeader")
-            .addAnnotation(JvmOverloads::class)
+            .jvmOverloads()
             .addParameter("startIndex", LONG)
             .addParameter(endIndex)
             .addStatement("return setRangeHeader(startIndex, endIndex, false)")
@@ -798,13 +800,13 @@ class RxHttpGenerator(
             .build()
             .let { methodList.add(it) }
 
-        val baseRxHttpName = ClassName(rxHttpPackage, "BaseRxHttp")
+        val baseRxHttpName = rxhttpKClass.peerClass("BaseRxHttp")
 
         val suppressAnnotation = AnnotationSpec.builder(Suppress::class)
-            .addMember("\"UNCHECKED_CAST\"")
+            .addMember("%S", "UNCHECKED_CAST")
             .build()
 
-        val rxHttpBuilder = TypeSpec.classBuilder(RXHttp)
+        val rxHttpBuilder = TypeSpec.classBuilder(RxHttp)
             .addAnnotation(suppressAnnotation)
             .primaryConstructor(constructorFun)
             .addType(companionBuilder.build())
@@ -826,7 +828,7 @@ class RxHttpGenerator(
             .build()
 
         val dependencies = Dependencies(true, *ksFiles.toTypedArray())
-        FileSpec.builder(rxHttpPackage, RXHttp)
+        FileSpec.builder(rxHttpPackage, RxHttp)
             .addType(rxHttpBuilder)
             .indent("    ")
             .build()

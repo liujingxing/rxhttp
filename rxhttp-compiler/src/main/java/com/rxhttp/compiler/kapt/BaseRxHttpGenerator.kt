@@ -3,6 +3,7 @@ package com.rxhttp.compiler.kapt
 import com.rxhttp.compiler.getClassPath
 import com.rxhttp.compiler.isDependenceRxJava
 import com.rxhttp.compiler.rxHttpPackage
+import com.rxhttp.compiler.rxhttpClass
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.JavaFile
@@ -47,7 +48,7 @@ class BaseRxHttpGenerator(private val isAndroidPlatform: Boolean) {
         val outputStreamFactory = ClassName.get("rxhttp.wrapper.callback", "OutputStreamFactory")
         val fileOutputStreamFactory = outputStreamFactory.peerClass("FileOutputStreamFactory")
         val uriOutputStreamFactory = outputStreamFactory.peerClass("UriOutputStreamFactory")
-        val observableCall = ClassName.get(rxHttpPackage, "ObservableCall")
+        val observableCall = rxhttpClass.peerClass("ObservableCall")
         val observableCallT = observableCall.parameterizedBy(t)
 
         val methodList = ArrayList<MethodSpec>() //方法集合

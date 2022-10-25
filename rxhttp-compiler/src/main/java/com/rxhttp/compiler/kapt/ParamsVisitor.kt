@@ -1,7 +1,7 @@
 package com.rxhttp.compiler.kapt
 
-import com.rxhttp.compiler.rxhttpClassName
 import com.rxhttp.compiler.rxHttpPackage
+import com.rxhttp.compiler.rxhttpClass
 import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.JavaFile
@@ -58,9 +58,9 @@ class ParamsVisitor(private val logger: Messager) {
             }
             val param = ClassName.get(typeElement)
             val rxHttpName = "RxHttp${typeElement.simpleName}"
-            val rxHttpParamName = ClassName.get(rxHttpPackage, rxHttpName)
+            val rxHttpParamName = rxhttpClass.peerClass(rxHttpName)
             val methodReturnType = if (rxHttpTypeNames.isNotEmpty()) {
-                ParameterizedTypeName.get(rxHttpParamName, *rxHttpTypeNames.toTypedArray())
+                rxHttpParamName.parameterizedBy(*rxHttpTypeNames.toTypedArray())
             } else {
                 rxHttpParamName
             }
@@ -97,23 +97,20 @@ class ParamsVisitor(private val logger: Messager) {
             val superclass = typeElement.superclass
             var prefix = "((" + typeElement.simpleName + ")param)."
             val rxHttpParam = when (superclass.toString()) {
-                "rxhttp.wrapper.param.BodyParam" -> ClassName.get(rxHttpPackage, "RxHttpBodyParam")
-                "rxhttp.wrapper.param.FormParam" -> ClassName.get(rxHttpPackage, "RxHttpFormParam")
-                "rxhttp.wrapper.param.JsonParam" -> ClassName.get(rxHttpPackage, "RxHttpJsonParam")
-                "rxhttp.wrapper.param.JsonArrayParam" ->
-                    ClassName.get(rxHttpPackage, "RxHttpJsonArrayParam")
-                "rxhttp.wrapper.param.NoBodyParam" ->
-                    ClassName.get(rxHttpPackage, "RxHttpNoBodyParam")
+                "rxhttp.wrapper.param.BodyParam" -> rxhttpClass.peerClass("RxHttpBodyParam")
+                "rxhttp.wrapper.param.FormParam" -> rxhttpClass.peerClass("RxHttpFormParam")
+                "rxhttp.wrapper.param.JsonParam" -> rxhttpClass.peerClass("RxHttpJsonParam")
+                "rxhttp.wrapper.param.JsonArrayParam" -> rxhttpClass.peerClass("RxHttpJsonArrayParam")
+                "rxhttp.wrapper.param.NoBodyParam" -> rxhttpClass.peerClass("RxHttpNoBodyParam")
                 else -> {
                     val typeName = TypeName.get(superclass)
                     if ((typeName as? ParameterizedTypeName)?.rawType?.toString() == "rxhttp.wrapper.param.AbstractBodyParam") {
                         prefix = "param."
-                        ClassName.get(rxHttpPackage, "RxHttpAbstractBodyParam").let {
-                            ParameterizedTypeName.get(it, param, rxHttpParamName)
-                        }
+                        rxhttpClass.peerClass("RxHttpAbstractBodyParam")
+                            .parameterizedBy(param, rxHttpParamName)
                     } else {
                         prefix = "param."
-                        ParameterizedTypeName.get(rxhttpClassName, param, rxHttpParamName)
+                        rxhttpClass.parameterizedBy(param, rxHttpParamName)
                     }
                 }
             }

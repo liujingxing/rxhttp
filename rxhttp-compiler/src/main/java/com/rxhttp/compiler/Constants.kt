@@ -8,7 +8,7 @@ import com.squareup.javapoet.ClassName
  * Time: 16:10
  */
 
-const val RXHttp = "RxHttp"
+const val RxHttp = "RxHttp"
 
 const val defaultPackageName = "rxhttp.wrapper.param"
 const val rxhttp_rxjava = "rxhttp_rxjava"
@@ -16,5 +16,5 @@ const val rxhttp_package = "rxhttp_package"
 const val rxhttp_incremental = "rxhttp_incremental"
 const val rxhttp_debug = "rxhttp_debug"
 
-val rxhttpKClassName = com.squareup.kotlinpoet.ClassName(rxHttpPackage, RXHttp)
-val rxhttpClassName: ClassName = ClassName.get(rxHttpPackage, RXHttp)
+val rxhttpKClass = com.squareup.kotlinpoet.ClassName(rxHttpPackage, RxHttp)
+val rxhttpClass: ClassName = ClassName.get(rxHttpPackage, RxHttp)
