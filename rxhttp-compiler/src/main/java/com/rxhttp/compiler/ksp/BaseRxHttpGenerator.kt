@@ -160,8 +160,9 @@ class BaseRxHttpGenerator(
                 .let { methodList.add(it) }
         }
 
+        val companionFunList = mutableListOf<FunSpec>()
         parserVisitor?.apply {
-            methodList.addAll(getFunList(codeGenerator))
+            methodList.addAll(getFunList(codeGenerator, companionFunList))
         }
 
         FunSpec.builder("execute")
@@ -220,9 +221,11 @@ class BaseRxHttpGenerator(
         val fileName = "BaseRxHttp"
         val typeSpecBuilder = TypeSpec.classBuilder(fileName)
 
-        if (isDependenceRxJava()) {
-            val codeBlock = CodeBlock.of(
-                """
+        if (isDependenceRxJava() || companionFunList.isNotEmpty()) {
+            val companionBuilder = TypeSpec.companionObjectBuilder()
+            if (isDependenceRxJava()) {
+                val codeBlock = CodeBlock.of(
+                    """
                 val errorHandler = %T.getErrorHandler()
                 if (errorHandler == null) {
                     /*                                                                     
@@ -234,11 +237,13 @@ class BaseRxHttpGenerator(
                 }
                 
             """.trimIndent(), rxJavaPlugins, logUtil
-            )
-            val companionBuilder = TypeSpec.companionObjectBuilder()
-                .addInitializerBlock(codeBlock)
-                .build()
-            typeSpecBuilder.addType(companionBuilder)
+                )
+                companionBuilder.addInitializerBlock(codeBlock)
+            }
+            if (companionFunList.isNotEmpty()) {
+                companionBuilder.addFunctions(companionFunList)
+            }
+            typeSpecBuilder.addType(companionBuilder.build())
         }
 
         typeSpecBuilder

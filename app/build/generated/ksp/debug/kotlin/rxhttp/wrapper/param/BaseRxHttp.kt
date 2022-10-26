@@ -3,12 +3,14 @@ package rxhttp.wrapper.`param`
 import android.content.Context
 import android.net.Uri
 import com.example.httpsender.entity.PageList
+import com.example.httpsender.parser.ResponseParser
 import io.reactivex.rxjava3.plugins.RxJavaPlugins
 import java.io.IOException
 import java.lang.Class
 import java.lang.reflect.Type
 import kotlin.Boolean
 import kotlin.String
+import kotlin.Suppress
 import kotlin.collections.List
 import kotlin.jvm.JvmOverloads
 import kotlin.jvm.Throws
@@ -18,10 +20,12 @@ import rxhttp.wrapper.ITag
 import rxhttp.wrapper.callback.FileOutputStreamFactory
 import rxhttp.wrapper.callback.OutputStreamFactory
 import rxhttp.wrapper.callback.UriOutputStreamFactory
+import rxhttp.wrapper.parse.OkResponseParser
 import rxhttp.wrapper.parse.Parser
 import rxhttp.wrapper.parse.SmartParser
 import rxhttp.wrapper.parse.StreamParser
 import rxhttp.wrapper.utils.LogUtil
+import rxhttp.wrapper.utils.TypeUtil
 import rxhttp.wrapper.utils.parameterizedBy
 
 /**
@@ -115,6 +119,14 @@ public abstract class BaseRxHttp : ITag, CallFactory {
                 */
                 RxJavaPlugins.setErrorHandler { LogUtil.log(it) }
             }
+        }
+
+        @Suppress("UNCHECKED_CAST")
+        public fun <T> wrapResponseParser(type: Type): Parser<T> {
+            val actualType = TypeUtil.getActualType(type) ?: type
+            val parser = ResponseParser<Any>(actualType)
+            val actualParser = if (actualType == type) parser else OkResponseParser(parser)
+            return actualParser as Parser<T>
         }
     }
 }

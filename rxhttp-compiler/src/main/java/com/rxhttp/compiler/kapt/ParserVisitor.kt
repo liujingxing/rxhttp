@@ -2,6 +2,7 @@ package com.rxhttp.compiler.kapt
 
 import com.rxhttp.compiler.isDependenceRxJava
 import com.rxhttp.compiler.rxhttpClass
+import com.squareup.javapoet.AnnotationSpec
 import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
@@ -57,10 +58,8 @@ class ParserVisitor(private val logger: Messager) {
         elementMap.forEach { (parserAlias, typeElement) ->
             //生成kotlin编写的toObservableXxx/toAwaitXxx/toFlowXxx方法
             rxHttpExtensions.generateRxHttpExtendFun(typeElement, parserAlias)
-            if (isDependenceRxJava()) {
-                //依赖了RxJava，则生成Java语言编写的toObservableXxx方法
-                methodList.addAll(typeElement.getToObservableXxxFun(parserAlias, typeMap))
-            }
+            //生成Java环境下toObservableXxx方法
+            methodList.addAll(typeElement.getToObservableXxxFun(parserAlias, typeMap))
         }
         rxHttpExtensions.generateClassFile(filer)
         return methodList
@@ -93,13 +92,12 @@ private fun TypeElement.getToObservableXxxFun(
         val toObservableXxxFunReturnType = rxhttpClass.peerClass("ObservableCall")
             .parameterizedBy(onParserFunReturnType)
 
-        val rxhttpKt = rxhttpClass.peerClass("RxHttpKt")
         val types = getTypeVariableString(typeVariableNames) // <T>, <K, V> 等
         //参数名
         val paramsName = getParamsName(constructor.parameters, parameterList, typeCount)
         //方法体
         val toObservableXxxFunBody = if (typeCount == 1) {
-            CodeBlock.of("return toObservable(\$T.wrap${customParser.simpleName()}($paramsName))", rxhttpKt)
+            CodeBlock.of("return toObservable(wrap${customParser.simpleName()}($paramsName))")
         } else {
             CodeBlock.of("return toObservable(new \$T$types($paramsName))", customParser)
         }
@@ -108,17 +106,49 @@ private fun TypeElement.getToObservableXxxFun(
 
         val originParameters = constructor.parameters.map { ParameterSpec.get(it) }
 
-        MethodSpec.methodBuilder(methodName)
-            .addModifiers(Modifier.PUBLIC)
-            .addTypeVariables(typeVariableNames)
-            .addParameters(originParameters)
-            .varargs(varargs)
-            .addStatement(toObservableXxxFunBody)
-            .returns(toObservableXxxFunReturnType)
-            .build()
-            .apply { methodList.add(this) }
+        if (typeCount == 1) {
+            val t = TypeVariableName.get("T")
+            val typeUtil = ClassName.get("rxhttp.wrapper.utils", "TypeUtil")
+            val okResponseParser = ClassName.get("rxhttp.wrapper.parse", "OkResponseParser")
+            val parserClass = okResponseParser.peerClass("Parser").parameterizedBy(t)
 
-        if (typeVariableNames.isNotEmpty()) {
+            val suppressAnnotation = AnnotationSpec.builder(SuppressWarnings::class.java)
+                .addMember("value", "\$S", "unchecked")
+                .build()
+
+            val index = paramsName.indexOf(",")
+
+            val wrapParams = if (index != -1) ", ${paramsName.substring(index + 1)}" else ""
+
+            MethodSpec.methodBuilder("wrap${customParser.simpleName()}")
+                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                .addAnnotation(suppressAnnotation)
+                .addTypeVariable(t)
+                .addParameters(originParameters)
+                .returns(parserClass)
+                .addCode(
+                    """
+                    Type actualType = ${'$'}T.getActualType(type);
+                    if (actualType == null) actualType = type;
+                    ${'$'}T parser = new ${'$'}T(actualType$wrapParams);
+                    return actualType == type ? parser : new ${'$'}T(parser);
+                """.trimIndent(), typeUtil, customParser, customParser, okResponseParser
+                ).build().apply { methodList.add(this) }
+        }
+
+        if (isDependenceRxJava()) {
+            MethodSpec.methodBuilder(methodName)
+                .addModifiers(Modifier.PUBLIC)
+                .addTypeVariables(typeVariableNames)
+                .addParameters(originParameters)
+                .varargs(varargs)
+                .addStatement(toObservableXxxFunBody)
+                .returns(toObservableXxxFunReturnType)
+                .build()
+                .apply { methodList.add(this) }
+        }
+
+        if (typeCount > 0 && isDependenceRxJava()) {
             val paramNames = getParamsName(constructor.parameters, parameterList, typeCount, true)
 
             val methodSpec = MethodSpec.methodBuilder(methodName)

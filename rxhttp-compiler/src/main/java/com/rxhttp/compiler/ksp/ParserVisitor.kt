@@ -16,6 +16,7 @@ import com.rxhttp.compiler.common.getTypeVariableString
 import com.rxhttp.compiler.isDependenceRxJava
 import com.rxhttp.compiler.rxHttpPackage
 import com.rxhttp.compiler.rxhttpKClass
+import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FunSpec
@@ -74,15 +75,13 @@ class ParserVisitor(
     }
 
     @KspExperimental
-    fun getFunList(codeGenerator: CodeGenerator): List<FunSpec> {
+    fun getFunList(codeGenerator: CodeGenerator, companionFunList: MutableList<FunSpec>): List<FunSpec> {
         val funList = ArrayList<FunSpec>()
         val rxHttpExtensions = RxHttpExtensions(logger)
         ksClassMap.forEach { (parserAlias, ksClass) ->
             rxHttpExtensions.generateRxHttpExtendFun(ksClass, parserAlias)
-            if (isDependenceRxJava()) {
-                //依赖了RxJava，则生成Java语言编写的toObservableXxx方法
-                funList.addAll(ksClass.getToObservableXxxFun(parserAlias, classNameMap))
-            }
+            //生成Java环境下toObservableXxx方法
+            funList.addAll(ksClass.getToObservableXxxFun(parserAlias, classNameMap, companionFunList))
         }
         rxHttpExtensions.generateClassFile(codeGenerator)
         return funList
@@ -92,7 +91,8 @@ class ParserVisitor(
 @KspExperimental
 private fun KSClassDeclaration.getToObservableXxxFun(
     parserAlias: String,
-    typeMap: LinkedHashMap<String, List<ClassName>>
+    typeMap: LinkedHashMap<String, List<ClassName>>,
+    companionFunList: MutableList<FunSpec>,
 ): List<FunSpec> {
     val funList = arrayListOf<FunSpec>()
     //onParser方法返回类型
@@ -136,14 +136,46 @@ private fun KSClassDeclaration.getToObservableXxxFun(
             it.toKParameterSpec(functionTypeParams)
         }
 
-        FunSpec.builder(funName)
-            .addTypeVariables(typeVariableNames)
-            .addParameters(originParameters)
-            .addCode(toObservableXxxFunBody)
-            .build()
-            .apply { funList.add(this) }
+        if (typeCount == 1) {
+            val t = TypeVariableName("T")
+            val typeUtil = ClassName("rxhttp.wrapper.utils", "TypeUtil")
+            val okResponseParser = ClassName("rxhttp.wrapper.parse", "OkResponseParser")
+            val parserClass = okResponseParser.peerClass("Parser").parameterizedBy(t)
 
-        if (typeVariableNames.isNotEmpty()) {
+            val suppressAnnotation = AnnotationSpec.builder(Suppress::class)
+                .addMember("%S", "UNCHECKED_CAST")
+                .build()
+
+            val index = paramsName.indexOf(",")
+            val wrapParams = if (index != -1) ", ${paramsName.substring(index + 1)}" else ""
+
+            FunSpec.builder("wrap${customParser.simpleName}")
+                .addAnnotation(suppressAnnotation)
+                .addTypeVariable(t)
+                .addParameters(originParameters)
+                .returns(parserClass)
+                .addCode(
+                    """
+                    val actualType = %T.getActualType(type) ?: type
+                    val parser = %T<Any>(actualType$wrapParams)
+                    val actualParser = if (actualType == type) parser else %T(parser)
+                    return actualParser as Parser<T>
+                """.trimIndent(), typeUtil, customParser, okResponseParser
+                )
+                .build()
+                .apply { companionFunList.add(this) }
+        }
+
+        if (isDependenceRxJava()) {
+            FunSpec.builder(funName)
+                .addTypeVariables(typeVariableNames)
+                .addParameters(originParameters)
+                .addCode(toObservableXxxFunBody)
+                .build()
+                .apply { funList.add(this) }
+        }
+
+        if (typeCount > 0 && isDependenceRxJava()) {
             val paramNames = getParamsName(constructor.parameters, parameterSpecs, typeCount, true)
 
             val funSpec = FunSpec.builder(funName)
