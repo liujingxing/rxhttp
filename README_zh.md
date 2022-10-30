@@ -123,8 +123,8 @@
 | 标准RESTful风格| ✅ | ✅ |
 | 学习成本| 低 | 高|
 | 扩展性| 高| 高|
-| 源码大小| 81k | 75k |
-| jar包大小| 218k | 123k |
+| 源码大小| 73k | 75k |
+| jar包大小| 213k | 123k |
 | RxJava| RxJava  ❌<br>RxJava2✅<br>RxJava3✅| RxJava  ✅<br>RxJava2✅<br>RxJava3✅|
 | Kotlin协程| ✅ | ✅ |
 | Flow流| ✅ | ✅ |
