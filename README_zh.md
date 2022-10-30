@@ -9,6 +9,8 @@
 [![](https://img.shields.io/badge/掘金-@不怕天黑-blue.svg)](https://juejin.cn/user/272334612601559/posts)
 [![](https://img.shields.io/badge/QQ群-378530627-red.svg)](https://jq.qq.com/?_wv=1027&k=E53Hakvv)
 
+# [(RxHttp 3.0 更新指南，升级必看)](https://github.com/liujingxing/rxhttp/wiki/RxHttp-3.0-%E6%9B%B4%E6%96%B0%E6%8C%87%E5%8D%97%EF%BC%8C%E5%8D%87%E7%BA%A7%E5%BF%85%E7%9C%8B)
+
 ***加我微信 ljx-studio 拉你进微信群(备注RxHttp)*** 
 
 # 1、主要优势
@@ -158,7 +160,8 @@ RxJava及核心Api介绍：[RxHttp 让你眼前一亮的Http请求框架](https:
 
 wiki详细文档：https://github.com/liujingxing/rxhttp/wiki  (此文档会持续更新)
 
-
+## [(RxHttp 3.0 更新指南，升级必看)](https://github.com/liujingxing/rxhttp/wiki/RxHttp-3.0-%E6%9B%B4%E6%96%B0%E6%8C%87%E5%8D%97%EF%BC%8C%E5%8D%87%E7%BA%A7%E5%BF%85%E7%9C%8B)
+ 
 自动关闭请求用到的RxLife类，详情请查看[RxLife库](https://github.com/liujingxing/rxlife)
 
 
