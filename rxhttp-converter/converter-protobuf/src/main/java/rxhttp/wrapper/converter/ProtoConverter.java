@@ -16,14 +16,14 @@ import java.lang.reflect.Type;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
-import rxhttp.wrapper.callback.Converter;
+import rxhttp.wrapper.callback.IConverter;
 
 /**
  * User: ljx
  * Date: 2019-11-24
  * Time: 14:53
  */
-public class ProtoConverter implements Converter {
+public class ProtoConverter implements IConverter {
 
     private final ExtensionRegistryLite registry;
     private final MediaType contentType;

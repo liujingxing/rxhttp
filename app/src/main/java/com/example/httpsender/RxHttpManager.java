@@ -10,6 +10,7 @@ import okhttp3.OkHttpClient;
 import rxhttp.RxHttpPlugins;
 import rxhttp.wrapper.annotation.Converter;
 import rxhttp.wrapper.annotation.OkClient;
+import rxhttp.wrapper.callback.IConverter;
 import rxhttp.wrapper.converter.FastJsonConverter;
 import rxhttp.wrapper.converter.XmlConverter;
 import rxhttp.wrapper.cookie.CookieStore;
@@ -26,9 +27,9 @@ import rxhttp.wrapper.ssl.HttpsUtils.SSLParams;
 public class RxHttpManager {
 
     @Converter(name = "XmlConverter")  //非必须
-    public static XmlConverter xmlConverter = XmlConverter.create();
+    public static IConverter xmlConverter = XmlConverter.create();
     @Converter(name = "FastJsonConverter")  //非必须
-    public static FastJsonConverter fastJsonConverter = FastJsonConverter.create();
+    public static IConverter fastJsonConverter = FastJsonConverter.create();
 
     @OkClient(name = "SimpleClient", className = "Simple")  //非必须
     public static OkHttpClient simpleClient = new OkHttpClient.Builder().build();

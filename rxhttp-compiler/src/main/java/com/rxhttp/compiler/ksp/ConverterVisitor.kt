@@ -58,10 +58,10 @@ class ConverterVisitor(
 private fun KSPropertyDeclaration.checkConverterProperty() {
     val variableName = simpleName.asString()
 
-    val className = "rxhttp.wrapper.callback.Converter"
+    val className = "rxhttp.wrapper.callback.IConverter"
     val ksClass = type.resolve().declaration as? KSClassDeclaration
     if (!ksClass.instanceOf(className)) {
-        throw NoSuchElementException("The variable '$variableName' must be Converter")
+        throw NoSuchElementException("The variable '$variableName' must be IConverter")
     }
 
     var curParent = parent

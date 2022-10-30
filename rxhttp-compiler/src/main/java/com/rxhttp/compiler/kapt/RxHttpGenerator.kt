@@ -44,7 +44,7 @@ class RxHttpGenerator {
         val timeUnitName = ClassName.get("java.util.concurrent", "TimeUnit")
 
         val rxHttpPluginsName = ClassName.get("rxhttp", "RxHttpPlugins")
-        val converterName = ClassName.get("rxhttp.wrapper.callback", "Converter")
+        val converterName = ClassName.get("rxhttp.wrapper.callback", "IConverter")
         val logUtilName = ClassName.get("rxhttp.wrapper.utils", "LogUtil")
         val logInterceptor = ClassName.get("rxhttp.wrapper.intercept", "LogInterceptor")
         val cacheInterceptorName = logInterceptor.peerClass("CacheInterceptor")
@@ -727,7 +727,7 @@ class RxHttpGenerator {
             .addJavadoc("给Param设置转换器，此方法会在请求发起前，被RxHttp内部调用\n")
             .addModifiers(Modifier.PRIVATE)
             .addParameter(converterName, "converter")
-            .addStatement("param.tag(Converter.class, converter)")
+            .addStatement("param.tag(IConverter.class, converter)")
             .addStatement("return (R) this")
             .returns(typeVariableR)
             .build()

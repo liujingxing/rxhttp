@@ -30,7 +30,7 @@ import okhttp3.Request
 import rxhttp.RxHttpPlugins
 import rxhttp.wrapper.cache.CacheMode
 import rxhttp.wrapper.cache.CacheStrategy
-import rxhttp.wrapper.callback.Converter
+import rxhttp.wrapper.callback.IConverter
 import rxhttp.wrapper.callback.OutputStreamFactory
 import rxhttp.wrapper.entity.DownloadOffSize
 import rxhttp.wrapper.intercept.CacheInterceptor
@@ -55,7 +55,7 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
 
     private var writeTimeoutMillis: Long = 0L
 
-    private var converter: Converter = RxHttpPlugins.getConverter()
+    private var converter: IConverter = RxHttpPlugins.getConverter()
 
     private var okClient: OkHttpClient = RxHttpPlugins.getOkHttpClient()
 
@@ -372,7 +372,7 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
 
     public fun setFastJsonConverter() = setConverter(fastJsonConverter)
 
-    public fun setConverter(converter: Converter): R {
+    public fun setConverter(converter: IConverter): R {
         this.converter = converter
         return this as R
     }
@@ -380,8 +380,8 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
     /**
      * 给Param设置转换器，此方法会在请求发起前，被RxHttp内部调用
      */
-    private fun setConverterToParam(converter: Converter): R {
-        param.tag(Converter::class.java, converter)
+    private fun setConverterToParam(converter: IConverter): R {
+        param.tag(IConverter::class.java, converter)
         return this as R
     }
 

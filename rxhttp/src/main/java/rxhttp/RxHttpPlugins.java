@@ -17,7 +17,7 @@ import rxhttp.wrapper.cache.CacheMode;
 import rxhttp.wrapper.cache.CacheStrategy;
 import rxhttp.wrapper.cache.InternalCache;
 import rxhttp.wrapper.callback.Consumer;
-import rxhttp.wrapper.callback.Converter;
+import rxhttp.wrapper.callback.IConverter;
 import rxhttp.wrapper.callback.Function;
 import rxhttp.wrapper.converter.GsonConverter;
 import rxhttp.wrapper.param.Param;
@@ -36,7 +36,7 @@ public class RxHttpPlugins {
 
     private Consumer<? super Param<?>> onParamAssembly;
     private Function<String, String> decoder;
-    private Converter converter = GsonConverter.create();
+    private IConverter converter = GsonConverter.create();
 
     private List<String> excludeCacheKeys = Collections.emptyList();
 
@@ -97,14 +97,14 @@ public class RxHttpPlugins {
         return this;
     }
 
-    public RxHttpPlugins setConverter(Converter converter) {
+    public RxHttpPlugins setConverter(IConverter converter) {
         if (converter == null)
             throw new IllegalArgumentException("converter can not be null");
         this.converter = converter;
         return this;
     }
 
-    public static Converter getConverter() {
+    public static IConverter getConverter() {
         return plugins.converter;
     }
 

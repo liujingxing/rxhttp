@@ -18,7 +18,7 @@ import okhttp3.RequestBody;
 import rxhttp.RxHttpPlugins;
 import rxhttp.wrapper.cache.CacheMode;
 import rxhttp.wrapper.cache.CacheStrategy;
-import rxhttp.wrapper.callback.Converter;
+import rxhttp.wrapper.callback.IConverter;
 import rxhttp.wrapper.entity.KeyValuePair;
 import rxhttp.wrapper.utils.BuildUtil;
 import rxhttp.wrapper.utils.CacheUtil;
@@ -216,9 +216,9 @@ public abstract class AbstractParam<P extends Param<P>> extends Param<P> {
         return BuildUtil.buildRequest(this, requestBuilder);
     }
 
-    protected Converter getConverter() {
+    protected IConverter getConverter() {
         Request request = getRequestBuilder().build();
-        Converter converter = request.tag(Converter.class);
+        IConverter converter = request.tag(IConverter.class);
         return Objects.requireNonNull(converter, "converter can not be null");
     }
 

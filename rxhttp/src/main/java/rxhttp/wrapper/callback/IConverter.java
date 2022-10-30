@@ -14,7 +14,7 @@ import okhttp3.ResponseBody;
  * Date: 2019-11-19
  * Time: 22:54
  */
-public interface Converter {
+public interface IConverter {
 
     // ResponseBody convert to T
     @NotNull

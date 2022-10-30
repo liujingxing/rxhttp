@@ -17,7 +17,7 @@ import okhttp3.HttpUrl;
 import okhttp3.HttpUrl.Builder;
 import okhttp3.RequestBody;
 import rxhttp.RxHttpPlugins;
-import rxhttp.wrapper.callback.Converter;
+import rxhttp.wrapper.callback.IConverter;
 import rxhttp.wrapper.callback.JsonConverter;
 import rxhttp.wrapper.entity.KeyValuePair;
 import rxhttp.wrapper.utils.BuildUtil;
@@ -133,8 +133,8 @@ public class JsonArrayParam extends AbstractBodyParam<JsonArrayParam> {
     }
 
     @Override
-    protected Converter getConverter() {
-        Converter converter = super.getConverter();
+    protected IConverter getConverter() {
+        IConverter converter = super.getConverter();
         if (!(converter instanceof JsonConverter)) {
             converter = RxHttpPlugins.getConverter();
         }
