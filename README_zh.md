@@ -33,10 +33,10 @@
 
 # 2、请求三部曲
 
-![](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/96962077a7874293919bc8379b2d45ac~tplv-k3u1fbpfcp-watermark.image)
+![](https://p1-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/29bdab825c4f42c0983c58777f3af675~tplv-k3u1fbpfcp-watermark.image)
 
 ***代码表示，
-[asXxx、toXxx、toFlowXxx方法介绍点这里](https://github.com/liujingxing/rxhttp/wiki/RxJava%E3%80%81Await%E3%80%81Flow-%E5%AF%B9%E5%BA%94%E7%9A%84-asXxx%E3%80%81toXxx%E3%80%81toFlowXxx%E6%96%B9%E6%B3%95%E4%BB%8B%E7%BB%8D)***
+[toObservableXxx、toAwaitXxx、toFlowXxx方法介绍点这里](https://github.com/liujingxing/rxhttp/wiki/RxJava%E3%80%81Await%E3%80%81Flow-%E5%AF%B9%E5%BA%94%E7%9A%84-asXxx%E3%80%81toXxx%E3%80%81toFlowXxx%E6%96%B9%E6%B3%95%E4%BB%8B%E7%BB%8D)***
 
 <table>
   <tr>
@@ -53,13 +53,13 @@
   //同步式写法
   val user = RxHttp.get("/server/..")
       .add("key", "value")
-      .toClass<User>()
+      .toAwait<User>()
       .await() //tryAwait return User?
   
   //回调式写法
   RxHttp.get("/server/..")
       .add("key", "value")
-      .toClass<User>()  
+      .toAwait<User>()  
       .awaitResult { 
           //成功回调   
       }.onFailure {  
@@ -87,7 +87,7 @@
   ```java
   RxHttp.get("/server/..")
       .add("key", "value")
-      .asClass<User>()  
+      .toObserable<User>()  
       .subscribe({ 
           //成功回调   
       }, {  
@@ -101,7 +101,7 @@
   ```java
   RxHttp.get("/server/..")
       .add("key", "value")
-      .asClass(User.class)  
+      .toObserable(User.class)  
       .subscribe(user - > { 
           //成功回调   
       }, throwable -> {  
@@ -118,13 +118,13 @@
 
 | 功能说明 | RxHttp | [Retrofit](https://github.com/square/retrofit) |
 | --- | :---: | :---: |
-| 版本| v2.9.5| v2.9.0 |
+| 版本| v3.0.0| v2.9.0 |
 | 状态| 维护中| 维护中 |
 | 标准RESTful风格| ✅ | ✅ |
 | 学习成本| 低 | 高|
 | 扩展性| 高| 高|
 | 源码大小| 81k | 75k |
-| jar包大小| 269k | 123k |
+| jar包大小| 218k | 123k |
 | RxJava| RxJava  ❌<br>RxJava2✅<br>RxJava3✅| RxJava  ✅<br>RxJava2✅<br>RxJava3✅|
 | Kotlin协程| ✅ | ✅ |
 | Flow流| ✅ | ✅ |
@@ -143,7 +143,7 @@
 
 **说明**
 
-也许你有会有疑问，RxHttp源码大小仅比retrofit大6k的情况下，jar包大小为何会大一倍多？功能太多导致的代码臃肿？并不是，而是由kotlin导致的，在RxHttp内部，为了支持`Await/Flow`，运用了大量的kotlin内联方法及扩展方法，这些方法在编译为字节码后，都会相对较大，其中[AwaitTransform.kt](https://github.com/liujingxing/rxhttp/blob/master/rxhttp/src/main/java/rxhttp/AwaitTransform.kt)、[CallFactoryToAwait.kt](https://github.com/liujingxing/rxhttp/blob/master/rxhttp/src/main/java/rxhttp/CallFactoryToAwait.kt)、[CallFactoryToFlow.kt](https://github.com/liujingxing/rxhttp/blob/master/rxhttp/src/main/java/rxhttp/CallFactoryToFlow.kt)这3个kotlin文件，编译为字节码后，就达到了100k+, 再加上其他kotlin文件，就达到了目前的jar包大小
+也许你有会有疑问，RxHttp源码大小仅比retrofit大6k的情况下，jar包大小为何会大一倍多？功能太多导致的代码臃肿？并不是，而是由kotlin导致的，在RxHttp内部，为了支持`Await/Flow`，运用了大量的kotlin内联方法及扩展方法，这些方法在编译为字节码后，都会相对较大，其中[AwaitTransform.kt](https://github.com/liujingxing/rxhttp/blob/master/rxhttp/src/main/java/rxhttp/AwaitTransform.kt)、[CallFactoryToAwait.kt](https://github.com/liujingxing/rxhttp/blob/master/rxhttp/src/main/java/rxhttp/CallFactoryToAwait.kt)、[CallFactoryToFlow.kt](https://github.com/liujingxing/rxhttp/blob/master/rxhttp/src/main/java/rxhttp/CallFactoryToFlow.kt)这3个kotlin文件，编译为字节码后，就达到了100k+
 
 
 # 3、相关文档
@@ -194,7 +194,7 @@ android {
 }
 //3、添加依赖
 dependencies {
-    def rxhttp_version = '2.9.5'
+    def rxhttp_version = '3.0.0'
     implementation 'com.squareup.okhttp3:okhttp:4.10.0'  
     implementation "com.github.liujingxing.rxhttp:rxhttp:$rxhttp_version"
     annotationProcessor "com.github.liujingxing.rxhttp:rxhttp-compiler:$rxhttp_version"
@@ -226,7 +226,7 @@ plugins {
 }
  
 dependencies {
-    def rxhttp_version = '2.9.5'
+    def rxhttp_version = '3.0.0'
     implementation 'com.squareup.okhttp3:okhttp:4.10.0'  
     implementation "com.github.liujingxing.rxhttp:rxhttp:$rxhttp_version"
     kapt "com.github.liujingxing.rxhttp:rxhttp-compiler:$rxhttp_version"
@@ -263,11 +263,11 @@ android {
 }
 //3、添加插件及依赖
 plugins {
-    id 'com.google.devtools.ksp' version '1.7.10-1.0.6'
+    id 'com.google.devtools.ksp' version '1.7.20-1.0.7'
 }
  
 dependencies {
-    def rxhttp_version = '2.9.5'
+    def rxhttp_version = '3.0.0'
     implementation 'com.squareup.okhttp3:okhttp:4.10.0'  
     implementation "com.github.liujingxing.rxhttp:rxhttp:$rxhttp_version"
     ksp "com.github.liujingxing.rxhttp:rxhttp-compiler:$rxhttp_version"

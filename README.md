@@ -7,7 +7,7 @@ English | [中文文档](https://github.com/liujingxing/rxhttp/blob/master/READM
 A type-safe HTTP client for Android. Written based on OkHttp
 
 
-![sequence_chart_en.jpg](https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/2c637845930b49d7a7466ec7b5dcdb77~tplv-k3u1fbpfcp-watermark.image)
+![sequence_chart_en.jpg](https://p6-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/2e25f9c6aa694b57bd43871eff95cecd~tplv-k3u1fbpfcp-watermark.image)
 
 
 <table>
@@ -26,13 +26,13 @@ A type-safe HTTP client for Android. Written based on OkHttp
   //tryAwait return User?
   val user = RxHttp.get("/server/..")
       .add("key", "value")
-      .toClass<User>()
+      .toAwait<User>()
       .await() 
   
   //or awaitResult return kotlin.Result<T>
   RxHttp.get("/server/..")
       .add("key", "value")
-      .toClass<User>()  
+      .toAwait<User>()  
       .awaitResult { 
           //Success
       }.onFailure {  
@@ -60,7 +60,7 @@ A type-safe HTTP client for Android. Written based on OkHttp
   ```java
   RxHttp.get("/server/..")
       .add("key", "value")
-      .asClass<User>()  
+      .toObserable<User>()  
       .subscribe({ 
           //Success
       }, {  
@@ -74,7 +74,7 @@ A type-safe HTTP client for Android. Written based on OkHttp
   ```java
   RxHttp.get("/server/..")
       .add("key", "value")
-      .asClass(User.class)  
+      .toObserable(User.class)  
       .subscribe(user - > { 
           //Success
       }, throwable -> {  
@@ -135,18 +135,23 @@ android {
 plugins {
     // kapt/ksp choose one
     // id 'kotlin-kapt'
-    id 'com.google.devtools.ksp' version '1.7.10-1.0.6'
+    id 'com.google.devtools.ksp' version '1.7.20-1.0.7'
 }
 
 //Make IDE aware of generated code if you use ksp
-kotlin {
-    sourceSets.debug {
-        kotlin.srcDir("build/generated/ksp/debug/kotlin")
+android {
+    applicationVariants.all { variant ->
+        sourceSets {
+            def name = variant.name
+            getByName(name) {  //告知IDE，ksp生成的kotlin代码
+                kotlin.srcDir("build/generated/ksp/$name/kotlin")
+            }
+        }
     }
 }
     
 dependencies {
-    def rxhttp_version = '2.9.5'
+    def rxhttp_version = '3.0.0'
     implementation 'com.squareup.okhttp3:okhttp:4.10.0'  
     implementation "com.github.liujingxing.rxhttp:rxhttp:$rxhttp_version"
     // ksp/kapt/annotationProcessor choose one
@@ -284,7 +289,7 @@ This step is optional
 ```java
 RxHttpPlugins.init(OkHttpClient)  
     .setDebug(boolean)  
-    .setOnParamAssembly(Function)
+    .setOnParamAssembly(Consumer)
     ....
 ```
 
@@ -308,7 +313,7 @@ public class Url {
 RxHttp.get("/service/...")   //1、You can choose get,postFrom,postJson etc
     .addQuery("key", "value")               //add query param
     .addHeader("headerKey", "headerValue")  //add request header
-    .asClass(Student.class)  //2、Use the asXxx method to determine the return value type, customizable
+    .toObserable(Student.class)  //2、Use the asXxx method to determine the return value type, customizable
     .subscribe(student -> {  //3、Subscribing observer
         //Success callback，Default IO thread
     }, throwable -> {
@@ -320,7 +325,7 @@ RxHttp.postForm("/service/...")          //post FormBody
     .add("key", "value")                 //add param to body
     .addQuery("key1", "value1")          //add query param
     .addFile("file", File(".../1.png"))  //add file to body
-    .asClass<Student>()           
+    .toObserable<Student>()           
     .subscribe({ student ->       
         //Default IO thread
     }, { throwable ->
@@ -329,7 +334,7 @@ RxHttp.postForm("/service/...")          //post FormBody
 
 // kotlin coroutine
 val students = RxHttp.postJson("/service/...")  //1、post {application/json; charset=utf-8}
-    .toList<Student>()                          //2、Use the toXxx method to determine the return value type, customizable
+    .toAwaitList<Student>()                          //2、Use the toXxx method to determine the return value type, customizable
     .await()                                    //3、Get the return value, await is the suspend method
 ```
 
@@ -340,7 +345,7 @@ val students = RxHttp.postJson("/service/...")  //1、post {application/json; ch
 ```java
 //In Rxjava2 , Automatic close request
 RxHttp.get("/service/...")
-    .asString()
+    .toObservableString()
     .as(RxLife.as(this))  //The Activity destroys and automatically closes the request
     .subscribe(s -> {
         //Default IO thread
@@ -350,7 +355,7 @@ RxHttp.get("/service/...")
 
 //In Rxjava3 , Automatic close request
 RxHttp.get("/service/...")
-    .asString()
+    .toObservableString()
     .to(RxLife.to(this))  //The Activity destroys and automatically closes the request
     .subscribe(s -> {
         //Default IO thread
@@ -361,7 +366,7 @@ RxHttp.get("/service/...")
 
 //In RxJava2/RxJava3, close the request manually
 Disposable disposable = RxHttp.get("/service/...")
-    .asString()
+    .toObservableString()
     .subscribe(s -> {
         //Default IO thread
     }, throwable -> {
