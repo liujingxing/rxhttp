@@ -4,6 +4,8 @@ English | [中文文档](https://github.com/liujingxing/rxhttp/blob/master/READM
 
 [![](https://jitpack.io/v/liujingxing/rxhttp.svg)](https://jitpack.io/#liujingxing/rxhttp)
 
+# [(RxHttp 3.0 更新指南，升级必看)](https://github.com/liujingxing/rxhttp/wiki/RxHttp-3.0-%E6%9B%B4%E6%96%B0%E6%8C%87%E5%8D%97%EF%BC%8C%E5%8D%87%E7%BA%A7%E5%BF%85%E7%9C%8B)
+
 A type-safe HTTP client for Android. Written based on OkHttp
 
 
