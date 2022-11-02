@@ -5,6 +5,7 @@ import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.KSFile
+import com.google.devtools.ksp.symbol.Modifier
 import com.rxhttp.compiler.RxHttp
 import com.rxhttp.compiler.rxHttpPackage
 import com.rxhttp.compiler.rxhttpKClass
@@ -243,7 +244,7 @@ class RxHttpGenerator(
         FunSpec.builder("connectTimeout")
             .addParameter("connectTimeout", LONG)
             .addStatement("connectTimeoutMillis = connectTimeout")
-            .addStatement("return this as R")
+            .addStatement("return self()")
             .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
@@ -251,7 +252,7 @@ class RxHttpGenerator(
         FunSpec.builder("readTimeout")
             .addParameter("readTimeout", LONG)
             .addStatement("readTimeoutMillis = readTimeout")
-            .addStatement("return this as R")
+            .addStatement("return self()")
             .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
@@ -259,7 +260,7 @@ class RxHttpGenerator(
         FunSpec.builder("writeTimeout")
             .addParameter("writeTimeout", LONG)
             .addStatement("writeTimeoutMillis = writeTimeout")
-            .addStatement("return this as R")
+            .addStatement("return self()")
             .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
@@ -329,7 +330,7 @@ class RxHttpGenerator(
         FunSpec.builder("setUrl")
             .addParameter("url", STRING)
             .addStatement("param.setUrl(url)")
-            .addStatement("return this as R")
+            .addStatement("return self()")
             .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
@@ -350,7 +351,7 @@ class RxHttpGenerator(
             .addParameter("name", STRING)
             .addParameter("value", ANY)
             .addStatement("param.addPath(name, value)")
-            .addStatement("return this as R")
+            .addStatement("return self()")
             .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
@@ -359,7 +360,7 @@ class RxHttpGenerator(
             .addParameter("name", STRING)
             .addParameter("value", ANY)
             .addStatement("param.addEncodedPath(name, value)")
-            .addStatement("return this as R")
+            .addStatement("return self()")
             .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
@@ -367,7 +368,7 @@ class RxHttpGenerator(
         FunSpec.builder("addQuery")
             .addParameter("key", STRING)
             .addStatement("param.addQuery(key, null)")
-            .addStatement("return this as R")
+            .addStatement("return self()")
             .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
@@ -375,7 +376,7 @@ class RxHttpGenerator(
         FunSpec.builder("addEncodedQuery")
             .addParameter("key", STRING)
             .addStatement("param.addEncodedQuery(key, null)")
-            .addStatement("return this as R")
+            .addStatement("return self()")
             .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
@@ -384,7 +385,7 @@ class RxHttpGenerator(
             .addParameter("key", STRING)
             .addParameter("value", ANY, true)
             .addStatement("param.addQuery(key, value)")
-            .addStatement("return this as R")
+            .addStatement("return self()")
             .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
@@ -393,7 +394,7 @@ class RxHttpGenerator(
             .addParameter("key", STRING)
             .addParameter("value", ANY, true)
             .addStatement("param.addEncodedQuery(key, value)")
-            .addStatement("return this as R")
+            .addStatement("return self()")
             .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
@@ -402,7 +403,7 @@ class RxHttpGenerator(
             .addParameter("key", STRING)
             .addParameter("list", listName)
             .addStatement("param.addAllQuery(key, list)")
-            .addStatement("return this as R")
+            .addStatement("return self()")
             .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
@@ -411,7 +412,7 @@ class RxHttpGenerator(
             .addParameter("key", STRING)
             .addParameter("list", listName)
             .addStatement("param.addAllEncodedQuery(key, list)")
-            .addStatement("return this as R")
+            .addStatement("return self()")
             .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
@@ -419,7 +420,7 @@ class RxHttpGenerator(
         FunSpec.builder("addAllQuery")
             .addParameter("map", mapName)
             .addStatement("param.addAllQuery(map)")
-            .addStatement("return this as R")
+            .addStatement("return self()")
             .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
@@ -427,7 +428,7 @@ class RxHttpGenerator(
         FunSpec.builder("addAllEncodedQuery")
             .addParameter("map", mapName)
             .addStatement("param.addAllEncodedQuery(map)")
-            .addStatement("return this as R")
+            .addStatement("return self()")
             .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
@@ -442,7 +443,7 @@ class RxHttpGenerator(
             .addCode(
                 """
                 if (isAdd) param.addHeader(line)
-                return this as R
+                return self()
                 """.trimIndent()
             )
             .returns(typeVariableR)
@@ -454,7 +455,7 @@ class RxHttpGenerator(
             .addParameter("key", STRING)
             .addParameter("value", STRING)
             .addStatement("param.addNonAsciiHeader(key, value)")
-            .addStatement("return this as R")
+            .addStatement("return self()")
             .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
@@ -464,7 +465,7 @@ class RxHttpGenerator(
             .addParameter("key", STRING)
             .addParameter("value", STRING)
             .addStatement("param.setNonAsciiHeader(key, value)")
-            .addStatement("return this as R")
+            .addStatement("return self()")
             .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
@@ -477,7 +478,7 @@ class RxHttpGenerator(
             .addCode(
                 """
                 if (isAdd) param.addHeader(key, value)
-                return this as R
+                return self()
                 """.trimIndent()
             )
             .returns(typeVariableR)
@@ -487,7 +488,7 @@ class RxHttpGenerator(
         FunSpec.builder("addAllHeader")
             .addParameter("headers", mapStringName)
             .addStatement("param.addAllHeader(headers)")
-            .addStatement("return this as R")
+            .addStatement("return self()")
             .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
@@ -495,7 +496,7 @@ class RxHttpGenerator(
         FunSpec.builder("addAllHeader")
             .addParameter("headers", headerName)
             .addStatement("param.addAllHeader(headers)")
-            .addStatement("return this as R")
+            .addStatement("return self()")
             .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
@@ -504,7 +505,7 @@ class RxHttpGenerator(
             .addParameter("key", STRING)
             .addParameter("value", STRING)
             .addStatement("param.setHeader(key, value)")
-            .addStatement("return this as R")
+            .addStatement("return self()")
             .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
@@ -512,7 +513,7 @@ class RxHttpGenerator(
         FunSpec.builder("setAllHeader")
             .addParameter("headers", mapStringName)
             .addStatement("param.setAllHeader(headers)")
-            .addStatement("return this as R")
+            .addStatement("return self()")
             .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
@@ -553,7 +554,7 @@ class RxHttpGenerator(
                 param.setRangeHeader(startIndex, endIndex)
                 if (connectLastProgress && startIndex >= 0)
                     param.tag(DownloadOffSize::class.java, %T(startIndex))
-                return this as R
+                return self()
                 """.trimIndent(), downloadOffSizeName
             )
             .returns(typeVariableR)
@@ -563,7 +564,7 @@ class RxHttpGenerator(
         FunSpec.builder("removeAllHeader")
             .addParameter("key", STRING)
             .addStatement("param.removeAllHeader(key)")
-            .addStatement("return this as R")
+            .addStatement("return self()")
             .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
@@ -571,7 +572,7 @@ class RxHttpGenerator(
         FunSpec.builder("setHeadersBuilder")
             .addParameter("builder", headerBuilderName)
             .addStatement("param.setHeadersBuilder(builder)")
-            .addStatement("return this as R")
+            .addStatement("return self()")
             .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
@@ -585,7 +586,7 @@ class RxHttpGenerator(
             )
             .addParameter("enabled", BOOLEAN)
             .addStatement("param.setAssemblyEnabled(enabled)")
-            .addStatement("return this as R")
+            .addStatement("return self()")
             .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
@@ -601,7 +602,7 @@ class RxHttpGenerator(
             .addStatement(
                 "param.addHeader(%T.DATA_DECRYPT, enabled.toString())", paramClassName
             )
-            .addStatement("return this as R")
+            .addStatement("return self()")
             .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
@@ -620,7 +621,7 @@ class RxHttpGenerator(
         FunSpec.builder("tag")
             .addParameter("tag", ANY)
             .addStatement("param.tag(tag)")
-            .addStatement("return this as R")
+            .addStatement("return self()")
             .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
@@ -638,7 +639,7 @@ class RxHttpGenerator(
                     .addInterceptor(%T())
                     .build()
             }
-            return this as R
+            return self()
             """.trimIndent(), outputStreamFactory, rangeInterceptor
             )
             .returns(typeVariableR)
@@ -648,7 +649,7 @@ class RxHttpGenerator(
         FunSpec.builder("cacheControl")
             .addParameter("cacheControl", cacheControlName)
             .addStatement("param.cacheControl(cacheControl)")
-            .addStatement("return this as R")
+            .addStatement("return self()")
             .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
@@ -656,7 +657,7 @@ class RxHttpGenerator(
         FunSpec.builder("setCacheKey")
             .addParameter("cacheKey", STRING)
             .addStatement("param.setCacheKey(cacheKey)")
-            .addStatement("return this as R")
+            .addStatement("return self()")
             .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
@@ -664,7 +665,7 @@ class RxHttpGenerator(
         FunSpec.builder("setCacheValidTime")
             .addParameter("cacheValidTime", LONG)
             .addStatement("param.setCacheValidTime(cacheValidTime)")
-            .addStatement("return this as R")
+            .addStatement("return self()")
             .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
@@ -672,7 +673,7 @@ class RxHttpGenerator(
         FunSpec.builder("setCacheMode")
             .addParameter("cacheMode", cacheModeName)
             .addStatement("param.setCacheMode(cacheMode)")
-            .addStatement("return this as R")
+            .addStatement("return self()")
             .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
@@ -720,7 +721,7 @@ class RxHttpGenerator(
             .addCode(
                 """
                 this.converter = converter
-                return this as R
+                return self()
                 """.trimIndent()
             )
             .returns(typeVariableR)
@@ -732,7 +733,7 @@ class RxHttpGenerator(
             .addModifiers(KModifier.PRIVATE)
             .addParameter("converter", converterName)
             .addStatement("param.tag(IConverter::class.java, converter)")
-            .addStatement("return this as R")
+            .addStatement("return self()")
             .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
@@ -742,7 +743,7 @@ class RxHttpGenerator(
             .addCode(
                 """
                 this.okClient = okClient
-                return this as R
+                return self()
                 """.trimIndent()
             )
             .returns(typeVariableR)
@@ -767,7 +768,7 @@ class RxHttpGenerator(
                 """
                 val newUrl = addDomainIfAbsent(param.getSimpleUrl(), domain)
                 param.setUrl(newUrl)
-                return this as R
+                return self()
                 """.trimIndent()
             )
             .returns(typeVariableR)
@@ -800,14 +801,20 @@ class RxHttpGenerator(
             .build()
             .let { methodList.add(it) }
 
-        val baseRxHttpName = rxhttpKClass.peerClass("BaseRxHttp")
-
         val suppressAnnotation = AnnotationSpec.builder(Suppress::class)
             .addMember("%S", "UNCHECKED_CAST")
             .build()
 
-        val rxHttpBuilder = TypeSpec.classBuilder(RxHttp)
+        FunSpec.builder("self")
+            .addModifiers(KModifier.PRIVATE)
             .addAnnotation(suppressAnnotation)
+            .addStatement("return this as R")
+            .build()
+            .let { methodList.add(it) }
+
+        val baseRxHttpName = rxhttpKClass.peerClass("BaseRxHttp")
+
+        val rxHttpBuilder = TypeSpec.classBuilder(RxHttp)
             .primaryConstructor(constructorFun)
             .addType(companionBuilder.build())
             .addKdoc(

@@ -45,7 +45,6 @@ import rxhttp.wrapper.utils.LogUtil
  * https://github.com/liujingxing/rxhttp/wiki/FAQ
  * https://github.com/liujingxing/rxhttp/wiki/更新日志
  */
-@Suppress("UNCHECKED_CAST")
 public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
     public val `param`: P,
 ) : BaseRxHttp() {
@@ -124,22 +123,22 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
 
     public fun connectTimeout(connectTimeout: Long): R {
         connectTimeoutMillis = connectTimeout
-        return this as R
+        return self()
     }
 
     public fun readTimeout(readTimeout: Long): R {
         readTimeoutMillis = readTimeout
-        return this as R
+        return self()
     }
 
     public fun writeTimeout(writeTimeout: Long): R {
         writeTimeoutMillis = writeTimeout
-        return this as R
+        return self()
     }
 
     public fun setUrl(url: String): R {
         param.setUrl(url)
-        return this as R
+        return self()
     }
 
     /**
@@ -154,58 +153,58 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
      */
     public fun addPath(name: String, `value`: Any): R {
         param.addPath(name, value)
-        return this as R
+        return self()
     }
 
     public fun addEncodedPath(name: String, `value`: Any): R {
         param.addEncodedPath(name, value)
-        return this as R
+        return self()
     }
 
     public fun addQuery(key: String): R {
         param.addQuery(key, null)
-        return this as R
+        return self()
     }
 
     public fun addEncodedQuery(key: String): R {
         param.addEncodedQuery(key, null)
-        return this as R
+        return self()
     }
 
     public fun addQuery(key: String, `value`: Any?): R {
         param.addQuery(key, value)
-        return this as R
+        return self()
     }
 
     public fun addEncodedQuery(key: String, `value`: Any?): R {
         param.addEncodedQuery(key, value)
-        return this as R
+        return self()
     }
 
     public fun addAllQuery(key: String, list: List<*>): R {
         param.addAllQuery(key, list)
-        return this as R
+        return self()
     }
 
     public fun addAllEncodedQuery(key: String, list: List<*>): R {
         param.addAllEncodedQuery(key, list)
-        return this as R
+        return self()
     }
 
     public fun addAllQuery(map: Map<String, *>): R {
         param.addAllQuery(map)
-        return this as R
+        return self()
     }
 
     public fun addAllEncodedQuery(map: Map<String, *>): R {
         param.addAllEncodedQuery(map)
-        return this as R
+        return self()
     }
 
     @JvmOverloads
     public fun addHeader(line: String, isAdd: Boolean = true): R {
         if (isAdd) param.addHeader(line)
-        return this as R
+        return self()
     }
 
     /**
@@ -214,7 +213,7 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
      */
     public fun addNonAsciiHeader(key: String, `value`: String): R {
         param.addNonAsciiHeader(key, value)
-        return this as R
+        return self()
     }
 
     /**
@@ -223,7 +222,7 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
      */
     public fun setNonAsciiHeader(key: String, `value`: String): R {
         param.setNonAsciiHeader(key, value)
-        return this as R
+        return self()
     }
 
     @JvmOverloads
@@ -233,27 +232,27 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
         isAdd: Boolean = true,
     ): R {
         if (isAdd) param.addHeader(key, value)
-        return this as R
+        return self()
     }
 
     public fun addAllHeader(headers: Map<String, String>): R {
         param.addAllHeader(headers)
-        return this as R
+        return self()
     }
 
     public fun addAllHeader(headers: Headers): R {
         param.addAllHeader(headers)
-        return this as R
+        return self()
     }
 
     public fun setHeader(key: String, `value`: String): R {
         param.setHeader(key, value)
-        return this as R
+        return self()
     }
 
     public fun setAllHeader(headers: Map<String, String>): R {
         param.setAllHeader(headers)
-        return this as R
+        return self()
     }
 
     @JvmOverloads
@@ -277,17 +276,17 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
         param.setRangeHeader(startIndex, endIndex)
         if (connectLastProgress && startIndex >= 0)
             param.tag(DownloadOffSize::class.java, DownloadOffSize(startIndex))
-        return this as R
+        return self()
     }
 
     public fun removeAllHeader(key: String): R {
         param.removeAllHeader(key)
-        return this as R
+        return self()
     }
 
     public fun setHeadersBuilder(builder: Headers.Builder): R {
         param.setHeadersBuilder(builder)
-        return this as R
+        return self()
     }
 
     /**
@@ -296,7 +295,7 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
      */
     public fun setAssemblyEnabled(enabled: Boolean): R {
         param.setAssemblyEnabled(enabled)
-        return this as R
+        return self()
     }
 
     /**
@@ -305,7 +304,7 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
      */
     public fun setDecoderEnabled(enabled: Boolean): R {
         param.addHeader(Param.DATA_DECRYPT, enabled.toString())
-        return this as R
+        return self()
     }
 
     public fun isAssemblyEnabled() = param.isAssemblyEnabled()
@@ -314,7 +313,7 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
 
     public fun tag(tag: Any): R {
         param.tag(tag)
-        return this as R
+        return self()
     }
 
     public override fun <T> tag(type: Class<in T>, tag: T): R {
@@ -324,27 +323,27 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
                 .addInterceptor(RangeInterceptor())
                 .build()
         }
-        return this as R
+        return self()
     }
 
     public fun cacheControl(cacheControl: CacheControl): R {
         param.cacheControl(cacheControl)
-        return this as R
+        return self()
     }
 
     public fun setCacheKey(cacheKey: String): R {
         param.setCacheKey(cacheKey)
-        return this as R
+        return self()
     }
 
     public fun setCacheValidTime(cacheValidTime: Long): R {
         param.setCacheValidTime(cacheValidTime)
-        return this as R
+        return self()
     }
 
     public fun setCacheMode(cacheMode: CacheMode): R {
         param.setCacheMode(cacheMode)
-        return this as R
+        return self()
     }
 
     public override fun newCall(): Call {
@@ -374,7 +373,7 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
 
     public fun setConverter(converter: IConverter): R {
         this.converter = converter
-        return this as R
+        return self()
     }
 
     /**
@@ -382,12 +381,12 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
      */
     private fun setConverterToParam(converter: IConverter): R {
         param.tag(IConverter::class.java, converter)
-        return this as R
+        return self()
     }
 
     public fun setOkClient(okClient: OkHttpClient): R {
         this.okClient = okClient
-        return this as R
+        return self()
     }
 
     public fun setSimpleClient() = setOkClient(simpleClient)
@@ -400,7 +399,7 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
     public fun setDomainIfAbsent(domain: String): R {
         val newUrl = addDomainIfAbsent(param.getSimpleUrl(), domain)
         param.setUrl(newUrl)
-        return this as R
+        return self()
     }
 
     private fun addDomainIfAbsent(url: String, domain: String): String = 
@@ -416,6 +415,9 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
         } else {
             domain + "/" + url
         }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun self() = this as R
 
     public companion object {
         /**
