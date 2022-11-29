@@ -153,7 +153,7 @@ android {
 }
     
 dependencies {
-    def rxhttp_version = '3.0.0'
+    def rxhttp_version = '3.0.1'
     implementation 'com.squareup.okhttp3:okhttp:4.10.0'  
     implementation "com.github.liujingxing.rxhttp:rxhttp:$rxhttp_version"
     // ksp/kapt/annotationProcessor choose one
@@ -180,7 +180,7 @@ implementation "com.github.liujingxing.rxhttp:converter-simplexml:$rxhttp_versio
  
  ```java
 implementation 'io.reactivex.rxjava3:rxjava:3.1.5'
-implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
+implementation 'io.reactivex.rxjava3:rxandroid:3.0.1'
 implementation 'com.github.liujingxing.rxlife:rxlife-rxjava3:2.2.2' //RxJava3, Automatic close request
 ```
  
