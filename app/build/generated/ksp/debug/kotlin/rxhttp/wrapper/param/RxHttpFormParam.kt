@@ -42,7 +42,7 @@ open class RxHttpFormParam(param: FormParam) : RxHttpAbstractBodyParam<FormParam
     fun setEncoded(key: String, value: Any?) = apply { param.setEncoded(key, value) }
 
     fun addFile(key: String, filePath: String?) = 
-        if (filePath == null) this else add(key, File(filePath))
+        if (filePath == null) this else addFile(key, File(filePath))
 
     @JvmOverloads
     fun addFile(key: String, file: File?, filename: String? = file?.name) =
