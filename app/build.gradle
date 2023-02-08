@@ -7,6 +7,9 @@ plugins {
 }
 
 android {
+    
+    namespace 'com.example.httpsender'
+
     compileSdkVersion 31
     defaultConfig {
         applicationId "com.example.rxhttp"
