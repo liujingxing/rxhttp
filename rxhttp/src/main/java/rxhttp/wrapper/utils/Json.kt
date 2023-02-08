@@ -32,11 +32,7 @@ fun JsonObject.toMap(): Map<String, Any?> {
     return map
 }
 
-fun JsonArray.toList(): List<Any?> {
-    val list: MutableList<Any?> = ArrayList()
-    forEach { list.add(it.toAny()) }
-    return list
-}
+fun JsonArray.toList(): List<Any?> = map { it.toAny() }
 
 fun JsonPrimitive.toAny(): Any {
     return when {

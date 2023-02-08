@@ -59,10 +59,7 @@ class CacheInterceptor(
 
     private fun cacheModeIs(vararg cacheModes: CacheMode): Boolean {
         val cacheMode = cacheStrategy.cacheMode
-        cacheModes.forEach {
-            if (it == cacheMode) return true
-        }
-        return false
+        return cacheModes.any { it == cacheMode }
     }
 
     @Throws(IOException::class)
