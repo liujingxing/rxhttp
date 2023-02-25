@@ -137,7 +137,7 @@ android {
 plugins {
     // kapt/ksp choose one
     // id 'kotlin-kapt'
-    id 'com.google.devtools.ksp' version '1.7.20-1.0.7'
+    id 'com.google.devtools.ksp' version '1.8.0-1.0.9'
 }
 
 //Make IDE aware of generated code if you use ksp
@@ -153,7 +153,7 @@ android {
 }
     
 dependencies {
-    def rxhttp_version = '3.0.1'
+    def rxhttp_version = '3.0.2'
     implementation 'com.squareup.okhttp3:okhttp:4.10.0'  
     implementation "com.github.liujingxing.rxhttp:rxhttp:$rxhttp_version"
     // ksp/kapt/annotationProcessor choose one
@@ -179,8 +179,8 @@ implementation "com.github.liujingxing.rxhttp:converter-simplexml:$rxhttp_versio
 <summary>RxHttp + RxJava3</summary>
  
  ```java
-implementation 'io.reactivex.rxjava3:rxjava:3.1.5'
-implementation 'io.reactivex.rxjava3:rxandroid:3.0.1'
+implementation 'io.reactivex.rxjava3:rxjava:3.1.6'
+implementation 'io.reactivex.rxjava3:rxandroid:3.0.2'
 implementation 'com.github.liujingxing.rxlife:rxlife-rxjava3:2.2.2' //RxJava3, Automatic close request
 ```
  
@@ -200,7 +200,7 @@ implementation 'com.github.liujingxing.rxlife:rxlife-rxjava2:2.2.2' //RxJava2, A
  
 ```java
 ksp {
-    arg("rxhttp_rxjava", "3.1.5")
+    arg("rxhttp_rxjava", "3.1.6")
 }
 ```
  
@@ -212,7 +212,7 @@ ksp {
 ```java
 kapt {
     arguments {
-        arg("rxhttp_rxjava", "3.1.5")
+        arg("rxhttp_rxjava", "3.1.6")
     }
 }
 ```
@@ -228,7 +228,7 @@ android {
         javaCompileOptions {
             annotationProcessorOptions {
                 arguments = [
-                    rxhttp_rxjava: '3.1.5', 
+                    rxhttp_rxjava: '3.1.6', 
                 ]
             }
         }

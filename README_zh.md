@@ -120,7 +120,7 @@
 
 | 功能说明 | RxHttp | [Retrofit](https://github.com/square/retrofit) |
 | --- | :---: | :---: |
-| 版本| v3.0.1| v2.9.0 |
+| 版本| v3.0.2| v2.9.0 |
 | 状态| 维护中| 维护中 |
 | 标准RESTful风格| ✅ | ✅ |
 | 学习成本| 低 | 高|
@@ -197,7 +197,7 @@ android {
 }
 //3、添加依赖
 dependencies {
-    def rxhttp_version = '3.0.1'
+    def rxhttp_version = '3.0.2'
     implementation 'com.squareup.okhttp3:okhttp:4.10.0'  
     implementation "com.github.liujingxing.rxhttp:rxhttp:$rxhttp_version"
     annotationProcessor "com.github.liujingxing.rxhttp:rxhttp-compiler:$rxhttp_version"
@@ -229,7 +229,7 @@ plugins {
 }
  
 dependencies {
-    def rxhttp_version = '3.0.1'
+    def rxhttp_version = '3.0.2'
     implementation 'com.squareup.okhttp3:okhttp:4.10.0'  
     implementation "com.github.liujingxing.rxhttp:rxhttp:$rxhttp_version"
     kapt "com.github.liujingxing.rxhttp:rxhttp-compiler:$rxhttp_version"
@@ -266,11 +266,11 @@ android {
 }
 //3、添加插件及依赖
 plugins {
-    id 'com.google.devtools.ksp' version '1.7.20-1.0.7'
+    id 'com.google.devtools.ksp' version '1.8.0-1.0.9'
 }
  
 dependencies {
-    def rxhttp_version = '3.0.1'
+    def rxhttp_version = '3.0.2'
     implementation 'com.squareup.okhttp3:okhttp:4.10.0'  
     implementation "com.github.liujingxing.rxhttp:rxhttp:$rxhttp_version"
     ksp "com.github.liujingxing.rxhttp:rxhttp-compiler:$rxhttp_version"
@@ -292,8 +292,8 @@ dependencies {
 
 ```java
 //RxJava3 
-implementation 'io.reactivex.rxjava3:rxjava:3.1.5'
-implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
+implementation 'io.reactivex.rxjava3:rxjava:3.1.6'
+implementation 'io.reactivex.rxjava3:rxandroid:3.0.2'
 implementation 'com.github.liujingxing.rxlife:rxlife-rxjava3:2.2.2' //管理RxJava3生命周期，页面销毁，关闭请求
 
 //RxJava2
