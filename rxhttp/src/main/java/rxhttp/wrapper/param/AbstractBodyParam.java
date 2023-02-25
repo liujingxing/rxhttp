@@ -9,7 +9,6 @@ import rxhttp.wrapper.progress.ProgressRequestBody;
  * Date: 2020-09-07
  * Time: 15:08
  */
-@SuppressWarnings("unchecked")
 public abstract class AbstractBodyParam<P extends AbstractBodyParam<P>> extends AbstractParam<P> {
 
     //Upload progress callback
@@ -30,6 +29,7 @@ public abstract class AbstractBodyParam<P extends AbstractBodyParam<P>> extends 
         return callback != null ? new ProgressRequestBody(requestBody, callback) : requestBody;
     }
 
+    @SuppressWarnings("unchecked")
     public final P setProgressCallback(ProgressCallback callback) {
         this.callback = callback;
         return (P) this;

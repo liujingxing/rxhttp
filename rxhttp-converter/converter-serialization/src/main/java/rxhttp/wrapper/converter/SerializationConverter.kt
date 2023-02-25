@@ -21,7 +21,7 @@ class SerializationConverter(
 ) : JsonConverter {
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T> convert(
+    override fun <T : Any> convert(
         body: ResponseBody,
         type: Type,
         needDecodeResult: Boolean

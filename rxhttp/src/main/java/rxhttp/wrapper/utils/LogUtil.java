@@ -413,6 +413,7 @@ public class LogUtil {
         return builder.toString();
     }
 
+    @SuppressWarnings("deprecation")
     private static boolean promisesBody(Response response) {
         //The `HttpHeaders.hasBody` method was removed from okhttp 4.0.0, but was restored and deprecated in 4.0.1
         return versionGte400() ? HttpHeaders.promisesBody(response) : HttpHeaders.hasBody(response);

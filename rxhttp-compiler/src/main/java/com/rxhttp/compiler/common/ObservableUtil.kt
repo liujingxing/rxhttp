@@ -59,8 +59,8 @@ fun getObservableClass(): Map<String, String> {
 
             @Override
             protected void subscribeActual(Observer<? super T> observer) {
-                CallExecuteDisposable d = syncRequest ? new CallExecuteDisposable(observer, callFactory, parser) :
-                    new CallEnqueueDisposable(observer, callFactory, parser);
+                CallExecuteDisposable<T> d = syncRequest ? new CallExecuteDisposable<>(observer, callFactory, parser) :
+                    new CallEnqueueDisposable<>(observer, callFactory, parser);
                 observer.onSubscribe(d);
                 if (d.isDisposed()) {
                     return;
@@ -68,7 +68,7 @@ fun getObservableClass(): Map<String, String> {
                 if (callbackProgress && observer instanceof ProgressCallback) {
                     ProgressCallback pc = (ProgressCallback) observer;
                     if (parser instanceof StreamParser) {
-                        ((StreamParser) parser).setProgressCallback(pc);
+                        ((StreamParser<T>) parser).setProgressCallback(pc);
                     } else if (callFactory instanceof BodyParamFactory) {
                         ((BodyParamFactory) callFactory).getParam().setProgressCallback(pc);
                     }
@@ -114,7 +114,7 @@ fun getObservableClass(): Map<String, String> {
                     throw new UnsupportedOperationException("parser is " + parser.getClass().getSimpleName() + ", callFactory is " + callFactory.getClass().getSimpleName());
                 }
                 callbackProgress = true;
-                return new ObservableProgress(this, capacity, scheduler, progressConsumer);
+                return new ObservableProgress<>(this, capacity, scheduler, progressConsumer);
             }
 
             private static class CallEnqueueDisposable<T> extends CallExecuteDisposable<T> implements Callback {
@@ -124,7 +124,7 @@ fun getObservableClass(): Map<String, String> {
                 }
 
                 @Override
-                public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                public void onResponse(@NonNull Call call, @NonNull Response response) {
                     try {
                         T t = Objects.requireNonNull(parser.onParse(response), "The onParse function returned a null value.");
                         if (!disposed) {
@@ -135,7 +135,6 @@ fun getObservableClass(): Map<String, String> {
                         }
                     } catch (Throwable t) {
                         onError(call, t);
-                        return;
                     }
                 }
 
@@ -159,7 +158,7 @@ fun getObservableClass(): Map<String, String> {
                 protected final CallFactory callFactory;
                 protected volatile boolean disposed;
                 protected Call call;
-                private AtomicReference<Disposable> upstream;
+                private final AtomicReference<Disposable> upstream;
 
                 CallExecuteDisposable(Observer<? super T> downstream, CallFactory callFactory, Parser<T> parser) {
                     this.downstream = downstream;
@@ -181,7 +180,6 @@ fun getObservableClass(): Map<String, String> {
                         }
                     } catch (Throwable e) {
                         onError(call, e);
-                        return;
                     }
                 }
 

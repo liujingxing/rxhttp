@@ -46,8 +46,8 @@ public final class ObservableCall<T> extends Observable<T> {
 
     @Override
     protected void subscribeActual(Observer<? super T> observer) {
-        CallExecuteDisposable d = syncRequest ? new CallExecuteDisposable(observer, callFactory, parser) :
-            new CallEnqueueDisposable(observer, callFactory, parser);
+        CallExecuteDisposable<T> d = syncRequest ? new CallExecuteDisposable<>(observer, callFactory, parser) :
+            new CallEnqueueDisposable<>(observer, callFactory, parser);
         observer.onSubscribe(d);
         if (d.isDisposed()) {
             return;
@@ -55,7 +55,7 @@ public final class ObservableCall<T> extends Observable<T> {
         if (callbackProgress && observer instanceof ProgressCallback) {
             ProgressCallback pc = (ProgressCallback) observer;
             if (parser instanceof StreamParser) {
-                ((StreamParser) parser).setProgressCallback(pc);
+                ((StreamParser<T>) parser).setProgressCallback(pc);
             } else if (callFactory instanceof BodyParamFactory) {
                 ((BodyParamFactory) callFactory).getParam().setProgressCallback(pc);
             }
@@ -101,7 +101,7 @@ public final class ObservableCall<T> extends Observable<T> {
             throw new UnsupportedOperationException("parser is " + parser.getClass().getSimpleName() + ", callFactory is " + callFactory.getClass().getSimpleName());
         }
         callbackProgress = true;
-        return new ObservableProgress(this, capacity, scheduler, progressConsumer);
+        return new ObservableProgress<>(this, capacity, scheduler, progressConsumer);
     }
 
     private static class CallEnqueueDisposable<T> extends CallExecuteDisposable<T> implements Callback {
@@ -111,7 +111,7 @@ public final class ObservableCall<T> extends Observable<T> {
         }
 
         @Override
-        public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+        public void onResponse(@NonNull Call call, @NonNull Response response) {
             try {
                 T t = Objects.requireNonNull(parser.onParse(response), "The onParse function returned a null value.");
                 if (!disposed) {
@@ -122,7 +122,6 @@ public final class ObservableCall<T> extends Observable<T> {
                 }
             } catch (Throwable t) {
                 onError(call, t);
-                return;
             }
         }
 
@@ -146,7 +145,7 @@ public final class ObservableCall<T> extends Observable<T> {
         protected final CallFactory callFactory;
         protected volatile boolean disposed;
         protected Call call;
-        private AtomicReference<Disposable> upstream;
+        private final AtomicReference<Disposable> upstream;
 
         CallExecuteDisposable(Observer<? super T> downstream, CallFactory callFactory, Parser<T> parser) {
             this.downstream = downstream;
@@ -168,7 +167,6 @@ public final class ObservableCall<T> extends Observable<T> {
                 }
             } catch (Throwable e) {
                 onError(call, e);
-                return;
             }
         }
 

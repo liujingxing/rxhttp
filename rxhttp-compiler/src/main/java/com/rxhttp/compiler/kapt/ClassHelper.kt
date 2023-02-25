@@ -1,7 +1,6 @@
 package com.rxhttp.compiler.kapt
 
 import com.rxhttp.compiler.common.getObservableClass
-import com.rxhttp.compiler.getClassPath
 import com.rxhttp.compiler.isDependenceRxJava
 import com.rxhttp.compiler.rxHttpPackage
 import java.io.BufferedWriter

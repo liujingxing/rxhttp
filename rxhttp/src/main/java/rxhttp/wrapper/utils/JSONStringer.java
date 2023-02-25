@@ -23,7 +23,7 @@ public class JSONStringer {
      * Unlike the original implementation, this stack isn't limited to 20
      * levels of nesting.
      */
-    private final List<Scope> stack = new ArrayList<Scope>();
+    private final List<Scope> stack = new ArrayList<>();
 
     /**
      * A string containing a full set of spaces for a single level of
@@ -78,9 +78,9 @@ public class JSONStringer {
 
     public JSONStringer write(JSONObject jsonObject) throws JSONException {
         object();
-        Iterator<String> iterator = jsonObject.keys();
+        Iterator<?> iterator = jsonObject.keys();
         while (iterator.hasNext()) {
-            String key = iterator.next();
+            String key = iterator.next().toString();
             key(key).value(jsonObject.opt(key));
         }
         endObject();
