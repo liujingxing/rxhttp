@@ -96,7 +96,7 @@ private fun TypeElement.getToObservableXxxFun(
         //参数名
         val paramsName = getParamsName(constructor.parameters, parameterList, typeCount)
         //方法体
-        val toObservableXxxFunBody = if (typeCount == 1) {
+        val toObservableXxxFunBody = if (typeCount == 1 && onParserFunReturnType is TypeVariableName) {
             CodeBlock.of("return toObservable(wrap${customParser.simpleName()}($paramsName))")
         } else {
             CodeBlock.of("return toObservable(new \$T$types($paramsName))", customParser)
@@ -106,7 +106,7 @@ private fun TypeElement.getToObservableXxxFun(
 
         val originParameters = constructor.parameters.map { ParameterSpec.get(it) }
 
-        if (typeCount == 1) {
+        if (typeCount == 1 && onParserFunReturnType is TypeVariableName) {
             val t = TypeVariableName.get("T")
             val typeUtil = ClassName.get("rxhttp.wrapper.utils", "TypeUtil")
             val okResponseParser = ClassName.get("rxhttp.wrapper.parse", "OkResponseParser")
@@ -361,7 +361,7 @@ private fun getTypeVariableString(typeVariableNames: List<TypeVariableName>): St
 }
 
 //获取onParser方法返回类型
-private fun TypeElement.getOnParserFunReturnType(): TypeName? {
+fun TypeElement.getOnParserFunReturnType(): TypeName? {
     val function = enclosedElements.find {
         it is ExecutableElement   //是方法
             && it.getModifiers().contains(Modifier.PUBLIC)  //public修饰

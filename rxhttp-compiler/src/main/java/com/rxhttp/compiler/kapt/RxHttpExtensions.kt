@@ -6,7 +6,6 @@ import com.rxhttp.compiler.common.getTypeVariableString
 import com.rxhttp.compiler.isDependenceRxJava
 import com.rxhttp.compiler.rxHttpPackage
 import com.rxhttp.compiler.rxhttpKClass
-import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
@@ -16,7 +15,6 @@ import com.squareup.kotlinpoet.LambdaTypeName
 import com.squareup.kotlinpoet.MemberName
 import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.ParameterizedTypeName
-import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.TypeVariableName
 import com.squareup.kotlinpoet.asClassName
 import com.squareup.kotlinpoet.asTypeName
@@ -47,6 +45,7 @@ class RxHttpExtensions {
         val typeVariableNames = typeElement.typeParameters.map {
             it.asTypeVariableName().toKTypeVariableNames()
         }
+        val onParserFunReturnType = typeElement.getOnParserFunReturnType() ?: return
         val constructors = typeElement.getPublicConstructors()
         val typeCount = typeVariableNames.size  //泛型数量
         val customParser = typeElement.asClassName()
@@ -108,7 +107,7 @@ class RxHttpExtensions {
             }
 
             val wrapCustomParser = MemberName(rxHttpPackage, "BaseRxHttp.wrap${customParser.simpleName}")
-            val toAwaitXxxFunBody = if (typeCount == 1) {
+            val toAwaitXxxFunBody = if (typeCount == 1 && onParserFunReturnType is com.squareup.javapoet.TypeVariableName) {
                 CodeBlock.of("return toAwait(%M$types($finalParams))", wrapCustomParser)
             } else {
                 CodeBlock.of("return toAwait(%T$types($finalParams))", customParser)

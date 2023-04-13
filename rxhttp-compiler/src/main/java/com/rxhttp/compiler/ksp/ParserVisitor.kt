@@ -124,11 +124,12 @@ private fun KSClassDeclaration.getToObservableXxxFun(
         //参数名
         val paramsName = getParamsName(constructor.parameters, parameterSpecs, typeCount)
         //方法体
-        val toObservableXxxFunBody = if (typeCount == 1) {
-            CodeBlock.of("return toObservable(%M$types($paramsName))", wrapCustomParser)
-        } else {
-            CodeBlock.of("return toObservable(%T$types($paramsName))", customParser)
-        }
+        val toObservableXxxFunBody =
+            if (typeCount == 1 && onParserFunReturnType is TypeVariableName) {
+                CodeBlock.of("return toObservable(%M$types($paramsName))", wrapCustomParser)
+            } else {
+                CodeBlock.of("return toObservable(%T$types($paramsName))", customParser)
+            }
 
         val originParameters = constructor.parameters.map {
             val functionTypeParams =
@@ -136,7 +137,7 @@ private fun KSClassDeclaration.getToObservableXxxFun(
             it.toKParameterSpec(functionTypeParams)
         }
 
-        if (typeCount == 1) {
+        if (typeCount == 1 && onParserFunReturnType is TypeVariableName) {
             val t = TypeVariableName("T")
             val typeUtil = ClassName("rxhttp.wrapper.utils", "TypeUtil")
             val okResponseParser = ClassName("rxhttp.wrapper.parse", "OkResponseParser")
@@ -311,7 +312,7 @@ private fun KSFunctionDeclaration.getToObservableXxxFun(
 }
 
 //获取onParser方法返回类型
-private fun KSClassDeclaration.findOnParserFunReturnType(): TypeName? {
+fun KSClassDeclaration.findOnParserFunReturnType(): TypeName? {
     val ksFunction = getAllFunctions().find {
         it.isPublic() &&
                 !it.modifiers.contains(Modifier.JAVA_STATIC) &&
