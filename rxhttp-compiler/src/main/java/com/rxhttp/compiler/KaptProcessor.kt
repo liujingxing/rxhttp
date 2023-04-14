@@ -43,6 +43,7 @@ open class KaptProcessor : AbstractProcessor() {
     private var debug = false
     private var processed = false
     private var incremental = true
+    private var androidPlatform = true
 
     @Synchronized
     override fun init(processingEnvironment: ProcessingEnvironment) {
@@ -53,8 +54,9 @@ open class KaptProcessor : AbstractProcessor() {
         elementUtils = processingEnvironment.elementUtils
         val options = processingEnvironment.options
         rxHttpPackage = options[rxhttp_package] ?: defaultPackageName
-        incremental = "false" != options[rxhttp_incremental]
-        debug = "true" == options[rxhttp_debug]
+        incremental = (options[rxhttp_incremental] ?: "true").toBoolean()
+        debug = options[rxhttp_debug].toBoolean()
+        androidPlatform = (options[rxhttp_android_platform] ?: "true").toBoolean()
         initRxJavaVersion(getRxJavaVersion(options))
     }
 
@@ -73,7 +75,7 @@ open class KaptProcessor : AbstractProcessor() {
     override fun getSupportedOptions(): MutableSet<String> {
         return mutableSetOf(
             rxhttp_rxjava, rxhttp_package,
-            rxhttp_incremental, rxhttp_debug
+            rxhttp_incremental, rxhttp_debug, rxhttp_android_platform
         ).apply {
             if (incremental)
                 add("org.gradle.annotation.processing.aggregating")
@@ -99,7 +101,7 @@ open class KaptProcessor : AbstractProcessor() {
             )
         }
         if (annotations.isEmpty() || processed) return true
-        ClassHelper(isAndroidPlatform()).generatorStaticClass(filer)
+        ClassHelper(isAndroidPlatform() && androidPlatform).generatorStaticClass(filer)
         try {
             val rxHttpWrapper = RxHttpWrapper(logger)
 
@@ -156,7 +158,7 @@ open class KaptProcessor : AbstractProcessor() {
             }.generateCode(filer)
 
             //Generate BaseRxHttp.java
-            BaseRxHttpGenerator(isAndroidPlatform()).apply {
+            BaseRxHttpGenerator(isAndroidPlatform() && androidPlatform).apply {
                 this.parserVisitor = parserVisitor
             }.generateCode(filer)
 

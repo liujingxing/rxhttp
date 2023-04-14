@@ -9,8 +9,23 @@ import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFile
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
-import com.rxhttp.compiler.ksp.*
-import rxhttp.wrapper.annotation.*
+import com.rxhttp.compiler.ksp.BaseRxHttpGenerator
+import com.rxhttp.compiler.ksp.ClassHelper
+import com.rxhttp.compiler.ksp.ConverterVisitor
+import com.rxhttp.compiler.ksp.DefaultDomainVisitor
+import com.rxhttp.compiler.ksp.DomainVisitor
+import com.rxhttp.compiler.ksp.KClassHelper
+import com.rxhttp.compiler.ksp.OkClientVisitor
+import com.rxhttp.compiler.ksp.ParamsVisitor
+import com.rxhttp.compiler.ksp.ParserVisitor
+import com.rxhttp.compiler.ksp.RxHttpGenerator
+import com.rxhttp.compiler.ksp.RxHttpWrapper
+import rxhttp.wrapper.annotation.Converter
+import rxhttp.wrapper.annotation.DefaultDomain
+import rxhttp.wrapper.annotation.Domain
+import rxhttp.wrapper.annotation.OkClient
+import rxhttp.wrapper.annotation.Param
+import rxhttp.wrapper.annotation.Parser
 
 /**
  * User: ljx
@@ -20,6 +35,7 @@ import rxhttp.wrapper.annotation.*
 class KspProcessor(private val env: SymbolProcessorEnvironment) : SymbolProcessor {
 
     private var processed: Boolean = false
+    private var androidPlatform = true
 
     @KspExperimental
     override fun process(resolver: Resolver): List<KSAnnotated> {
@@ -27,13 +43,14 @@ class KspProcessor(private val env: SymbolProcessorEnvironment) : SymbolProcesso
         val options = env.options
         val codeGenerator = env.codeGenerator
 
-        val debug = "true" == options[rxhttp_debug]
+        val debug = options[rxhttp_debug].toBoolean()
         if (debug) {
             logger.warn(
                 "LJX process getAllFiles.size=${resolver.getAllFiles().toList().size} " +
                         "newFiles.size=${resolver.getNewFiles().toList().size}"
             )
         }
+        androidPlatform = (options[rxhttp_android_platform] ?: "true").toBoolean()
         if (processed || resolver.getAllFiles().toList().isEmpty()) return emptyList()
 
         rxHttpPackage = options[rxhttp_package] ?: defaultPackageName
@@ -95,7 +112,7 @@ class KspProcessor(private val env: SymbolProcessorEnvironment) : SymbolProcesso
         }
         rxHttpWrapper.generateRxWrapper(codeGenerator)
         ClassHelper(ksFileSet).generatorStaticClass(codeGenerator)
-        KClassHelper(true, ksFileSet).generatorStaticClass(codeGenerator)
+        KClassHelper(androidPlatform, ksFileSet).generatorStaticClass(codeGenerator)
         RxHttpGenerator(logger, ksFileSet).apply {
             this.paramsVisitor = paramsVisitor
             this.domainVisitor = domainVisitor
@@ -104,7 +121,7 @@ class KspProcessor(private val env: SymbolProcessorEnvironment) : SymbolProcesso
             this.defaultDomainVisitor = defaultDomainVisitor
         }.generateCode(codeGenerator)
 
-        BaseRxHttpGenerator(logger, true, ksFileSet).apply {
+        BaseRxHttpGenerator(logger, androidPlatform, ksFileSet).apply {
             this.parserVisitor = parserVisitor
         }.generateCode(codeGenerator)
         processed = true
