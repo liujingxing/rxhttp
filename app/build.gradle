@@ -59,6 +59,7 @@ android {
 
 ksp {
     arg("rxhttp_rxjava", rxjava_version)
+    arg("rxhttp_android_platform", "true")
 //        arg("rxhttp_package", "rxhttp")
 }
 
