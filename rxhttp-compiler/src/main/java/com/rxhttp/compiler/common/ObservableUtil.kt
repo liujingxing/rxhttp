@@ -197,7 +197,8 @@ fun getObservableClass(): Map<String, String> {
                 public void dispose() {
                     DisposableHelper.dispose(upstream);
                     disposed = true;
-                    call.cancel();
+                    if (call != null)
+                        call.cancel();
                 }
 
                 @Override
