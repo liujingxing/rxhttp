@@ -29,8 +29,8 @@ import java.io.File
  * ```
  * RxHttp.postXxx("/service/...")
  *     .add("key", "value")
- *     .asClass<User>()
- *     .subscribe(user ->{
+ *     .toObservable<User>()
+ *     .subscribe(user -> {
  *
  *     }, throwable -> {
  *
