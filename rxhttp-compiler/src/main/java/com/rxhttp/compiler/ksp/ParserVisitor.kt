@@ -149,6 +149,7 @@ private fun KSClassDeclaration.getToObservableXxxFun(
 
             val index = paramsName.indexOf(",")
             val wrapParams = if (index != -1) ", ${paramsName.substring(index + 1)}" else ""
+            val typeParamName = originParameters.first().name
 
             FunSpec.builder("wrap${customParser.simpleName}")
                 .addAnnotation(suppressAnnotation)
@@ -157,9 +158,9 @@ private fun KSClassDeclaration.getToObservableXxxFun(
                 .returns(parserClass)
                 .addCode(
                     """
-                    val actualType = %T.getActualType(type) ?: type
+                    val actualType = %T.getActualType($typeParamName) ?: $typeParamName
                     val parser = %T<Any>(actualType$wrapParams)
-                    val actualParser = if (actualType == type) parser else %T(parser)
+                    val actualParser = if (actualType == $typeParamName) parser else %T(parser)
                     return actualParser as Parser<T>
                 """.trimIndent(), typeUtil, customParser, okResponseParser
                 )

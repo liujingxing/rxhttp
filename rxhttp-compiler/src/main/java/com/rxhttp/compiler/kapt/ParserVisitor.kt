@@ -119,6 +119,7 @@ private fun TypeElement.getToObservableXxxFun(
             val index = paramsName.indexOf(",")
 
             val wrapParams = if (index != -1) ", ${paramsName.substring(index + 1)}" else ""
+            val typeParamName = originParameters.first().name
 
             MethodSpec.methodBuilder("wrap${customParser.simpleName()}")
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
@@ -128,10 +129,10 @@ private fun TypeElement.getToObservableXxxFun(
                 .returns(parserClass)
                 .addCode(
                     """
-                    Type actualType = ${'$'}T.getActualType(type);
-                    if (actualType == null) actualType = type;
+                    Type actualType = ${'$'}T.getActualType($typeParamName);
+                    if (actualType == null) actualType = $typeParamName;
                     ${'$'}T parser = new ${'$'}T(actualType$wrapParams);
-                    return actualType == type ? parser : new ${'$'}T(parser);
+                    return actualType == $typeParamName ? parser : new ${'$'}T(parser);
                 """.trimIndent(), typeUtil, customParser, customParser, okResponseParser
                 ).build().apply { methodList.add(this) }
         }
