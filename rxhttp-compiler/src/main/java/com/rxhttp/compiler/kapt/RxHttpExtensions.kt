@@ -136,7 +136,7 @@ class RxHttpExtensions {
             returnType = Unit::class.asClassName()
         ).copy(suspending = true)
 
-        val fileBuilder = FileSpec.builder(rxHttpPackage, "RxHttp")
+        val fileBuilder = FileSpec.builder(rxHttpPackage, "RxHttpExtension")
             .addImport("rxhttp.wrapper.utils", "javaTypeOf")
             .addImport("rxhttp", "toAwait")
 
