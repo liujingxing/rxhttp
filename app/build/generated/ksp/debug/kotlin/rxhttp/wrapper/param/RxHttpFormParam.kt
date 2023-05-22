@@ -25,7 +25,10 @@ import java.io.File
  */
 open class RxHttpFormParam(param: FormParam) : RxHttpAbstractBodyParam<FormParam, RxHttpFormParam>(param) {
     
-    fun add(key: String, value: Any?) = apply { param.add(key, value) }
+    @JvmOverloads
+    fun add(key: String, value: Any?, isAdd: Boolean = true) = apply {
+        if (isAdd) param.add(key, value)
+    }    
 
     fun addAll(map: Map<String, *>) = apply { param.addAll(map) }
 

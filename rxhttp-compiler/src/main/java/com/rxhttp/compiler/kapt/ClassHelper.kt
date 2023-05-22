@@ -226,6 +226,13 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
                     return this;
                 }
 
+                public RxHttpFormParam add(String key, @Nullable Object value, boolean isAdd) {
+                    if (isAdd) {
+                        param.add(key,value);
+                    }
+                    return this;
+                }
+                
                 public RxHttpFormParam addAll(Map<String, ?> map) {
                     param.addAll(map);
                     return this;
@@ -459,20 +466,20 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
                 }
 
                 public RxHttpJsonParam add(String key, Object value) {
-                  param.add(key,value);
-                  return this;
+                    param.add(key,value);
+                    return this;
                 }
                 
                 public RxHttpJsonParam add(String key, Object value, boolean isAdd) {
-                  if(isAdd) {
-                    param.add(key,value);
-                  }
-                  return this;
+                    if (isAdd) {
+                        param.add(key,value);
+                    }
+                    return this;
                 }
                 
                 public RxHttpJsonParam addAll(Map<String, ?> map) {
-                  param.addAll(map);
-                  return this;
+                    param.addAll(map);
+                    return this;
                 }
                 
                 /**
@@ -529,20 +536,20 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
                 }
 
                 public RxHttpJsonArrayParam add(String key, Object value) {
-                  param.add(key,value);
-                  return this;
+                    param.add(key,value);
+                    return this;
                 }
                 
                 public RxHttpJsonArrayParam add(String key, Object value, boolean isAdd) {
-                  if(isAdd) {
-                    param.add(key,value);
-                  }
-                  return this;
+                    if (isAdd) {
+                        param.add(key,value);
+                    }
+                    return this;
                 }
                 
                 public RxHttpJsonArrayParam addAll(Map<String, ?> map) {
-                  param.addAll(map);
-                  return this;
+                    param.addAll(map);
+                    return this;
                 }
 
                 public RxHttpJsonArrayParam add(Object object) {
