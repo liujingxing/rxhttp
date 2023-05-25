@@ -222,7 +222,7 @@ public class OkHttpCompat {
         } catch (Throwable e) {
             e.printStackTrace();
         }
-        return OKHTTP_USER_AGENT = "okhttp/4.2.0";
+        return OKHTTP_USER_AGENT = "okhttp/x.x.x";
     }
 
     private static int versionCompare(String version1, String version2) {
