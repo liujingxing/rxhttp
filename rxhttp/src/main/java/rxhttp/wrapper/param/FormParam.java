@@ -117,6 +117,11 @@ public class FormParam extends AbstractBodyParam<FormParam> implements IPart<For
         return multiType != null;
     }
 
+    @Nullable
+    public MediaType getMultiType() {
+        return multiType;
+    }
+
     @Override
     public RequestBody getRequestBody() {
         return isMultipart() ? BuildUtil.buildMultipartBody(multiType, bodyParam, partList)
