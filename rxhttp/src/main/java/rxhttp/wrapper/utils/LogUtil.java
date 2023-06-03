@@ -42,7 +42,7 @@ import rxhttp.wrapper.progress.ProgressRequestBody;
 public class LogUtil {
 
     private static final String TAG = "RxHttp";
-    private static final String TAG_RXJAVA = "RxJava";
+    private static final String TAG_RXJAVA = "RxHttp-RxJava";
 
     private static boolean isDebug = false;
     //Segmenting logs If the log length is too long
@@ -69,24 +69,15 @@ public class LogUtil {
     }
 
     //Print RxJava Throwable
-    public static void log(Throwable throwable) {
+    public static void logRxJavaError(Throwable throwable) {
         if (!isDebug) return;
-        Platform.get().loge(TAG_RXJAVA, throwable.toString());
+        Platform.get().loge(TAG_RXJAVA, "RxJavaPlugins onError", throwable);
     }
 
-    //Print url and throwable
-    public static void log(String url, Throwable throwable) {
+    //Print message and throwable
+    public static void log(String message, Throwable throwable) {
         if (!isDebug) return;
-        try {
-            throwable.printStackTrace();
-            StringBuilder builder = new StringBuilder(throwable.toString());
-            if (!(throwable instanceof ParseException) && !(throwable instanceof HttpStatusCodeException)) {
-                builder.append("\n\n").append(url);
-            }
-            Platform.get().loge(TAG, builder.toString());
-        } catch (Throwable e) {
-            Platform.get().logd(TAG, "Request error Log printing failed", e);
-        }
+        Platform.get().loge(TAG, message, throwable);
     }
 
     public static void log(String msg) {
@@ -155,7 +146,7 @@ public class LogUtil {
             }
             Platform.get().logd(TAG, builder.toString());
         } catch (Throwable e) {
-            Platform.get().logd(TAG, "Request start log printing failed", e);
+            Platform.get().loge(TAG, "Request start log printing failed", e);
         }
     }
 
@@ -188,7 +179,7 @@ public class LogUtil {
                 .append("\n").append(result);
             Platform.get().logi(TAG, builder.toString());
         } catch (Throwable e) {
-            Platform.get().logd(TAG, "Request end Log printing failed", e);
+            Platform.get().loge(TAG, "Request end Log printing failed", e);
         }
     }
 

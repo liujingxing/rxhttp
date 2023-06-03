@@ -3,6 +3,9 @@ package rxhttp;
 import android.os.Build;
 import android.util.Log;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 import rxhttp.wrapper.utils.LogUtil;
 
 /**
@@ -52,8 +55,9 @@ public class Platform {
         System.out.println(tag + ": " + message);
     }
 
-    public void logd(String tag, String message, Throwable e) {
-        System.out.println(tag + ": " + message);
+    public void loge(String tag, String message, Throwable e) {
+        System.err.println(tag + ": " + message);
+        e.printStackTrace();
     }
 
     static final class Android extends Platform {
@@ -87,11 +91,12 @@ public class Platform {
         }
 
         @Override
-        public void logd(String tag, String message, Throwable e) {
-            log(Log.DEBUG, tag, message + '\n' + Log.getStackTraceString(e));
+        public void loge(String tag, String message, Throwable e) {
+            log(Log.ERROR, tag, message);
+            printThrowable(e, tag);
         }
 
-        public static void log(int priority, String tag, String content) {
+        private void log(int priority, String tag, String content) {
             int p = 3 * 1024;
             int i = 0;
             while (content.getBytes().length > p) {
@@ -105,6 +110,22 @@ public class Platform {
             }
             if (content.length() > 0)
                 Log.println(priority, tag, content);
+        }
+
+        private void printThrowable(Throwable ex, String tag) {
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            ex.printStackTrace(pw);
+            pw.flush();
+            String s = sw.toString();
+            int position = 0;
+            int len = s.length();
+            while (position < len) {
+                int index = s.indexOf('\n', position);
+                if (index == -1) index = len;
+                log(Log.ERROR, tag, s.substring(position, index));
+                position = index + 1;
+            }
         }
     }
 }
