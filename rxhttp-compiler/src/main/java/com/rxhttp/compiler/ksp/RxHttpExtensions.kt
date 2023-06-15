@@ -221,7 +221,7 @@ class RxHttpExtensions(private val logger: KSPLogger) {
 
             if (typeVariables.isNotEmpty()) {
                 val capacityParam = ParameterSpec.builder("capacity", INT)
-                    .defaultValue("1")
+                    .defaultValue("2")
                     .build()
                 val isInLine = KModifier.INLINE in it.modifiers
                 val builder = ParameterSpec.builder("progress", progressSuspendLambdaName)

@@ -36,7 +36,7 @@ inline fun <reified V> CallFactory.toAwaitMapString(): Await<Map<String, V>> = t
 fun CallFactory.toDownloadAwait(
     destPath: String,
     append: Boolean = false,
-    capacity: Int = 1,
+    capacity: Int = 2,
     progress: (suspend (Progress) -> Unit)? = null
 ): Await<String> = toDownloadFlow(destPath, append, capacity, progress).toAwait()
 
@@ -44,14 +44,14 @@ fun CallFactory.toDownloadAwait(
     context: Context,
     uri: Uri,
     append: Boolean = false,
-    capacity: Int = 1,
+    capacity: Int = 2,
     progress: (suspend (Progress) -> Unit)? = null
 ): Await<Uri> = toDownloadFlow(context, uri, append, capacity, progress).toAwait()
 
 fun <T> CallFactory.toDownloadAwait(
     osFactory: OutputStreamFactory<T>,
     append: Boolean = false,
-    capacity: Int = 1,
+    capacity: Int = 2,
     progress: (suspend (Progress) -> Unit)? = null
 ): Await<T> = toDownloadFlow(osFactory, append, capacity, progress).toAwait()
 

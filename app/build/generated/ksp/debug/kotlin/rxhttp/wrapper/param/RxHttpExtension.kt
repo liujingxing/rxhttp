@@ -28,8 +28,8 @@ public inline fun <reified T> CallFactory.toAwaitResponse() =
 
 public inline fun <reified T> CallFactory.toFlowResponse() = toFlow(toAwaitResponse<T>())
 
-public inline fun <reified T> BodyParamFactory.toFlowResponse(capacity: Int = 1, noinline
+public inline fun <reified T> BodyParamFactory.toFlowResponse(capacity: Int = 2, noinline
     progress: suspend (Progress) -> Unit) = toFlow(toAwaitResponse<T>(), capacity, progress)
 
-public inline fun <reified T> BodyParamFactory.toFlowResponseProgress(capacity: Int = 1) =
+public inline fun <reified T> BodyParamFactory.toFlowResponseProgress(capacity: Int = 2) =
     toFlowProgress(toAwaitResponse<T>(), capacity)

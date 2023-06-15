@@ -218,7 +218,7 @@ class RxHttpExtensions {
 
             if (typeVariables.isNotEmpty()) {
                 val capacityParam = ParameterSpec.builder("capacity", Int::class)
-                    .defaultValue("1")
+                    .defaultValue("2")
                     .build()
                 val isInLine = KModifier.INLINE in it.modifiers
                 val builder = ParameterSpec.builder("progress", progressSuspendLambdaName)

@@ -43,13 +43,13 @@ fun <T> toFlow(await: Await<T>): Flow<T> = await.asFlow()
 
 inline fun <reified T> BodyParamFactory.toFlow(
     await: Await<T> = toAwait(),
-    capacity: Int = 1,
+    capacity: Int = 2,
     noinline progress: suspend (Progress) -> Unit
 ): Flow<T> = toFlowProgress(await, capacity).onEachProgress(progress)
 
 fun <T> BodyParamFactory.toFlowProgress(
     await: Await<T>,
-    capacity: Int = 1
+    capacity: Int = 2
 ): Flow<ProgressT<T>> =
     channelFlow {
         param.setProgressCallback { progress, currentSize, totalSize ->
@@ -68,7 +68,7 @@ fun <T> BodyParamFactory.toFlowProgress(
 fun CallFactory.toDownloadFlow(
     destPath: String,
     append: Boolean = false,
-    capacity: Int = 1,
+    capacity: Int = 2,
     progress: (suspend (Progress) -> Unit)? = null
 ): Flow<String> = toDownloadFlow(FileOutputStreamFactory(destPath), append, capacity, progress)
 
@@ -76,14 +76,14 @@ fun CallFactory.toDownloadFlow(
     context: Context,
     uri: Uri,
     append: Boolean = false,
-    capacity: Int = 1,
+    capacity: Int = 2,
     progress: (suspend (Progress) -> Unit)? = null
 ): Flow<Uri> = toDownloadFlow(UriOutputStreamFactory(context, uri), append, capacity, progress)
 
 fun <T> CallFactory.toDownloadFlow(
     osFactory: OutputStreamFactory<T>,
     append: Boolean = false,
-    capacity: Int = 1,
+    capacity: Int = 2,
     progress: (suspend (Progress) -> Unit)? = null
 ): Flow<T> =
     if (progress == null) {
@@ -96,20 +96,20 @@ fun <T> CallFactory.toDownloadFlow(
 fun CallFactory.toFlowProgress(
     destPath: String,
     append: Boolean = false,
-    capacity: Int = 1
+    capacity: Int = 2
 ): Flow<ProgressT<String>> = toFlowProgress(FileOutputStreamFactory(destPath), append, capacity)
 
 fun CallFactory.toFlowProgress(
     context: Context,
     uri: Uri,
     append: Boolean = false,
-    capacity: Int = 1
+    capacity: Int = 2
 ): Flow<ProgressT<Uri>> = toFlowProgress(UriOutputStreamFactory(context, uri), append, capacity)
 
 fun <T> CallFactory.toFlowProgress(
     osFactory: OutputStreamFactory<T>,
     append: Boolean = false,
-    capacity: Int = 1
+    capacity: Int = 2
 ): Flow<ProgressT<T>> =
     channelFlow {
         val parser = streamParser(osFactory, append)
