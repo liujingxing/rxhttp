@@ -66,9 +66,7 @@ class FileOutputStreamFactory(
         }
 
     private fun String.replaceSuffix(response: Response): String {
-        return if (endsWith("/%s", true)
-            || endsWith("/%1\$s", true)
-        ) {
+        return if (endsWith("/%s", true) || endsWith("/%1\$s", true)) {
             val filename = response.findFilename()
                 ?: OkHttpCompat.pathSegments(response).last()
             format(filename)
@@ -92,22 +90,20 @@ class FileOutputStreamFactory(
             if (keyValuePair.size > 1) {
                 return when (keyValuePair[0].trim()) {
                     "filename" -> {
-                        keyValuePair[1].run {
-                            //matches "test.apk" or 'test.apk'
-                            if (matches(Regex("^[\"'][\\s\\S]*[\"']\$"))) {
-                                substring(1, length - 1)
-                            } else {
-                                this
-                            }
+                        var filename = keyValuePair[1]
+                        //matches "test.apk" or 'test.apk'
+                        if (filename.matches(Regex("^[\"'][\\s\\S]*[\"']\$"))) {
+                            filename = filename.substring(1, filename.length - 1)
                         }
+                        URLDecoder.decode(filename, "UTF-8")
                     }
                     "filename*" -> {
-                        keyValuePair[1].run {
-                            val firstIndex = indexOf("'")
-                            val lastIndex = lastIndexOf("'")
-                            if (firstIndex == -1 || lastIndex == -1 || firstIndex >= lastIndex) return null
-                            URLDecoder.decode(substring(lastIndex + 1), substring(0, firstIndex))
-                        }
+                        val filename = keyValuePair[1]
+                        val firstIndex = filename.indexOf("'")
+                        val lastIndex = filename.lastIndexOf("'")
+                        if (firstIndex == -1 || lastIndex == -1 || firstIndex >= lastIndex) return null
+                        val charset = filename.substring(0, firstIndex)
+                        URLDecoder.decode(filename.substring(lastIndex + 1), charset)
                     }
                     else -> null
                 }
