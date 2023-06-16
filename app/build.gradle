@@ -46,15 +46,6 @@ android {
         abortOnError false
         checkReleaseBuilds false
     }
-
-    applicationVariants.all { variant ->
-        sourceSets {
-            def name = variant.name
-            getByName(name) {  //告知IDE，ksp生成的kotlin代码
-                kotlin.srcDir("build/generated/ksp/$name/kotlin")
-            }
-        }
-    }
 }
 
 ksp {

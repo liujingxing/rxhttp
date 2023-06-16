@@ -139,18 +139,6 @@ plugins {
     // id 'kotlin-kapt'
     id 'com.google.devtools.ksp' version '1.8.0-1.0.9'
 }
-
-//Make IDE aware of generated code if you use ksp
-android {
-    applicationVariants.all { variant ->
-        sourceSets {
-            def name = variant.name
-            getByName(name) {  //告知IDE，ksp生成的kotlin代码
-                kotlin.srcDir("build/generated/ksp/$name/kotlin")
-            }
-        }
-    }
-}
     
 dependencies {
     def rxhttp_version = '3.0.5'

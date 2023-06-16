@@ -254,15 +254,6 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-    
-    applicationVariants.all { variant ->
-        sourceSets {
-            def name = variant.name
-            getByName(name) {  //告知IDE，ksp生成的kotlin代码
-                kotlin.srcDir("build/generated/ksp/$name/kotlin")
-            }
-        }
-    }
 }
 //3、添加插件及依赖
 plugins {
