@@ -127,10 +127,6 @@ class KspProcessor(private val env: SymbolProcessorEnvironment) : SymbolProcesso
         processed = true
         return emptyList()
     }
-
-    override fun finish() {}
-
-    override fun onError() {}
 }
 
 class KspProvider : SymbolProcessorProvider {
