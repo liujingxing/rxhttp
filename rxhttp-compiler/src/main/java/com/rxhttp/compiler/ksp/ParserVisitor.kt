@@ -29,6 +29,9 @@ import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.TypeVariableName
 import com.squareup.kotlinpoet.asClassName
+import com.squareup.kotlinpoet.javapoet.JClassName
+import com.squareup.kotlinpoet.javapoet.KotlinPoetJavaPoetPreview
+import com.squareup.kotlinpoet.javapoet.toKClassName
 import com.squareup.kotlinpoet.ksp.TypeParameterResolver
 import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.toTypeName
@@ -49,6 +52,7 @@ class ParserVisitor(
     private val ksClassMap = LinkedHashMap<String, KSClassDeclaration>()
     private val classNameMap = LinkedHashMap<String, List<ClassName>>()
 
+    @OptIn(KotlinPoetJavaPoetPreview::class)
     @KspExperimental
     override fun visitClassDeclaration(classDeclaration: KSClassDeclaration, data: Unit) {
         try {
@@ -61,7 +65,7 @@ class ParserVisitor(
             ksClassMap[name] = classDeclaration
             val classNames =
                 try {
-                    annotation?.wrappers?.map { it.java.asClassName() }
+                    annotation?.wrappers?.map { JClassName.get(it.java).toKClassName() }
                 } catch (e: KSTypesNotPresentException) {
                     e.ksTypes.map {
                         ClassName.bestGuess(it.declaration.qualifiedName?.asString().toString())

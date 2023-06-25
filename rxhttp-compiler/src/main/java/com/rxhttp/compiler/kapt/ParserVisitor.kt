@@ -126,6 +126,7 @@ private fun TypeElement.getToObservableXxxFun(
                 .addAnnotation(suppressAnnotation)
                 .addTypeVariable(t)
                 .addParameters(originParameters)
+                .varargs(varargs)
                 .returns(parserClass)
                 .addCode(
                     """

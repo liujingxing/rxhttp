@@ -6,23 +6,44 @@ import com.rxhttp.compiler.common.getRxHttpExtensionFileSpec
 import com.rxhttp.compiler.common.getTypeOfString
 import com.rxhttp.compiler.common.getTypeVariableString
 import com.rxhttp.compiler.isDependenceRxJava
-import com.rxhttp.compiler.ksp.parameterizedBy
 import com.rxhttp.compiler.rxHttpPackage
 import com.rxhttp.compiler.rxhttpKClass
+import com.squareup.kotlinpoet.BOOLEAN
+import com.squareup.kotlinpoet.BOOLEAN_ARRAY
+import com.squareup.kotlinpoet.BYTE
+import com.squareup.kotlinpoet.BYTE_ARRAY
+import com.squareup.kotlinpoet.CHAR
+import com.squareup.kotlinpoet.CHAR_ARRAY
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
+import com.squareup.kotlinpoet.DOUBLE
+import com.squareup.kotlinpoet.DOUBLE_ARRAY
+import com.squareup.kotlinpoet.FLOAT
+import com.squareup.kotlinpoet.FLOAT_ARRAY
 import com.squareup.kotlinpoet.FunSpec
+import com.squareup.kotlinpoet.INT
+import com.squareup.kotlinpoet.INT_ARRAY
 import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.LONG
+import com.squareup.kotlinpoet.LONG_ARRAY
 import com.squareup.kotlinpoet.MemberName
 import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import com.squareup.kotlinpoet.SHORT
+import com.squareup.kotlinpoet.SHORT_ARRAY
 import com.squareup.kotlinpoet.TypeVariableName
-import com.squareup.kotlinpoet.asClassName
-import com.squareup.kotlinpoet.asTypeName
-import com.squareup.kotlinpoet.asTypeVariableName
+import com.squareup.kotlinpoet.U_BYTE_ARRAY
+import com.squareup.kotlinpoet.U_INT_ARRAY
+import com.squareup.kotlinpoet.U_LONG_ARRAY
+import com.squareup.kotlinpoet.U_SHORT_ARRAY
+import com.squareup.kotlinpoet.javapoet.JClassName
+import com.squareup.kotlinpoet.javapoet.JTypeName
+import com.squareup.kotlinpoet.javapoet.JTypeVariableName
 import com.squareup.kotlinpoet.javapoet.KotlinPoetJavaPoetPreview
+import com.squareup.kotlinpoet.javapoet.toKClassName
 import com.squareup.kotlinpoet.javapoet.toKTypeName
+import com.squareup.kotlinpoet.javapoet.toKTypeVariableName
 import org.jetbrains.annotations.Nullable
 import javax.annotation.processing.Filer
 import javax.lang.model.element.TypeElement
@@ -49,13 +70,12 @@ class RxHttpExtensions {
     fun generateRxHttpExtendFun(typeElement: TypeElement, key: String) {
         //遍历获取泛型类型
         val typeVariableNames = typeElement.typeParameters.map {
-            it.asTypeVariableName().toKTypeVariableNames()
+            JTypeVariableName.get(it).toKTypeVariableName().copy(reified = true)
         }
-        val onParserFunReturnType = typeElement.getOnParserFunReturnType() ?: return
-        val onParserFunReturnKType = onParserFunReturnType.toKTypeName()
+        val onParserFunReturnType = typeElement.getOnParserFunReturnType()?.toKTypeName() ?: return
         val constructors = typeElement.getPublicConstructors()
         val typeCount = typeVariableNames.size  //泛型数量
-        val customParser = typeElement.asClassName()
+        val customParser = JClassName.get(typeElement).toKClassName()
         //遍历构造方法
         for (constructor in constructors) {
             //参数为空，说明该构造方法无效
@@ -67,23 +87,30 @@ class RxHttpExtensions {
                 val variableType = variableElement.asType()
                 val variableName = variableElement.simpleName.toString()
                 val annotation = variableElement.getAnnotation(Nullable::class.java)
-                var type = variableType.asTypeName()
+                var typeName = JTypeName.get(variableType).toKTypeName()
                 val isVarArg = varArgsFun
-                        && index == constructor.parameters.lastIndex
+                        && index == parameters.lastIndex
                         && variableType.kind == TypeKind.ARRAY
                 if (isVarArg) {  //最后一个参数是可变参数
-                    if (type is ParameterizedTypeName) {
-                        type = type.typeArguments[0].toKClassTypeName()
+                    typeName = when (typeName) {
+                        BOOLEAN_ARRAY -> BOOLEAN
+                        BYTE_ARRAY, U_BYTE_ARRAY -> BYTE
+                        CHAR_ARRAY -> CHAR
+                        SHORT_ARRAY, U_SHORT_ARRAY -> SHORT
+                        INT_ARRAY, U_INT_ARRAY -> INT
+                        LONG_ARRAY, U_LONG_ARRAY -> LONG
+                        FLOAT_ARRAY -> FLOAT
+                        DOUBLE_ARRAY -> DOUBLE
+                        is ParameterizedTypeName -> typeName.typeArguments.first()
+                        else -> typeName
                     }
-                } else {
-                    type = type.toKClassTypeName()
                 }
-                if (annotation != null) type = type.copy(true)
-                val parameterSpecBuilder = ParameterSpec.builder(variableName, type)
-                if (isVarArg) {
-                    parameterSpecBuilder.addModifiers(KModifier.VARARG)
-                }
-                parameterSpecBuilder.build()
+                if (annotation != null) typeName = typeName.copy(true)
+                ParameterSpec.builder(variableName, typeName).apply {
+                    if (isVarArg) {
+                        addModifiers(KModifier.VARARG)
+                    }
+                }.build()
             }
 
             val modifiers = ArrayList<KModifier>()
@@ -101,15 +128,15 @@ class RxHttpExtensions {
             }
 
             if (typeVariableNames.isNotEmpty() && isDependenceRxJava()) {  //对声明了泛型的解析器，生成kotlin编写的toObservableXxx方法
-                val toObservableFunName = "toObservable$key"
-                val toObservableFunBody = "return $toObservableFunName$types($finalParams)"
-                FunSpec.builder(toObservableFunName)
+                val toObservableXxxFunName = "toObservable$key"
+                val toObservableXxxFunBody = "return $toObservableXxxFunName$types($finalParams)"
+                FunSpec.builder(toObservableXxxFunName)
                     .addModifiers(modifiers)
                     .receiver(baseRxHttpName)
                     .addParameters(parameterList)
-                    .addStatement(toObservableFunBody) //方法里面的表达式
+                    .addStatement(toObservableXxxFunBody) //方法里面的表达式
                     .addTypeVariables(typeVariableNames)
-                    .returns(observableCall.parameterizedBy(onParserFunReturnKType))
+                    .returns(observableCall.parameterizedBy(onParserFunReturnType))
                     .build()
                     .apply { toObservableXxxFunList.add(this) }
             }
@@ -117,7 +144,7 @@ class RxHttpExtensions {
             val wrapCustomParser =
                 MemberName(rxHttpPackage, "BaseRxHttp.wrap${customParser.simpleName}")
             val toAwaitXxxFunBody =
-                if (typeCount == 1 && onParserFunReturnType is com.squareup.javapoet.TypeVariableName) {
+                if (typeCount == 1 && onParserFunReturnType is TypeVariableName) {
                     CodeBlock.of("return toAwait(%M$types($finalParams))", wrapCustomParser)
                 } else {
                     CodeBlock.of("return toAwait(%T$types($finalParams))", customParser)
@@ -129,7 +156,7 @@ class RxHttpExtensions {
                 .addParameters(parameterList)
                 .addCode(toAwaitXxxFunBody)  //方法里面的表达式
                 .addTypeVariables(typeVariableNames)
-                .returns(awaitName.parameterizedBy(onParserFunReturnKType))
+                .returns(awaitName.parameterizedBy(onParserFunReturnType))
                 .build()
 
             toAwaitXxxFunList.add(toAwaitXxxFun)
@@ -141,15 +168,5 @@ class RxHttpExtensions {
         val fileSpec =
             getRxHttpExtensionFileSpec(toObservableXxxFunList, toAwaitXxxFunList, toFlowXxxFunList)
         fileSpec.writeTo(filer)
-    }
-}
-
-//获取泛型对象列表
-private fun TypeVariableName.toKTypeVariableNames(): TypeVariableName {
-    val bounds = bounds //泛型边界
-    return if (bounds.isEmpty() || (bounds.size == 1 && bounds[0].toString() == "java.lang.Object")) {
-        TypeVariableName(name).copy(reified = true)
-    } else {
-        (toKClassTypeName() as TypeVariableName).copy(reified = true)
     }
 }

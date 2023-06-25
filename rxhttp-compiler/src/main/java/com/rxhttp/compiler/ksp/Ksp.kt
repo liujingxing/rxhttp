@@ -64,6 +64,21 @@ internal fun KSTypeReference.getQualifiedName() =
 //获取方法名
 internal fun KSFunctionDeclaration.getFunName() = simpleName.asString()
 
+
+/*
+
+| 参数类型             | kapt                                                 | ksp |
+| :---:               | :---:                                                | :---: |
+|  `int... a`         |  int[] -> kotlin.IntArray                            |   kotlin.IntArray & vararg
+|  `String... a`      |  java.lang.String[] -> kotlin.Array<kotlin.String>   |   kotlin.Array<kotlin.String> & vararg
+|  `int[]  a`         |  int[] -> kotlin.IntArray                            |   kotlin.IntArray
+|  `String[] a`       |  java.lang.String[] -> kotlin.Array<kotlin.String>   |   kotlin.Array<kotlin.String>
+|  `vararg a: Int`    |  int[] -> kotlin.IntArray                            |   kotlin.Int & vararg
+|  `vararg a: String` |  java.lang.String[] -> kotlin.Array<kotlin.String>   |   kotlin.String & vararg
+|  `a: IntArray`      |  int[] -> kotlin.IntArray                            |   kotlin.IntArray
+|  `a: Array<String>` |  java.lang.String[] -> kotlin.Array<kotlin.String>   |   kotlin.Array<kotlin.String>
+
+ */
 @KspExperimental
 internal fun KSValueParameter.toKParameterSpec(
     typeParamResolver: TypeParameterResolver = TypeParameterResolver.EMPTY
