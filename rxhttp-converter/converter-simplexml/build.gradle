@@ -8,5 +8,5 @@ dependencies {
     api "org.simpleframework:simple-xml:$simple_xml_version"
 }
 
-sourceCompatibility = "8"
-targetCompatibility = "8"
+sourceCompatibility = "$jdk_version"
+targetCompatibility = "$jdk_version"

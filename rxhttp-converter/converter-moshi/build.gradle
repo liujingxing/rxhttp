@@ -8,6 +8,6 @@ dependencies {
     api "com.squareup.moshi:moshi:$moshi_version"
 }
 
-sourceCompatibility = "8"
-targetCompatibility = "8"
+sourceCompatibility = "$jdk_version"
+targetCompatibility = "$jdk_version"
 

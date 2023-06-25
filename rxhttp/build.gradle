@@ -28,8 +28,9 @@ dependencies {
     api 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.1'
 }
 
+sourceCompatibility = "$jdk_version"
+targetCompatibility = "$jdk_version"
 
-java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
+kotlin {
+    jvmToolchain(jdk_version as int)
 }

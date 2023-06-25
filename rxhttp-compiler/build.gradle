@@ -13,5 +13,9 @@ dependencies {
     implementation "com.google.devtools.ksp:symbol-processing-api:$ksp_version"
 }
 
-sourceCompatibility = "8"
-targetCompatibility = "8"
+sourceCompatibility = "$jdk_version"
+targetCompatibility = "$jdk_version"
+
+kotlin {
+    jvmToolchain(jdk_version as int)
+}

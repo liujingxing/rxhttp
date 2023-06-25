@@ -114,13 +114,11 @@ public class MultiDownloadFragment extends BaseFragment<MultiDownloadFragmentBin
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.start_all:
-                MultiTaskDownloader.startAllDownloadTask();
-                break;
-            case R.id.cancel_all:
-                MultiTaskDownloader.cancelAllTask();
-                break;
+        int id = v.getId();
+        if (id == R.id.start_all) {
+            MultiTaskDownloader.startAllDownloadTask();
+        } else if (id == R.id.cancel_all) {
+            MultiTaskDownloader.cancelAllTask();
         }
     }
 

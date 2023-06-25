@@ -9,5 +9,9 @@ dependencies {
     api "org.jetbrains.kotlinx:kotlinx-serialization-json:${kotlinx_serialization_version}"
 }
 
-sourceCompatibility = "8"
-targetCompatibility = "8"
+sourceCompatibility = "$jdk_version"
+targetCompatibility = "$jdk_version"
+
+kotlin {
+    jvmToolchain(jdk_version as int)
+}
