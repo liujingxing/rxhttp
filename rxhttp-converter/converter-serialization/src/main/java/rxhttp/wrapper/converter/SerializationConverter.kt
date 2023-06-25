@@ -2,7 +2,6 @@
 
 package rxhttp.wrapper.converter
 
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.StringFormat
 import kotlinx.serialization.serializer
 import okhttp3.MediaType
@@ -14,7 +13,6 @@ import rxhttp.wrapper.callback.JsonConverter
 import rxhttp.wrapper.utils.JSONStringer
 import java.lang.reflect.Type
 
-@OptIn(ExperimentalSerializationApi::class)
 class SerializationConverter(
     private val format: StringFormat,
     private val contentType: MediaType?,
