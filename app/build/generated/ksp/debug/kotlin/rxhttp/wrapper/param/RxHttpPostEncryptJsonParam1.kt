@@ -1,7 +1,6 @@
 package rxhttp.wrapper.`param`
 
 import com.example.httpsender.`param`.PostEncryptJsonParam1
-import kotlin.Unit
 
 /**
  * Github
@@ -12,7 +11,7 @@ public class RxHttpPostEncryptJsonParam1 :
     RxHttp<PostEncryptJsonParam1, RxHttpPostEncryptJsonParam1> {
   public constructor(`param`: PostEncryptJsonParam1) : super(param)
 
-  public fun test(): Unit {
+  public fun test() {
     param.test()
   }
 }

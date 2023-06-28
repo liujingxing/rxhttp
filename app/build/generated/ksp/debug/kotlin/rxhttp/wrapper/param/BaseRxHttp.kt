@@ -34,9 +34,10 @@ import rxhttp.wrapper.utils.parameterizedBy
  * Time: 18:15
  */
 public abstract class BaseRxHttp : ITag, CallFactory {
-    public fun <T> toObservable(parser: Parser<T>) = ObservableCall(this, parser)
+    public fun <T> toObservable(parser: Parser<T>): ObservableCall<T> = ObservableCall(this, parser)
 
-    public fun <T> toObservable(type: Type) = toObservable(SmartParser.wrap<T>(type))
+    public fun <T> toObservable(type: Type): ObservableCall<T> =
+            toObservable(SmartParser.wrap<T>(type))
 
     public fun <T> toObservable(clazz: Class<T>): ObservableCall<T> = toObservable(clazz as Type)
 
@@ -72,7 +73,8 @@ public abstract class BaseRxHttp : ITag, CallFactory {
         return toObservable(StreamParser(osFactory))
     }
 
-    public fun <T> toObservableResponse(type: Type) = toObservable(wrapResponseParser<T>(type))
+    public fun <T> toObservableResponse(type: Type): ObservableCall<T> =
+            toObservable(wrapResponseParser<T>(type))
 
     public fun <T> toObservableResponse(type: Class<T>): ObservableCall<T> =
             toObservableResponse(type as Type)

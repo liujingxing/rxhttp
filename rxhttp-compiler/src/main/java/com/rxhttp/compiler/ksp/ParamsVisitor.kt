@@ -78,6 +78,11 @@ class ParamsVisitor(
             val param = ksClass.toClassName()
             val rxHttpName = "RxHttp${ksClass.simpleName.asString()}"
             val rxHttpParamName = rxhttpKClass.peerClass(rxHttpName)
+            val methodReturnType = if (rxHttpTypeNames.isNotEmpty()) {
+                rxHttpParamName.parameterizedBy(*rxHttpTypeNames.toTypedArray())
+            } else {
+                rxHttpParamName
+            }
 
             val classTypeParams = ksClass.typeParameters.toTypeParameterResolver()
             //遍历public构造方法
@@ -101,6 +106,7 @@ class ParamsVisitor(
                     .jvmStatic()
                     .addParameters(parameterSpecs)
                     .addTypeVariables(rxHttpTypeNames)
+                    .returns(methodReturnType)
 
                 if (STRING == parameterSpecs.firstOrNull()?.type) {
                     methodSpec.addParameter("formatArgs", ANY, true, KModifier.VARARG)
@@ -191,7 +197,7 @@ class ParamsVisitor(
                         funSpecBuilder.addStatement("return $prefix$methodBody", param)
                     }
                 }
-                // returnType?.apply { funSpecBuilder.returns(this) }
+                returnType?.apply { funSpecBuilder.returns(this) }
 
                 rxHttpPostCustomFun.add(funSpecBuilder.build())
             }

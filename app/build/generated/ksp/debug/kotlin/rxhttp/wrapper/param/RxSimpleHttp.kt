@@ -22,95 +22,97 @@ public object RxSimpleHttp {
   }
 
   @JvmStatic
-  public fun `get`(url: String, vararg formatArgs: Any?) = RxHttp.get(url, *formatArgs).wrapper()
-
-  @JvmStatic
-  public fun head(url: String, vararg formatArgs: Any?) = RxHttp.head(url, *formatArgs).wrapper()
-
-  @JvmStatic
-  public fun postBody(url: String, vararg formatArgs: Any?) = RxHttp.postBody(url,
+  public fun `get`(url: String, vararg formatArgs: Any?): RxHttpNoBodyParam = RxHttp.get(url,
       *formatArgs).wrapper()
 
   @JvmStatic
-  public fun putBody(url: String, vararg formatArgs: Any?) = RxHttp.putBody(url,
+  public fun head(url: String, vararg formatArgs: Any?): RxHttpNoBodyParam = RxHttp.head(url,
       *formatArgs).wrapper()
 
   @JvmStatic
-  public fun patchBody(url: String, vararg formatArgs: Any?) = RxHttp.patchBody(url,
+  public fun postBody(url: String, vararg formatArgs: Any?): RxHttpBodyParam = RxHttp.postBody(url,
       *formatArgs).wrapper()
 
   @JvmStatic
-  public fun deleteBody(url: String, vararg formatArgs: Any?) = RxHttp.deleteBody(url,
+  public fun putBody(url: String, vararg formatArgs: Any?): RxHttpBodyParam = RxHttp.putBody(url,
       *formatArgs).wrapper()
 
   @JvmStatic
-  public fun postForm(url: String, vararg formatArgs: Any?) = RxHttp.postForm(url,
+  public fun patchBody(url: String, vararg formatArgs: Any?): RxHttpBodyParam =
+      RxHttp.patchBody(url, *formatArgs).wrapper()
+
+  @JvmStatic
+  public fun deleteBody(url: String, vararg formatArgs: Any?): RxHttpBodyParam =
+      RxHttp.deleteBody(url, *formatArgs).wrapper()
+
+  @JvmStatic
+  public fun postForm(url: String, vararg formatArgs: Any?): RxHttpFormParam = RxHttp.postForm(url,
       *formatArgs).wrapper()
 
   @JvmStatic
-  public fun putForm(url: String, vararg formatArgs: Any?) = RxHttp.putForm(url,
+  public fun putForm(url: String, vararg formatArgs: Any?): RxHttpFormParam = RxHttp.putForm(url,
       *formatArgs).wrapper()
 
   @JvmStatic
-  public fun patchForm(url: String, vararg formatArgs: Any?) = RxHttp.patchForm(url,
+  public fun patchForm(url: String, vararg formatArgs: Any?): RxHttpFormParam =
+      RxHttp.patchForm(url, *formatArgs).wrapper()
+
+  @JvmStatic
+  public fun deleteForm(url: String, vararg formatArgs: Any?): RxHttpFormParam =
+      RxHttp.deleteForm(url, *formatArgs).wrapper()
+
+  @JvmStatic
+  public fun postJson(url: String, vararg formatArgs: Any?): RxHttpJsonParam = RxHttp.postJson(url,
       *formatArgs).wrapper()
 
   @JvmStatic
-  public fun deleteForm(url: String, vararg formatArgs: Any?) = RxHttp.deleteForm(url,
+  public fun putJson(url: String, vararg formatArgs: Any?): RxHttpJsonParam = RxHttp.putJson(url,
       *formatArgs).wrapper()
 
   @JvmStatic
-  public fun postJson(url: String, vararg formatArgs: Any?) = RxHttp.postJson(url,
-      *formatArgs).wrapper()
+  public fun patchJson(url: String, vararg formatArgs: Any?): RxHttpJsonParam =
+      RxHttp.patchJson(url, *formatArgs).wrapper()
 
   @JvmStatic
-  public fun putJson(url: String, vararg formatArgs: Any?) = RxHttp.putJson(url,
-      *formatArgs).wrapper()
+  public fun deleteJson(url: String, vararg formatArgs: Any?): RxHttpJsonParam =
+      RxHttp.deleteJson(url, *formatArgs).wrapper()
 
   @JvmStatic
-  public fun patchJson(url: String, vararg formatArgs: Any?) = RxHttp.patchJson(url,
-      *formatArgs).wrapper()
+  public fun postJsonArray(url: String, vararg formatArgs: Any?): RxHttpJsonArrayParam =
+      RxHttp.postJsonArray(url, *formatArgs).wrapper()
 
   @JvmStatic
-  public fun deleteJson(url: String, vararg formatArgs: Any?) = RxHttp.deleteJson(url,
-      *formatArgs).wrapper()
+  public fun putJsonArray(url: String, vararg formatArgs: Any?): RxHttpJsonArrayParam =
+      RxHttp.putJsonArray(url, *formatArgs).wrapper()
 
   @JvmStatic
-  public fun postJsonArray(url: String, vararg formatArgs: Any?) = RxHttp.postJsonArray(url,
-      *formatArgs).wrapper()
+  public fun patchJsonArray(url: String, vararg formatArgs: Any?): RxHttpJsonArrayParam =
+      RxHttp.patchJsonArray(url, *formatArgs).wrapper()
 
   @JvmStatic
-  public fun putJsonArray(url: String, vararg formatArgs: Any?) = RxHttp.putJsonArray(url,
-      *formatArgs).wrapper()
+  public fun deleteJsonArray(url: String, vararg formatArgs: Any?): RxHttpJsonArrayParam =
+      RxHttp.deleteJsonArray(url, *formatArgs).wrapper()
 
   @JvmStatic
-  public fun patchJsonArray(url: String, vararg formatArgs: Any?) = RxHttp.patchJsonArray(url,
-      *formatArgs).wrapper()
+  public fun postEncryptJson(url: String, vararg formatArgs: Any?): RxHttpPostEncryptJsonParam =
+      RxHttp.postEncryptJson(url, *formatArgs).wrapper()
 
   @JvmStatic
-  public fun deleteJsonArray(url: String, vararg formatArgs: Any?) = RxHttp.deleteJsonArray(url,
-      *formatArgs).wrapper()
-
-  @JvmStatic
-  public fun postEncryptJson(url: String, vararg formatArgs: Any?) = RxHttp.postEncryptJson(url,
-      *formatArgs).wrapper()
-
-  @JvmStatic
-  public fun postEncryptForm(url: String, vararg formatArgs: Any?) = RxHttp.postEncryptForm(url,
-      *formatArgs).wrapper()
+  public fun postEncryptForm(url: String, vararg formatArgs: Any?): RxHttpPostEncryptFormParam =
+      RxHttp.postEncryptForm(url, *formatArgs).wrapper()
 
   @JvmStatic
   public fun postEncryptForm(
     url: String,
     method: Method,
     vararg formatArgs: Any?,
-  ) = RxHttp.postEncryptForm(url, method, *formatArgs).wrapper()
+  ): RxHttpPostEncryptFormParam = RxHttp.postEncryptForm(url, method, *formatArgs).wrapper()
 
   @JvmStatic
-  public fun getEncrypt(url: String, vararg formatArgs: Any?) = RxHttp.getEncrypt(url,
-      *formatArgs).wrapper()
+  public fun getEncrypt(url: String, vararg formatArgs: Any?): RxHttpGetEncryptParam =
+      RxHttp.getEncrypt(url, *formatArgs).wrapper()
 
   @JvmStatic
-  public fun postEncryptJson1(url: String, vararg formatArgs: Any?) = RxHttp.postEncryptJson1(url,
-      *formatArgs).wrapper()
+  public fun postEncryptJson1(url: String, vararg formatArgs: Any?): RxHttpPostEncryptJsonParam1 =
+      RxHttp.postEncryptJson1(url, *formatArgs).wrapper()
 }

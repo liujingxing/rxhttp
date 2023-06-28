@@ -173,6 +173,7 @@ private fun KSClassDeclaration.getToObservableXxxFun(
                 .addTypeVariables(typeVariableNames)
                 .addParameters(originParameters)
                 .addCode(toObservableXxxFunBody)
+                .returns(toObservableXxxFunReturnType)
                 .build()
                 .apply { funList.add(this) }
         }

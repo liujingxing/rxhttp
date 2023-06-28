@@ -188,12 +188,14 @@ class RxHttpWrapper(private val logger: KSPLogger) {
         funMap["putJsonArray"] = "RxHttpJsonArrayParam"
         funMap["patchJsonArray"] = "RxHttpJsonArrayParam"
         funMap["deleteJsonArray"] = "RxHttpJsonArrayParam"
-        funMap.forEach { (key, _) ->
+        funMap.forEach { (key, value) ->
+            val returnType = rxhttpKClass.peerClass(value)
             FunSpec.builder(key)
                 .jvmStatic()
                 .addParameter("url", STRING)
                 .addParameter("formatArgs", ANY, true, KModifier.VARARG)
                 .addStatement("return RxHttp.${key}(url, *formatArgs).wrapper()")
+                .returns(returnType)
                 .build()
                 .apply { funList.add(this) }
         }
@@ -201,6 +203,14 @@ class RxHttpWrapper(private val logger: KSPLogger) {
         elementMap.forEach { (key, ksClass) ->
             val rxHttpTypeNames = ksClass.typeParameters.map {
                 it.toTypeVariableName()
+            }
+
+            val rxHttpName = "RxHttp${ksClass.simpleName.asString()}"
+            val rxHttpParamName = rxhttpKClass.peerClass(rxHttpName)
+            val methodReturnType = if (rxHttpTypeNames.isNotEmpty()) {
+                rxHttpParamName.parameterizedBy(*rxHttpTypeNames.toTypedArray())
+            } else {
+                rxHttpParamName
             }
 
             val classTypeParams = ksClass.typeParameters.toTypeParameterResolver()
@@ -227,6 +237,7 @@ class RxHttpWrapper(private val logger: KSPLogger) {
                     .jvmStatic()
                     .addParameters(parameterSpecs)
                     .addTypeVariables(rxHttpTypeNames)
+                    .returns(methodReturnType)
 
                 if (STRING == parameterSpecs.firstOrNull()?.type) {
                     funSpecBuilder.addParameter("formatArgs", ANY, true, KModifier.VARARG)

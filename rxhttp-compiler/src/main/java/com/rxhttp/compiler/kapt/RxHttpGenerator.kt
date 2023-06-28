@@ -558,7 +558,8 @@ class RxHttpGenerator {
             .apply { methodList.add(this) }
 
         MethodSpec.methodBuilder("tag")
-            .addModifiers(Modifier.PUBLIC)
+            .addAnnotation(Override::class.java)
+            .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
             .addTypeVariable(t)
             .addParameter(classSuperTName, "type")
             .addParameter(t, "tag")

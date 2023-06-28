@@ -3,8 +3,6 @@ package com.rxhttp.compiler.ksp
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.symbol.KSFile
-import com.rxhttp.compiler.getClassPath
-import com.rxhttp.compiler.isDependenceRxJava
 import com.rxhttp.compiler.rxHttpPackage
 
 

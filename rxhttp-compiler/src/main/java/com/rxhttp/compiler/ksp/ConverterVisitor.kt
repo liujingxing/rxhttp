@@ -11,7 +11,9 @@ import com.google.devtools.ksp.symbol.KSFile
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.KSVisitorVoid
 import com.google.devtools.ksp.symbol.Modifier
+import com.rxhttp.compiler.rxhttpKClass
 import com.squareup.kotlinpoet.FunSpec
+import com.squareup.kotlinpoet.TypeVariableName
 import rxhttp.wrapper.annotation.Converter
 import java.util.*
 
@@ -43,12 +45,14 @@ class ConverterVisitor(
     }
 
     fun getFunList(): List<FunSpec> {
+        val typeVariableR = TypeVariableName("R", rxhttpKClass.parameterizedBy("P", "R")) //泛型R
         return elementMap.mapNotNull { entry ->
             val key = entry.key
             val ksProperty = entry.value
             val memberName = ksProperty.toMemberName()
             FunSpec.builder("set$key")
                 .addCode("return setConverter(%M)", memberName)
+                .returns(typeVariableR)
                 .build()
         }
     }

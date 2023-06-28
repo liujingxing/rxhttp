@@ -54,6 +54,7 @@ class BaseRxHttpGenerator(
         val fileOutputStreamFactory = outputStreamFactory.peerClass("FileOutputStreamFactory")
         val uriOutputStreamFactory = outputStreamFactory.peerClass("UriOutputStreamFactory")
         val observableCall = rxhttpKClass.peerClass("ObservableCall")
+        val observableCallT = observableCall.parameterizedBy("T")
 
         val methodList = ArrayList<FunSpec>() //方法集合
 
@@ -62,6 +63,7 @@ class BaseRxHttpGenerator(
                 .addTypeVariable(t)
                 .addParameter("parser", parserTName)
                 .addStatement("return ObservableCall(this, parser)")
+                .returns(observableCallT)
                 .build()
                 .let { methodList.add(it) }
 
@@ -69,6 +71,7 @@ class BaseRxHttpGenerator(
                 .addTypeVariable(t)
                 .addParameter("type", type)
                 .addStatement("return toObservable(%T.wrap<T>(type))", smartParser)
+                .returns(observableCallT)
                 .build()
                 .let { methodList.add(it) }
 
@@ -76,7 +79,7 @@ class BaseRxHttpGenerator(
                 .addTypeVariable(t)
                 .addParameter("clazz", classTName)
                 .addStatement("return toObservable(clazz as Type)")
-                .returns(observableCall.parameterizedBy("T"))
+                .returns(observableCallT)
                 .build()
                 .let { methodList.add(it) }
 

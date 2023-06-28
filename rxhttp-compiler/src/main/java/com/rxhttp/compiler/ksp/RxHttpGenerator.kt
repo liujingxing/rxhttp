@@ -5,7 +5,6 @@ import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.KSFile
-import com.google.devtools.ksp.symbol.Modifier
 import com.rxhttp.compiler.RxHttp
 import com.rxhttp.compiler.rxHttpPackage
 import com.rxhttp.compiler.rxhttpKClass
@@ -310,6 +309,7 @@ class RxHttpGenerator(
                 .addStatement(
                     "return $value(%T.${key}(format(url, *formatArgs)))", paramClassName,
                 )
+                .returns(rxhttpKClass.peerClass(value))
                 .build()
                 .let { companionBuilder.addFunction(it) }
         }
@@ -324,6 +324,7 @@ class RxHttpGenerator(
             .addParameter("url", STRING)
             .addParameter("formatArgs", ANY, true, KModifier.VARARG)
             .addStatement("return if(formatArgs.isNullOrEmpty()) url else String.format(url, *formatArgs)")
+            .returns(STRING)
             .build()
             .let { companionBuilder.addFunction(it) }
 
@@ -527,6 +528,7 @@ class RxHttpGenerator(
             .addParameter("startIndex", LONG)
             .addParameter(endIndex)
             .addStatement("return setRangeHeader(startIndex, endIndex, false)")
+            .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
 
@@ -534,6 +536,7 @@ class RxHttpGenerator(
             .addParameter("startIndex", LONG)
             .addParameter("connectLastProgress", BOOLEAN)
             .addStatement("return setRangeHeader(startIndex, -1, connectLastProgress)")
+            .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
 
@@ -609,12 +612,14 @@ class RxHttpGenerator(
 
         FunSpec.builder("isAssemblyEnabled")
             .addStatement("return param.isAssemblyEnabled()")
+            .returns(BOOLEAN)
             .build()
             .let { methodList.add(it) }
 
         FunSpec.builder("getHeader")
             .addParameter("key", STRING)
             .addStatement("return param.getHeader(key)")
+            .returns(STRING)
             .build()
             .let { methodList.add(it) }
 
@@ -627,7 +632,7 @@ class RxHttpGenerator(
             .let { methodList.add(it) }
 
         FunSpec.builder("tag")
-            .addModifiers(KModifier.OVERRIDE)
+            .addModifiers(KModifier.OVERRIDE, KModifier.PUBLIC)
             .addTypeVariable(t)
             .addParameter("type", classSuperTName)
             .addParameter("tag", t)
@@ -679,7 +684,7 @@ class RxHttpGenerator(
             .let { methodList.add(it) }
 
         FunSpec.builder("newCall")
-            .addModifiers(KModifier.OVERRIDE)
+            .addModifiers(KModifier.OVERRIDE, KModifier.PUBLIC)
             .addCode(
                 """
                 val request = buildRequest()
@@ -809,6 +814,7 @@ class RxHttpGenerator(
             .addModifiers(KModifier.PRIVATE)
             .addAnnotation(suppressAnnotation)
             .addStatement("return this as R")
+            .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
 
