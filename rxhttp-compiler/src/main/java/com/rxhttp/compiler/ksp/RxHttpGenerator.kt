@@ -366,6 +366,32 @@ class RxHttpGenerator(
             .build()
             .let { methodList.add(it) }
 
+        FunSpec.builder("setQuery")
+            .addParameter("key", STRING)
+            .addParameter("value", ANY, true)
+            .addStatement("param.setQuery(key, value)")
+            .addStatement("return self()")
+            .returns(typeVariableR)
+            .build()
+            .let { methodList.add(it) }
+
+        FunSpec.builder("setEncodedQuery")
+            .addParameter("key", STRING)
+            .addParameter("value", ANY, true)
+            .addStatement("param.setEncodedQuery(key, value)")
+            .addStatement("return self()")
+            .returns(typeVariableR)
+            .build()
+            .let { methodList.add(it) }
+
+        FunSpec.builder("removeAllQuery")
+            .addParameter("key", STRING)
+            .addStatement("param.removeAllQuery(key)")
+            .addStatement("return self()")
+            .returns(typeVariableR)
+            .build()
+            .let { methodList.add(it) }
+
         FunSpec.builder("addQuery")
             .addParameter("key", STRING)
             .addStatement("param.addQuery(key, null)")

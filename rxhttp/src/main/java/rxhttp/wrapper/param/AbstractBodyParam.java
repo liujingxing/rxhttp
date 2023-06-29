@@ -29,9 +29,8 @@ public abstract class AbstractBodyParam<P extends AbstractBodyParam<P>> extends 
         return callback != null ? new ProgressRequestBody(requestBody, callback) : requestBody;
     }
 
-    @SuppressWarnings("unchecked")
     public final P setProgressCallback(ProgressCallback callback) {
         this.callback = callback;
-        return (P) this;
+        return self();
     }
 }

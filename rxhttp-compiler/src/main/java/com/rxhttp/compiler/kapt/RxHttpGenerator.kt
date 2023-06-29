@@ -219,6 +219,35 @@ class RxHttpGenerator {
             .build()
             .apply { methodList.add(this) }
 
+        MethodSpec.methodBuilder("setQuery")
+            .addModifiers(Modifier.PUBLIC)
+            .addParameter(string, "key")
+            .addParameter(TypeName.OBJECT, "value")
+            .addStatement("param.setQuery(key, value)")
+            .addStatement("return self()")
+            .returns(typeVariableR)
+            .build()
+            .apply { methodList.add(this) }
+
+        MethodSpec.methodBuilder("setEncodedQuery")
+            .addModifiers(Modifier.PUBLIC)
+            .addParameter(string, "key")
+            .addParameter(TypeName.OBJECT, "value")
+            .addStatement("param.setEncodedQuery(key, value)")
+            .addStatement("return self()")
+            .returns(typeVariableR)
+            .build()
+            .apply { methodList.add(this) }
+
+        MethodSpec.methodBuilder("removeAllQuery")
+            .addModifiers(Modifier.PUBLIC)
+            .addParameter(string, "key")
+            .addStatement("param.removeAllQuery(key)")
+            .addStatement("return self()")
+            .returns(typeVariableR)
+            .build()
+            .apply { methodList.add(this) }
+
         MethodSpec.methodBuilder("addQuery")
             .addModifiers(Modifier.PUBLIC)
             .addParameter(string, "key")
@@ -241,7 +270,7 @@ class RxHttpGenerator {
             .addModifiers(Modifier.PUBLIC)
             .addParameter(string, "key")
             .addParameter(TypeName.OBJECT, "value")
-            .addStatement("param.addQuery(key,value)")
+            .addStatement("param.addQuery(key, value)")
             .addStatement("return self()")
             .returns(typeVariableR)
             .build()
@@ -251,7 +280,7 @@ class RxHttpGenerator {
             .addModifiers(Modifier.PUBLIC)
             .addParameter(string, "key")
             .addParameter(TypeName.OBJECT, "value")
-            .addStatement("param.addEncodedQuery(key,value)")
+            .addStatement("param.addEncodedQuery(key, value)")
             .addStatement("return self()")
             .returns(typeVariableR)
             .build()

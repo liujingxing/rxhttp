@@ -160,6 +160,21 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
         return self()
     }
 
+    public fun setQuery(key: String, `value`: Any?): R {
+        param.setQuery(key, value)
+        return self()
+    }
+
+    public fun setEncodedQuery(key: String, `value`: Any?): R {
+        param.setEncodedQuery(key, value)
+        return self()
+    }
+
+    public fun removeAllQuery(key: String): R {
+        param.removeAllQuery(key)
+        return self()
+    }
+
     public fun addQuery(key: String): R {
         param.addQuery(key, null)
         return self()

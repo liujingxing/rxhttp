@@ -6,6 +6,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
@@ -28,7 +29,6 @@ import rxhttp.wrapper.utils.CacheUtil;
  * Date: 2019/1/19
  * Time: 14:35
  */
-@SuppressWarnings("unchecked")
 public abstract class AbstractParam<P extends Param<P>> extends Param<P> {
 
     private String url;    //链接地址
@@ -53,7 +53,7 @@ public abstract class AbstractParam<P extends Param<P>> extends Param<P> {
 
     public P setUrl(@NotNull String url) {
         this.url = url;
-        return (P) this;
+        return self();
     }
 
     @Override
@@ -69,7 +69,7 @@ public abstract class AbstractParam<P extends Param<P>> extends Param<P> {
     private P addPath(KeyValuePair keyValuePair) {
         if (paths == null) paths = new ArrayList<>();
         paths.add(keyValuePair);
-        return (P) this;
+        return self();
     }
 
     @Override
@@ -85,7 +85,7 @@ public abstract class AbstractParam<P extends Param<P>> extends Param<P> {
     private P addQuery(KeyValuePair keyValuePair) {
         if (queryParam == null) queryParam = new ArrayList<>();
         queryParam.add(keyValuePair);
-        return (P) this;
+        return self();
     }
 
     @Nullable
@@ -133,25 +133,25 @@ public abstract class AbstractParam<P extends Param<P>> extends Param<P> {
     @Override
     public P setHeadersBuilder(Builder builder) {
         HBuilder = builder;
-        return (P) this;
+        return self();
     }
 
     @Override
     public P cacheControl(CacheControl cacheControl) {
         requestBuilder.cacheControl(cacheControl);
-        return (P) this;
+        return self();
     }
 
     @Override
     public <T> P tag(Class<? super T> type, T tag) {
         requestBuilder.tag(type, tag);
-        return (P) this;
+        return self();
     }
 
     @Override
     public final P setAssemblyEnabled(boolean enabled) {
         isAssemblyEnabled = enabled;
-        return (P) this;
+        return self();
     }
 
     @Override
@@ -179,10 +179,9 @@ public abstract class AbstractParam<P extends Param<P>> extends Param<P> {
     @Override
     public final P setCacheKey(String cacheKey) {
         cacheStrategy.setCacheKey(cacheKey);
-        return (P) this;
+        return self();
     }
 
-    @NotNull
     public String buildCacheKey() {
         List<KeyValuePair> queryPairs = CacheUtil.excludeCacheKey(getQueryParam());
         return BuildUtil.getHttpUrl(getSimpleUrl(), queryPairs, paths).toString();
@@ -196,7 +195,7 @@ public abstract class AbstractParam<P extends Param<P>> extends Param<P> {
     @Override
     public final P setCacheValidTime(long cacheTime) {
         cacheStrategy.setCacheValidTime(cacheTime);
-        return (P) this;
+        return self();
     }
 
     @Override
@@ -207,7 +206,7 @@ public abstract class AbstractParam<P extends Param<P>> extends Param<P> {
     @Override
     public final P setCacheMode(CacheMode cacheMode) {
         cacheStrategy.setCacheMode(cacheMode);
-        return (P) this;
+        return self();
     }
 
     @Override
@@ -228,5 +227,23 @@ public abstract class AbstractParam<P extends Param<P>> extends Param<P> {
         } catch (IOException e) {
             throw new IllegalArgumentException("Unable to convert " + object + " to RequestBody", e);
         }
+    }
+
+    @Override
+    public P removeAllQuery(String key) {
+        final List<KeyValuePair> queryParam = this.queryParam;
+        if (queryParam == null) return self();
+        Iterator<KeyValuePair> iterator = queryParam.iterator();
+        while (iterator.hasNext()) {
+            KeyValuePair next = iterator.next();
+            if (next.getKey().equals(key))
+                iterator.remove();
+        }
+        return self();
+    }
+
+    @SuppressWarnings("unchecked")
+    protected P self() {
+        return (P) this;
     }
 }

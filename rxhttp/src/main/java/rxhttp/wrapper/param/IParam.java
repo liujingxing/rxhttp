@@ -36,6 +36,18 @@ public interface IParam<P extends Param<P>> {
 
     P addEncodedQuery(String key, @Nullable Object value);
 
+    P removeAllQuery(String key);
+
+    default P setQuery(String key, @Nullable Object value) {
+        removeAllQuery(key);
+        return addQuery(key, value);
+    }
+
+    default P setEncodedQuery(String key, @Nullable Object value) {
+        removeAllQuery(key);
+        return addEncodedQuery(key, value);
+    }
+
     default P addAllQuery(String key, @Nullable List<?> values) {
         if (values == null) return addQuery(key, null);
         for (Object value : values) {
