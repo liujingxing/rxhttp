@@ -1,6 +1,9 @@
 package com.rxhttp.compiler.common
 
+import com.rxhttp.compiler.K_ARRAY_TYPE
+import com.rxhttp.compiler.K_TYPE
 import com.rxhttp.compiler.isDependenceRxJava
+import com.rxhttp.compiler.ksp.isVararg
 import com.rxhttp.compiler.ksp.parameterizedBy
 import com.rxhttp.compiler.rxHttpPackage
 import com.rxhttp.compiler.rxhttpKClass
@@ -17,6 +20,7 @@ import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.TypeVariableName
 import com.squareup.kotlinpoet.UNIT
+import java.util.Locale
 
 /**
  * User: ljx
@@ -110,14 +114,7 @@ fun FunSpec.generateToFlowXxxFun(): List<FunSpec> {
     val funList = mutableListOf<FunSpec>()
     val parseName = name.substring(7) // Remove the prefix `toAwait`
     val typeVariables = typeVariables
-    val arguments = StringBuilder()
-    parameters.forEach { p ->
-        if (KModifier.VARARG in p.modifiers) {
-            arguments.append("*")
-        }
-        arguments.append(p.name).append(",")
-    }
-    if (arguments.isNotEmpty()) arguments.deleteCharAt(arguments.length - 1)
+    val paramNames = parameters.toParamNames()
     val toAwaitXxxReturnType = returnType as ParameterizedTypeName
     val toAwaitXxxTypeArguments = toAwaitXxxReturnType.typeArguments
     FunSpec.builder("toFlow$parseName")
@@ -126,7 +123,7 @@ fun FunSpec.generateToFlowXxxFun(): List<FunSpec> {
         .addParameters(parameters)
         .addTypeVariables(typeVariables)
         .addStatement(
-            "return %M(toAwait$parseName${getTypeVariableString(typeVariables)}($arguments))",
+            "return %M(toAwait$parseName${typeVariables.getTypeVariableString()}($paramNames))",
             toFlow
         )
         .returns(flow.parameterizedBy(toAwaitXxxTypeArguments))
@@ -148,7 +145,7 @@ fun FunSpec.generateToFlowXxxFun(): List<FunSpec> {
             .addParameter(capacityParam)
             .addParameter(builder.build())
             .addStatement(
-                "return %M(toAwait$parseName${getTypeVariableString(typeVariables)}($arguments), capacity, progress)",
+                "return %M(toAwait$parseName${typeVariables.getTypeVariableString()}($paramNames), capacity, progress)",
                 toFlow
             )
             .returns(flow.parameterizedBy(toAwaitXxxTypeArguments))
@@ -162,7 +159,7 @@ fun FunSpec.generateToFlowXxxFun(): List<FunSpec> {
             .addParameters(parameters)
             .addParameter(capacityParam)
             .addStatement(
-                "return %M(toAwait$parseName${getTypeVariableString(typeVariables)}($arguments), capacity)",
+                "return %M(toAwait$parseName${typeVariables.getTypeVariableString()}($paramNames), capacity)",
                 toFlowProgress
             )
             .returns(flow.parameterizedBy(progressTName.parameterizedBy(toAwaitXxxTypeArguments)))
@@ -171,3 +168,25 @@ fun FunSpec.generateToFlowXxxFun(): List<FunSpec> {
     }
     return funList
 }
+
+fun List<ParameterSpec>.flapTypeParameterSpecTypes(
+    typeVariableNames: List<TypeVariableName>
+): List<ParameterSpec> {
+    val parameterSpecs = mutableListOf<ParameterSpec>()
+    forEachIndexed { index, parameterSpec ->
+        if (index == 0 && typeVariableNames.isNotEmpty() &&
+            (parameterSpec.isArrayType() || parameterSpec.isVarargType())
+        ) {
+            typeVariableNames.mapTo(parameterSpecs) { typeVariableName ->
+                val variableName = "${typeVariableName.name.lowercase(Locale.getDefault())}Type"
+                ParameterSpec.builder(variableName, K_TYPE).build()
+            }
+        } else {
+            parameterSpecs.add(parameterSpec)
+        }
+    }
+    return parameterSpecs
+}
+
+fun ParameterSpec.isArrayType() = type == K_ARRAY_TYPE
+fun ParameterSpec.isVarargType() = isVararg() && type == K_TYPE

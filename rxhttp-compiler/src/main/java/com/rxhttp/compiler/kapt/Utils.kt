@@ -1,5 +1,11 @@
 package com.rxhttp.compiler.kapt
 
+import com.rxhttp.compiler.J_ARRAY_TYPE
+import com.rxhttp.compiler.J_TYPE
+import com.squareup.javapoet.ClassName
+import com.squareup.javapoet.ParameterSpec
+import com.squareup.javapoet.ParameterizedTypeName
+import com.squareup.javapoet.TypeName
 import javax.annotation.processing.Messager
 import javax.lang.model.element.Element
 import javax.lang.model.element.ElementKind
@@ -10,23 +16,50 @@ import javax.lang.model.type.TypeKind
 import javax.lang.model.util.Types
 import javax.tools.Diagnostic.Kind
 
-fun List<ExecutableElement>.findTypeArgumentConstructorFun(typeParametersSize: Int): ExecutableElement? {
-    for (constructor in this) {
-        if (!constructor.modifiers.contains(Modifier.PUBLIC)) continue
-        constructor.parameters.forEach { variableElement ->
-            if (variableElement.asType().toString() == "java.lang.reflect.Type[]")
-                return constructor
-        }
-        //构造方法参数个数小于泛型个数，则遍历下一个
-        if (constructor.parameters.size < typeParametersSize) continue
 
-        //如果解析器有n个泛型，则构造方法前n个参数，必须是Type类型
-        val match = constructor.parameters.subList(0, typeParametersSize).all {
-            "java.lang.reflect.Type" == it.asType().toString()
-        }
-        if (match) return constructor
+fun List<ParameterSpec>.toParamNames(): String {
+    val paramNames = StringBuilder()
+    forEachIndexed { index, parameterSpec ->
+        if (index > 0) paramNames.append(", ")
+        paramNames.append(parameterSpec.name)
     }
-    return null
+    return paramNames.toString()
+}
+
+
+//判断解析器构造方法是否有效
+fun ExecutableElement.isValid(typeCount: Int): Boolean {
+    //1、非public方法，无效
+    if (!modifiers.contains(Modifier.PUBLIC)) return false
+    val parameters = parameters
+    if (parameters.isEmpty()) {
+        //2、构造方法没有参数，且泛型数量等于0，有效，反之无效
+        return typeCount == 0
+    }
+    val firstParameter = parameters.first()
+    val firstParameterType = TypeName.get(firstParameter.asType())
+    if (firstParameterType == J_ARRAY_TYPE) {
+        //3、第一个参数为Type类型数组 或 Type类型可变参数, 有效
+        return true
+    }
+    //4、构造方法参数数量小于泛型数量，无效
+    if (parameters.size < typeCount) return false
+    //5、构造方法前n个参数，皆为Type类型，有效  n为泛型数量
+    return parameters.subList(0, typeCount).all { J_TYPE == TypeName.get(it.asType()) }
+}
+
+//获取onParser方法返回类型
+fun TypeElement.findOnParserFunReturnType(): TypeName? {
+    val function = enclosedElements.find {
+        it is ExecutableElement   //是方法
+                && it.getModifiers().contains(Modifier.PUBLIC)  //public修饰
+                && !it.getModifiers().contains(Modifier.STATIC) //非静态
+                && it.simpleName.toString() == "onParse"  //onParse方法
+                && it.parameters.size == 1  //只有一个参数
+                && TypeName.get(it.parameters[0].asType())
+            .toString() == "okhttp3.Response"  //参数是okhttp3.Response类型
+    } ?: return null
+    return TypeName.get((function as ExecutableElement).returnType)
 }
 
 //获取public构造方法
@@ -47,6 +80,17 @@ fun TypeElement.getVisibleConstructorFun(): List<ExecutableElement> {
         }
     }
     return funList
+}
+
+fun TypeElement.getConstructors(): List<ExecutableElement> {
+    return enclosedElements.mapNotNull {
+        if (it is ExecutableElement &&
+            it.kind == ElementKind.CONSTRUCTOR &&
+            (Modifier.PUBLIC in it.getModifiers() || Modifier.PROTECTED in it.getModifiers())
+        ) {
+            it
+        } else null
+    }
 }
 
 internal fun TypeElement?.instanceOf(className: String, types: Types): Boolean {
@@ -78,7 +122,5 @@ internal fun String.firstLetterUpperCase(): String {
     return String(charArray)
 }
 
-fun com.squareup.javapoet.ClassName.parameterizedBy(
-    vararg typeArguments: com.squareup.javapoet.TypeName
-): com.squareup.javapoet.ParameterizedTypeName =
-    com.squareup.javapoet.ParameterizedTypeName.get(this, *typeArguments)
+fun ClassName.parameterizedBy(vararg typeArguments: TypeName): ParameterizedTypeName =
+    ParameterizedTypeName.get(this, *typeArguments)

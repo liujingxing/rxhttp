@@ -47,14 +47,8 @@ class ParamsVisitor(private val logger: Messager) {
         val methodList = ArrayList<MethodSpec>()
         var method: MethodSpec.Builder
         elementMap.forEach { (key, typeElement) ->
-            val type = StringBuilder()
-            val size = typeElement.typeParameters.size
-            val rxHttpTypeNames = typeElement.typeParameters.mapIndexed { i, parameterElement ->
-                TypeVariableName.get(parameterElement).also {
-                    type.append(if (i == 0) "<" else ",")
-                    type.append(it.name)
-                    if (i == size - 1) type.append(">")
-                }
+            val rxHttpTypeNames = typeElement.typeParameters.map { parameterElement ->
+                TypeVariableName.get(parameterElement)
             }
             val param = ClassName.get(typeElement)
             val rxHttpName = "RxHttp${typeElement.simpleName}"
@@ -131,18 +125,14 @@ class ParamsVisitor(private val logger: Messager) {
                     if (it == param) rxHttpParamName else it
                 }
 
-                val parametersSize = enclosedElement.parameters.size
-                //方法体
-                val methodBody = StringBuilder(enclosedElement.getSimpleName().toString())
-                    .append(if (parametersSize == 0) "()" else "")
                 //方法参数
-                val parameterSpecs = enclosedElement.parameters.mapIndexed { i, variableElement ->
-                    ParameterSpec.get(variableElement).apply {
-                        methodBody.append(if (i == 0) "(" else ",")
-                        methodBody.append(this.name)
-                        if (i == parametersSize - 1) methodBody.append(")")
-                    }
+                val parameterSpecs = enclosedElement.parameters.map { variableElement ->
+                    ParameterSpec.get(variableElement)
                 }
+                //方法参数名字
+                val paramNames = parameterSpecs.toParamNames()
+                //方法体
+                val methodBody = "${enclosedElement.getSimpleName()}($paramNames)"
                 //方法声明的泛型
                 val typeVariableNames = enclosedElement.typeParameters.map {
                     TypeVariableName.get(it)

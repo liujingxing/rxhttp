@@ -16,6 +16,8 @@ import com.google.devtools.ksp.symbol.KSTypeReference
 import com.google.devtools.ksp.symbol.KSValueParameter
 import com.google.devtools.ksp.symbol.Modifier
 import com.google.devtools.ksp.symbol.Origin
+import com.rxhttp.compiler.K_ARRAY_TYPE
+import com.rxhttp.compiler.K_TYPE
 import com.squareup.javapoet.JavaFile
 import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.BOOLEAN
@@ -50,6 +52,7 @@ import com.squareup.kotlinpoet.U_SHORT_ARRAY
 import com.squareup.kotlinpoet.ksp.TypeParameterResolver
 import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.toTypeName
+import com.squareup.kotlinpoet.ksp.toTypeParameterResolver
 import org.jetbrains.annotations.Nullable
 
 /**
@@ -57,6 +60,7 @@ import org.jetbrains.annotations.Nullable
  * Date: 2021/11/11
  * Time: 17:38
  */
+
 //获取对象类型，包名+类名
 internal fun KSTypeReference.getQualifiedName() =
     resolve().declaration.qualifiedName?.asString()
@@ -67,8 +71,8 @@ internal fun KSFunctionDeclaration.getFunName() = simpleName.asString()
 
 /*
 
-| 参数类型             | kapt                                                 | ksp |
-| :---:               | :---:                                                | :---: |
+| 参数类型             | kapt (JTypeName -> KTypeName)                        | ksp (KTypeName)
+| :---:               |  :---:                                               |   :---:
 |  `int... a`         |  int[] -> kotlin.IntArray                            |   kotlin.IntArray & vararg
 |  `String... a`      |  java.lang.String[] -> kotlin.Array<kotlin.String>   |   kotlin.Array<kotlin.String> & vararg
 |  `int[]  a`         |  int[] -> kotlin.IntArray                            |   kotlin.IntArray
@@ -125,24 +129,40 @@ internal fun KSClassDeclaration.superclass(): KSTypeReference? {
     }
 }
 
-fun Sequence<KSFunctionDeclaration>.findTypeArgumentConstructorFun(typeParametersSize: Int): KSFunctionDeclaration? {
-    for (constructor in this) {
-        if (!constructor.isPublic()) continue
-        constructor.parameters.forEach { variableElement ->
-            val typeArray = "kotlin.Array<java.lang.reflect.Type>"
-            if (typeArray == variableElement.type.toTypeName().toString())
-                return constructor
-        }
-        //构造方法参数个数小于泛型个数，则遍历下一个
-        if (constructor.parameters.size < typeParametersSize) continue
-        //如果解析器有n个泛型，则构造方法前n个参数，必须是Type类型
-        val match = constructor.parameters.subList(0, typeParametersSize).all {
-            "java.lang.reflect.Type" == it.type.getQualifiedName()
-        }
-        if (match) return constructor
+//判断解析器构造方法是否有效
+fun KSFunctionDeclaration.isValid(typeCount: Int): Boolean {
+    //1、非public方法，无效
+    if (!isPublic()) return false
+    val parameters = parameters
+    if (parameters.isEmpty()) {
+        //2、构造方法没有参数，且泛型数量等于0，有效，反之无效
+        return typeCount == 0
     }
-    return null
+    val firstParameter = parameters.first()
+    val firstParameterType = firstParameter.type.toTypeName()
+    if (firstParameterType == K_ARRAY_TYPE || (firstParameterType == K_TYPE && firstParameter.isVararg)) {
+        //3、第一个参数为Type类型数组 或 Type类型可变参数, 有效
+        return true
+    }
+    //4、构造方法参数数量小于泛型数量，无效
+    if (parameters.size < typeCount) return false
+    //5、构造方法前n个参数，皆为Type类型，有效  n为泛型数量
+    return parameters.subList(0, typeCount).all { K_TYPE == it.type.toTypeName() }
 }
+
+//获取onParser方法返回类型
+fun KSClassDeclaration.findOnParserFunReturnType(): TypeName? {
+    val ksFunction = getAllFunctions().find {
+        it.isPublic() &&
+                !it.modifiers.contains(Modifier.JAVA_STATIC) &&
+                it.getFunName() == "onParse" &&
+                it.parameters.size == 1 &&
+                it.parameters[0].type.getQualifiedName() == "okhttp3.Response"
+    }
+    return ksFunction?.returnType?.toTypeName(typeParameters.toTypeParameterResolver())
+}
+
+fun ParameterSpec.isVararg() = modifiers.contains(KModifier.VARARG)
 
 fun KSClassDeclaration.getPublicConstructors() = getConstructors().filter { it.isPublic() }
 

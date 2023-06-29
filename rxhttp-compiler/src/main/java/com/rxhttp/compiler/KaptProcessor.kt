@@ -90,15 +90,13 @@ open class KaptProcessor : AbstractProcessor() {
 
     override fun process(annotations: Set<TypeElement>, roundEnv: RoundEnvironment): Boolean {
         if (debug) {
-            logger.printMessage(
-                Diagnostic.Kind.WARNING,
-                """
-                    process isOver = ${roundEnv.processingOver()}     
-                    processed = $processed                
-                    rootElements.size = ${roundEnv.rootElements.size}
-                    annotations = $annotations                     
-                """.trimIndent()
-            )
+            val log = """
+                process isOver = ${roundEnv.processingOver()}     
+                processed = $processed                
+                rootElements.size = ${roundEnv.rootElements.size}
+                annotations = $annotations  
+            """.trimIndent()
+            logger.printMessage(Diagnostic.Kind.WARNING, log)
         }
         if (annotations.isEmpty() || processed) return true
         ClassHelper(isAndroidPlatform() && androidPlatform).generatorStaticClass(filer)

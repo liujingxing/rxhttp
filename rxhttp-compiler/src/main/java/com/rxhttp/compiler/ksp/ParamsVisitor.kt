@@ -13,6 +13,7 @@ import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSVisitorVoid
 import com.google.devtools.ksp.symbol.Modifier
+import com.rxhttp.compiler.common.toParamNames
 import com.rxhttp.compiler.rxHttpPackage
 import com.rxhttp.compiler.rxhttpKClass
 import com.squareup.kotlinpoet.ANY
@@ -66,14 +67,8 @@ class ParamsVisitor(
         val funList = ArrayList<FunSpec>()
         var funSpecBuilder: FunSpec.Builder
         ksClassMap.forEach { (key, ksClass) ->
-            val type = StringBuilder()
-            val size = ksClass.typeParameters.size
-            val rxHttpTypeNames = ksClass.typeParameters.mapIndexed { i, typeParameter ->
-                typeParameter.toTypeVariableName().also {
-                    type.append(if (i == 0) "<" else ",")
-                    type.append(it.name)
-                    if (i == size - 1) type.append(">")
-                }
+            val rxHttpTypeNames = ksClass.typeParameters.map { typeParameter ->
+                typeParameter.toTypeVariableName()
             }
             val param = ksClass.toClassName()
             val rxHttpName = "RxHttp${ksClass.simpleName.asString()}"
@@ -151,23 +146,17 @@ class ParamsVisitor(
                     if (it == param) rxHttpParamName else it
                 }
 
-                val parametersSize = ksFunction.parameters.size
-                val functionTypeParams =
-                    ksFunction.typeParameters.toTypeParameterResolver(classTypeParams)
-                //方法体
-                val methodBody = StringBuilder(ksFunction.simpleName.asString())
-                    .append(if (parametersSize == 0) "()" else "")
+                val functionTypeParams = ksFunction.typeParameters
+                    .toTypeParameterResolver(classTypeParams)
                 //方法参数
-                val parameterSpecs = ksFunction.parameters.mapIndexed { i, ksValueParameter ->
-                    ksValueParameter.toKParameterSpec(functionTypeParams).apply {
-                        methodBody.append(if (i == 0) "(" else ",")
-                        if (KModifier.VARARG in modifiers) methodBody.append("*")
-                        methodBody.append(this.name)
-                        if (i == parametersSize - 1) methodBody.append(")")
-                    }
+                val parameterSpecs = ksFunction.parameters.map { ksValueParameter ->
+                    ksValueParameter.toKParameterSpec(functionTypeParams)
                 }
-                val typeVariableNames = ksFunction.typeParameters
-                    .map { it.toTypeVariableName() }
+                //方法参数名字
+                val paramNames = parameterSpecs.toParamNames()
+                //方法体
+                val methodBody = "${ksFunction.simpleName.asString()}($paramNames)"
+                val typeVariableNames = ksFunction.typeParameters.map { it.toTypeVariableName() }
 
                 val throwTypeNames = resolver.getJvmCheckedException(ksFunction)
                     .map { it.toClassName() }.toList()

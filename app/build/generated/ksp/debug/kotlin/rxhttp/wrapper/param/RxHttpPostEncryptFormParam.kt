@@ -19,8 +19,8 @@ public class RxHttpPostEncryptFormParam : RxHttpFormParam {
   }
 
   public fun test2(a: Long, b: Float): RxHttpPostEncryptFormParam = apply {
-    (param as PostEncryptFormParam).test2(a,b) 
+    (param as PostEncryptFormParam).test2(a, b) 
   }
 
-  public fun add(a: Int, b: Int): Int = (param as PostEncryptFormParam).add(a,b)
+  public fun add(a: Int, b: Int): Int = (param as PostEncryptFormParam).add(a, b)
 }

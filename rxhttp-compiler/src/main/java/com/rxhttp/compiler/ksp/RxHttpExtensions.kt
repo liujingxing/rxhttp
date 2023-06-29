@@ -1,14 +1,17 @@
 package com.rxhttp.compiler.ksp
 
 import com.google.devtools.ksp.KspExperimental
+import com.google.devtools.ksp.getConstructors
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.rxhttp.compiler.common.flapTypeParameterSpecTypes
 import com.rxhttp.compiler.common.generateToFlowXxxFun
-import com.rxhttp.compiler.common.getParamsName
 import com.rxhttp.compiler.common.getRxHttpExtensionFileSpec
 import com.rxhttp.compiler.common.getTypeOfString
 import com.rxhttp.compiler.common.getTypeVariableString
+import com.rxhttp.compiler.common.isArrayType
+import com.rxhttp.compiler.common.toParamNames
 import com.rxhttp.compiler.isDependenceRxJava
 import com.rxhttp.compiler.rxHttpPackage
 import com.rxhttp.compiler.rxhttpKClass
@@ -47,36 +50,38 @@ class RxHttpExtensions(private val logger: KSPLogger) {
     fun generateRxHttpExtendFun(ksClass: KSClassDeclaration, key: String) {
 
         //遍历获取泛型类型
-        val typeVariableNames = ksClass.typeParameters
-            .map { it.toTypeVariableName().copy(reified = true) }
+        val typeVariableNames = ksClass.typeParameters.map {
+            it.toTypeVariableName().copy(reified = true)
+        }
         val onParserFunReturnType = ksClass.findOnParserFunReturnType() ?: return
 
-        val constructors = ksClass.getPublicConstructors()
         val typeCount = typeVariableNames.size  //泛型数量
         val customParser = ksClass.toClassName()
         //遍历构造方法
-        for (constructor in constructors) {
-            //参数为空，说明该构造方法无效
-            val parameters = constructor.getParametersIfValid(typeCount) ?: continue
-
+        for (constructor in ksClass.getConstructors()) {
+            if (!constructor.isValid(typeCount)) continue
             val classTypeParams = ksClass.typeParameters.toTypeParameterResolver()
             val functionTypeParams =
                 constructor.typeParameters.toTypeParameterResolver(classTypeParams)
+            val originParameterSpecs = constructor.parameters.map {
+                it.toKParameterSpec(functionTypeParams)
+            }
+            val typeParameterSpecs = originParameterSpecs.flapTypeParameterSpecTypes(typeVariableNames)
             //根据构造方法参数，获取toObservableXxx方法需要的参数
-            val parameterList = parameters.map { it.toKParameterSpec(functionTypeParams) }
+            val parameterList = typeParameterSpecs.subList(typeCount, typeParameterSpecs.size)
 
             val modifiers = ArrayList<KModifier>()
             if (typeVariableNames.isNotEmpty()) {
                 modifiers.add(KModifier.INLINE)
             }
 
-            val types = getTypeVariableString(typeVariableNames) // <T>, <K, V> 等
-            val typeOfs = getTypeOfString(typeVariableNames)  // javaTypeOf<T>()等
-            val params = getParamsName(parameterList)  //构造方法参数名列表
+            val types = typeVariableNames.getTypeVariableString() // <T>, <K, V> 等
+            val typeOfs = typeVariableNames.getTypeOfString()  // javaTypeOf<T>()等
+            val paramNames = parameterList.toParamNames()  //构造方法参数名列表
             val finalParams = when {
-                typeOfs.isEmpty() -> params
-                params.isEmpty() -> typeOfs
-                else -> "$typeOfs, $params"
+                typeOfs.isEmpty() -> paramNames
+                paramNames.isEmpty() -> typeOfs
+                else -> "$typeOfs, $paramNames"
             }
 
             if (typeVariableNames.isNotEmpty() && isDependenceRxJava()) {  //对声明了泛型的解析器，生成kotlin编写的toObservableXxx方法
@@ -99,7 +104,14 @@ class RxHttpExtensions(private val logger: KSPLogger) {
                 if (typeCount == 1 && onParserFunReturnType is TypeVariableName) {
                     CodeBlock.of("return toAwait(%M$types($finalParams))", wrapCustomParser)
                 } else {
-                    CodeBlock.of("return toAwait(%T$types($finalParams))", customParser)
+                    var params = finalParams
+                    if (typeOfs.isNotEmpty() &&
+                        originParameterSpecs.first().isArrayType() &&
+                        onParserFunReturnType !is TypeVariableName
+                    ) {
+                        params = params.replace(typeOfs, "arrayOf($typeOfs)")
+                    }
+                    CodeBlock.of("return toAwait(%T$types($params))", customParser)
                 }
 
             val toAwaitXxxFun = FunSpec.builder("toAwait$key")

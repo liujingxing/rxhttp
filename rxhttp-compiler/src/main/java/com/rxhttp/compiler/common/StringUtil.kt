@@ -1,6 +1,6 @@
 package com.rxhttp.compiler.common
 
-import com.squareup.kotlinpoet.KModifier
+import com.rxhttp.compiler.ksp.isVararg
 import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.TypeVariableName
 
@@ -10,32 +10,30 @@ import com.squareup.kotlinpoet.TypeVariableName
  * Time: 11:28
  */
 //返回参数名列表, 多个参数用逗号隔开, 如： a, b, c
-fun getParamsName(parameterSpecs: List<ParameterSpec>): String {
-    val paramsName = StringBuilder()
-    parameterSpecs.forEachIndexed { index, parameterSpec ->
-        if (index > 0) paramsName.append(", ")
-        if (KModifier.VARARG in parameterSpec.modifiers) paramsName.append("*")
-        paramsName.append(parameterSpec.name)
+fun List<ParameterSpec>.toParamNames(): String {
+    val paramNames = StringBuilder()
+    forEachIndexed { index, parameterSpec ->
+        if (index > 0) paramNames.append(", ")
+        if (parameterSpec.isVararg()) paramNames.append("*")
+        paramNames.append(parameterSpec.name)
     }
-    return paramsName.toString()
+    return paramNames.toString()
 }
 
 //获取泛型字符串 比如:<T> 、<K, V>等等
-fun getTypeVariableString(typeVariableNames: List<TypeVariableName>): String {
+fun List<TypeVariableName>.getTypeVariableString(): String {
     val type = StringBuilder()
-    val size = typeVariableNames.size
-    typeVariableNames.forEachIndexed { i, typeVariableName ->
-        if (i == 0) type.append("<")
+    forEachIndexed { i, typeVariableName ->
+        if (i > 0) type.append(", ")
         type.append(typeVariableName.name)
-        type.append(if (i < size - 1) ", " else ">")
     }
-    return type.toString()
+    return if (type.isEmpty()) "" else "<$type>"
 }
 
 //返回 javaTypeOf<T>, javaTypeOf<K>等
-fun getTypeOfString(typeVariableNames: List<TypeVariableName>): String {
+fun List<TypeVariableName>.getTypeOfString(): String {
     val type = StringBuilder()
-    typeVariableNames.forEachIndexed { i, typeVariableName ->
+    forEachIndexed { i, typeVariableName ->
         if (i > 0) type.append(", ")
         type.append("javaTypeOf<${typeVariableName.name}>()")
     }

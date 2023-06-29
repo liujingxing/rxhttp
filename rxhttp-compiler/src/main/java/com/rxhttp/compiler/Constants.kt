@@ -1,6 +1,10 @@
 package com.rxhttp.compiler
 
+import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.ClassName
+import com.squareup.javapoet.TypeName
+import com.squareup.kotlinpoet.ARRAY
+import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 
 /**
  * User: ljx
@@ -19,3 +23,9 @@ const val rxhttp_android_platform = "rxhttp_android_platform"
 
 val rxhttpKClass = com.squareup.kotlinpoet.ClassName(rxHttpPackage, RxHttp)
 val rxhttpClass: ClassName = ClassName.get(rxHttpPackage, RxHttp)
+
+val J_TYPE: TypeName = ClassName.bestGuess("java.lang.reflect.Type")
+val J_ARRAY_TYPE: TypeName = ArrayTypeName.of(J_TYPE)
+
+val K_TYPE = com.squareup.kotlinpoet.ClassName("java.lang.reflect", "Type")
+val K_ARRAY_TYPE = ARRAY.parameterizedBy(K_TYPE)
