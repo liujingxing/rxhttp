@@ -77,7 +77,7 @@ public abstract class BaseRxHttp : ITag, CallFactory {
             toObservable(wrapResponseParser<T>(type))
 
     public fun <T> toObservableResponse(type: Class<T>): ObservableCall<T> =
-            toObservableResponse(type as Type)
+            toObservableResponse<T>(type as Type)
 
     public fun <T> toObservableResponseList(type: Class<T>): ObservableCall<List<T>> {
         val typeList = List::class.parameterizedBy(type)

@@ -164,9 +164,13 @@ private fun TypeElement.getToObservableXxxFun(
                 .build()
                 .apply { methodList.add(this) }
 
-            //注意，这里获取泛型边界跟ksp不一样，这里会自动过滤Object类型，即使手动声明了
-            //泛型数量等于1 且没有为泛型指定边界(Object类型边界除外)，才去生成Parser注解里wrappers字段对应的toObservableXxx方法
-            if (typeCount == 1 && typeVariableNames.first().bounds.isEmpty()) {
+            /**
+             * 生成Parser注解里wrappers字段对应的toObservableXxx方法，如满足以下3个条件
+             * 1、泛型数量为1
+             * 2、泛型没有边界(kapt会自动过滤Object类型, 即使手动声明了)
+             * 3、解析器onParse方法返回泛型
+             */
+            if (typeCount == 1 && typeVariableNames.first().bounds.isEmpty() && onParserFunReturnType is TypeVariableName) {
                 val toObservableXxxFunList = methodSpec
                     .getToObservableXxxWrapFun(parserAlias, onParserFunReturnType, typeMap)
                 methodList.addAll(toObservableXxxFunList)
@@ -286,27 +290,25 @@ private fun MethodSpec.getToObservableXxxWrapFun(
         val methodName = "toObservable$parserAlias${simpleName}"
 
         //3、toObservableXxx方法体
-        val funBody = CodeBlock.builder()
+        val methodBody = CodeBlock.builder()
         val paramNames = parameterSpecs.joinToStringIndexed(", ") { index, it ->
             if (index < typeCount) {
                 //Class类型参数，需要进行再次包装，最后再取参数名
                 val variableName = "${it.name}$simpleName"
                 //格式：Type tTypeList = ParameterizedTypeImpl.get(List.class, tType);
                 val expression = "\$T $variableName = \$T.get($simpleName.class, ${it.name})"
-                funBody.addStatement(expression, J_TYPE, parameterizedType)
+                methodBody.addStatement(expression, J_TYPE, parameterizedType)
                 variableName
             } else it.name
         }
-        val returnStatement = "return ${methodSpec.name}($paramNames)"
-        funBody.addStatement(returnStatement)
-
+        methodBody.addStatement("return ${methodSpec.name}($paramNames)")
         //4、生成toObservableXxx方法
         MethodSpec.methodBuilder(methodName)
             .addModifiers(Modifier.PUBLIC)
             .addTypeVariables(typeVariableNames)
             .addParameters(parameterSpecs)
             .varargs(methodSpec.varargs)
-            .addCode(funBody.build())  //方法里面的表达式
+            .addCode(methodBody.build())  //方法里面的表达式
             .returns(toObservableXxxFunReturnType)
             .build()
             .apply { methodList.add(this) }

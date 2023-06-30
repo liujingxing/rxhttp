@@ -186,12 +186,13 @@ private fun KSClassDeclaration.getToObservableXxxFun(
 
         if (typeCount > 0 && isDependenceRxJava()) {
             val paramNames = classParameterSpecs.toParamNames(typeCount)
+            val typeOfs = typeVariableNames.getTypeVariableString()
 
             //生成Class类型参数的toObservableXxx方法
             val funSpec = FunSpec.builder(funName)
                 .addTypeVariables(typeVariableNames)
                 .addParameters(classParameterSpecs)
-                .addStatement("return $funName($paramNames)")  //方法里面的表达式
+                .addStatement("return $funName$typeOfs($paramNames)")  //方法里面的表达式
                 .returns(toObservableXxxFunReturnType)
                 .build()
                 .apply { funList.add(this) }
@@ -201,9 +202,13 @@ private fun KSClassDeclaration.getToObservableXxxFun(
                 val name = typeName.toString()
                 name != "kotlin.Any" && name != "kotlin.Any?"
             }
-
-            //泛型数量等于1 且没有为泛型指定边界(Any类型边界除外)，才去生成Parser注解里wrappers字段对应的toObservableXxx方法
-            if (typeCount == 1 && nonAnyBounds.isEmpty()) {
+            /**
+             * 生成Parser注解里wrappers字段对应的toObservableXxx方法，如满足以下3个条件
+             * 1、泛型数量为1
+             * 2、泛型没有边界(Any类型边界除外)
+             * 3、解析器onParse方法返回泛型
+             */
+            if (typeCount == 1 && nonAnyBounds.isEmpty() && onParserFunReturnType is TypeVariableName) {
                 val toObservableXxxFunList = funSpec
                     .getToObservableXxxWrapFun(parserAlias, onParserFunReturnType, typeMap)
                 funList.addAll(toObservableXxxFunList)
@@ -269,9 +274,7 @@ private fun FunSpec.getToObservableXxxWrapFun(
                 variableName
             } else if (it.isVararg()) "*${it.name}" else it.name
         }
-        val returnStatement = "return ${funSpec.name}($paramNames)"
-        funBody.addStatement(returnStatement)
-
+        funBody.addStatement("return ${funSpec.name}($paramNames)")
         //4、生成toObservableXxx方法
         FunSpec.builder(funName)
             .addTypeVariables(typeVariableNames)
