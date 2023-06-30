@@ -39,7 +39,7 @@ public final class ObservableCall<T> extends Observable<T> {
     private boolean syncRequest = false;
     private boolean callbackProgress = false;
 
-    public ObservableCall(CallFactory callFactory, Parser<T> parser) {
+    ObservableCall(CallFactory callFactory, Parser<T> parser) {
         this.callFactory = callFactory;
         this.parser = parser;
     }

@@ -106,7 +106,6 @@ class ParamsVisitor(private val logger: Messager) {
             }
             val rxHttpPostCustomMethod = ArrayList<MethodSpec>()
             MethodSpec.constructorBuilder()
-                .addModifiers(Modifier.PUBLIC)
                 .addParameter(param, "param")
                 .addStatement("super(param)")
                 .build()

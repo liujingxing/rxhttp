@@ -48,7 +48,7 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
                 public class RxHttpAbstractBodyParam<P extends AbstractBodyParam<P>, R extends RxHttpAbstractBodyParam<P, R>> 
                     extends RxHttp<P, R> implements BodyParamFactory {
 
-                    protected RxHttpAbstractBodyParam(P param) {
+                    RxHttpAbstractBodyParam(P param) {
                         super(param);
                     }
                 }
@@ -74,7 +74,7 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
              * https://github.com/liujingxing/rxhttp/wiki/更新日志
              */
             public class RxHttpNoBodyParam extends RxHttp<NoBodyParam, RxHttpNoBodyParam> {
-                public RxHttpNoBodyParam(NoBodyParam param) {
+                RxHttpNoBodyParam(NoBodyParam param) {
                     super(param);
                 }
                 
@@ -132,7 +132,7 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
              * https://github.com/liujingxing/rxlife
              */
             public class RxHttpBodyParam extends RxHttpAbstractBodyParam<BodyParam, RxHttpBodyParam> {
-                public RxHttpBodyParam(BodyParam param) {
+                RxHttpBodyParam(BodyParam param) {
                     super(param);
                 }
                 
@@ -217,7 +217,7 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
              * https://github.com/liujingxing/rxhttp/wiki/更新日志
              */
             public class RxHttpFormParam extends RxHttpAbstractBodyParam<FormParam, RxHttpFormParam> {
-                public RxHttpFormParam(FormParam param) {
+                RxHttpFormParam(FormParam param) {
                     super(param);
                 }
 
@@ -461,7 +461,7 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
              * https://github.com/liujingxing/rxhttp/wiki/更新日志
              */
             public class RxHttpJsonParam extends RxHttpAbstractBodyParam<JsonParam, RxHttpJsonParam> {
-                public RxHttpJsonParam(JsonParam param) {
+                RxHttpJsonParam(JsonParam param) {
                     super(param);
                 }
 
@@ -531,7 +531,7 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
              * https://github.com/liujingxing/rxhttp/wiki/更新日志
              */
             public class RxHttpJsonArrayParam extends RxHttpAbstractBodyParam<JsonArrayParam, RxHttpJsonArrayParam> {
-                public RxHttpJsonArrayParam(JsonArrayParam param) {
+                RxHttpJsonArrayParam(JsonArrayParam param) {
                     super(param);
                 }
 

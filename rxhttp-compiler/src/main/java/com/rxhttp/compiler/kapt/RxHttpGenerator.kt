@@ -70,7 +70,6 @@ class RxHttpGenerator {
         val methodList = ArrayList<MethodSpec>() //方法集合
 
         MethodSpec.constructorBuilder()
-            .addModifiers(Modifier.PROTECTED)
             .addParameter(typeVariableP, "param")
             .addStatement("this.param = param")
             .build()
