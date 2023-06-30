@@ -160,13 +160,23 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
         return self()
     }
 
-    public fun setQuery(key: String, `value`: Any?): R {
-        param.setQuery(key, value)
+    @JvmOverloads
+    public fun setQuery(
+        key: String,
+        `value`: Any?,
+        add: Boolean = true,
+    ): R {
+        if (add) param.setQuery(key, value)
         return self()
     }
 
-    public fun setEncodedQuery(key: String, `value`: Any?): R {
-        param.setEncodedQuery(key, value)
+    @JvmOverloads
+    public fun setEncodedQuery(
+        key: String,
+        `value`: Any?,
+        add: Boolean = true,
+    ): R {
+        if (add) param.setEncodedQuery(key, value)
         return self()
     }
 
@@ -185,13 +195,23 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
         return self()
     }
 
-    public fun addQuery(key: String, `value`: Any?): R {
-        param.addQuery(key, value)
+    @JvmOverloads
+    public fun addQuery(
+        key: String,
+        `value`: Any?,
+        add: Boolean = true,
+    ): R {
+        if (add) param.addQuery(key, value)
         return self()
     }
 
-    public fun addEncodedQuery(key: String, `value`: Any?): R {
-        param.addEncodedQuery(key, value)
+    @JvmOverloads
+    public fun addEncodedQuery(
+        key: String,
+        `value`: Any?,
+        add: Boolean = true,
+    ): R {
+        if (add) param.addEncodedQuery(key, value)
         return self()
     }
 
@@ -216,8 +236,8 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
     }
 
     @JvmOverloads
-    public fun addHeader(line: String, isAdd: Boolean = true): R {
-        if (isAdd) param.addHeader(line)
+    public fun addHeader(line: String, add: Boolean = true): R {
+        if (add) param.addHeader(line)
         return self()
     }
 
@@ -243,9 +263,9 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
     public fun addHeader(
         key: String,
         `value`: String,
-        isAdd: Boolean = true,
+        add: Boolean = true,
     ): R {
-        if (isAdd) param.addHeader(key, value)
+        if (add) param.addHeader(key, value)
         return self()
     }
 

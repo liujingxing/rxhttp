@@ -82,10 +82,8 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
                     return addQuery(key, value);
                 }
                 
-                public RxHttpNoBodyParam add(String key, Object value, boolean isAdd) {
-                    if (isAdd) {
-                        addQuery(key, value);
-                    }
+                public RxHttpNoBodyParam add(String key, Object value, boolean add) {
+                    if (add) addQuery(key, value);
                     return this;
                 }
                 
@@ -226,10 +224,8 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
                     return this;
                 }
 
-                public RxHttpFormParam add(String key, @Nullable Object value, boolean isAdd) {
-                    if (isAdd) {
-                        param.add(key,value);
-                    }
+                public RxHttpFormParam add(String key, @Nullable Object value, boolean add) {
+                    if (add) param.add(key,value);
                     return this;
                 }
                 
@@ -449,6 +445,8 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
             package $rxHttpPackage;
 
             import com.google.gson.JsonObject;
+            
+            import org.jetbrains.annotations.Nullable;
 
             import java.util.Map;
             
@@ -465,15 +463,13 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
                     super(param);
                 }
 
-                public RxHttpJsonParam add(String key, Object value) {
+                public RxHttpJsonParam add(String key, @Nullable Object value) {
                     param.add(key,value);
                     return this;
                 }
                 
-                public RxHttpJsonParam add(String key, Object value, boolean isAdd) {
-                    if (isAdd) {
-                        param.add(key,value);
-                    }
+                public RxHttpJsonParam add(String key, @Nullable Object value, boolean add) {
+                    if (add) param.add(key,value);
                     return this;
                 }
                 
@@ -517,6 +513,8 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
 
             import com.google.gson.JsonArray;
             import com.google.gson.JsonObject;
+            
+            import org.jetbrains.annotations.Nullable;
 
             import java.util.List;
             import java.util.Map;
@@ -535,15 +533,13 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
                     super(param);
                 }
 
-                public RxHttpJsonArrayParam add(String key, Object value) {
+                public RxHttpJsonArrayParam add(String key, @Nullable Object value) {
                     param.add(key,value);
                     return this;
                 }
                 
-                public RxHttpJsonArrayParam add(String key, Object value, boolean isAdd) {
-                    if (isAdd) {
-                        param.add(key,value);
-                    }
+                public RxHttpJsonArrayParam add(String key, @Nullable Object value, boolean add) {
+                    if (add) param.add(key,value);
                     return this;
                 }
                 

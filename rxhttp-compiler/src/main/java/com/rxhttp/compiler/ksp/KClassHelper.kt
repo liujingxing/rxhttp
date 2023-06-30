@@ -69,8 +69,8 @@ class KClassHelper(
             open class RxHttpNoBodyParam(param: NoBodyParam) : RxHttp<NoBodyParam, RxHttpNoBodyParam>(param) {
             
                 @JvmOverloads
-                fun add(key: String, value: Any?, isAdd: Boolean = true) = apply {
-                    if (isAdd) addQuery(key, value)
+                fun add(key: String, value: Any?, add: Boolean = true) = apply {
+                    if (add) addQuery(key, value)
                 }
             
                 fun addAll(map: Map<String, *>) = addAllQuery(map)
@@ -177,8 +177,8 @@ class KClassHelper(
             open class RxHttpFormParam(param: FormParam) : RxHttpAbstractBodyParam<FormParam, RxHttpFormParam>(param) {
                 
                 @JvmOverloads
-                fun add(key: String, value: Any?, isAdd: Boolean = true) = apply {
-                    if (isAdd) param.add(key, value)
+                fun add(key: String, value: Any?, add: Boolean = true) = apply {
+                    if (add) param.add(key, value)
                 }    
 
                 fun addAll(map: Map<String, *>) = apply { param.addAll(map) }
@@ -333,8 +333,8 @@ class KClassHelper(
             open class RxHttpJsonParam(param: JsonParam) : RxHttpAbstractBodyParam<JsonParam, RxHttpJsonParam>(param) {
             
                 @JvmOverloads
-                fun add(key: String, value: Any?, isAdd: Boolean = true) = apply {
-                    if (isAdd) param.add(key, value)
+                fun add(key: String, value: Any?, add: Boolean = true) = apply {
+                    if (add) param.add(key, value)
                 }
             
                 fun addAll(map: Map<String, *>) = apply { param.addAll(map) }
@@ -382,8 +382,8 @@ class KClassHelper(
             open class RxHttpJsonArrayParam(param: JsonArrayParam) : RxHttpAbstractBodyParam<JsonArrayParam, RxHttpJsonArrayParam>(param) {
             
                 @JvmOverloads
-                fun add(key: String, value: Any?, isAdd: Boolean = true) = apply {
-                    if (isAdd) param.add(key, value)
+                fun add(key: String, value: Any?, add: Boolean = true) = apply {
+                    if (add) param.add(key, value)
                 }
             
                 fun addAll(map: Map<String, *>) = apply { param.addAll(map) }

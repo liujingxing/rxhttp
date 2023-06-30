@@ -53,6 +53,8 @@ class RxJavaFragment : BaseFragment<RxjavaFragmentBinding>(), View.OnClickListen
     //发送Get请求，获取文章列表
     fun RxjavaFragmentBinding.sendGet(view: View?) {
         RxHttp.get("/article/list/0/json")
+            .addQuery("aa")
+            .addQuery("bb","")
             .toObservableResponse<PageList<Article>>()
             .lifeOnMain(this@RxJavaFragment)
             .subscribe({

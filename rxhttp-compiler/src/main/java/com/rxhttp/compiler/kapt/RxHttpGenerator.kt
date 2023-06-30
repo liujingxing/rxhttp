@@ -228,6 +228,17 @@ class RxHttpGenerator {
             .build()
             .apply { methodList.add(this) }
 
+        MethodSpec.methodBuilder("setQuery")
+            .addModifiers(Modifier.PUBLIC)
+            .addParameter(string, "key")
+            .addParameter(TypeName.OBJECT, "value")
+            .addParameter(TypeName.BOOLEAN, "add")
+            .addStatement("if (add) param.setQuery(key, value)")
+            .addStatement("return self()")
+            .returns(typeVariableR)
+            .build()
+            .apply { methodList.add(this) }
+
         MethodSpec.methodBuilder("setEncodedQuery")
             .addModifiers(Modifier.PUBLIC)
             .addParameter(string, "key")
@@ -237,6 +248,18 @@ class RxHttpGenerator {
             .returns(typeVariableR)
             .build()
             .apply { methodList.add(this) }
+
+        MethodSpec.methodBuilder("setEncodedQuery")
+            .addModifiers(Modifier.PUBLIC)
+            .addParameter(string, "key")
+            .addParameter(TypeName.OBJECT, "value")
+            .addParameter(TypeName.BOOLEAN, "add")
+            .addStatement("if (add) param.setEncodedQuery(key, value)")
+            .addStatement("return self()")
+            .returns(typeVariableR)
+            .build()
+            .apply { methodList.add(this) }
+
 
         MethodSpec.methodBuilder("removeAllQuery")
             .addModifiers(Modifier.PUBLIC)
@@ -275,11 +298,33 @@ class RxHttpGenerator {
             .build()
             .apply { methodList.add(this) }
 
+        MethodSpec.methodBuilder("addQuery")
+            .addModifiers(Modifier.PUBLIC)
+            .addParameter(string, "key")
+            .addParameter(TypeName.OBJECT, "value")
+            .addParameter(TypeName.BOOLEAN, "add")
+            .addStatement("if (add) param.addQuery(key, value)")
+            .addStatement("return self()")
+            .returns(typeVariableR)
+            .build()
+            .apply { methodList.add(this) }
+
         MethodSpec.methodBuilder("addEncodedQuery")
             .addModifiers(Modifier.PUBLIC)
             .addParameter(string, "key")
             .addParameter(TypeName.OBJECT, "value")
             .addStatement("param.addEncodedQuery(key, value)")
+            .addStatement("return self()")
+            .returns(typeVariableR)
+            .build()
+            .apply { methodList.add(this) }
+
+        MethodSpec.methodBuilder("addEncodedQuery")
+            .addModifiers(Modifier.PUBLIC)
+            .addParameter(string, "key")
+            .addParameter(TypeName.OBJECT, "value")
+            .addParameter(TypeName.BOOLEAN, "add")
+            .addStatement("if (add) param.addEncodedQuery(key, value)")
             .addStatement("return self()")
             .returns(typeVariableR)
             .build()
@@ -335,14 +380,9 @@ class RxHttpGenerator {
         MethodSpec.methodBuilder("addHeader")
             .addModifiers(Modifier.PUBLIC)
             .addParameter(string, "line")
-            .addParameter(TypeName.BOOLEAN, "isAdd")
-            .addCode(
-                """
-                if (isAdd) 
-                    param.addHeader(line);
-                return self();
-                """.trimIndent()
-            )
+            .addParameter(TypeName.BOOLEAN, "add")
+            .addStatement("if (add) param.addHeader(line)")
+            .addStatement("return self()")
             .returns(typeVariableR)
             .build()
             .apply { methodList.add(this) }
@@ -383,14 +423,9 @@ class RxHttpGenerator {
             .addModifiers(Modifier.PUBLIC)
             .addParameter(string, "key")
             .addParameter(string, "value")
-            .addParameter(TypeName.BOOLEAN, "isAdd")
-            .addCode(
-                """
-                if (isAdd)
-                    param.addHeader(key, value);
-                return self();
-                """.trimIndent()
-            )
+            .addParameter(TypeName.BOOLEAN, "add")
+            .addStatement("if (add) param.addHeader(key, value)")
+            .addStatement("return self()")
             .returns(typeVariableR)
             .build()
             .apply { methodList.add(this) }

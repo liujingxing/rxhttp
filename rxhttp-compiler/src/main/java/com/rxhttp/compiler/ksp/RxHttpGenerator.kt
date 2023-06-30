@@ -366,19 +366,27 @@ class RxHttpGenerator(
             .build()
             .let { methodList.add(it) }
 
+        val isAddParam = ParameterSpec.builder("add", BOOLEAN)
+            .defaultValue("true")
+            .build()
+
         FunSpec.builder("setQuery")
+            .jvmOverloads()
             .addParameter("key", STRING)
             .addParameter("value", ANY, true)
-            .addStatement("param.setQuery(key, value)")
+            .addParameter(isAddParam)
+            .addStatement("if (add) param.setQuery(key, value)")
             .addStatement("return self()")
             .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
 
         FunSpec.builder("setEncodedQuery")
+            .jvmOverloads()
             .addParameter("key", STRING)
             .addParameter("value", ANY, true)
-            .addStatement("param.setEncodedQuery(key, value)")
+            .addParameter(isAddParam)
+            .addStatement("if (add) param.setEncodedQuery(key, value)")
             .addStatement("return self()")
             .returns(typeVariableR)
             .build()
@@ -409,18 +417,22 @@ class RxHttpGenerator(
             .let { methodList.add(it) }
 
         FunSpec.builder("addQuery")
+            .jvmOverloads()
             .addParameter("key", STRING)
             .addParameter("value", ANY, true)
-            .addStatement("param.addQuery(key, value)")
+            .addParameter(isAddParam)
+            .addStatement("if (add) param.addQuery(key, value)")
             .addStatement("return self()")
             .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
 
         FunSpec.builder("addEncodedQuery")
+            .jvmOverloads()
             .addParameter("key", STRING)
             .addParameter("value", ANY, true)
-            .addStatement("param.addEncodedQuery(key, value)")
+            .addParameter(isAddParam)
+            .addStatement("if (add) param.addEncodedQuery(key, value)")
             .addStatement("return self()")
             .returns(typeVariableR)
             .build()
@@ -460,19 +472,12 @@ class RxHttpGenerator(
             .build()
             .let { methodList.add(it) }
 
-        val isAddParam = ParameterSpec.builder("isAdd", BOOLEAN)
-            .defaultValue("true")
-            .build()
         FunSpec.builder("addHeader")
             .jvmOverloads()
             .addParameter("line", STRING)
             .addParameter(isAddParam)
-            .addCode(
-                """
-                if (isAdd) param.addHeader(line)
-                return self()
-                """.trimIndent()
-            )
+            .addStatement("if (add) param.addHeader(line)")
+            .addStatement("return self()")
             .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }
@@ -502,12 +507,8 @@ class RxHttpGenerator(
             .addParameter("key", STRING)
             .addParameter("value", STRING)
             .addParameter(isAddParam)
-            .addCode(
-                """
-                if (isAdd) param.addHeader(key, value)
-                return self()
-                """.trimIndent()
-            )
+            .addStatement("if (add) param.addHeader(key, value)")
+            .addStatement("return self()")
             .returns(typeVariableR)
             .build()
             .let { methodList.add(it) }

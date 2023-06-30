@@ -54,12 +54,12 @@ ksp {
 //        arg("rxhttp_package", "rxhttp")
 }
 
-//kapt {
-//    arguments {
-//        arg("rxhttp_rxjava", rxjava_version) //可传入rxjava2、rxjava3或具体版本号，如 3.1.1
-////            arg("rxhttp_package", "rxhttp") //设置RxHttp相关类的包名，多module依赖时，需要配置不同的包名
-//    }
-//}
+kapt {
+    arguments {
+        arg("rxhttp_rxjava", rxjava_version) //可传入rxjava2、rxjava3或具体版本号，如 3.1.1
+//            arg("rxhttp_package", "rxhttp") //设置RxHttp相关类的包名，多module依赖时，需要配置不同的包名
+    }
+}
 
 
 //configurations.all {
