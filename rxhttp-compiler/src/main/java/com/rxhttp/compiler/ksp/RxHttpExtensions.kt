@@ -6,7 +6,6 @@ import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.rxhttp.compiler.common.flapTypeParameterSpecTypes
-import com.rxhttp.compiler.common.generateToFlowXxxFun
 import com.rxhttp.compiler.common.getRxHttpExtensionFileSpec
 import com.rxhttp.compiler.common.getTypeOfString
 import com.rxhttp.compiler.common.getTypeVariableString
@@ -16,11 +15,11 @@ import com.rxhttp.compiler.isDependenceRxJava
 import com.rxhttp.compiler.rxHttpPackage
 import com.rxhttp.compiler.rxhttpKClass
 import com.squareup.kotlinpoet.ClassName
-import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.MemberName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.TypeVariableName
 import com.squareup.kotlinpoet.ksp.addOriginatingKSFile
 import com.squareup.kotlinpoet.ksp.kspDependencies
@@ -86,6 +85,7 @@ class RxHttpExtensions(private val logger: KSPLogger) {
                 val toObservableXxxFunName = "toObservable$key"
                 val toObservableXxxFunBody = "return $toObservableXxxFunName$types($finalParams)"
                 FunSpec.builder(toObservableXxxFunName)
+                    .addOriginatingKSFile(ksClass.containingFile!!)
                     .addModifiers(modifiers)
                     .receiver(baseRxHttpName)
                     .addParameters(parameterList)
@@ -96,11 +96,13 @@ class RxHttpExtensions(private val logger: KSPLogger) {
                     .apply { toObservableXxxFunList.add(this) }
             }
 
-            val wrapCustomParser =
-                MemberName(rxHttpPackage, "BaseRxHttp.wrap${customParser.simpleName}")
-            val toAwaitXxxFunBody =
+            val funBody: String
+            val argType: TypeName =
                 if (typeCount == 1 && onParserFunReturnType is TypeVariableName) {
-                    CodeBlock.of("return toAwait(%M$types($finalParams))", wrapCustomParser)
+                    val baseRxHttp = ClassName(rxHttpPackage, "BaseRxHttp")
+                    val wrapFun = "%T.wrap${customParser.simpleName}"
+                    funBody = "return %M($wrapFun$types($finalParams))"
+                    baseRxHttp
                 } else {
                     var params = finalParams
                     if (typeOfs.isNotEmpty() &&
@@ -109,20 +111,33 @@ class RxHttpExtensions(private val logger: KSPLogger) {
                     ) {
                         params = params.replace(typeOfs, "arrayOf($typeOfs)")
                     }
-                    CodeBlock.of("return toAwait(%T$types($params))", customParser)
+                    funBody = "return %M(%T$types($params))"
+                    customParser
                 }
-
-            val toAwaitXxxFun = FunSpec.builder("toAwait$key")
+            val toAwait = MemberName("rxhttp", "toAwait")
+            FunSpec.builder("toAwait$key")
                 .addOriginatingKSFile(ksClass.containingFile!!)
                 .addModifiers(modifiers)
                 .receiver(callFactoryName)
                 .addParameters(parameterList)
-                .addCode(toAwaitXxxFunBody)  //方法里面的表达式
                 .addTypeVariables(typeVariableNames)
+                .addCode(funBody, toAwait, argType)
                 .returns(awaitName.parameterizedBy(onParserFunReturnType))
                 .build()
-            toAwaitXxxFunList.add(toAwaitXxxFun)
-            toFlowXxxFunList.addAll(toAwaitXxxFun.generateToFlowXxxFun())
+                .apply { toAwaitXxxFunList.add(this) }
+
+            val callFlow = ClassName("rxhttp", "CallFlow")
+            val toFlow = MemberName("rxhttp", "toFlow")
+            FunSpec.builder("toFlow$key")
+                .addOriginatingKSFile(ksClass.containingFile!!)
+                .addModifiers(modifiers)
+                .receiver(callFactoryName)
+                .addParameters(parameterList)
+                .addTypeVariables(typeVariableNames)
+                .addCode(funBody, toFlow, argType)
+                .returns(callFlow.parameterizedBy(onParserFunReturnType))
+                .build()
+                .apply { toFlowXxxFunList.add(this) }
         }
     }
 

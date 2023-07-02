@@ -1,7 +1,6 @@
 package com.rxhttp.compiler.kapt
 
 import com.rxhttp.compiler.common.flapTypeParameterSpecTypes
-import com.rxhttp.compiler.common.generateToFlowXxxFun
 import com.rxhttp.compiler.common.getRxHttpExtensionFileSpec
 import com.rxhttp.compiler.common.getTypeOfString
 import com.rxhttp.compiler.common.getTypeVariableString
@@ -17,7 +16,6 @@ import com.squareup.kotlinpoet.BYTE_ARRAY
 import com.squareup.kotlinpoet.CHAR
 import com.squareup.kotlinpoet.CHAR_ARRAY
 import com.squareup.kotlinpoet.ClassName
-import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.DOUBLE
 import com.squareup.kotlinpoet.DOUBLE_ARRAY
 import com.squareup.kotlinpoet.FLOAT
@@ -34,6 +32,7 @@ import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.SHORT
 import com.squareup.kotlinpoet.SHORT_ARRAY
+import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.TypeVariableName
 import com.squareup.kotlinpoet.U_BYTE_ARRAY
 import com.squareup.kotlinpoet.U_INT_ARRAY
@@ -141,11 +140,13 @@ class RxHttpExtensions {
                     .apply { toObservableXxxFunList.add(this) }
             }
 
-            val wrapCustomParser =
-                MemberName(rxHttpPackage, "BaseRxHttp.wrap${customParser.simpleName}")
-            val toAwaitXxxFunBody =
+            val funBody: String
+            val argType: TypeName =
                 if (typeCount == 1 && onParserFunReturnType is TypeVariableName) {
-                    CodeBlock.of("return toAwait(%M$types($finalParams))", wrapCustomParser)
+                    val baseRxHttp = ClassName(rxHttpPackage, "BaseRxHttp")
+                    val wrapFun = "%T.wrap${customParser.simpleName}"
+                    funBody = "return %M($wrapFun$types($finalParams))"
+                    baseRxHttp
                 } else {
                     var params = finalParams
                     if (typeOfs.isNotEmpty() &&
@@ -154,20 +155,31 @@ class RxHttpExtensions {
                     ) {
                         params = params.replace(typeOfs, "arrayOf($typeOfs)")
                     }
-                    CodeBlock.of("return toAwait(%T$types($params))", customParser)
+                    funBody = "return %M(%T$types($params))"
+                    customParser
                 }
-
-            val toAwaitXxxFun = FunSpec.builder("toAwait$key")
+            val toAwait = MemberName("rxhttp", "toAwait")
+            FunSpec.builder("toAwait$key")
                 .addModifiers(modifiers)
                 .receiver(callFactoryName)
                 .addParameters(parameterList)
-                .addCode(toAwaitXxxFunBody)  //方法里面的表达式
                 .addTypeVariables(typeVariableNames)
+                .addCode(funBody, toAwait, argType)
                 .returns(awaitName.parameterizedBy(onParserFunReturnType))
                 .build()
+                .apply { toAwaitXxxFunList.add(this) }
 
-            toAwaitXxxFunList.add(toAwaitXxxFun)
-            toFlowXxxFunList.addAll(toAwaitXxxFun.generateToFlowXxxFun())
+            val callFlow = ClassName("rxhttp", "CallFlow")
+            val toFlow = MemberName("rxhttp", "toFlow")
+            FunSpec.builder("toFlow$key")
+                .addModifiers(modifiers)
+                .receiver(callFactoryName)
+                .addParameters(parameterList)
+                .addTypeVariables(typeVariableNames)
+                .addCode(funBody, toFlow, argType)
+                .returns(callFlow.parameterizedBy(onParserFunReturnType))
+                .build()
+                .apply { toFlowXxxFunList.add(this) }
         }
     }
 

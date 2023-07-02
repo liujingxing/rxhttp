@@ -161,7 +161,8 @@ class AwaitFragment : BaseFragment<AwaitFragmentBinding>(), View.OnClickListener
     private suspend fun AwaitFragmentBinding.upload(v: View) {
         RxHttp.postForm(Url.UPLOAD_URL)
             .addFile("file", File("xxxx/1.png"))
-            .toFlow<String> {
+            .toFlow<String>()
+            .onProgress {
                 //上传进度回调,0-100，仅在进度有更新时才会回调
                 val currentProgress = it.progress //当前进度 0-100
                 val currentSize = it.currentSize  //当前已上传的字节大小
@@ -188,7 +189,8 @@ class AwaitFragment : BaseFragment<AwaitFragmentBinding>(), View.OnClickListener
         val uri = Uri.parse("content://media/external/downloads/13417")
         RxHttp.postForm(Url.UPLOAD_URL)
             .addPart(requireContext(), "file", uri)
-            .toFlow<String> {
+            .toFlow<String>()
+            .onProgress {
                 //上传进度回调,0-100，仅在进度有更新时才会回调
                 val currentProgress = it.progress //当前进度 0-100
                 val currentSize = it.currentSize //当前已上传的字节大小
@@ -209,20 +211,20 @@ class AwaitFragment : BaseFragment<AwaitFragmentBinding>(), View.OnClickListener
      * 如不需要监听下载进度，toDownload 方法不要传进度回调即可
      */
     private suspend fun AwaitFragmentBinding.download(view: View) {
-        val destPath = "${requireContext().externalCacheDir}/${System.currentTimeMillis()}.apk"
-        RxHttp.get(Url.DOWNLOAD_URL)
-            .toDownloadAwait(destPath) {
-                val currentProgress = it.progress //当前进度 0-100
-                val currentSize = it.currentSize //当前已下载的字节大小
-                val totalSize = it.totalSize //要下载的总字节大小
-                tvResult.append(it.toString())
-            }.awaitResult {
-                tvResult.append("\n下载完成, $it")
-            }.onFailure {
-                //异常回调
-                tvResult.append("\n${it.errorMsg}")
-                it.show()
-            }
+//        val destPath = "${requireContext().externalCacheDir}/${System.currentTimeMillis()}.apk"
+//        RxHttp.get(Url.DOWNLOAD_URL)
+//            .toDownloadAwait(destPath) {
+//                val currentProgress = it.progress //当前进度 0-100
+//                val currentSize = it.currentSize //当前已下载的字节大小
+//                val totalSize = it.totalSize //要下载的总字节大小
+//                tvResult.append(it.toString())
+//            }.awaitResult {
+//                tvResult.append("\n下载完成, $it")
+//            }.onFailure {
+//                //异常回调
+//                tvResult.append("\n${it.errorMsg}")
+//                it.show()
+//            }
     }
 
     /**
@@ -231,20 +233,20 @@ class AwaitFragment : BaseFragment<AwaitFragmentBinding>(), View.OnClickListener
      * 如不需要监听下载进度，toDownload 方法不要传进度回调即可
      */
     private suspend fun AwaitFragmentBinding.appendDownload(view: View) {
-        val destPath = "${requireContext().externalCacheDir}/Miaobo.apk"
-        RxHttp.get(Url.DOWNLOAD_URL)
-            .toDownloadAwait(destPath, true) {
-                val currentProgress = it.progress //当前进度 0-100
-                val currentSize = it.currentSize //当前已下载的字节大小
-                val totalSize = it.totalSize //要下载的总字节大小
-                tvResult.append(it.toString())
-            }.awaitResult {
-                tvResult.append("\n下载完成, $it")
-            }.onFailure {
-                //异常回调
-                tvResult.append("\n${it.errorMsg}")
-                it.show()
-            }
+//        val destPath = "${requireContext().externalCacheDir}/Miaobo.apk"
+//        RxHttp.get(Url.DOWNLOAD_URL)
+//            .toDownloadAwait(destPath, true) {
+//                val currentProgress = it.progress //当前进度 0-100
+//                val currentSize = it.currentSize //当前已下载的字节大小
+//                val totalSize = it.totalSize //要下载的总字节大小
+//                tvResult.append(it.toString())
+//            }.awaitResult {
+//                tvResult.append("\n下载完成, $it")
+//            }.onFailure {
+//                //异常回调
+//                tvResult.append("\n${it.errorMsg}")
+//                it.show()
+//            }
     }
 
     /**
@@ -252,20 +254,20 @@ class AwaitFragment : BaseFragment<AwaitFragmentBinding>(), View.OnClickListener
      * 如不需要监听下载进度，toDownload 方法不要传进度回调即可
      */
     private suspend fun AwaitFragmentBinding.downloadAndroid10(view: View) {
-        val factory = Android10DownloadFactory(requireContext(), "miaobo.apk")
-        RxHttp.get(Url.DOWNLOAD_URL)
-            .toDownloadAwait(factory) {
-                val currentProgress = it.progress //当前进度 0-100
-                val currentSize = it.currentSize //当前已下载的字节大小
-                val totalSize = it.totalSize //要下载的总字节大小
-                tvResult.append(it.toString())
-            }.awaitResult {
-                tvResult.append("\n下载完成, $it")
-            }.onFailure {
-                //异常回调
-                tvResult.append("\n${it.errorMsg}")
-                it.show()
-            }
+//        val factory = Android10DownloadFactory(requireContext(), "miaobo.apk")
+//        RxHttp.get(Url.DOWNLOAD_URL)
+//            .toDownloadAwait(factory) {
+//                val currentProgress = it.progress //当前进度 0-100
+//                val currentSize = it.currentSize //当前已下载的字节大小
+//                val totalSize = it.totalSize //要下载的总字节大小
+//                tvResult.append(it.toString())
+//            }.awaitResult {
+//                tvResult.append("\n下载完成, $it")
+//            }.onFailure {
+//                //异常回调
+//                tvResult.append("\n${it.errorMsg}")
+//                it.show()
+//            }
     }
 
     /**
@@ -273,20 +275,20 @@ class AwaitFragment : BaseFragment<AwaitFragmentBinding>(), View.OnClickListener
      * 如不需要监听下载进度，toDownload 方法不要传进度回调即可
      */
     private suspend fun AwaitFragmentBinding.appendDownloadAndroid10(view: View) {
-        val factory = Android10DownloadFactory(requireContext(), "miaobo.apk")
-        RxHttp.get(Url.DOWNLOAD_URL)
-            .toDownloadAwait(factory, true) {
-                val currentProgress = it.progress //当前进度 0-100
-                val currentSize = it.currentSize //当前已下载的字节大小
-                val totalSize = it.totalSize //要下载的总字节大小
-                tvResult.append(it.toString())
-            }.awaitResult {
-                tvResult.append("\n下载完成, $it")
-            }.onFailure {
-                //异常回调
-                tvResult.append("\n${it.errorMsg}")
-                it.show()
-            }
+//        val factory = Android10DownloadFactory(requireContext(), "miaobo.apk")
+//        RxHttp.get(Url.DOWNLOAD_URL)
+//            .toDownloadAwait(factory, true) {
+//                val currentProgress = it.progress //当前进度 0-100
+//                val currentSize = it.currentSize //当前已下载的字节大小
+//                val totalSize = it.totalSize //要下载的总字节大小
+//                tvResult.append(it.toString())
+//            }.awaitResult {
+//                tvResult.append("\n下载完成, $it")
+//            }.onFailure {
+//                //异常回调
+//                tvResult.append("\n${it.errorMsg}")
+//                it.show()
+//            }
     }
 
 

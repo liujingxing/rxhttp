@@ -43,7 +43,6 @@ fun getRxHttpExtensionFileSpec(
 
     val fileSpecBuilder = FileSpec.builder(rxHttpPackage, "RxHttpExtension")
         .addImport("rxhttp.wrapper.utils", "javaTypeOf")
-        .addImport("rxhttp", "toAwait")
 
     FunSpec.builder("executeList")
         .addModifiers(KModifier.INLINE)

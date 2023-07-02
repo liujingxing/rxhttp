@@ -2,14 +2,16 @@ package rxhttp
 
 import android.content.Context
 import android.net.Uri
-import kotlinx.coroutines.flow.Flow
 import rxhttp.wrapper.CallFactory
+import rxhttp.wrapper.ITag
+import rxhttp.wrapper.callback.FileOutputStreamFactory
 import rxhttp.wrapper.callback.OutputStreamFactory
+import rxhttp.wrapper.callback.UriOutputStreamFactory
 import rxhttp.wrapper.coroutines.Await
 import rxhttp.wrapper.coroutines.AwaitImpl
-import rxhttp.wrapper.entity.Progress
 import rxhttp.wrapper.parse.Parser
 import rxhttp.wrapper.parse.SmartParser
+import rxhttp.wrapper.parse.StreamParser
 import rxhttp.wrapper.utils.javaTypeOf
 
 /**
@@ -27,36 +29,39 @@ inline fun <reified T> CallFactory.toAwaitList(): Await<MutableList<T>> = toAwai
 
 inline fun <reified V> CallFactory.toAwaitMapString(): Await<Map<String, V>> = toAwait()
 
+
+
+fun <T> CallFactory.toFlow(parser: Parser<T>): CallFlow<T> = CallFlow(this, parser)
+
+inline fun <reified T> CallFactory.toFlow(): CallFlow<T> = toFlow(SmartParser.wrap(javaTypeOf<T>()))
+
+fun CallFactory.toFlowString(): CallFlow<String> = toFlow()
+
+inline fun <reified T> CallFactory.toFlowList(): CallFlow<List<T>> = toFlow()
+
+inline fun <reified V> CallFactory.toFlowMapString(): CallFlow<Map<String, V>> = toFlow()
+
 /**
  * @param destPath Local storage path
  * @param append is append download
- * @param capacity capacity of the buffer between coroutines
- * @param progress Progress callback in suspend method, The callback thread depends on the coroutine thread
  */
-fun CallFactory.toDownloadAwait(
+fun CallFactory.toDownloadFlow(
     destPath: String,
     append: Boolean = false,
-    capacity: Int = 2,
-    progress: (suspend (Progress) -> Unit)? = null
-): Await<String> = toDownloadFlow(destPath, append, capacity, progress).toAwait()
+): CallFlow<String> = toDownloadFlow(FileOutputStreamFactory(destPath), append)
 
-fun CallFactory.toDownloadAwait(
+fun CallFactory.toDownloadFlow(
     context: Context,
     uri: Uri,
     append: Boolean = false,
-    capacity: Int = 2,
-    progress: (suspend (Progress) -> Unit)? = null
-): Await<Uri> = toDownloadFlow(context, uri, append, capacity, progress).toAwait()
+): CallFlow<Uri> = toDownloadFlow(UriOutputStreamFactory(context, uri), append)
 
-fun <T> CallFactory.toDownloadAwait(
+fun <T> CallFactory.toDownloadFlow(
     osFactory: OutputStreamFactory<T>,
     append: Boolean = false,
-    capacity: Int = 2,
-    progress: (suspend (Progress) -> Unit)? = null
-): Await<T> = toDownloadFlow(osFactory, append, capacity, progress).toAwait()
-
-private fun <T> Flow<T>.toAwait(): Await<T> = newAwait {
-    var t: T? = null
-    collect { t = it }
-    t!!
+): CallFlow<T> {
+    if (append && this is ITag) {
+        tag(OutputStreamFactory::class.java, osFactory)
+    }
+    return toFlow(StreamParser(osFactory))
 }

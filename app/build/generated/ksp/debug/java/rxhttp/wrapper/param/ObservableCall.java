@@ -98,7 +98,7 @@ public final class ObservableCall<T> extends Observable<T> {
         }
         Objects.requireNonNull(scheduler, "scheduler is null");
         if (!(parser instanceof StreamParser) && !(callFactory instanceof BodyParamFactory)) {
-            throw new UnsupportedOperationException("parser is " + parser.getClass().getSimpleName() + ", callFactory is " + callFactory.getClass().getSimpleName());
+            throw new UnsupportedOperationException("parser is " + parser.getClass().getName() + ", callFactory is " + callFactory.getClass().getName());
         }
         callbackProgress = true;
         return new ObservableProgress<>(this, capacity, scheduler, progressConsumer);
