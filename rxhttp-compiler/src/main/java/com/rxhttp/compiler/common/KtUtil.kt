@@ -177,8 +177,8 @@ fun List<ParameterSpec>.flapTypeParameterSpecTypes(
         if (index == 0 && typeVariableNames.isNotEmpty() &&
             (parameterSpec.isArrayType() || parameterSpec.isVarargType())
         ) {
-            typeVariableNames.mapTo(parameterSpecs) { typeVariableName ->
-                val variableName = "${typeVariableName.name.lowercase(Locale.getDefault())}Type"
+            typeVariableNames.mapTo(parameterSpecs) {
+                val variableName = "${it.name.lowercase(Locale.getDefault())}Type"
                 ParameterSpec.builder(variableName, K_TYPE).build()
             }
         } else {

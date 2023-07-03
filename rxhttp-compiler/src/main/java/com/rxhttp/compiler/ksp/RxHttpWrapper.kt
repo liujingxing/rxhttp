@@ -8,6 +8,7 @@ import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFile
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
+import com.rxhttp.compiler.common.toParamNames
 import com.rxhttp.compiler.rxHttpPackage
 import com.rxhttp.compiler.rxhttpKClass
 import com.squareup.kotlinpoet.ANY
@@ -15,7 +16,6 @@ import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
-import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.STRING
 import com.squareup.kotlinpoet.TypeSpec
@@ -134,7 +134,7 @@ class RxHttpWrapper(private val logger: KSPLogger) {
             val typeVariable = TypeVariableName("R", rxHttpName)
             val funList = ArrayList<FunSpec>()
             FunSpec.builder("wrapper")
-                .addKdoc("本类所有方法都会调用本方法\n")
+                .addKdoc("本类所有方法都会调用本方法")
                 .addModifiers(KModifier.PRIVATE)
                 .receiver(typeVariable)
                 .addTypeVariable(typeVariable)
@@ -207,7 +207,7 @@ class RxHttpWrapper(private val logger: KSPLogger) {
 
             val rxHttpName = "RxHttp${ksClass.simpleName.asString()}"
             val rxHttpParamName = rxhttpKClass.peerClass(rxHttpName)
-            val methodReturnType = if (rxHttpTypeNames.isNotEmpty()) {
+            val funReturnType = if (rxHttpTypeNames.isNotEmpty()) {
                 rxHttpParamName.parameterizedBy(*rxHttpTypeNames.toTypedArray())
             } else {
                 rxHttpParamName
@@ -215,34 +215,24 @@ class RxHttpWrapper(private val logger: KSPLogger) {
 
             val classTypeParams = ksClass.typeParameters.toTypeParameterResolver()
             //遍历public构造方法
-            ksClass.getPublicConstructors().forEach {
-                val parameterSpecs = mutableListOf<ParameterSpec>() //构造方法参数
-                val funBody = StringBuilder("return RxHttp.$key(") //方法体
-                val functionTypeParams =
-                    it.typeParameters.toTypeParameterResolver(classTypeParams)
-                it.parameters.forEachIndexed { index, element ->
-                    val parameterSpec = element.toKParameterSpec(functionTypeParams)
-                    parameterSpecs.add(parameterSpec)
-                    if (index > 0) {
-                        funBody.append(", ")
-                    }
-                    funBody.append(parameterSpec.name)
+            ksClass.getPublicConstructors().forEach { function ->
+                val functionTypeParams = function.typeParameters
+                    .toTypeParameterResolver(classTypeParams)
+                //构造方法参数
+                val parameterSpecs = function.parameters
+                    .mapTo(ArrayList()) { it.toKParameterSpec(functionTypeParams) }
+                if (parameterSpecs.firstOrNull()?.type == STRING) {
+                    parameterSpecs.add(newParameterSpec("formatArgs", ANY, true, KModifier.VARARG))
                 }
-                if (STRING == parameterSpecs.firstOrNull()?.type) {
-                    funBody.append(", *formatArgs")
-                }
-                funBody.append(").wrapper()")
-
-                val funSpecBuilder = FunSpec.builder(key)
+                val prefix = "return RxHttp.$key("
+                val postfix = ").wrapper()"
+                val funBody = parameterSpecs.toParamNames(prefix, postfix)
+                FunSpec.builder(key)
                     .jvmStatic()
                     .addParameters(parameterSpecs)
                     .addTypeVariables(rxHttpTypeNames)
-                    .returns(methodReturnType)
-
-                if (STRING == parameterSpecs.firstOrNull()?.type) {
-                    funSpecBuilder.addParameter("formatArgs", ANY, true, KModifier.VARARG)
-                }
-                funSpecBuilder.addStatement(funBody.toString())
+                    .addStatement(funBody)
+                    .returns(funReturnType)
                     .build()
                     .apply { funList.add(this) }
             }

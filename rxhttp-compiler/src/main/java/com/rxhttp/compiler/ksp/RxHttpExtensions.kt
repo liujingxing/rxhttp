@@ -78,11 +78,9 @@ class RxHttpExtensions(private val logger: KSPLogger) {
             val types = typeVariableNames.getTypeVariableString() // <T>, <K, V> 等
             val typeOfs = typeVariableNames.getTypeOfString()  // javaTypeOf<T>()等
             val paramNames = parameterList.toParamNames()  //构造方法参数名列表
-            val finalParams = when {
-                typeOfs.isEmpty() -> paramNames
-                paramNames.isEmpty() -> typeOfs
-                else -> "$typeOfs, $paramNames"
-            }
+            val finalParams = listOf(typeOfs, paramNames)
+                .filter { it.isNotEmpty() }
+                .joinToString()
 
             if (typeVariableNames.isNotEmpty() && isDependenceRxJava()) {  //对声明了泛型的解析器，生成kotlin编写的toObservableXxx方法
                 val toObservableXxxFunName = "toObservable$key"

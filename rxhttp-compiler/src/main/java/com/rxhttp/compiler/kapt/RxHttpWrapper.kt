@@ -7,6 +7,7 @@ import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.JavaFile
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterSpec
+import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
 import com.squareup.javapoet.TypeVariableName
 import rxhttp.wrapper.annotation.Converter
@@ -102,23 +103,24 @@ class RxHttpWrapper(private val logger: Messager) {
         //生成多个RxHttp的包装类
         classMap.forEach { (className, wrapper) ->
             val funBody = CodeBlock.builder()
-            if (wrapper.converterName != null) {
-                funBody.addStatement("rxHttp.set${wrapper.converterName}()")
+            wrapper.converterName?.let {
+                funBody.addStatement("rxHttp.set$it()")
             }
-            if (wrapper.okClientName != null) {
-                funBody.addStatement("rxHttp.set${wrapper.okClientName}()")
+            wrapper.okClientName?.let {
+                funBody.addStatement("rxHttp.set$it()")
             }
-            if (wrapper.domainName != null) {
-                funBody.addStatement("rxHttp.setDomainTo${wrapper.domainName}IfAbsent()")
+            wrapper.domainName?.let {
+                funBody.addStatement("rxHttp.setDomainTo${it}IfAbsent()")
             }
             val methodList = ArrayList<MethodSpec>()
             MethodSpec.methodBuilder("wrapper")
-                .addJavadoc("本类所有方法都会调用本方法\n")
+                .addJavadoc("本类所有方法都会调用本方法")
                 .addTypeVariable(typeVariableR)
                 .addModifiers(Modifier.PRIVATE, Modifier.STATIC)
                 .addParameter(typeVariableR, "rxHttp")
                 .addCode(funBody.build())
-                .returns(Void.TYPE)
+                .addStatement("return rxHttp")
+                .returns(typeVariableR)
                 .build()
                 .apply { methodList.add(this) }
             methodList.addAll(requestFunList)
@@ -145,6 +147,7 @@ class RxHttpWrapper(private val logger: Messager) {
 
 
     private fun generateRequestFunList(): ArrayList<MethodSpec> {
+        val arrayObject = ArrayTypeName.of(TypeName.OBJECT)
         val methodList = ArrayList<MethodSpec>() //方法集合
         val methodMap = LinkedHashMap<String, String>()
         methodMap["get"] = "RxHttpNoBodyParam"
@@ -169,12 +172,10 @@ class RxHttpWrapper(private val logger: Messager) {
             val returnType = rxhttpClass.peerClass(value)
             MethodSpec.methodBuilder(key)
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                .addParameter(String::class.java, "url")
-                .addParameter(ArrayTypeName.of(Any::class.java), "formatArgs")
+                .addParameter(STRING, "url")
+                .addParameter(arrayObject, "formatArgs")
                 .varargs()
-                .addStatement("\$T rxHttp = RxHttp.${key}(url, formatArgs)", returnType)
-                .addStatement("wrapper(rxHttp)")
-                .addStatement("return rxHttp")
+                .addStatement("return wrapper(RxHttp.${key}(url, formatArgs))")
                 .returns(returnType)
                 .build().apply { methodList.add(this) }
         }
@@ -192,35 +193,23 @@ class RxHttpWrapper(private val logger: Messager) {
             }
 
             //遍历public构造方法
-            getConstructorFun(typeElement).forEach {
-                val parameterSpecs = mutableListOf<ParameterSpec>() //构造方法参数
-                val methodBody = StringBuilder("\$T rxHttp = RxHttp.$key(") //方法体
-                it.parameters.forEachIndexed { index, element ->
-                    val parameterSpec = ParameterSpec.get(element)
-                    parameterSpecs.add(parameterSpec)
-                    if (index > 0) {
-                        methodBody.append(", ")
-                    }
-                    methodBody.append(parameterSpec.name)
+            getConstructorFun(typeElement).forEach { element ->
+                //构造方法参数
+                val parameterSpecs = element.parameters.mapTo(ArrayList()) { ParameterSpec.get(it) }
+                val firstParamIsStringType = parameterSpecs.firstOrNull()?.type == STRING
+                if (firstParamIsStringType) {
+                    parameterSpecs.add(ParameterSpec.builder(arrayObject, "formatArgs").build())
                 }
-                if (parameterSpecs.firstOrNull()?.type.toString() == "java.lang.String") {
-                    methodBody.append(", formatArgs")
-                }
-                methodBody.append(")")
-
-                val methodSpec = MethodSpec.methodBuilder(key)
+                val prefix = "return wrapper(RxHttp.$key("
+                val postfix = "))"
+                val methodBody = parameterSpecs.toParamNames(prefix, postfix)
+                MethodSpec.methodBuilder(key)
                     .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                    .addParameters(parameterSpecs)
                     .addTypeVariables(rxHttpTypeNames)
+                    .addParameters(parameterSpecs)
+                    .varargs(firstParamIsStringType)
+                    .addStatement(methodBody)
                     .returns(methodReturnType)
-
-                if (parameterSpecs.firstOrNull()?.type.toString() == "java.lang.String") {
-                    methodSpec.addParameter(ArrayTypeName.of(Any::class.java), "formatArgs")
-                        .varargs()
-                }
-                methodSpec.addStatement(methodBody.toString(), rxHttpParamName)
-                    .addStatement("wrapper(rxHttp)")
-                    .addStatement("return rxHttp")
                     .build()
                     .apply { methodList.add(this) }
             }

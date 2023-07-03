@@ -147,7 +147,7 @@ fun KSFunctionDeclaration.isValid(typeCount: Int): Boolean {
     //4、构造方法参数数量小于泛型数量，无效
     if (parameters.size < typeCount) return false
     //5、构造方法前n个参数，皆为Type类型，有效  n为泛型数量
-    return parameters.subList(0, typeCount).all { K_TYPE == it.type.toTypeName() }
+    return parameters.take(typeCount).all { K_TYPE == it.type.toTypeName() }
 }
 
 //获取onParser方法返回类型
@@ -188,6 +188,13 @@ internal fun FunSpec.Builder.addParameter(
     nullable: Boolean = false,
     vararg modifiers: KModifier
 ) = addParameter(name, typeName.copy(nullable), *modifiers)
+
+fun newParameterSpec(
+    name: String,
+    typeName: TypeName,
+    nullable: Boolean = false,
+    vararg modifiers: KModifier
+) = ParameterSpec.builder(name, typeName.copy(nullable), *modifiers).build()
 
 internal fun KSPropertyDeclaration.toMemberName(): MemberName {
     val className = (parent as? KSClassDeclaration)?.toClassName()

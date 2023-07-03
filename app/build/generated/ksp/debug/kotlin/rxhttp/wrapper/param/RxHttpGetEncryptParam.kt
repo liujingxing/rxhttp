@@ -22,7 +22,7 @@ public class RxHttpGetEncryptParam : RxHttpNoBodyParam {
     IOException::class,
     IllegalArgumentException::class,
   )
-  public fun <T : Point, R : CharSequence> test(
+  public final fun <T : Point, R : CharSequence> test(
     a: MutableList<R>,
     map: MutableMap<T, R>,
     vararg b: Array<T>,

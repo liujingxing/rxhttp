@@ -19,7 +19,7 @@ public @interface Parser {
      * 1、解析器onParse方法返回类型泛型数量有且仅有1个
      * 2、项目有依赖RxJava
      * <p>
-     * 生效后，仅会在RxHttp类下生成toObservableXxx方法
+     * 生效后，仅会在BaseRxHttp类下生成toObservableXxx方法
      *
      * @return Class数组
      */

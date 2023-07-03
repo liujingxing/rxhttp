@@ -16,15 +16,11 @@ import javax.lang.model.type.TypeKind
 import javax.lang.model.util.Types
 import javax.tools.Diagnostic.Kind
 
-
-fun List<ParameterSpec>.toParamNames(): String {
-    val paramNames = StringBuilder()
-    forEachIndexed { index, parameterSpec ->
-        if (index > 0) paramNames.append(", ")
-        paramNames.append(parameterSpec.name)
-    }
-    return paramNames.toString()
-}
+val STRING: TypeName = ClassName.get(String::class.java)
+fun List<ParameterSpec>.toParamNames(
+    prefix: CharSequence = "",
+    postfix: CharSequence = ""
+): String = joinToString(", ", prefix, postfix) { it.name }
 
 
 //判断解析器构造方法是否有效
@@ -45,7 +41,7 @@ fun ExecutableElement.isValid(typeCount: Int): Boolean {
     //4、构造方法参数数量小于泛型数量，无效
     if (parameters.size < typeCount) return false
     //5、构造方法前n个参数，皆为Type类型，有效  n为泛型数量
-    return parameters.subList(0, typeCount).all { J_TYPE == TypeName.get(it.asType()) }
+    return parameters.take(typeCount).all { J_TYPE == TypeName.get(it.asType()) }
 }
 
 //获取onParser方法返回类型

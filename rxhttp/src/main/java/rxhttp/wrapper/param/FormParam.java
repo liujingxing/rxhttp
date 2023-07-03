@@ -60,14 +60,7 @@ public class FormParam extends AbstractBodyParam<FormParam> implements IPart<For
     }
 
     public FormParam removeAllBody(String key) {
-        final List<KeyValuePair> bodyParam = this.bodyParam;
-        if (bodyParam == null) return this;
-        Iterator<KeyValuePair> iterator = bodyParam.iterator();
-        while (iterator.hasNext()) {
-            KeyValuePair next = iterator.next();
-            if (next.getKey().equals(key))
-                iterator.remove();
-        }
+        remove(bodyParam, key);
         return this;
     }
 

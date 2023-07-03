@@ -231,15 +231,18 @@ public abstract class AbstractParam<P extends Param<P>> extends Param<P> {
 
     @Override
     public P removeAllQuery(String key) {
-        final List<KeyValuePair> queryParam = this.queryParam;
-        if (queryParam == null) return self();
-        Iterator<KeyValuePair> iterator = queryParam.iterator();
+        remove(queryParam, key);
+        return self();
+    }
+
+    void remove(List<KeyValuePair> list, String key) {
+        if (list == null) return;
+        Iterator<KeyValuePair> iterator = list.iterator();
         while (iterator.hasNext()) {
             KeyValuePair next = iterator.next();
             if (next.getKey().equals(key))
                 iterator.remove();
         }
-        return self();
     }
 
     @SuppressWarnings("unchecked")

@@ -25,19 +25,22 @@ public class GetEncryptParam extends NoBodyParam {
         super(url, Method.GET);
     }
 
-    public <T extends Point, R extends CharSequence> GetEncryptParam test(List<R> a, Map<T, R> map, T[]... b) throws IOException, IllegalArgumentException {
+    @SafeVarargs
+    public final <T extends Point, R extends CharSequence> GetEncryptParam test(List<R> a, Map<T, R> map, T[]... b) throws IOException, IllegalArgumentException {
         return this;
     }
 
     @Override
     public HttpUrl getHttpUrl() {
         StringBuilder paramsBuilder = new StringBuilder(); //存储加密后的参数
-        for (KeyValuePair pair : getQueryParam()) {
-            //这里遍历所有添加的参数，可对参数进行加密操作
-            String key = pair.getKey();
-            Object value = pair.getValue();
-            //加密逻辑自己写
-
+        List<KeyValuePair> queryParam = getQueryParam();
+        if (queryParam != null) {
+            for (KeyValuePair pair : getQueryParam()) {
+                //这里遍历所有添加的参数，可对参数进行加密操作
+                String key = pair.getKey();
+                Object value = pair.getValue();
+                //加密逻辑自己写
+            }
         }
         String simpleUrl = getSimpleUrl();  //拿到请求Url
         if (paramsBuilder.length() == 0) return HttpUrl.get(simpleUrl);

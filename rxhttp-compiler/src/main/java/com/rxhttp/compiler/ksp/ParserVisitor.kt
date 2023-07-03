@@ -14,6 +14,7 @@ import com.rxhttp.compiler.K_TYPE
 import com.rxhttp.compiler.common.flapTypeParameterSpecTypes
 import com.rxhttp.compiler.common.getTypeVariableString
 import com.rxhttp.compiler.common.isArrayType
+import com.rxhttp.compiler.common.joinToStringIndexed
 import com.rxhttp.compiler.common.toParamNames
 import com.rxhttp.compiler.isDependenceRxJava
 import com.rxhttp.compiler.rxHttpPackage
@@ -257,24 +258,16 @@ private fun FunSpec.getToObservableXxxWrapFun(
 
         //3、toObservableXxx方法体
         val funBody = CodeBlock.builder()
-        val paramNames = StringBuilder()
-        //遍历参数，取出参数名
-        parameterSpecs.forEachIndexed { index, param ->
-            if (index > 0) paramNames.append(", ")
+        val paramNames = parameterSpecs.joinToStringIndexed { index, it ->
             if (index < typeCount) {
-                /*
-                 * Class类型参数，需要进行再次包装，最后再取参数名
-                 * 格式：val tTypeList = List::class.parameterizedBy(tType)
-                 */
-                val variableName = "${param.name}$simpleName"
+                //Class类型参数，需要进行再次包装，最后再取参数名
+                val variableName = "${it.name}$simpleName"
+                //格式：val tTypeList = List::class.parameterizedBy(tType)
                 val expression =
-                    "val $variableName = $simpleName::class.parameterizedBy(${param.name})"
+                    "val $variableName = $simpleName::class.parameterizedBy(${it.name})"
                 funBody.addStatement(expression)
-                paramNames.append(variableName)
-            } else {
-                if (param.isVararg()) paramNames.append("*")
-                paramNames.append(param.name)
-            }
+                variableName
+            } else if (it.isVararg()) "*${it.name}" else it.name
         }
         val returnStatement = "return ${funSpec.name}($paramNames)"
         funBody.addStatement(returnStatement)
@@ -325,16 +318,16 @@ private fun List<ParameterSpec>.toParamNames(
 }
 
 private fun List<ParameterSpec>.toParamNames(typeCount: Int): String {
-    val sb = StringBuilder()
+    val paramNames = StringBuilder()
     forEachIndexed { index, parameterSpec ->
-        if (index > 0) sb.append(", ")
-        if (parameterSpec.isVararg()) sb.append("*")
-        sb.append(parameterSpec.name)
+        if (index > 0) paramNames.append(", ")
+        if (parameterSpec.isVararg()) paramNames.append("*")
+        paramNames.append(parameterSpec.name)
         if (index < typeCount && parameterSpec.type.isClassType()) {
-            sb.append(" as Type")
+            paramNames.append(" as Type")
         }
     }
-    return sb.toString()
+    return paramNames.toString()
 }
 
 private fun TypeName.isClassType() = toString().startsWith("java.lang.Class")

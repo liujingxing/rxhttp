@@ -1,5 +1,6 @@
 package com.rxhttp.compiler.kapt
 
+import com.rxhttp.compiler.common.joinToStringIndexed
 import com.rxhttp.compiler.rxHttpPackage
 import com.rxhttp.compiler.rxhttpClass
 import com.squareup.javapoet.ArrayTypeName
@@ -47,9 +48,7 @@ class ParamsVisitor(private val logger: Messager) {
         val methodList = ArrayList<MethodSpec>()
         var method: MethodSpec.Builder
         elementMap.forEach { (key, typeElement) ->
-            val rxHttpTypeNames = typeElement.typeParameters.map { parameterElement ->
-                TypeVariableName.get(parameterElement)
-            }
+            val rxHttpTypeNames = typeElement.typeParameters.map { TypeVariableName.get(it) }
             val param = ClassName.get(typeElement)
             val rxHttpName = "RxHttp${typeElement.simpleName}"
             val rxHttpParamName = rxhttpClass.peerClass(rxHttpName)
@@ -59,37 +58,34 @@ class ParamsVisitor(private val logger: Messager) {
                 rxHttpParamName
             }
             //遍历public构造方法
-            typeElement.getPublicConstructors().forEach {
-                val parameterSpecs = ArrayList<ParameterSpec>() //构造方法参数
-                val methodBody = StringBuilder("return new \$T(new \$T(") //方法体
-                for ((index, element) in it.parameters.withIndex()) {
-                    val parameterSpec = ParameterSpec.get(element)
-                    parameterSpecs.add(parameterSpec)
-                    if (index == 0 && parameterSpec.type.toString() == "java.lang.String") {
-                        methodBody.append("format(" + parameterSpec.name + ", formatArgs)")
-                        continue
-                    } else if (index > 0) {
-                        methodBody.append(", ")
+            typeElement.getPublicConstructors().forEach { element ->
+                //构造方法参数
+                val parameterSpecs = element.parameters.mapTo(ArrayList()) { ParameterSpec.get(it) }
+                val prefix = "return new \$T(new \$T("
+                val postfix = "))"
+                val methodBody = parameterSpecs
+                    .joinToStringIndexed(", ", prefix, postfix) { index, it ->
+                        if (index == 0 && it.type == STRING) {
+                            "format(${it.name}, formatArgs)"
+                        } else it.name
                     }
-                    methodBody.append(parameterSpec.name)
+                val firstParamIsStringType = parameterSpecs.firstOrNull()?.type == STRING
+                if (firstParamIsStringType) {
+                    val arrayAny = ArrayTypeName.of(TypeName.OBJECT)
+                    parameterSpecs.add(ParameterSpec.builder(arrayAny, "formatArgs").build())
                 }
-                methodBody.append("))")
-                val methodSpec = MethodSpec.methodBuilder(key)
+                MethodSpec.methodBuilder(key)
                     .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                    .addParameters(parameterSpecs)
                     .addTypeVariables(rxHttpTypeNames)
+                    .addParameters(parameterSpecs)
+                    .varargs(firstParamIsStringType)
+                    .addStatement(methodBody, rxHttpParamName, param)
                     .returns(methodReturnType)
-
-                if (parameterSpecs.firstOrNull()?.type.toString() == "java.lang.String") {
-                    methodSpec.addParameter(ArrayTypeName.of(TypeName.OBJECT), "formatArgs")
-                        .varargs()
-                }
-                methodSpec.addStatement(methodBody.toString(), rxHttpParamName, param)
                     .build()
                     .apply { methodList.add(this) }
             }
             val superclass = typeElement.superclass
-            var prefix = "((" + typeElement.simpleName + ")param)."
+            var prefix = "((${typeElement.simpleName})param)."
             val rxHttpParam = when (superclass.toString()) {
                 "rxhttp.wrapper.param.BodyParam" -> rxhttpClass.peerClass("RxHttpBodyParam")
                 "rxhttp.wrapper.param.FormParam" -> rxhttpClass.peerClass("RxHttpFormParam")

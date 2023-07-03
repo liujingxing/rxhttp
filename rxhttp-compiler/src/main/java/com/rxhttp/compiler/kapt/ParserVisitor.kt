@@ -2,6 +2,7 @@ package com.rxhttp.compiler.kapt
 
 import com.rxhttp.compiler.J_ARRAY_TYPE
 import com.rxhttp.compiler.J_TYPE
+import com.rxhttp.compiler.common.joinToStringIndexed
 import com.rxhttp.compiler.isDependenceRxJava
 import com.rxhttp.compiler.rxhttpClass
 import com.squareup.javapoet.AnnotationSpec
@@ -183,8 +184,8 @@ private fun List<ParameterSpec>.flapTypeParameterSpecs(
         val firstParamType = parameterSpec.type
         //对于kapt，数组类型或可变参数类型，得到的皆为数组类型，所以这里无需跟ksp一样判断可变参数类型
         if (index == 0 && firstParamType == J_ARRAY_TYPE && typeVariableNames.isNotEmpty()) {
-            typeVariableNames.mapTo(parameterSpecs) { typeVariableName ->
-                val variableName = "${typeVariableName.name.lowercase(Locale.getDefault())}Type"
+            typeVariableNames.mapTo(parameterSpecs) {
+                val variableName = "${it.name.lowercase(Locale.getDefault())}Type"
                 ParameterSpec.builder(J_TYPE, variableName).build()
             }
         } else {
@@ -286,23 +287,15 @@ private fun MethodSpec.getToObservableXxxWrapFun(
 
         //3、toObservableXxx方法体
         val funBody = CodeBlock.builder()
-        val paramNames = StringBuilder()
-
-        //遍历参数，取出参数名
-        parameterSpecs.forEachIndexed { index, param ->
-            if (index > 0) paramNames.append(", ")
+        val paramNames = parameterSpecs.joinToStringIndexed(", ") { index, it ->
             if (index < typeCount) {
-                /*
-                 * Class类型参数，需要进行再次包装，最后再取参数名
-                 * 格式：Type tTypeList = ParameterizedTypeImpl.get(List.class, tType);
-                 */
-                val variableName = "${param.name}$simpleName"
-                val expression = "\$T $variableName = \$T.get($simpleName.class, ${param.name})"
+                //Class类型参数，需要进行再次包装，最后再取参数名
+                val variableName = "${it.name}$simpleName"
+                //格式：Type tTypeList = ParameterizedTypeImpl.get(List.class, tType);
+                val expression = "\$T $variableName = \$T.get($simpleName.class, ${it.name})"
                 funBody.addStatement(expression, J_TYPE, parameterizedType)
-                paramNames.append(variableName)
-            } else {
-                paramNames.append(param.name)
-            }
+                variableName
+            } else it.name
         }
         val returnStatement = "return ${methodSpec.name}($paramNames)"
         funBody.addStatement(returnStatement)

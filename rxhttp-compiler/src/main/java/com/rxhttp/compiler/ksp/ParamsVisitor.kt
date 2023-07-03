@@ -13,6 +13,7 @@ import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSVisitorVoid
 import com.google.devtools.ksp.symbol.Modifier
+import com.rxhttp.compiler.common.joinToStringIndexed
 import com.rxhttp.compiler.common.toParamNames
 import com.rxhttp.compiler.rxHttpPackage
 import com.rxhttp.compiler.rxhttpKClass
@@ -20,7 +21,6 @@ import com.squareup.kotlinpoet.ANY
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
-import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.STRING
@@ -67,9 +67,7 @@ class ParamsVisitor(
         val funList = ArrayList<FunSpec>()
         var funSpecBuilder: FunSpec.Builder
         ksClassMap.forEach { (key, ksClass) ->
-            val rxHttpTypeNames = ksClass.typeParameters.map { typeParameter ->
-                typeParameter.toTypeVariableName()
-            }
+            val rxHttpTypeNames = ksClass.typeParameters.map { it.toTypeVariableName() }
             val param = ksClass.toClassName()
             val rxHttpName = "RxHttp${ksClass.simpleName.asString()}"
             val rxHttpParamName = rxhttpKClass.peerClass(rxHttpName)
@@ -81,32 +79,29 @@ class ParamsVisitor(
 
             val classTypeParams = ksClass.typeParameters.toTypeParameterResolver()
             //遍历public构造方法
-            ksClass.getPublicConstructors().forEach {
-                val parameterSpecs = arrayListOf<ParameterSpec>() //构造方法参数
-                val methodBody = StringBuilder("return %T(%T(") //方法体
-                val functionTypeParams = it.typeParameters.toTypeParameterResolver(classTypeParams)
-                for ((index, ksValueParameter) in it.parameters.withIndex()) {
-                    val parameterSpec = ksValueParameter.toKParameterSpec(functionTypeParams)
-                    parameterSpecs.add(parameterSpec)
-                    if (index == 0 && STRING == parameterSpec.type) {
-                        methodBody.append("format(${parameterSpecs[0].name}, *formatArgs)")
-                        continue
-                    } else if (index > 0) {
-                        methodBody.append(", ")
+            ksClass.getPublicConstructors().forEach { function ->
+                val functionTypeParams = function.typeParameters
+                    .toTypeParameterResolver(classTypeParams)
+                //构造方法参数
+                val parameterSpecs = function.parameters
+                    .mapTo(ArrayList()) { it.toKParameterSpec(functionTypeParams) }
+                val prefix = "return %T(%T("
+                val postfix = "))"
+                val methodBody = parameterSpecs
+                    .joinToStringIndexed(", ", prefix, postfix) { index, it ->
+                        if (index == 0 && it.type == STRING) {
+                            "format(${it.name}, *formatArgs)"
+                        } else if (it.isVararg()) "*${it.name}" else it.name
                     }
-                    methodBody.append(parameterSpec.name)
+                if (parameterSpecs.firstOrNull()?.type == STRING) {
+                    parameterSpecs.add(newParameterSpec("formatArgs", ANY, true, KModifier.VARARG))
                 }
-                methodBody.append("))")
-                val methodSpec = FunSpec.builder(key)
+                FunSpec.builder(key)
                     .jvmStatic()
                     .addParameters(parameterSpecs)
                     .addTypeVariables(rxHttpTypeNames)
+                    .addStatement(methodBody, rxHttpParamName, param)
                     .returns(methodReturnType)
-
-                if (STRING == parameterSpecs.firstOrNull()?.type) {
-                    methodSpec.addParameter("formatArgs", ANY, true, KModifier.VARARG)
-                }
-                methodSpec.addStatement(methodBody.toString(), rxHttpParamName, param)
                     .build()
                     .apply { funList.add(this) }
             }
