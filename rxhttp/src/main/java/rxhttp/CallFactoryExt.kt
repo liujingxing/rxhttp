@@ -7,8 +7,8 @@ import rxhttp.wrapper.ITag
 import rxhttp.wrapper.callback.FileOutputStreamFactory
 import rxhttp.wrapper.callback.OutputStreamFactory
 import rxhttp.wrapper.callback.UriOutputStreamFactory
-import rxhttp.wrapper.coroutines.Await
-import rxhttp.wrapper.coroutines.AwaitImpl
+import rxhttp.wrapper.coroutines.CallAwait
+import rxhttp.wrapper.coroutines.CallFlow
 import rxhttp.wrapper.parse.Parser
 import rxhttp.wrapper.parse.SmartParser
 import rxhttp.wrapper.parse.StreamParser
@@ -19,14 +19,13 @@ import rxhttp.wrapper.utils.javaTypeOf
  * Date: 2021/9/18
  * Time: 17:34
  */
-fun <T> CallFactory.toAwait(parser: Parser<T>): Await<T> = AwaitImpl(this, parser)
+fun <T> CallFactory.toAwait(parser: Parser<T>): CallAwait<T> = CallAwait(this, parser)
 
-inline fun <reified T> CallFactory.toAwait(): Await<T> = toAwait(SmartParser.wrap(javaTypeOf<T>()))
+inline fun <reified T> CallFactory.toAwait(): CallAwait<T> = toAwait(SmartParser.wrap(javaTypeOf<T>()))
 
-fun CallFactory.toAwaitString(): Await<String> = toAwait()
+fun CallFactory.toAwaitString(): CallAwait<String> = toAwait()
 
-inline fun <reified T> CallFactory.toAwaitList(): Await<MutableList<T>> = toAwait()
-
+inline fun <reified T> CallFactory.toAwaitList(): CallAwait<MutableList<T>> = toAwait()
 
 
 

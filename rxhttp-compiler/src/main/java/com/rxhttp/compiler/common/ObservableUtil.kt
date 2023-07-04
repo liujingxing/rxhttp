@@ -35,7 +35,9 @@ fun getObservableClass(): Map<String, String> {
         import rxhttp.wrapper.BodyParamFactory;
         import rxhttp.wrapper.CallFactory;
         import rxhttp.wrapper.callback.ProgressCallback;
+        import rxhttp.wrapper.entity.OkResponse;
         import rxhttp.wrapper.entity.Progress;
+        import rxhttp.wrapper.parse.OkResponseParser;
         import rxhttp.wrapper.parse.Parser;
         import rxhttp.wrapper.parse.StreamParser;
         import rxhttp.wrapper.utils.LogUtil;
@@ -67,13 +69,21 @@ fun getObservableClass(): Map<String, String> {
                 }
                 if (callbackProgress && observer instanceof ProgressCallback) {
                     ProgressCallback pc = (ProgressCallback) observer;
-                    if (parser instanceof StreamParser) {
-                        ((StreamParser<T>) parser).setProgressCallback(pc);
+                    Parser<?> streamParser = parser;
+                    while (streamParser instanceof OkResponseParser<?>) {
+                        streamParser = ((OkResponseParser) streamParser).parser;
+                    }    
+                    if (streamParser instanceof StreamParser) {
+                        ((StreamParser<T>) streamParser).setProgressCallback(pc);
                     } else if (callFactory instanceof BodyParamFactory) {
                         ((BodyParamFactory) callFactory).getParam().setProgressCallback(pc);
                     }
                 }
                 d.run();
+            }
+            
+            public ObservableCall<OkResponse<T>> toObservableOkResponse() { 
+                return new ObservableCall(callFactory, new OkResponseParser(parser));
             }
 
             public ObservableCall<T> syncRequest() {
@@ -110,8 +120,12 @@ fun getObservableClass(): Map<String, String> {
                     throw new IllegalArgumentException("capacity must be in [2..100], but it was " + capacity);
                 }
                 Objects.requireNonNull(scheduler, "scheduler is null");
-                if (!(parser instanceof StreamParser) && !(callFactory instanceof BodyParamFactory)) {
-                    throw new UnsupportedOperationException("parser is " + parser.getClass().getName() + ", callFactory is " + callFactory.getClass().getName());
+                Parser<?> streamParser = parser;
+                while (streamParser instanceof OkResponseParser<?>) {
+                    streamParser = ((OkResponseParser) streamParser).parser;
+                }
+                if (!(streamParser instanceof StreamParser) && !(callFactory instanceof BodyParamFactory)) {
+                    throw new UnsupportedOperationException("parser is " + streamParser.getClass().getName() + ", callFactory is " + callFactory.getClass().getName());
                 }
                 callbackProgress = true;
                 return new ObservableProgress<>(this, capacity, scheduler, progressConsumer);

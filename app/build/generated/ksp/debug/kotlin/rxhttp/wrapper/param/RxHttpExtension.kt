@@ -1,11 +1,11 @@
 package rxhttp.wrapper.`param`
 
 import kotlin.collections.List
-import rxhttp.CallFlow
 import rxhttp.toAwait
 import rxhttp.toFlow
 import rxhttp.wrapper.CallFactory
-import rxhttp.wrapper.coroutines.Await
+import rxhttp.wrapper.coroutines.CallAwait
+import rxhttp.wrapper.coroutines.CallFlow
 import rxhttp.wrapper.utils.javaTypeOf
 
 public inline fun <reified T> BaseRxHttp.executeList(): List<T> = executeClass<List<T>>()
@@ -21,7 +21,7 @@ public inline fun <reified T> BaseRxHttp.toObservable(): ObservableCall<T> =
 public inline fun <reified T> BaseRxHttp.toObservableResponse(): ObservableCall<T> =
     toObservableResponse<T>(javaTypeOf<T>())
 
-public inline fun <reified T> CallFactory.toAwaitResponse(): Await<T> =
+public inline fun <reified T> CallFactory.toAwaitResponse(): CallAwait<T> =
     toAwait(BaseRxHttp.wrapResponseParser<T>(javaTypeOf<T>()))
 
 public inline fun <reified T> CallFactory.toFlowResponse(): CallFlow<T> =

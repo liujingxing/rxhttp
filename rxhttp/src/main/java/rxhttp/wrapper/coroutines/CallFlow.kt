@@ -1,4 +1,4 @@
-package rxhttp
+package rxhttp.wrapper.coroutines
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.BufferOverflow
@@ -8,11 +8,14 @@ import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.mapNotNull
+import rxhttp.toAwait
 import rxhttp.wrapper.BodyParamFactory
 import rxhttp.wrapper.CallFactory
 import rxhttp.wrapper.callback.ProgressCallback
+import rxhttp.wrapper.entity.OkResponse
 import rxhttp.wrapper.entity.Progress
 import rxhttp.wrapper.entity.ProgressT
+import rxhttp.wrapper.parse.OkResponseParser
 import rxhttp.wrapper.parse.Parser
 import rxhttp.wrapper.parse.StreamParser
 
@@ -32,6 +35,9 @@ class CallFlow<T>(
         collector.emit(await.await())
     }
 
+    fun toFlowOkResponse(): CallFlow<OkResponse<T>> =
+        CallFlow(callFactory, OkResponseParser(parser))
+
     fun onProgress(capacity: Int = 2, progress: suspend (Progress) -> Unit): Flow<T> =
         toFlowProgress(capacity)
             .mapNotNull {
@@ -41,15 +47,19 @@ class CallFlow<T>(
 
     fun toFlowProgress(capacity: Int = 2): Flow<ProgressT<T>> {
         require(capacity in 2..100) { "capacity must be in [2..100], but it was $capacity" }
-        if (parser !is StreamParser<T> && callFactory !is BodyParamFactory) {
-            throw UnsupportedOperationException("parser is " + parser.javaClass.name + ", callFactory is " + callFactory.javaClass.name)
+        var streamParser: Parser<*> = parser
+        while (streamParser is OkResponseParser<*>) {
+            streamParser = streamParser.parser
+        }
+        if (streamParser !is StreamParser && callFactory !is BodyParamFactory) {
+            throw UnsupportedOperationException("parser is " + streamParser.javaClass.name + ", callFactory is " + callFactory.javaClass.name)
         }
         return channelFlow {
             val progressCallback = ProgressCallback { progress, currentSize, totalSize ->
                 trySend(ProgressT<T>(progress, currentSize, totalSize))
             }
-            if (parser is StreamParser<T>) {
-                parser.progressCallback = progressCallback
+            if (streamParser is StreamParser) {
+                streamParser.progressCallback = progressCallback
             } else if (callFactory is BodyParamFactory) {
                 callFactory.param.setProgressCallback(progressCallback)
             }

@@ -17,7 +17,7 @@ import rxhttp.wrapper.entity.OkResponse;
  */
 public class OkResponseParser<T> implements Parser<OkResponse<T>> {
 
-    private final Parser<T> parser;
+    public final Parser<T> parser;
 
     public OkResponseParser(Parser<T> parser) {
         this.parser = parser;

@@ -37,7 +37,7 @@ class RxHttpExtensions(private val logger: KSPLogger) {
 
     private val baseRxHttpName = rxhttpKClass.peerClass("BaseRxHttp")
     private val callFactoryName = ClassName("rxhttp.wrapper", "CallFactory")
-    private val awaitName = ClassName("rxhttp.wrapper.coroutines", "Await")
+    private val awaitName = ClassName("rxhttp.wrapper.coroutines", "CallAwait")
     private val observableCall = rxhttpKClass.peerClass("ObservableCall")
 
     private val toFlowXxxFunList = ArrayList<FunSpec>()
@@ -126,7 +126,7 @@ class RxHttpExtensions(private val logger: KSPLogger) {
                 .build()
                 .apply { toAwaitXxxFunList.add(this) }
 
-            val callFlow = ClassName("rxhttp", "CallFlow")
+            val callFlow = ClassName("rxhttp.wrapper.coroutines", "CallFlow")
             val toFlow = MemberName("rxhttp", "toFlow")
             FunSpec.builder("toFlow$key")
                 .addOriginatingKSFile(ksClass.containingFile!!)
