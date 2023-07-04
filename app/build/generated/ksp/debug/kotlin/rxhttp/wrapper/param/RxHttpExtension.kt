@@ -15,9 +15,6 @@ public inline fun <reified T> BaseRxHttp.executeClass(): T = executeClass<T>(jav
 public inline fun <reified T> BaseRxHttp.toObservableList(): ObservableCall<List<T>> =
     toObservable<List<T>>()
 
-public inline fun <reified V> BaseRxHttp.toObservableMapString(): ObservableCall<Map<String,V>> =
-    toObservable<Map<String, V>>()
-
 public inline fun <reified T> BaseRxHttp.toObservable(): ObservableCall<T> =
     toObservable<T>(javaTypeOf<T>())
 

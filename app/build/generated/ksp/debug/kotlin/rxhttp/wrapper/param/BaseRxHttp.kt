@@ -43,11 +43,6 @@ public abstract class BaseRxHttp : ITag, CallFactory {
 
     public fun toObservableString(): ObservableCall<String> = toObservable(String::class.java)
 
-    public fun <V> toObservableMapString(clazz: Class<V>): ObservableCall<Map<String,V>> {
-        val typeMap = Map::class.parameterizedBy(String::class.java, clazz)
-        return toObservable(typeMap)
-    }
-
     public fun <T> toObservableList(clazz: Class<T>): ObservableCall<List<T>> {
         val typeList = List::class.parameterizedBy(clazz)
         return toObservable(typeList)

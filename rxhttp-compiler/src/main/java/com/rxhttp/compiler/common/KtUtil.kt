@@ -72,15 +72,6 @@ fun getRxHttpExtensionFileSpec(
             .build()
             .apply { fileSpecBuilder.addFunction(this) }
 
-        FunSpec.builder("toObservableMapString")
-            .addModifiers(KModifier.INLINE)
-            .receiver(baseRxHttpName)
-            .addTypeVariable(v.copy(reified = true))
-            .addStatement("return toObservable<Map<String, V>>()")
-            .returns(observableCall.parameterizedBy("Map<String,V>"))
-            .build()
-            .apply { fileSpecBuilder.addFunction(this) }
-
         FunSpec.builder("toObservable")
             .addModifiers(KModifier.INLINE)
             .receiver(baseRxHttpName)

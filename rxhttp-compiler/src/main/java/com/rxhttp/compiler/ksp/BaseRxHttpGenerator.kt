@@ -37,9 +37,7 @@ class BaseRxHttpGenerator(
     @Throws(IOException::class)
     fun generateCode(codeGenerator: CodeGenerator) {
         val t = TypeVariableName("T")
-        val v = TypeVariableName("V")
         val classTName = Class::class.asClassName().parameterizedBy("T")
-        val classVName = Class::class.asClassName().parameterizedBy("V")
         val listTName = LIST.parameterizedBy("T")
 
         val parser = ClassName("rxhttp.wrapper.parse", "Parser")
@@ -86,17 +84,6 @@ class BaseRxHttpGenerator(
             FunSpec.builder("toObservableString")
                 .addStatement("return toObservable(String::class.java)")
                 .returns(observableCall.parameterizedBy("String"))
-                .build()
-                .let { methodList.add(it) }
-
-            FunSpec.builder("toObservableMapString")
-                .addTypeVariable(v)
-                .addParameter("clazz", classVName)
-                .addCode("""
-                    val typeMap = Map::class.parameterizedBy(String::class.java, clazz)
-                    return toObservable(typeMap)
-                """.trimIndent())
-                .returns(observableCall.parameterizedBy("Map<String,V>"))
                 .build()
                 .let { methodList.add(it) }
 

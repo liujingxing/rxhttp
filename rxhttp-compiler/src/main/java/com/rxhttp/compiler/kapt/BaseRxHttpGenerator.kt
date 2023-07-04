@@ -22,16 +22,10 @@ class BaseRxHttpGenerator(private val isAndroidPlatform: Boolean) {
     @Throws(IOException::class)
     fun generateCode(filer: Filer) {
         val t = TypeVariableName.get("T")
-        val v = TypeVariableName.get("V")
         val className = ClassName.get(Class::class.java)
         val classTName = className.parameterizedBy(t)
-        val classVName = className.parameterizedBy(v)
         val list = ClassName.get(List::class.java)
         val listTName = list.parameterizedBy(t)
-
-        val map = ClassName.get(Map::class.java)
-        val string = TypeName.get(String::class.java)
-        val mapStringV = map.parameterizedBy(string, v)
 
         val parser = ClassName.get("rxhttp.wrapper.parse", "Parser")
         val parserT = parser.parameterizedBy(t)
@@ -84,21 +78,7 @@ class BaseRxHttpGenerator(private val isAndroidPlatform: Boolean) {
             MethodSpec.methodBuilder("toObservableString")
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                 .addStatement("return toObservable(String.class)")
-                .returns(observableCall.parameterizedBy(string))
-                .build()
-                .apply { methodList.add(this) }
-
-            MethodSpec.methodBuilder("toObservableMapString")
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .addTypeVariable(v)
-                .addParameter(classVName, "clazz")
-                .addCode(
-                    """
-                Type typeMap = ParameterizedTypeImpl.getParameterized(Map.class, String.class, clazz);
-                return toObservable(typeMap);
-            """.trimIndent()
-                )
-                .returns(observableCall.parameterizedBy(mapStringV))
+                .returns(observableCall.parameterizedBy(STRING))
                 .build()
                 .apply { methodList.add(this) }
 
@@ -118,21 +98,21 @@ class BaseRxHttpGenerator(private val isAndroidPlatform: Boolean) {
 
             MethodSpec.methodBuilder("toDownloadObservable")
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .addParameter(string, "destPath")
+                .addParameter(STRING, "destPath")
                 .addStatement("return toDownloadObservable(destPath, false)")
-                .returns(observableCall.parameterizedBy(string))
+                .returns(observableCall.parameterizedBy(STRING))
                 .build()
                 .apply { methodList.add(this) }
 
             MethodSpec.methodBuilder("toDownloadObservable")
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .addParameter(string, "destPath")
+                .addParameter(STRING, "destPath")
                 .addParameter(Boolean::class.java, "append")
                 .addStatement(
                     "return toDownloadObservable(new \$T(destPath), append)",
                     fileOutputStreamFactory
                 )
-                .returns(observableCall.parameterizedBy(string))
+                .returns(observableCall.parameterizedBy(STRING))
                 .build()
                 .apply { methodList.add(this) }
 
@@ -236,7 +216,7 @@ class BaseRxHttpGenerator(private val isAndroidPlatform: Boolean) {
             .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
             .addException(IOException::class.java)
             .addStatement("return executeClass(String.class)")
-            .returns(string)
+            .returns(STRING)
             .build()
             .apply { methodList.add(this) }
 

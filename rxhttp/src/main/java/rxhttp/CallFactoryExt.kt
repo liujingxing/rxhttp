@@ -27,7 +27,6 @@ fun CallFactory.toAwaitString(): Await<String> = toAwait()
 
 inline fun <reified T> CallFactory.toAwaitList(): Await<MutableList<T>> = toAwait()
 
-inline fun <reified V> CallFactory.toAwaitMapString(): Await<Map<String, V>> = toAwait()
 
 
 
@@ -38,8 +37,6 @@ inline fun <reified T> CallFactory.toFlow(): CallFlow<T> = toFlow(SmartParser.wr
 fun CallFactory.toFlowString(): CallFlow<String> = toFlow()
 
 inline fun <reified T> CallFactory.toFlowList(): CallFlow<List<T>> = toFlow()
-
-inline fun <reified V> CallFactory.toFlowMapString(): CallFlow<Map<String, V>> = toFlow()
 
 /**
  * @param destPath Local storage path
