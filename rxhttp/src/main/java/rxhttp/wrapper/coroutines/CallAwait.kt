@@ -18,7 +18,7 @@ class CallAwait<T>(
     private val parser: Parser<T>,
 ) : Await<T> {
 
-    fun toAwaitOkResponse(): CallAwait<OkResponse<T>> =
+    fun toAwaitOkResponse(): CallAwait<OkResponse<T?>> =
         CallAwait(callFactory, OkResponseParser(parser))
 
     override suspend fun await(): T {

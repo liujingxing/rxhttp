@@ -35,7 +35,7 @@ class CallFlow<T>(
         collector.emit(await.await())
     }
 
-    fun toFlowOkResponse(): CallFlow<OkResponse<T>> =
+    fun toFlowOkResponse(): CallFlow<OkResponse<T?>> =
         CallFlow(callFactory, OkResponseParser(parser))
 
     fun onProgress(capacity: Int = 2, progress: suspend (Progress) -> Unit): Flow<T> =

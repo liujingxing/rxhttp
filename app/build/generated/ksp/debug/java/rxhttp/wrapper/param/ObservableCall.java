@@ -1,6 +1,7 @@
 package rxhttp.wrapper.param;
 
-import androidx.annotation.NonNull;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -69,28 +70,34 @@ public final class ObservableCall<T> extends Observable<T> {
         d.run();
     }
     
-    public ObservableCall<OkResponse<T>> toObservableOkResponse() { 
+    @NotNull
+    public ObservableCall<@NotNull OkResponse<@Nullable T>> toObservableOkResponse() { 
         return new ObservableCall(callFactory, new OkResponseParser(parser));
     }
 
-    public ObservableCall<T> syncRequest() {
+    @NotNull 
+    public ObservableCall<@NotNull T> syncRequest() {
         syncRequest = true;
         return this;
     }
 
-    public Observable<T> onProgress(Consumer<Progress> progressConsumer) {
+    @NotNull
+    public Observable<@NotNull T> onProgress(@NotNull Consumer<Progress> progressConsumer) {
         return onProgress(Schedulers.io(), progressConsumer);
     }
 
-    public Observable<T> onProgress(Scheduler scheduler, Consumer<Progress> progressConsumer) {
+    @NotNull
+    public Observable<@NotNull T> onProgress(@NotNull Scheduler scheduler, @NotNull Consumer<Progress> progressConsumer) {
         return onProgress(2, scheduler, progressConsumer);
     }
 
-    public Observable<T> onMainProgress(Consumer<Progress> progressConsumer) {
+    @NotNull
+    public Observable<@NotNull T> onMainProgress(@NotNull Consumer<Progress> progressConsumer) {
         return onMainProgress(2, progressConsumer);
     }
 
-    public Observable<T> onMainProgress(int capacity, Consumer<Progress> progressConsumer) {
+    @NotNull
+    public Observable<@NotNull T> onMainProgress(int capacity, @NotNull Consumer<Progress> progressConsumer) {
         return onProgress(capacity, AndroidSchedulers.mainThread(), progressConsumer);
     }
 
@@ -102,7 +109,8 @@ public final class ObservableCall<T> extends Observable<T> {
      * @param progressConsumer progress callback
      * @return the new Observable instance
      */
-    public Observable<T> onProgress(int capacity, @NonNull Scheduler scheduler, Consumer<Progress> progressConsumer) {
+    @NotNull 
+    public Observable<@NotNull T> onProgress(int capacity, @NotNull Scheduler scheduler, @NotNull Consumer<Progress> progressConsumer) {
         if (capacity < 2 || capacity > 100) {
             throw new IllegalArgumentException("capacity must be in [2..100], but it was " + capacity);
         }
@@ -125,7 +133,7 @@ public final class ObservableCall<T> extends Observable<T> {
         }
 
         @Override
-        public void onResponse(@NonNull Call call, @NonNull Response response) {
+        public void onResponse(@NotNull Call call, @NotNull Response response) {
             try {
                 T t = Objects.requireNonNull(parser.onParse(response), "The onParse function returned a null value.");
                 if (!disposed) {
@@ -140,7 +148,7 @@ public final class ObservableCall<T> extends Observable<T> {
         }
 
         @Override
-        public void onFailure(@NonNull Call call, @NonNull IOException e) {
+        public void onFailure(@NotNull Call call, @NotNull IOException e) {
             onError(call, e);
         }
 
