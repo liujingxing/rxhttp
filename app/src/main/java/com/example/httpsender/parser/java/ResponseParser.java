@@ -21,11 +21,12 @@ import rxhttp.wrapper.utils.Converter;
 public class ResponseParser<T> extends TypeParser<T> {
 
     /**
-     * 此构造方法适用于任意Class对象，但更多用于带泛型的Class对象，如：List<Student>
+     * 此构造方法可适用任意Class对象，但更多用于带泛型的Class对象，如：List<List<Student>>>
      * <p>
-     * 用法:
-     * Java: .asParser(new ResponseParser<List<Student>>(){})
-     * Kotlin: .asParser(object : ResponseParser<List<Student>>() {})
+     * 如Java环境中调用
+     * toObservable(new ResponseParser<List<List<Student>>>(){})
+     * 等价与kotlin环境下的
+     * toObservableResponse<List<List<Student>>>()
      * <p>
      * 注：此构造方法一定要用protected关键字修饰，否则调用此构造方法将拿不到泛型类型
      */
@@ -34,11 +35,16 @@ public class ResponseParser<T> extends TypeParser<T> {
     }
 
     /**
-     * 此构造方法仅适用于不带泛型的Class对象，如: Student.class
+     * 该解析器会生成以下系列方法，前3个kotlin环境调用，后4个Java环境调用，所有方法内部均会调用本构造方法
+     * toFlowResponse<T>()
+     * toAwaitResponse<T>()
+     * toObservableResponse<T>()
+     * toObservableResponse(Type)
+     * toObservableResponse(Class<T>)
+     * toObservableResponseList(Class<T>)
+     * toObservableResponsePageList(Class<T>)
      * <p>
-     * 用法
-     * Java: .asParser(new ResponseParser<>(Student.class))   或者  .asResponse(Student.class)
-     * Kotlin: .asParser(ResponseParser(Student::class.java)) 或者  .asResponse(Student::class.java)
+     * Flow/Await下 toXxxResponse<PageList<T>> 等价与 toObservableResponsePageList(Class<T>)
      */
     public ResponseParser(Type type) {
         super(type);
