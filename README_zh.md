@@ -299,7 +299,7 @@ implementation 'com.github.liujingxing.rxlife:rxlife-rxjava2:2.2.2' //管理RxJa
  
 ```java
 ksp {
-    arg("rxhttp_rxjava", "3.1.5")
+    arg("rxhttp_rxjava", "3.1.6")
 }
 ```
  
@@ -311,7 +311,7 @@ ksp {
 ```java
 kapt {
     arguments {
-        arg("rxhttp_rxjava", "3.1.5")
+        arg("rxhttp_rxjava", "3.1.6")
     }
 }
 ```
@@ -328,7 +328,7 @@ android {
             annotationProcessorOptions {
                 arguments = [
                     //使用asXxx方法时必须，传入你依赖的RxJava版本
-                    rxhttp_rxjava: '3.1.5', 
+                    rxhttp_rxjava: '3.1.6', 
                 ]
             }
         }
