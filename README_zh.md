@@ -120,13 +120,13 @@
 
 | 功能说明 | RxHttp | [Retrofit](https://github.com/square/retrofit) |
 | --- | :---: | :---: |
-| 版本| v3.0.2| v2.9.0 |
+| 版本| v3.1.0| v2.9.0 |
 | 状态| 维护中| 维护中 |
 | 标准RESTful风格| ✅ | ✅ |
 | 学习成本| 低 | 高|
 | 扩展性| 高| 高|
 | 源码大小| 73k | 75k |
-| jar包大小| 213k | 123k |
+| jar包大小| 210k  | 123k |
 | RxJava| RxJava  ❌<br>RxJava2✅<br>RxJava3✅| RxJava  ✅<br>RxJava2✅<br>RxJava3✅|
 | Kotlin协程| ✅ | ✅ |
 | Flow流| ✅ | ✅ |
@@ -257,7 +257,7 @@ android {
 }
 //3、添加插件及依赖
 plugins {
-    id 'com.google.devtools.ksp' version '1.8.0-1.0.9'
+    id 'com.google.devtools.ksp' version '1.8.21-1.0.11'
 }
  
 dependencies {
@@ -277,7 +277,7 @@ dependencies {
 
 ### 4.2.1、配置RxJava
 
-如果你需要结合`asXxx`方法发请求，就需要额外依赖`RxJava`，并且告知`rxhttp`你依赖的`RxJava`版本号
+如果你需要结合`toObservableXxx`方法发请求，就需要额外依赖`RxJava`，并且告知`rxhttp`你依赖的`RxJava`版本号
 
 - ***依赖RxJava，RxJava2/RxJava3选其一***
 
