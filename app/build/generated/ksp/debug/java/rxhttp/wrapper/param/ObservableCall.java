@@ -59,10 +59,10 @@ public final class ObservableCall<T> extends Observable<T> {
             ProgressCallback pc = (ProgressCallback) observer;
             Parser<?> streamParser = parser;
             while (streamParser instanceof OkResponseParser<?>) {
-                streamParser = ((OkResponseParser) streamParser).parser;
+                streamParser = ((OkResponseParser<?>) streamParser).parser;
             }    
             if (streamParser instanceof StreamParser) {
-                ((StreamParser<T>) streamParser).setProgressCallback(pc);
+                ((StreamParser<?>) streamParser).setProgressCallback(pc);
             } else if (callFactory instanceof BodyParamFactory) {
                 ((BodyParamFactory) callFactory).getParam().setProgressCallback(pc);
             }
@@ -72,7 +72,7 @@ public final class ObservableCall<T> extends Observable<T> {
     
     @NotNull
     public ObservableCall<@NotNull OkResponse<@Nullable T>> toObservableOkResponse() { 
-        return new ObservableCall(callFactory, new OkResponseParser(parser));
+        return new ObservableCall<>(callFactory, new OkResponseParser<>(parser));
     }
 
     @NotNull 
@@ -117,7 +117,7 @@ public final class ObservableCall<T> extends Observable<T> {
         Objects.requireNonNull(scheduler, "scheduler is null");
         Parser<?> streamParser = parser;
         while (streamParser instanceof OkResponseParser<?>) {
-            streamParser = ((OkResponseParser) streamParser).parser;
+            streamParser = ((OkResponseParser<?>) streamParser).parser;
         }
         if (!(streamParser instanceof StreamParser) && !(callFactory instanceof BodyParamFactory)) {
             throw new UnsupportedOperationException("parser is " + streamParser.getClass().getName() + ", callFactory is " + callFactory.getClass().getName());
