@@ -413,9 +413,8 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
     /**
      * 给Param设置转换器，此方法会在请求发起前，被RxHttp内部调用
      */
-    private fun setConverterToParam(converter: IConverter): R {
+    private fun setConverterToParam(converter: IConverter) {
         param.tag(IConverter::class.java, converter)
-        return self()
     }
 
     public fun setOkClient(okClient: OkHttpClient): R {
@@ -428,7 +427,9 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
     /**
      * 给Param设置默认域名(如果缺席的话)，此方法会在请求发起前，被RxHttp内部调用
      */
-    private fun addDefaultDomainIfAbsent(): R = setDomainIfAbsent(baseUrl)
+    private fun addDefaultDomainIfAbsent() {
+        setDomainIfAbsent(baseUrl)
+    }
 
     public fun setDomainIfAbsent(domain: String): R {
         val newUrl = addDomainIfAbsent(param.getSimpleUrl(), domain)

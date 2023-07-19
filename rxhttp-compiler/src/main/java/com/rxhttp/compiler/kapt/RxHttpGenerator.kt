@@ -792,8 +792,6 @@ class RxHttpGenerator {
             .addModifiers(Modifier.PRIVATE)
             .addParameter(converterName, "converter")
             .addStatement("param.tag(IConverter.class, converter)")
-            .addStatement("return self()")
-            .returns(typeVariableR)
             .build()
             .apply { methodList.add(this) }
 
