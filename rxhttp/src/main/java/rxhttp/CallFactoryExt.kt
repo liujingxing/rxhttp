@@ -7,6 +7,7 @@ import rxhttp.wrapper.ITag
 import rxhttp.wrapper.callback.FileOutputStreamFactory
 import rxhttp.wrapper.callback.OutputStreamFactory
 import rxhttp.wrapper.callback.UriOutputStreamFactory
+import rxhttp.wrapper.coroutines.Await
 import rxhttp.wrapper.coroutines.CallAwait
 import rxhttp.wrapper.coroutines.CallFlow
 import rxhttp.wrapper.parse.Parser
@@ -27,6 +28,26 @@ fun CallFactory.toAwaitString(): CallAwait<String> = toAwait()
 
 inline fun <reified T> CallFactory.toAwaitList(): CallAwait<MutableList<T>> = toAwait()
 
+fun CallFactory.toDownloadAwait(
+    destPath: String,
+    append: Boolean = false,
+): Await<String> = toDownloadAwait(FileOutputStreamFactory(destPath), append)
+
+fun CallFactory.toDownloadAwait(
+    context: Context,
+    uri: Uri,
+    append: Boolean = false,
+): Await<Uri> = toDownloadAwait(UriOutputStreamFactory(context, uri), append)
+
+fun <T> CallFactory.toDownloadAwait(
+    osFactory: OutputStreamFactory<T>,
+    append: Boolean = false,
+): Await<T> {
+    if (append && this is ITag) {
+        tag(OutputStreamFactory::class.java, osFactory)
+    }
+    return toAwait(StreamParser(osFactory))
+}
 
 
 fun <T> CallFactory.toFlow(parser: Parser<T>): CallFlow<T> = CallFlow(this, parser)
