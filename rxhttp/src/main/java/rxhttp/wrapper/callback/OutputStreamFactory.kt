@@ -66,7 +66,7 @@ class FileOutputStreamFactory(
         }
 
     private fun String.replaceSuffix(response: Response): String {
-        return if (endsWith("/%s", true) || endsWith("/%1\$s", true)) {
+        return if (endsWith("%s", true) || endsWith("%1\$s", true)) {
             val filename = response.findFilename()
                 ?: OkHttpCompat.pathSegments(response).last()
             format(filename)
