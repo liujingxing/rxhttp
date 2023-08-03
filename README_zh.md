@@ -89,7 +89,7 @@
   ```java
   RxHttp.get("/server/..")
       .add("key", "value")
-      .toObserable<User>()  
+      .toObservable<User>()  
       .subscribe({ 
           //成功回调   
       }, {  
@@ -103,7 +103,7 @@
   ```java
   RxHttp.get("/server/..")
       .add("key", "value")
-      .toObserable(User.class)  
+      .toObservable(User.class)  
       .subscribe(user - > { 
           //成功回调   
       }, throwable -> {  

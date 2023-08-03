@@ -62,7 +62,7 @@ A type-safe HTTP client for Android. Written based on OkHttp
   ```java
   RxHttp.get("/server/..")
       .add("key", "value")
-      .toObserable<User>()  
+      .toObservable<User>()  
       .subscribe({ 
           //Success
       }, {  
@@ -76,7 +76,7 @@ A type-safe HTTP client for Android. Written based on OkHttp
   ```java
   RxHttp.get("/server/..")
       .add("key", "value")
-      .toObserable(User.class)  
+      .toObservable(User.class)  
       .subscribe(user - > { 
           //Success
       }, throwable -> {  
@@ -303,7 +303,7 @@ public class Url {
 RxHttp.get("/service/...")   //1、You can choose get,postFrom,postJson etc
     .addQuery("key", "value")               //add query param
     .addHeader("headerKey", "headerValue")  //add request header
-    .toObserable(Student.class)  //2、Use the asXxx method to determine the return value type, customizable
+    .toObservable(Student.class)  //2、Use the toXxx method to determine the return value type, customizable
     .subscribe(student -> {  //3、Subscribing observer
         //Success callback，Default IO thread
     }, throwable -> {
@@ -315,7 +315,7 @@ RxHttp.postForm("/service/...")          //post FormBody
     .add("key", "value")                 //add param to body
     .addQuery("key1", "value1")          //add query param
     .addFile("file", File(".../1.png"))  //add file to body
-    .toObserable<Student>()           
+    .toObservable<Student>()           
     .subscribe({ student ->       
         //Default IO thread
     }, { throwable ->
