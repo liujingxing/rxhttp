@@ -30,8 +30,6 @@ import rxhttp.internal.RxHttpVersion;
 import rxhttp.wrapper.OkHttpCompat;
 import rxhttp.wrapper.entity.FileRequestBody;
 import rxhttp.wrapper.entity.UriRequestBody;
-import rxhttp.wrapper.exception.HttpStatusCodeException;
-import rxhttp.wrapper.exception.ParseException;
 import rxhttp.wrapper.progress.ProgressRequestBody;
 
 /**
@@ -155,6 +153,9 @@ public class LogUtil {
         if (!isDebug) return;
         try {
             Request request = response.request();
+            LogTime logTime = request.tag(LogTime.class);
+            long requestCostMs = logTime != null ? logTime.tookMs() : 0;
+            long readBodyCostMs = 0;
             String result;
             if (body != null) {
                 result = body;
@@ -164,9 +165,8 @@ public class LogUtil {
                 result = "(binary " + response.body().contentLength() + "-byte encoded body omitted)";
             } else {
                 result = formattingJson(response2Str(response), indentSpaces);
+                readBodyCostMs = (logTime != null ? logTime.tookMs() : 0) - requestCostMs;
             }
-            LogTime logTime = request.tag(LogTime.class);
-            long tookMs = logTime != null ? logTime.tookMs() : 0;
             StringBuilder builder = new StringBuilder("<------ ")
                 .append(RxHttpVersion.userAgent).append(" ")
                 .append(OkHttpCompat.getOkHttpUserAgent())
@@ -174,7 +174,8 @@ public class LogUtil {
                 .append(request.method()).append(" ").append(request.url())
                 .append("\n\n").append(response.protocol()).append(" ")
                 .append(response.code()).append(" ").append(response.message())
-                .append(tookMs > 0 ? " " + tookMs + "ms" : "")
+                .append(requestCostMs > 0 ? " " + requestCostMs + "ms" : "")
+                .append(readBodyCostMs > 0 ? " " + readBodyCostMs + "ms" : "")
                 .append("\n").append(readHeaders(response.headers()))
                 .append("\n").append(result);
             Platform.get().logi(TAG, builder.toString());
