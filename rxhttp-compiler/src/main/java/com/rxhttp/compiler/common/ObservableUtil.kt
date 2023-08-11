@@ -238,6 +238,8 @@ fun getObservableClass(): Map<String, String> {
 
     map["ObservableProgress"] ="""
         package $rxHttpPackage;
+        
+        import org.jetbrains.annotations.NotNull;
 
         import java.util.Queue;
         import java.util.concurrent.LinkedBlockingQueue;
@@ -271,7 +273,7 @@ fun getObservableClass(): Map<String, String> {
             }
 
             @Override
-            protected void subscribeActual(Observer<? super T> observer) {
+            protected void subscribeActual(@NotNull Observer<? super T> observer) {
                 if (scheduler instanceof TrampolineScheduler) {
                     source.subscribe(new SyncObserver<>(observer, progressConsumer));
                 } else {
@@ -293,7 +295,7 @@ fun getObservableClass(): Map<String, String> {
                 }
 
                 @Override
-                public void onSubscribe(Disposable d) {
+                public void onSubscribe(@NotNull Disposable d) {
                     if (DisposableHelper.validate(this.upstream, d)) {
                         this.upstream = d;
                         downstream.onSubscribe(this);
@@ -314,7 +316,7 @@ fun getObservableClass(): Map<String, String> {
                 }
 
                 @Override
-                public void onNext(T t) {
+                public void onNext(@NotNull T t) {
                     if (done) {
                         return;
                     }
@@ -322,7 +324,7 @@ fun getObservableClass(): Map<String, String> {
                 }
 
                 @Override
-                public void onError(Throwable t) {
+                public void onError(@NotNull Throwable t) {
                     if (done) {
                         RxJavaPlugins.onError(t);
                         return;
@@ -378,7 +380,7 @@ fun getObservableClass(): Map<String, String> {
                 }
 
                 @Override
-                public void onSubscribe(Disposable d) {
+                public void onSubscribe(@NotNull Disposable d) {
                     if (DisposableHelper.validate(this.upstream, d)) {
                         this.upstream = d;
                         downstream.onSubscribe(this);
@@ -395,7 +397,7 @@ fun getObservableClass(): Map<String, String> {
                 }
 
                 @Override
-                public void onNext(T t) {
+                public void onNext(@NotNull T t) {
                     if (done) {
                         return;
                     }
@@ -410,7 +412,7 @@ fun getObservableClass(): Map<String, String> {
                 }
 
                 @Override
-                public void onError(Throwable t) {
+                public void onError(@NotNull Throwable t) {
                     if (done) {
                         RxJavaPlugins.onError(t);
                         return;

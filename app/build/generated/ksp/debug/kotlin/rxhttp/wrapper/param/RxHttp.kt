@@ -63,24 +63,24 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
     public val url: String
         get() {
             addDefaultDomainIfAbsent()
-            return param.getUrl()
+            return param.url
         }
 
     @get:JvmName("getSimpleUrl")
     public val simpleUrl: String
-        get() = param.getSimpleUrl()
+        get() = param.simpleUrl
 
     @get:JvmName("getHeaders")
     public val headers: Headers
-        get() = param.getHeaders()
+        get() = param.headers
 
     @get:JvmName("getHeadersBuilder")
     public val headersBuilder: Headers.Builder
-        get() = param.getHeadersBuilder()
+        get() = param.headersBuilder
 
     @get:JvmName("getCacheStrategy")
     public val cacheStrategy: CacheStrategy
-        get() = param.getCacheStrategy()
+        get() = param.cacheStrategy
 
     private var _okHttpClient: OkHttpClient? = null
 
@@ -111,7 +111,7 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
                 b.writeTimeout(writeTimeoutMillis, TimeUnit.MILLISECONDS)
             }
 
-            if (param.getCacheMode() != CacheMode.ONLY_NETWORK) {
+            if (param.cacheMode != CacheMode.ONLY_NETWORK) {
                 val b = builder ?: okClient.newBuilder().also { builder = it }
                 b.addInterceptor(CacheInterceptor(cacheStrategy))
             }
@@ -136,7 +136,7 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
     }
 
     public fun setUrl(url: String): R {
-        param.setUrl(url)
+        param.url = url
         return self()
     }
 
@@ -319,29 +319,29 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
     }
 
     public fun setHeadersBuilder(builder: Headers.Builder): R {
-        param.setHeadersBuilder(builder)
+        param.headersBuilder = builder
         return self()
     }
 
     /**
      * 设置单个接口是否需要添加公共参数,
-     * 即是否回调通过{@link RxHttpPlugins#setOnParamAssembly(Function)}方法设置的接口,默认为true
+     * 即是否回调[RxHttpPlugins.setOnParamAssembly]方法设置的接口, 默认为true
      */
     public fun setAssemblyEnabled(enabled: Boolean): R {
-        param.setAssemblyEnabled(enabled)
+        param.isAssemblyEnabled = enabled
         return self()
     }
 
     /**
      * 设置单个接口是否需要对Http返回的数据进行解码/解密,
-     * 即是否回调通过{@link RxHttpPlugins#setResultDecoder(Function)}方法设置的接口,默认为true
+     * 即是否回调[RxHttpPlugins.setResultDecoder]方法设置的接口, 默认为true
      */
     public fun setDecoderEnabled(enabled: Boolean): R {
         param.addHeader(Param.DATA_DECRYPT, enabled.toString())
         return self()
     }
 
-    public fun isAssemblyEnabled(): Boolean = param.isAssemblyEnabled()
+    public fun isAssemblyEnabled(): Boolean = param.isAssemblyEnabled
 
     public fun getHeader(key: String): String = param.getHeader(key)
 
@@ -366,17 +366,17 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
     }
 
     public fun setCacheKey(cacheKey: String): R {
-        param.setCacheKey(cacheKey)
+        param.cacheKey = cacheKey
         return self()
     }
 
     public fun setCacheValidTime(cacheValidTime: Long): R {
-        param.setCacheValidTime(cacheValidTime)
+        param.cacheValidTime = cacheValidTime
         return self()
     }
 
     public fun setCacheMode(cacheMode: CacheMode): R {
-        param.setCacheMode(cacheMode)
+        param.cacheMode = cacheMode
         return self()
     }
 
@@ -432,8 +432,8 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
     }
 
     public fun setDomainIfAbsent(domain: String): R {
-        val newUrl = addDomainIfAbsent(param.getSimpleUrl(), domain)
-        param.setUrl(newUrl)
+        val newUrl = addDomainIfAbsent(param.simpleUrl, domain)
+        param.url = newUrl
         return self()
     }
 
@@ -448,7 +448,7 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
         } else if (domain.endsWith("/")) {
             domain + url
         } else {
-            domain + "/" + url
+            "$domain/$url"
         }
 
     @Suppress("UNCHECKED_CAST")
@@ -565,7 +565,7 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
         /**
          * Returns a formatted string using the specified format string and arguments.
          */
-        private fun format(url: String, vararg formatArgs: Any?): String =
-                if(formatArgs.isNullOrEmpty()) url else String.format(url, *formatArgs)
+        private fun format(url: String, vararg formatArgs: Any?): String = if(formatArgs.isEmpty())
+                url else String.format(url, *formatArgs)
     }
 }

@@ -205,7 +205,7 @@ class KClassHelper(
                 fun addFiles(fileList: List<UpFile>) = apply { fileList.forEach { addFile(it) } }
 
                 fun <T> addFiles(fileMap: Map<String, T>) = apply {
-                    fileMap.forEach { key, value -> addFile(key, value) }
+                    fileMap.forEach { (key, value) -> addFile(key, value) }
                 }
 
                 fun <T> addFiles(key: String, files: List<T>) = apply {
@@ -260,7 +260,7 @@ class KClassHelper(
                 ) = addFormDataPart(key, filename, UriRequestBody(context, uri, 0, contentType))
 
                 fun addParts(context: Context, uriMap: Map<String, Uri>) = apply {
-                    uriMap.forEach { key, value -> addPart(context, key, value) }
+                    uriMap.forEach { (key, value) -> addPart(context, key, value) }
                 }
 
                 fun addParts(context: Context, uris: List<Uri>) = apply {
@@ -308,7 +308,7 @@ class KClassHelper(
                 fun setMultiParallel() = setMultiType(MultipartBody.PARALLEL)
 
                 //Set the MIME type
-                fun setMultiType(multiType: MediaType?) = apply { param.setMultiType(multiType) }
+                fun setMultiType(multiType: MediaType?) = apply { param.multiType = multiType }
             }
 
         """.trimIndent()

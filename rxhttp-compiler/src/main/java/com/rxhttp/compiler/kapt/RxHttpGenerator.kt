@@ -10,10 +10,12 @@ import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.JavaFile
 import com.squareup.javapoet.MethodSpec
+import com.squareup.javapoet.ParameterSpec
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
 import com.squareup.javapoet.TypeVariableName
 import com.squareup.javapoet.WildcardTypeName
+import org.jetbrains.annotations.NotNull
 import java.io.IOException
 import javax.annotation.processing.Filer
 import javax.lang.model.element.Modifier
@@ -30,9 +32,11 @@ class RxHttpGenerator {
     @Throws(IOException::class)
     fun generateCode(filer: Filer) {
 
+        val p = TypeVariableName.get("P")
+        val r = TypeVariableName.get("R")
         val paramClassName = ClassName.get("rxhttp.wrapper.param", "Param")
-        val typeVariableP = TypeVariableName.get("P", paramClassName)      //泛型P
-        val typeVariableR = TypeVariableName.get("R", rxhttpClass)     //泛型R
+        val typeVariableP = TypeVariableName.get("P", paramClassName.parameterizedBy(p))      //泛型P
+        val typeVariableR = TypeVariableName.get("R", rxhttpClass.parameterizedBy(p, r))     //泛型R
 
         val okHttpClient = ClassName.get("okhttp3", "OkHttpClient")
         val requestName = okHttpClient.peerClass("Request")
@@ -540,7 +544,7 @@ class RxHttpGenerator {
             .addJavadoc(
                 """
                 设置单个接口是否需要添加公共参数,
-                即是否回调通过{@link RxHttpPlugins#setOnParamAssembly(Function)}方法设置的接口,默认为true
+                即是否回调{@link RxHttpPlugins#setOnParamAssembly(rxhttp.wrapper.callback.Consumer)}方法设置的接口, 默认为true
                 """.trimIndent()
             )
             .addModifiers(Modifier.PUBLIC)
@@ -555,7 +559,7 @@ class RxHttpGenerator {
             .addJavadoc(
                 """
                 设置单个接口是否需要对Http返回的数据进行解码/解密,
-                即是否回调通过{@link RxHttpPlugins#setResultDecoder(Function)}方法设置的接口,默认为true
+                即是否回调{@link RxHttpPlugins#setResultDecoder(rxhttp.wrapper.callback.Function)}方法设置的接口, 默认为true
                 """.trimIndent()
             )
             .addModifiers(Modifier.PUBLIC)
@@ -620,11 +624,16 @@ class RxHttpGenerator {
             .build()
             .apply { methodList.add(this) }
 
+        val typeParam = ParameterSpec.builder(classSuperTName, "type")
+            .addAnnotation(NotNull::class.java)
+            .build()
+
         MethodSpec.methodBuilder("tag")
+            .addAnnotation(NotNull::class.java)
             .addAnnotation(Override::class.java)
             .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
             .addTypeVariable(t)
-            .addParameter(classSuperTName, "type")
+            .addParameter(typeParam)
             .addParameter(t, "tag")
             .addCode(
                 """
@@ -685,6 +694,7 @@ class RxHttpGenerator {
             .apply { methodList.add(this) }
 
         MethodSpec.methodBuilder("newCall")
+            .addAnnotation(NotNull::class.java)
             .addAnnotation(Override::class.java)
             .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
             .addCode(

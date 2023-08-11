@@ -134,7 +134,7 @@ class RxHttpGenerator(
 
         val getUrlFun = FunSpec.getterBuilder()
             .addStatement("addDefaultDomainIfAbsent()")
-            .addStatement("return param.getUrl()")
+            .addStatement("return param.url")
             .build()
 
         PropertySpec.builder("url", STRING)
@@ -144,7 +144,7 @@ class RxHttpGenerator(
             .let { propertySpecs.add(it) }
 
         val simpleUrlFun = FunSpec.getterBuilder()
-            .addStatement("return param.getSimpleUrl()")
+            .addStatement("return param.simpleUrl")
             .build()
 
         PropertySpec.builder("simpleUrl", STRING)
@@ -154,7 +154,7 @@ class RxHttpGenerator(
             .let { propertySpecs.add(it) }
 
         val headersFun = FunSpec.getterBuilder()
-            .addStatement("return param.getHeaders()")
+            .addStatement("return param.headers")
             .build()
 
         PropertySpec.builder("headers", headerName)
@@ -164,7 +164,7 @@ class RxHttpGenerator(
             .let { propertySpecs.add(it) }
 
         val headersBuilderFun = FunSpec.getterBuilder()
-            .addStatement("return param.getHeadersBuilder()")
+            .addStatement("return param.headersBuilder")
             .build()
 
         PropertySpec.builder("headersBuilder", headerBuilderName)
@@ -174,7 +174,7 @@ class RxHttpGenerator(
             .let { propertySpecs.add(it) }
 
         val cacheStrategyFun = FunSpec.getterBuilder()
-            .addStatement("return param.getCacheStrategy()")
+            .addStatement("return param.cacheStrategy")
             .build()
 
         PropertySpec.builder("cacheStrategy", cacheStrategyName)
@@ -210,7 +210,7 @@ class RxHttpGenerator(
                     b.writeTimeout(writeTimeoutMillis, %T.MILLISECONDS)
                 }
                 
-                if (param.getCacheMode() != CacheMode.ONLY_NETWORK) {
+                if (param.cacheMode != CacheMode.ONLY_NETWORK) {
                     val b = builder ?: okClient.newBuilder().also { builder = it }
                     b.addInterceptor(%T(cacheStrategy))
                 }
@@ -323,14 +323,14 @@ class RxHttpGenerator(
             .addModifiers(KModifier.PRIVATE)
             .addParameter("url", STRING)
             .addParameter("formatArgs", ANY, true, KModifier.VARARG)
-            .addStatement("return if(formatArgs.isNullOrEmpty()) url else String.format(url, *formatArgs)")
+            .addStatement("return if(formatArgs.isEmpty()) url else String.format(url, *formatArgs)")
             .returns(STRING)
             .build()
             .let { companionBuilder.addFunction(it) }
 
         FunSpec.builder("setUrl")
             .addParameter("url", STRING)
-            .addStatement("param.setUrl(url)")
+            .addStatement("param.url = url")
             .addStatement("return self()")
             .returns(typeVariableR)
             .build()
@@ -601,7 +601,7 @@ class RxHttpGenerator(
 
         FunSpec.builder("setHeadersBuilder")
             .addParameter("builder", headerBuilderName)
-            .addStatement("param.setHeadersBuilder(builder)")
+            .addStatement("param.headersBuilder = builder")
             .addStatement("return self()")
             .returns(typeVariableR)
             .build()
@@ -611,11 +611,11 @@ class RxHttpGenerator(
             .addKdoc(
                 """
                 设置单个接口是否需要添加公共参数,
-                即是否回调通过{@link RxHttpPlugins#setOnParamAssembly(Function)}方法设置的接口,默认为true
+                即是否回调[RxHttpPlugins.setOnParamAssembly]方法设置的接口, 默认为true
                 """.trimIndent()
             )
             .addParameter("enabled", BOOLEAN)
-            .addStatement("param.setAssemblyEnabled(enabled)")
+            .addStatement("param.isAssemblyEnabled = enabled")
             .addStatement("return self()")
             .returns(typeVariableR)
             .build()
@@ -625,7 +625,7 @@ class RxHttpGenerator(
             .addKdoc(
                 """
                 设置单个接口是否需要对Http返回的数据进行解码/解密,
-                即是否回调通过{@link RxHttpPlugins#setResultDecoder(Function)}方法设置的接口,默认为true
+                即是否回调[RxHttpPlugins.setResultDecoder]方法设置的接口, 默认为true
                 """.trimIndent()
             )
             .addParameter("enabled", BOOLEAN)
@@ -638,7 +638,7 @@ class RxHttpGenerator(
             .let { methodList.add(it) }
 
         FunSpec.builder("isAssemblyEnabled")
-            .addStatement("return param.isAssemblyEnabled()")
+            .addStatement("return param.isAssemblyEnabled")
             .returns(BOOLEAN)
             .build()
             .let { methodList.add(it) }
@@ -688,7 +688,7 @@ class RxHttpGenerator(
 
         FunSpec.builder("setCacheKey")
             .addParameter("cacheKey", STRING)
-            .addStatement("param.setCacheKey(cacheKey)")
+            .addStatement("param.cacheKey = cacheKey")
             .addStatement("return self()")
             .returns(typeVariableR)
             .build()
@@ -696,7 +696,7 @@ class RxHttpGenerator(
 
         FunSpec.builder("setCacheValidTime")
             .addParameter("cacheValidTime", LONG)
-            .addStatement("param.setCacheValidTime(cacheValidTime)")
+            .addStatement("param.cacheValidTime = cacheValidTime")
             .addStatement("return self()")
             .returns(typeVariableR)
             .build()
@@ -704,7 +704,7 @@ class RxHttpGenerator(
 
         FunSpec.builder("setCacheMode")
             .addParameter("cacheMode", cacheModeName)
-            .addStatement("param.setCacheMode(cacheMode)")
+            .addStatement("param.cacheMode = cacheMode")
             .addStatement("return self()")
             .returns(typeVariableR)
             .build()
@@ -796,8 +796,8 @@ class RxHttpGenerator(
             .addParameter("domain", STRING)
             .addCode(
                 """
-                val newUrl = addDomainIfAbsent(param.getSimpleUrl(), domain)
-                param.setUrl(newUrl)
+                val newUrl = addDomainIfAbsent(param.simpleUrl, domain)
+                param.url = newUrl
                 return self()
                 """.trimIndent()
             )
@@ -823,7 +823,7 @@ class RxHttpGenerator(
                     } else if (domain.endsWith("/")) {
                         domain + url
                     } else {
-                        domain + "/" + url
+                        "${'$'}domain/${'$'}url"
                     }
                 """.trimIndent()
             )

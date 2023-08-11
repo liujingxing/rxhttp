@@ -1,5 +1,7 @@
 package rxhttp.wrapper.param;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -32,7 +34,7 @@ public final class ObservableProgress<T> extends Observable<T> {
     }
 
     @Override
-    protected void subscribeActual(Observer<? super T> observer) {
+    protected void subscribeActual(@NotNull Observer<? super T> observer) {
         if (scheduler instanceof TrampolineScheduler) {
             source.subscribe(new SyncObserver<>(observer, progressConsumer));
         } else {
@@ -54,7 +56,7 @@ public final class ObservableProgress<T> extends Observable<T> {
         }
 
         @Override
-        public void onSubscribe(Disposable d) {
+        public void onSubscribe(@NotNull Disposable d) {
             if (DisposableHelper.validate(this.upstream, d)) {
                 this.upstream = d;
                 downstream.onSubscribe(this);
@@ -75,7 +77,7 @@ public final class ObservableProgress<T> extends Observable<T> {
         }
 
         @Override
-        public void onNext(T t) {
+        public void onNext(@NotNull T t) {
             if (done) {
                 return;
             }
@@ -83,7 +85,7 @@ public final class ObservableProgress<T> extends Observable<T> {
         }
 
         @Override
-        public void onError(Throwable t) {
+        public void onError(@NotNull Throwable t) {
             if (done) {
                 RxJavaPlugins.onError(t);
                 return;
@@ -139,7 +141,7 @@ public final class ObservableProgress<T> extends Observable<T> {
         }
 
         @Override
-        public void onSubscribe(Disposable d) {
+        public void onSubscribe(@NotNull Disposable d) {
             if (DisposableHelper.validate(this.upstream, d)) {
                 this.upstream = d;
                 downstream.onSubscribe(this);
@@ -156,7 +158,7 @@ public final class ObservableProgress<T> extends Observable<T> {
         }
 
         @Override
-        public void onNext(T t) {
+        public void onNext(@NotNull T t) {
             if (done) {
                 return;
             }
@@ -171,7 +173,7 @@ public final class ObservableProgress<T> extends Observable<T> {
         }
 
         @Override
-        public void onError(Throwable t) {
+        public void onError(@NotNull Throwable t) {
             if (done) {
                 RxJavaPlugins.onError(t);
                 return;
