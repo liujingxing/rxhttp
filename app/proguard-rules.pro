@@ -40,3 +40,10 @@
 #-keepclassmembers class okhttp3.internal.http.StatusLine{
 #    public static okhttp3.internal.http.StatusLine parse(java.lang.String);
 #}
+
+#依赖simple-xml后打包失败，需加入以下规则
+-dontwarn android.content.res.**
+
+#依赖fastjson后打包失败，需加入以下规则
+-dontwarn javax.ws.rs.**
+-dontwarn org.glassfish.jersey.internal.spi.**
