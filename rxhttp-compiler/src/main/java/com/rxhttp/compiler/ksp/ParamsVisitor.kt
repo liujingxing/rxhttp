@@ -47,7 +47,7 @@ class ParamsVisitor(
     @KspExperimental
     override fun visitClassDeclaration(classDeclaration: KSClassDeclaration, data: Unit) {
         try {
-            classDeclaration.checkParamsValidClass()
+            classDeclaration.checkParamsValidClass(resolver)
             val annotations = classDeclaration.getAnnotationsByType(Param::class)
             val name = annotations.firstOrNull()?.methodName
             if (name.isNullOrBlank()) {
@@ -208,7 +208,7 @@ class ParamsVisitor(
 
 
 @Throws(NoSuchElementException::class)
-private fun KSClassDeclaration.checkParamsValidClass() {
+private fun KSClassDeclaration.checkParamsValidClass(resolver: Resolver) {
     val paramSimpleName = Param::class.java.simpleName
     val elementQualifiedName = qualifiedName?.asString()
     if (!isPublic()) {
@@ -221,7 +221,7 @@ private fun KSClassDeclaration.checkParamsValidClass() {
     }
 
     val className = "rxhttp.wrapper.param.Param"
-    if (!instanceOf(className)) {
+    if (!asStarProjectedType().instanceOf(className, resolver)) {
         val msg =
             "The class '$elementQualifiedName' annotated with @$paramSimpleName must inherit from $className"
         throw NoSuchElementException(msg)

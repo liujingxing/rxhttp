@@ -8,6 +8,7 @@ import com.google.devtools.ksp.isAbstract
 import com.google.devtools.ksp.isPublic
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.KSPLogger
+import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSVisitorVoid
 import com.rxhttp.compiler.K_TYPE
@@ -46,6 +47,7 @@ import java.util.*
  * Time: 22:33
  */
 class ParserVisitor(
+    private val resolver: Resolver,
     private val logger: KSPLogger
 ) : KSVisitorVoid() {
 
@@ -56,7 +58,7 @@ class ParserVisitor(
     @KspExperimental
     override fun visitClassDeclaration(classDeclaration: KSClassDeclaration, data: Unit) {
         try {
-            classDeclaration.checkParserValidClass()
+            classDeclaration.checkParserValidClass(resolver)
             val annotation = classDeclaration.getAnnotationsByType(Parser::class).firstOrNull()
             var name = annotation?.name
             if (name.isNullOrBlank()) {
@@ -336,7 +338,7 @@ private fun List<ParameterSpec>.toParamNames(typeCount: Int): String {
 private fun TypeName.isClassType() = toString().startsWith("java.lang.Class")
 
 @Throws(NoSuchElementException::class)
-private fun KSClassDeclaration.checkParserValidClass() {
+private fun KSClassDeclaration.checkParserValidClass(resolver: Resolver) {
     val elementQualifiedName = qualifiedName?.asString()
     if (!isPublic()) {
         throw NoSuchElementException("The class '$elementQualifiedName' must be public")
@@ -348,7 +350,7 @@ private fun KSClassDeclaration.checkParserValidClass() {
     }
 
     val className = "rxhttp.wrapper.parse.Parser"
-    if (!instanceOf(className)) {
+    if (!asStarProjectedType().instanceOf(className, resolver)) {
         val msg =
             "The class '$elementQualifiedName' annotated with @${Parser::class.java.simpleName} must inherit from $className"
         throw NoSuchElementException(msg)

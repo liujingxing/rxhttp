@@ -27,7 +27,7 @@ class ConverterVisitor(
     @KspExperimental
     override fun visitPropertyDeclaration(property: KSPropertyDeclaration, data: Unit) {
         try {
-            property.checkConverterProperty()
+            property.checkConverterProperty(resolver)
             val annotation = property.getAnnotationsByType(Converter::class).firstOrNull()
             var name = annotation?.name
             if (name.isNullOrBlank()) {
@@ -59,12 +59,11 @@ class ConverterVisitor(
 }
 
 @Throws(NoSuchElementException::class)
-private fun KSPropertyDeclaration.checkConverterProperty() {
+private fun KSPropertyDeclaration.checkConverterProperty(resolver: Resolver) {
     val variableName = simpleName.asString()
 
     val className = "rxhttp.wrapper.callback.IConverter"
-    val ksClass = type.resolve().declaration as? KSClassDeclaration
-    if (!ksClass.instanceOf(className)) {
+    if (!type.resolve().instanceOf(className, resolver)) {
         throw NoSuchElementException("The variable '$variableName' must be IConverter")
     }
 

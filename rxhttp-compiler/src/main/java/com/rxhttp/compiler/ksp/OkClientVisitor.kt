@@ -27,7 +27,7 @@ class OkClientVisitor(
     @KspExperimental
     override fun visitPropertyDeclaration(property: KSPropertyDeclaration, data: Unit) {
         try {
-            property.checkOkClientProperty()
+            property.checkOkClientProperty(resolver)
             val annotation = property.getAnnotationsByType(OkClient::class).firstOrNull()
             var name = annotation?.name
             if (name.isNullOrBlank()) {
@@ -59,12 +59,11 @@ class OkClientVisitor(
 }
 
 @Throws(NoSuchElementException::class)
-private fun KSPropertyDeclaration.checkOkClientProperty() {
+private fun KSPropertyDeclaration.checkOkClientProperty(resolver: Resolver) {
     val variableName = simpleName.asString()
 
     val className = "okhttp3.OkHttpClient"
-    val ksClass = type.resolve().declaration as? KSClassDeclaration
-    if (!ksClass.instanceOf(className)) {
+    if (!type.resolve().instanceOf(className, resolver)) {
         throw NoSuchElementException("The variable '$variableName' must be OkHttpClient")
     }
 

@@ -94,7 +94,7 @@ class KspProcessor(private val env: SymbolProcessorEnvironment) : SymbolProcesso
             }
         }
 
-        val parserVisitor = ParserVisitor(logger)
+        val parserVisitor = ParserVisitor(resolver, logger)
         resolver.getSymbolsWithAnnotation(Parser::class.java.name).forEach {
             if (it is KSClassDeclaration) {
                 ksFileSet.add(it.containingFile!!)

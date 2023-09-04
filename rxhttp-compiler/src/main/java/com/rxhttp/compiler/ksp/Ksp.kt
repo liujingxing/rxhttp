@@ -2,16 +2,19 @@ package com.rxhttp.compiler.ksp
 
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.getAnnotationsByType
+import com.google.devtools.ksp.getClassDeclarationByName
 import com.google.devtools.ksp.getConstructors
 import com.google.devtools.ksp.isPublic
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.KSPLogger
+import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSNode
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
+import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSTypeReference
 import com.google.devtools.ksp.symbol.KSValueParameter
 import com.google.devtools.ksp.symbol.Modifier
@@ -166,14 +169,9 @@ fun ParameterSpec.isVararg() = modifiers.contains(KModifier.VARARG)
 
 fun KSClassDeclaration.getPublicConstructors() = getConstructors().filter { it.isPublic() }
 
-internal fun KSClassDeclaration?.instanceOf(className: String): Boolean {
-    if (this == null) return false
-    if (className == qualifiedName?.asString()) return true
-    superTypes.forEach {
-        val ksClass = it.resolve().declaration as? KSClassDeclaration
-        if (ksClass.instanceOf(className)) return true
-    }
-    return false
+internal fun KSType.instanceOf(className: String, resolver: Resolver): Boolean {
+    val ksClass = resolver.getClassDeclarationByName(className) ?: return false
+    return ksClass.asStarProjectedType().isAssignableFrom(this)
 }
 
 @KspExperimental

@@ -32,7 +32,7 @@ class DomainVisitor(
     @KspExperimental
     override fun visitPropertyDeclaration(property: KSPropertyDeclaration, data: Unit) {
         try {
-            property.checkDomainProperty()
+            property.checkDomainProperty(resolver)
             val annotation = property.getAnnotationsByType(Domain::class).firstOrNull()
             var name = annotation?.name
             if (name.isNullOrBlank()) {
@@ -66,12 +66,11 @@ class DomainVisitor(
 }
 
 @Throws(NoSuchElementException::class)
-fun KSPropertyDeclaration.checkDomainProperty() {
+fun KSPropertyDeclaration.checkDomainProperty(resolver: Resolver) {
     val variableName = simpleName.asString()
 
     val className = "kotlin.String"
-    val ksClass = type.resolve().declaration as? KSClassDeclaration
-    if (!ksClass.instanceOf(className)) {
+    if (!type.resolve().instanceOf(className, resolver)) {
         throw NoSuchElementException("The variable '$variableName' must be String")
     }
 
