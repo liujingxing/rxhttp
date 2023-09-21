@@ -314,9 +314,17 @@ public class LogUtil {
             try {
                 if (json.startsWith("[")) {
                     JSONArray jsonObject = new JSONArray(json);
+                    if (jsonObject.toString().length() < json.length()) {
+                        //https://github.com/liujingxing/rxhttp/issues/463
+                        return json;
+                    }
                     return new JSONStringer(indentSpaces).write(jsonObject).toString();
                 } else if (json.startsWith("{")) {
                     JSONObject jsonObject = new JSONObject(json);
+                    if (jsonObject.toString().length() < json.length()) {
+                        //https://github.com/liujingxing/rxhttp/issues/463
+                        return json;
+                    }
                     return new JSONStringer(indentSpaces).write(jsonObject).toString();
                 }
             } catch (Throwable ignore) {
