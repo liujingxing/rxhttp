@@ -69,7 +69,7 @@ public abstract class BaseRxHttp : ITag, CallFactory {
     }
 
     public fun <T> toObservableResponse(type: Type): ObservableCall<T> =
-            toObservable(wrapResponseParser<T>(type))
+            toObservable(wrapResponseParser(type))
 
     public fun <T> toObservableResponse(type: Class<T>): ObservableCall<T> =
             toObservableResponse<T>(type as Type)

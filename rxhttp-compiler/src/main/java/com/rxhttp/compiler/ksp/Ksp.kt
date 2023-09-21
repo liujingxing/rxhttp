@@ -22,6 +22,7 @@ import com.google.devtools.ksp.symbol.Origin
 import com.rxhttp.compiler.K_ARRAY_TYPE
 import com.rxhttp.compiler.K_TYPE
 import com.squareup.javapoet.JavaFile
+import com.squareup.kotlinpoet.ANY
 import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.BOOLEAN
 import com.squareup.kotlinpoet.BOOLEAN_ARRAY
@@ -163,6 +164,59 @@ fun KSClassDeclaration.findOnParserFunReturnType(): TypeName? {
                 it.parameters[0].type.getQualifiedName() == "okhttp3.Response"
     }
     return ksFunction?.returnType?.toTypeName(typeParameters.toTypeParameterResolver())
+}
+
+/**
+ * 获取Parser接口实际泛型类型
+ * @param typeNameMap  key 类自身声明的泛型名称，如XxxParser<A, B>  value 子类(实现类)传递的真实泛型类型, 如 AParser<A> : XxxParser<User<A>, Book>
+ */
+fun KSClassDeclaration.getParserTypeParam(typeNameMap: Map<String, TypeName>? = null): TypeName? {
+    val className = qualifiedName?.asString()
+    val parserName = "rxhttp.wrapper.parse.Parser"
+    val typeParserName = "rxhttp.wrapper.parse.TypeParser"
+    val typeParameters = typeParameters
+    if (parserName == className || typeParserName == className) {
+        return typeNameMap?.get(typeParameters.first().name.asString())
+    }
+    val typeParamResolver = typeParameters.toTypeParameterResolver()
+    for (superType in superTypes) {  //superTypes 包含父类及直接实现的接口
+        val typeName = superType.toTypeName(typeParamResolver)  //引用的父类类型
+        if (typeName == ANY) continue
+        val ksDeclaration = superType.resolve().declaration  //声明的父类类型
+        if (typeName is ParameterizedTypeName) {
+            //将泛型类型转换为子类传递的类型
+            val typeNames = typeName.typeArguments.map { it.convert(typeNameMap) }
+            val ksTypeParameters = ksDeclaration.typeParameters //获取类自身声明的泛型列表
+            var i = 0
+            val newTypeNameMap = ksTypeParameters.associate {
+                it.name.asString() to typeNames[i++]
+            }
+            val answer = (ksDeclaration as KSClassDeclaration).getParserTypeParam(newTypeNameMap)
+            if (answer != null) {
+                return answer
+            }
+        } else {
+            (ksDeclaration as KSClassDeclaration).getParserTypeParam()
+        }
+    }
+    return null
+}
+
+fun TypeName.convert(typeNameMap: Map<String, TypeName>? = null): TypeName {
+    if (typeNameMap == null) return this
+    return when (this) {
+        is TypeVariableName -> {
+            val typeName = typeNameMap[name]
+            return typeName?.copy(typeName.isNullable || isNullable) ?: this
+        }
+
+        is ParameterizedTypeName -> {
+            rawType.parameterizedBy(typeArguments.map { it.convert(typeNameMap) })
+                .copy(isNullable)
+        }
+
+        else -> this
+    }
 }
 
 fun ParameterSpec.isVararg() = modifiers.contains(KModifier.VARARG)

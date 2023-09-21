@@ -4,8 +4,7 @@ import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
-import com.squareup.kotlinpoet.ksp.toTypeName
-import com.squareup.kotlinpoet.ksp.toTypeParameterResolver
+import com.rxhttp.compiler.ksp.getParserTypeParam
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.SourceFile
 import com.tschuchort.compiletesting.symbolProcessorProviders
@@ -51,22 +50,11 @@ class KspProcessorTest {
         override fun process(resolver: Resolver): List<KSAnnotated> {
             resolver.getSymbolsWithAnnotation(Parser::class.java.name).forEach {
                 if (it is KSClassDeclaration) {
-                    it.test()
+                    val parserTypeParam = it.getParserTypeParam()
+                    println("parserTypeParam=$parserTypeParam")
                 }
             }
             return emptyList()
-        }
-
-        private fun KSClassDeclaration.test() {
-//            val typeName =
-//                asStarProjectedType().toTypeName(typeParameters.toTypeParameterResolver())
-//            println("typeName=$typeName")
-            superTypes.forEach {
-                val typeName =
-                    it.toTypeName(it.resolve().declaration.typeParameters.toTypeParameterResolver())
-                println("typeName=$typeName")
-                (it.resolve().declaration as KSClassDeclaration).test()
-            }
         }
     }
 
@@ -75,17 +63,23 @@ class KspProcessorTest {
         val entityPath = "src/main/java/com/example/httpsender/entity"
         val annotationPrefix = "../rxhttp-annotation/src/main/java/rxhttp/wrapper/annotation"
         val parserPrefix = "../rxhttp/src/main/java/rxhttp/wrapper/parse"
+        val testPrefix = "src/test/java/com/rxhttp/compiler"
         return mutableListOf(
-            "$kotlinPath/ResponseParser.kt",
+//            "$kotlinPath/ResponseParser.kt",
             "$entityPath/Response.java",
             "$parserPrefix/TypeParser.java",
             "$parserPrefix/Parser.java",
+            "$parserPrefix/TypeParser.java",
             "$annotationPrefix/Converter.java",
             "$annotationPrefix/DefaultDomain.java",
             "$annotationPrefix/Domain.java",
             "$annotationPrefix/OkClient.java",
             "$annotationPrefix/Param.java",
             "$annotationPrefix/Parser.java",
+            "$testPrefix/TestParser1.kt",
+            "$testPrefix/TestParser2.kt",
+            "src/main/java/com/example/httpsender/entity/User.java",
+            "../rxhttp/src/main/java/rxhttp/wrapper/callback/Consumer.java"
         ).map { SourceFile.fromPath(File(it)) }
     }
 

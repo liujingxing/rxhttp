@@ -106,7 +106,7 @@ private fun KSClassDeclaration.getToObservableXxxFun(
 ): List<FunSpec> {
     val funList = arrayListOf<FunSpec>()
     //onParser方法返回类型
-    val onParserFunReturnType = findOnParserFunReturnType() ?: return emptyList()
+    val onParserFunReturnType = getParserTypeParam() ?: return emptyList()
     val typeVariableNames = typeParameters.map { it.toTypeVariableName() }
     val typeCount = typeVariableNames.size  //泛型数量
     val customParser = toClassName()
@@ -139,7 +139,7 @@ private fun KSClassDeclaration.getToObservableXxxFun(
         val toObservableXxxFunBody =
             if (typeCount == 1 && onParserFunReturnType is TypeVariableName) {
                 val paramNames = typeParameterSpecs.toParamNames()
-                CodeBlock.of("return toObservable(%M$types($paramNames))", wrapCustomParser)
+                CodeBlock.of("return toObservable(%M($paramNames))", wrapCustomParser)
             } else {
                 val paramNames = typeParameterSpecs.toParamNames(originParameterSpecs, typeCount)
                 CodeBlock.of("return toObservable(%T$types($paramNames))", customParser)

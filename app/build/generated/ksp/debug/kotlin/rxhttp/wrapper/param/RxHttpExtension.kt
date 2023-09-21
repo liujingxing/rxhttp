@@ -22,7 +22,7 @@ public inline fun <reified T> BaseRxHttp.toObservableResponse(): ObservableCall<
     toObservableResponse<T>(javaTypeOf<T>())
 
 public inline fun <reified T> CallFactory.toAwaitResponse(): CallAwait<T> =
-    toAwait(BaseRxHttp.wrapResponseParser<T>(javaTypeOf<T>()))
+    toAwait(BaseRxHttp.wrapResponseParser(javaTypeOf<T>()))
 
 public inline fun <reified T> CallFactory.toFlowResponse(): CallFlow<T> =
-    toFlow(BaseRxHttp.wrapResponseParser<T>(javaTypeOf<T>()))
+    toFlow(BaseRxHttp.wrapResponseParser(javaTypeOf<T>()))

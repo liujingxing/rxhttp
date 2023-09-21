@@ -52,7 +52,7 @@ class RxHttpExtensions(private val logger: KSPLogger) {
         val typeVariableNames = ksClass.typeParameters.map {
             it.toTypeVariableName().copy(reified = true)
         }
-        val onParserFunReturnType = ksClass.findOnParserFunReturnType() ?: return
+        val onParserFunReturnType = ksClass.getParserTypeParam() ?: return
 
         val typeCount = typeVariableNames.size  //泛型数量
         val customParser = ksClass.toClassName()
@@ -101,7 +101,7 @@ class RxHttpExtensions(private val logger: KSPLogger) {
                 if (typeCount == 1 && onParserFunReturnType is TypeVariableName) {
                     val baseRxHttp = ClassName(rxHttpPackage, "BaseRxHttp")
                     val wrapFun = "%T.wrap${customParser.simpleName}"
-                    funBody = "return %M($wrapFun$types($finalParams))"
+                    funBody = "return %M($wrapFun($finalParams))"
                     baseRxHttp
                 } else {
                     var params = finalParams
