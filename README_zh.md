@@ -120,7 +120,7 @@
 
 | 功能说明 | RxHttp | [Retrofit](https://github.com/square/retrofit) |
 | --- | :---: | :---: |
-| 版本| v3.1.0| v2.9.0 |
+| 版本| v3.2.0| v2.9.0 |
 | 状态| 维护中| 维护中 |
 | 标准RESTful风格| ✅ | ✅ |
 | 学习成本| 低 | 高|
@@ -257,7 +257,7 @@ android {
 }
 //3、添加插件及依赖
 plugins {
-    id 'com.google.devtools.ksp' version '1.8.21-1.0.11'
+    id 'com.google.devtools.ksp' version '1.9.10-1.0.13'
 }
  
 dependencies {
