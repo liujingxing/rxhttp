@@ -24,3 +24,6 @@
     public okhttp3.internal.cache.DiskLruCache create(
               okhttp3.internal.io.FileSystem, java.io.File, int, int, long);
 }
+
+# With R8 full mode generic signatures are stripped for classes that are not kept.
+-keep,allowobfuscation,allowshrinking class * extends rxhttp.wrapper.parse.TypeParser
