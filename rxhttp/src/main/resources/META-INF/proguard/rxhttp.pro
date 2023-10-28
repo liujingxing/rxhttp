@@ -1,3 +1,5 @@
+-keepattributes Signature
+
 # okhttp version >= 4.7.0
 -keepclassmembers class okhttp3.internal.Util {
     public static java.lang.String userAgent;
