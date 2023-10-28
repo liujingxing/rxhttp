@@ -10,12 +10,10 @@ import com.example.httpsender.databinding.AwaitFragmentBinding
 import com.example.httpsender.entity.*
 import com.example.httpsender.kt.errorMsg
 import com.example.httpsender.kt.show
-import com.example.httpsender.parser.Android10DownloadFactory
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 import rxhttp.*
-import rxhttp.wrapper.entity.OkResponse
 import rxhttp.wrapper.param.RxHttp
 import rxhttp.wrapper.param.toAwaitResponse
 import java.io.File
@@ -53,11 +51,13 @@ class AwaitFragment : BaseFragment<AwaitFragmentBinding>(), View.OnClickListener
     //发送Get请求，获取文章列表
     private suspend fun AwaitFragmentBinding.sendGet(view: View) {
         RxHttp.get("/article/list/0/json")
-            .toAwaitResponse<OkResponse<User>>()
+            .toAwaitResponse<PageList<Article>>()
+            .toAwaitOkResponse()
             .awaitResult {
-                val user = it.body()
+                val list = it.body()
                 val response = it.raw()
                 val headers = it.headers()
+                tvResult.text = Gson().toJson(list)
             }.onFailure {
                 tvResult.text = it.errorMsg
                 //失败回调
