@@ -3,6 +3,7 @@ package rxhttp.wrapper.utils;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -312,16 +313,17 @@ public class LogUtil {
     private static String formattingJson(String json, int indentSpaces) {
         if (indentSpaces >= 0) {
             try {
+                JSONTokener jsonTokener = new JSONTokener(json);
                 if (json.startsWith("[")) {
-                    JSONArray jsonObject = new JSONArray(json);
-                    if (jsonObject.toString().length() < json.length()) {
+                    JSONArray jsonObject = new JSONArray(jsonTokener);
+                    if (jsonTokener.more()) {
                         //https://github.com/liujingxing/rxhttp/issues/463
                         return json;
                     }
                     return new JSONStringer(indentSpaces).write(jsonObject).toString();
                 } else if (json.startsWith("{")) {
-                    JSONObject jsonObject = new JSONObject(json);
-                    if (jsonObject.toString().length() < json.length()) {
+                    JSONObject jsonObject = new JSONObject(jsonTokener);
+                    if (jsonTokener.more()) {
                         //https://github.com/liujingxing/rxhttp/issues/463
                         return json;
                     }
