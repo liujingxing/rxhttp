@@ -5,6 +5,7 @@ import rxhttp.wrapper.OkHttpCompat
 import rxhttp.wrapper.callback.OutputStreamFactory
 import rxhttp.wrapper.callback.ProgressCallback
 import rxhttp.wrapper.entity.DownloadOffSize
+import rxhttp.wrapper.utils.LogTime
 import rxhttp.wrapper.utils.LogUtil
 import rxhttp.wrapper.utils.isPartialContent
 import rxhttp.wrapper.utils.writeTo
@@ -28,8 +29,10 @@ open class StreamParser<T> constructor(
         val expandOs = osFactory.openOutputStream(response)
         val expand: T = expandOs.expand
         expandOs.use { os ->
-            LogUtil.log(response, expand.toString())
+            LogUtil.log("Download start: $expand")
+            val logTime = LogTime()
             body.byteStream().use { it.writeTo(os, response, progressCallback) }
+            LogUtil.log("Download end, cost ${logTime.tookMs()}ms: $expand")
         }
         return expand
     }

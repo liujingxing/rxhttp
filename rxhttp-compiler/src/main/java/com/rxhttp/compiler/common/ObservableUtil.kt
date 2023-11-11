@@ -38,6 +38,7 @@ fun getObservableClass(): Map<String, String> {
         import rxhttp.wrapper.callback.ProgressCallback;
         import rxhttp.wrapper.entity.OkResponse;
         import rxhttp.wrapper.entity.Progress;
+        import rxhttp.wrapper.exception.ProxyException;
         import rxhttp.wrapper.parse.OkResponseParser;
         import rxhttp.wrapper.parse.Parser;
         import rxhttp.wrapper.parse.StreamParser;
@@ -206,7 +207,7 @@ fun getObservableClass(): Map<String, String> {
                 }
 
                 void onError(Call call, Throwable e) {
-                    LogUtil.log(call.request().url().toString(), e);
+                    LogUtil.log(new ProxyException(call.request(), e));
                     Exceptions.throwIfFatal(e);
                     if (!disposed) {
                         downstream.onError(e);

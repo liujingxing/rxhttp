@@ -62,9 +62,11 @@ public class ParseException extends IOException {
 
     @Override
     public String toString() {
-        return getClass().getName() + ":" +
-            "\n" + requestMethod + " " + httpUrl +
-            "\n\nCode=" + errorCode + " message=" + getMessage() +
-            "\n" + responseHeaders;
+        String result = getClass().getName() + ": code is " + errorCode;
+        String message = getMessage();
+        if (message != null && !message.trim().isEmpty()) {
+            result += ", " + message;
+        }
+        return result;
     }
 }

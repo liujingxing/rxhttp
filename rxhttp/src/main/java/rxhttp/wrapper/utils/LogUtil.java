@@ -31,6 +31,7 @@ import rxhttp.internal.RxHttpVersion;
 import rxhttp.wrapper.OkHttpCompat;
 import rxhttp.wrapper.entity.FileRequestBody;
 import rxhttp.wrapper.entity.UriRequestBody;
+import rxhttp.wrapper.exception.ProxyException;
 import rxhttp.wrapper.progress.ProgressRequestBody;
 
 /**
@@ -70,7 +71,12 @@ public class LogUtil {
     //Print RxJava Throwable
     public static void logRxJavaError(Throwable throwable) {
         if (!isDebug) return;
-        Platform.get().loge(TAG_RXJAVA, "RxJavaPlugins onError", throwable);
+        String throwableName = throwable.getClass().getName();
+        if (throwableName.equals("io.reactivex.rxjava3.exceptions.OnErrorNotImplementedException")
+            || throwableName.equals("io.reactivex.exceptions.OnErrorNotImplementedException")) {
+            return;
+        }
+        Platform.get().loge(TAG_RXJAVA, throwable);
     }
 
     //Print message and throwable
@@ -78,6 +84,12 @@ public class LogUtil {
         if (!isDebug) return;
         Platform.get().loge(TAG, message, throwable);
     }
+
+    public static void log(Throwable throwable) {
+        if (!isDebug) return;
+        Platform.get().loge(TAG, throwable);
+    }
+
 
     public static void log(String msg) {
         if (!isDebug()) return;
@@ -145,28 +157,28 @@ public class LogUtil {
             }
             Platform.get().logd(TAG, builder.toString());
         } catch (Throwable e) {
-            Platform.get().loge(TAG, "Request start log printing failed", e);
+            Platform.get().loge(TAG, new ProxyException("Request start log printing failed", e));
         }
     }
 
     //Print Response
-    public static void log(@NotNull Response response, String body) {
+    public static void log(@NotNull Response response, @NotNull LogTime logTime) {
         if (!isDebug) return;
         try {
+            ResponseBody responseBody = response.body();
             Request request = response.request();
-            LogTime logTime = request.tag(LogTime.class);
-            long requestCostMs = logTime != null ? logTime.tookMs() : 0;
+            long requestCostMs = logTime.tookMs();
             long readBodyCostMs = 0;
             String result;
-            if (body != null) {
-                result = body;
-            } else if (!promisesBody(response)) {
+            if (!promisesBody(response) || responseBody == null) {
                 result = "No Response Body";
             } else if (bodyHasUnknownEncoding(response.headers())) {
-                result = "(binary " + response.body().contentLength() + "-byte encoded body omitted)";
+                result = "(binary " + responseBody.contentLength() + "-byte encoded body omitted)";
+            } else if (!printBody(responseBody)) {
+                result = "(binary " + responseBody.contentLength() + "-byte non-text body omitted)";
             } else {
                 result = formattingJson(response2Str(response), indentSpaces);
-                readBodyCostMs = (logTime != null ? logTime.tookMs() : 0) - requestCostMs;
+                readBodyCostMs = logTime.tookMs() - requestCostMs;
             }
             StringBuilder builder = new StringBuilder("<------ ")
                 .append(RxHttpVersion.userAgent).append(" ")
@@ -175,13 +187,13 @@ public class LogUtil {
                 .append(request.method()).append(" ").append(request.url())
                 .append("\n\n").append(response.protocol()).append(" ")
                 .append(response.code()).append(" ").append(response.message())
-                .append(requestCostMs > 0 ? " " + requestCostMs + "ms" : "")
+                .append(" ").append(requestCostMs).append("ms")
                 .append(readBodyCostMs > 0 ? " " + readBodyCostMs + "ms" : "")
                 .append("\n").append(readHeaders(response.headers()))
                 .append("\n").append(result);
             Platform.get().logi(TAG, builder.toString());
         } catch (Throwable e) {
-            Platform.get().loge(TAG, "Request end Log printing failed", e);
+            Platform.get().loge(TAG, new ProxyException("Request end log printing failed", e));
         }
     }
 
@@ -394,6 +406,27 @@ public class LogUtil {
         return contentEncoding != null
             && !contentEncoding.equalsIgnoreCase("identity")
             && !contentEncoding.equalsIgnoreCase("gzip");
+    }
+
+    private static boolean printBody(@NotNull ResponseBody responseBody) {
+        MediaType mediaType = responseBody.contentType();
+        if (mediaType != null) {
+            String type = mediaType.type();
+            String subtype = mediaType.subtype();
+
+            if (type.equalsIgnoreCase("text") || subtype.equalsIgnoreCase("json")
+                || subtype.equalsIgnoreCase("xml"))
+                return true;
+
+            if (type.equalsIgnoreCase("image") || type.equalsIgnoreCase("audio")
+                || type.equalsIgnoreCase("video") || subtype.equalsIgnoreCase("zip"))
+                return false;
+
+            if (mediaType.charset() != null)
+                return true;
+        }
+        //Considering that the contentType may be misused, try to print if the contentLength is less than 1M
+        return responseBody.contentLength() < 1024 * 1024;
     }
 
     /**

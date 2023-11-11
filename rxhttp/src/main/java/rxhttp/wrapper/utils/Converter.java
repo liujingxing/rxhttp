@@ -31,7 +31,6 @@ public class Converter {
     @SuppressWarnings("unchecked")
     public static <T> T convert(Response response, Type type) throws IOException {
         ResponseBody body = OkHttpCompat.throwIfFail(response);
-        LogUtil.log(response, null);
         if (type == ResponseBody.class) {
             try {
                 return (T) OkHttpCompat.buffer(body);

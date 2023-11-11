@@ -60,6 +60,10 @@ public class Platform {
         e.printStackTrace();
     }
 
+    public void loge(String tag, Throwable e) {
+        e.printStackTrace();
+    }
+
     static final class Android extends Platform {
         Android() {
             super();
@@ -93,6 +97,11 @@ public class Platform {
         @Override
         public void loge(String tag, String message, Throwable e) {
             log(Log.ERROR, tag, message);
+            printThrowable(e, tag);
+        }
+
+        @Override
+        public void loge(String tag, Throwable e) {
             printThrowable(e, tag);
         }
 

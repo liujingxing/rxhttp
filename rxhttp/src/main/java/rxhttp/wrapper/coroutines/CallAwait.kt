@@ -1,8 +1,8 @@
 package rxhttp.wrapper.coroutines
 
 import rxhttp.wrapper.CallFactory
-import rxhttp.wrapper.OkHttpCompat
 import rxhttp.wrapper.entity.OkResponse
+import rxhttp.wrapper.exception.ProxyException
 import rxhttp.wrapper.parse.OkResponseParser
 import rxhttp.wrapper.parse.Parser
 import rxhttp.wrapper.utils.LogUtil
@@ -26,7 +26,7 @@ class CallAwait<T>(
         return try {
             call.await(parser)
         } catch (t: Throwable) {
-            LogUtil.log(OkHttpCompat.url(call.request()).toString(), t)
+            LogUtil.log(ProxyException(call.request(), t))
             throw t
         }
     }

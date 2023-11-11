@@ -9,7 +9,7 @@ import rxhttp.wrapper.utils.LogUtil
 
 
 /**
- * Only the request start log is printed
+ * Print the request start/end log
  *
  * User: ljx
  * Date: 2021/10/17
@@ -18,13 +18,13 @@ import rxhttp.wrapper.utils.LogUtil
 class LogInterceptor(private val okClient: OkHttpClient) : Interceptor {
 
     override fun intercept(chain: Interceptor.Chain): Response {
-        var request = chain.request()
+        val request = chain.request()
         // Prints the request start log
         LogUtil.log(request, OkHttpCompat.cookieJar(okClient))
-        // Record the request start time
-        request = request.newBuilder()
-            .tag(LogTime::class.java, LogTime())
-            .build()
-        return chain.proceed(request)
+        val logTime = LogTime()
+        val response = chain.proceed(request)
+        // Prints the request end log
+        LogUtil.log(response, logTime)
+        return response
     }
 }
