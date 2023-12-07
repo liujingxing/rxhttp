@@ -7,7 +7,7 @@
 [![](https://img.shields.io/badge/change-更新日志-success.svg)](https://github.com/liujingxing/rxhttp/wiki/%E6%9B%B4%E6%96%B0%E6%97%A5%E5%BF%97)
 [![](https://img.shields.io/badge/FAQ-常见问题-success.svg)](https://github.com/liujingxing/rxhttp/wiki/FAQ)
 [![](https://img.shields.io/badge/掘金-@刘一刀-blue.svg)](https://juejin.cn/user/272334612601559/posts)
-[![](https://img.shields.io/badge/QQ群-378530627-red.svg)](https://jq.qq.com/?_wv=1027&k=E53Hakvv)
+<!--[![](https://img.shields.io/badge/QQ群-378530627-red.svg)](https://jq.qq.com/?_wv=1027&k=E53Hakvv)-->
 
 # [(RxHttp 3.0 更新指南，升级必看)](https://github.com/liujingxing/rxhttp/wiki/RxHttp-3.0-%E6%9B%B4%E6%96%B0%E6%8C%87%E5%8D%97%EF%BC%8C%E5%8D%87%E7%BA%A7%E5%BF%85%E7%9C%8B)
 
