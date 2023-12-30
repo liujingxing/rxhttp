@@ -5,9 +5,10 @@ apply from: '../maven.gradle'
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'com.squareup:javapoet:1.13.0'
-    implementation 'com.squareup:kotlinpoet:1.14.2'
-    implementation 'com.squareup:kotlinpoet-ksp:1.14.2'
-    implementation 'com.squareup:kotlinpoet-javapoet:1.14.2'
+    def kotlinpoet = "1.14.2"
+    implementation "com.squareup:kotlinpoet:$kotlinpoet"
+    implementation "com.squareup:kotlinpoet-ksp:$kotlinpoet"
+    implementation "com.squareup:kotlinpoet-javapoet:$kotlinpoet"
 //    implementation "com.github.liujingxing.rxhttp:rxhttp-annotation:$rxhttp_version"
     implementation project(":rxhttp-annotation")
     implementation "com.google.devtools.ksp:symbol-processing-api:$ksp_version"
