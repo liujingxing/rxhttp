@@ -172,7 +172,7 @@ wiki详细文档：https://github.com/liujingxing/rxhttp/wiki  (此文档会持�
 
 ***2、asXxx方法内部通过RxJava实现，如需使用，需额外依赖RxJava并告知RxHttp你依赖的Rxjava版本***
 
-***3、RxHttp已适配`OkHttp 3.12.0 - v4.11.0`版本(4.3.0除外), 如需兼容21以下，请依赖`OkHttp 3.12.x`，该版本最低要求 API 9***
+***3、RxHttp已适配`OkHttp 3.12.0 - v4.12.0`版本(4.3.0除外), 如需兼容21以下，请依赖`OkHttp 3.12.x`，该版本最低要求 API 9***
 
 ***4、[Maven依赖点击这里](https://github.com/liujingxing/rxhttp/blob/master/maven_dependency.md)***
 
@@ -198,7 +198,7 @@ android {
 //3、添加依赖
 dependencies {
     def rxhttp_version = '3.2.3'
-    implementation 'com.squareup.okhttp3:okhttp:4.11.0'  
+    implementation 'com.squareup.okhttp3:okhttp:4.12.0'  
     implementation "com.github.liujingxing.rxhttp:rxhttp:$rxhttp_version"
     annotationProcessor "com.github.liujingxing.rxhttp:rxhttp-compiler:$rxhttp_version"
 }
@@ -230,7 +230,7 @@ plugins {
  
 dependencies {
     def rxhttp_version = '3.2.3'
-    implementation 'com.squareup.okhttp3:okhttp:4.11.0'  
+    implementation 'com.squareup.okhttp3:okhttp:4.12.0'  
     implementation "com.github.liujingxing.rxhttp:rxhttp:$rxhttp_version"
     kapt "com.github.liujingxing.rxhttp:rxhttp-compiler:$rxhttp_version"
 }
@@ -262,7 +262,7 @@ plugins {
  
 dependencies {
     def rxhttp_version = '3.2.3'
-    implementation 'com.squareup.okhttp3:okhttp:4.11.0'  
+    implementation 'com.squareup.okhttp3:okhttp:4.12.0'  
     implementation "com.github.liujingxing.rxhttp:rxhttp:$rxhttp_version"
     ksp "com.github.liujingxing.rxhttp:rxhttp-compiler:$rxhttp_version"
 }
