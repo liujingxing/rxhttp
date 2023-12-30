@@ -70,7 +70,9 @@ class ParserVisitor(
                     annotation?.wrappers?.map { JClassName.get(it.java).toKClassName() }
                 } catch (e: KSTypesNotPresentException) {
                     e.ksTypes.map {
-                        ClassName.bestGuess(it.declaration.qualifiedName?.asString().toString())
+                        val className = it.declaration.qualifiedName?.asString().toString()
+                        //fix https://github.com/liujingxing/rxhttp/issues/476
+                        JClassName.bestGuess(className).toKClassName()
                     }
                 }
             classNames?.let { classNameMap[name] = it }
