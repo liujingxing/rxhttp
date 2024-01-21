@@ -2,6 +2,7 @@ plugins {
     id 'com.android.application'
     id 'kotlin-android'
     id 'kotlin-kapt'
+//    id 'dagger.hilt.android.plugin'
     id 'com.google.devtools.ksp' version "$ksp_version"
     // id 'org.jetbrains.kotlin.plugin.serialization' version '1.7.10'
 }
@@ -119,4 +120,7 @@ dependencies {
     testImplementation 'com.squareup:kotlinpoet:1.14.2'
     testImplementation 'com.squareup:kotlinpoet-ksp:1.14.2'
     testImplementation project(':rxhttp-compiler')
+
+//    implementation "com.google.dagger:hilt-android:2.48.1"
+//    ksp "com.google.dagger:hilt-android-compiler:2.48.1"
 }

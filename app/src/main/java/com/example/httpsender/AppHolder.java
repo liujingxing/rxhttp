@@ -10,6 +10,7 @@ import androidx.multidex.MultiDex;
  * Date: 2019/3/31
  * Time: 09:11
  */
+//@HiltAndroidApp
 public class AppHolder extends Application {
 
     private static AppHolder instance;

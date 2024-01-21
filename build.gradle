@@ -11,9 +11,14 @@ buildscript {
 
     dependencies {
         classpath 'com.android.tools.build:gradle:8.1.2'
+//        classpath 'com.google.dagger:hilt-android-gradle-plugin:2.48.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
+
+//plugins {
+//    id("com.google.devtools.ksp") version "$ksp_version" apply false
+//}
 
 task clean(type: Delete) {
     delete rootProject.buildDir
