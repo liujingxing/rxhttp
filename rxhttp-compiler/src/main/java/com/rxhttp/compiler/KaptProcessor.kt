@@ -62,7 +62,6 @@ open class KaptProcessor : AbstractProcessor() {
 
     override fun getSupportedAnnotationTypes(): Set<String> {
         return LinkedHashSet<String>().apply {
-            add(Override::class.java.canonicalName)
             add(Param::class.java.canonicalName)
             add(Parser::class.java.canonicalName)
             add(Converter::class.java.canonicalName)
