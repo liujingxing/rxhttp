@@ -120,7 +120,7 @@
 
 | 功能说明 | RxHttp | [Retrofit](https://github.com/square/retrofit) |
 | --- | :---: | :---: |
-| 版本| v3.2.3| v2.9.0 |
+| 版本| v3.2.4| v2.9.0 |
 | 状态| 维护中| 维护中 |
 | 标准RESTful风格| ✅ | ✅ |
 | 学习成本| 低 | 高|
@@ -197,7 +197,7 @@ android {
 }
 //3、添加依赖
 dependencies {
-    def rxhttp_version = '3.2.3'
+    def rxhttp_version = '3.2.4'
     implementation 'com.squareup.okhttp3:okhttp:4.12.0'  
     implementation "com.github.liujingxing.rxhttp:rxhttp:$rxhttp_version"
     annotationProcessor "com.github.liujingxing.rxhttp:rxhttp-compiler:$rxhttp_version"
@@ -229,7 +229,7 @@ plugins {
 }
  
 dependencies {
-    def rxhttp_version = '3.2.3'
+    def rxhttp_version = '3.2.4'
     implementation 'com.squareup.okhttp3:okhttp:4.12.0'  
     implementation "com.github.liujingxing.rxhttp:rxhttp:$rxhttp_version"
     kapt "com.github.liujingxing.rxhttp:rxhttp-compiler:$rxhttp_version"
@@ -261,7 +261,7 @@ plugins {
 }
  
 dependencies {
-    def rxhttp_version = '3.2.3'
+    def rxhttp_version = '3.2.4'
     implementation 'com.squareup.okhttp3:okhttp:4.12.0'  
     implementation "com.github.liujingxing.rxhttp:rxhttp:$rxhttp_version"
     ksp "com.github.liujingxing.rxhttp:rxhttp-compiler:$rxhttp_version"
