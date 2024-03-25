@@ -5,6 +5,7 @@ import com.google.devtools.ksp.getConstructors
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSFile
 import com.rxhttp.compiler.common.flapTypeParameterSpecTypes
 import com.rxhttp.compiler.common.getRxHttpExtensionFileSpec
 import com.rxhttp.compiler.common.getTypeOfString
@@ -22,7 +23,7 @@ import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.TypeVariableName
 import com.squareup.kotlinpoet.ksp.addOriginatingKSFile
-import com.squareup.kotlinpoet.ksp.kspDependencies
+import com.squareup.kotlinpoet.ksp.originatingKSFiles
 import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.toTypeParameterResolver
 import com.squareup.kotlinpoet.ksp.toTypeVariableName
@@ -142,10 +143,13 @@ class RxHttpExtensions(private val logger: KSPLogger) {
     }
 
 
-    fun generateClassFile(codeGenerator: CodeGenerator) {
+    fun generateClassFile(codeGenerator: CodeGenerator, defaultKsFile: KSFile?) {
         val fileSpec =
             getRxHttpExtensionFileSpec(toObservableXxxFunList, toAwaitXxxFunList, toFlowXxxFunList)
-        val dependencies = fileSpec.kspDependencies(false)
-        fileSpec.writeTo(codeGenerator, dependencies)
+        val originatingKSFiles = fileSpec.originatingKSFiles().toMutableList()
+        if (originatingKSFiles.isEmpty()) {
+            defaultKsFile?.let { originatingKSFiles.add(it) }
+        }
+        fileSpec.writeTo(codeGenerator, true, originatingKSFiles)
     }
 }

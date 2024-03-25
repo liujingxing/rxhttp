@@ -7,10 +7,10 @@ import com.google.devtools.ksp.isAbstract
 import com.google.devtools.ksp.isConstructor
 import com.google.devtools.ksp.isPublic
 import com.google.devtools.ksp.processing.CodeGenerator
-import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSFile
 import com.google.devtools.ksp.symbol.KSVisitorVoid
 import com.google.devtools.ksp.symbol.Modifier
 import com.rxhttp.compiler.common.joinToStringIndexed
@@ -28,6 +28,7 @@ import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.UNIT
 import com.squareup.kotlinpoet.jvm.jvmStatic
 import com.squareup.kotlinpoet.jvm.throws
+import com.squareup.kotlinpoet.ksp.addOriginatingKSFile
 import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.toKModifier
 import com.squareup.kotlinpoet.ksp.toTypeName
@@ -43,6 +44,9 @@ class ParamsVisitor(
 ) : KSVisitorVoid() {
 
     private val ksClassMap = LinkedHashMap<String, KSClassDeclaration>()
+
+    val originatingKSFiles: List<KSFile>
+        get() = ksClassMap.values.map { it.containingFile!! }
 
     @KspExperimental
     override fun visitClassDeclaration(classDeclaration: KSClassDeclaration, data: Unit) {
@@ -193,6 +197,7 @@ class ParamsVisitor(
                     https://github.com/liujingxing/rxlife
                 """.trimIndent()
                 )
+                .addOriginatingKSFile(ksClass.containingFile!!)
                 .addTypeVariables(rxHttpTypeNames)
                 .superclass(rxHttpParam)
                 .addFunctions(rxHttpPostCustomFun)
@@ -200,7 +205,8 @@ class ParamsVisitor(
 
             FileSpec.builder(rxHttpPackage, rxHttpName)
                 .addType(rxHttpPostEncryptFormParamSpec)
-                .build().writeTo(codeGenerator, Dependencies(false, ksClass.containingFile!!))
+                .build()
+                .writeTo(codeGenerator, false)
         }
         return funList
     }

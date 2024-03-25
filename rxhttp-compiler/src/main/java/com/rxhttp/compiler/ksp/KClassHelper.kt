@@ -12,8 +12,7 @@ import com.rxhttp.compiler.rxHttpPackage
  * Time: 23:36
  */
 class KClassHelper(
-    private val isAndroidPlatform: Boolean,
-    private val ksFiles: Collection<KSFile>
+    private val isAndroidPlatform: Boolean
 ) {
 
     private fun isAndroid(s: String) = if (isAndroidPlatform) s else ""
@@ -420,7 +419,7 @@ class KClassHelper(
 
     private fun generatorClass(codeGenerator: CodeGenerator, className: String, content: String) {
         codeGenerator.createNewFile(
-            Dependencies(false, *ksFiles.toTypedArray()),
+            Dependencies(false, *emptyList<KSFile>().toTypedArray()),
             rxHttpPackage,
             className,
         ).use {

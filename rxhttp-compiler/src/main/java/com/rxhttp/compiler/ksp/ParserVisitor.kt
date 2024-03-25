@@ -10,6 +10,7 @@ import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSFile
 import com.google.devtools.ksp.symbol.KSVisitorVoid
 import com.rxhttp.compiler.K_TYPE
 import com.rxhttp.compiler.common.flapTypeParameterSpecTypes
@@ -35,6 +36,7 @@ import com.squareup.kotlinpoet.asClassName
 import com.squareup.kotlinpoet.javapoet.JClassName
 import com.squareup.kotlinpoet.javapoet.KotlinPoetJavaPoetPreview
 import com.squareup.kotlinpoet.javapoet.toKClassName
+import com.squareup.kotlinpoet.ksp.addOriginatingKSFile
 import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.toTypeParameterResolver
 import com.squareup.kotlinpoet.ksp.toTypeVariableName
@@ -53,6 +55,9 @@ class ParserVisitor(
 
     private val ksClassMap = LinkedHashMap<String, KSClassDeclaration>()
     private val classNameMap = LinkedHashMap<String, List<ClassName>>()
+
+    val originatingKSFiles: List<KSFile>
+        get() = ksClassMap.values.map { it.containingFile!! }
 
     @OptIn(KotlinPoetJavaPoetPreview::class)
     @KspExperimental
@@ -83,7 +88,11 @@ class ParserVisitor(
     }
 
     @KspExperimental
-    fun getFunList(codeGenerator: CodeGenerator, companionFunList: MutableList<FunSpec>): List<FunSpec> {
+    fun getFunList(
+        codeGenerator: CodeGenerator,
+        companionFunList: MutableList<FunSpec>,
+        defaultKsFile: KSFile?
+    ): List<FunSpec> {
         val funList = ArrayList<FunSpec>()
         val rxHttpExtensions = RxHttpExtensions(logger)
         //遍历自定义解析器
@@ -95,7 +104,7 @@ class ParserVisitor(
                 .getToObservableXxxFun(parserAlias, classNameMap, companionFunList)
             funList.addAll(toObservableXxxFunList)
         }
-        rxHttpExtensions.generateClassFile(codeGenerator)
+        rxHttpExtensions.generateClassFile(codeGenerator, defaultKsFile)
         return funList
     }
 }
@@ -148,7 +157,9 @@ private fun KSClassDeclaration.getToObservableXxxFun(
             }
 
         if (isDependenceRxJava()) {
+            //生成toObservableXxx(Type)方法
             FunSpec.builder(funName)
+                .addOriginatingKSFile(containingFile!!)
                 .addTypeVariables(typeVariableNames)
                 .addParameters(typeParameterSpecs)
                 .addCode(toObservableXxxFunBody)
@@ -172,6 +183,7 @@ private fun KSClassDeclaration.getToObservableXxxFun(
                 .replace(firstParamName, "actualType")
 
             FunSpec.builder("wrap${customParser.simpleName}")
+                .addOriginatingKSFile(containingFile!!)
                 .addAnnotation(suppressAnnotation)
                 .addTypeVariable(t)
                 .addParameters(typeParameterSpecs)
@@ -192,8 +204,9 @@ private fun KSClassDeclaration.getToObservableXxxFun(
             val paramNames = classParameterSpecs.toParamNames(typeCount)
             val typeOfs = typeVariableNames.getTypeVariableString()
 
-            //生成Class类型参数的toObservableXxx方法
+            //生成toObservableXxx(Class<T>)方法
             val funSpec = FunSpec.builder(funName)
+                .addOriginatingKSFile(containingFile!!)
                 .addTypeVariables(typeVariableNames)
                 .addParameters(classParameterSpecs)
                 .addStatement("return $funName$typeOfs($paramNames)")  //方法里面的表达式

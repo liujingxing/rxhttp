@@ -2,6 +2,7 @@ package com.rxhttp.compiler.ksp
 
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
+import com.google.devtools.ksp.symbol.KSFile
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.KSVisitorVoid
 import com.squareup.kotlinpoet.FunSpec
@@ -18,6 +19,9 @@ class DefaultDomainVisitor(
 ) : KSVisitorVoid() {
 
     private var property: KSPropertyDeclaration? = null
+
+    val originatingKSFile: KSFile?
+        get() = property?.containingFile
 
     override fun visitPropertyDeclaration(property: KSPropertyDeclaration, data: Unit) {
         try {

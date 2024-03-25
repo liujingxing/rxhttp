@@ -3,7 +3,6 @@ package com.rxhttp.compiler.ksp
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.getAnnotationsByType
 import com.google.devtools.ksp.processing.CodeGenerator
-import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFile
@@ -161,7 +160,7 @@ class RxHttpWrapper(private val logger: KSPLogger) {
             FileSpec.builder(rxHttpPackage, "Rx${className}Http")
                 .addType(rxHttpBuilder.build())
                 .build()
-                .writeTo(codeGenerator, Dependencies(false, *ksFiles.toTypedArray()))
+                .writeTo(codeGenerator, false, ksFiles)
         }
     }
 

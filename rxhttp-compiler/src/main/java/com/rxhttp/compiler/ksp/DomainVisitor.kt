@@ -29,6 +29,9 @@ class DomainVisitor(
 
     private val elementMap = LinkedHashMap<String, KSPropertyDeclaration>()
 
+    val originatingKSFiles: List<KSFile>
+        get() = elementMap.values.map { it.containingFile!! }
+
     @KspExperimental
     override fun visitPropertyDeclaration(property: KSPropertyDeclaration, data: Unit) {
         try {

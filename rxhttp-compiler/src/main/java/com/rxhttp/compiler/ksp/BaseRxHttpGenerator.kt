@@ -2,7 +2,6 @@ package com.rxhttp.compiler.ksp
 
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.processing.CodeGenerator
-import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.KSFile
 import com.rxhttp.compiler.getClassPath
@@ -28,10 +27,9 @@ import java.io.IOException
 class BaseRxHttpGenerator(
     private val logger: KSPLogger,
     private val isAndroidPlatform: Boolean,
-    private val ksFiles: Collection<KSFile>
+    private val defaultKsFile: KSFile?,
+    private val parserVisitor: ParserVisitor,
 ) {
-    var parserVisitor: ParserVisitor? = null
-
     //生成BaseRxHttp类
     @KspExperimental
     @Throws(IOException::class)
@@ -152,7 +150,7 @@ class BaseRxHttpGenerator(
 
         val companionFunList = mutableListOf<FunSpec>()
         parserVisitor?.apply {
-            methodList.addAll(getFunList(codeGenerator, companionFunList))
+            methodList.addAll(getFunList(codeGenerator, companionFunList, defaultKsFile))
         }
 
         FunSpec.builder("execute")
@@ -249,12 +247,17 @@ class BaseRxHttpGenerator(
             """.trimIndent()
             )
 
-        val dependencies = Dependencies(true, *ksFiles.toTypedArray())
+        val kSFiles = mutableListOf<KSFile>()
+        kSFiles.addAll(parserVisitor.originatingKSFiles)
+        if (kSFiles.isEmpty()) {
+            defaultKsFile?.let { kSFiles.add(it) }
+        }
+
         FileSpec.builder(rxHttpPackage, fileName)
             .addImport("rxhttp.wrapper.utils", "parameterizedBy")
             .addType(typeSpecBuilder.build())
             .indent("    ")
             .build()
-            .writeTo(codeGenerator, dependencies)
+            .writeTo(codeGenerator, true, kSFiles)
     }
 }

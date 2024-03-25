@@ -13,7 +13,7 @@ import com.rxhttp.compiler.rxHttpPackage
  * Date: 2020/3/31
  * Time: 23:36
  */
-class ClassHelper(private val ksFiles: Collection<KSFile>) {
+class ClassHelper {
 
     fun generatorStaticClass(codeGenerator: CodeGenerator) {
         if (isDependenceRxJava()) {
@@ -25,7 +25,7 @@ class ClassHelper(private val ksFiles: Collection<KSFile>) {
 
     private fun generatorClass(codeGenerator: CodeGenerator, className: String, content: String) {
         codeGenerator.createNewFile(
-            Dependencies(false, *ksFiles.toTypedArray()),
+            Dependencies(false, *emptyList<KSFile>().toTypedArray()),
             rxHttpPackage,
             className,
             "java"

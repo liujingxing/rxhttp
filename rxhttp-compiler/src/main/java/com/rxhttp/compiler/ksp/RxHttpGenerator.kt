@@ -2,7 +2,6 @@ package com.rxhttp.compiler.ksp
 
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.processing.CodeGenerator
-import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.KSFile
 import com.rxhttp.compiler.RxHttp
@@ -33,7 +32,7 @@ import java.io.IOException
 
 class RxHttpGenerator(
     private val logger: KSPLogger,
-    private val ksFiles: Collection<KSFile>
+    private val defaultKsFile: KSFile?
 ) {
 
     var paramsVisitor: ParamsVisitor? = null
@@ -865,11 +864,41 @@ class RxHttpGenerator(
             .addFunctions(methodList)
             .build()
 
-        val dependencies = Dependencies(true, *ksFiles.toTypedArray())
+        val kSFiles = mutableListOf<KSFile>()
+        paramsVisitor?.originatingKSFiles?.let { kSFiles.addAll(it) }
+        domainVisitor?.originatingKSFiles?.let { kSFiles.addAll(it) }
+        converterVisitor?.originatingKSFiles?.let { kSFiles.addAll(it) }
+        okClientVisitor?.originatingKSFiles?.let { kSFiles.addAll(it) }
+        defaultDomainVisitor?.originatingKSFile?.let { kSFiles.add(it) }
+
+        if (kSFiles.isEmpty()) {
+            defaultKsFile?.let { kSFiles.add(it) }
+        }
         FileSpec.builder(rxHttpPackage, RxHttp)
             .addType(rxHttpBuilder)
             .indent("    ")
             .build()
-            .writeTo(codeGenerator, dependencies)
+            .writeTo(codeGenerator, true, kSFiles)
+
+        /*
+        Aggregating vs Isolating
+        使用原则:
+        1、如果输出的文件与注解无关 或者 则使用Isolating隔离模式
+        2、如果一个文件，有注解时需要输出，没有注解时，不输出，则使用Isolating隔离模式
+        3、如果输出的文件与依赖于注解，有、无注解时，生成的内容不一样，则使用Aggregating聚合模式
+
+        区别:
+        1、Isolating隔离模式下，当一个源文件改动时，处理器只会处理这个文件
+        2、Aggregating聚合模式下，任意一个源文件改动时，解析器不仅会处理这个文件，还会再次处理注解所在的源文件(如果没使用注解，则不会处理)
+        3、不管是Aggregating还是Isolating，在输出文件时，都可以配置关联的源文件(originatingKSFiles)
+
+        originatingKSFiles参数介绍：
+        1、该参数仅在增量编译时起作用
+        2、全量编译时，输出A、B、C三个文件，其中C配置了关联的源文件D，
+        增量编译时，如果只输出了A、B两个文件，此时ksp会在备份文件中复制C文件到输出目录下(前提时源文件D没有更改)
+
+        https://github.com/liujingxing/rxhttp/issues/489
+        对于不使用任何注解的用户，RxHttp会在所有源文件中，取第一个作为Aggregating聚合模式的关联文件(originatingKSFiles)
+         */
     }
 }
