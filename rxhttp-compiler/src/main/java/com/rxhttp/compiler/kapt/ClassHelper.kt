@@ -388,11 +388,6 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
                     return this;
                 }
                 """)}
-                public RxHttpFormParam addPart(MultipartBody.Part part) {
-                    param.addPart(part);
-                    return this;
-                }
-
                 public RxHttpFormParam addPart(RequestBody requestBody) {
                     return addPart(OkHttpCompat.part(requestBody));
                 }
@@ -403,6 +398,29 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
 
                 public RxHttpFormParam addFormDataPart(String key, @Nullable String fileName, RequestBody requestBody) {
                     return addPart(OkHttpCompat.part(key, fileName, requestBody));
+                }
+                
+                public RxHttpFormParam addPart(String key, RequestBody requestBody) {
+                    return addFormDataPart(key, null, requestBody);
+                }
+                
+                public RxHttpFormParam addParts(Map<String, RequestBody> partMap) {
+                    for (Entry<String, RequestBody> entry : partMap.entrySet()) {
+                        addPart(entry.getKey(), entry.getValue());
+                    }
+                    return this;
+                }
+                
+                public RxHttpFormParam addPart(MultipartBody.Part part) {
+                    param.addPart(part);
+                    return this;
+                }
+                
+                public RxHttpFormParam addParts(List<MultipartBody.Part> parts) {
+                    for (MultipartBody.Part part: parts) {
+                        addPart(part);
+                    }
+                    return this;
                 }
 
                 //Set content-type to multipart/form-data

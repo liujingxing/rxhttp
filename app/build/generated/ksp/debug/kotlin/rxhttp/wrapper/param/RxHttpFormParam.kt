@@ -139,7 +139,15 @@ open class RxHttpFormParam(param: FormParam) : RxHttpAbstractBodyParam<FormParam
         requestBody: RequestBody
     ) = addPart(OkHttpCompat.part(key, fileName, requestBody))
 
+    fun addPart(key: String, requestBody: RequestBody) = addFormDataPart(key, null, requestBody)
+    
+    fun addParts(partMap: Map<String, RequestBody>) = apply { 
+        partMap.forEach { (key, value) -> addPart(key, value) } 
+    }
+
     fun addPart(part: MultipartBody.Part) = apply { param.addPart(part) }
+    
+    fun addParts(parts: List<MultipartBody.Part>) = apply { parts.forEach { addPart(it) } }
 
     //Set content-type to multipart/form-data
     fun setMultiForm() = setMultiType(MultipartBody.FORM)
