@@ -149,9 +149,7 @@ class BaseRxHttpGenerator(
         }
 
         val companionFunList = mutableListOf<FunSpec>()
-        parserVisitor?.apply {
-            methodList.addAll(getFunList(codeGenerator, companionFunList, defaultKsFile))
-        }
+        methodList.addAll(parserVisitor.getFunList(codeGenerator, companionFunList, defaultKsFile))
 
         FunSpec.builder("execute")
             .throws(IOException::class)

@@ -8,15 +8,16 @@ import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.JavaFile
 import com.squareup.javapoet.MethodSpec
-import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
 import com.squareup.javapoet.TypeVariableName
 import java.io.IOException
 import javax.annotation.processing.Filer
 import javax.lang.model.element.Modifier
 
-class BaseRxHttpGenerator(private val isAndroidPlatform: Boolean) {
-    var parserVisitor: ParserVisitor? = null
+class BaseRxHttpGenerator(
+    private val isAndroidPlatform: Boolean,
+    private val parserVisitor: ParserVisitor
+) {
 
     //生成BaseRxHttp类
     @Throws(IOException::class)
@@ -170,9 +171,7 @@ class BaseRxHttpGenerator(private val isAndroidPlatform: Boolean) {
                 .apply { methodList.add(this) }
         }
 
-        parserVisitor?.apply {
-            methodList.addAll(getMethodList(filer))
-        }
+        methodList.addAll(parserVisitor.getMethodList(filer))
 
         MethodSpec.methodBuilder("execute")
             .addModifiers(Modifier.PUBLIC, Modifier.FINAL)

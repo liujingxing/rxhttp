@@ -155,9 +155,7 @@ open class KaptProcessor : AbstractProcessor() {
             }.generateCode(filer)
 
             //Generate BaseRxHttp.java
-            BaseRxHttpGenerator(isAndroidPlatform() && androidPlatform).apply {
-                this.parserVisitor = parserVisitor
-            }.generateCode(filer)
+            BaseRxHttpGenerator(isAndroidPlatform() && androidPlatform, parserVisitor).generateCode(filer)
 
             // 生成 RxHttp 封装类
             rxHttpWrapper.generateRxWrapper(filer)

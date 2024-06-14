@@ -34,7 +34,6 @@ fun getRxHttpExtensionFileSpec(
     toFlowXxxFunList: List<FunSpec>,
 ): FileSpec {
     val t = TypeVariableName("T")
-    val v = TypeVariableName("V")
     val listT = LIST.parameterizedBy(t)
     val reifiedT = t.copy(reified = true)
     val baseRxHttpName = rxhttpKClass.peerClass("BaseRxHttp")
