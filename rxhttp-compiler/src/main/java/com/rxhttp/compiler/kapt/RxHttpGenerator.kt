@@ -851,12 +851,11 @@ class RxHttpGenerator {
             .addParameter(string, "domain")
             .addCode(
                 """
-                if (url.startsWith("http")) return url;
-                if (url.startsWith("/")) {
-                    if (domain.endsWith("/"))
-                        return domain + url.substring(1);
-                    else
-                        return domain + url;
+                if (url.startsWith("http")) {
+                    return url;
+                } else if (url.startsWith("/")) {
+                    String finalUrl = domain.endsWith("/") ? url.substring(1) : url;
+                    return domain + finalUrl;
                 } else if (domain.endsWith("/")) {
                     return domain + url;
                 } else {

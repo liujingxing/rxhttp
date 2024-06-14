@@ -815,12 +815,10 @@ class RxHttpGenerator(
                     if (url.startsWith("http")) {
                         url
                     } else if (url.startsWith("/")) {
-                        if (domain.endsWith("/"))
-                            domain + url.substring(1)
-                        else
-                            domain + url
+                        val finalUrl = if (domain.endsWith("/")) url.substring(1) else url
+                        "${'$'}domain${'$'}finalUrl"
                     } else if (domain.endsWith("/")) {
-                        domain + url
+                        "${'$'}domain${'$'}url"
                     } else {
                         "${'$'}domain/${'$'}url"
                     }
