@@ -136,6 +136,7 @@ class KClassHelper(
                     contentType: MediaType? = BuildUtil.getMediaTypeByUri(context, uri),
                 ) = setBody(UriRequestBody(context, uri, 0, contentType))
                 """)}
+                //Content-Type: application/json; charset=utf-8
                 fun setBody(any: Any) = apply { param.setBody(any) }
 
                 fun setBody(requestBody: RequestBody) = apply { param.setBody(requestBody) }

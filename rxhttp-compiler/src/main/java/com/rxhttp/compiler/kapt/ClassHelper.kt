@@ -166,6 +166,7 @@ class ClassHelper(private val isAndroidPlatform: Boolean) {
                     return setBody(new UriRequestBody(context, uri, 0, contentType));
                 }
                 """)}
+                //Content-Type: application/json; charset=utf-8
                 public RxHttpBodyParam setBody(Object object) {
                     param.setBody(object);
                     return this;
