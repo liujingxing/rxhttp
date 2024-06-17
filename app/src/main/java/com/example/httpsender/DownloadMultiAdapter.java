@@ -17,6 +17,7 @@ import com.example.httpsender.vm.MultiTaskDownloader;
 
 import java.text.DecimalFormat;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * User: ljx
@@ -44,8 +45,8 @@ public class DownloadMultiAdapter extends RecyclerView.Adapter<MyViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder viewHolder, int i) {
         DownloadTask data = mDownloadTasks.get(i);
-        viewHolder.progressBar.setProgress(data.getProgress());
-        viewHolder.tvProgress.setText(String.format("%d%%", data.getProgress()));
+        viewHolder.progressBar.setProgress((int) (data.getProgress()*100));
+        viewHolder.tvProgress.setText(String.format("%.1f%%", data.getProgress() * 100));
         viewHolder.btPause.setOnClickListener(v -> {
             mOnItemClickListener.onItemClick(v, data, i);
         });
@@ -61,7 +62,11 @@ public class DownloadMultiAdapter extends RecyclerView.Adapter<MyViewHolder> {
             viewHolder.tvWaiting.setText("等待中..");
             viewHolder.btPause.setText("取消");
         } else if (state == MultiTaskDownloader.DOWNLOADING) {
-            viewHolder.tvWaiting.setText("下载中..");
+            viewHolder.tvWaiting.setText(getSpeed(data.getSpeed()));
+            long remainingTime = data.getRemainingTime();
+            if (remainingTime > 0) {
+                viewHolder.tvWaiting.append(" 预估还需" + getRemainingTime(remainingTime));
+            }
             viewHolder.btPause.setText("暂停");
         } else if (state == MultiTaskDownloader.PAUSED) {
             viewHolder.tvWaiting.setText("已暂停");
@@ -75,6 +80,25 @@ public class DownloadMultiAdapter extends RecyclerView.Adapter<MyViewHolder> {
         } else if (state == MultiTaskDownloader.CANCEL) {
             viewHolder.tvWaiting.setText("已取消");
             viewHolder.btPause.setText("继续下载");
+        }
+    }
+
+    private String getSpeed(long speed) {
+        float kb = speed * 1.0f / 1024;
+        if (kb > 1000) {
+            return String.format(Locale.getDefault(), "%.2fMB/s", kb / 1024);
+        } else {
+            return ((int) kb) + "KB/s";
+        }
+    }
+
+    private String getRemainingTime(long time) {
+        if (time < 300) {
+            return time + "秒";
+        } else {
+            long minute = time / 60;
+            if (time % 60 > 0) minute++;
+            return minute + "分";
         }
     }
 

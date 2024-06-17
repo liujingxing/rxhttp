@@ -53,7 +53,7 @@ object MultiTaskAwaitDownloader {
                 if (length != -1L) {
                     it.totalSize = length
                     it.currentSize = File(it.localPath).length()
-                    it.progress = (it.currentSize * 100 / it.totalSize).toInt()
+                    it.progress = it.currentSize * 1.0f / it.totalSize
                     lengthMap[it.url] = length
 
                     if (it.currentSize > 0) {

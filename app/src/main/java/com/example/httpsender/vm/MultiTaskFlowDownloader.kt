@@ -54,7 +54,7 @@ object MultiTaskFlowDownloader {
                 if (length != -1L) {
                     it.totalSize = length
                     it.currentSize = File(it.localPath).length()
-                    it.progress = (it.currentSize * 100 / it.totalSize).toInt()
+                    it.progress = it.currentSize * 1.0f / it.totalSize
                     lengthMap[it.url] = length
 
                     if (it.currentSize > 0) {
@@ -102,7 +102,7 @@ object MultiTaskFlowDownloader {
                 .toDownloadFlow(task.localPath, true)
                 .onProgress{
                     //下载进度回调,0-100，仅在进度有更新时才会回调
-                    task.progress = it.progress        //当前进度 0-100
+                    task.progress = it.fraction        //当前进度 [0.0, 1.0]
                     task.currentSize = it.currentSize  //当前已下载的字节大小
                     task.totalSize = it.totalSize      //要下载的总字节大小
                     updateTask(task)

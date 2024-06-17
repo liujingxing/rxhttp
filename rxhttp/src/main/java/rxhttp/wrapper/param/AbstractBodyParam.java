@@ -2,6 +2,7 @@ package rxhttp.wrapper.param;
 
 import okhttp3.RequestBody;
 import rxhttp.wrapper.callback.ProgressCallback;
+import rxhttp.wrapper.callback.ProgressCallbackHelper;
 import rxhttp.wrapper.progress.ProgressRequestBody;
 
 /**
@@ -12,7 +13,7 @@ import rxhttp.wrapper.progress.ProgressRequestBody;
 public abstract class AbstractBodyParam<P extends AbstractBodyParam<P>> extends AbstractParam<P> {
 
     //Upload progress callback
-    private ProgressCallback callback;
+    private ProgressCallbackHelper callback;
 
     /**
      * @param url    request url
@@ -29,8 +30,8 @@ public abstract class AbstractBodyParam<P extends AbstractBodyParam<P>> extends 
         return callback != null ? new ProgressRequestBody(requestBody, callback) : requestBody;
     }
 
-    public final P setProgressCallback(ProgressCallback callback) {
-        this.callback = callback;
+    public final P setProgressCallback(int minPeriod, ProgressCallback callback) {
+        this.callback = new ProgressCallbackHelper(minPeriod, callback);
         return self();
     }
 }

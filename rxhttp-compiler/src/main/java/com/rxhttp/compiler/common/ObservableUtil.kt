@@ -54,7 +54,8 @@ fun getObservableClass(): Map<String, String> {
             private final Parser<T> parser;
             private final CallFactory callFactory;
             private boolean syncRequest = false;
-            private boolean callbackProgress = false;
+            //上传/下载进度回调最小周期, 值越小，回调事件越多，设置一个合理值，可避免密集回调
+            private int minPeriod = Integer.MIN_VALUE;
 
             ObservableCall(CallFactory callFactory, Parser<T> parser) {
                 this.callFactory = callFactory;
@@ -69,16 +70,16 @@ fun getObservableClass(): Map<String, String> {
                 if (d.isDisposed()) {
                     return;
                 }
-                if (callbackProgress && observer instanceof ProgressCallback) {
+                if (minPeriod != Integer.MIN_VALUE && observer instanceof ProgressCallback) {
                     ProgressCallback pc = (ProgressCallback) observer;
-                    Parser<?> streamParser = parser;
-                    while (streamParser instanceof OkResponseParser<?>) {
-                        streamParser = ((OkResponseParser<?>) streamParser).parser;
-                    }    
-                    if (streamParser instanceof StreamParser) {
-                        ((StreamParser<?>) streamParser).setProgressCallback(pc);
+                    Parser<?> parser = this.parser;
+                    while (parser instanceof OkResponseParser<?>) {
+                        parser = ((OkResponseParser<?>) parser).parser;
+                    }
+                    if (parser instanceof StreamParser) {
+                         ((StreamParser<?>) parser).setProgressCallback(minPeriod, pc);
                     } else if (callFactory instanceof BodyParamFactory) {
-                        ((BodyParamFactory) callFactory).getParam().setProgressCallback(pc);
+                        ((BodyParamFactory) callFactory).getParam().setProgressCallback(minPeriod, pc);
                     }
                 }
                 d.run();
@@ -96,37 +97,51 @@ fun getObservableClass(): Map<String, String> {
             }
 
             @NotNull
-            public Observable<@NotNull T> onProgress(@NotNull Consumer<Progress> progressConsumer) {
+            public Observable<@NotNull T> onProgress(@NotNull Consumer<Progress<?>> progressConsumer) {
                 return onProgress(Schedulers.io(), progressConsumer);
             }
 
             @NotNull
-            public Observable<@NotNull T> onProgress(@NotNull Scheduler scheduler, @NotNull Consumer<Progress> progressConsumer) {
+            public Observable<@NotNull T> onProgress(@NotNull Scheduler scheduler, @NotNull Consumer<Progress<?>> progressConsumer) {
                 return onProgress(2, scheduler, progressConsumer);
             }
 
             @NotNull
-            public Observable<@NotNull T> onMainProgress(@NotNull Consumer<Progress> progressConsumer) {
+            public Observable<@NotNull T> onMainProgress(@NotNull Consumer<Progress<?>> progressConsumer) {
                 return onMainProgress(2, progressConsumer);
             }
 
             @NotNull
-            public Observable<@NotNull T> onMainProgress(int capacity, @NotNull Consumer<Progress> progressConsumer) {
+            public Observable<@NotNull T> onMainProgress(int capacity, @NotNull Consumer<Progress<?>> progressConsumer) {
                 return onProgress(capacity, AndroidSchedulers.mainThread(), progressConsumer);
+            }
+            
+            @NotNull
+            public Observable<@NotNull T> onMainProgress(int capacity, int minPeriod, @NotNull Consumer<Progress<?>> progressConsumer) {
+                return onProgress(capacity, minPeriod, AndroidSchedulers.mainThread(), progressConsumer);
+            }
+
+            @NotNull
+            public Observable<@NotNull T> onProgress(int capacity, @NotNull Scheduler scheduler, @NotNull Consumer<Progress<?>> progressConsumer) {
+                return onProgress(capacity, 500, scheduler, progressConsumer);
             }
 
             /**
              * Upload or Download progress callback
              *
              * @param capacity         queue size, must be in [2..100], is invalid when the scheduler is TrampolineScheduler
+             * @param minPeriod        minimum period of progress callback, must be between 1 and {@link Integer.MAX_VALUE}, The default value is 500 milliseconds,
              * @param scheduler        the Scheduler to notify Observers on
              * @param progressConsumer progress callback
              * @return the new Observable instance
              */
             @NotNull 
-            public Observable<@NotNull T> onProgress(int capacity, @NotNull Scheduler scheduler, @NotNull Consumer<Progress> progressConsumer) {
+            public Observable<@NotNull T> onProgress(int capacity, int minPeriod, @NotNull Scheduler scheduler, @NotNull Consumer<Progress<?>> progressConsumer) {
                 if (capacity < 2 || capacity > 100) {
                     throw new IllegalArgumentException("capacity must be in [2..100], but it was " + capacity);
+                }
+                if (minPeriod < 0) {
+                    throw new IllegalArgumentException("minPeriod must be between 0 and Integer.MAX_VALUE, but it was " + minPeriod);
                 }
                 Objects.requireNonNull(scheduler, "scheduler is null");
                 Parser<?> streamParser = parser;
@@ -136,7 +151,7 @@ fun getObservableClass(): Map<String, String> {
                 if (!(streamParser instanceof StreamParser) && !(callFactory instanceof BodyParamFactory)) {
                     throw new UnsupportedOperationException("parser is " + streamParser.getClass().getName() + ", callFactory is " + callFactory.getClass().getName());
                 }
-                callbackProgress = true;
+                this.minPeriod = minPeriod;
                 return new ObservableProgress<>(this, capacity, scheduler, progressConsumer);
             }
 
@@ -264,9 +279,9 @@ fun getObservableClass(): Map<String, String> {
             private final Observable<T> source;
             private final int capacity;
             private final Scheduler scheduler;
-            private final Consumer<Progress> progressConsumer;
+            private final Consumer<Progress<?>> progressConsumer;
 
-            ObservableProgress(Observable<T> source, int capacity, Scheduler scheduler, Consumer<Progress> progressConsumer) {
+            ObservableProgress(Observable<T> source, int capacity, Scheduler scheduler, Consumer<Progress<?>> progressConsumer) {
                 this.source = source;
                 this.capacity = capacity;
                 this.scheduler = scheduler;
@@ -286,11 +301,11 @@ fun getObservableClass(): Map<String, String> {
             private static final class SyncObserver<T> implements Observer<T>, Disposable, ProgressCallback {
 
                 private final Observer<? super T> downstream;
-                private final Consumer<Progress> progressConsumer;
+                private final Consumer<Progress<?>> progressConsumer;
                 private Disposable upstream;
                 private boolean done;
 
-                SyncObserver(Observer<? super T> actual, Consumer<Progress> progressConsumer) {
+                SyncObserver(Observer<? super T> actual, Consumer<Progress<?>> progressConsumer) {
                     this.downstream = actual;
                     this.progressConsumer = progressConsumer;
                 }
@@ -305,12 +320,12 @@ fun getObservableClass(): Map<String, String> {
 
                 // upload/download progress callback
                 @Override
-                public void onProgress(int progress, long currentSize, long totalSize) {
+                public void onProgress(long currentSize, long totalSize, long speed) {
                     if (done) {
                         return;
                     }
                     try {
-                        progressConsumer.accept(new Progress(progress, currentSize, totalSize));
+                        progressConsumer.accept(new Progress<>(currentSize, totalSize, speed));
                     } catch (Throwable t) {
                         fail(t);
                     }
@@ -367,13 +382,13 @@ fun getObservableClass(): Map<String, String> {
                 private final Observer<? super T> downstream;
                 private final Queue<Object> queue;
                 private final Scheduler.Worker worker;
-                private final Consumer<Progress> progressConsumer;
+                private final Consumer<Progress<?>> progressConsumer;
                 private Disposable upstream;
                 private Throwable error;
                 private volatile boolean done;
                 private volatile boolean disposed;
 
-                AsyncObserver(Scheduler.Worker worker, Observer<? super T> actual, int capacity, Consumer<Progress> progressConsumer) {
+                AsyncObserver(Scheduler.Worker worker, Observer<? super T> actual, int capacity, Consumer<Progress<?>> progressConsumer) {
                     this.downstream = actual;
                     this.worker = worker;
                     this.progressConsumer = progressConsumer;
@@ -390,11 +405,11 @@ fun getObservableClass(): Map<String, String> {
 
                 // upload/download progress callback
                 @Override
-                public void onProgress(int progress, long currentSize, long totalSize) {
+                public void onProgress(long currentSize, long totalSize, long speed) {
                     if (done) {
                         return;
                     }
-                    offer(new Progress(progress, currentSize, totalSize));
+                    offer(new Progress<>(currentSize, totalSize, speed));
                 }
 
                 @Override
@@ -462,7 +477,7 @@ fun getObservableClass(): Map<String, String> {
                                     break;
                                 }
                                 if (o instanceof Progress) {
-                                    progressConsumer.accept((Progress) o);
+                                    progressConsumer.accept((Progress<?>) o);
                                 } else {
                                     a.onNext((T) o);
                                 }

@@ -4,6 +4,7 @@ import okhttp3.Response
 import rxhttp.wrapper.OkHttpCompat
 import rxhttp.wrapper.callback.OutputStreamFactory
 import rxhttp.wrapper.callback.ProgressCallback
+import rxhttp.wrapper.callback.ProgressCallbackHelper
 import rxhttp.wrapper.entity.DownloadOffSize
 import rxhttp.wrapper.utils.LogTime
 import rxhttp.wrapper.utils.LogUtil
@@ -18,11 +19,15 @@ import java.io.OutputStream
  * Date: 2020/9/4
  * Time: 21:39
  */
-open class StreamParser<T> constructor(
+open class StreamParser<T>(
     private val osFactory: OutputStreamFactory<T>,
 ) : Parser<T> {
 
-    var progressCallback: ProgressCallback? = null
+    private var callback: ProgressCallbackHelper? = null
+
+    fun setProgressCallback(minPeriod: Int, progressCallback: ProgressCallback) {
+        callback = ProgressCallbackHelper(minPeriod, progressCallback)
+    }
 
     override fun onParse(response: Response): T {
         val body = OkHttpCompat.throwIfFail(response)
@@ -31,7 +36,7 @@ open class StreamParser<T> constructor(
         expandOs.use { os ->
             LogUtil.log("Download start: $expand")
             val logTime = LogTime()
-            body.byteStream().use { it.writeTo(os, response, progressCallback) }
+            body.byteStream().use { it.writeTo(os, response, callback) }
             LogUtil.log("Download end, cost ${logTime.tookMs()}ms: $expand")
         }
         return expand
@@ -41,7 +46,7 @@ open class StreamParser<T> constructor(
     private fun InputStream.writeTo(
         os: OutputStream,
         response: Response,
-        callback: ProgressCallback?,
+        callback: ProgressCallbackHelper?,
     ) {
         if (callback == null) {
             writeTo(os)
@@ -59,31 +64,11 @@ open class StreamParser<T> constructor(
             LogUtil.log("Unable to calculate callback progress without `Content-Length` response header")
         }
 
-        var lastProgress = 0
-        var lastSize = 0L
-        var lastRefreshTime = 0L
-
-        writeTo(os) {
-            val currentSize = it + offsetSize
-            lastSize = currentSize
-            if (contentLength == -1L) {
-                //Callback only the number of bytes read
-                val curTime = System.currentTimeMillis()
-                if (curTime - lastRefreshTime > 500) {
-                    callback.onProgress(0, currentSize, contentLength)
-                    lastRefreshTime = curTime
-                }
-            } else {
-                val currentProgress = ((currentSize * 100 / contentLength)).toInt()
-                if (currentProgress > lastProgress) {
-                    lastProgress = currentProgress
-                    callback.onProgress(currentProgress, currentSize, contentLength)
-                }
-            }
-        }
+        callback.onStart(offsetSize)
+        writeTo(os) { callback.onProgress(it.toLong(), contentLength) }
         if (contentLength == -1L) {
             //Promise that download end events can be callback if contentLength is -1
-            callback.onProgress(100, lastSize, contentLength)
+            callback.onProgress(-1, contentLength)
         }
     }
 }

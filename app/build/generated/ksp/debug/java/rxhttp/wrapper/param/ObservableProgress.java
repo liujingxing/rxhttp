@@ -24,9 +24,9 @@ public final class ObservableProgress<T> extends Observable<T> {
     private final Observable<T> source;
     private final int capacity;
     private final Scheduler scheduler;
-    private final Consumer<Progress> progressConsumer;
+    private final Consumer<Progress<?>> progressConsumer;
 
-    ObservableProgress(Observable<T> source, int capacity, Scheduler scheduler, Consumer<Progress> progressConsumer) {
+    ObservableProgress(Observable<T> source, int capacity, Scheduler scheduler, Consumer<Progress<?>> progressConsumer) {
         this.source = source;
         this.capacity = capacity;
         this.scheduler = scheduler;
@@ -46,11 +46,11 @@ public final class ObservableProgress<T> extends Observable<T> {
     private static final class SyncObserver<T> implements Observer<T>, Disposable, ProgressCallback {
 
         private final Observer<? super T> downstream;
-        private final Consumer<Progress> progressConsumer;
+        private final Consumer<Progress<?>> progressConsumer;
         private Disposable upstream;
         private boolean done;
 
-        SyncObserver(Observer<? super T> actual, Consumer<Progress> progressConsumer) {
+        SyncObserver(Observer<? super T> actual, Consumer<Progress<?>> progressConsumer) {
             this.downstream = actual;
             this.progressConsumer = progressConsumer;
         }
@@ -65,12 +65,12 @@ public final class ObservableProgress<T> extends Observable<T> {
 
         // upload/download progress callback
         @Override
-        public void onProgress(int progress, long currentSize, long totalSize) {
+        public void onProgress(long currentSize, long totalSize, long speed) {
             if (done) {
                 return;
             }
             try {
-                progressConsumer.accept(new Progress(progress, currentSize, totalSize));
+                progressConsumer.accept(new Progress<>(currentSize, totalSize, speed));
             } catch (Throwable t) {
                 fail(t);
             }
@@ -127,13 +127,13 @@ public final class ObservableProgress<T> extends Observable<T> {
         private final Observer<? super T> downstream;
         private final Queue<Object> queue;
         private final Scheduler.Worker worker;
-        private final Consumer<Progress> progressConsumer;
+        private final Consumer<Progress<?>> progressConsumer;
         private Disposable upstream;
         private Throwable error;
         private volatile boolean done;
         private volatile boolean disposed;
 
-        AsyncObserver(Scheduler.Worker worker, Observer<? super T> actual, int capacity, Consumer<Progress> progressConsumer) {
+        AsyncObserver(Scheduler.Worker worker, Observer<? super T> actual, int capacity, Consumer<Progress<?>> progressConsumer) {
             this.downstream = actual;
             this.worker = worker;
             this.progressConsumer = progressConsumer;
@@ -150,11 +150,11 @@ public final class ObservableProgress<T> extends Observable<T> {
 
         // upload/download progress callback
         @Override
-        public void onProgress(int progress, long currentSize, long totalSize) {
+        public void onProgress(long currentSize, long totalSize, long speed) {
             if (done) {
                 return;
             }
-            offer(new Progress(progress, currentSize, totalSize));
+            offer(new Progress<>(currentSize, totalSize, speed));
         }
 
         @Override
@@ -222,7 +222,7 @@ public final class ObservableProgress<T> extends Observable<T> {
                             break;
                         }
                         if (o instanceof Progress) {
-                            progressConsumer.accept((Progress) o);
+                            progressConsumer.accept((Progress<?>) o);
                         } else {
                             a.onNext((T) o);
                         }

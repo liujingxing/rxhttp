@@ -52,20 +52,15 @@ private const val LENGTH_BYTE = 8 * 1024
 @Throws(IOException::class)
 internal fun InputStream.writeTo(
     outStream: OutputStream,
-    progress: ((Long) -> Unit)? = null
-): Boolean {
-    return try {
+    progress: ((Int) -> Unit)? = null
+) {
+    try {
         val bytes = ByteArray(LENGTH_BYTE)
-        var totalReadLength: Long = 0
         var readLength: Int
         while (read(bytes, 0, bytes.size).also { readLength = it } != -1) {
             outStream.write(bytes, 0, readLength)
-            progress?.apply {
-                totalReadLength += readLength
-                invoke(totalReadLength)
-            }
+            progress?.invoke(readLength)
         }
-        true
     } finally {
         close(this, outStream)
     }

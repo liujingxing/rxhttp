@@ -11,19 +11,22 @@ import okio.BufferedSink;
 import okio.ForwardingSink;
 import okio.Okio;
 import okio.Sink;
-import rxhttp.wrapper.callback.ProgressCallback;
+import rxhttp.wrapper.callback.ProgressCallbackHelper;
 
 //Track upload progress
 public class ProgressRequestBody extends RequestBody {
 
+    @NotNull
     private final RequestBody requestBody;
-    private final ProgressCallback callback;
+    @NotNull
+    private final ProgressCallbackHelper callback;
 
-    public ProgressRequestBody(RequestBody requestBody, ProgressCallback callback) {
+    public ProgressRequestBody(@NotNull RequestBody requestBody, @NotNull ProgressCallbackHelper callback) {
         this.requestBody = requestBody;
         this.callback = callback;
     }
 
+    @NotNull
     public RequestBody getRequestBody() {
         return requestBody;
     }
@@ -52,31 +55,18 @@ public class ProgressRequestBody extends RequestBody {
     }
 
     private Sink sink(Sink sink) {
+        callback.onStart(0);
         return new ForwardingSink(sink) {
-            long bytesWritten = 0L;
-            long contentLength = 0L;
-            int lastProgress;
+            long contentLength = Long.MIN_VALUE;
 
             @Override
             public void write(@NotNull Buffer source, long byteCount) throws IOException {
                 super.write(source, byteCount);
-                if (contentLength == 0) {
+                if (contentLength == Long.MIN_VALUE) {
                     contentLength = contentLength();
                 }
-                bytesWritten += byteCount;
-
-                int currentProgress = (int) ((bytesWritten * 100) / contentLength);
-                if (currentProgress > lastProgress) {
-                    lastProgress = currentProgress;
-                    updateProgress(lastProgress, bytesWritten, contentLength);
-                }
+                callback.onProgress(byteCount, contentLength);
             }
         };
-    }
-
-    private void updateProgress(int progress, long currentSize, long totalSize) {
-        if (callback == null) return;
-        //LogUtil.logUpProgress(progress, currentSize, totalSize);
-        callback.onProgress(progress, currentSize, totalSize);
     }
 }

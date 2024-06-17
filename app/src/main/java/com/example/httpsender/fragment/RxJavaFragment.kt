@@ -193,7 +193,7 @@ class RxJavaFragment : BaseFragment<RxjavaFragmentBinding>(), View.OnClickListen
                 val currentProgress = it.progress  //当前进度 0-100
                 val currentSize = it.currentSize //当前已上传的字节大小
                 val totalSize = it.totalSize     //要上传的总字节大小
-                tvResult.append(it.toString())
+                tvResult.append("\n$it")
             }
             .life(this@RxJavaFragment)    //页面销毁，自动关闭请求
             .subscribe({
@@ -218,7 +218,7 @@ class RxJavaFragment : BaseFragment<RxjavaFragmentBinding>(), View.OnClickListen
                 val currentProgress = it.progress  //当前进度 0-100
                 val currentSize = it.currentSize //当前已上传的字节大小
                 val totalSize = it.totalSize     //要上传的总字节大小
-                tvResult.append(it.toString())
+                tvResult.append("\n$it")
             }
             .life(this@RxJavaFragment)   //页面销毁，自动关闭请求
             .subscribe({
@@ -243,7 +243,7 @@ class RxJavaFragment : BaseFragment<RxjavaFragmentBinding>(), View.OnClickListen
                 val currentProgress = it.progress //当前进度 0-100
                 val currentSize = it.currentSize //当前已下载的字节大小
                 val totalSize = it.totalSize //要下载的总字节大小
-                tvResult.append(it.toString())
+                tvResult.append("\n$it")
             }
             .life(this@RxJavaFragment) //感知生命周期，并在主线程回调
             .subscribe({
@@ -268,7 +268,7 @@ class RxJavaFragment : BaseFragment<RxjavaFragmentBinding>(), View.OnClickListen
                 val currentProgress = it.progress //当前进度 0-100
                 val currentSize = it.currentSize //当前已下载的字节大小
                 val totalSize = it.totalSize //要下载的总字节大小
-                tvResult.append(it.toString())
+                tvResult.append("\n$it")
             }
             .life(this@RxJavaFragment) //感知生命周期，并在主线程回调
             .subscribe({
@@ -293,7 +293,7 @@ class RxJavaFragment : BaseFragment<RxjavaFragmentBinding>(), View.OnClickListen
                 val currentProgress = it.progress //当前进度 0-100
                 val currentSize = it.currentSize //当前已下载的字节大小
                 val totalSize = it.totalSize //要下载的总字节大小
-                tvResult.append(it.toString())
+                tvResult.append("\n$it")
             }
             .life(this@RxJavaFragment) //感知生命周期，并在主线程回调
             .subscribe({
@@ -317,7 +317,7 @@ class RxJavaFragment : BaseFragment<RxjavaFragmentBinding>(), View.OnClickListen
                 val currentProgress = it.progress //当前进度 0-100
                 val currentSize = it.currentSize //当前已下载的字节大小
                 val totalSize = it.totalSize //要下载的总字节大小
-                tvResult.append(it.toString())
+                tvResult.append("\n$it")
             }
             .life(this@RxJavaFragment) //感知生命周期，并在主线程回调
             .subscribe({

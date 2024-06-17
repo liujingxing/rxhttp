@@ -1,5 +1,6 @@
 package com.example.httpsender.vm
 
+import android.annotation.SuppressLint
 import androidx.lifecycle.MutableLiveData
 import com.example.httpsender.Tip
 import com.example.httpsender.entity.DownloadTask
@@ -48,7 +49,7 @@ object MultiTaskDownloader {
                 if (length != -1L) {
                     it.totalSize = length
                     it.currentSize = File(it.localPath).length()
-                    it.progress = (it.currentSize * 100 / it.totalSize).toInt()
+                    it.progress = it.currentSize * 1.0f / it.totalSize
                     lengthMap[it.url] = length
 
                     if (it.currentSize > 0) {
@@ -75,6 +76,7 @@ object MultiTaskDownloader {
         }
     }
 
+    @SuppressLint("CheckResult")
     @JvmStatic
     fun download(task: DownloadTask) {
         if (downloadingTask.size >= MAX_TASK_COUNT) {
@@ -94,7 +96,9 @@ object MultiTaskDownloader {
             .toDownloadObservable(task.localPath, true)
             .onMainProgress {
                 //下载进度回调,0-100，仅在进度有更新时才会回调
-                task.progress = it.progress        //当前进度 0-100
+                task.speed = it.speed
+                task.remainingTime = it.calculateRemainingTime()
+                task.progress = it.fraction        //当前进度 [0.0, 1.0]
                 task.currentSize = it.currentSize  //当前已下载的字节大小
                 task.totalSize = it.totalSize      //要下载的总字节大小
                 updateTask(task)
@@ -171,6 +175,8 @@ object MultiTaskDownloader {
         //根据tag取消下载
         RxHttpPlugins.cancelAll(task.url)
         task.state = PAUSED
+        task.speed = 0
+        task.remainingTime = -1
         updateTask(task)
     }
 

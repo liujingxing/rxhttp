@@ -1,7 +1,6 @@
 package com.example.httpsender.entity;
 
 
-import io.reactivex.rxjava3.disposables.Disposable;
 
 /**
  * User: ljx
@@ -13,9 +12,12 @@ public class DownloadTask {
     private String url;
     private String localPath;
 
-    private int progress;
+    private float progress;
     private long currentSize;
     private long totalSize;
+
+    private long speed;
+    private long remainingTime;
 
     private int state; //0=未开始 1=等待中 2=下载中 3=暂停中 4=已完成  5=下载失败 6=已取消
 
@@ -48,11 +50,27 @@ public class DownloadTask {
         this.localPath = localPath;
     }
 
-    public int getProgress() {
+    public long getSpeed() {
+        return speed;
+    }
+
+    public void setSpeed(long speed) {
+        this.speed = speed;
+    }
+
+    public long getRemainingTime() {
+        return remainingTime;
+    }
+
+    public void setRemainingTime(long remainingTime) {
+        this.remainingTime = remainingTime;
+    }
+
+    public float getProgress() {
         return progress;
     }
 
-    public void setProgress(int progress) {
+    public void setProgress(float progress) {
         this.progress = progress;
     }
 

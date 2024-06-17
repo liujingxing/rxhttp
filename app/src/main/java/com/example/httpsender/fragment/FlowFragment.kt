@@ -161,7 +161,7 @@ class FlowFragment : BaseFragment<FlowFragmentBinding>(), View.OnClickListener {
                 val currentProgress = it.progress //当前进度 0-100
                 val currentSize = it.currentSize //当前已上传的字节大小
                 val totalSize = it.totalSize //要上传的总字节大小
-                tvResult.append(it.toString())
+                tvResult.append("\n$it")
             }.catch {
                 tvResult.append("\n${it.errorMsg}")
                 //失败回调
@@ -187,7 +187,7 @@ class FlowFragment : BaseFragment<FlowFragmentBinding>(), View.OnClickListener {
                 val currentProgress = it.progress //当前进度 0-100
                 val currentSize = it.currentSize //当前已上传的字节大小
                 val totalSize = it.totalSize //要上传的总字节大小
-                tvResult.append(it.toString())
+                tvResult.append("\n$it")
             }.catch {
                 tvResult.append("\n${it.errorMsg}")
                 //失败回调
@@ -210,7 +210,7 @@ class FlowFragment : BaseFragment<FlowFragmentBinding>(), View.OnClickListener {
                 val currentProgress = it.progress //当前进度 0-100
                 val currentSize = it.currentSize //当前已下载的字节大小
                 val totalSize = it.totalSize //要下载的总字节大小
-                tvResult.append(it.toString())
+                tvResult.append("\n$it")
             }.catch {
                 tvResult.append("\n${it.errorMsg}") //异常回调
                 it.show()
@@ -233,7 +233,7 @@ class FlowFragment : BaseFragment<FlowFragmentBinding>(), View.OnClickListener {
                 val currentProgress = it.progress //当前进度 0-100
                 val currentSize = it.currentSize //当前已下载的字节大小
                 val totalSize = it.totalSize //要下载的总字节大小
-                tvResult.append(it.toString())
+                tvResult.append("\n$it")
             }.catch {
                 tvResult.append("\n${it.errorMsg}")
                 it.show()
@@ -255,7 +255,7 @@ class FlowFragment : BaseFragment<FlowFragmentBinding>(), View.OnClickListener {
                 val currentProgress = it.progress //当前进度 0-100
                 val currentSize = it.currentSize //当前已下载的字节大小
                 val totalSize = it.totalSize //要下载的总字节大小
-                tvResult.append(it.toString())
+                tvResult.append("\n$it")
             }.catch {
                 tvResult.append("\n${it.errorMsg}")
                 it.show()
@@ -277,7 +277,7 @@ class FlowFragment : BaseFragment<FlowFragmentBinding>(), View.OnClickListener {
                 val currentProgress = it.progress //当前进度 0-100
                 val currentSize = it.currentSize //当前已下载的字节大小
                 val totalSize = it.totalSize //要下载的总字节大小
-                tvResult.append(it.toString())
+                tvResult.append("\n$it")
             }.catch {
                 //异常回调
                 tvResult.append("\n${it.errorMsg}")

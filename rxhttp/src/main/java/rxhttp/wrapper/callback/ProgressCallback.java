@@ -8,5 +8,5 @@ package rxhttp.wrapper.callback;
  */
 public interface ProgressCallback {
 
-    void onProgress(int progress, long currentSize, long totalSize);
+    void onProgress(long currentSize, long totalSize, long speed);
 }
