@@ -141,7 +141,7 @@ plugins {
 }
     
 dependencies {
-    def rxhttp_version = '3.2.6'
+    def rxhttp_version = '3.2.7'
     implementation 'com.squareup.okhttp3:okhttp:4.12.0'  
     implementation "com.github.liujingxing.rxhttp:rxhttp:$rxhttp_version"
     // ksp/kapt/annotationProcessor choose one
