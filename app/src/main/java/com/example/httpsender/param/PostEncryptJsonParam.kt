@@ -4,6 +4,7 @@ package com.example.httpsender.param
 import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import rxhttp.wrapper.annotation.Param
 import rxhttp.wrapper.param.JsonParam
 import rxhttp.wrapper.param.Method
@@ -28,7 +29,7 @@ class PostEncryptJsonParam(url: String) : JsonParam(url, Method.POST) {
         //第二步，加密
         val encryptByte = encrypt(json, "RxHttp")
         //第三部，创建RequestBody并返回
-        return RequestBody.create(MEDIA_TYPE_JSON, encryptByte!!)
+        return encryptByte!!.toRequestBody(MEDIA_TYPE_JSON)
     }
 
     /**
