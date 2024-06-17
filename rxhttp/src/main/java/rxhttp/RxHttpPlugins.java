@@ -138,9 +138,6 @@ public class RxHttpPlugins {
         if (maxSize <= 0) {
             throw new IllegalArgumentException("maxSize > 0 required but it was " + maxSize);
         }
-        if (cacheValidTime <= 0) {
-            throw new IllegalArgumentException("cacheValidTime > 0 required but it was " + cacheValidTime);
-        }
         CacheManager rxHttpCache = new CacheManager(directory, maxSize);
         cache = rxHttpCache.internalCache;
         cacheStrategy = new CacheStrategy(cacheMode, cacheValidTime);
