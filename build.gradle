@@ -2,7 +2,7 @@
 
 buildscript {
 
-    ext.kotlin_version = '1.9.23'
+    ext.kotlin_version = '2.0.0'
 
     repositories {
         google()
@@ -20,6 +20,6 @@ buildscript {
 //    id("com.google.devtools.ksp") version "$ksp_version" apply false
 //}
 
-task clean(type: Delete) {
+tasks.register('clean', Delete) {
     delete rootProject.buildDir
 }

@@ -11,7 +11,7 @@ compileKotlin {
     kotlinOptions.freeCompilerArgs = ["-Xallow-result-return-type"]
 }
 
-task copyJavaTemplates(type: Copy) {
+tasks.register('copyJavaTemplates', Copy) {
     from 'src/main/java-templates'
     into "$buildDir/generated/sources/java-templates/java/main"
     expand('projectVersion': "$rxhttp_version")
@@ -24,8 +24,8 @@ dependencies {
     compileOnly "com.squareup.okhttp3:okhttp:$okhttp_version"
 //    api "com.github.liujingxing.rxhttp:rxhttp-annotation:$rxhttp_version"
     api project(":rxhttp-annotation")
-    api 'com.google.code.gson:gson:2.10.1'
-    api 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3'
+    api 'com.google.code.gson:gson:2.11.0'
+    api 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1'
     testImplementation 'junit:junit:4.13.2'
 }
 
