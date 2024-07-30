@@ -97,32 +97,32 @@ fun getObservableClass(): Map<String, String> {
             }
 
             @NotNull
-            public Observable<@NotNull T> onProgress(@NotNull Consumer<Progress<?>> progressConsumer) {
+            public Observable<@NotNull T> onProgress(@NotNull Consumer<Progress<@Nullable T>> progressConsumer) {
                 return onProgress(Schedulers.io(), progressConsumer);
             }
 
             @NotNull
-            public Observable<@NotNull T> onProgress(@NotNull Scheduler scheduler, @NotNull Consumer<Progress<?>> progressConsumer) {
+            public Observable<@NotNull T> onProgress(@NotNull Scheduler scheduler, @NotNull Consumer<Progress<@Nullable T>> progressConsumer) {
                 return onProgress(2, scheduler, progressConsumer);
             }
 
             @NotNull
-            public Observable<@NotNull T> onMainProgress(@NotNull Consumer<Progress<?>> progressConsumer) {
+            public Observable<@NotNull T> onMainProgress(@NotNull Consumer<Progress<@Nullable T>> progressConsumer) {
                 return onMainProgress(2, progressConsumer);
             }
 
             @NotNull
-            public Observable<@NotNull T> onMainProgress(int capacity, @NotNull Consumer<Progress<?>> progressConsumer) {
+            public Observable<@NotNull T> onMainProgress(int capacity, @NotNull Consumer<Progress<@Nullable T>> progressConsumer) {
                 return onProgress(capacity, AndroidSchedulers.mainThread(), progressConsumer);
             }
             
             @NotNull
-            public Observable<@NotNull T> onMainProgress(int capacity, int minPeriod, @NotNull Consumer<Progress<?>> progressConsumer) {
+            public Observable<@NotNull T> onMainProgress(int capacity, int minPeriod, @NotNull Consumer<Progress<@Nullable T>> progressConsumer) {
                 return onProgress(capacity, minPeriod, AndroidSchedulers.mainThread(), progressConsumer);
             }
 
             @NotNull
-            public Observable<@NotNull T> onProgress(int capacity, @NotNull Scheduler scheduler, @NotNull Consumer<Progress<?>> progressConsumer) {
+            public Observable<@NotNull T> onProgress(int capacity, @NotNull Scheduler scheduler, @NotNull Consumer<Progress<@Nullable T>> progressConsumer) {
                 return onProgress(capacity, 500, scheduler, progressConsumer);
             }
 
@@ -136,7 +136,7 @@ fun getObservableClass(): Map<String, String> {
              * @return the new Observable instance
              */
             @NotNull 
-            public Observable<@NotNull T> onProgress(int capacity, int minPeriod, @NotNull Scheduler scheduler, @NotNull Consumer<Progress<?>> progressConsumer) {
+            public Observable<@NotNull T> onProgress(int capacity, int minPeriod, @NotNull Scheduler scheduler, @NotNull Consumer<Progress<@Nullable T>> progressConsumer) {
                 if (capacity < 2 || capacity > 100) {
                     throw new IllegalArgumentException("capacity must be in [2..100], but it was " + capacity);
                 }
@@ -256,6 +256,7 @@ fun getObservableClass(): Map<String, String> {
         package $rxHttpPackage;
         
         import org.jetbrains.annotations.NotNull;
+        import org.jetbrains.annotations.Nullable;
 
         import java.util.Queue;
         import java.util.concurrent.LinkedBlockingQueue;
@@ -279,9 +280,9 @@ fun getObservableClass(): Map<String, String> {
             private final Observable<T> source;
             private final int capacity;
             private final Scheduler scheduler;
-            private final Consumer<Progress<?>> progressConsumer;
+            private final Consumer<Progress<@Nullable T>> progressConsumer;
 
-            ObservableProgress(Observable<T> source, int capacity, Scheduler scheduler, Consumer<Progress<?>> progressConsumer) {
+            ObservableProgress(Observable<T> source, int capacity, Scheduler scheduler, Consumer<Progress<@Nullable T>> progressConsumer) {
                 this.source = source;
                 this.capacity = capacity;
                 this.scheduler = scheduler;
@@ -301,11 +302,11 @@ fun getObservableClass(): Map<String, String> {
             private static final class SyncObserver<T> implements Observer<T>, Disposable, ProgressCallback {
 
                 private final Observer<? super T> downstream;
-                private final Consumer<Progress<?>> progressConsumer;
+                private final Consumer<Progress<@Nullable T>> progressConsumer;
                 private Disposable upstream;
                 private boolean done;
 
-                SyncObserver(Observer<? super T> actual, Consumer<Progress<?>> progressConsumer) {
+                SyncObserver(Observer<? super T> actual, Consumer<Progress<@Nullable T>> progressConsumer) {
                     this.downstream = actual;
                     this.progressConsumer = progressConsumer;
                 }
@@ -382,13 +383,13 @@ fun getObservableClass(): Map<String, String> {
                 private final Observer<? super T> downstream;
                 private final Queue<Object> queue;
                 private final Scheduler.Worker worker;
-                private final Consumer<Progress<?>> progressConsumer;
+                private final Consumer<Progress<@Nullable T>> progressConsumer;
                 private Disposable upstream;
                 private Throwable error;
                 private volatile boolean done;
                 private volatile boolean disposed;
 
-                AsyncObserver(Scheduler.Worker worker, Observer<? super T> actual, int capacity, Consumer<Progress<?>> progressConsumer) {
+                AsyncObserver(Scheduler.Worker worker, Observer<? super T> actual, int capacity, Consumer<Progress<@Nullable T>> progressConsumer) {
                     this.downstream = actual;
                     this.worker = worker;
                     this.progressConsumer = progressConsumer;
@@ -477,7 +478,7 @@ fun getObservableClass(): Map<String, String> {
                                     break;
                                 }
                                 if (o instanceof Progress) {
-                                    progressConsumer.accept((Progress<?>) o);
+                                    progressConsumer.accept((Progress<T>) o);
                                 } else {
                                     a.onNext((T) o);
                                 }

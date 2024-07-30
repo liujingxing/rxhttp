@@ -84,32 +84,32 @@ public final class ObservableCall<T> extends Observable<T> {
     }
 
     @NotNull
-    public Observable<@NotNull T> onProgress(@NotNull Consumer<Progress<?>> progressConsumer) {
+    public Observable<@NotNull T> onProgress(@NotNull Consumer<Progress<@Nullable T>> progressConsumer) {
         return onProgress(Schedulers.io(), progressConsumer);
     }
 
     @NotNull
-    public Observable<@NotNull T> onProgress(@NotNull Scheduler scheduler, @NotNull Consumer<Progress<?>> progressConsumer) {
+    public Observable<@NotNull T> onProgress(@NotNull Scheduler scheduler, @NotNull Consumer<Progress<@Nullable T>> progressConsumer) {
         return onProgress(2, scheduler, progressConsumer);
     }
 
     @NotNull
-    public Observable<@NotNull T> onMainProgress(@NotNull Consumer<Progress<?>> progressConsumer) {
+    public Observable<@NotNull T> onMainProgress(@NotNull Consumer<Progress<@Nullable T>> progressConsumer) {
         return onMainProgress(2, progressConsumer);
     }
 
     @NotNull
-    public Observable<@NotNull T> onMainProgress(int capacity, @NotNull Consumer<Progress<?>> progressConsumer) {
+    public Observable<@NotNull T> onMainProgress(int capacity, @NotNull Consumer<Progress<@Nullable T>> progressConsumer) {
         return onProgress(capacity, AndroidSchedulers.mainThread(), progressConsumer);
     }
     
     @NotNull
-    public Observable<@NotNull T> onMainProgress(int capacity, int minPeriod, @NotNull Consumer<Progress<?>> progressConsumer) {
+    public Observable<@NotNull T> onMainProgress(int capacity, int minPeriod, @NotNull Consumer<Progress<@Nullable T>> progressConsumer) {
         return onProgress(capacity, minPeriod, AndroidSchedulers.mainThread(), progressConsumer);
     }
 
     @NotNull
-    public Observable<@NotNull T> onProgress(int capacity, @NotNull Scheduler scheduler, @NotNull Consumer<Progress<?>> progressConsumer) {
+    public Observable<@NotNull T> onProgress(int capacity, @NotNull Scheduler scheduler, @NotNull Consumer<Progress<@Nullable T>> progressConsumer) {
         return onProgress(capacity, 500, scheduler, progressConsumer);
     }
 
@@ -123,7 +123,7 @@ public final class ObservableCall<T> extends Observable<T> {
      * @return the new Observable instance
      */
     @NotNull 
-    public Observable<@NotNull T> onProgress(int capacity, int minPeriod, @NotNull Scheduler scheduler, @NotNull Consumer<Progress<?>> progressConsumer) {
+    public Observable<@NotNull T> onProgress(int capacity, int minPeriod, @NotNull Scheduler scheduler, @NotNull Consumer<Progress<@Nullable T>> progressConsumer) {
         if (capacity < 2 || capacity > 100) {
             throw new IllegalArgumentException("capacity must be in [2..100], but it was " + capacity);
         }

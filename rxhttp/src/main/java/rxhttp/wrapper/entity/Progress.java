@@ -1,5 +1,7 @@
 package rxhttp.wrapper.entity;
 
+import org.jetbrains.annotations.Nullable;
+
 /**
  * User: ljx
  * Date: 2019/1/20
@@ -11,9 +13,10 @@ public class Progress<T> {
     private final long totalSize; //总字节大小
     private final long speed;  //网速, 1秒更新一次 单位: byte/s
 
+    @Nullable
     private T result; //http返回结果,上传/下载完成时才有值
 
-    public Progress(T result) {
+    public Progress(@Nullable T result) {
         this(0, 0, 0);
         this.result = result;
     }
@@ -24,6 +27,7 @@ public class Progress<T> {
         this.speed = speed;
     }
 
+    @Nullable
     public T getResult() {
         return result;
     }
