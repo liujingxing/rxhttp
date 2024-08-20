@@ -421,12 +421,9 @@ public class LogUtil {
             if (type.equalsIgnoreCase("image") || type.equalsIgnoreCase("audio")
                 || type.equalsIgnoreCase("video") || subtype.equalsIgnoreCase("zip"))
                 return false;
-
-            if (mediaType.charset() != null)
-                return true;
         }
         //Considering that the contentType may be misused, try to print if the contentLength is less than 1M
-        return responseBody.contentLength() < 1024 * 1024;
+        return mediaType != null && mediaType.charset() != null && responseBody.contentLength() < 1024 * 1024;
     }
 
     /**
