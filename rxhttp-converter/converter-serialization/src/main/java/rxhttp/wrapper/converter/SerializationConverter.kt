@@ -28,9 +28,6 @@ class SerializationConverter(
         if (needDecodeResult) {
             json = RxHttpPlugins.onResultDecoder(json)
         }
-        if (type == String::class.java) {
-            return json as T
-        }
         val serializer = format.serializersModule.serializer(type)
         return format.decodeFromString(serializer, json) as T
     }

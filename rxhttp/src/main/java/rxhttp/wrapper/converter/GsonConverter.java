@@ -52,16 +52,17 @@ public class GsonConverter implements JsonConverter {
     }
 
     @NotNull
-    @SuppressWarnings("unchecked")
     @Override
     public <T> T convert(@NotNull ResponseBody body, @NotNull Type type, boolean needDecodeResult) throws IOException {
         try {
-            String result = body.string();
+            T t;
             if (needDecodeResult) {
+                String result = body.string();
                 result = RxHttpPlugins.onResultDecoder(result);
+                t = gson.fromJson(result, type);
+            } else {
+                t = gson.fromJson(body.charStream(), type);
             }
-            if (type == String.class) return (T) result;
-            T t = gson.fromJson(result, type);
             if (t == null) {
                 throw new IllegalStateException("GsonConverter Could not deserialize body as " + type);
             }
