@@ -55,12 +55,16 @@ public class FastJsonConverter implements JsonConverter {
     }
 
     @NotNull
+    @SuppressWarnings("unchecked")
     @Override
     public <T> T convert(@NotNull ResponseBody body, @NotNull Type type, boolean needDecodeResult) throws IOException {
         try {
             String result = body.string();
             if (needDecodeResult) {
                 result = RxHttpPlugins.onResultDecoder(result);
+            }
+            if (type == String.class) {
+                return (T) result;
             }
             T t = JSON.parseObject(result, type, parserConfig);
             if (t == null) {

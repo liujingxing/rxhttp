@@ -45,14 +45,18 @@ public class JacksonConverter implements JsonConverter {
     }
 
     @NotNull
+    @SuppressWarnings("unchecked")
     @Override
     public <T> T convert(@NotNull ResponseBody body, @NotNull Type type, boolean needDecodeResult) throws IOException {
-        JavaType javaType = mapper.getTypeFactory().constructType(type);
-        ObjectReader reader = mapper.readerFor(javaType);
         try {
+            JavaType javaType = mapper.getTypeFactory().constructType(type);
+            ObjectReader reader = mapper.readerFor(javaType);
             String result = body.string();
             if (needDecodeResult) {
                 result = RxHttpPlugins.onResultDecoder(result);
+            }
+            if (type == String.class) {
+                return (T) result;
             }
             T t = reader.readValue(result);
             if (t == null) {

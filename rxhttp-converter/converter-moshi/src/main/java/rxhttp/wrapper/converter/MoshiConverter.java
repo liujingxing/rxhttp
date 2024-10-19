@@ -116,17 +116,20 @@ public class MoshiConverter implements JsonConverter {
         if (serializeNulls) {
             adapter = adapter.serializeNulls();
         }
-        BufferedSource source;
-        if (needDecodeResult) {
-            String decodeResult = RxHttpPlugins.onResultDecoder(body.string());
-            if (type == String.class) {
-                return (T) decodeResult;
-            }
-            source = new Buffer().writeUtf8(decodeResult);
-        } else {
-            source = body.source();
-        }
         try {
+            BufferedSource source;
+            if (needDecodeResult || type == String.class) {
+                String result = body.string();
+                if (needDecodeResult) {
+                    result = RxHttpPlugins.onResultDecoder(result);
+                }
+                if (type == String.class) {
+                    return (T) result;
+                }
+                source = new Buffer().writeUtf8(result);
+            } else {
+                source = body.source();
+            }
             // Moshi has no document-level API so the responsibility of BOM skipping falls to whatever
             // is delegating to it. Since it's a UTF-8-only library as well we only honor the UTF-8 BOM.
             if (source.rangeEquals(0, UTF8_BOM)) {

@@ -64,12 +64,20 @@ public class XmlConverter implements IConverter {
     @SuppressWarnings("unchecked")
     @Override
     public <T> T convert(@NotNull ResponseBody body, @NotNull Type type, boolean needDecodeResult) throws IOException {
-        if (!(type instanceof Class)) return null;
-        Class<T> cls = (Class<T>) type;
         try {
+            if (!(type instanceof Class<?>)) {
+                throw new IllegalArgumentException("type must be a Class, but it was " + type);
+            }
+            Class<T> cls = (Class<T>) type;
             T read;
-            if (needDecodeResult) {
-                String result = RxHttpPlugins.onResultDecoder(body.string());
+            if (needDecodeResult || type == String.class) {
+                String result = body.string();
+                if (needDecodeResult) {
+                    result = RxHttpPlugins.onResultDecoder(result);
+                }
+                if (type == String.class) {
+                    return (T) result;
+                }
                 read = serializer.read(cls, result, strict);
             } else {
                 read = serializer.read(cls, body.charStream(), strict);

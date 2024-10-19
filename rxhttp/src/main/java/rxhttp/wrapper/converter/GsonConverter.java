@@ -52,13 +52,19 @@ public class GsonConverter implements JsonConverter {
     }
 
     @NotNull
+    @SuppressWarnings("unchecked")
     @Override
     public <T> T convert(@NotNull ResponseBody body, @NotNull Type type, boolean needDecodeResult) throws IOException {
         try {
             T t;
-            if (needDecodeResult) {
+            if (needDecodeResult || type == String.class) {
                 String result = body.string();
-                result = RxHttpPlugins.onResultDecoder(result);
+                if (needDecodeResult) {
+                    result = RxHttpPlugins.onResultDecoder(result);
+                }
+                if (type == String.class) {
+                    return (T) result;
+                }
                 t = gson.fromJson(result, type);
             } else {
                 t = gson.fromJson(body.charStream(), type);
