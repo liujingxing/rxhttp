@@ -137,7 +137,7 @@ android {
 plugins {
     // kapt/ksp choose one
     // id 'kotlin-kapt'
-    id 'com.google.devtools.ksp' version '1.9.23-1.0.19'
+    id 'com.google.devtools.ksp' version '2.0.0-1.0.24'
 }
     
 dependencies {
