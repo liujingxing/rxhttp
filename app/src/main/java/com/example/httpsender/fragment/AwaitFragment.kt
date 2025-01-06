@@ -25,7 +25,7 @@ import java.util.*
  * ```
  * val user = RxHttp.postXxx("/service/...")
  *     .add("key", "value")
- *     .toClass<User>()
+ *     .toAwait<User>()
  *     .awaitResult {
  *         val user = it
  *     }.onFailure {
