@@ -1,4 +1,6 @@
-apply plugin: 'java-library'
+plugins {
+    id 'java-library'
+}
 apply from: '../../maven.gradle'
 
 dependencies {
@@ -8,6 +10,8 @@ dependencies {
     api "com.squareup.moshi:moshi:$moshi_version"
 }
 
-sourceCompatibility = "$jdk_version"
-targetCompatibility = "$jdk_version"
+java {
+    sourceCompatibility = "$jdk_version"
+    targetCompatibility = "$jdk_version"
+}
 
