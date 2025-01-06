@@ -28,7 +28,7 @@ dependencies {
 //    api "com.github.liujingxing.rxhttp:rxhttp-annotation:$rxhttp_version"
     api project(":rxhttp-annotation")
     api 'com.google.code.gson:gson:2.11.0'
-    api 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1'
+    api 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0'
     testImplementation 'junit:junit:4.13.2'
 }
 
