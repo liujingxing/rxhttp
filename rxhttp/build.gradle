@@ -12,12 +12,11 @@ sourceSets {
 
 compileKotlin {
     dependsOn 'copyJavaTemplates'
-    kotlinOptions.freeCompilerArgs = ["-Xallow-result-return-type"]
 }
 
 tasks.register('copyJavaTemplates', Copy) {
     from 'src/main/java-templates'
-    into "$buildDir/generated/sources/java-templates/java/main"
+    into "${layout.buildDirectory.get()}/generated/sources/java-templates/java/main"
     expand('projectVersion': "$rxhttp_version")
     filteringCharset = 'UTF-8'
 }
