@@ -3,10 +3,18 @@ package com.example.httpsender;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.view.View;
+import android.view.ViewGroup.LayoutParams;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 
+import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.OnApplyWindowInsetsListener;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 
@@ -40,7 +48,20 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this);
         mBinding = DataBindingUtil.setContentView(this, R.layout.main_activity);
+        ViewCompat.setOnApplyWindowInsetsListener(mBinding.getRoot(), new OnApplyWindowInsetsListener() {
+            @NonNull
+            @Override
+            public WindowInsetsCompat onApplyWindowInsets(@NonNull View v, @NonNull WindowInsetsCompat insets) {
+                Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+                mBinding.magicIndicator.setPadding(0, systemBars.top, 0, 0);
+                LayoutParams layoutParams = mBinding.magicIndicator.getLayoutParams();
+                layoutParams.height = (int) (getResources().getDisplayMetrics().density * 50 + systemBars.top);
+                mBinding.magicIndicator.setLayoutParams(layoutParams);
+                return insets;
+            }
+        });
         mBinding.viewPager.setOffscreenPageLimit(4);
         mDataList.add("RxJava");
         mDataList.add("Await");

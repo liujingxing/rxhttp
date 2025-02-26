@@ -1,21 +1,19 @@
 plugins {
-    id 'com.android.application'
-    id 'kotlin-android'
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
     id 'kotlin-kapt'
-//    id 'dagger.hilt.android.plugin'
-    id 'com.google.devtools.ksp' version "$ksp_version"
-    // id 'org.jetbrains.kotlin.plugin.serialization' version '1.7.10'
+    id 'com.google.devtools.ksp' version libs.versions.ksp
 }
 
 android {
     
     namespace 'com.example.httpsender'
 
-    compileSdk 34
+    compileSdk 35
     defaultConfig {
         applicationId "com.example.rxhttp"
         minSdk 21
-        targetSdk 34
+        targetSdk 35
         versionCode 1
         versionName "1.0"
 
@@ -51,76 +49,67 @@ android {
 }
 
 ksp {
-    arg("rxhttp_rxjava", rxjava_version)
+    arg("rxhttp_rxjava", libs.versions.rxjava.get())
 //        arg("rxhttp_package", "rxhttp")
 }
 
 kapt {
     arguments {
-        arg("rxhttp_rxjava", rxjava_version) //可传入rxjava2、rxjava3或具体版本号，如 3.1.1
+        arg("rxhttp_rxjava", libs.versions.rxjava.get()) //可传入rxjava2、rxjava3或具体版本号，如 3.1.1
 //            arg("rxhttp_package", "rxhttp") //设置RxHttp相关类的包名，多module依赖时，需要配置不同的包名
     }
 }
 
 
-//configurations.all {
-//    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
-//}
-
 dependencies {
-    implementation fileTree(include: ['*.jar', '*.aar'], dir: 'libs')
-    implementation 'androidx.multidex:multidex:2.0.1'
-    implementation 'androidx.appcompat:appcompat:1.7.0'
-    implementation 'androidx.recyclerview:recyclerview:1.3.2'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'com.github.hackware1993:MagicIndicator:1.7.0'
-    implementation "androidx.fragment:fragment-ktx:1.6.2"
-    implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version"
-    implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
-    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
-    implementation "androidx.lifecycle:lifecycle-service:$lifecycle_version"
+    implementation libs.androidx.multidex
+    implementation libs.androidx.appcompat
+    implementation libs.androidx.recyclerview
+    implementation libs.androidx.constraintlayout
+    implementation libs.github.magicindicator
+    implementation libs.androidx.fragment.ktx
+    implementation libs.androidx.lifecycle.runtime.ktx
+    implementation libs.androidx.lifecycle.livedata.ktx
+    implementation libs.androidx.lifecycle.viewmodel.ktx
+    implementation libs.androidx.lifecycle.service
 
-    implementation project(":rxhttp")
-    ksp project(':rxhttp-compiler')
-//    kapt project(':rxhttp-compiler')
-//    implementation "com.squareup.okhttp3:logging-interceptor:$okhttp_version"
+    implementation projects.rxhttp
+    ksp projects.rxhttpCompiler
+//    kapt projects.rxhttpCompiler
 
-    implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
-    testImplementation "com.squareup.okhttp3:mockwebserver:$okhttp_version"
+    implementation libs.okhttp
+    testImplementation libs.mockwebserver
 
-//    implementation "com.github.liujingxing.rxhttp:rxhttp:$rxhttp_version"
-//    ksp "com.github.liujingxing.rxhttp:rxhttp-compiler:$rxhttp_version"
-//    kapt "com.github.liujingxing.rxhttp:rxhttp-compiler:$rxhttp_version"
+//    implementation libs.rxhttp
+//    ksp libs.rxhttp.compiler
+//    kapt libs.rxhttp.compiler
 
     //管理RxJava及生命周期，Activity/Fragment 销毁，自动关闭未完成的请求
-    implementation "com.github.liujingxing.rxlife:rxlife-rxjava3:$rxlife_version"
-    implementation 'io.reactivex.rxjava3:rxandroid:3.0.2'
-    implementation "io.reactivex.rxjava3:rxjava:$rxjava_version"
+    implementation libs.github.rxlife.rxjava3
+    implementation libs.rxandroid
+    implementation libs.rxjava
 
-//    implementation "com.github.liujingxing.rxhttp:converter-serialization:$rxhttp_version"
-//    implementation "com.github.liujingxing.rxhttp:converter-fastjson:$rxhttp_version"
-//    implementation "com.github.liujingxing.rxhttp:converter-jackson:$rxhttp_version"
-//    implementation "com.github.liujingxing.rxhttp:converter-moshi:$rxhttp_version"
-//    implementation "com.github.liujingxing.rxhttp:converter-protobuf:$rxhttp_version"
-//    implementation "com.github.liujingxing.rxhttp:converter-simplexml:$rxhttp_version"
+//    implementation libs.rxhttp.converter.serialization
+//    implementation libs.rxhttp.converter.fastjson
+//    implementation libs.rxhttp.converter.jackson
+//    implementation libs.rxhttp.converter.moshi
+//    implementation libs.rxhttp.converter.protobuf
+//    implementation libs.rxhttp.converter.simplexml
 
-    implementation project(':rxhttp-converter:converter-serialization')
-    implementation project(':rxhttp-converter:converter-fastjson')
-    implementation project(':rxhttp-converter:converter-simplexml')
-    implementation project(':rxhttp-converter:converter-protobuf')
-    implementation project(':rxhttp-converter:converter-moshi')
-    implementation project(':rxhttp-converter:converter-jackson')
+    implementation projects.rxhttpConverter.converterSerialization
+    implementation projects.rxhttpConverter.converterFastjson
+    implementation projects.rxhttpConverter.converterSimplexml
+    implementation projects.rxhttpConverter.converterProtobuf
+    implementation projects.rxhttpConverter.converterMoshi
+    implementation projects.rxhttpConverter.converterJackson
 
-    testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
-    implementation 'com.blankj:utilcodex:1.31.1'
+    testImplementation libs.junit
+    androidTestImplementation libs.androidx.junit
+    androidTestImplementation libs.androidx.espresso.core
+    implementation libs.utilcodex
 
-    testImplementation "com.github.tschuchortdev:kotlin-compile-testing-ksp:1.6.0"
-    testImplementation 'com.squareup:kotlinpoet:1.18.1'
-    testImplementation 'com.squareup:kotlinpoet-ksp:1.18.1'
-    testImplementation project(':rxhttp-compiler')
-
-//    implementation "com.google.dagger:hilt-android:2.48.1"
-//    ksp "com.google.dagger:hilt-android-compiler:2.48.1"
+    testImplementation libs.kotlin.compile.testing.ksp
+    testImplementation libs.kotlinpoet
+    testImplementation libs.kotlinpoet.ksp
+    testImplementation projects.rxhttpCompiler
 }

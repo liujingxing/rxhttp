@@ -8,9 +8,9 @@ apply from: '../../maven.gradle'
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    compileOnly project(":rxhttp")
-    compileOnly "com.squareup.okhttp3:okhttp:$okhttp_version"
-    api "org.jetbrains.kotlinx:kotlinx-serialization-json:${kotlinx_serialization_version}"
+    compileOnly projects.rxhttp
+    compileOnly libs.okhttp
+    api libs.kotlinx.serialization.json
 }
 
 java {
