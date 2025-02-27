@@ -1,5 +1,9 @@
-apply plugin: 'java-library'
-apply plugin: 'kotlin'
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
+plugins {
+    id 'java-library'
+    id 'org.jetbrains.kotlin.jvm'
+}
 apply from: '../maven.gradle'
 
 sourceSets {
@@ -8,30 +12,32 @@ sourceSets {
 
 compileKotlin {
     dependsOn 'copyJavaTemplates'
-    kotlinOptions.freeCompilerArgs = ["-Xallow-result-return-type"]
 }
 
 tasks.register('copyJavaTemplates', Copy) {
     from 'src/main/java-templates'
-    into "$buildDir/generated/sources/java-templates/java/main"
-    expand('projectVersion': "$rxhttp_version")
+    into "${layout.buildDirectory.get()}/generated/sources/java-templates/java/main"
+    expand('projectVersion': libs.versions.rxhttp.get())
     filteringCharset = 'UTF-8'
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    compileOnly 'com.google.android:android:4.1.1.4'
-    compileOnly "com.squareup.okhttp3:okhttp:$okhttp_version"
-//    api "com.github.liujingxing.rxhttp:rxhttp-annotation:$rxhttp_version"
-    api project(":rxhttp-annotation")
-    api 'com.google.code.gson:gson:2.11.0'
-    api 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1'
-    testImplementation 'junit:junit:4.13.2'
+    compileOnly libs.android
+    compileOnly libs.okhttp
+//    api libs.rxhttp.annotation
+    api projects.rxhttpAnnotation
+    api libs.gson
+    api libs.kotlinx.coroutines.android
+    testImplementation libs.junit
 }
 
-sourceCompatibility = "$jdk_version"
-targetCompatibility = "$jdk_version"
-
+java {
+    sourceCompatibility = "$jdk_version"
+    targetCompatibility = "$jdk_version"
+}
 kotlin {
-    jvmToolchain(jdk_version as int)
+    compilerOptions {
+        jvmTarget = JvmTarget.JVM_1_8
+    }
 }

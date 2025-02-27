@@ -1,22 +1,29 @@
-apply plugin: 'kotlin'
-apply plugin: 'kotlin-kapt'
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
+plugins {
+    id 'org.jetbrains.kotlin.jvm'
+    id 'kotlin-kapt'
+}
 apply from: '../maven.gradle'
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.squareup:javapoet:1.13.0'
-    def kotlinpoet = "1.18.1"
-    implementation "com.squareup:kotlinpoet:$kotlinpoet"
-    implementation "com.squareup:kotlinpoet-ksp:$kotlinpoet"
-    implementation "com.squareup:kotlinpoet-javapoet:$kotlinpoet"
-//    implementation "com.github.liujingxing.rxhttp:rxhttp-annotation:$rxhttp_version"
-    implementation project(":rxhttp-annotation")
-    implementation "com.google.devtools.ksp:symbol-processing-api:$ksp_version"
+    implementation libs.javapoet
+    implementation libs.kotlinpoet
+    implementation libs.kotlinpoet.ksp
+    implementation libs.kotlinpoet.javapoet
+//    implementation libs.rxhttp.annotation
+    implementation projects.rxhttpAnnotation
+    implementation libs.symbol.processing.api
 }
 
-sourceCompatibility = "$jdk_version"
-targetCompatibility = "$jdk_version"
+java {
+    sourceCompatibility = "$jdk_version"
+    targetCompatibility = "$jdk_version"
+}
 
 kotlin {
-    jvmToolchain(jdk_version as int)
+    compilerOptions {
+        jvmTarget = JvmTarget.JVM_1_8
+    }
 }

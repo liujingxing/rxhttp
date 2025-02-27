@@ -1,3 +1,17 @@
+pluginManagement {
+    repositories {
+        google {
+            content {
+                includeGroupByRegex("com\\.android.*")
+                includeGroupByRegex("com\\.google.*")
+                includeGroupByRegex("androidx.*")
+            }
+        }
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
@@ -7,13 +21,16 @@ dependencyResolutionManagement {
     }
 }
 
-include ':app',
-        ':rxhttp',
-        ':rxhttp-compiler',
-        ':rxhttp-annotation',
-        'rxhttp-converter:converter-fastjson',
-        'rxhttp-converter:converter-jackson',
-        'rxhttp-converter:converter-moshi',
-        'rxhttp-converter:converter-protobuf',
-        'rxhttp-converter:converter-serialization',
-        'rxhttp-converter:converter-simplexml'
+rootProject.name = "RxHttp-Project"
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+
+include(':app')
+include(':rxhttp')
+include(':rxhttp-compiler')
+include(':rxhttp-annotation')
+include('rxhttp-converter:converter-fastjson')
+include('rxhttp-converter:converter-jackson')
+include('rxhttp-converter:converter-moshi')
+include('rxhttp-converter:converter-protobuf')
+include('rxhttp-converter:converter-serialization')
+include('rxhttp-converter:converter-simplexml')

@@ -99,7 +99,7 @@ fun <T> Await<T>.repeat(
  * ```
  * lifecycleScope.launch {
  *     val t = RxHttp.get("...")
- *         .toClass<T>()
+ *         .toAwait<T>()
  *         .map { ... }    // Will be executed in IO
  *         .flowOn(Dispatchers.IO)
  *         .map { ... }    // Will be executed in Default

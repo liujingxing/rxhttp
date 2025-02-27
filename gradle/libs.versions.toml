@@ -1,0 +1,89 @@
+[versions]
+agp = "8.8.1"
+kotlin = "2.1.10"
+android = "4.1.1.4"
+appcompat = "1.7.0"
+constraintlayout = "2.2.0"
+fastjson = "1.2.76"
+fragment = "1.8.6"
+gson = "2.11.0"
+jacksonCore = "2.17.2"
+javapoet = "1.13.0"
+junit = "4.13.2"
+junitVersion = "1.2.1"
+espressoCore = "3.6.1"
+kotlinCompileTestingKsp = "1.6.0"
+kotlinpoet = "1.18.1"
+kotlinxCoroutinesAndroid = "1.10.1"
+kotlinxSerializationJson = "1.8.0"
+lifecycleRuntime = "2.8.7"
+magicindicator = "1.7.0"
+moshi = "1.15.1"
+multidex = "2.0.1"
+okhttp = "4.12.0"
+protobufJava = "4.27.2"
+recyclerview = "1.4.0"
+rxandroid = "3.0.2"
+rxhttp = "3.3.2"
+rxjava = "3.1.8"
+rxlifeRxjava3 = "2.2.2"
+simpleXml = "2.7.1"
+utilcodex = "1.31.1"
+ksp = "2.1.10-1.0.30"
+
+[libraries]
+android = { module = "com.google.android:android", version.ref = "android" }
+androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
+androidx-constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version.ref = "constraintlayout" }
+androidx-espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref = "espressoCore" }
+androidx-fragment-ktx = { module = "androidx.fragment:fragment-ktx", version.ref = "fragment" }
+androidx-junit = { module = "androidx.test.ext:junit", version.ref = "junitVersion" }
+androidx-lifecycle-livedata-ktx = { module = "androidx.lifecycle:lifecycle-livedata-ktx", version.ref = "lifecycleRuntime" }
+androidx-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycleRuntime" }
+androidx-lifecycle-service = { module = "androidx.lifecycle:lifecycle-service", version.ref = "lifecycleRuntime" }
+androidx-lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycleRuntime" }
+androidx-multidex = { module = "androidx.multidex:multidex", version.ref = "multidex" }
+androidx-recyclerview = { module = "androidx.recyclerview:recyclerview", version.ref = "recyclerview" }
+rxhttp = { module = "com.github.liujingxing.rxhttp:rxhttp", version.ref = "rxhttp" }
+rxhttp-compiler = { module = "com.github.liujingxing.rxhttp:rxhttp-compiler", version.ref = "rxhttp" }
+rxhttp-annotation = { module = "com.github.liujingxing.rxhttp:rxhttp-annotation", version.ref = "rxhttp" }
+rxhttp-converter-fastjson = { module = "com.github.liujingxing.rxhttp:converter-fastjson", version.ref = "rxhttp" }
+rxhttp-converter-jackson = { module = "com.github.liujingxing.rxhttp:converter-jackson", version.ref = "rxhttp" }
+rxhttp-converter-moshi = { module = "com.github.liujingxing.rxhttp:converter-moshi", version.ref = "rxhttp" }
+rxhttp-converter-protobuf = { module = "com.github.liujingxing.rxhttp:converter-protobuf", version.ref = "rxhttp" }
+rxhttp-converter-serialization = { module = "com.github.liujingxing.rxhttp:converter-serialization", version.ref = "rxhttp" }
+rxhttp-converter-simplexml = { module = "com.github.liujingxing.rxhttp:converter-simplexml", version.ref = "rxhttp" }
+fastjson = { module = "com.alibaba:fastjson", version.ref = "fastjson" }
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
+jackson-annotations = { module = "com.fasterxml.jackson.core:jackson-annotations", version.ref = "jacksonCore" }
+jackson-core = { module = "com.fasterxml.jackson.core:jackson-core", version.ref = "jacksonCore" }
+jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jacksonCore" }
+javapoet = { module = "com.squareup:javapoet", version.ref = "javapoet" }
+junit = { module = "junit:junit", version.ref = "junit" }
+kotlin-compile-testing-ksp = { module = "com.github.tschuchortdev:kotlin-compile-testing-ksp", version.ref = "kotlinCompileTestingKsp" }
+kotlinpoet = { module = "com.squareup:kotlinpoet", version.ref = "kotlinpoet" }
+kotlinpoet-javapoet = { module = "com.squareup:kotlinpoet-javapoet", version.ref = "kotlinpoet" }
+kotlinpoet-ksp = { module = "com.squareup:kotlinpoet-ksp", version.ref = "kotlinpoet" }
+kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinxCoroutinesAndroid" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
+github-magicindicator = { module = "com.github.hackware1993:MagicIndicator", version.ref = "magicindicator" }
+mockwebserver = { module = "com.squareup.okhttp3:mockwebserver", version.ref = "okhttp" }
+moshi = { module = "com.squareup.moshi:moshi", version.ref = "moshi" }
+okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
+protobuf-java = { module = "com.google.protobuf:protobuf-java", version.ref = "protobufJava" }
+rxandroid = { module = "io.reactivex.rxjava3:rxandroid", version.ref = "rxandroid" }
+
+rxjava = { module = "io.reactivex.rxjava3:rxjava", version.ref = "rxjava" }
+github-rxlife-rxjava3 = { module = "com.github.liujingxing.rxlife:rxlife-rxjava3", version.ref = "rxlifeRxjava3" }
+simple-xml = { module = "org.simpleframework:simple-xml", version.ref = "simpleXml" }
+symbol-processing-api = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "ksp" }
+utilcodex = { module = "com.blankj:utilcodex", version.ref = "utilcodex" }
+
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+
+
+
+
