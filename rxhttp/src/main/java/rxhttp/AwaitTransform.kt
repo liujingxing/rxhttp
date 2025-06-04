@@ -3,15 +3,18 @@ package rxhttp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import rxhttp.wrapper.coroutines.Await
 import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.coroutineContext
 
 /**
  * User: ljx
@@ -41,6 +44,7 @@ fun <T> Await<T>.retry(
         return try {
             this@retry.await()
         } catch (e: Throwable) {
+            e.throwCancellationCause(coroutineContext)
             val remaining = retryTime  //Remaining retries
             if (remaining != Long.MAX_VALUE) {
                 retryTime = remaining - 1
@@ -149,6 +153,7 @@ inline fun <T> Await<T>.onErrorReturn(
     try {
         await()
     } catch (e: Throwable) {
+        e.throwCancellationCause(coroutineContext)
         map(e)
     }
 }
@@ -190,7 +195,7 @@ fun <T> Await<T>.startDelay(timeMillis: Long): Await<T> = newAwait {
 /**
  * Creates a coroutine and returns its future result as an implementation of [Deferred].
  */
-suspend fun <T> Await<T>.async(
+fun <T> Await<T>.async(
     scope: CoroutineScope,
     context: CoroutineContext = SupervisorJob(scope.coroutineContext[Job]),
     start: CoroutineStart = CoroutineStart.DEFAULT
@@ -198,12 +203,12 @@ suspend fun <T> Await<T>.async(
     await()
 }
 
-suspend inline fun <T> Await<T>.awaitResult(): Result<T> = runCatching { await() }
+suspend inline fun <T> Await<T>.awaitResult(): Result<T> = resultCatching { await() }
 
 suspend inline fun <T> Await<T>.awaitResult(onSuccess: (T) -> Unit): Result<T> =
     awaitResult().onSuccess(onSuccess)
 
-suspend inline fun <T> Deferred<T>.awaitResult(): Result<T> = runCatching { await() }
+suspend inline fun <T> Deferred<T>.awaitResult(): Result<T> = resultCatching { await() }
 
 suspend inline fun <T> Deferred<T>.awaitResult(onSuccess: (T) -> Unit): Result<T> =
     awaitResult().onSuccess(onSuccess)
@@ -213,6 +218,8 @@ suspend fun <T> Deferred<T>.tryAwait(onCatch: ((Throwable) -> Unit)? = null): T?
     try {
         await()
     } catch (e: Throwable) {
+        coroutineContext.ensureActive()
+        e.throwCancellationCause(coroutineContext)
         onCatch?.invoke(e)
         null
     }
@@ -222,6 +229,7 @@ suspend fun <T> Await<T>.tryAwait(onCatch: ((Throwable) -> Unit)? = null): T? =
     try {
         await()
     } catch (e: Throwable) {
+        e.throwCancellationCause(coroutineContext)
         onCatch?.invoke(e)
         null
     }
@@ -231,6 +239,7 @@ suspend inline fun <T> Deferred<T>.safeAwait(onCatch: (Throwable) -> T): T =
     try {
         await()
     } catch (e: Throwable) {
+        e.throwCancellationCause(coroutineContext)
         onCatch(e)
     }
 
@@ -239,5 +248,26 @@ suspend inline fun <T> Await<T>.safeAwait(onCatch: (Throwable) -> T): T =
     try {
         await()
     } catch (e: Throwable) {
+        e.throwCancellationCause(coroutineContext)
         onCatch(e)
     }
+
+suspend inline fun <T, R> T.resultCatching(block: T.() -> R): Result<R> {
+    return try {
+        Result.success(block())
+    } catch (e: Throwable) {
+        e.throwCancellationCause(coroutineContext)
+        Result.failure(e)
+    }
+}
+
+fun Throwable.throwCancellationCause(coroutineContext: CoroutineContext) {
+    if (isCancellationCause(coroutineContext)) throw this
+}
+
+@OptIn(InternalCoroutinesApi::class)
+internal fun Throwable.isCancellationCause(coroutineContext: CoroutineContext): Boolean {
+    val job = coroutineContext[Job]
+    if (job == null || !job.isCancelled) return false
+    return this == job.getCancellationException()
+}
