@@ -8,6 +8,7 @@ import com.rxhttp.compiler.ksp.getParserTypeParam
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.SourceFile
 import com.tschuchort.compiletesting.symbolProcessorProviders
+import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -22,6 +23,7 @@ import java.io.File
  */
 @RunWith(JUnit4::class)
 class KspProcessorTest {
+    @OptIn(ExperimentalCompilerApi::class)
     @Test
     fun testKspProvider() {
         val compilation = KotlinCompilation().apply {
@@ -33,6 +35,7 @@ class KspProcessorTest {
     }
 
 
+    @OptIn(ExperimentalCompilerApi::class)
     @Test
     fun testKspProvider1() {
         val compilation = KotlinCompilation().apply {

@@ -21,6 +21,7 @@ import com.google.devtools.ksp.symbol.Modifier
 import com.google.devtools.ksp.symbol.Origin
 import com.rxhttp.compiler.K_ARRAY_TYPE
 import com.rxhttp.compiler.K_TYPE
+import com.rxhttp.compiler.isKps2
 import com.squareup.javapoet.JavaFile
 import com.squareup.kotlinpoet.ANY
 import com.squareup.kotlinpoet.AnnotationSpec
@@ -94,7 +95,7 @@ internal fun KSValueParameter.toKParameterSpec(
     val variableName = name!!.asString()
     val isNullable = getAnnotationsByType(Nullable::class).firstOrNull() != null
     var typeName = type.toTypeName(typeParamResolver)
-    if (isVararg && isJava()) {
+    if (isVararg && isJava() && !isKps2) {
         typeName = when (typeName) {
             BOOLEAN_ARRAY -> BOOLEAN
             BYTE_ARRAY, U_BYTE_ARRAY -> BYTE

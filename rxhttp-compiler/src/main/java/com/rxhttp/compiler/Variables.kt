@@ -6,3 +6,5 @@ package com.rxhttp.compiler
  * Time: 17:38
  */
 lateinit var rxHttpPackage: String  //RxHttp相关类的包名
+
+var isKps2: Boolean = false

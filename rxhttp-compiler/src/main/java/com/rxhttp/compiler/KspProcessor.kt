@@ -8,6 +8,7 @@ import com.google.devtools.ksp.processing.SymbolProcessorProvider
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
+import com.rxhttp.compiler.common.versionCompare
 import com.rxhttp.compiler.ksp.BaseRxHttpGenerator
 import com.rxhttp.compiler.ksp.ClassHelper
 import com.rxhttp.compiler.ksp.ConverterVisitor
@@ -41,6 +42,7 @@ class KspProcessor(private val env: SymbolProcessorEnvironment) : SymbolProcesso
         val logger = env.logger
         val options = env.options
         val codeGenerator = env.codeGenerator
+        isKps2 = env.kspVersion.toString().versionCompare("2.0.0") >= 0
 
         val debug = options[rxhttp_debug].toBoolean()
         if (debug) {

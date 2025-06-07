@@ -25,7 +25,7 @@ public class RxHttpGetEncryptParam : RxHttpNoBodyParam {
   public final fun <T : Point, R : CharSequence> test(
     a: MutableList<R>,
     map: MutableMap<T, R>,
-    vararg b: Array<T>,
+    vararg b: Array<out T>,
   ): RxHttpGetEncryptParam = apply {
     (param as GetEncryptParam).test(a, map, *b) 
   }
