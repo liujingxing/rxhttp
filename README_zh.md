@@ -257,7 +257,7 @@ android {
 }
 //3、添加插件及依赖
 plugins {
-    id 'com.google.devtools.ksp' version '2.0.0-1.0.24'
+    id 'com.google.devtools.ksp' version '2.1.21-2.0.1'
 }
  
 dependencies {
