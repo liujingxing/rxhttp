@@ -1,8 +1,8 @@
 package rxhttp.wrapper.coroutines
 
+import okhttp3.Call
 import rxhttp.wrapper.CallFactory
 import rxhttp.wrapper.entity.OkResponse
-import rxhttp.wrapper.exception.ProxyException
 import rxhttp.wrapper.parse.OkResponseParser
 import rxhttp.wrapper.parse.Parser
 import rxhttp.wrapper.utils.LogUtil
@@ -22,12 +22,13 @@ class CallAwait<T>(
         CallAwait(callFactory, OkResponseParser(parser))
 
     override suspend fun await(): T {
-        val call = callFactory.newCall()
+        var call: Call? = null
         return try {
+            call = callFactory.newCall()
             call.await(parser)
-        } catch (t: Throwable) {
-            LogUtil.log(ProxyException(call.request(), t))
-            throw t
+        } catch (e: Throwable) {
+            LogUtil.logCall(call, e)
+            throw e
         }
     }
 }

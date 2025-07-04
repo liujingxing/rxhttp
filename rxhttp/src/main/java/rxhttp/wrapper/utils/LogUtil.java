@@ -1,6 +1,7 @@
 package rxhttp.wrapper.utils;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -11,6 +12,7 @@ import java.nio.charset.Charset;
 import java.util.List;
 
 import kotlin.text.Charsets;
+import okhttp3.Call;
 import okhttp3.Cookie;
 import okhttp3.CookieJar;
 import okhttp3.Headers;
@@ -83,6 +85,12 @@ public class LogUtil {
     public static void log(String message, Throwable throwable) {
         if (!isDebug) return;
         Platform.get().loge(TAG, message, throwable);
+    }
+
+    public static void logCall(@Nullable Call call, Throwable e) {
+        if (!isDebug) return;
+        Throwable throwable = call != null ? new ProxyException(call.request(), e) : e;
+        Platform.get().loge(TAG, throwable);
     }
 
     public static void log(Throwable throwable) {

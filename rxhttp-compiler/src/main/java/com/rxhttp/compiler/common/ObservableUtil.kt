@@ -183,8 +183,12 @@ fun getObservableClass(): Map<String, String> {
 
                 @Override
                 public void run() {
-                    call = callFactory.newCall();
-                    call.enqueue(this);
+                    try {
+                        call = callFactory.newCall();
+                        call.enqueue(this);
+                    } catch (Throwable e) {
+                        onError(call, e);
+                    }
                 }
             }
 
@@ -206,8 +210,8 @@ fun getObservableClass(): Map<String, String> {
                 }
 
                 public void run() {
-                    call = callFactory.newCall();
                     try {
+                        call = callFactory.newCall();
                         Response response = call.execute();
                         T t = Objects.requireNonNull(parser.onParse(response), "The onParse function returned a null value.");
                         if (!disposed) {
@@ -221,8 +225,8 @@ fun getObservableClass(): Map<String, String> {
                     }
                 }
 
-                void onError(Call call, Throwable e) {
-                    LogUtil.log(new ProxyException(call.request(), e));
+                void onError(@Nullable Call call, Throwable e) {
+                    LogUtil.logCall(call, e);
                     Exceptions.throwIfFatal(e);
                     if (!disposed) {
                         downstream.onError(e);

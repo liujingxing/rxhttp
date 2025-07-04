@@ -170,8 +170,12 @@ public final class ObservableCall<T> extends Observable<T> {
 
         @Override
         public void run() {
-            call = callFactory.newCall();
-            call.enqueue(this);
+            try {
+                call = callFactory.newCall();
+                call.enqueue(this);
+            } catch (Throwable e) {
+                onError(call, e);
+            }
         }
     }
 
@@ -193,8 +197,8 @@ public final class ObservableCall<T> extends Observable<T> {
         }
 
         public void run() {
-            call = callFactory.newCall();
             try {
+                call = callFactory.newCall();
                 Response response = call.execute();
                 T t = Objects.requireNonNull(parser.onParse(response), "The onParse function returned a null value.");
                 if (!disposed) {
@@ -208,8 +212,8 @@ public final class ObservableCall<T> extends Observable<T> {
             }
         }
 
-        void onError(Call call, Throwable e) {
-            LogUtil.log(new ProxyException(call.request(), e));
+        void onError(@Nullable Call call, Throwable e) {
+            LogUtil.logCall(call, e);
             Exceptions.throwIfFatal(e);
             if (!disposed) {
                 downstream.onError(e);
