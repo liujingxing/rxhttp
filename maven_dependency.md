@@ -16,7 +16,7 @@
     <dependency>
         <groupId>com.github.liujingxing.rxhttp</groupId>
         <artifactId>rxhttp</artifactId>
-        <version>3.3.4</version>
+        <version>3.3.5</version>
     </dependency>
 
     <!-- 非必须 RxJava2/RxJava3 二选一或都不选 -->
@@ -48,7 +48,7 @@
                     <path>
                         <groupId>com.github.liujingxing.rxhttp</groupId>
                         <artifactId>rxhttp-compiler</artifactId>
-                        <version>3.3.4</version>
+                        <version>3.3.5</version>
                     </path>
                 </annotationProcessorPaths>
 
