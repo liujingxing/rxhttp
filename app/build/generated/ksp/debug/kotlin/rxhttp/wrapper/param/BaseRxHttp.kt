@@ -36,8 +36,7 @@ import rxhttp.wrapper.utils.parameterizedBy
 public abstract class BaseRxHttp : ITag, CallFactory {
     public fun <T> toObservable(parser: Parser<T>): ObservableCall<T> = ObservableCall(this, parser)
 
-    public fun <T> toObservable(type: Type): ObservableCall<T> =
-            toObservable(SmartParser.wrap<T>(type))
+    public fun <T> toObservable(type: Type): ObservableCall<T> = toObservable(SmartParser.wrap<T>(type))
 
     public fun <T> toObservable(clazz: Class<T>): ObservableCall<T> = toObservable(clazz as Type)
 
@@ -49,8 +48,7 @@ public abstract class BaseRxHttp : ITag, CallFactory {
     }
 
     @JvmOverloads
-    public fun toDownloadObservable(destPath: String, append: Boolean = false):
-            ObservableCall<String> = toDownloadObservable(FileOutputStreamFactory(destPath), append)
+    public fun toDownloadObservable(destPath: String, append: Boolean = false): ObservableCall<String> = toDownloadObservable(FileOutputStreamFactory(destPath), append)
 
     @JvmOverloads
     public fun toDownloadObservable(
@@ -60,19 +58,16 @@ public abstract class BaseRxHttp : ITag, CallFactory {
     ): ObservableCall<Uri> = toDownloadObservable(UriOutputStreamFactory(context, uri), append)
 
     @JvmOverloads
-    public fun <T> toDownloadObservable(osFactory: OutputStreamFactory<T>, append: Boolean = false):
-            ObservableCall<T> {
+    public fun <T> toDownloadObservable(osFactory: OutputStreamFactory<T>, append: Boolean = false): ObservableCall<T> {
         if (append) {
             tag(OutputStreamFactory::class.java, osFactory)
         }
         return toObservable(StreamParser(osFactory))
     }
 
-    public fun <T> toObservableResponse(type: Type): ObservableCall<T> =
-            toObservable(wrapResponseParser(type))
+    public fun <T> toObservableResponse(type: Type): ObservableCall<T> = toObservable(wrapResponseParser(type))
 
-    public fun <T> toObservableResponse(type: Class<T>): ObservableCall<T> =
-            toObservableResponse<T>(type as Type)
+    public fun <T> toObservableResponse(type: Class<T>): ObservableCall<T> = toObservableResponse<T>(type as Type)
 
     public fun <T> toObservableResponseList(type: Class<T>): ObservableCall<List<T>> {
         val typeList = List::class.parameterizedBy(type)

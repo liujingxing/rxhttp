@@ -1,6 +1,6 @@
 [versions]
-agp = "8.8.2"
-kotlin = "2.1.21"
+agp = "8.11.1"
+kotlin = "2.2.0"
 android = "4.1.1.4"
 appcompat = "1.7.1"
 constraintlayout = "2.2.1"
@@ -13,7 +13,7 @@ junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 kotlinCompileTestingKsp = "1.6.0"
-kotlinpoet = "1.18.1"
+kotlinpoet = "2.2.0"
 kotlinxCoroutinesAndroid = "1.10.1"
 kotlinxSerializationJson = "1.8.0"
 lifecycleRuntime = "2.9.1"
@@ -29,7 +29,7 @@ rxjava = "3.1.8"
 rxlifeRxjava3 = "2.2.2"
 simpleXml = "2.7.1"
 utilcodex = "1.31.1"
-ksp = "2.1.21-2.0.1"
+ksp = "2.2.0-2.0.2"
 
 [libraries]
 android = { module = "com.google.android:android", version.ref = "android" }
