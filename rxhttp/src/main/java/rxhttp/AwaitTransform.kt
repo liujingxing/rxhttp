@@ -7,13 +7,13 @@ import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
-import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import rxhttp.wrapper.coroutines.Await
 import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.coroutines.coroutineContext
 
 /**
@@ -193,12 +193,35 @@ fun <T> Await<T>.startDelay(timeMillis: Long): Await<T> = newAwait {
 }
 
 /**
- * Creates a coroutine and returns its future result as an implementation of [Deferred].
+ * 为修复 https://github.com/liujingxing/rxhttp/issues/533 问题，请使用supervisorScope + safeAsync方法替换
+ *
+ * For example:
+ *
+ * ```
+ * lifecycleScope.launch {
+ *     supervisorScope {
+ *         val deferred1 = RxHttp.get("...")
+ *             .safeAsync(this)
+ *         val deferred2 = RxHttp.get("...")
+ *             .safeAsync(this)
+ *     }
+ * }
+ * ```
  */
+@Deprecated(message = "Use [Await.safeAsync] instead")
 fun <T> Await<T>.async(
     scope: CoroutineScope,
     context: CoroutineContext = SupervisorJob(scope.coroutineContext[Job]),
     start: CoroutineStart = CoroutineStart.DEFAULT
+): Deferred<T> = safeAsync(scope, context, start)
+
+/**
+ * Creates a coroutine and returns its future result as an implementation of [Deferred].
+ */
+fun <T> Await<T>.safeAsync(
+    scope: CoroutineScope,
+    context: CoroutineContext = EmptyCoroutineContext,
+    start: CoroutineStart = CoroutineStart.DEFAULT,
 ): Deferred<T> = scope.async(context, start) {
     await()
 }
@@ -218,7 +241,6 @@ suspend fun <T> Deferred<T>.tryAwait(onCatch: ((Throwable) -> Unit)? = null): T?
     try {
         await()
     } catch (e: Throwable) {
-        coroutineContext.ensureActive()
         e.throwCancellationCause(coroutineContext)
         onCatch?.invoke(e)
         null
