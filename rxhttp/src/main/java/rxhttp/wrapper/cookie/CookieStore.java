@@ -13,7 +13,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import okhttp3.Cookie;
 import okhttp3.HttpUrl;
 import okhttp3.internal.cache.DiskLruCache;
-import okhttp3.internal.io.FileSystem;
 import okio.BufferedSink;
 import okio.BufferedSource;
 import okio.ByteString;
@@ -70,7 +69,7 @@ public class CookieStore implements ICookieJar {
 
     private DiskLruCache getDiskLruCache() {
         if (directory != null && diskCache == null) {
-            diskCache = OkHttpCompat.newDiskLruCache(FileSystem.SYSTEM, directory, appVersion, 1, maxSize);
+            diskCache = OkHttpCompat.newDiskLruCache(directory, appVersion, 1, maxSize);
         }
         return diskCache;
     }

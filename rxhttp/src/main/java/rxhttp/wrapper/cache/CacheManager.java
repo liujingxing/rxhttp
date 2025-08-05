@@ -1,7 +1,6 @@
 package rxhttp.wrapper.cache;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static okhttp3.internal.Util.discard;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -29,12 +28,10 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import okhttp3.TlsVersion;
-import okhttp3.internal.Util;
 import okhttp3.internal.cache.CacheRequest;
 import okhttp3.internal.cache.DiskLruCache;
 import okhttp3.internal.http.RealResponseBody;
 import okhttp3.internal.http.StatusLine;
-import okhttp3.internal.io.FileSystem;
 import okhttp3.internal.platform.Platform;
 import okio.Buffer;
 import okio.BufferedSink;
@@ -47,6 +44,7 @@ import okio.Sink;
 import okio.Source;
 import okio.Timeout;
 import rxhttp.wrapper.OkHttpCompat;
+import rxhttp.wrapper.utils.Utils;
 
 /**
  * User: ljx
@@ -97,7 +95,7 @@ public class CacheManager implements Closeable, Flushable {
      * @param maxSize   long
      */
     public CacheManager(File directory, long maxSize) {
-        this.cache = OkHttpCompat.newDiskLruCache(FileSystem.SYSTEM, directory, VERSION, ENTRY_COUNT, maxSize);
+        this.cache = OkHttpCompat.newDiskLruCache(directory, VERSION, ENTRY_COUNT, maxSize);
     }
 
 
@@ -123,7 +121,7 @@ public class CacheManager implements Closeable, Flushable {
         try {
             entry = new CacheManager.Entry(snapshot.getSource(ENTRY_METADATA));
         } catch (IOException e) {
-            Util.closeQuietly(snapshot);
+            Utils.closeQuietly(snapshot);
             return null;
         }
 
@@ -201,9 +199,9 @@ public class CacheManager implements Closeable, Flushable {
 
             @Override
             public void close() throws IOException {
-                //这里本应传入ExchangeCodec.DISCARD_STREAM_TIMEOUT_MILLIS常量，但为兼容老版本，故直接传入常量对应的值
+                //这里本应传入ExchangeCodec.DISCARD_STREAM_TIMEOUT_MILLIS常量，但为兼容老版本，故直接传入常量对应的值100
                 if (!cacheRequestClosed
-                    && !discard(this, 100, MILLISECONDS)) {
+                    && !Utils.discard(this, 100, MILLISECONDS)) {
                     cacheRequestClosed = true;
                     cacheRequest.abort();
                 }
@@ -332,7 +330,7 @@ public class CacheManager implements Closeable, Flushable {
     }
 
     public File directory() {
-        return cache.getDirectory();
+        return cache.getDirectory().toFile();
     }
 
     public boolean isClosed() {
@@ -371,7 +369,7 @@ public class CacheManager implements Closeable, Flushable {
                 }
                 done = true;
             }
-            Util.closeQuietly(cacheOut);
+            Utils.closeQuietly(cacheOut);
             try {
                 editor.abort();
             } catch (IOException ignored) {

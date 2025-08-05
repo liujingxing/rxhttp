@@ -5,15 +5,19 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.Response
+import okio.Buffer
+import okio.Source
 import rxhttp.wrapper.OkHttpCompat
 import rxhttp.wrapper.entity.ParameterizedTypeImpl
 import rxhttp.wrapper.parse.Parser
 import java.io.Closeable
 import java.io.IOException
 import java.io.InputStream
+import java.io.InterruptedIOException
 import java.io.OutputStream
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
+import java.util.concurrent.TimeUnit
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.reflect.KClass
@@ -44,6 +48,56 @@ internal suspend fun <T> Call.await(parser: Parser<T>): T {
                 continuation.resumeWithException(e)
             }
         })
+    }
+}
+
+fun Closeable.closeQuietly() {
+    try {
+        close()
+    } catch (rethrown: RuntimeException) {
+        throw rethrown
+    } catch (_: Exception) {
+    }
+}
+
+fun Source.discard(
+    timeout: Int,
+    timeUnit: TimeUnit,
+): Boolean =
+    try {
+        this.skipAll(timeout, timeUnit)
+    } catch (_: IOException) {
+        false
+    }
+
+
+@Throws(IOException::class)
+internal fun Source.skipAll(
+    duration: Int,
+    timeUnit: TimeUnit,
+): Boolean {
+    val nowNs = System.nanoTime()
+    val originalDurationNs =
+        if (timeout().hasDeadline()) {
+            timeout().deadlineNanoTime() - nowNs
+        } else {
+            Long.MAX_VALUE
+        }
+    timeout().deadlineNanoTime(nowNs + minOf(originalDurationNs, timeUnit.toNanos(duration.toLong())))
+    return try {
+        val skipBuffer = Buffer()
+        while (read(skipBuffer, 8192) != -1L) {
+            skipBuffer.clear()
+        }
+        true // Success! The source has been exhausted.
+    } catch (_: InterruptedIOException) {
+        false // We ran out of time before exhausting the source.
+    } finally {
+        if (originalDurationNs == Long.MAX_VALUE) {
+            timeout().clearDeadline()
+        } else {
+            timeout().deadlineNanoTime(nowNs + originalDurationNs)
+        }
     }
 }
 

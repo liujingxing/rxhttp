@@ -6,6 +6,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.List;
@@ -20,16 +21,17 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
-import okhttp3.internal.Util;
 import okhttp3.internal.cache.DiskLruCache;
 import okhttp3.internal.cache.DiskLruCache.Companion;
 import okhttp3.internal.concurrent.TaskRunner;
 import okhttp3.internal.http.StatusLine;
-import okhttp3.internal.io.FileSystem;
 import okio.Buffer;
 import okio.ByteString;
+import okio.FileSystem;
+import okio.Path;
 import rxhttp.wrapper.exception.HttpStatusCodeException;
 import rxhttp.wrapper.param.Param;
+import rxhttp.wrapper.utils.Utils;
 
 /**
  * 此类的作用在于兼用OkHttp版本  注意: 本类一定要用Java语言编写，kotlin将无法兼容新老版本
@@ -49,7 +51,7 @@ public class OkHttpCompat {
         if (closeables == null) return;
         for (Closeable closeable : closeables) {
             if (closeable == null) continue;
-            Util.closeQuietly(closeable);
+            Utils.closeQuietly(closeable);
         }
     }
 
@@ -168,25 +170,39 @@ public class OkHttpCompat {
         }
     }
 
-    public static DiskLruCache newDiskLruCache(FileSystem fileSystem, File directory, int appVersion, int valueCount, long maxSize) {
-        if (okHttpVersionCompare("4.3.0") >= 0) {
-            return new DiskLruCache(fileSystem, directory, appVersion, valueCount, maxSize, TaskRunner.INSTANCE);
-        } else if (okHttpVersionCompare("4.0.0") >= 0) {
-            Companion companion = DiskLruCache.Companion;
-            Class<? extends Companion> clazz = companion.getClass();
-            try {
-                Method create = clazz.getDeclaredMethod("create", FileSystem.class, File.class, int.class, int.class, long.class);
-                return (DiskLruCache) create.invoke(companion, fileSystem, directory, appVersion, valueCount, maxSize);
-            } catch (Throwable e) {
-                e.printStackTrace();
-            }
+    public static DiskLruCache newDiskLruCache(File directory, int appVersion, int valueCount, long maxSize) {
+        if (okHttpVersionCompare("5.0.0") >= 0) {
+            return new DiskLruCache(FileSystem.SYSTEM, Path.get(directory), appVersion, valueCount, maxSize, TaskRunner.INSTANCE);
         } else {
-            Class<DiskLruCache> clazz = DiskLruCache.class;
+            Class<?> fileSystemClass;
+            Object fileSystem;
             try {
-                Method create = clazz.getDeclaredMethod("create", FileSystem.class, File.class, int.class, int.class, long.class);
-                return (DiskLruCache) create.invoke(null, fileSystem, directory, appVersion, valueCount, maxSize);
+                fileSystemClass = Class.forName("okhttp3.internal.io.FileSystem");
+                fileSystem = fileSystemClass.getDeclaredField("SYSTEM").get(null);
             } catch (Throwable e) {
-                e.printStackTrace();
+                throw new RuntimeException(e);
+            }
+            if (okHttpVersionCompare("4.3.0") >= 0) {
+                try {
+                    Constructor<DiskLruCache> constructor = DiskLruCache.class.getConstructor(fileSystemClass, File.class, int.class, int.class, long.class, TaskRunner.class);
+                    return constructor.newInstance(fileSystem, directory, appVersion, valueCount, maxSize, TaskRunner.INSTANCE);
+                } catch (Throwable ignore) {
+                }
+            } else if (okHttpVersionCompare("4.0.0") >= 0) {
+                Companion companion = DiskLruCache.Companion;
+                Class<? extends Companion> clazz = companion.getClass();
+                try {
+                    Method create = clazz.getDeclaredMethod("create", fileSystemClass, File.class, int.class, int.class, long.class);
+                    return (DiskLruCache) create.invoke(companion, fileSystem, directory, appVersion, valueCount, maxSize);
+                } catch (Throwable ignore) {
+                }
+            } else {
+                Class<DiskLruCache> clazz = DiskLruCache.class;
+                try {
+                    Method create = clazz.getDeclaredMethod("create", fileSystemClass, File.class, int.class, int.class, long.class);
+                    return (DiskLruCache) create.invoke(null, fileSystem, directory, appVersion, valueCount, maxSize);
+                } catch (Throwable ignore) {
+                }
             }
         }
         throw new RuntimeException("Please upgrade OkHttp to V3.12.0 or higher");
@@ -202,6 +218,13 @@ public class OkHttpCompat {
     //获取OkHttp版本号
     public static String getOkHttpUserAgent() {
         if (OKHTTP_USER_AGENT != null) return OKHTTP_USER_AGENT;
+        try {
+            //5.0.0及以上版本获取userAgent方式
+            Class<?> clazz = Class.forName("okhttp3.internal._UtilCommonKt");
+            return OKHTTP_USER_AGENT = (String) clazz.getDeclaredField("USER_AGENT").get(null);
+        } catch (Throwable ignore) {
+        }
+
         try {
             //4.7.x及以上版本获取userAgent方式
             Class<?> clazz = Class.forName("okhttp3.internal.Util");
@@ -219,8 +242,7 @@ public class OkHttpCompat {
             //4.x.x以下版本获取userAgent方式
             Method userAgent = clazz.getDeclaredMethod("userAgent");
             return OKHTTP_USER_AGENT = (String) userAgent.invoke(null);
-        } catch (Throwable e) {
-            e.printStackTrace();
+        } catch (Throwable ignore) {
         }
         return OKHTTP_USER_AGENT = "okhttp/x.x.x";
     }
