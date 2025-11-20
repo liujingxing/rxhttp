@@ -7,6 +7,7 @@ import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
@@ -14,7 +15,6 @@ import kotlinx.coroutines.withTimeout
 import rxhttp.wrapper.coroutines.Await
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
-import kotlin.coroutines.coroutineContext
 
 /**
  * User: ljx
@@ -44,7 +44,7 @@ fun <T> Await<T>.retry(
         return try {
             this@retry.await()
         } catch (e: Throwable) {
-            e.throwCancellationCause(coroutineContext)
+            e.throwCancellationCause(currentCoroutineContext())
             val remaining = retryTime  //Remaining retries
             if (remaining != Long.MAX_VALUE) {
                 retryTime = remaining - 1
@@ -153,7 +153,7 @@ inline fun <T> Await<T>.onErrorReturn(
     try {
         await()
     } catch (e: Throwable) {
-        e.throwCancellationCause(coroutineContext)
+        e.throwCancellationCause(currentCoroutineContext())
         map(e)
     }
 }
@@ -241,7 +241,7 @@ suspend fun <T> Deferred<T>.tryAwait(onCatch: ((Throwable) -> Unit)? = null): T?
     try {
         await()
     } catch (e: Throwable) {
-        e.throwCancellationCause(coroutineContext)
+        e.throwCancellationCause(currentCoroutineContext())
         onCatch?.invoke(e)
         null
     }
@@ -251,7 +251,7 @@ suspend fun <T> Await<T>.tryAwait(onCatch: ((Throwable) -> Unit)? = null): T? =
     try {
         await()
     } catch (e: Throwable) {
-        e.throwCancellationCause(coroutineContext)
+        e.throwCancellationCause(currentCoroutineContext())
         onCatch?.invoke(e)
         null
     }
@@ -261,7 +261,7 @@ suspend inline fun <T> Deferred<T>.safeAwait(onCatch: (Throwable) -> T): T =
     try {
         await()
     } catch (e: Throwable) {
-        e.throwCancellationCause(coroutineContext)
+        e.throwCancellationCause(currentCoroutineContext())
         onCatch(e)
     }
 
@@ -270,7 +270,7 @@ suspend inline fun <T> Await<T>.safeAwait(onCatch: (Throwable) -> T): T =
     try {
         await()
     } catch (e: Throwable) {
-        e.throwCancellationCause(coroutineContext)
+        e.throwCancellationCause(currentCoroutineContext())
         onCatch(e)
     }
 
@@ -278,7 +278,7 @@ suspend inline fun <T, R> T.resultCatching(block: T.() -> R): Result<R> {
     return try {
         Result.success(block())
     } catch (e: Throwable) {
-        e.throwCancellationCause(coroutineContext)
+        e.throwCancellationCause(currentCoroutineContext())
         Result.failure(e)
     }
 }
