@@ -1,5 +1,5 @@
 [versions]
-agp = "8.11.1"
+agp = "8.13.2"
 kotlin = "2.2.0"
 android = "4.1.1.4"
 appcompat = "1.7.1"
@@ -29,7 +29,7 @@ rxjava = "3.1.11"
 rxlifeRxjava3 = "2.2.2"
 simpleXml = "2.7.1"
 utilcodex = "1.31.1"
-ksp = "2.2.0-2.0.2"
+ksp = "2.3.4"
 
 [libraries]
 android = { module = "com.google.android:android", version.ref = "android" }
