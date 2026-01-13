@@ -197,7 +197,7 @@ android {
 }
 //3、添加依赖
 dependencies {
-    def rxhttp_version = '3.5.0'
+    def rxhttp_version = '3.5.1'
     implementation 'com.squareup.okhttp3:okhttp:4.12.0'  
     implementation "com.github.liujingxing.rxhttp:rxhttp:$rxhttp_version"
     annotationProcessor "com.github.liujingxing.rxhttp:rxhttp-compiler:$rxhttp_version"
@@ -229,7 +229,7 @@ plugins {
 }
  
 dependencies {
-    def rxhttp_version = '3.5.0'
+    def rxhttp_version = '3.5.1'
     implementation 'com.squareup.okhttp3:okhttp:4.12.0'  
     implementation "com.github.liujingxing.rxhttp:rxhttp:$rxhttp_version"
     kapt "com.github.liujingxing.rxhttp:rxhttp-compiler:$rxhttp_version"
@@ -257,11 +257,11 @@ android {
 }
 //3、添加插件及依赖
 plugins {
-    id 'com.google.devtools.ksp' version '2.2.0-2.0.2'
+    id 'com.google.devtools.ksp' version '2.3.4'
 }
  
 dependencies {
-    def rxhttp_version = '3.5.0'
+    def rxhttp_version = '3.5.1'
     implementation 'com.squareup.okhttp3:okhttp:4.12.0'  
     implementation "com.github.liujingxing.rxhttp:rxhttp:$rxhttp_version"
     ksp "com.github.liujingxing.rxhttp:rxhttp-compiler:$rxhttp_version"
