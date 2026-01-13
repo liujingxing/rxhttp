@@ -511,10 +511,10 @@ class RxHttpGenerator {
             .addParameter(TypeName.LONG, "endIndex")
             .addParameter(TypeName.BOOLEAN, "connectLastProgress")
             .addCode(
-                """
+                $$"""
                 param.setRangeHeader(startIndex, endIndex);                         
                 if (connectLastProgress && startIndex >= 0)                                            
-                    param.tag(DownloadOffSize.class, new ${'$'}T(startIndex));
+                    param.tag(DownloadOffSize.class, new $T(startIndex));
                 return self();                                                    
                 """.trimIndent(), downloadOffSizeName
             )
@@ -636,11 +636,11 @@ class RxHttpGenerator {
             .addParameter(typeParam)
             .addParameter(t, "tag")
             .addCode(
-                """
+                $$"""
             param.tag(type, tag);
-            if (type == ${'$'}T.class) {
+            if (type == $T.class) {
                 okClient = okClient.newBuilder()
-                    .addInterceptor(new ${'$'}T())
+                    .addInterceptor(new $T())
                     .build();
             }
             return self();
@@ -726,34 +726,34 @@ class RxHttpGenerator {
         MethodSpec.methodBuilder("getOkHttpClient")
             .addModifiers(Modifier.PUBLIC)
             .addCode(
-                """
+                $$"""
                 if (realOkClient != null) return realOkClient;
                 final OkHttpClient okClient = this.okClient;
                 OkHttpClient.Builder builder = null;
                 
-                if (${'$'}T.isDebug()) {
+                if ($T.isDebug()) {
                     builder = okClient.newBuilder();
-                    builder.addInterceptor(new ${'$'}T(okClient));
+                    builder.addInterceptor(new $T(okClient));
                 }
                 
                 if (connectTimeoutMillis != 0L) {
                     if (builder == null) builder = okClient.newBuilder();
-                    builder.connectTimeout(connectTimeoutMillis, ${'$'}T.MILLISECONDS);
+                    builder.connectTimeout(connectTimeoutMillis, $T.MILLISECONDS);
                 }
                 
                 if (readTimeoutMillis != 0L) {
                     if (builder == null) builder = okClient.newBuilder();
-                    builder.readTimeout(readTimeoutMillis, ${'$'}T.MILLISECONDS);
+                    builder.readTimeout(readTimeoutMillis, $T.MILLISECONDS);
                 }
 
                 if (writeTimeoutMillis != 0L) {
                    if (builder == null) builder = okClient.newBuilder();
-                   builder.writeTimeout(writeTimeoutMillis, ${'$'}T.MILLISECONDS);
+                   builder.writeTimeout(writeTimeoutMillis, $T.MILLISECONDS);
                 }
                 
                 if (param.getCacheMode() != CacheMode.ONLY_NETWORK) {                      
                     if (builder == null) builder = okClient.newBuilder();              
-                    builder.addInterceptor(new ${'$'}T(getCacheStrategy()));
+                    builder.addInterceptor(new $T(getCacheStrategy()));
                 }
                                                                                         
                 realOkClient = builder != null ? builder.build() : okClient;

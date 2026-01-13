@@ -141,11 +141,11 @@ private fun TypeElement.getToObservableXxxFun(
                 .varargs(varargs)
                 .returns(parserClass)
                 .addCode(
-                    """
-                    Type actualType = ${'$'}T.getActualType($firstParamName);
-                    if (actualType == null) actualType = $firstParamName;
-                    ${'$'}T parser = new ${'$'}T($paramNames);
-                    return actualType == $firstParamName ? parser : new ${'$'}T(parser);
+                    $$"""
+                    Type actualType = $T.getActualType($$firstParamName);
+                    if (actualType == null) actualType = $$firstParamName;
+                    $T parser = new $T($$paramNames);
+                    return actualType == $$firstParamName ? parser : new $T(parser);
                 """.trimIndent(), typeUtil, customParser, customParser, okResponseParser
                 ).build().apply { methodList.add(this) }
         }
