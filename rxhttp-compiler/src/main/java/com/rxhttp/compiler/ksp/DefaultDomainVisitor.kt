@@ -43,7 +43,11 @@ class DefaultDomainVisitor(
             .addModifiers(KModifier.PRIVATE)
         property?.let { ksProperty ->
             val memberName = ksProperty.toMemberName()
-            methodBuilder.addStatement("setDomainIfAbsent(%M)", memberName)
+            methodBuilder.addCode("""
+                val originUrl = param.simpleUrl
+                if (originUrl.startsWith("http")) return
+                setDomainIfAbsent(%M)
+            """.trimIndent(), memberName)
         }
         return methodBuilder.build()
     }

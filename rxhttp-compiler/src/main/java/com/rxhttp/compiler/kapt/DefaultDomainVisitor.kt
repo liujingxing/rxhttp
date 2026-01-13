@@ -42,7 +42,11 @@ class DefaultDomainVisitor(
             .addModifiers(Modifier.PRIVATE)
         element?.apply {
             val className = ClassName.get(enclosingElement.asType())
-            methodBuilder.addCode("setDomainIfAbsent(\$T.${simpleName});", className)
+            methodBuilder.addCode("""
+                String originUrl = param.getSimpleUrl();
+                if (originUrl.startsWith("http")) return;
+                setDomainIfAbsent(${'$'}T.${simpleName});
+            """.trimIndent(), className)
         }
         return methodBuilder.build()
     }

@@ -424,6 +424,8 @@ public open class RxHttp<P : Param<P>, R : RxHttp<P, R>> protected constructor(
      * 给Param设置默认域名(如果缺席的话)，此方法会在请求发起前，被RxHttp内部调用
      */
     private fun addDefaultDomainIfAbsent() {
+        val originUrl = param.simpleUrl
+        if (originUrl.startsWith("http")) return
         setDomainIfAbsent(baseUrl)
     }
 
