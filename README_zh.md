@@ -11,6 +11,13 @@
 
 # [(RxHttp 3.0 更新指南，升级必看)](https://github.com/liujingxing/rxhttp/wiki/RxHttp-3.0-%E6%9B%B4%E6%96%B0%E6%8C%87%E5%8D%97%EF%BC%8C%E5%8D%87%E7%BA%A7%E5%BF%85%E7%9C%8B)
 
+# 使用RxHttp的知名App
+
+<img src="https://pp.myapp.com/ma_icon/0/icon_54221929_1770021797/256" width="100" height="100"/> <img src="https://github.com/user-attachments/assets/1d263296-19b8-4e06-a19f-b656b0dcf4dc" width="100" height="100"/>
+
+抖音旗下***汽水音乐***(app v18.1.0 设置/关于汽水音乐/开源软件声明 可查)
+
+
 ***加我微信 ljx-studio 拉你进微信群(备注RxHttp)*** 
 
 # 1、主要优势
