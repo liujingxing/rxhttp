@@ -1,6 +1,6 @@
 [versions]
-agp = "8.13.2"
-kotlin = "2.2.0"
+agp = "9.0.0"
+kotlin = "2.3.10"
 android = "4.1.1.4"
 appcompat = "1.7.1"
 constraintlayout = "2.2.1"
