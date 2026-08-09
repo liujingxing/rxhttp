@@ -1,9 +1,6 @@
 package com.example.httpsender;
 
 import android.app.Application;
-import android.content.Context;
-
-import androidx.multidex.MultiDex;
 
 /**
  * User: ljx
@@ -24,11 +21,6 @@ public class AppHolder extends Application {
         super.onCreate();
         instance = this;
         RxHttpManager.init(this);
-    }
-
-    protected void attachBaseContext(Context base) {
-        super.attachBaseContext(base);
-        MultiDex.install(this);
     }
 
 }
