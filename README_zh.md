@@ -13,7 +13,7 @@
 
 # 使用RxHttp的知名App
 
-<img src="https://pp.myapp.com/ma_icon/0/icon_54221929_1770021797/256" width="100" height="100"/> <img src="https://github.com/user-attachments/assets/1d263296-19b8-4e06-a19f-b656b0dcf4dc" width="100" height="100"/>
+<img src="screen/qishui_music.png" alt="汽水音乐 Logo" width="100" height="100"/> <img src="https://github.com/user-attachments/assets/1d263296-19b8-4e06-a19f-b656b0dcf4dc" width="100" height="100"/>
 
 抖音旗下***汽水音乐***(app v18.1.0 设置/关于汽水音乐/开源软件声明 可查)
 
@@ -264,7 +264,7 @@ android {
 }
 //3、添加插件及依赖
 plugins {
-    id 'com.google.devtools.ksp' version '2.3.4'
+    id 'com.google.devtools.ksp' version '2.3.12'
 }
  
 dependencies {
@@ -274,6 +274,8 @@ dependencies {
     ksp "com.github.liujingxing.rxhttp:rxhttp-compiler:$rxhttp_version"
 }
 ```
+
+使用新版 RxHttp 编译器时，请同步将 KSP 升级至 2.3.12 或更高版本。
  
 </details>
 

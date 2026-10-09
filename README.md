@@ -8,7 +8,7 @@ English | [中文文档](https://github.com/liujingxing/rxhttp/blob/master/READM
 
 # 使用RxHttp的知名App
 
-<img src="https://pp.myapp.com/ma_icon/0/icon_54221929_1770021797/256" width="100" height="100"/> <img src="https://github.com/user-attachments/assets/1d263296-19b8-4e06-a19f-b656b0dcf4dc" width="100" height="100"/>
+<img src="screen/qishui_music.png" alt="汽水音乐 Logo" width="100" height="100"/> <img src="https://github.com/user-attachments/assets/1d263296-19b8-4e06-a19f-b656b0dcf4dc" width="100" height="100"/>
 
 抖音旗下***汽水音乐***(app v18.1.0 设置/关于汽水音乐/开源软件声明 可查)
 
@@ -146,7 +146,7 @@ android {
 plugins {
     // kapt/ksp choose one
     // id 'kotlin-kapt'
-    id 'com.google.devtools.ksp' version '2.3.4'
+    id 'com.google.devtools.ksp' version '2.3.12'
 }
     
 dependencies {
@@ -157,6 +157,8 @@ dependencies {
     ksp "com.github.liujingxing.rxhttp:rxhttp-compiler:$rxhttp_version"
  }
 ```
+
+When upgrading to the newer RxHttp compiler, also upgrade KSP to 2.3.12 or later.
 </details>
 
 ### Optional
