@@ -52,7 +52,7 @@ public class ParameterizedTypeImpl implements ParameterizedType {
     }
 
     @Override
-    public final Type[] getActualTypeArguments() {
+    public final Type @NotNull [] getActualTypeArguments() {
         return actualTypeArguments;
     }
 
@@ -62,7 +62,7 @@ public class ParameterizedTypeImpl implements ParameterizedType {
     }
 
     @Override
-    public final Type getRawType() {
+    public final @NotNull Type getRawType() {
         return rawType;
     }
 }

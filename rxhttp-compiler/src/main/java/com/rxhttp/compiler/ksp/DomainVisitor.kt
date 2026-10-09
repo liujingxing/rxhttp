@@ -25,7 +25,7 @@ import java.util.*
 class DomainVisitor(
     private val resolver: Resolver,
     private val logger: KSPLogger
-) : KSVisitorVoid() {
+) : KSVisitorVoid(enableNewFeatures = true) {
 
     private val elementMap = LinkedHashMap<String, KSPropertyDeclaration>()
 

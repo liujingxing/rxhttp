@@ -65,7 +65,7 @@ class Android10DownloadFactory @JvmOverloads constructor(
                 put(MediaStore.MediaColumns.RELATIVE_PATH, relativePath) //下载到指定目录
                 put(MediaStore.MediaColumns.DISPLAY_NAME, filename)   //文件名
                 //取contentType响应头作为文件类型
-                put(MediaStore.MediaColumns.MIME_TYPE, response.body?.contentType().toString())
+                put(MediaStore.MediaColumns.MIME_TYPE, response.body.contentType().toString())
                 context.contentResolver.insert(getInsertUri(), this)
                 //当相同路径下的文件，在文件管理器中被手动删除时，就会插入失败
             } ?: throw NullPointerException("Uri insert failed. Try changing filename")

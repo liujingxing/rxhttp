@@ -16,7 +16,7 @@ import com.squareup.kotlinpoet.KModifier
 class DefaultDomainVisitor(
     private val resolver: Resolver,
     private val logger: KSPLogger
-) : KSVisitorVoid() {
+) : KSVisitorVoid(enableNewFeatures = true) {
 
     private var property: KSPropertyDeclaration? = null
 

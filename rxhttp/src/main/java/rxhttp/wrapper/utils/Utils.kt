@@ -125,7 +125,7 @@ internal fun close(vararg closeables: Closeable?) {
         if (closeable == null) continue
         try {
             closeable.close()
-        } catch (ignored: IOException) {
+        } catch (_: IOException) {
         }
     }
 }
@@ -142,16 +142,5 @@ internal val Type.wrapType: Type
     get() {
         val type = this
         if (type !is Class<*> || !type.isPrimitive) return type
-        return when (type.name) {
-            "boolean" -> java.lang.Boolean::class.java
-            "char" -> java.lang.Character::class.java
-            "byte" -> java.lang.Byte::class.java
-            "short" -> java.lang.Short::class.java
-            "int" -> java.lang.Integer::class.java
-            "float" -> java.lang.Float::class.java
-            "long" -> java.lang.Long::class.java
-            "double" -> java.lang.Double::class.java
-            "void" -> Void::class.java
-            else -> type
-        }
+        return type.kotlin.javaObjectType
     }

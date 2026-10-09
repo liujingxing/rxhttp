@@ -9,12 +9,34 @@ import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 
+import rxhttp.wrapper.utils.Utils;
+
 /**
  * User: ljx
  * Date: 2023/7/3
  * Time: 15:54
  */
 public class ParameterizedTypeImplTest {
+
+    @Test
+    public void testWrapType() {
+        Class<?>[] primitives = {
+            boolean.class, char.class, byte.class, short.class, int.class,
+            long.class, float.class, double.class, void.class
+        };
+        Class<?>[] wrappers = {
+            Boolean.class, Character.class, Byte.class, Short.class, Integer.class,
+            Long.class, Float.class, Double.class, Void.class
+        };
+        for (int i = 0; i < primitives.length; i++) {
+            Assert.assertEquals(wrappers[i], Utils.getWrapType(primitives[i]));
+            Assert.assertSame(wrappers[i], Utils.getWrapType(wrappers[i]));
+        }
+        Assert.assertSame(String.class, Utils.getWrapType(String.class));
+        Assert.assertSame(int[].class, Utils.getWrapType(int[].class));
+        Type parameterizedType = ParameterizedTypeImpl.get(List.class, String.class);
+        Assert.assertSame(parameterizedType, Utils.getWrapType(parameterizedType));
+    }
 
     @Test
     public void testGet() {

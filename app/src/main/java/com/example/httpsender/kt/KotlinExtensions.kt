@@ -1,8 +1,7 @@
 package com.example.httpsender.kt
 
-import android.content.Context
-import android.net.ConnectivityManager
 import com.example.httpsender.AppHolder
+import com.example.httpsender.ExceptionHelper
 import com.example.httpsender.Tip
 import com.google.gson.JsonSyntaxException
 import kotlinx.coroutines.TimeoutCancellationException
@@ -37,7 +36,7 @@ val Throwable.errorCode: Int
 val Throwable.errorMsg: String
     get() {
         return if (this is UnknownHostException) { //网络异常
-            if (!isNetworkConnected(AppHolder.getInstance()))
+            if (!ExceptionHelper.isNetworkConnected(AppHolder.getInstance()))
                 "当前无网络，请检查你的网络设置"
             else
                 "网络连接不可用，请稍后重试！"
@@ -59,12 +58,3 @@ val Throwable.errorMsg: String
             message ?: this.toString()
         }
     }
-
-private fun isNetworkConnected(context: Context): Boolean {
-    val mConnectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-    val mNetworkInfo = mConnectivityManager.activeNetworkInfo
-    if (mNetworkInfo != null) {
-        return mNetworkInfo.isAvailable
-    }
-    return false
-}

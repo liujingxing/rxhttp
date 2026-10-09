@@ -51,7 +51,7 @@ import java.util.*
 class ParserVisitor(
     private val resolver: Resolver,
     private val logger: KSPLogger
-) : KSVisitorVoid() {
+) : KSVisitorVoid(enableNewFeatures = true) {
 
     private val ksClassMap = LinkedHashMap<String, KSClassDeclaration>()
     private val classNameMap = LinkedHashMap<String, List<ClassName>>()

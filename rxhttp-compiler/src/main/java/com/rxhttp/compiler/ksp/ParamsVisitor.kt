@@ -41,7 +41,7 @@ import java.io.IOException
 class ParamsVisitor(
     private val logger: KSPLogger,
     private val resolver: Resolver
-) : KSVisitorVoid() {
+) : KSVisitorVoid(enableNewFeatures = true) {
 
     private val ksClassMap = LinkedHashMap<String, KSClassDeclaration>()
 
