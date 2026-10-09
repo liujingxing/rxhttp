@@ -20,10 +20,10 @@ import java.io.File
  */
 open class RxHttpBodyParam(param: BodyParam) : RxHttpAbstractBodyParam<BodyParam, RxHttpBodyParam>(param) {
 
-    fun setBody(content: String, contentType: MediaType? = null) =
+    fun setBody(content: String, contentType: MediaType? = null): RxHttpBodyParam =
         setBody(OkHttpCompat.create(contentType, content))
 
-    fun setBody(content: ByteString, contentType: MediaType? = null) =
+    fun setBody(content: ByteString, contentType: MediaType? = null): RxHttpBodyParam =
         setBody(OkHttpCompat.create(contentType, content))
 
     @JvmOverloads
@@ -32,23 +32,23 @@ open class RxHttpBodyParam(param: BodyParam) : RxHttpAbstractBodyParam<BodyParam
         contentType: MediaType? = null,
         offset: Int = 0,
         byteCount: Int = content.size,
-    ) = setBody(OkHttpCompat.create(contentType, content, offset, byteCount))
+    ): RxHttpBodyParam = setBody(OkHttpCompat.create(contentType, content, offset, byteCount))
 
     @JvmOverloads
     fun setBody(
         file: File,
         contentType: MediaType? = BuildUtil.getMediaType(file.name),
-    ) = setBody(FileRequestBody(file, 0, contentType))
+    ): RxHttpBodyParam = setBody(FileRequestBody(file, 0, contentType))
     
     @JvmOverloads
     fun setBody(
         context: Context,
         uri: Uri,
         contentType: MediaType? = BuildUtil.getMediaTypeByUri(context, uri),
-    ) = setBody(UriRequestBody(context, uri, 0, contentType))
+    ): RxHttpBodyParam = setBody(UriRequestBody(context, uri, 0, contentType))
     
     //Content-Type: application/json; charset=utf-8
-    fun setBody(any: Any) = apply { param.setBody(any) }
+    fun setBody(any: Any): RxHttpBodyParam = apply { param.setBody(any) }
 
-    fun setBody(requestBody: RequestBody) = apply { param.setBody(requestBody) }
+    fun setBody(requestBody: RequestBody): RxHttpBodyParam = apply { param.setBody(requestBody) }
 }

@@ -68,15 +68,15 @@ class KClassHelper(
             open class RxHttpNoBodyParam(param: NoBodyParam) : RxHttp<NoBodyParam, RxHttpNoBodyParam>(param) {
             
                 @JvmOverloads
-                fun add(key: String, value: Any?, add: Boolean = true) = apply {
+                fun add(key: String, value: Any?, add: Boolean = true): RxHttpNoBodyParam = apply {
                     if (add) addQuery(key, value)
                 }
             
-                fun addAll(map: Map<String, *>) = addAllQuery(map)
+                fun addAll(map: Map<String, *>): RxHttpNoBodyParam = addAllQuery(map)
             
-                fun addEncoded(key: String, value: Any?) = addEncodedQuery(key, value)
+                fun addEncoded(key: String, value: Any?): RxHttpNoBodyParam = addEncodedQuery(key, value)
             
-                fun addAllEncoded(map: Map<String, *>) = addAllEncodedQuery(map)
+                fun addAllEncoded(map: Map<String, *>): RxHttpNoBodyParam = addAllEncodedQuery(map)
             }
 
         """.trimIndent()
@@ -109,10 +109,10 @@ class KClassHelper(
              */
             open class RxHttpBodyParam(param: BodyParam) : RxHttpAbstractBodyParam<BodyParam, RxHttpBodyParam>(param) {
 
-                fun setBody(content: String, contentType: MediaType? = null) =
+                fun setBody(content: String, contentType: MediaType? = null): RxHttpBodyParam =
                     setBody(OkHttpCompat.create(contentType, content))
 
-                fun setBody(content: ByteString, contentType: MediaType? = null) =
+                fun setBody(content: ByteString, contentType: MediaType? = null): RxHttpBodyParam =
                     setBody(OkHttpCompat.create(contentType, content))
 
                 @JvmOverloads
@@ -121,25 +121,25 @@ class KClassHelper(
                     contentType: MediaType? = null,
                     offset: Int = 0,
                     byteCount: Int = content.size,
-                ) = setBody(OkHttpCompat.create(contentType, content, offset, byteCount))
+                ): RxHttpBodyParam = setBody(OkHttpCompat.create(contentType, content, offset, byteCount))
 
                 @JvmOverloads
                 fun setBody(
                     file: File,
                     contentType: MediaType? = BuildUtil.getMediaType(file.name),
-                ) = setBody(FileRequestBody(file, 0, contentType))
+                ): RxHttpBodyParam = setBody(FileRequestBody(file, 0, contentType))
                 ${isAndroid("""
                 @JvmOverloads
                 fun setBody(
                     context: Context,
                     uri: Uri,
                     contentType: MediaType? = BuildUtil.getMediaTypeByUri(context, uri),
-                ) = setBody(UriRequestBody(context, uri, 0, contentType))
+                ): RxHttpBodyParam = setBody(UriRequestBody(context, uri, 0, contentType))
                 """)}
                 //Content-Type: application/json; charset=utf-8
-                fun setBody(any: Any) = apply { param.setBody(any) }
+                fun setBody(any: Any): RxHttpBodyParam = apply { param.setBody(any) }
 
-                fun setBody(requestBody: RequestBody) = apply { param.setBody(requestBody) }
+                fun setBody(requestBody: RequestBody): RxHttpBodyParam = apply { param.setBody(requestBody) }
             }
 
         """.trimIndent()
@@ -177,38 +177,38 @@ class KClassHelper(
             open class RxHttpFormParam(param: FormParam) : RxHttpAbstractBodyParam<FormParam, RxHttpFormParam>(param) {
                 
                 @JvmOverloads
-                fun add(key: String, value: Any?, add: Boolean = true) = apply {
+                fun add(key: String, value: Any?, add: Boolean = true): RxHttpFormParam = apply {
                     if (add) param.add(key, value)
                 }    
 
-                fun addAll(map: Map<String, *>) = apply { param.addAll(map) }
+                fun addAll(map: Map<String, *>): RxHttpFormParam = apply { param.addAll(map) }
 
-                fun addEncoded(key: String, value: Any?) = apply { param.addEncoded(key, value) }
+                fun addEncoded(key: String, value: Any?): RxHttpFormParam = apply { param.addEncoded(key, value) }
 
-                fun addAllEncoded(map: Map<String, *>) = apply { param.addAllEncoded(map) }
+                fun addAllEncoded(map: Map<String, *>): RxHttpFormParam = apply { param.addAllEncoded(map) }
 
-                fun removeAllBody() = apply { param.removeAllBody() }
+                fun removeAllBody(): RxHttpFormParam = apply { param.removeAllBody() }
 
-                fun removeAllBody(key: String) = apply { param.removeAllBody(key) }
+                fun removeAllBody(key: String): RxHttpFormParam = apply { param.removeAllBody(key) }
 
-                fun set(key: String, value: Any?) = apply { param[key] = value }
+                fun set(key: String, value: Any?): RxHttpFormParam = apply { param[key] = value }
 
-                fun setEncoded(key: String, value: Any?) = apply { param.setEncoded(key, value) }
+                fun setEncoded(key: String, value: Any?): RxHttpFormParam = apply { param.setEncoded(key, value) }
 
-                fun addFile(key: String, filePath: String?) = 
+                fun addFile(key: String, filePath: String?): RxHttpFormParam =
                     if (filePath == null) this else addFile(key, File(filePath))
 
                 @JvmOverloads
-                fun addFile(key: String, file: File?, filename: String? = file?.name) =
+                fun addFile(key: String, file: File?, filename: String? = file?.name): RxHttpFormParam =
                     if (file == null) this else addFile(UpFile(key, file, filename))
 
-                fun addFiles(fileList: List<UpFile>) = apply { fileList.forEach { addFile(it) } }
+                fun addFiles(fileList: List<UpFile>): RxHttpFormParam = apply { fileList.forEach { addFile(it) } }
 
-                fun <T> addFiles(fileMap: Map<String, T>) = apply {
+                fun <T> addFiles(fileMap: Map<String, T>): RxHttpFormParam = apply {
                     fileMap.forEach { (key, value) -> addFile(key, value) }
                 }
 
-                fun <T> addFiles(key: String, files: List<T>) = apply {
+                fun <T> addFiles(key: String, files: List<T>): RxHttpFormParam = apply {
                     files.forEach { addFile(key, it) }
                 }
 
@@ -222,9 +222,9 @@ class KClassHelper(
                     }
                 }
 
-                fun addFile(upFile: UpFile) = apply {
+                fun addFile(upFile: UpFile): RxHttpFormParam = apply {
                     val requestBody = FileRequestBody(upFile.file, upFile.skipSize, BuildUtil.getMediaType(upFile.filename))
-                    return addFormDataPart(upFile.key, upFile.filename, requestBody)
+                    addFormDataPart(upFile.key, upFile.filename, requestBody)
                 }
 
                 @JvmOverloads
@@ -233,14 +233,14 @@ class KClassHelper(
                     contentType: MediaType? = null,
                     offset: Int = 0,
                     byteCount: Int = content.size
-                ) = addPart(OkHttpCompat.create(contentType, content, offset, byteCount))
+                ): RxHttpFormParam = addPart(OkHttpCompat.create(contentType, content, offset, byteCount))
                 ${isAndroid("""
                 @JvmOverloads
                 fun addPart(
                     context: Context,
                     uri: Uri,
                     contentType: MediaType? = BuildUtil.getMediaTypeByUri(context, uri)
-                ) = addPart(UriRequestBody(context, uri, 0, contentType))
+                ): RxHttpFormParam = addPart(UriRequestBody(context, uri, 0, contentType))
 
                 @JvmOverloads
                 fun addPart(
@@ -248,7 +248,7 @@ class KClassHelper(
                     key: String,
                     uri: Uri,
                     contentType: MediaType? = BuildUtil.getMediaTypeByUri(context, uri)
-                ) = addPart(context, key, uri.displayName(context), uri, contentType)
+                ): RxHttpFormParam = addPart(context, key, uri.displayName(context), uri, contentType)
 
                 @JvmOverloads
                 fun addPart(
@@ -257,66 +257,66 @@ class KClassHelper(
                     filename: String?,
                     uri: Uri,
                     contentType: MediaType? = BuildUtil.getMediaTypeByUri(context, uri)
-                ) = addFormDataPart(key, filename, UriRequestBody(context, uri, 0, contentType))
+                ): RxHttpFormParam = addFormDataPart(key, filename, UriRequestBody(context, uri, 0, contentType))
 
-                fun addParts(context: Context, uriMap: Map<String, Uri>) = apply {
+                fun addParts(context: Context, uriMap: Map<String, Uri>): RxHttpFormParam = apply {
                     uriMap.forEach { (key, value) -> addPart(context, key, value) }
                 }
 
-                fun addParts(context: Context, uris: List<Uri>) = apply {
+                fun addParts(context: Context, uris: List<Uri>): RxHttpFormParam = apply {
                     uris.forEach { addPart(context, it) }
                 }
 
-                fun addParts(context: Context, uris: List<Uri>, contentType: MediaType?) = apply {
+                fun addParts(context: Context, uris: List<Uri>, contentType: MediaType?): RxHttpFormParam = apply {
                     uris.forEach { addPart(context, it, contentType) }
                 }
 
-                fun addParts(context: Context, key: String, uris: List<Uri>) = apply {
+                fun addParts(context: Context, key: String, uris: List<Uri>): RxHttpFormParam = apply {
                     uris.forEach { addPart(context, key, it) }
                 }
 
-                fun addParts(context: Context, key: String, uris: List<Uri>, contentType: MediaType?) = apply {
+                fun addParts(context: Context, key: String, uris: List<Uri>, contentType: MediaType?): RxHttpFormParam = apply {
                     uris.forEach { addPart(context, key, it, contentType) }
                 }
                 """)}
-                fun addPart(requestBody: RequestBody) = addPart(OkHttpCompat.part(requestBody))
+                fun addPart(requestBody: RequestBody): RxHttpFormParam = addPart(OkHttpCompat.part(requestBody))
 
-                fun addPart(headers: Headers?, requestBody: RequestBody) =
+                fun addPart(headers: Headers?, requestBody: RequestBody): RxHttpFormParam =
                     addPart(OkHttpCompat.part(headers, requestBody))
 
                 fun addFormDataPart(
                     key: String,
                     fileName: String?,
                     requestBody: RequestBody
-                ) = addPart(OkHttpCompat.part(key, fileName, requestBody))
+                ): RxHttpFormParam = addPart(OkHttpCompat.part(key, fileName, requestBody))
 
-                fun addPart(key: String, requestBody: RequestBody) = addFormDataPart(key, null, requestBody)
+                fun addPart(key: String, requestBody: RequestBody): RxHttpFormParam = addFormDataPart(key, null, requestBody)
                 
-                fun addParts(partMap: Map<String, RequestBody>) = apply { 
+                fun addParts(partMap: Map<String, RequestBody>): RxHttpFormParam = apply {
                     partMap.forEach { (key, value) -> addPart(key, value) } 
                 }
 
-                fun addPart(part: MultipartBody.Part) = apply { param.addPart(part) }
+                fun addPart(part: MultipartBody.Part): RxHttpFormParam = apply { param.addPart(part) }
                 
-                fun addParts(parts: List<MultipartBody.Part>) = apply { parts.forEach { addPart(it) } }
+                fun addParts(parts: List<MultipartBody.Part>): RxHttpFormParam = apply { parts.forEach { addPart(it) } }
 
                 //Set content-type to multipart/form-data
-                fun setMultiForm() = setMultiType(MultipartBody.FORM)
+                fun setMultiForm(): RxHttpFormParam = setMultiType(MultipartBody.FORM)
 
                 //Set content-type to multipart/mixed
-                fun setMultiMixed() = setMultiType(MultipartBody.MIXED)
+                fun setMultiMixed(): RxHttpFormParam = setMultiType(MultipartBody.MIXED)
 
                 //Set content-type to multipart/alternative
-                fun setMultiAlternative() = setMultiType(MultipartBody.ALTERNATIVE)
+                fun setMultiAlternative(): RxHttpFormParam = setMultiType(MultipartBody.ALTERNATIVE)
 
                 //Set content-type to multipart/digest
-                fun setMultiDigest() = setMultiType(MultipartBody.DIGEST)
+                fun setMultiDigest(): RxHttpFormParam = setMultiType(MultipartBody.DIGEST)
 
                 //Set content-type to multipart/parallel
-                fun setMultiParallel() = setMultiType(MultipartBody.PARALLEL)
+                fun setMultiParallel(): RxHttpFormParam = setMultiType(MultipartBody.PARALLEL)
 
                 //Set the MIME type
-                fun setMultiType(multiType: MediaType?) = apply { param.multiType = multiType }
+                fun setMultiType(multiType: MediaType?): RxHttpFormParam = apply { param.multiType = multiType }
             }
 
         """.trimIndent()
@@ -341,27 +341,27 @@ class KClassHelper(
             open class RxHttpJsonParam(param: JsonParam) : RxHttpAbstractBodyParam<JsonParam, RxHttpJsonParam>(param) {
             
                 @JvmOverloads
-                fun add(key: String, value: Any?, add: Boolean = true) = apply {
+                fun add(key: String, value: Any?, add: Boolean = true): RxHttpJsonParam = apply {
                     if (add) param.add(key, value)
                 }
             
-                fun addAll(map: Map<String, *>) = apply { param.addAll(map) }
+                fun addAll(map: Map<String, *>): RxHttpJsonParam = apply { param.addAll(map) }
             
                 /**
                  * 将Json对象里面的key-value逐一取出，添加到另一个Json对象中，
                  * 输入非Json对象将抛出[IllegalStateException]异常
                  */
-                fun addAll(jsonObject: String) = apply { param.addAll(jsonObject) }
+                fun addAll(jsonObject: String): RxHttpJsonParam = apply { param.addAll(jsonObject) }
             
                 /**
                  * 将Json对象里面的key-value逐一取出，添加到另一个Json对象中
                  */
-                fun addAll(jsonObject: JsonObject) = apply { param.addAll(jsonObject) }
+                fun addAll(jsonObject: JsonObject): RxHttpJsonParam = apply { param.addAll(jsonObject) }
             
                 /**
                  * 添加一个JsonElement对象(Json对象、json数组等)
                  */
-                fun addJsonElement(key: String, jsonElement: String) = apply {
+                fun addJsonElement(key: String, jsonElement: String): RxHttpJsonParam = apply {
                     param.addJsonElement(key, jsonElement)
                 }
             }
@@ -390,34 +390,34 @@ class KClassHelper(
             open class RxHttpJsonArrayParam(param: JsonArrayParam) : RxHttpAbstractBodyParam<JsonArrayParam, RxHttpJsonArrayParam>(param) {
             
                 @JvmOverloads
-                fun add(key: String, value: Any?, add: Boolean = true) = apply {
+                fun add(key: String, value: Any?, add: Boolean = true): RxHttpJsonArrayParam = apply {
                     if (add) param.add(key, value)
                 }
             
-                fun addAll(map: Map<String, *>) = apply { param.addAll(map) }
+                fun addAll(map: Map<String, *>): RxHttpJsonArrayParam = apply { param.addAll(map) }
             
-                fun add(any: Any) = apply { param.add(any) }
+                fun add(any: Any): RxHttpJsonArrayParam = apply { param.add(any) }
             
-                fun addAll(list: List<*>) = apply {  param.addAll(list) }
+                fun addAll(list: List<*>): RxHttpJsonArrayParam = apply {  param.addAll(list) }
             
                 /**
                  * 添加多个对象，将字符串转JsonElement对象,并根据不同类型,执行不同操作,可输入任意非空字符串
                  */
-                fun addAll(jsonElement: String) = apply { param.addAll(jsonElement) }
+                fun addAll(jsonElement: String): RxHttpJsonArrayParam = apply { param.addAll(jsonElement) }
             
-                fun addAll(jsonArray: JsonArray) = apply { param.addAll(jsonArray) }
+                fun addAll(jsonArray: JsonArray): RxHttpJsonArrayParam = apply { param.addAll(jsonArray) }
             
                 /**
                  * 将Json对象里面的key-value逐一取出，添加到Json数组中，成为单独的对象
                  */
-                fun addAll(jsonObject: JsonObject) = apply { param.addAll(jsonObject) }
+                fun addAll(jsonObject: JsonObject): RxHttpJsonArrayParam = apply { param.addAll(jsonObject) }
             
-                fun addJsonElement(jsonElement: String) = apply { param.addJsonElement(jsonElement) }
+                fun addJsonElement(jsonElement: String): RxHttpJsonArrayParam = apply { param.addJsonElement(jsonElement) }
             
                 /**
                  * 添加一个JsonElement对象(Json对象、json数组等)
                  */
-                fun addJsonElement(key: String, jsonElement: String) = apply {
+                fun addJsonElement(key: String, jsonElement: String): RxHttpJsonArrayParam = apply {
                     param.addJsonElement(key, jsonElement)
                 }
             }

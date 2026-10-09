@@ -26,38 +26,38 @@ import java.io.File
 open class RxHttpFormParam(param: FormParam) : RxHttpAbstractBodyParam<FormParam, RxHttpFormParam>(param) {
     
     @JvmOverloads
-    fun add(key: String, value: Any?, add: Boolean = true) = apply {
+    fun add(key: String, value: Any?, add: Boolean = true): RxHttpFormParam = apply {
         if (add) param.add(key, value)
     }    
 
-    fun addAll(map: Map<String, *>) = apply { param.addAll(map) }
+    fun addAll(map: Map<String, *>): RxHttpFormParam = apply { param.addAll(map) }
 
-    fun addEncoded(key: String, value: Any?) = apply { param.addEncoded(key, value) }
+    fun addEncoded(key: String, value: Any?): RxHttpFormParam = apply { param.addEncoded(key, value) }
 
-    fun addAllEncoded(map: Map<String, *>) = apply { param.addAllEncoded(map) }
+    fun addAllEncoded(map: Map<String, *>): RxHttpFormParam = apply { param.addAllEncoded(map) }
 
-    fun removeAllBody() = apply { param.removeAllBody() }
+    fun removeAllBody(): RxHttpFormParam = apply { param.removeAllBody() }
 
-    fun removeAllBody(key: String) = apply { param.removeAllBody(key) }
+    fun removeAllBody(key: String): RxHttpFormParam = apply { param.removeAllBody(key) }
 
-    fun set(key: String, value: Any?) = apply { param[key] = value }
+    fun set(key: String, value: Any?): RxHttpFormParam = apply { param[key] = value }
 
-    fun setEncoded(key: String, value: Any?) = apply { param.setEncoded(key, value) }
+    fun setEncoded(key: String, value: Any?): RxHttpFormParam = apply { param.setEncoded(key, value) }
 
-    fun addFile(key: String, filePath: String?) = 
+    fun addFile(key: String, filePath: String?): RxHttpFormParam =
         if (filePath == null) this else addFile(key, File(filePath))
 
     @JvmOverloads
-    fun addFile(key: String, file: File?, filename: String? = file?.name) =
+    fun addFile(key: String, file: File?, filename: String? = file?.name): RxHttpFormParam =
         if (file == null) this else addFile(UpFile(key, file, filename))
 
-    fun addFiles(fileList: List<UpFile>) = apply { fileList.forEach { addFile(it) } }
+    fun addFiles(fileList: List<UpFile>): RxHttpFormParam = apply { fileList.forEach { addFile(it) } }
 
-    fun <T> addFiles(fileMap: Map<String, T>) = apply {
+    fun <T> addFiles(fileMap: Map<String, T>): RxHttpFormParam = apply {
         fileMap.forEach { (key, value) -> addFile(key, value) }
     }
 
-    fun <T> addFiles(key: String, files: List<T>) = apply {
+    fun <T> addFiles(key: String, files: List<T>): RxHttpFormParam = apply {
         files.forEach { addFile(key, it) }
     }
 
@@ -71,9 +71,9 @@ open class RxHttpFormParam(param: FormParam) : RxHttpAbstractBodyParam<FormParam
         }
     }
 
-    fun addFile(upFile: UpFile) = apply {
+    fun addFile(upFile: UpFile): RxHttpFormParam = apply {
         val requestBody = FileRequestBody(upFile.file, upFile.skipSize, BuildUtil.getMediaType(upFile.filename))
-        return addFormDataPart(upFile.key, upFile.filename, requestBody)
+        addFormDataPart(upFile.key, upFile.filename, requestBody)
     }
 
     @JvmOverloads
@@ -82,14 +82,14 @@ open class RxHttpFormParam(param: FormParam) : RxHttpAbstractBodyParam<FormParam
         contentType: MediaType? = null,
         offset: Int = 0,
         byteCount: Int = content.size
-    ) = addPart(OkHttpCompat.create(contentType, content, offset, byteCount))
+    ): RxHttpFormParam = addPart(OkHttpCompat.create(contentType, content, offset, byteCount))
     
     @JvmOverloads
     fun addPart(
         context: Context,
         uri: Uri,
         contentType: MediaType? = BuildUtil.getMediaTypeByUri(context, uri)
-    ) = addPart(UriRequestBody(context, uri, 0, contentType))
+    ): RxHttpFormParam = addPart(UriRequestBody(context, uri, 0, contentType))
 
     @JvmOverloads
     fun addPart(
@@ -97,7 +97,7 @@ open class RxHttpFormParam(param: FormParam) : RxHttpAbstractBodyParam<FormParam
         key: String,
         uri: Uri,
         contentType: MediaType? = BuildUtil.getMediaTypeByUri(context, uri)
-    ) = addPart(context, key, uri.displayName(context), uri, contentType)
+    ): RxHttpFormParam = addPart(context, key, uri.displayName(context), uri, contentType)
 
     @JvmOverloads
     fun addPart(
@@ -106,64 +106,64 @@ open class RxHttpFormParam(param: FormParam) : RxHttpAbstractBodyParam<FormParam
         filename: String?,
         uri: Uri,
         contentType: MediaType? = BuildUtil.getMediaTypeByUri(context, uri)
-    ) = addFormDataPart(key, filename, UriRequestBody(context, uri, 0, contentType))
+    ): RxHttpFormParam = addFormDataPart(key, filename, UriRequestBody(context, uri, 0, contentType))
 
-    fun addParts(context: Context, uriMap: Map<String, Uri>) = apply {
+    fun addParts(context: Context, uriMap: Map<String, Uri>): RxHttpFormParam = apply {
         uriMap.forEach { (key, value) -> addPart(context, key, value) }
     }
 
-    fun addParts(context: Context, uris: List<Uri>) = apply {
+    fun addParts(context: Context, uris: List<Uri>): RxHttpFormParam = apply {
         uris.forEach { addPart(context, it) }
     }
 
-    fun addParts(context: Context, uris: List<Uri>, contentType: MediaType?) = apply {
+    fun addParts(context: Context, uris: List<Uri>, contentType: MediaType?): RxHttpFormParam = apply {
         uris.forEach { addPart(context, it, contentType) }
     }
 
-    fun addParts(context: Context, key: String, uris: List<Uri>) = apply {
+    fun addParts(context: Context, key: String, uris: List<Uri>): RxHttpFormParam = apply {
         uris.forEach { addPart(context, key, it) }
     }
 
-    fun addParts(context: Context, key: String, uris: List<Uri>, contentType: MediaType?) = apply {
+    fun addParts(context: Context, key: String, uris: List<Uri>, contentType: MediaType?): RxHttpFormParam = apply {
         uris.forEach { addPart(context, key, it, contentType) }
     }
     
-    fun addPart(requestBody: RequestBody) = addPart(OkHttpCompat.part(requestBody))
+    fun addPart(requestBody: RequestBody): RxHttpFormParam = addPart(OkHttpCompat.part(requestBody))
 
-    fun addPart(headers: Headers?, requestBody: RequestBody) =
+    fun addPart(headers: Headers?, requestBody: RequestBody): RxHttpFormParam =
         addPart(OkHttpCompat.part(headers, requestBody))
 
     fun addFormDataPart(
         key: String,
         fileName: String?,
         requestBody: RequestBody
-    ) = addPart(OkHttpCompat.part(key, fileName, requestBody))
+    ): RxHttpFormParam = addPart(OkHttpCompat.part(key, fileName, requestBody))
 
-    fun addPart(key: String, requestBody: RequestBody) = addFormDataPart(key, null, requestBody)
+    fun addPart(key: String, requestBody: RequestBody): RxHttpFormParam = addFormDataPart(key, null, requestBody)
     
-    fun addParts(partMap: Map<String, RequestBody>) = apply { 
+    fun addParts(partMap: Map<String, RequestBody>): RxHttpFormParam = apply {
         partMap.forEach { (key, value) -> addPart(key, value) } 
     }
 
-    fun addPart(part: MultipartBody.Part) = apply { param.addPart(part) }
+    fun addPart(part: MultipartBody.Part): RxHttpFormParam = apply { param.addPart(part) }
     
-    fun addParts(parts: List<MultipartBody.Part>) = apply { parts.forEach { addPart(it) } }
+    fun addParts(parts: List<MultipartBody.Part>): RxHttpFormParam = apply { parts.forEach { addPart(it) } }
 
     //Set content-type to multipart/form-data
-    fun setMultiForm() = setMultiType(MultipartBody.FORM)
+    fun setMultiForm(): RxHttpFormParam = setMultiType(MultipartBody.FORM)
 
     //Set content-type to multipart/mixed
-    fun setMultiMixed() = setMultiType(MultipartBody.MIXED)
+    fun setMultiMixed(): RxHttpFormParam = setMultiType(MultipartBody.MIXED)
 
     //Set content-type to multipart/alternative
-    fun setMultiAlternative() = setMultiType(MultipartBody.ALTERNATIVE)
+    fun setMultiAlternative(): RxHttpFormParam = setMultiType(MultipartBody.ALTERNATIVE)
 
     //Set content-type to multipart/digest
-    fun setMultiDigest() = setMultiType(MultipartBody.DIGEST)
+    fun setMultiDigest(): RxHttpFormParam = setMultiType(MultipartBody.DIGEST)
 
     //Set content-type to multipart/parallel
-    fun setMultiParallel() = setMultiType(MultipartBody.PARALLEL)
+    fun setMultiParallel(): RxHttpFormParam = setMultiType(MultipartBody.PARALLEL)
 
     //Set the MIME type
-    fun setMultiType(multiType: MediaType?) = apply { param.multiType = multiType }
+    fun setMultiType(multiType: MediaType?): RxHttpFormParam = apply { param.multiType = multiType }
 }
